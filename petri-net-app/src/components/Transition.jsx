@@ -1,9 +1,37 @@
 import React from 'react';
-import { Rect, Text, Group } from 'react-konva';
+import { Rect, Text, Group, Line } from 'react-konva';
 
-const Transition = ({ transition, isSelected, onClick, onDragMove }) => {
+const Transition = ({ transition, isSelected, isDragging, onClick, onDragStart, onDragMove, onDragEnd }) => {
   const width = 30;
   const height = 40;
+  
+  // Visual indicators for grid snapping
+  const renderSnapIndicators = () => {
+    if (!isDragging) return null;
+    
+    const indicatorLength = 10;
+    const indicatorColor = 'rgba(0, 150, 255, 0.7)';
+    const indicatorWidth = 1;
+    
+    return (
+      <>
+        {/* Horizontal indicator */}
+        <Line
+          points={[-width/2 - indicatorLength, 0, width/2 + indicatorLength, 0]}
+          stroke={indicatorColor}
+          strokeWidth={indicatorWidth}
+          dash={[4, 2]}
+        />
+        {/* Vertical indicator */}
+        <Line
+          points={[0, -height/2 - indicatorLength, 0, height/2 + indicatorLength]}
+          stroke={indicatorColor}
+          strokeWidth={indicatorWidth}
+          dash={[4, 2]}
+        />
+      </>
+    );
+  };
   
   return (
     <Group
@@ -11,8 +39,13 @@ const Transition = ({ transition, isSelected, onClick, onDragMove }) => {
       y={transition.y}
       onClick={onClick}
       draggable={true}
+      onDragStart={onDragStart}
       onDragMove={onDragMove}
+      onDragEnd={onDragEnd}
     >
+      {/* Grid snap indicators */}
+      {renderSnapIndicators()}
+      
       {/* Transition rectangle */}
       <Rect
         x={-width / 2}
@@ -20,8 +53,8 @@ const Transition = ({ transition, isSelected, onClick, onDragMove }) => {
         width={width}
         height={height}
         fill="gray"
-        stroke={isSelected ? 'blue' : 'black'}
-        strokeWidth={isSelected ? 2 : 1}
+        stroke={isSelected ? 'blue' : (isDragging ? 'rgba(0, 150, 255, 0.7)' : 'black')}
+        strokeWidth={isSelected || isDragging ? 2 : 1}
       />
       
       {/* Transition name */}

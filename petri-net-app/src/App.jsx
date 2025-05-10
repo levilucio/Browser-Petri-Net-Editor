@@ -31,12 +31,59 @@ function App() {
   // Reference to the container div
   const containerRef = useRef(null);
 
+  // State to track elements being dragged for visual feedback
+  const [draggedElement, setDraggedElement] = useState(null);
+  
+  // State to control grid snapping
+  const [gridSnappingEnabled, setGridSnappingEnabled] = useState(true);
+
   // Function to snap position to grid
   const snapToGrid = (x, y) => {
-    return {
-      x: Math.round(x / gridSize) * gridSize,
-      y: Math.round(y / gridSize) * gridSize
-    };
+    // Only snap if grid snapping is enabled
+    if (gridSnappingEnabled) {
+      return {
+        x: Math.round(x / gridSize) * gridSize,
+        y: Math.round(y / gridSize) * gridSize
+      };
+    }
+    // Otherwise return the original position
+    return { x, y };
+  };
+  
+  // Function to toggle grid snapping
+  const toggleGridSnapping = () => {
+    setGridSnappingEnabled(prev => !prev);
+  };
+  
+  // Function to handle the start of dragging an element
+  const handleDragStart = (element, elementType) => {
+    setDraggedElement({ element, elementType });
+  };
+  
+  // Function to handle the end of dragging an element
+  const handleDragEnd = (element, elementType, newPosition) => {
+    // Snap the final position to grid
+    const snappedPos = snapToGrid(newPosition.x, newPosition.y);
+    
+    // Update the element's position
+    if (elementType === 'place') {
+      setElements(prev => ({
+        ...prev,
+        places: prev.places.map(p => 
+          p.id === element.id ? { ...p, x: snappedPos.x, y: snappedPos.y } : p
+        )
+      }));
+    } else if (elementType === 'transition') {
+      setElements(prev => ({
+        ...prev,
+        transitions: prev.transitions.map(t => 
+          t.id === element.id ? { ...t, x: snappedPos.x, y: snappedPos.y } : t
+        )
+      }));
+    }
+    
+    // Clear the dragged element state
+    setDraggedElement(null);
   };
 
   // Function to add a new element to the canvas
@@ -378,7 +425,12 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen" ref={appRef}>
-      <Toolbar mode={mode} setMode={handleModeChange} />
+      <Toolbar 
+        mode={mode} 
+        setMode={handleModeChange} 
+        gridSnappingEnabled={gridSnappingEnabled}
+        toggleGridSnapping={toggleGridSnapping}
+      />
       
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-hidden" ref={containerRef}>
@@ -411,15 +463,25 @@ function App() {
                   place={place}
                   isSelected={selectedElement && selectedElement.id === place.id || 
                     (arcStart && arcStart.element.id === place.id)}
+                  isDragging={draggedElement && draggedElement.element.id === place.id}
                   onClick={() => handleElementClick(place, 'place')}
+                  onDragStart={() => handleDragStart(place, 'place')}
                   onDragMove={(e) => {
-                    const pos = snapToGrid(e.target.x(), e.target.y());
-                    setElements(prev => ({
-                      ...prev,
-                      places: prev.places.map(p => 
-                        p.id === place.id ? { ...p, x: pos.x, y: pos.y } : p
-                      )
-                    }));
+                    // Get current position
+                    const rawPos = { x: e.target.x(), y: e.target.y() };
+                    
+                    // Calculate snapped position
+                    const snappedPos = snapToGrid(rawPos.x, rawPos.y);
+                    
+                    // Update the visual position of the element being dragged
+                    e.target.position({
+                      x: snappedPos.x,
+                      y: snappedPos.y
+                    });
+                  }}
+                  onDragEnd={(e) => {
+                    const newPos = { x: e.target.x(), y: e.target.y() };
+                    handleDragEnd(place, 'place', newPos);
                   }}
                 />
               ))}
@@ -431,15 +493,25 @@ function App() {
                   transition={transition}
                   isSelected={selectedElement && selectedElement.id === transition.id || 
                     (arcStart && arcStart.element.id === transition.id)}
+                  isDragging={draggedElement && draggedElement.element.id === transition.id}
                   onClick={() => handleElementClick(transition, 'transition')}
+                  onDragStart={() => handleDragStart(transition, 'transition')}
                   onDragMove={(e) => {
-                    const pos = snapToGrid(e.target.x(), e.target.y());
-                    setElements(prev => ({
-                      ...prev,
-                      transitions: prev.transitions.map(t => 
-                        t.id === transition.id ? { ...t, x: pos.x, y: pos.y } : t
-                      )
-                    }));
+                    // Get current position
+                    const rawPos = { x: e.target.x(), y: e.target.y() };
+                    
+                    // Calculate snapped position
+                    const snappedPos = snapToGrid(rawPos.x, rawPos.y);
+                    
+                    // Update the visual position of the element being dragged
+                    e.target.position({
+                      x: snappedPos.x,
+                      y: snappedPos.y
+                    });
+                  }}
+                  onDragEnd={(e) => {
+                    const newPos = { x: e.target.x(), y: e.target.y() };
+                    handleDragEnd(transition, 'transition', newPos);
                   }}
                 />
               ))}

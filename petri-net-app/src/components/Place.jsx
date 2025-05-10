@@ -1,8 +1,36 @@
 import React from 'react';
-import { Circle, Text, Group } from 'react-konva';
+import { Circle, Text, Group, Line } from 'react-konva';
 
-const Place = ({ place, isSelected, onClick, onDragMove }) => {
+const Place = ({ place, isSelected, isDragging, onClick, onDragStart, onDragMove, onDragEnd }) => {
   const radius = 20;
+  
+  // Visual indicators for grid snapping
+  const renderSnapIndicators = () => {
+    if (!isDragging) return null;
+    
+    const indicatorLength = 10;
+    const indicatorColor = 'rgba(0, 150, 255, 0.7)';
+    const indicatorWidth = 1;
+    
+    return (
+      <>
+        {/* Horizontal indicator */}
+        <Line
+          points={[-radius - indicatorLength, 0, radius + indicatorLength, 0]}
+          stroke={indicatorColor}
+          strokeWidth={indicatorWidth}
+          dash={[4, 2]}
+        />
+        {/* Vertical indicator */}
+        <Line
+          points={[0, -radius - indicatorLength, 0, radius + indicatorLength]}
+          stroke={indicatorColor}
+          strokeWidth={indicatorWidth}
+          dash={[4, 2]}
+        />
+      </>
+    );
+  };
   
   return (
     <Group
@@ -10,14 +38,19 @@ const Place = ({ place, isSelected, onClick, onDragMove }) => {
       y={place.y}
       onClick={onClick}
       draggable={true}
+      onDragStart={onDragStart}
       onDragMove={onDragMove}
+      onDragEnd={onDragEnd}
     >
+      {/* Grid snap indicators */}
+      {renderSnapIndicators()}
+      
       {/* Place circle */}
       <Circle
         radius={radius}
         fill="white"
-        stroke={isSelected ? 'blue' : 'black'}
-        strokeWidth={isSelected ? 2 : 1}
+        stroke={isSelected ? 'blue' : (isDragging ? 'rgba(0, 150, 255, 0.7)' : 'black')}
+        strokeWidth={isSelected || isDragging ? 2 : 1}
       />
       
       {/* Place name */}

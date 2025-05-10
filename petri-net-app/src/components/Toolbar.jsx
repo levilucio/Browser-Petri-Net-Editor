@@ -1,13 +1,13 @@
 import React from 'react';
 
-const Toolbar = ({ mode, setMode }) => {
+const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping }) => {
   // Styles for the separator
   const separatorStyle = {
     width: '1px',
     backgroundColor: '#d1d5db', // gray-300
     margin: '0 16px',
-    height: '40px',
-    alignSelf: 'center'
+    height: '100%', // Full height
+    alignSelf: 'stretch' // Stretch to fill container height
   };
 
   // Common button style
@@ -21,7 +21,7 @@ const Toolbar = ({ mode, setMode }) => {
   });
 
   return (
-    <div className="toolbar flex p-2 bg-gray-100 border-b border-gray-300">
+    <div className="toolbar flex p-2 bg-gray-100 border-b border-gray-300" style={{ minHeight: '70px' }}>
       {/* File Operations Group */}
       <div className="file-operations">
         <h3 className="text-sm font-semibold mb-1">File</h3>
@@ -45,6 +45,17 @@ const Toolbar = ({ mode, setMode }) => {
       <div className="editing-tools">
         <h3 className="text-sm font-semibold mb-1">Editing</h3>
         <div className="flex space-x-2">
+          {/* Grid Snapping Toggle */}
+          <div className="flex items-center mr-2">
+            <input
+              type="checkbox"
+              id="grid-snap-toggle"
+              checked={gridSnappingEnabled}
+              onChange={toggleGridSnapping}
+              className="mr-1"
+            />
+            <label htmlFor="grid-snap-toggle" className="text-sm">Snap to Grid</label>
+          </div>
           <button 
             style={{ ...buttonStyle(mode === 'select'), marginLeft: 0 }}
             onClick={() => setMode('select')}
