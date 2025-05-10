@@ -2,6 +2,9 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import App from '../App';
 
+// Set up Jest timers
+jest.useFakeTimers();
+
 // Mock Konva components
 jest.mock('react-konva', () => {
   const mockStage = {
@@ -108,13 +111,31 @@ describe('App Component', () => {
   });
 
   test('changes mode when toolbar buttons are clicked', () => {
+    // Mock the getPointerPosition method to return a fixed position
+    const mockGetPointerPosition = jest.fn().mockReturnValue({ x: 100, y: 100 });
+    
+    // Mock the getStage method to return a stage with the mocked getPointerPosition
+    const mockGetStage = jest.fn().mockReturnValue({
+      getPointerPosition: mockGetPointerPosition
+    });
+    
+    // Render the App component
     render(<App />);
     
     // Click place mode button
     fireEvent.click(screen.getByTestId('place-mode'));
     
-    // Click on the stage (this should add a place in place mode)
-    fireEvent.click(screen.getByTestId('stage'));
+    // Click on the stage with mocked event target
+    const stage = screen.getByTestId('stage');
+    fireEvent.click(stage, {
+      target: {
+        getStage: mockGetStage,
+        name: jest.fn().mockReturnValue('background')
+      }
+    });
+    
+    // Re-render to ensure state updates are reflected
+    jest.runAllTimers();
     
     // Check if a place was added (we can't directly check the state, but we can check if components are rendered)
     const places = screen.queryAllByTestId('place-component');
@@ -122,8 +143,16 @@ describe('App Component', () => {
   });
 
   test('selects elements when clicked in select mode', () => {
-    // Mock the App component with some initial places
-    const { rerender } = render(<App />);
+    // Mock the getPointerPosition method to return a fixed position
+    const mockGetPointerPosition = jest.fn().mockReturnValue({ x: 100, y: 100 });
+    
+    // Mock the getStage method to return a stage with the mocked getPointerPosition
+    const mockGetStage = jest.fn().mockReturnValue({
+      getPointerPosition: mockGetPointerPosition
+    });
+    
+    // Render the App component
+    render(<App />);
     
     // Switch to select mode
     const selectModeButton = screen.getByTestId('select-mode');
@@ -134,12 +163,20 @@ describe('App Component', () => {
     const placeModeButton = screen.getByTestId('place-mode');
     fireEvent.click(placeModeButton);
     
-    // Click on the stage to add a place
+    // Click on the stage to add a place with mocked event target
     const stage = screen.getByTestId('stage');
-    fireEvent.click(stage);
+    fireEvent.click(stage, {
+      target: {
+        getStage: mockGetStage,
+        name: jest.fn().mockReturnValue('background')
+      }
+    });
     
     // Switch back to select mode
     fireEvent.click(selectModeButton);
+    
+    // Re-render to ensure state updates are reflected
+    jest.runAllTimers();
     
     // Check if execution panel shows the place count
     expect(screen.getByTestId('execution-panel')).toHaveTextContent('Places: 1');

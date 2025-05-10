@@ -56,7 +56,7 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅ Create basic UI layout: canvas, toolbar, properties panel, execution panel.
   - ✅ Implement canvas rendering for places (circles), transitions (rectangles), and arcs (arrows) with React-Konva.
   - ✅ Add drag-and-drop for creating/moving elements from toolbar to canvas.
-  - ⬜ Implement grid snapping (20x20 pixel grid).
+  - ✅ Implement grid snapping (20x20 pixel grid) with toggle option.
   - ✅ Set up Jest for unit tests.
   - ⬜ Set up Cypress for end-to-end tests.
 - **Deliverables**:
@@ -65,7 +65,7 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅ Unit tests for canvas rendering and drag-and-drop.
 - **Success Criteria**:
   - ✅ Render and move places, transitions, and arcs on canvas.
-  - ⬜ Implement grid snapping.
+  - ✅ Implement grid snapping with visual feedback and toggle option.
   - ✅ UI layout matches specification (Section 3.2).
 
 #### Milestone 1.2: P/T Net Editor Features (4 weeks, Weeks 5–8)
