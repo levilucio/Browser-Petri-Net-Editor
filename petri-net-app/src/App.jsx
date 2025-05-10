@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Stage, Layer, Line } from 'react-konva';
+import { Stage, Layer, Line, Circle, Rect } from 'react-konva';
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
 import ExecutionPanel from './components/ExecutionPanel';
@@ -69,12 +69,102 @@ function App() {
     const pointerPosition = stage.getPointerPosition();
     const x = pointerPosition.x;
     const y = pointerPosition.y;
-
+    
+    // In Konva, we can check the name of the clicked target
+    // The Layer and Stage don't have names, so if e.target.name() is undefined,
+    // we clicked on the empty canvas
+    const clickedOnEmptyCanvas = e.target === stage || e.target.name() === 'background';
+    
     if (mode === 'place') {
       addElement('place', x, y);
     } else if (mode === 'transition') {
       addElement('transition', x, y);
+    } else if (mode === 'arc' && arcStart && clickedOnEmptyCanvas) {
+      // If we're in arc creation mode and have started an arc,
+      // clicking on an empty area cancels the arc creation
+      console.log('Arc creation canceled');
+      setArcStart(null);
+      setTempArcEnd(null);
     }
+  };
+
+  // Calculate cardinal points for an element
+  const getCardinalPoints = (element, elementType) => {
+    const points = {};
+    if (elementType === 'place') {
+      // For places (circles)
+      const radius = 20;
+      points.north = { x: element.x, y: element.y - radius };
+      points.south = { x: element.x, y: element.y + radius };
+      points.east = { x: element.x + radius, y: element.y };
+      points.west = { x: element.x - radius, y: element.y };
+    } else if (elementType === 'transition') {
+      // For transitions (rectangles)
+      const width = 30;
+      const height = 40;
+      points.north = { x: element.x, y: element.y - height/2 };
+      points.south = { x: element.x, y: element.y + height/2 };
+      points.east = { x: element.x + width/2, y: element.y };
+      points.west = { x: element.x - width/2, y: element.y };
+    }
+    return points;
+  };
+  
+  // Find the nearest cardinal point to a position
+  const findNearestCardinalPoint = (element, elementType, position) => {
+    const points = getCardinalPoints(element, elementType);
+    let nearest = 'north';
+    let minDistance = Infinity;
+    
+    Object.entries(points).forEach(([direction, point]) => {
+      const dx = point.x - position.x;
+      const dy = point.y - position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = direction;
+      }
+    });
+    
+    return { direction: nearest, point: points[nearest] };
+  };
+
+  // Function to find potential target elements near a point
+  const findPotentialTarget = (x, y) => {
+    // Check if point is near any place or transition that could be a valid target
+    const sourceType = arcStart.elementType;
+    const validTargetType = sourceType === 'place' ? 'transition' : 'place';
+    
+    // Check elements of the valid target type
+    const targetElements = validTargetType === 'place' ? elements.places : elements.transitions;
+    
+    // Don't allow connecting to the source element itself
+    const validTargets = targetElements.filter(el => el.id !== arcStart.element.id);
+    
+    // Find the closest element within a certain radius
+    const snapRadius = 50; // Pixels
+    let closestElement = null;
+    let minDistance = snapRadius;
+    let closestPoint = null;
+    
+    validTargets.forEach(element => {
+      const points = getCardinalPoints(element, validTargetType);
+      
+      Object.entries(points).forEach(([direction, point]) => {
+        const dx = point.x - x;
+        const dy = point.y - y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestElement = element;
+          closestPoint = { direction, point };
+        }
+      });
+    });
+    
+    return closestElement ? { element: closestElement, type: validTargetType, point: closestPoint } : null;
   };
 
   // Function to handle mouse move for arc creation visual feedback
@@ -82,9 +172,22 @@ function App() {
     if (mode === 'arc' && arcStart) {
       const stage = e.target.getStage();
       const pointerPosition = stage.getPointerPosition();
+      
+      // Find the nearest cardinal point on the source element
+      const sourcePoint = findNearestCardinalPoint(
+        arcStart.element, 
+        arcStart.elementType, 
+        pointerPosition
+      ).point;
+      
+      // Check if mouse is near a potential target
+      const potentialTarget = findPotentialTarget(pointerPosition.x, pointerPosition.y);
+      
       setTempArcEnd({
-        x: pointerPosition.x,
-        y: pointerPosition.y
+        sourcePoint,
+        x: potentialTarget ? potentialTarget.point.point.x : pointerPosition.x,
+        y: potentialTarget ? potentialTarget.point.point.y : pointerPosition.y,
+        potentialTarget
       });
     }
   };
@@ -105,12 +208,46 @@ function App() {
         if ((startType === 'place' && endType === 'transition') ||
             (startType === 'transition' && endType === 'place')) {
           
+          // Use the current tempArcEnd data if it exists and has a potential target
+          // that matches the clicked element
+          let sourceDirection, targetDirection;
+          
+          if (tempArcEnd && tempArcEnd.potentialTarget && 
+              tempArcEnd.potentialTarget.element.id === element.id) {
+            // Use the snapped points from the visual feedback
+            sourceDirection = findNearestCardinalPoint(
+              arcStart.element,
+              startType,
+              tempArcEnd.potentialTarget.point.point
+            ).direction;
+            
+            targetDirection = tempArcEnd.potentialTarget.point.direction;
+          } else {
+            // Calculate the best points if no visual feedback is available
+            const sourcePoint = findNearestCardinalPoint(
+              arcStart.element, 
+              startType, 
+              { x: element.x, y: element.y }
+            );
+            
+            const targetPoint = findNearestCardinalPoint(
+              element, 
+              endType, 
+              { x: arcStart.element.x, y: arcStart.element.y }
+            );
+            
+            sourceDirection = sourcePoint.direction;
+            targetDirection = targetPoint.direction;
+          }
+          
           const newArc = {
             id: `arc-${Date.now()}`,
             sourceId: arcStart.element.id,
             sourceType: startType,
             targetId: element.id,
             targetType: endType,
+            sourceDirection,
+            targetDirection,
             weight: 1
           };
           
@@ -162,6 +299,16 @@ function App() {
             className="canvas-container"
           >
             <Layer>
+              {/* Background for detecting clicks on empty canvas */}
+              <Rect
+                x={0}
+                y={0}
+                width={stageWidth}
+                height={stageHeight}
+                fill="transparent"
+                name="background"
+              />
+              
               {/* Grid lines */}
               <Grid width={stageWidth} height={stageHeight} gridSize={gridSize} />
               
@@ -219,17 +366,39 @@ function App() {
               
               {/* Temporary arc during creation */}
               {arcStart && tempArcEnd && (
-                <Line
-                  points={[
-                    arcStart.element.x,
-                    arcStart.element.y,
-                    tempArcEnd.x,
-                    tempArcEnd.y
-                  ]}
-                  stroke="gray"
-                  strokeWidth={2}
-                  dash={[5, 5]}
-                />
+                <>
+                  <Line
+                    points={[
+                      tempArcEnd.sourcePoint.x,
+                      tempArcEnd.sourcePoint.y,
+                      tempArcEnd.x,
+                      tempArcEnd.y
+                    ]}
+                    stroke="#FF9800" /* Orange color for transient nature */
+                    strokeWidth={2}
+                    dash={[5, 5]}
+                  />
+                  {/* Visual cue for source point */}
+                  <Circle
+                    x={tempArcEnd.sourcePoint.x}
+                    y={tempArcEnd.sourcePoint.y}
+                    radius={4}
+                    fill="#FF9800"
+                    stroke="white"
+                    strokeWidth={1}
+                  />
+                  {/* Visual cue for target point if hovering near a valid target */}
+                  {tempArcEnd.potentialTarget && (
+                    <Circle
+                      x={tempArcEnd.potentialTarget.point.point.x}
+                      y={tempArcEnd.potentialTarget.point.point.y}
+                      radius={4}
+                      fill="#FF9800"
+                      stroke="white"
+                      strokeWidth={1}
+                    />
+                  )}
+                </>
               )}
             </Layer>
           </Stage>
