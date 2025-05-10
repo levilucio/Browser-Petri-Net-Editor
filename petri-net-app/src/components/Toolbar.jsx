@@ -1,93 +1,94 @@
 import React from 'react';
 
 const Toolbar = ({ mode, setMode }) => {
+  // Styles for the separator
+  const separatorStyle = {
+    width: '1px',
+    backgroundColor: '#d1d5db', // gray-300
+    margin: '0 16px',
+    height: '40px',
+    alignSelf: 'center'
+  };
+
+  // Common button style
+  const buttonStyle = (isSelected) => ({
+    padding: '0.25rem 0.75rem',
+    borderRadius: '0.25rem',
+    backgroundColor: isSelected ? '#4338ca' : 'white', // indigo-700 or white
+    color: isSelected ? 'white' : 'black',
+    border: isSelected ? 'none' : '1px solid #d1d5db', // gray-300
+    marginLeft: '0.5rem'
+  });
+
   return (
     <div className="toolbar flex p-2 bg-gray-100 border-b border-gray-300">
-      <div className="editing-tools mr-6">
+      {/* File Operations Group */}
+      <div className="file-operations">
+        <h3 className="text-sm font-semibold mb-1">File</h3>
+        <div className="flex space-x-2">
+          <button style={{ ...buttonStyle(false), marginLeft: 0 }}>
+            Save
+          </button>
+          <button style={buttonStyle(false)}>
+            Load
+          </button>
+          <button style={buttonStyle(false)}>
+            Clear
+          </button>
+        </div>
+      </div>
+      
+      {/* Visual separator */}
+      <div style={separatorStyle}></div>
+      
+      {/* Editing Tools Group */}
+      <div className="editing-tools">
         <h3 className="text-sm font-semibold mb-1">Editing</h3>
         <div className="flex space-x-2">
           <button 
-            style={{
-              padding: '0.25rem 0.75rem',
-              borderRadius: '0.25rem',
-              backgroundColor: mode === 'select' ? '#4338ca' : 'white', // indigo-700 or white
-              color: mode === 'select' ? 'white' : 'black',
-              border: mode === 'select' ? 'none' : '1px solid #d1d5db' // gray-300
-            }}
+            style={{ ...buttonStyle(mode === 'select'), marginLeft: 0 }}
             onClick={() => setMode('select')}
           >
             Select
           </button>
           <button 
-            style={{
-              padding: '0.25rem 0.75rem',
-              borderRadius: '0.25rem',
-              backgroundColor: mode === 'place' ? '#4338ca' : 'white', // indigo-700 or white
-              color: mode === 'place' ? 'white' : 'black',
-              border: mode === 'place' ? 'none' : '1px solid #d1d5db', // gray-300
-              marginLeft: '0.5rem'
-            }}
+            style={buttonStyle(mode === 'place')}
             onClick={() => setMode('place')}
           >
             Place
           </button>
           <button 
-            style={{
-              padding: '0.25rem 0.75rem',
-              borderRadius: '0.25rem',
-              backgroundColor: mode === 'transition' ? '#4338ca' : 'white', // indigo-700 or white
-              color: mode === 'transition' ? 'white' : 'black',
-              border: mode === 'transition' ? 'none' : '1px solid #d1d5db', // gray-300
-              marginLeft: '0.5rem'
-            }}
+            style={buttonStyle(mode === 'transition')}
             onClick={() => setMode('transition')}
           >
             Transition
           </button>
           <button 
-            style={{
-              padding: '0.25rem 0.75rem',
-              borderRadius: '0.25rem',
-              backgroundColor: mode === 'arc' ? '#4338ca' : 'white', // indigo-700 or white
-              color: mode === 'arc' ? 'white' : 'black',
-              border: mode === 'arc' ? 'none' : '1px solid #d1d5db', // gray-300
-              marginLeft: '0.5rem'
-            }}
+            style={buttonStyle(mode === 'arc')}
             onClick={() => setMode('arc')}
           >
             Arc
           </button>
         </div>
       </div>
-
-      <div className="file-operations mr-6">
-        <h3 className="text-sm font-semibold mb-1">File</h3>
-        <div className="flex space-x-2">
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
-            Save
-          </button>
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
-            Load
-          </button>
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
-            Clear
-          </button>
-        </div>
-      </div>
-
+      
+      {/* Visual separator */}
+      <div style={separatorStyle}></div>
+      
+      {/* Simulation Tools Group */}
       <div className="simulation-tools">
         <h3 className="text-sm font-semibold mb-1">Simulation</h3>
         <div className="flex space-x-2">
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
+          <button style={{ ...buttonStyle(false), marginLeft: 0 }}>
             Step-by-Step
           </button>
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
+          <button style={buttonStyle(false)}>
             Quick Visual
           </button>
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
+          <button style={buttonStyle(false)}>
             Non-Visual
           </button>
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
+          <button style={buttonStyle(false)}>
             Stop
           </button>
         </div>

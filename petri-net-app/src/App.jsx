@@ -21,9 +21,15 @@ function App() {
   const stageRef = useRef(null);
   const appRef = useRef(null); // Reference to the app container for keyboard events
 
-  const stageWidth = 800;
-  const stageHeight = 600;
+  // Use state for stage dimensions to allow for resizing
+  const [stageDimensions, setStageDimensions] = useState({
+    width: 800,
+    height: 600
+  });
   const gridSize = 20;
+  
+  // Reference to the container div
+  const containerRef = useRef(null);
 
   // Function to snap position to grid
   const snapToGrid = (x, y) => {
@@ -345,17 +351,41 @@ function App() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedElement]); // Re-add listener when selectedElement changes
+  
+  // Effect to set initial stage dimensions and handle window resize
+  React.useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { clientWidth, clientHeight } = containerRef.current;
+        setStageDimensions({
+          width: clientWidth,
+          height: clientHeight
+        });
+      }
+    };
+    
+    // Set initial dimensions
+    updateDimensions();
+    
+    // Add resize listener
+    window.addEventListener('resize', updateDimensions);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col h-screen" ref={appRef}>
       <Toolbar mode={mode} setMode={handleModeChange} />
       
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-hidden" ref={containerRef}>
           <Stage 
             ref={stageRef}
-            width={stageWidth} 
-            height={stageHeight} 
+            width={stageDimensions.width} 
+            height={stageDimensions.height} 
             onClick={handleStageClick}
             onMouseMove={handleMouseMove}
             className="canvas-container"
@@ -365,14 +395,14 @@ function App() {
               <Rect
                 x={0}
                 y={0}
-                width={stageWidth}
-                height={stageHeight}
+                width={stageDimensions.width}
+                height={stageDimensions.height}
                 fill="transparent"
                 name="background"
               />
               
               {/* Grid lines */}
-              <Grid width={stageWidth} height={stageHeight} gridSize={gridSize} />
+              <Grid width={stageDimensions.width} height={stageDimensions.height} gridSize={gridSize} />
               
               {/* Places */}
               {elements.places.map(place => (
