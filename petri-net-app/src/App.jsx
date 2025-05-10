@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Stage, Layer } from 'react-konva';
+import React, { useState, useRef } from 'react';
+import { Stage, Layer, Line } from 'react-konva';
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
 import ExecutionPanel from './components/ExecutionPanel';
@@ -17,6 +17,8 @@ function App() {
   const [selectedElement, setSelectedElement] = useState(null);
   const [mode, setMode] = useState('select'); // select, place, transition, arc
   const [arcStart, setArcStart] = useState(null); // For arc creation
+  const [tempArcEnd, setTempArcEnd] = useState(null); // For visual feedback during arc creation
+  const stageRef = useRef(null);
 
   const stageWidth = 800;
   const stageHeight = 600;
@@ -75,12 +77,25 @@ function App() {
     }
   };
 
+  // Function to handle mouse move for arc creation visual feedback
+  const handleMouseMove = (e) => {
+    if (mode === 'arc' && arcStart) {
+      const stage = e.target.getStage();
+      const pointerPosition = stage.getPointerPosition();
+      setTempArcEnd({
+        x: pointerPosition.x,
+        y: pointerPosition.y
+      });
+    }
+  };
+
   // Function to handle element click for arc creation
   const handleElementClick = (element, elementType) => {
     if (mode === 'arc') {
       if (!arcStart) {
         // Start creating an arc
         setArcStart({ element, elementType });
+        console.log(`Arc creation started from ${elementType} ${element.id}`);
       } else {
         // Complete the arc if valid connection
         const startType = arcStart.elementType;
@@ -103,10 +118,14 @@ function App() {
             ...prev,
             arcs: [...prev.arcs, newArc]
           }));
+          console.log(`Arc created from ${startType} to ${endType}`);
+        } else {
+          console.log(`Invalid arc connection: ${startType} to ${endType}`);
         }
         
-        // Reset arc start
+        // Reset arc start and temp end
         setArcStart(null);
+        setTempArcEnd(null);
       }
     } else if (mode === 'select') {
       // Select the element
@@ -114,16 +133,32 @@ function App() {
     }
   };
 
+  // Function to cancel arc creation
+  const cancelArcCreation = () => {
+    setArcStart(null);
+    setTempArcEnd(null);
+  };
+
+  // Update mode handler to reset arc creation state
+  const handleModeChange = (newMode) => {
+    if (mode === 'arc' && newMode !== 'arc') {
+      cancelArcCreation();
+    }
+    setMode(newMode);
+  };
+
   return (
     <div className="flex flex-col h-screen">
-      <Toolbar mode={mode} setMode={setMode} />
+      <Toolbar mode={mode} setMode={handleModeChange} />
       
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-auto">
           <Stage 
+            ref={stageRef}
             width={stageWidth} 
             height={stageHeight} 
             onClick={handleStageClick}
+            onMouseMove={handleMouseMove}
             className="canvas-container"
           >
             <Layer>
@@ -181,6 +216,21 @@ function App() {
                   onClick={() => setSelectedElement(arc)}
                 />
               ))}
+              
+              {/* Temporary arc during creation */}
+              {arcStart && tempArcEnd && (
+                <Line
+                  points={[
+                    arcStart.element.x,
+                    arcStart.element.y,
+                    tempArcEnd.x,
+                    tempArcEnd.y
+                  ]}
+                  stroke="gray"
+                  strokeWidth={2}
+                  dash={[5, 5]}
+                />
+              )}
             </Layer>
           </Stage>
         </div>
