@@ -1,5 +1,5 @@
 import React from 'react';
-import { Line, Text, Group, Circle } from 'react-konva';
+import { Line, Text, Group } from 'react-konva';
 
 const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
   // Find source and target elements
@@ -13,35 +13,67 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
 
   if (!source || !target) return null;
 
-  // Get cardinal points for source and target
-  const sourcePoints = getCardinalPoints(source, arc.sourceType);
-  const targetPoints = getCardinalPoints(target, arc.targetType);
-  
-  // Use the specified directions if available, otherwise calculate the best points
-  let sourcePoint, targetPoint;
-  
-  if (arc.sourceDirection && sourcePoints[arc.sourceDirection]) {
-    sourcePoint = sourcePoints[arc.sourceDirection];
-  } else {
-    sourcePoint = findBestCardinalPoint(sourcePoints, targetPoints);
-  }
-  
-  if (arc.targetDirection && targetPoints[arc.targetDirection]) {
-    targetPoint = targetPoints[arc.targetDirection];
-  } else {
-    targetPoint = findBestCardinalPoint(targetPoints, sourcePoints);
-  }
-  
-  // Calculate angle for arrow head
-  const dx = targetPoint.x - sourcePoint.x;
-  const dy = targetPoint.y - sourcePoint.y;
+  // Calculate start and end points
+  const startX = source.x;
+  const startY = source.y;
+  const endX = target.x;
+  const endY = target.y;
+
+  // Calculate distance and angle for arrow head
+  const dx = endX - startX;
+  const dy = endY - startY;
   const angle = Math.atan2(dy, dx);
   
-  // Use the calculated points
-  const adjustedStartX = sourcePoint.x;
-  const adjustedStartY = sourcePoint.y;
-  const adjustedEndX = targetPoint.x;
-  const adjustedEndY = targetPoint.y;
+  // Adjust start and end points based on source and target shapes
+  let adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY;
+  
+  if (arc.sourceType === 'place') {
+    // Adjust for circle (place)
+    const radius = 20;
+    adjustedStartX = startX + Math.cos(angle) * radius;
+    adjustedStartY = startY + Math.sin(angle) * radius;
+  } else {
+    // Adjust for rectangle (transition)
+    const width = 30;
+    const height = 40;
+    
+    // Determine which side of the rectangle to start from
+    if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
+      // Horizontal side
+      const sign = Math.cos(angle) > 0 ? 1 : -1;
+      adjustedStartX = startX + sign * width / 2;
+      adjustedStartY = startY + Math.sin(angle) / Math.cos(angle) * sign * width / 2;
+    } else {
+      // Vertical side
+      const sign = Math.sin(angle) > 0 ? 1 : -1;
+      adjustedStartX = startX + Math.cos(angle) / Math.sin(angle) * sign * height / 2;
+      adjustedStartY = startY + sign * height / 2;
+    }
+  }
+  
+  if (arc.targetType === 'place') {
+    // Adjust for circle (place)
+    const radius = 20;
+    adjustedEndX = endX - Math.cos(angle) * radius;
+    adjustedEndY = endY - Math.sin(angle) * radius;
+  } else {
+    // Adjust for rectangle (transition)
+    const width = 30;
+    const height = 40;
+    
+    // Determine which side of the rectangle to end at
+    if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
+      // Horizontal side
+      const sign = Math.cos(angle) > 0 ? -1 : 1;
+      adjustedEndX = endX + sign * width / 2;
+      adjustedEndY = endY + Math.sin(angle) / Math.cos(angle) * sign * width / 2;
+    } else {
+      // Vertical side
+      const sign = Math.sin(angle) > 0 ? -1 : 1;
+      adjustedEndX = endX + Math.cos(angle) / Math.sin(angle) * sign * height / 2;
+      adjustedEndY = endY + sign * height / 2;
+    }
+  }
 
   // Calculate arrow head points
   const arrowHeadSize = 10;
@@ -79,8 +111,8 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
           adjustedEndX, adjustedEndY
         ]}
         closed={true}
-        fill={isSelected ? 'blue' : 'black'}
-        stroke={isSelected ? 'blue' : 'black'}
+        fill="black"
+        stroke="black"
       />
       
       {/* Weight label */}
@@ -97,54 +129,6 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
       )}
     </Group>
   );
-};
-
-// Helper function to get cardinal points for an element
-const getCardinalPoints = (element, elementType) => {
-  const points = {};
-  if (elementType === 'place') {
-    // For places (circles)
-    const radius = 20;
-    points.north = { x: element.x, y: element.y - radius };
-    points.south = { x: element.x, y: element.y + radius };
-    points.east = { x: element.x + radius, y: element.y };
-    points.west = { x: element.x - radius, y: element.y };
-  } else if (elementType === 'transition') {
-    // For transitions (rectangles)
-    const width = 30;
-    const height = 40;
-    points.north = { x: element.x, y: element.y - height/2 };
-    points.south = { x: element.x, y: element.y + height/2 };
-    points.east = { x: element.x + width/2, y: element.y };
-    points.west = { x: element.x - width/2, y: element.y };
-  }
-  return points;
-};
-
-// Helper function to find the best cardinal point based on the target
-const findBestCardinalPoint = (sourcePoints, targetPoints) => {
-  // Calculate center of target points
-  const targetCenter = {
-    x: Object.values(targetPoints).reduce((sum, p) => sum + p.x, 0) / Object.keys(targetPoints).length,
-    y: Object.values(targetPoints).reduce((sum, p) => sum + p.y, 0) / Object.keys(targetPoints).length
-  };
-  
-  // Find the point with minimum distance to target center
-  let bestPoint = sourcePoints.north;
-  let minDistance = Infinity;
-  
-  Object.values(sourcePoints).forEach(point => {
-    const dx = point.x - targetCenter.x;
-    const dy = point.y - targetCenter.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    
-    if (distance < minDistance) {
-      minDistance = distance;
-      bestPoint = point;
-    }
-  });
-  
-  return bestPoint;
 };
 
 export default Arc;

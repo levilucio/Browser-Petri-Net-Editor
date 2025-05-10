@@ -19,6 +19,7 @@ function App() {
   const [arcStart, setArcStart] = useState(null); // For arc creation
   const [tempArcEnd, setTempArcEnd] = useState(null); // For visual feedback during arc creation
   const stageRef = useRef(null);
+  const appRef = useRef(null); // Reference to the app container for keyboard events
 
   const stageWidth = 800;
   const stageHeight = 600;
@@ -270,6 +271,56 @@ function App() {
     }
   };
 
+  // Function to delete the selected element
+  const deleteSelectedElement = () => {
+    if (!selectedElement) return;
+    
+    // Determine the type of the selected element
+    const elementType = selectedElement.id.split('-')[0]; // e.g., 'place', 'transition', 'arc'
+    
+    if (elementType === 'arc') {
+      // Just delete the arc
+      setElements(prev => ({
+        ...prev,
+        arcs: prev.arcs.filter(arc => arc.id !== selectedElement.id)
+      }));
+    } else if (elementType === 'place' || elementType === 'transition') {
+      // Delete the element and all connected arcs
+      setElements(prev => {
+        // Filter out arcs connected to this element
+        const filteredArcs = prev.arcs.filter(arc => 
+          arc.sourceId !== selectedElement.id && arc.targetId !== selectedElement.id
+        );
+        
+        // Filter out the element itself
+        if (elementType === 'place') {
+          return {
+            ...prev,
+            places: prev.places.filter(place => place.id !== selectedElement.id),
+            arcs: filteredArcs
+          };
+        } else { // transition
+          return {
+            ...prev,
+            transitions: prev.transitions.filter(transition => transition.id !== selectedElement.id),
+            arcs: filteredArcs
+          };
+        }
+      });
+    }
+    
+    // Clear selection after deletion
+    setSelectedElement(null);
+  };
+  
+  // Function to handle keyboard events
+  const handleKeyDown = (e) => {
+    // Delete key (both regular Delete and Backspace)
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
+      deleteSelectedElement();
+    }
+  };
+  
   // Function to cancel arc creation
   const cancelArcCreation = () => {
     setArcStart(null);
@@ -284,8 +335,19 @@ function App() {
     setMode(newMode);
   };
 
+  // Effect to add and remove keyboard event listeners
+  React.useEffect(() => {
+    // Add event listener when the component mounts
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Remove event listener when the component unmounts
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedElement]); // Re-add listener when selectedElement changes
+
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen" ref={appRef}>
       <Toolbar mode={mode} setMode={handleModeChange} />
       
       <div className="flex flex-1 overflow-hidden">

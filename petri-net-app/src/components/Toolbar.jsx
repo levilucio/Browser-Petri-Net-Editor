@@ -7,25 +7,52 @@ const Toolbar = ({ mode, setMode }) => {
         <h3 className="text-sm font-semibold mb-1">Editing</h3>
         <div className="flex space-x-2">
           <button 
-            className={`px-3 py-1 rounded ${mode === 'select' ? 'bg-blue-500 text-white' : 'bg-white border border-gray-300'}`}
+            style={{
+              padding: '0.25rem 0.75rem',
+              borderRadius: '0.25rem',
+              backgroundColor: mode === 'select' ? '#4338ca' : 'white', // indigo-700 or white
+              color: mode === 'select' ? 'white' : 'black',
+              border: mode === 'select' ? 'none' : '1px solid #d1d5db' // gray-300
+            }}
             onClick={() => setMode('select')}
           >
             Select
           </button>
           <button 
-            className={`px-3 py-1 rounded ${mode === 'place' ? 'bg-blue-500 text-white' : 'bg-white border border-gray-300'}`}
+            style={{
+              padding: '0.25rem 0.75rem',
+              borderRadius: '0.25rem',
+              backgroundColor: mode === 'place' ? '#4338ca' : 'white', // indigo-700 or white
+              color: mode === 'place' ? 'white' : 'black',
+              border: mode === 'place' ? 'none' : '1px solid #d1d5db', // gray-300
+              marginLeft: '0.5rem'
+            }}
             onClick={() => setMode('place')}
           >
             Place
           </button>
           <button 
-            className={`px-3 py-1 rounded ${mode === 'transition' ? 'bg-blue-500 text-white' : 'bg-white border border-gray-300'}`}
+            style={{
+              padding: '0.25rem 0.75rem',
+              borderRadius: '0.25rem',
+              backgroundColor: mode === 'transition' ? '#4338ca' : 'white', // indigo-700 or white
+              color: mode === 'transition' ? 'white' : 'black',
+              border: mode === 'transition' ? 'none' : '1px solid #d1d5db', // gray-300
+              marginLeft: '0.5rem'
+            }}
             onClick={() => setMode('transition')}
           >
             Transition
           </button>
           <button 
-            className={`px-3 py-1 rounded ${mode === 'arc' ? 'bg-blue-500 text-white' : 'bg-white border border-gray-300'}`}
+            style={{
+              padding: '0.25rem 0.75rem',
+              borderRadius: '0.25rem',
+              backgroundColor: mode === 'arc' ? '#4338ca' : 'white', // indigo-700 or white
+              color: mode === 'arc' ? 'white' : 'black',
+              border: mode === 'arc' ? 'none' : '1px solid #d1d5db', // gray-300
+              marginLeft: '0.5rem'
+            }}
             onClick={() => setMode('arc')}
           >
             Arc
