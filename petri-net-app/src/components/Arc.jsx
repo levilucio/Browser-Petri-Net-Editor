@@ -95,6 +95,14 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
 
   return (
     <Group onClick={onClick}>
+      {/* Invisible wider line for easier selection */}
+      <Line
+        points={[adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY]}
+        stroke="transparent"
+        strokeWidth={15}
+        hitStrokeWidth={20}
+      />
+      
       {/* Arc line */}
       <Line
         points={[adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY]}

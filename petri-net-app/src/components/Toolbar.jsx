@@ -50,6 +50,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping }) => 
             <input
               type="checkbox"
               id="grid-snap-toggle"
+              data-testid="grid-snap-toggle"
               checked={gridSnappingEnabled}
               onChange={toggleGridSnapping}
               className="mr-1"
@@ -64,6 +65,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping }) => 
           </button>
           <button 
             style={buttonStyle(mode === 'place')}
+            data-testid="toolbar-place"
             onClick={() => setMode('place')}
           >
             Place

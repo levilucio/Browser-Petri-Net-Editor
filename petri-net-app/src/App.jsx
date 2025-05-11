@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Stage, Layer, Line, Circle, Rect } from 'react-konva';
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
@@ -423,6 +423,13 @@ function App() {
     };
   }, []);
 
+  // Add this effect to expose state for testing
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+      window.__PETRI_NET_STATE__ = elements;
+    }
+  }, [elements]);
+
   return (
     <div className="flex flex-col h-screen" ref={appRef}>
       <Toolbar 
@@ -436,6 +443,7 @@ function App() {
         <div className="flex-1 overflow-hidden" ref={containerRef}>
           <Stage 
             ref={stageRef}
+            data-testid="canvas"
             width={stageDimensions.width} 
             height={stageDimensions.height} 
             onClick={handleStageClick}

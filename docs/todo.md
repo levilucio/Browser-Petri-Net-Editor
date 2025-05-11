@@ -36,7 +36,7 @@ The application will be a single-page web app running in modern browsers, using 
   - ✅ Vite for bundling, testing, and development server.
 - **Testing**: 
   - ✅ Jest for unit tests
-  - ⬜ Cypress for end-to-end tests.
+  - ✅ Playwright for end-to-end tests.
 - **Deployment**: 
   - ⬜ Static hosting (GitHub Pages or Netlify).
 
@@ -58,11 +58,12 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅ Add drag-and-drop for creating/moving elements from toolbar to canvas.
   - ✅ Implement grid snapping (20x20 pixel grid) with toggle option.
   - ✅ Set up Jest for unit tests.
-  - ⬜ Set up Cypress for end-to-end tests.
+  - ✅ Set up Playwright for end-to-end tests.
 - **Deliverables**:
   - ✅ Project repository with build/test setup.
   - ✅ Basic editor UI with canvas, toolbar, and drag-and-drop functionality.
   - ✅ Unit tests for canvas rendering and drag-and-drop.
+  - ✅ End-to-end tests for basic editor functionality.
 - **Success Criteria**:
   - ✅ Render and move places, transitions, and arcs on canvas.
   - ✅ Implement grid snapping with visual feedback and toggle option.
@@ -80,7 +81,7 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
 - **Deliverables**:
   - Fully functional P/T net editor with labels, colors, undo/redo, and validation.
   - XML parser/serializer supporting the schema in Section 3.3.
-  - Unit tests for validation and XML handling; Cypress tests for editor interactions.
+  - Unit tests for validation and XML handling; Playwright tests for editor interactions.
 - **Success Criteria**:
   - Create, edit, save, and load valid P/T nets with up to 1000 places/transitions.
   - Validation errors displayed as red outlines and tooltips.
@@ -138,7 +139,7 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - Write tests for editor extensions and validation.
 - **Deliverables**:
   - Algebraic net editor with typed tokens, guard/action editing, and multiple input/output support.
-  - Unit tests for editor features; Cypress tests for UI interactions.
+  - Unit tests for editor features; Playwright tests for UI interactions.
 - **Success Criteria**:
   - Create/edit algebraic nets with typed places, guards, actions, and multiple arcs.
   - Validation errors displayed for invalid guards/actions or token limits.
@@ -191,8 +192,8 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅ Canvas rendering, drag-and-drop, UI layout.
   - Dependencies: Setup complete.
 - **Editor Features (Weeks 5–8)**: 
-  - 🔄 Custom hooks for state management.
-  - ⬜ Labels, colors, undo/redo, properties panel, validation, XML handling.
+  - ✅ Custom hooks for state management.
+  - 🔄 Labels, colors, undo/redo, properties panel, validation, XML handling.
   - Dependencies: Basic editor.
 - **Simulator (Weeks 9–12)**: 
   - ⬜ Engine, execution panel, simulation modes, performance optimization.
