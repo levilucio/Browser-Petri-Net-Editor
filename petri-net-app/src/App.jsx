@@ -7,6 +7,7 @@ import Place from './components/Place';
 import Transition from './components/Transition';
 import Arc from './components/Arc';
 import Grid from './components/Grid';
+import { HistoryManager } from './utils/historyManager';
 
 function App() {
   const [elements, setElements] = useState({
@@ -36,6 +37,20 @@ function App() {
   
   // State to control grid snapping
   const [gridSnappingEnabled, setGridSnappingEnabled] = useState(true);
+  
+  // History manager for undo/redo functionality
+  const [historyManager] = useState(() => {
+    const manager = new HistoryManager(elements);
+    return manager;
+  });
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  useEffect(() => {
+    const historyStatus = historyManager.addState(elements);
+    setCanUndo(historyStatus.canUndo);
+    setCanRedo(historyStatus.canRedo);
+  }, [elements, historyManager]);
 
   // Function to snap position to grid
   const snapToGrid = (x, y) => {
@@ -60,6 +75,13 @@ function App() {
     setDraggedElement({ element, elementType });
   };
   
+  // Function to update history after state changes
+  const updateHistory = (newState) => {
+    const historyStatus = historyManager.addState(newState);
+    setCanUndo(historyStatus.canUndo);
+    setCanRedo(historyStatus.canRedo);
+  };
+
   // Function to handle the end of dragging an element
   const handleDragEnd = (element, elementType, newPosition) => {
     // Snap the final position to grid
@@ -67,19 +89,29 @@ function App() {
     
     // Update the element's position
     if (elementType === 'place') {
-      setElements(prev => ({
-        ...prev,
-        places: prev.places.map(p => 
-          p.id === element.id ? { ...p, x: snappedPos.x, y: snappedPos.y } : p
-        )
-      }));
+      setElements(prev => {
+        const newState = {
+          ...prev,
+          places: prev.places.map(p => 
+            p.id === element.id ? { ...p, x: snappedPos.x, y: snappedPos.y } : p
+          )
+        };
+        // Add to history after state update
+        updateHistory(newState);
+        return newState;
+      });
     } else if (elementType === 'transition') {
-      setElements(prev => ({
-        ...prev,
-        transitions: prev.transitions.map(t => 
-          t.id === element.id ? { ...t, x: snappedPos.x, y: snappedPos.y } : t
-        )
-      }));
+      setElements(prev => {
+        const newState = {
+          ...prev,
+          transitions: prev.transitions.map(t => 
+            t.id === element.id ? { ...t, x: snappedPos.x, y: snappedPos.y } : t
+          )
+        };
+        // Add to history after state update
+        updateHistory(newState);
+        return newState;
+      });
     }
     
     // Clear the dragged element state
@@ -98,10 +130,15 @@ function App() {
         name: `P${elements.places.length + 1}`,
         tokens: 0
       };
-      setElements(prev => ({
-        ...prev,
-        places: [...prev.places, newPlace]
-      }));
+      setElements(prev => {
+        const newState = {
+          ...prev,
+          places: [...prev.places, newPlace]
+        };
+        // Add to history after state update
+        updateHistory(newState);
+        return newState;
+      });
     } else if (type === 'transition') {
       const newTransition = {
         id: `transition-${Date.now()}`,
@@ -109,10 +146,15 @@ function App() {
         y: snappedPos.y,
         name: `T${elements.transitions.length + 1}`
       };
-      setElements(prev => ({
-        ...prev,
-        transitions: [...prev.transitions, newTransition]
-      }));
+      setElements(prev => {
+        const newState = {
+          ...prev,
+          transitions: [...prev.transitions, newTransition]
+        };
+        // Add to history after state update
+        updateHistory(newState);
+        return newState;
+      });
     }
   };
 
@@ -305,10 +347,15 @@ function App() {
             weight: 1
           };
           
-          setElements(prev => ({
-            ...prev,
-            arcs: [...prev.arcs, newArc]
-          }));
+          setElements(prev => {
+            const newState = {
+              ...prev,
+              arcs: [...prev.arcs, newArc]
+            };
+            // Add to history after state update
+            updateHistory(newState);
+            return newState;
+          });
           console.log(`Arc created from ${startType} to ${endType}`);
         } else {
           console.log(`Invalid arc connection: ${startType} to ${endType}`);
@@ -333,10 +380,15 @@ function App() {
     
     if (elementType === 'arc') {
       // Just delete the arc
-      setElements(prev => ({
-        ...prev,
-        arcs: prev.arcs.filter(arc => arc.id !== selectedElement.id)
-      }));
+      setElements(prev => {
+        const newState = {
+          ...prev,
+          arcs: prev.arcs.filter(arc => arc.id !== selectedElement.id)
+        };
+        // Add to history after state update
+        updateHistory(newState);
+        return newState;
+      });
     } else if (elementType === 'place' || elementType === 'transition') {
       // Delete the element and all connected arcs
       setElements(prev => {
@@ -346,19 +398,24 @@ function App() {
         );
         
         // Filter out the element itself
+        let newState;
         if (elementType === 'place') {
-          return {
+          newState = {
             ...prev,
             places: prev.places.filter(place => place.id !== selectedElement.id),
             arcs: filteredArcs
           };
         } else { // transition
-          return {
+          newState = {
             ...prev,
             transitions: prev.transitions.filter(transition => transition.id !== selectedElement.id),
             arcs: filteredArcs
           };
         }
+        
+        // Add to history after state update
+        updateHistory(newState);
+        return newState;
       });
     }
     
@@ -371,6 +428,44 @@ function App() {
     // Delete key (both regular Delete and Backspace)
     if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
       deleteSelectedElement();
+    }
+    
+    // Undo with Ctrl+Z
+    if (e.ctrlKey && e.key === 'z') {
+      handleUndo();
+    }
+    
+    // Redo with Ctrl+Y
+    if (e.ctrlKey && e.key === 'y') {
+      handleRedo();
+    }
+  };
+  
+  // Function to handle undo
+  const handleUndo = () => {
+    if (!canUndo) return;
+    
+    const result = historyManager.undo();
+    if (result) {
+      // Directly set the elements without going through updateHistory
+      // to avoid adding the state back to history
+      setElements(result.state);
+      setCanUndo(result.canUndo);
+      setCanRedo(result.canRedo);
+    }
+  };
+  
+  // Function to handle redo
+  const handleRedo = () => {
+    if (!canRedo) return;
+    
+    const result = historyManager.redo();
+    if (result) {
+      // Directly set the elements without going through updateHistory
+      // to avoid adding the state back to history
+      setElements(result.state);
+      setCanUndo(result.canUndo);
+      setCanRedo(result.canRedo);
     }
   };
   
@@ -437,6 +532,10 @@ function App() {
         setMode={handleModeChange} 
         gridSnappingEnabled={gridSnappingEnabled}
         toggleGridSnapping={toggleGridSnapping}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
       />
       
       <div className="flex flex-1 overflow-hidden">

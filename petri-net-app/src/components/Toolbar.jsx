@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping }) => {
+const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUndo, canRedo, onUndo, onRedo }) => {
   // Styles for the separator
   const separatorStyle = {
     width: '1px',
@@ -45,8 +45,26 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping }) => 
       <div className="editing-tools">
         <h3 className="text-sm font-semibold mb-1">Editing</h3>
         <div className="flex space-x-2">
+          {/* Undo/Redo buttons */}
+          <button 
+            style={{ ...buttonStyle(false), marginLeft: 0, opacity: canUndo ? 1 : 0.5 }}
+            onClick={onUndo}
+            disabled={!canUndo}
+            title="Undo (Ctrl+Z)"
+          >
+            Undo
+          </button>
+          <button 
+            style={{ ...buttonStyle(false), opacity: canRedo ? 1 : 0.5 }}
+            onClick={onRedo}
+            disabled={!canRedo}
+            title="Redo (Ctrl+Y)"
+          >
+            Redo
+          </button>
+          
           {/* Grid Snapping Toggle */}
-          <div className="flex items-center mr-2">
+          <div className="flex items-center ml-4">
             <input
               type="checkbox"
               id="grid-snap-toggle"
