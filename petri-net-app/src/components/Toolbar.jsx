@@ -17,7 +17,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
     backgroundColor: isSelected ? '#4338ca' : 'white', // indigo-700 or white
     color: isSelected ? 'white' : 'black',
     border: isSelected ? 'none' : '1px solid #d1d5db', // gray-300
-    marginLeft: '0.5rem'
+    margin: '0 0.25rem' // Even spacing on both sides
   });
 
   return (
@@ -25,8 +25,8 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
       {/* File Operations Group */}
       <div className="file-operations">
         <h3 className="text-sm font-semibold mb-1">File</h3>
-        <div className="flex space-x-2">
-          <button style={{ ...buttonStyle(false), marginLeft: 0 }}>
+        <div className="flex justify-between">
+          <button style={{ ...buttonStyle(false) }}>
             Save
           </button>
           <button style={buttonStyle(false)}>
@@ -44,27 +44,9 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
       {/* Editing Tools Group */}
       <div className="editing-tools">
         <h3 className="text-sm font-semibold mb-1">Editing</h3>
-        <div className="flex space-x-2">
-          {/* Undo/Redo buttons */}
-          <button 
-            style={{ ...buttonStyle(false), marginLeft: 0, opacity: canUndo ? 1 : 0.5 }}
-            onClick={onUndo}
-            disabled={!canUndo}
-            title="Undo (Ctrl+Z)"
-          >
-            Undo
-          </button>
-          <button 
-            style={{ ...buttonStyle(false), opacity: canRedo ? 1 : 0.5 }}
-            onClick={onRedo}
-            disabled={!canRedo}
-            title="Redo (Ctrl+Y)"
-          >
-            Redo
-          </button>
-          
+        <div className="flex items-center">
           {/* Grid Snapping Toggle */}
-          <div className="flex items-center ml-4">
+          <div className="flex items-center mr-4">
             <input
               type="checkbox"
               id="grid-snap-toggle"
@@ -75,31 +57,33 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
             />
             <label htmlFor="grid-snap-toggle" className="text-sm">Snap to Grid</label>
           </div>
-          <button 
-            style={{ ...buttonStyle(mode === 'select'), marginLeft: 0 }}
-            onClick={() => setMode('select')}
-          >
-            Select
-          </button>
-          <button 
-            style={buttonStyle(mode === 'place')}
-            data-testid="toolbar-place"
-            onClick={() => setMode('place')}
-          >
-            Place
-          </button>
-          <button 
-            style={buttonStyle(mode === 'transition')}
-            onClick={() => setMode('transition')}
-          >
-            Transition
-          </button>
-          <button 
-            style={buttonStyle(mode === 'arc')}
-            onClick={() => setMode('arc')}
-          >
-            Arc
-          </button>
+          <div className="flex justify-between">
+            <button 
+              style={{ ...buttonStyle(mode === 'select') }}
+              onClick={() => setMode('select')}
+            >
+              Select
+            </button>
+            <button 
+              style={buttonStyle(mode === 'place')}
+              data-testid="toolbar-place"
+              onClick={() => setMode('place')}
+            >
+              Place
+            </button>
+            <button 
+              style={buttonStyle(mode === 'transition')}
+              onClick={() => setMode('transition')}
+            >
+              Transition
+            </button>
+            <button 
+              style={buttonStyle(mode === 'arc')}
+              onClick={() => setMode('arc')}
+            >
+              Arc
+            </button>
+          </div>
         </div>
       </div>
       
@@ -109,8 +93,8 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
       {/* Simulation Tools Group */}
       <div className="simulation-tools">
         <h3 className="text-sm font-semibold mb-1">Simulation</h3>
-        <div className="flex space-x-2">
-          <button style={{ ...buttonStyle(false), marginLeft: 0 }}>
+        <div className="flex justify-between">
+          <button style={buttonStyle(false)}>
             Step-by-Step
           </button>
           <button style={buttonStyle(false)}>
@@ -127,11 +111,21 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
 
       <div className="history-tools ml-auto">
         <h3 className="text-sm font-semibold mb-1">History</h3>
-        <div className="flex space-x-2">
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
+        <div className="flex justify-between">
+          <button 
+            style={{ ...buttonStyle(false), opacity: canUndo ? 1 : 0.5 }}
+            onClick={onUndo}
+            disabled={!canUndo}
+            title="Undo (Ctrl+Z)"
+          >
             Undo
           </button>
-          <button className="px-3 py-1 rounded bg-white border border-gray-300">
+          <button 
+            style={{ ...buttonStyle(false), opacity: canRedo ? 1 : 0.5 }}
+            onClick={onRedo}
+            disabled={!canRedo}
+            title="Redo (Ctrl+Y)"
+          >
             Redo
           </button>
         </div>
