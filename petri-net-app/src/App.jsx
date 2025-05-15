@@ -492,7 +492,7 @@ function App() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedElement]); // Re-add listener when selectedElement changes
+  }, [selectedElement, canUndo, canRedo]); // Re-add listener when dependencies change
   
   // Effect to set initial stage dimensions and handle window resize
   React.useEffect(() => {
