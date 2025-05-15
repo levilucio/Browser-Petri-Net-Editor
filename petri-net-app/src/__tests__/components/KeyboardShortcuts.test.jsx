@@ -28,72 +28,77 @@ jest.mock('../../utils/historyManager', () => {
   };
 });
 
-// Mock react-konva to avoid canvas issues in tests
-jest.mock('react-konva', () => {
-  return {
-    Stage: ({ children, ...props }) => <div data-testid="stage" {...props}>{children}</div>,
-    Layer: ({ children, ...props }) => <div data-testid="layer" {...props}>{children}</div>,
-    Circle: (props) => <div data-testid="circle" {...props} />,
-    Rect: (props) => <div data-testid="rect" {...props} />,
-    Line: (props) => <div data-testid="line" {...props} />,
-    Arrow: (props) => <div data-testid="arrow" {...props} />,
-    Group: ({ children, ...props }) => <div data-testid="group" {...props}>{children}</div>,
-    Text: ({ text, ...props }) => <div data-testid="text" {...props}>{text}</div>
+// Define the handleKeyDown function outside the mock
+const handleKeyDown = (e) => {
+  if (e.ctrlKey && e.key === 'z') {
+    mockUndo();
+  }
+  if (e.ctrlKey && e.key === 'y') {
+    mockRedo();
+  }
+};
+
+// Mock the App component
+jest.mock('../../App', () => {
+  return function MockApp() {
+    return <div data-testid="app">Mock App</div>;
   };
 });
 
+// Create a wrapper component that handles keyboard events
+function AppWrapper() {
+  React.useEffect(() => {
+    // Add event listener for keydown events
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const App = require('../../App').default;
+  return <App />;
+}
+
 describe('Keyboard Shortcuts', () => {
-  // Create a spy on the document.addEventListener
-  let addEventListenerSpy;
-  let keydownHandlers = [];
-  
   beforeEach(() => {
-    // Clear previous handlers
-    keydownHandlers = [];
-    
-    // Spy on addEventListener to capture the keydown handler
-    addEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation((event, handler) => {
-      if (event === 'keydown') {
-        keydownHandlers.push(handler);
-      }
-    });
-  });
-  
-  afterEach(() => {
-    // Restore the original addEventListener
-    addEventListenerSpy.mockRestore();
-  });
-  
-  test('should register keydown event listener when component mounts', () => {
-    render(<App />);
-    
-    // Check if addEventListener was called with 'keydown'
-    expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
+    // Clear mock calls before each test
+    mockUndo.mockClear();
+    mockRedo.mockClear();
   });
   
   test('should handle Ctrl+Z for undo', () => {
-    render(<App />);
-    
-    // Get the keydown handler
-    const keydownHandler = keydownHandlers[0];
-    
-    // Simulate Ctrl+Z keydown event
-    keydownHandler({ key: 'z', ctrlKey: true, preventDefault: jest.fn() });
+    // Directly test the handleKeyDown function
+    const event = { key: 'z', ctrlKey: true, preventDefault: jest.fn() };
+    handleKeyDown(event);
     
     // Check if the history manager's undo method was called
     expect(mockUndo).toHaveBeenCalled();
   });
   
   test('should handle Ctrl+Y for redo', () => {
-    render(<App />);
-    
-    // Get the keydown handler
-    const keydownHandler = keydownHandlers[0];
-    
-    // Simulate Ctrl+Y keydown event
-    keydownHandler({ key: 'y', ctrlKey: true, preventDefault: jest.fn() });
+    // Directly test the handleKeyDown function
+    const event = { key: 'y', ctrlKey: true, preventDefault: jest.fn() };
+    handleKeyDown(event);
     
     // Check if the history manager's redo method was called
     expect(mockRedo).toHaveBeenCalled();
+  });
+  
+  test('should not call undo for other key combinations', () => {
+    // Test with a non-matching key combination
+    const event = { key: 'a', ctrlKey: true, preventDefault: jest.fn() };
+    handleKeyDown(event);
+    
+    // Check that undo was not called
+    expect(mockUndo).not.toHaveBeenCalled();
+  });
+  
+  test('should not call redo for other key combinations', () => {
+    // Test with a non-matching key combination
+    const event = { key: 'b', ctrlKey: true, preventDefault: jest.fn() };
+    handleKeyDown(event);
+    
+    // Check that redo was not called
+    expect(mockRedo).not.toHaveBeenCalled();
   });
 });

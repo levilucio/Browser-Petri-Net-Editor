@@ -5,18 +5,42 @@ import Arc from '../../components/Arc';
 // Mock Konva components since they rely on Canvas which isn't available in Jest
 jest.mock('react-konva', () => {
   return {
-    Line: ({ children, ...props }) => <div data-testid="line" {...props}>{children}</div>,
-    Text: ({ children, ...props }) => <div data-testid="text" {...props}>{children}</div>,
-    Arrow: (props) => <div data-testid="arrow" {...props} />,
-    Group: ({ children, onClick, ...props }) => (
-      <div 
-        data-testid="group" 
-        {...props} 
-        onClick={onClick ? (e) => onClick(e) : undefined}
+    Line: ({ children, ...props }) => {
+      // Filter out non-DOM props to avoid warnings
+      const { points, stroke, strokeWidth, closed, tension, hitStrokeWidth, ...domProps } = props;
+      // Add data attributes for testing
+      return <div 
+        data-testid="line" 
+        data-stroke={stroke} 
+        data-points={points ? points.join(',') : ''}
+        {...domProps}
       >
         {children}
-      </div>
-    ),
+      </div>;
+    },
+    Text: ({ children, ...props }) => {
+      // Filter out non-DOM props to avoid warnings
+      const { x, y, text, fontSize, fill, ...domProps } = props;
+      return <div data-testid="text" {...domProps}>{children || text}</div>;
+    },
+    Arrow: (props) => {
+      // Filter out non-DOM props to avoid warnings
+      const { points, stroke, strokeWidth, fill, ...domProps } = props;
+      return <div data-testid="arrow" {...domProps} />;
+    },
+    Group: ({ children, onClick, ...props }) => {
+      // Filter out non-DOM props to avoid warnings
+      const { x, y, ...domProps } = props;
+      return (
+        <div 
+          data-testid="group" 
+          {...domProps} 
+          onClick={onClick ? (e) => onClick(e) : undefined}
+        >
+          {children}
+        </div>
+      );
+    },
   };
 });
 
@@ -62,7 +86,7 @@ describe('Arc Component', () => {
     const lines = screen.queryAllByTestId('line');
     expect(lines.length).toBeGreaterThan(0);
     // Check if at least one line has the blue stroke
-    const hasBlueStroke = lines.some(line => line.getAttribute('stroke') === 'blue');
+    const hasBlueStroke = lines.some(line => line.getAttribute('data-stroke') === 'blue');
     expect(hasBlueStroke).toBe(true);
   });
 
@@ -104,7 +128,7 @@ describe('Arc Component', () => {
     const lines = screen.queryAllByTestId('line');
     expect(lines.length).toBeGreaterThan(0);
     // Check if at least one line has points attribute
-    const hasPoints = lines.some(line => line.hasAttribute('points'));
+    const hasPoints = lines.some(line => line.getAttribute('data-points') !== '');
     expect(hasPoints).toBe(true);
   });
 });

@@ -12,7 +12,8 @@ module.exports = {
     '<rootDir>/src/setupTests.js'
   ],
   testPathIgnorePatterns: [
-    '/node_modules/'
+    '/node_modules/',
+    '/tests/'  // Exclude Playwright tests in the tests directory
   ],
   transformIgnorePatterns: [
     '/node_modules/(?!react-konva|konva)'

@@ -12,19 +12,22 @@ jest.mock('react-konva', () => {
   };
   
   return {
-    Stage: ({ children, onClick, ...props }) => (
-      <div 
-        data-testid="stage" 
-        {...props} 
-        onClick={(e) => {
-          // Mock the getStage method
-          e.target.getStage = () => mockStage;
-          if (onClick) onClick(e);
-        }}
-      >
-        {children}
-      </div>
-    ),
+    Stage: ({ children, onClick, ...props }) => {
+      // Ensure the stage is rendered with the correct data-testid
+      return (
+        <div 
+          data-testid="stage" 
+          {...props} 
+          onClick={(e) => {
+            // Mock the getStage method
+            e.target.getStage = () => mockStage;
+            if (onClick) onClick(e);
+          }}
+        >
+          {children}
+        </div>
+      );
+    },
     Layer: ({ children, ...props }) => <div data-testid="layer" {...props}>{children}</div>,
     Group: ({ children, onClick, ...props }) => (
       <div 
@@ -66,12 +69,28 @@ jest.mock('../components/Arc', () => ({ arc }) => (
   </div>
 ));
 
-jest.mock('../components/Toolbar', () => ({ mode, setMode }) => (
+jest.mock('../components/Toolbar', () => ({ mode, setMode, canUndo, canRedo, onUndo, onRedo }) => (
   <div data-testid="toolbar">
     <button data-testid="select-mode" onClick={() => setMode('select')}>Select</button>
     <button data-testid="place-mode" onClick={() => setMode('place')}>Place</button>
     <button data-testid="transition-mode" onClick={() => setMode('transition')}>Transition</button>
     <button data-testid="arc-mode" onClick={() => setMode('arc')}>Arc</button>
+    <button 
+      data-testid="undo-button" 
+      onClick={onUndo} 
+      disabled={!canUndo}
+      title="Undo (Ctrl+Z)"
+    >
+      Undo
+    </button>
+    <button 
+      data-testid="redo-button" 
+      onClick={onRedo} 
+      disabled={!canRedo}
+      title="Redo (Ctrl+Y)"
+    >
+      Redo
+    </button>
   </div>
 ));
 
@@ -99,7 +118,7 @@ describe('App Component', () => {
   test('renders main components', () => {
     render(<App />);
     expect(screen.getByTestId('toolbar')).toBeInTheDocument();
-    expect(screen.getByTestId('stage')).toBeInTheDocument();
+    expect(screen.getByTestId('canvas')).toBeInTheDocument();
     expect(screen.getByTestId('properties-panel')).toBeInTheDocument();
     expect(screen.getByTestId('execution-panel')).toBeInTheDocument();
   });
@@ -125,9 +144,9 @@ describe('App Component', () => {
     // Click place mode button
     fireEvent.click(screen.getByTestId('place-mode'));
     
-    // Click on the stage with mocked event target
-    const stage = screen.getByTestId('stage');
-    fireEvent.click(stage, {
+    // Click on the canvas with mocked event target
+    const canvas = screen.getByTestId('canvas');
+    fireEvent.click(canvas, {
       target: {
         getStage: mockGetStage,
         name: jest.fn().mockReturnValue('background')
@@ -163,9 +182,9 @@ describe('App Component', () => {
     const placeModeButton = screen.getByTestId('place-mode');
     fireEvent.click(placeModeButton);
     
-    // Click on the stage to add a place with mocked event target
-    const stage = screen.getByTestId('stage');
-    fireEvent.click(stage, {
+    // Click on the canvas to add a place with mocked event target
+    const canvas = screen.getByTestId('canvas');
+    fireEvent.click(canvas, {
       target: {
         getStage: mockGetStage,
         name: jest.fn().mockReturnValue('background')
