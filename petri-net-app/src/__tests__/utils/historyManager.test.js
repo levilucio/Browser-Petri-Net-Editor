@@ -131,4 +131,47 @@ describe('HistoryManager', () => {
     // Should get the new p1+p3 state
     expect(redoResult.state).toEqual(newState);
   });
+
+  test('should limit history to exactly 50 states as per requirements', () => {
+    // Create a new history manager with default settings
+    const manager = new HistoryManager(initialState);
+    
+    // Verify the maxStates is set to 50 as per requirements
+    expect(manager.maxStates).toBe(50);
+    
+    // Add 51 unique states (initial + 50 new ones)
+    for (let i = 1; i <= 51; i++) {
+      manager.addState({
+        places: Array.from({ length: i }, (_, index) => ({ id: `p${index}`, x: 100, y: 100 })),
+        transitions: [],
+        arcs: []
+      });
+    }
+    
+    // Should have exactly 50 states (maxStates)
+    expect(manager.states.length).toBe(50);
+    
+    // The first state should now be the one with 2 places (index 1)
+    // The initial state (empty) and state with 1 place should have been removed
+    expect(manager.states[0].places.length).toBe(2);
+    
+    // The last state should have 51 places
+    expect(manager.states[49].places.length).toBe(51);
+    
+    // We should be at the end of the history
+    expect(manager.currentIndex).toBe(49);
+    expect(manager.canUndo()).toBe(true);
+    expect(manager.canRedo()).toBe(false);
+    
+    // We should be able to undo 49 times (back to the first state in the history)
+    let undoCount = 0;
+    while (manager.canUndo()) {
+      manager.undo();
+      undoCount++;
+    }
+    
+    expect(undoCount).toBe(49);
+    expect(manager.currentIndex).toBe(0);
+    expect(manager.states[0].places.length).toBe(2);
+  });
 });

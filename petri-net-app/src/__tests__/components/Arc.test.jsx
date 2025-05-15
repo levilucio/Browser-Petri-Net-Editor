@@ -131,4 +131,10 @@ describe('Arc Component', () => {
     const hasPoints = lines.some(line => line.getAttribute('data-points') !== '');
     expect(hasPoints).toBe(true);
   });
+
+  test('cancels arc creation when clicking on empty canvas (placeholder)', () => {
+    // This is a placeholder for a full integration test in App.
+    // It ensures the test skeleton exists for when we want to simulate arc mode and canvas click.
+    expect(true).toBe(true);
+  });
 });

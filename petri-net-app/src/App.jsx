@@ -175,10 +175,9 @@ function App() {
       addElement('place', x, y);
     } else if (mode === 'transition') {
       addElement('transition', x, y);
-    } else if (mode === 'arc' && arcStart && clickedOnEmptyCanvas) {
+    } else if (mode === 'arc' && arcStart) {
       // If we're in arc creation mode and have started an arc,
-      // clicking on an empty area cancels the arc creation
-      console.log('Arc creation canceled');
+      // clicking anywhere on the stage cancels the arc creation
       setArcStart(null);
       setTempArcEnd(null);
     }
@@ -558,6 +557,12 @@ function App() {
                 height={stageDimensions.height}
                 fill="transparent"
                 name="background"
+                onClick={() => {
+                  if (mode === 'arc' && arcStart) {
+                    setArcStart(null);
+                    setTempArcEnd(null);
+                  }
+                }}
               />
               
               {/* Grid lines */}
