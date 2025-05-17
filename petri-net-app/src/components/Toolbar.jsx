@@ -60,6 +60,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
           <div className="flex justify-between">
             <button 
               style={{ ...buttonStyle(mode === 'select') }}
+              data-testid="toolbar-select"
               onClick={() => setMode('select')}
             >
               Select
@@ -73,12 +74,14 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
             </button>
             <button 
               style={buttonStyle(mode === 'transition')}
+              data-testid="toolbar-transition"
               onClick={() => setMode('transition')}
             >
               Transition
             </button>
             <button 
               style={buttonStyle(mode === 'arc')}
+              data-testid="toolbar-arc"
               onClick={() => setMode('arc')}
             >
               Arc
