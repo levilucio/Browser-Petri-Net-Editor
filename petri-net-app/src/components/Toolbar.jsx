@@ -281,7 +281,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
     padding: '0.375rem 0.5rem',
     borderRadius: '0.25rem',
     backgroundColor: isSelected ? '#4338ca' : 'white', // indigo-700 or white
-    color: isSelected ? 'white' : '#1f2937', // gray-800 when not selected
+    color: isSelected ? 'rgba(255, 255, 255, 0.85)' : 'rgba(31, 41, 55, 0.7)', // Slightly less faded text
     border: isSelected ? '1px solid #3730a3' : '1px solid #d1d5db', // border color
     borderBottom: isSelected ? '2px solid #312e81' : '2px solid #9ca3af', // darker bottom border for 3D effect
     margin: '0 0.125rem', // Tighter spacing between buttons
@@ -299,6 +299,9 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
     position: 'relative',
     top: '0',
     transform: isSelected ? 'translateY(1px)' : 'translateY(0)', // Pressed effect for selected buttons
+    textShadow: isSelected ? 
+      '0 -1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.15)' : // Carved-in effect for selected buttons
+      '0 1px 0 rgba(255, 255, 255, 0.5), 0 -1px 0 rgba(0, 0, 0, 0.2)', // Engraved effect for non-selected buttons
   });
   
   // Additional style for button hover state - will be applied via JavaScript
@@ -310,6 +313,9 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
         if (!button.disabled) {
           button.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 3px 5px rgba(0, 0, 0, 0.15)';
           button.style.transform = 'translateY(-1px)';
+          // Brighten text slightly on hover
+          const isSelected = button.classList.contains('selected');
+          button.style.color = isSelected ? 'rgba(255, 255, 255, 0.9)' : 'rgba(31, 41, 55, 0.8)';
         }
       });
       button.addEventListener('mouseleave', () => {
@@ -318,17 +324,30 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
           'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)' : 
           'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0, 0, 0, 0.1)';
         button.style.transform = isSelected ? 'translateY(1px)' : 'translateY(0)';
+        // Return to original text color
+        button.style.color = isSelected ? 'rgba(255, 255, 255, 0.85)' : 'rgba(31, 41, 55, 0.7)';
       });
       button.addEventListener('mousedown', () => {
         if (!button.disabled) {
           button.style.transform = 'translateY(1px)';
           button.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1)';
+          // Darken text slightly when pressed
+          const isSelected = button.classList.contains('selected');
+          button.style.color = isSelected ? 'rgba(255, 255, 255, 0.75)' : 'rgba(31, 41, 55, 0.6)';
+          button.style.textShadow = 'none'; // Remove text shadow when pressed
         }
       });
       button.addEventListener('mouseup', () => {
         if (!button.disabled) {
           button.style.transform = 'translateY(-1px)';
           button.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 3px 5px rgba(0, 0, 0, 0.15)';
+          // Brighten text slightly when released
+          const isSelected = button.classList.contains('selected');
+          button.style.color = isSelected ? 'rgba(255, 255, 255, 0.9)' : 'rgba(31, 41, 55, 0.8)';
+          // Restore text shadow
+          button.style.textShadow = isSelected ? 
+            '0 -1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.15)' : 
+            '0 1px 0 rgba(255, 255, 255, 0.5), 0 -1px 0 rgba(0, 0, 0, 0.2)';
         }
       });
     });
