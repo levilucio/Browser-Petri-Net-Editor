@@ -1,0 +1,33 @@
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net id="net1" type="http://www.pnml.org/version-2009/grammar/ptnet">
+    <name>
+      <text>Petri Net</text>
+    </name>
+    <page id="page1">
+      <place id="place-1747503889991">
+        <name>
+          <text>P1</text>
+        </name>
+        <graphics>
+          <position x="360" y="80"/>
+        </graphics>
+      </place>
+      <transition id="transition-1747503891563">
+        <name>
+          <text>T1</text>
+        </name>
+        <graphics>
+          <position x="520" y="320"/>
+        </graphics>
+      </transition>
+      <arc id="arc-1747503895775" source="place-1747503889991" target="transition-1747503891563">
+        <graphics>
+          <metadata>
+            <sourceDirection>south</sourceDirection>
+            <targetDirection>north</targetDirection>
+          </metadata>
+        </graphics>
+      </arc>
+    </page>
+  </net>
+</pnml>

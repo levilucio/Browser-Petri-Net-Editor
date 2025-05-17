@@ -96,47 +96,6 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
           throw new Error('Invalid data structure in the imported file');
         }
         
-        // Use our arc debugging tool if available
-        if (window.analyzePNML) {
-          console.log('Running enhanced PNML analysis on the imported file...');
-          const analysis = window.analyzePNML(fileContent);
-          window.__DEBUG_PNML_ANALYSIS__ = analysis;
-          console.log('Enhanced PNML analysis completed. See window.__DEBUG_PNML_ANALYSIS__ for details.');
-          
-          // Check for specific arc issues
-          if (analysis && analysis.differences && analysis.differences.foundButNotParsed.length > 0) {
-            console.warn(`Warning: ${analysis.differences.foundButNotParsed.length} arcs were found in the PNML but not properly parsed`);
-          }
-          
-          // Try to recover arcs if our analysis found more than the parser did
-          if (analysis && analysis.directAnalysis.arcs > 0 && 
-             (petriNetJson.arcs.length === 0 || analysis.directAnalysis.arcs > petriNetJson.arcs.length)) {
-            console.log('Attempting to recover missing arcs from direct analysis...');
-            const recoveredArcs = analysis.directAnalysis.details.map(arc => ({
-              id: arc.id,
-              source: arc.source,
-              target: arc.target,
-              type: arc.type || 'place-to-transition', // Default type if unknown
-              weight: 1,
-              sourceDirection: 'north',
-              targetDirection: 'south'
-            }));
-            
-            // Add recovered arcs to the result - create a new object instead of reassigning
-            const enhancedPetriNetJson = {
-              places: petriNetJson.places || [],
-              transitions: petriNetJson.transitions || [],
-              arcs: recoveredArcs
-            };
-            
-            // Use the enhanced version from now on
-            console.log(`Recovered ${recoveredArcs.length} arcs from direct analysis`);
-            
-            // Continue with the enhanced version
-            return enhancedPetriNetJson;
-          }
-        }
-        
         // Ensure the required arrays exist
         const safeJson = {
           places: Array.isArray(petriNetJson.places) ? petriNetJson.places : [],
@@ -162,57 +121,8 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
         }
         
         if (safeJson.arcs && safeJson.arcs.length > 0) {
-          console.log('Arcs found (before validation):', safeJson.arcs.length);
+          console.log('Arcs found:', safeJson.arcs.length);
           console.log('First arc:', safeJson.arcs[0]);
-          
-          // Filter out arcs with undefined or invalid source/target
-          const validArcs = safeJson.arcs.filter(arc => {
-            // Skip arcs with undefined or missing source/target
-            if (arc.source === 'undefined' || arc.target === 'undefined' || 
-                !arc.source || !arc.target) {
-              console.warn(`Skipping invalid arc ${arc.id} - has undefined or missing source/target`);
-              return false;
-            }
-            
-            // Skip arcs with source/target that don't reference existing places/transitions
-            const sourceExists = safeJson.places.some(p => p.id === arc.source) || 
-                             safeJson.transitions.some(t => t.id === arc.source);
-            const targetExists = safeJson.places.some(p => p.id === arc.target) || 
-                             safeJson.transitions.some(t => t.id === arc.target);
-            
-            if (!sourceExists || !targetExists) {
-              console.warn(`Skipping invalid arc ${arc.id} - references non-existent elements`);
-              return false;
-            }
-            
-            return true;
-          });
-          
-          console.log(`Filtered out ${safeJson.arcs.length - validArcs.length} invalid arcs`);
-          safeJson.arcs = validArcs;
-          console.log('Valid arcs count:', validArcs.length);
-          
-          // Ensure all arcs have a valid type property
-          safeJson.arcs = safeJson.arcs.map(arc => {
-            if (!arc.type || (arc.type !== 'place-to-transition' && arc.type !== 'transition-to-place')) {
-              // Try to infer type from source and target IDs
-              const sourceIsPlace = safeJson.places.some(p => p.id === arc.source);
-              const targetIsPlace = safeJson.places.some(p => p.id === arc.target);
-              
-              if (sourceIsPlace && !targetIsPlace) {
-                console.log(`Fixed arc ${arc.id} type to place-to-transition`);
-                return { ...arc, type: 'place-to-transition' };
-              } else if (!sourceIsPlace && targetIsPlace) {
-                console.log(`Fixed arc ${arc.id} type to transition-to-place`);
-                return { ...arc, type: 'transition-to-place' };
-              } else {
-                // Default to place-to-transition as fallback
-                console.warn(`Could not determine type for arc ${arc.id}, defaulting to place-to-transition`);
-                return { ...arc, type: 'place-to-transition' };
-              }
-            }
-            return arc;
-          });
         } else {
           console.warn('No arcs found in imported data');
         }

@@ -32,6 +32,75 @@ const Place = ({ place, isSelected, isDragging, onClick, onDragStart, onDragMove
     );
   };
   
+  // Render token visualization based on token count
+  const renderTokens = () => {
+    // For 0 tokens, just show "0"
+    if (place.tokens === 0) {
+      return (
+        <Text
+          text="0"
+          fontSize={14}
+          fill="black"
+          x={-radius}
+          y={-7}
+          width={radius * 2}
+          align="center"
+        />
+      );
+    }
+    
+    // For 1-5 tokens, show visual circles and the count
+    if (place.tokens <= 5) {
+      return (
+        <>
+          {/* Visual representation of tokens as circles */}
+          {Array.from({ length: place.tokens }).map((_, index) => {
+            // Position tokens in a circle pattern
+            const angle = (2 * Math.PI * index) / place.tokens;
+            const tokenRadius = 4;
+            const distance = radius / 2;
+            const tokenX = Math.cos(angle) * distance;
+            const tokenY = Math.sin(angle) * distance;
+            
+            return (
+              <Circle
+                key={index}
+                x={tokenX}
+                y={tokenY}
+                radius={tokenRadius}
+                fill="black"
+              />
+            );
+          })}
+          
+          {/* Small token count text */}
+          <Text
+            text={place.tokens.toString()}
+            fontSize={14}
+            fill="black"
+            x={-radius}
+            y={-7}
+            width={radius * 2}
+            align="center"
+          />
+        </>
+      );
+    }
+    
+    // For more than 5 tokens, just show the number
+    return (
+      <Text
+        text={place.tokens.toString()}
+        fontSize={16}
+        fill="black"
+        x={-radius}
+        y={-7}
+        width={radius * 2}
+        align="center"
+      />
+    );
+  };
+  
   return (
     <Group
       x={place.x}
@@ -64,54 +133,8 @@ const Place = ({ place, isSelected, isDragging, onClick, onDragStart, onDragMove
         align="center"
       />
       
-      {/* Token count */}
-      <Text
-        text={place.tokens.toString()}
-        fontSize={14}
-        fill="black"
-        x={-radius}
-        y={-7}
-        width={radius * 2}
-        align="center"
-      />
-      
-      {/* Render tokens visually if there are any */}
-      {place.tokens > 0 && place.tokens <= 5 && (
-        <>
-          {Array.from({ length: place.tokens }).map((_, index) => {
-            // Position tokens in a circle or grid pattern
-            const angle = (2 * Math.PI * index) / place.tokens;
-            const tokenRadius = 4;
-            const distance = radius / 2;
-            const tokenX = Math.cos(angle) * distance;
-            const tokenY = Math.sin(angle) * distance;
-            
-            return (
-              <Circle
-                key={index}
-                x={tokenX}
-                y={tokenY}
-                radius={tokenRadius}
-                fill="black"
-              />
-            );
-          })}
-        </>
-      )}
-      
-      {/* For more than 5 tokens, just show the number */}
-      {place.tokens > 5 && (
-        <Text
-          text={place.tokens.toString()}
-          fontSize={16}
-          fontStyle="bold"
-          fill="black"
-          x={-radius}
-          y={-9}
-          width={radius * 2}
-          align="center"
-        />
-      )}
+      {/* Render tokens based on count */}
+      {renderTokens()}
     </Group>
   );
 };

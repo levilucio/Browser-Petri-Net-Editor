@@ -1,15 +1,41 @@
 import React from 'react';
-import { Line, Text, Group } from 'react-konva';
+import { Line, Text, Group, Rect } from 'react-konva';
 
 const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
   // Find source and target elements
-  const source = arc.sourceType === 'place' 
-    ? places.find(p => p.id === arc.sourceId)
-    : transitions.find(t => t.id === arc.sourceId);
+  // Handle both the editor-created arcs and PNML-loaded arcs
+  let source, target;
   
-  const target = arc.targetType === 'place' 
-    ? places.find(p => p.id === arc.targetId)
-    : transitions.find(t => t.id === arc.targetId);
+  // Get source - handle both formats
+  if (arc.sourceId) {
+    // Editor-created arc
+    source = arc.sourceType === 'place' 
+      ? places.find(p => p.id === arc.sourceId)
+      : transitions.find(t => t.id === arc.sourceId);
+  } else if (arc.source) {
+    // PNML-loaded arc
+    source = places.find(p => p.id === arc.source) || transitions.find(t => t.id === arc.source);
+  }
+  
+  // Get target - handle both formats
+  if (arc.targetId) {
+    // Editor-created arc
+    target = arc.targetType === 'place' 
+      ? places.find(p => p.id === arc.targetId)
+      : transitions.find(t => t.id === arc.targetId);
+  } else if (arc.target) {
+    // PNML-loaded arc
+    target = places.find(p => p.id === arc.target) || transitions.find(t => t.id === arc.target);
+  }
+  
+  // Determine source and target types
+  const sourceType = arc.sourceType || 
+                   (arc.type === 'place-to-transition' ? 'place' : 'transition') ||
+                   (places.some(p => p.id === arc.source) ? 'place' : 'transition');
+  
+  const targetType = arc.targetType || 
+                   (arc.type === 'place-to-transition' ? 'transition' : 'place') ||
+                   (places.some(p => p.id === arc.target) ? 'place' : 'transition');
 
   if (!source || !target) return null;
 
@@ -27,7 +53,7 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
   // Adjust start and end points based on source and target shapes
   let adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY;
   
-  if (arc.sourceType === 'place') {
+  if (sourceType === 'place') {
     // Adjust for circle (place)
     const radius = 20;
     adjustedStartX = startX + Math.cos(angle) * radius;
@@ -51,7 +77,7 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
     }
   }
   
-  if (arc.targetType === 'place') {
+  if (targetType === 'place') {
     // Adjust for circle (place)
     const radius = 20;
     adjustedEndX = endX - Math.cos(angle) * radius;
@@ -85,13 +111,17 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
   const arrowPoint2X = adjustedEndX - arrowHeadSize * Math.cos(arrowAngle2);
   const arrowPoint2Y = adjustedEndY - arrowHeadSize * Math.sin(arrowAngle2);
 
-  // Calculate midpoint for weight label
+  // Calculate midpoint for labels
   const midX = (adjustedStartX + adjustedEndX) / 2;
   const midY = (adjustedStartY + adjustedEndY) / 2;
   
-  // Offset the label slightly to not overlap with the line
-  const labelOffsetX = -10 * Math.sin(angle);
-  const labelOffsetY = 10 * Math.cos(angle);
+  // Offset the weight label slightly to not overlap with the line (on one side)
+  const weightOffsetX = -10 * Math.sin(angle);
+  const weightOffsetY = 10 * Math.cos(angle);
+  
+  // Calculate name label position (on the opposite side of the arc from the weight)
+  const nameOffsetX = 10 * Math.sin(angle);
+  const nameOffsetY = -10 * Math.cos(angle);
 
   return (
     <Group onClick={onClick}>
@@ -128,10 +158,24 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
         <Text
           text={arc.weight.toString()}
           fontSize={12}
+          fontStyle="bold"
           fill="black"
-          x={midX + labelOffsetX - 5}
-          y={midY + labelOffsetY - 5}
-          width={10}
+          x={midX + weightOffsetX - 10}
+          y={midY + weightOffsetY - 6}
+          width={20}
+          align="center"
+        />
+      )}
+      
+      {/* Arc name label */}
+      {arc.name && arc.name.trim() !== '' && (
+        <Text
+          text={arc.name}
+          fontSize={11}
+          fill="black"
+          x={midX + nameOffsetX - 30}
+          y={midY + nameOffsetY - 6}
+          width={60}
           align="center"
         />
       )}
