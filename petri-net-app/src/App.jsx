@@ -3,6 +3,7 @@ import { Stage, Layer, Line, Circle, Rect } from 'react-konva';
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
 import ExecutionPanel from './components/ExecutionPanel';
+// ImportExportPanel removed as requested
 import Place from './components/Place';
 import Transition from './components/Transition';
 import Arc from './components/Arc';
@@ -535,6 +536,9 @@ function App() {
         canRedo={canRedo}
         onUndo={handleUndo}
         onRedo={handleRedo}
+        elements={elements}
+        setElements={setElements}
+        updateHistory={updateHistory}
       />
       
       <div className="flex flex-1 overflow-hidden">
@@ -680,13 +684,21 @@ function App() {
           </Stage>
         </div>
         
-        <PropertiesPanel 
-          selectedElement={selectedElement} 
-          setElements={setElements} 
-        />
+        <div className="w-64 bg-gray-100 overflow-y-auto flex flex-col">
+          <PropertiesPanel 
+            selectedElement={selectedElement} 
+            elements={elements}
+            setElements={setElements}
+            updateHistory={updateHistory}
+          />
+          <ExecutionPanel 
+            elements={elements}
+            setElements={setElements}
+            updateHistory={updateHistory}
+          />
+          {/* ImportExportPanel removed as requested */}
+        </div>
       </div>
-      
-      <ExecutionPanel elements={elements} />
     </div>
   );
 }
