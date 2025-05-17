@@ -71,21 +71,21 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
 
 #### Milestone 1.2: P/T Net Editor Features (4 weeks, Weeks 5–8)
 - **Tasks**:
-  - Add labels for place/transition names, arc weights, and token counts.
-  - Implement colors: white fill for places, gray fill for transitions, black arcs, blue outline for selected elements, red outline for invalid elements.
-  - Add undo/redo (stack-based, up to 50 actions) for add/delete/move actions.
-  - Implement properties panel for editing place name, initial tokens (0–20), transition name, arc weight (≥ 1).
-  - Add real-time validation: no arcs between places/transitions, valid weights, token limits (0–20).
-  - Implement XML parser/serializer for P/T nets using `lxml` (Pyodide).
-  - Add toolbar buttons for save/load XML files via File API.
+  - ✅ Add labels for place/transition names, arc weights, and token counts.
+  - ✅ Implement colors: white fill for places, gray fill for transitions, black arcs, blue outline for selected elements, red outline for invalid elements.
+  - ✅Add undo/redo (stack-based, up to 50 actions) for add/delete/move actions.
+  - ✅ Implement properties panel for editing place name, initial tokens (0–20), transition name, arc weight (≥ 1).
+  - ✅Add real-time validation: valid weights, token limits (0–20).
+  - ✅ Implement XML parser/serializer for P/T nets using `lxml` (Pyodide).
+  - ✅ Add toolbar buttons for save/load XML files via File API.
 - **Deliverables**:
-  - Fully functional P/T net editor with labels, colors, undo/redo, and validation.
-  - XML parser/serializer supporting the schema in Section 3.3.
-  - Unit tests for validation and XML handling; Playwright tests for editor interactions.
+  - ✅ Fully functional P/T net editor with labels, colors, undo/redo, and validation.
+  - ✅ XML parser/serializer supporting the schema in Section 3.3.
+  - ✅ Unit tests for validation and XML handling; Playwright tests for editor interactions.
 - **Success Criteria**:
-  - Create, edit, save, and load valid P/T nets with up to 1000 places/transitions.
-  - Validation errors displayed as red outlines and tooltips.
-  - Undo/redo supports all editing actions.
+  -  Create, edit, save, and load valid P/T nets with up to 1000 places/transitions.
+  - ✅ Validation errors displayed as red outlines and tooltips.
+  - ✅ Undo/redo supports all editing actions.
 
 #### Milestone 1.3: P/T Net Simulator (4 weeks, Weeks 9–12)
 - **Tasks**:
