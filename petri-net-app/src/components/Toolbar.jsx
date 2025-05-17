@@ -271,19 +271,67 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
   const separatorStyle = {
     width: '1px',
     backgroundColor: '#d1d5db', // gray-300
-    margin: '0 16px',
-    height: '100%', // Full height
-    alignSelf: 'stretch' // Stretch to fill container height
+    margin: '0 12px',
+    height: '80%', // Not full height for a cleaner look
+    alignSelf: 'center' // Center in container
   };
 
   // Common button style
   const buttonStyle = (isSelected) => ({
-    padding: '0.25rem 0.75rem',
+    padding: '0.375rem 0.5rem',
     borderRadius: '0.25rem',
     backgroundColor: isSelected ? '#4338ca' : 'white', // indigo-700 or white
-    color: isSelected ? 'white' : 'black',
-    border: isSelected ? 'none' : '1px solid #d1d5db', // gray-300
-    margin: '0 0.25rem' // Even spacing on both sides
+    color: isSelected ? 'white' : '#1f2937', // gray-800 when not selected
+    border: isSelected ? '1px solid #3730a3' : '1px solid #d1d5db', // border color
+    borderBottom: isSelected ? '2px solid #312e81' : '2px solid #9ca3af', // darker bottom border for 3D effect
+    margin: '0 0.125rem', // Tighter spacing between buttons
+    minWidth: '80px', // Fixed minimum width for all buttons
+    width: '80px', // Fixed width for all buttons
+    fontSize: '0.75rem', // Smaller font size
+    fontWeight: 600, // Bolder text for better visibility
+    cursor: 'pointer',
+    transition: 'all 0.15s ease-in-out',
+    textAlign: 'center',
+    height: '28px', // Fixed height for all buttons
+    boxShadow: isSelected ? 
+      'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)' : 
+      'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0, 0, 0, 0.1)', // Inner highlight and outer shadow
+    position: 'relative',
+    top: '0',
+    transform: isSelected ? 'translateY(1px)' : 'translateY(0)', // Pressed effect for selected buttons
+  });
+  
+  // Additional style for button hover state - will be applied via JavaScript
+  document.addEventListener('DOMContentLoaded', () => {
+    // Add hover effects to all buttons in the toolbar
+    const buttons = document.querySelectorAll('.toolbar button');
+    buttons.forEach(button => {
+      button.addEventListener('mouseenter', () => {
+        if (!button.disabled) {
+          button.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 3px 5px rgba(0, 0, 0, 0.15)';
+          button.style.transform = 'translateY(-1px)';
+        }
+      });
+      button.addEventListener('mouseleave', () => {
+        const isSelected = button.classList.contains('selected');
+        button.style.boxShadow = isSelected ? 
+          'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)' : 
+          'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0, 0, 0, 0.1)';
+        button.style.transform = isSelected ? 'translateY(1px)' : 'translateY(0)';
+      });
+      button.addEventListener('mousedown', () => {
+        if (!button.disabled) {
+          button.style.transform = 'translateY(1px)';
+          button.style.boxShadow = 'inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1)';
+        }
+      });
+      button.addEventListener('mouseup', () => {
+        if (!button.disabled) {
+          button.style.transform = 'translateY(-1px)';
+          button.style.boxShadow = 'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 3px 5px rgba(0, 0, 0, 0.15)';
+        }
+      });
+    });
   });
 
   // Style for messages
@@ -300,11 +348,11 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
   });
 
   return (
-    <div className="toolbar flex flex-col p-2 bg-gray-100 border-b border-gray-300" style={{ minHeight: '70px' }}>
-      <div className="flex">
+    <div className="toolbar flex flex-col p-2 bg-gray-50 border-b border-gray-200 shadow-sm" style={{ minHeight: '70px' }}>
+      <div className="flex items-start">
         {/* File Operations Group */}
         <div className="file-operations">
-          <h3 className="text-sm font-semibold mb-1">File</h3>
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">File</h3>
           <div className="flex justify-between">
             <button 
               style={{ ...buttonStyle(false), opacity: isLoading ? 0.5 : 1 }}
@@ -337,7 +385,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
         
         {/* Editing Tools Group */}
         <div className="editing-tools">
-          <h3 className="text-sm font-semibold mb-1">Editing</h3>
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Editing</h3>
           <div className="flex items-center">
             {/* Grid Snapping Toggle */}
             <div className="flex items-center mr-4">
@@ -349,7 +397,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
                 onChange={toggleGridSnapping}
                 className="mr-1"
               />
-              <label htmlFor="grid-snap-toggle" className="text-sm">Snap to Grid</label>
+              <label htmlFor="grid-snap-toggle" className="text-xs text-gray-700">Snap to Grid</label>
             </div>
             <div className="flex justify-between">
               <button 
@@ -389,16 +437,16 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
         
         {/* Simulation Tools Group */}
         <div className="simulation-tools">
-          <h3 className="text-sm font-semibold mb-1">Simulation</h3>
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Simulation</h3>
           <div className="flex justify-between">
             <button style={buttonStyle(false)}>
-              Step-by-Step
+              Step
             </button>
             <button style={buttonStyle(false)}>
-              Quick Visual
+              Visual
             </button>
             <button style={buttonStyle(false)}>
-              Non-Visual
+              Analyze
             </button>
             <button style={buttonStyle(false)}>
               Stop
@@ -407,7 +455,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
         </div>
 
         <div className="history-tools ml-auto">
-          <h3 className="text-sm font-semibold mb-1">History</h3>
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">History</h3>
           <div className="flex justify-between">
             <button 
               style={{ ...buttonStyle(false), opacity: canUndo ? 1 : 0.5 }}
