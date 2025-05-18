@@ -1,7 +1,7 @@
 import React from 'react';
 import { Line, Text, Group, Rect } from 'react-konva';
 
-const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
+const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x: 0, y: 0 } }) => {
   // Find source and target elements
   // Handle both the editor-created arcs and PNML-loaded arcs
   let source, target;
@@ -123,11 +123,26 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
   const nameOffsetX = 10 * Math.sin(angle);
   const nameOffsetY = -10 * Math.cos(angle);
 
+  // Apply canvas scroll adjustment to all coordinates
+  const scrollX = canvasScroll.x;
+  const scrollY = canvasScroll.y;
+  
+  // Adjust positions for scrolling
+  const displayStartX = adjustedStartX - scrollX;
+  const displayStartY = adjustedStartY - scrollY;
+  const displayEndX = adjustedEndX - scrollX;
+  const displayEndY = adjustedEndY - scrollY;
+
   return (
     <Group onClick={onClick}>
       {/* Invisible wider line for easier selection */}
       <Line
-        points={[adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY]}
+        points={[
+          displayStartX,
+          displayStartY,
+          displayEndX,
+          displayEndY
+        ]}
         stroke="transparent"
         strokeWidth={15}
         hitStrokeWidth={20}
@@ -135,7 +150,12 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
       
       {/* Arc line */}
       <Line
-        points={[adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY]}
+        points={[
+          displayStartX,
+          displayStartY,
+          displayEndX,
+          displayEndY
+        ]}
         stroke={isSelected ? 'blue' : 'black'}
         strokeWidth={isSelected ? 2 : 1}
       />
@@ -143,10 +163,14 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
       {/* Arrow head */}
       <Line
         points={[
-          adjustedEndX, adjustedEndY,
-          arrowPoint1X, arrowPoint1Y,
-          arrowPoint2X, arrowPoint2Y,
-          adjustedEndX, adjustedEndY
+          displayEndX,
+          displayEndY,
+          displayEndX - arrowHeadSize * Math.cos(angle - Math.PI / 6),
+          displayEndY - arrowHeadSize * Math.sin(angle - Math.PI / 6),
+          displayEndX - arrowHeadSize * Math.cos(angle + Math.PI / 6),
+          displayEndY - arrowHeadSize * Math.sin(angle + Math.PI / 6),
+          displayEndX,
+          displayEndY
         ]}
         closed={true}
         fill="black"
@@ -160,8 +184,8 @@ const Arc = ({ arc, places, transitions, isSelected, onClick }) => {
           fontSize={12}
           fontStyle="bold"
           fill="black"
-          x={midX + weightOffsetX - 10}
-          y={midY + weightOffsetY - 6}
+          x={(displayStartX + displayEndX) / 2 - 5}
+          y={(displayStartY + displayEndY) / 2 - 10}
           width={20}
           align="center"
         />

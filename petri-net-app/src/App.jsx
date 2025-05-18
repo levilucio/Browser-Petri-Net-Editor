@@ -32,6 +32,22 @@ function App() {
   
   // Reference to the container div
   const containerRef = useRef(null);
+  
+  // Virtual canvas dimensions (can be larger than visible area)
+  const [virtualCanvasDimensions, setVirtualCanvasDimensions] = useState({
+    width: 2000,  // Initial width of virtual canvas
+    height: 1500  // Initial height of virtual canvas
+  });
+  
+  // Scroll position for the canvas
+  const [canvasScroll, setCanvasScroll] = useState({
+    x: 0,
+    y: 0
+  });
+  
+  // Constants for canvas expansion
+  const expansionThreshold = 100; // px from edge to trigger expansion
+  const expansionAmount = 500;    // px to expand in each direction
 
   // State to track elements being dragged for visual feedback
   const [draggedElement, setDraggedElement] = useState(null);
@@ -164,12 +180,16 @@ function App() {
     // Get position relative to the stage
     const stage = e.target.getStage();
     const pointerPosition = stage.getPointerPosition();
-    const x = pointerPosition.x;
-    const y = pointerPosition.y;
+    
+    // Adjust for scroll position to get the actual position in the virtual canvas
+    const x = pointerPosition.x + canvasScroll.x;
+    const y = pointerPosition.y + canvasScroll.y;
+    
+    // Check if we need to expand the canvas
+    checkAndExpandCanvas(x, y);
     
     // In Konva, we can check the name of the clicked target
-    // The Layer and Stage don't have names, so if e.target.name() is undefined,
-    // we clicked on the empty canvas
+    // If e.target === stage or e.target.name() === undefined, we clicked on the empty canvas
     const clickedOnEmptyCanvas = e.target === stage || e.target.name() === 'background';
     
     if (mode === 'place') {
@@ -269,25 +289,82 @@ function App() {
       const stage = e.target.getStage();
       const pointerPosition = stage.getPointerPosition();
       
+      // Adjust for scroll position
+      const adjustedPosition = {
+        x: pointerPosition.x + canvasScroll.x,
+        y: pointerPosition.y + canvasScroll.y
+      };
+      
+      // Check if we need to expand the canvas
+      checkAndExpandCanvas(adjustedPosition.x, adjustedPosition.y);
+      
       // Find the nearest cardinal point on the source element
       const sourcePoint = findNearestCardinalPoint(
         arcStart.element, 
         arcStart.elementType, 
-        pointerPosition
+        adjustedPosition
       ).point;
       
       // Check if mouse is near a potential target
-      const potentialTarget = findPotentialTarget(pointerPosition.x, pointerPosition.y);
+      const potentialTarget = findPotentialTarget(adjustedPosition.x, adjustedPosition.y);
       
       setTempArcEnd({
         sourcePoint,
-        x: potentialTarget ? potentialTarget.point.point.x : pointerPosition.x,
-        y: potentialTarget ? potentialTarget.point.point.y : pointerPosition.y,
+        x: potentialTarget ? potentialTarget.point.point.x : adjustedPosition.x,
+        y: potentialTarget ? potentialTarget.point.point.y : adjustedPosition.y,
         potentialTarget
       });
     }
   };
 
+  // Function to check if we need to expand the canvas and do so if necessary
+  const checkAndExpandCanvas = (x, y) => {
+    let needsUpdate = false;
+    let newWidth = virtualCanvasDimensions.width;
+    let newHeight = virtualCanvasDimensions.height;
+    
+    // Check right edge
+    if (x > virtualCanvasDimensions.width - expansionThreshold) {
+      newWidth = virtualCanvasDimensions.width + expansionAmount;
+      needsUpdate = true;
+    }
+    
+    // Check bottom edge
+    if (y > virtualCanvasDimensions.height - expansionThreshold) {
+      newHeight = virtualCanvasDimensions.height + expansionAmount;
+      needsUpdate = true;
+    }
+    
+    // Check left edge (expand and adjust scroll position)
+    if (x < expansionThreshold && canvasScroll.x > 0) {
+      newWidth = virtualCanvasDimensions.width + expansionAmount;
+      setCanvasScroll(prev => ({
+        ...prev,
+        x: Math.max(0, prev.x - expansionAmount)
+      }));
+      needsUpdate = true;
+    }
+    
+    // Check top edge (expand and adjust scroll position)
+    if (y < expansionThreshold && canvasScroll.y > 0) {
+      newHeight = virtualCanvasDimensions.height + expansionAmount;
+      setCanvasScroll(prev => ({
+        ...prev,
+        y: Math.max(0, prev.y - expansionAmount)
+      }));
+      needsUpdate = true;
+    }
+    
+    // Update virtual canvas dimensions if needed
+    if (needsUpdate) {
+      console.log(`Expanding canvas to ${newWidth}x${newHeight}`);
+      setVirtualCanvasDimensions({
+        width: newWidth,
+        height: newHeight
+      });
+    }
+  };
+  
   // Function to handle element click for arc creation
   const handleElementClick = (element, elementType) => {
     if (mode === 'arc') {
@@ -296,74 +373,60 @@ function App() {
         setArcStart({ element, elementType });
         console.log(`Arc creation started from ${elementType} ${element.id}`);
       } else {
-        // Complete the arc if valid connection
-        const startType = arcStart.elementType;
-        const endType = elementType;
-        
-        // Validate: arcs can only connect place->transition or transition->place
-        if ((startType === 'place' && endType === 'transition') ||
-            (startType === 'transition' && endType === 'place')) {
+        try {
+          // Complete the arc if valid connection
+          const startType = arcStart.elementType;
+          const endType = elementType;
           
-          // Use the current tempArcEnd data if it exists and has a potential target
-          // that matches the clicked element
-          let sourceDirection, targetDirection;
-          
-          if (tempArcEnd && tempArcEnd.potentialTarget && 
-              tempArcEnd.potentialTarget.element.id === element.id) {
-            // Use the snapped points from the visual feedback
-            sourceDirection = findNearestCardinalPoint(
-              arcStart.element,
-              startType,
-              tempArcEnd.potentialTarget.point.point
-            ).direction;
+          // Validate: arcs can only connect place->transition or transition->place
+          if ((startType === 'place' && endType === 'transition') ||
+              (startType === 'transition' && endType === 'place')) {
             
-            targetDirection = tempArcEnd.potentialTarget.point.direction;
-          } else {
-            // Calculate the best points if no visual feedback is available
-            const sourcePoint = findNearestCardinalPoint(
-              arcStart.element, 
-              startType, 
-              { x: element.x, y: element.y }
-            );
+            // Simple arc creation with fixed directions based on element types
+            // This is more reliable and less prone to errors
+            let sourceDirection, targetDirection;
             
-            const targetPoint = findNearestCardinalPoint(
-              element, 
-              endType, 
-              { x: arcStart.element.x, y: arcStart.element.y }
-            );
+            // For place->transition arcs, use east->west
+            // For transition->place arcs, use south->north
+            if (startType === 'place') {
+              sourceDirection = 'east';
+              targetDirection = 'west';
+            } else {
+              sourceDirection = 'south';
+              targetDirection = 'north';
+            }
             
-            sourceDirection = sourcePoint.direction;
-            targetDirection = targetPoint.direction;
-          }
-          
-          const newArc = {
-            id: `arc-${Date.now()}`,
-            sourceId: arcStart.element.id,
-            sourceType: startType,
-            targetId: element.id,
-            targetType: endType,
-            sourceDirection,
-            targetDirection,
-            weight: 1
-          };
-          
-          setElements(prev => {
-            const newState = {
-              ...prev,
-              arcs: [...prev.arcs, newArc]
+            const newArc = {
+              id: `arc-${Date.now()}`,
+              sourceId: arcStart.element.id,
+              sourceType: startType,
+              targetId: element.id,
+              targetType: endType,
+              sourceDirection,
+              targetDirection,
+              weight: 1
             };
-            // Add to history after state update
-            updateHistory(newState);
-            return newState;
-          });
-          console.log(`Arc created from ${startType} to ${endType}`);
-        } else {
-          console.log(`Invalid arc connection: ${startType} to ${endType}`);
+            
+            setElements(prev => {
+              const newState = {
+                ...prev,
+                arcs: [...prev.arcs, newArc]
+              };
+              // Add to history after state update
+              updateHistory(newState);
+              return newState;
+            });
+            console.log(`Arc created from ${startType} to ${endType}`);
+          } else {
+            console.log(`Invalid arc connection: ${startType} to ${endType}`);
+          }
+        } catch (error) {
+          console.error('Error during arc creation:', error);
+        } finally {
+          // Always reset arc start and temp end, even if there was an error
+          setArcStart(null);
+          setTempArcEnd(null);
         }
-        
-        // Reset arc start and temp end
-        setArcStart(null);
-        setTempArcEnd(null);
       }
     } else if (mode === 'select') {
       // Select the element
@@ -494,39 +557,51 @@ function App() {
     };
   }, [selectedElement, canUndo, canRedo]); // Re-add listener when dependencies change
   
-  // Effect to set initial stage dimensions and handle window resize
-  React.useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const { clientWidth, clientHeight } = containerRef.current;
-        setStageDimensions({
-          width: clientWidth,
-          height: clientHeight
-        });
-      }
-    };
-    
-    // Set initial dimensions
-    updateDimensions();
-    
-    // Add resize listener
-    window.addEventListener('resize', updateDimensions);
-    
-    // Clean up
-    return () => {
-      window.removeEventListener('resize', updateDimensions);
-    };
-  }, []);
-
   // Add this effect to expose state for testing
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       window.__PETRI_NET_STATE__ = elements;
     }
   }, [elements]);
+  
+  // Handle scroll events to navigate the virtual canvas
+  const handleScroll = (e) => {
+    e.preventDefault();
+    const deltaX = e.deltaX;
+    const deltaY = e.deltaY;
+    
+    // Update scroll position with limits
+    setCanvasScroll(prev => ({
+      x: Math.max(0, Math.min(virtualCanvasDimensions.width - stageDimensions.width, prev.x + deltaX)),
+      y: Math.max(0, Math.min(virtualCanvasDimensions.height - stageDimensions.height, prev.y + deltaY))
+    }));
+  };
+
+  // Update dimensions when window is resized
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const containerHeight = containerRef.current.clientHeight;
+        setStageDimensions({
+          width: containerWidth,
+          height: containerHeight
+        });
+      }
+    };
+
+    // Set initial dimensions
+    updateDimensions();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', updateDimensions);
+
+    // Clean up
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
 
   return (
-    <div className="flex flex-col h-screen" ref={appRef}>
+    <div className="flex flex-col h-screen" ref={appRef} tabIndex="0">
       <Toolbar 
         mode={mode} 
         setMode={handleModeChange} 
@@ -542,7 +617,12 @@ function App() {
       />
       
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-hidden" ref={containerRef}>
+        <div 
+          className="flex-1 overflow-hidden stage-container"
+          ref={containerRef}
+          onWheel={handleScroll}
+          style={{ overflow: 'hidden', position: 'relative' }}
+        >
           <Stage 
             ref={stageRef}
             data-testid="canvas"
@@ -570,13 +650,23 @@ function App() {
               />
               
               {/* Grid lines */}
-              <Grid width={stageDimensions.width} height={stageDimensions.height} gridSize={gridSize} />
+              <Grid 
+                width={virtualCanvasDimensions.width} 
+                height={virtualCanvasDimensions.height} 
+                gridSize={gridSize} 
+                scrollX={-canvasScroll.x}
+                scrollY={-canvasScroll.y}
+              />
               
-              {/* Places */}
+              {/* Places - adjust position to account for scroll */}
               {elements.places.map(place => (
                 <Place
                   key={place.id}
-                  place={place}
+                  place={{
+                    ...place,
+                    x: place.x - canvasScroll.x,
+                    y: place.y - canvasScroll.y
+                  }}
                   isSelected={selectedElement && selectedElement.id === place.id || 
                     (arcStart && arcStart.element.id === place.id)}
                   isDragging={draggedElement && draggedElement.element.id === place.id}
@@ -584,29 +674,39 @@ function App() {
                   onDragStart={() => handleDragStart(place, 'place')}
                   onDragMove={(e) => {
                     // Get current position
-                    const rawPos = { x: e.target.x(), y: e.target.y() };
+                    const rawPos = { 
+                      x: e.target.x() + canvasScroll.x, 
+                      y: e.target.y() + canvasScroll.y 
+                    };
                     
                     // Calculate snapped position
                     const snappedPos = snapToGrid(rawPos.x, rawPos.y);
                     
                     // Update the visual position of the element being dragged
                     e.target.position({
-                      x: snappedPos.x,
-                      y: snappedPos.y
+                      x: snappedPos.x - canvasScroll.x,
+                      y: snappedPos.y - canvasScroll.y
                     });
                   }}
                   onDragEnd={(e) => {
-                    const newPos = { x: e.target.x(), y: e.target.y() };
+                    const newPos = { 
+                      x: e.target.x() + canvasScroll.x, 
+                      y: e.target.y() + canvasScroll.y 
+                    };
                     handleDragEnd(place, 'place', newPos);
                   }}
                 />
               ))}
               
-              {/* Transitions */}
+              {/* Transitions - adjust position to account for scroll */}
               {elements.transitions.map(transition => (
                 <Transition
                   key={transition.id}
-                  transition={transition}
+                  transition={{
+                    ...transition,
+                    x: transition.x - canvasScroll.x,
+                    y: transition.y - canvasScroll.y
+                  }}
                   isSelected={selectedElement && selectedElement.id === transition.id || 
                     (arcStart && arcStart.element.id === transition.id)}
                   isDragging={draggedElement && draggedElement.element.id === transition.id}
@@ -614,25 +714,31 @@ function App() {
                   onDragStart={() => handleDragStart(transition, 'transition')}
                   onDragMove={(e) => {
                     // Get current position
-                    const rawPos = { x: e.target.x(), y: e.target.y() };
+                    const rawPos = { 
+                      x: e.target.x() + canvasScroll.x, 
+                      y: e.target.y() + canvasScroll.y 
+                    };
                     
                     // Calculate snapped position
                     const snappedPos = snapToGrid(rawPos.x, rawPos.y);
                     
                     // Update the visual position of the element being dragged
                     e.target.position({
-                      x: snappedPos.x,
-                      y: snappedPos.y
+                      x: snappedPos.x - canvasScroll.x,
+                      y: snappedPos.y - canvasScroll.y
                     });
                   }}
                   onDragEnd={(e) => {
-                    const newPos = { x: e.target.x(), y: e.target.y() };
+                    const newPos = { 
+                      x: e.target.x() + canvasScroll.x, 
+                      y: e.target.y() + canvasScroll.y 
+                    };
                     handleDragEnd(transition, 'transition', newPos);
                   }}
                 />
               ))}
               
-              {/* Arcs */}
+              {/* Arcs - the Arc component will handle scroll offset internally */}
               {elements.arcs.map(arc => (
                 <Arc
                   key={arc.id}
@@ -641,6 +747,7 @@ function App() {
                   transitions={elements.transitions}
                   isSelected={selectedElement && selectedElement.id === arc.id}
                   onClick={() => setSelectedElement(arc)}
+                  canvasScroll={canvasScroll}
                 />
               ))}
               
@@ -649,10 +756,10 @@ function App() {
                 <>
                   <Line
                     points={[
-                      tempArcEnd.sourcePoint.x,
-                      tempArcEnd.sourcePoint.y,
-                      tempArcEnd.x,
-                      tempArcEnd.y
+                      tempArcEnd.sourcePoint.x - canvasScroll.x,
+                      tempArcEnd.sourcePoint.y - canvasScroll.y,
+                      tempArcEnd.x - canvasScroll.x,
+                      tempArcEnd.y - canvasScroll.y
                     ]}
                     stroke="#FF9800" /* Orange color for transient nature */
                     strokeWidth={2}
@@ -660,8 +767,8 @@ function App() {
                   />
                   {/* Visual cue for source point */}
                   <Circle
-                    x={tempArcEnd.sourcePoint.x}
-                    y={tempArcEnd.sourcePoint.y}
+                    x={tempArcEnd.sourcePoint.x - canvasScroll.x}
+                    y={tempArcEnd.sourcePoint.y - canvasScroll.y}
                     radius={4}
                     fill="#FF9800"
                     stroke="white"
@@ -670,8 +777,8 @@ function App() {
                   {/* Visual cue for target point if hovering near a valid target */}
                   {tempArcEnd.potentialTarget && (
                     <Circle
-                      x={tempArcEnd.potentialTarget.point.point.x}
-                      y={tempArcEnd.potentialTarget.point.point.y}
+                      x={tempArcEnd.potentialTarget.point.point.x - canvasScroll.x}
+                      y={tempArcEnd.potentialTarget.point.point.y - canvasScroll.y}
                       radius={4}
                       fill="#FF9800"
                       stroke="white"
@@ -682,6 +789,24 @@ function App() {
               )}
             </Layer>
           </Stage>
+          
+          {/* Visual indicators for scroll position */}
+          <div 
+            className="scroll-indicators" 
+            style={{
+              position: 'absolute', 
+              bottom: '10px', 
+              right: '10px', 
+              background: 'rgba(0,0,0,0.2)', 
+              padding: '5px', 
+              borderRadius: '3px',
+              color: 'white',
+              fontSize: '12px'
+            }}
+          >
+            Canvas: {virtualCanvasDimensions.width}x{virtualCanvasDimensions.height} | 
+            Scroll: {Math.round(canvasScroll.x)},{Math.round(canvasScroll.y)}
+          </div>
         </div>
         
         <div className="w-64 bg-gray-100 overflow-y-auto flex flex-col">

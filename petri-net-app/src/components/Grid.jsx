@@ -1,38 +1,44 @@
 import React from 'react';
 import { Line, Group, Rect } from 'react-konva';
 
-const Grid = ({ width, height, gridSize }) => {
+const Grid = ({ width, height, gridSize, scrollX = 0, scrollY = 0 }) => {
   const horizontalLines = [];
   const verticalLines = [];
-
-  // Ensure we start drawing from negative coordinates to cover any potential gaps
-  const startX = -gridSize;
-  const startY = -gridSize;
   
-  // Add extra padding to ensure grid covers the entire visible area
-  const paddedWidth = width + gridSize * 2;
-  const paddedHeight = height + gridSize * 2;
-
+  // Calculate how many lines we need
+  const numHorizontalLines = Math.ceil(height / gridSize) + 1;
+  const numVerticalLines = Math.ceil(width / gridSize) + 1;
+  
+  // Calculate the starting point for the grid based on scroll position
+  const startX = Math.floor(scrollX / gridSize) * gridSize - scrollX;
+  const startY = Math.floor(scrollY / gridSize) * gridSize - scrollY;
+  
   // Create horizontal grid lines
-  for (let i = startY; i <= paddedHeight; i += gridSize) {
+  for (let i = 0; i < numHorizontalLines; i++) {
+    const y = startY + (i * gridSize);
     horizontalLines.push(
       <Line
         key={`h-${i}`}
-        points={[startX, i, paddedWidth, i]}
+        points={[0, y, width, y]}
         stroke="#ddd"
-        strokeWidth={i % (gridSize * 5) === 0 ? 0.5 : 0.2}
+        strokeWidth={Math.floor((startY + i * gridSize + scrollY) / gridSize) % 5 === 0 ? 0.5 : 0.2}
+        perfectDrawEnabled={false}
+        listening={false}
       />
     );
   }
 
   // Create vertical grid lines
-  for (let i = startX; i <= paddedWidth; i += gridSize) {
+  for (let i = 0; i < numVerticalLines; i++) {
+    const x = startX + (i * gridSize);
     verticalLines.push(
       <Line
         key={`v-${i}`}
-        points={[i, startY, i, paddedHeight]}
+        points={[x, 0, x, height]}
         stroke="#ddd"
-        strokeWidth={i % (gridSize * 5) === 0 ? 0.5 : 0.2}
+        strokeWidth={Math.floor((startX + i * gridSize + scrollX) / gridSize) % 5 === 0 ? 0.5 : 0.2}
+        perfectDrawEnabled={false}
+        listening={false}
       />
     );
   }
@@ -46,6 +52,8 @@ const Grid = ({ width, height, gridSize }) => {
         width={width}
         height={height}
         fill="#f9f9f9"
+        perfectDrawEnabled={false}
+        listening={false}
       />
       {horizontalLines}
       {verticalLines}
