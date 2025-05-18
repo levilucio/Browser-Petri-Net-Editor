@@ -488,8 +488,14 @@ function App() {
   
   // Function to handle keyboard events
   const handleKeyDown = (e) => {
-    // Delete key (both regular Delete and Backspace)
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement) {
+    // Check if the event is happening in an input or textarea field
+    const tagName = e.target.tagName.toLowerCase();
+    const isInputField = tagName === 'input' || tagName === 'textarea' || 
+                         e.target.isContentEditable || 
+                         e.target.getAttribute('role') === 'textbox';
+    
+    // Only process Delete/Backspace key when not in an input field
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedElement && !isInputField) {
       deleteSelectedElement();
     }
     
