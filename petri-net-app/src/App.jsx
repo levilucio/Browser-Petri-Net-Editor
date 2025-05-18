@@ -566,15 +566,20 @@ function App() {
   
   // Handle scroll events to navigate the virtual canvas
   const handleScroll = (e) => {
-    e.preventDefault();
-    const deltaX = e.deltaX;
-    const deltaY = e.deltaY;
-    
-    // Update scroll position with limits
-    setCanvasScroll(prev => ({
-      x: Math.max(0, Math.min(virtualCanvasDimensions.width - stageDimensions.width, prev.x + deltaX)),
-      y: Math.max(0, Math.min(virtualCanvasDimensions.height - stageDimensions.height, prev.y + deltaY))
-    }));
+    // Only prevent default if we're handling the scroll
+    if (containerRef.current && containerRef.current.contains(e.target)) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const deltaX = e.deltaX;
+      const deltaY = e.deltaY;
+      
+      // Update scroll position with limits
+      setCanvasScroll(prev => ({
+        x: Math.max(0, Math.min(virtualCanvasDimensions.width - stageDimensions.width, prev.x + deltaX)),
+        y: Math.max(0, Math.min(virtualCanvasDimensions.height - stageDimensions.height, prev.y + deltaY))
+      }));
+    }
   };
 
   // Update dimensions when window is resized
@@ -600,27 +605,44 @@ function App() {
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
+  // Add event listener for wheel events at the document level
+  useEffect(() => {
+    const handleWheelEvent = (e) => {
+      // Only handle wheel events if they're in the canvas container
+      if (containerRef.current && containerRef.current.contains(e.target)) {
+        handleScroll(e);
+      }
+    };
+    
+    document.addEventListener('wheel', handleWheelEvent, { passive: false });
+    
+    return () => {
+      document.removeEventListener('wheel', handleWheelEvent);
+    };
+  }, [canvasScroll, virtualCanvasDimensions, stageDimensions]);
+
   return (
     <div className="flex flex-col h-screen" ref={appRef} tabIndex="0">
-      <Toolbar 
-        mode={mode} 
-        setMode={handleModeChange} 
-        gridSnappingEnabled={gridSnappingEnabled}
-        toggleGridSnapping={toggleGridSnapping}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        elements={elements}
-        setElements={setElements}
-        updateHistory={updateHistory}
-      />
+      <div className="sticky top-0 z-10 bg-white">
+        <Toolbar 
+          mode={mode} 
+          setMode={handleModeChange} 
+          gridSnappingEnabled={gridSnappingEnabled}
+          toggleGridSnapping={toggleGridSnapping}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          elements={elements}
+          setElements={setElements}
+          updateHistory={updateHistory}
+        />
+      </div>
       
       <div className="flex flex-1 overflow-hidden">
         <div 
           className="flex-1 overflow-hidden stage-container"
           ref={containerRef}
-          onWheel={handleScroll}
           style={{ overflow: 'hidden', position: 'relative' }}
         >
           <Stage 
@@ -790,18 +812,96 @@ function App() {
             </Layer>
           </Stage>
           
+          {/* Visual scrollbars for canvas navigation */}
+          {/* Horizontal scrollbar */}
+          <div 
+            className="horizontal-scrollbar-container" 
+            style={{
+              position: 'absolute',
+              bottom: '0',
+              left: '0',
+              right: '12px', // Leave space for vertical scrollbar
+              height: '12px',
+              background: 'rgba(200,200,200,0.3)',
+              borderTop: '1px solid rgba(0,0,0,0.1)',
+              zIndex: 20
+            }}
+          >
+            <div 
+              className="horizontal-scrollbar-thumb"
+              style={{
+                position: 'absolute',
+                left: (() => {
+                  // Calculate the maximum scrollable area
+                  const maxScrollX = Math.max(0, virtualCanvasDimensions.width - stageDimensions.width);
+                  // Calculate the percentage of scrolling (0 to 1)
+                  const scrollPercentage = maxScrollX > 0 ? canvasScroll.x / maxScrollX : 0;
+                  // Calculate the available space for the thumb to move (container width - thumb width)
+                  const thumbWidth = Math.max(10, (stageDimensions.width / virtualCanvasDimensions.width) * 100);
+                  const availableSpace = 100 - thumbWidth;
+                  // Return the position as a percentage
+                  return `${scrollPercentage * availableSpace}%`;
+                })(),
+                width: `${Math.max(10, (stageDimensions.width / virtualCanvasDimensions.width) * 100)}%`, // Minimum 10% width for visibility
+                height: '100%',
+                background: 'rgba(100,100,100,0.5)',
+                borderRadius: '4px',
+                cursor: 'ew-resize'
+              }}
+            />
+          </div>
+          
+          {/* Vertical scrollbar */}
+          <div 
+            className="vertical-scrollbar-container" 
+            style={{
+              position: 'absolute',
+              top: '0',
+              right: '0',
+              bottom: '12px', // Leave space for horizontal scrollbar
+              width: '12px',
+              background: 'rgba(200,200,200,0.3)',
+              borderLeft: '1px solid rgba(0,0,0,0.1)',
+              zIndex: 20
+            }}
+          >
+            <div 
+              className="vertical-scrollbar-thumb"
+              style={{
+                position: 'absolute',
+                top: (() => {
+                  // Calculate the maximum scrollable area
+                  const maxScrollY = Math.max(0, virtualCanvasDimensions.height - stageDimensions.height);
+                  // Calculate the percentage of scrolling (0 to 1)
+                  const scrollPercentage = maxScrollY > 0 ? canvasScroll.y / maxScrollY : 0;
+                  // Calculate the available space for the thumb to move (container height - thumb height)
+                  const thumbHeight = Math.max(10, (stageDimensions.height / virtualCanvasDimensions.height) * 100);
+                  const availableSpace = 100 - thumbHeight;
+                  // Return the position as a percentage
+                  return `${scrollPercentage * availableSpace}%`;
+                })(),
+                height: `${Math.max(10, (stageDimensions.height / virtualCanvasDimensions.height) * 100)}%`, // Minimum 10% height for visibility
+                width: '100%',
+                background: 'rgba(100,100,100,0.5)',
+                borderRadius: '4px',
+                cursor: 'ns-resize'
+              }}
+            />
+          </div>
+          
           {/* Visual indicators for scroll position */}
           <div 
             className="scroll-indicators" 
             style={{
               position: 'absolute', 
-              bottom: '10px', 
-              right: '10px', 
+              bottom: '15px', 
+              left: '15px', 
               background: 'rgba(0,0,0,0.2)', 
               padding: '5px', 
               borderRadius: '3px',
               color: 'white',
-              fontSize: '12px'
+              fontSize: '12px',
+              zIndex: 10
             }}
           >
             Canvas: {virtualCanvasDimensions.width}x{virtualCanvasDimensions.height} | 
