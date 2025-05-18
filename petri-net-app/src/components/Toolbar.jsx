@@ -269,11 +269,13 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
   
   // Styles for the separator
   const separatorStyle = {
-    width: '1px',
-    backgroundColor: '#d1d5db', // gray-300
-    margin: '0 12px',
-    height: '80%', // Not full height for a cleaner look
-    alignSelf: 'center' // Center in container
+    width: '3px',
+    backgroundColor: '#6b7280', // gray-500 for even better visibility
+    margin: '0 15px',
+    height: '36px', // Fixed height to match buttons
+    alignSelf: 'center', // Center in container
+    boxShadow: '0 0 3px rgba(0, 0, 0, 0.3)', // Stronger shadow for depth
+    display: 'block' // Ensure it's displayed as a block element
   };
 
   // Common button style
@@ -367,10 +369,10 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
   });
 
   return (
-    <div className="toolbar flex flex-col p-2 bg-gray-50 border-b border-gray-200 shadow-sm" style={{ minHeight: '70px' }}>
+    <div className="toolbar-container flex flex-col p-2 bg-gray-50 border-b border-gray-200 shadow-sm" style={{ minHeight: '70px' }}>
       <div className="flex items-start">
         {/* File Operations Group */}
-        <div className="file-operations">
+        <div className="file-operations p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">File</h3>
           <div className="flex justify-between">
             <button 
@@ -399,11 +401,18 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
           </div>
         </div>
         
-        {/* Visual separator */}
-        <div style={separatorStyle}></div>
+        {/* Visual separator - engraved effect */}
+        <div className="h-full" style={{ 
+          borderRight: '1px solid rgba(180, 180, 190, 0.9)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
+          margin: '0 12px',
+          height: '50px',
+          alignSelf: 'center',
+          opacity: 0.85
+        }}></div>
         
         {/* Editing Tools Group */}
-        <div className="editing-tools">
+        <div className="editing-tools p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Editing</h3>
           <div className="flex items-center">
             {/* Grid Snapping Toggle */}
@@ -451,11 +460,18 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
           </div>
         </div>
         
-        {/* Visual separator */}
-        <div style={separatorStyle}></div>
+        {/* Visual separator - engraved effect */}
+        <div className="h-full" style={{ 
+          borderRight: '1px solid rgba(180, 180, 190, 0.9)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
+          margin: '0 12px',
+          height: '50px',
+          alignSelf: 'center',
+          opacity: 0.85
+        }}></div>
         
         {/* Simulation Tools Group */}
-        <div className="simulation-tools">
+        <div className="simulation-tools p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Simulation</h3>
           <div className="flex justify-between">
             <button style={buttonStyle(false)}>
@@ -473,7 +489,7 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
           </div>
         </div>
 
-        <div className="history-tools ml-auto">
+        <div className="history-tools p-2 ml-auto">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">History</h3>
           <div className="flex justify-between">
             <button 

@@ -23,11 +23,24 @@ code {
   height: 100%;
 }
 
+/* Original toolbar styles - keeping for reference */
 .toolbar {
   display: flex;
   padding: 10px;
   background-color: #f5f5f5;
   border-bottom: 1px solid #ddd;
+}
+
+/* New toolbar container styles */
+.toolbar-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Vertical divider style */
+.toolbar-container .flex.items-start > div[style] {
+  display: block !important;
+  min-height: 36px;
 }
 
 .toolbar button {
