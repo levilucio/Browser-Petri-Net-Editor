@@ -83,26 +83,27 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅ XML parser/serializer supporting the schema in Section 3.3.
   - ✅ Unit tests for validation and XML handling; Playwright tests for editor interactions.
 - **Success Criteria**:
-  -  Create, edit, save, and load valid P/T nets with up to 1000 places/transitions.
+  - ✅ Create, edit, save, and load valid P/T nets with up to 1000 places/transitions.
   - ✅ Validation errors displayed as red outlines and tooltips.
   - ✅ Undo/redo supports all editing actions.
 
 #### Milestone 1.3: P/T Net Simulator (4 weeks, Weeks 9–12)
 - **Tasks**:
-  - Implement simulator engine in Python (Pyodide) to compute enabled transitions and update markings.
+  - ✅Implement simulator engine in Python (Pyodide) to compute enabled transitions and update markings.
   - Add execution panel to display current marking and enabled transitions.
   - Implement three simulation modes:
     - **Step-by-Step**: User selects enabled transition; yellow highlight and token animation (black dots).
     - **Quick Visual**: Automated firing (200ms delay) with animation.
     - **Non-Visual**: Compute final marking without animation.
-  - Add toolbar buttons for simulation modes, stop, and clear canvas.
   - Ensure token limit (20 per place) is enforced during firing.
   - Optimize performance (< 100ms per transition, < 50ms editor actions).
   - Write comprehensive tests for simulator logic and performance.
 - **Deliverables**:
   - Complete P/T net simulator with all modes and visual feedback.
   - Documentation for Phase 1 features and usage.
-  - Test suite covering simulator, validation, and performance.
+  - Test suite covering simulator, validation, and performance. not finished
+  - Bug when the simulator is running and the user tries to edit the net, or when the net runs the execution through and hangs
+  - Refactor large files
 - **Success Criteria**:
   - Simulate P/T nets with correct marking updates and token animations.
   - All modes functional, with performance within limits.

@@ -1,7 +1,27 @@
 import React, { useState } from 'react';
 import { exportToPNML, importFromPNML } from '../utils/python/index';
+// Import icons for simulation controls
+import { initializeSimulator } from '../utils/simulator';
 
-const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUndo, canRedo, onUndo, onRedo, elements, setElements, updateHistory }) => {
+const Toolbar = ({ 
+  mode, 
+  setMode, 
+  gridSnappingEnabled, 
+  toggleGridSnapping, 
+  canUndo, 
+  canRedo, 
+  onUndo, 
+  onRedo, 
+  elements, 
+  setElements, 
+  updateHistory,
+  simulationMode,
+  setSimulationMode,
+  isSimulating,
+  startSimulation,
+  stopSimulation,
+  clearCanvas
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -474,17 +494,60 @@ const Toolbar = ({ mode, setMode, gridSnappingEnabled, toggleGridSnapping, canUn
         <div className="simulation-tools p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Simulation</h3>
           <div className="flex justify-between">
-            <button style={buttonStyle(false)}>
+            <button 
+              style={buttonStyle(simulationMode === 'step' && !isSimulating)}
+              onClick={() => setSimulationMode('step')}
+              disabled={isSimulating}
+              title="Step-by-Step Simulation"
+              data-testid="sim-step"
+            >
               Step
             </button>
-            <button style={buttonStyle(false)}>
+            <button 
+              style={buttonStyle(simulationMode === 'quick' && !isSimulating)}
+              onClick={() => setSimulationMode('quick')}
+              disabled={isSimulating}
+              title="Quick Visual Simulation"
+              data-testid="sim-quick"
+            >
               Visual
             </button>
-            <button style={buttonStyle(false)}>
+            <button 
+              style={buttonStyle(simulationMode === 'non-visual' && !isSimulating)}
+              onClick={() => setSimulationMode('non-visual')}
+              disabled={isSimulating}
+              title="Non-Visual Simulation"
+              data-testid="sim-non-visual"
+            >
               Analyze
             </button>
-            <button style={buttonStyle(false)}>
-              Stop
+            {!isSimulating ? (
+              <button 
+                style={buttonStyle(false)}
+                onClick={startSimulation}
+                disabled={simulationMode === 'step'}
+                title="Start Simulation"
+                data-testid="sim-start"
+              >
+                Start
+              </button>
+            ) : (
+              <button 
+                style={{...buttonStyle(false), backgroundColor: '#f87171', color: 'white'}}
+                onClick={stopSimulation}
+                title="Stop Simulation"
+                data-testid="sim-stop"
+              >
+                Stop
+              </button>
+            )}
+            <button 
+              style={buttonStyle(false)}
+              onClick={clearCanvas}
+              title="Clear Canvas"
+              data-testid="clear-canvas"
+            >
+              Clear
             </button>
           </div>
         </div>

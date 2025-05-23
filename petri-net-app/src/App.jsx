@@ -9,6 +9,8 @@ import Transition from './components/Transition';
 import Arc from './components/Arc';
 import Grid from './components/Grid';
 import { HistoryManager } from './utils/historyManager';
+// Import the simulator functions
+import { initializeSimulator, getEnabledTransitions } from './utils/simulator';
 
 function App() {
   const [elements, setElements] = useState({
@@ -22,6 +24,12 @@ function App() {
   const [tempArcEnd, setTempArcEnd] = useState(null); // For visual feedback during arc creation
   const stageRef = useRef(null);
   const appRef = useRef(null); // Reference to the app container for keyboard events
+  
+  // Simulation state
+  const [simulationMode, setSimulationMode] = useState('step'); // step, quick, non-visual
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [enabledTransitions, setEnabledTransitions] = useState([]);
+  const [simulationError, setSimulationError] = useState(null);
 
   // Use state for stage dimensions to allow for resizing
   const [stageDimensions, setStageDimensions] = useState({
@@ -97,6 +105,61 @@ function App() {
     const historyStatus = historyManager.addState(newState);
     setCanUndo(historyStatus.canUndo);
     setCanRedo(historyStatus.canRedo);
+  };
+  
+  // Function to start simulation based on the selected mode
+  const startSimulation = async () => {
+    if (simulationMode === 'step') {
+      // Step-by-step mode is handled by the ExecutionPanel
+      return;
+    }
+    
+    setIsSimulating(true);
+    setSimulationError(null);
+    
+    try {
+      // Initialize the simulator with the current Petri net state
+      await initializeSimulator(elements);
+      
+      // Get the enabled transitions
+      const enabled = await getEnabledTransitions();
+      setEnabledTransitions(enabled);
+      
+      // The actual simulation logic is handled by the ExecutionPanel component
+    } catch (error) {
+      console.error('Error starting simulation:', error);
+      setSimulationError(`Error starting simulation: ${error.message}`);
+      setIsSimulating(false);
+    }
+  };
+  
+  // Function to stop simulation
+  const stopSimulation = () => {
+    setIsSimulating(false);
+  };
+  
+  // Function to clear the canvas
+  const clearCanvas = () => {
+    // Create an empty Petri net
+    const emptyPetriNet = {
+      places: [],
+      transitions: [],
+      arcs: []
+    };
+    
+    // Update the elements state
+    setElements(emptyPetriNet);
+    
+    // Add to history
+    updateHistory(emptyPetriNet);
+    
+    // Reset selection and mode
+    setSelectedElement(null);
+    setMode('select');
+    
+    // Reset simulation state
+    setIsSimulating(false);
+    setEnabledTransitions([]);
   };
 
   // Function to handle the end of dragging an element
@@ -632,7 +695,7 @@ function App() {
       <div className="sticky top-0 z-10 bg-white">
         <Toolbar 
           mode={mode} 
-          setMode={handleModeChange} 
+          setMode={setMode} 
           gridSnappingEnabled={gridSnappingEnabled}
           toggleGridSnapping={toggleGridSnapping}
           canUndo={canUndo}
@@ -642,6 +705,12 @@ function App() {
           elements={elements}
           setElements={setElements}
           updateHistory={updateHistory}
+          simulationMode={simulationMode}
+          setSimulationMode={setSimulationMode}
+          isSimulating={isSimulating}
+          startSimulation={startSimulation}
+          stopSimulation={stopSimulation}
+          clearCanvas={clearCanvas}
         />
       </div>
       
@@ -924,8 +993,20 @@ function App() {
           />
           <ExecutionPanel 
             elements={elements}
-            setElements={setElements}
-            updateHistory={updateHistory}
+            onUpdateElements={(updatedPetriNet) => {
+              // Update the elements state with the new Petri net state
+              setElements(prev => {
+                const newState = {
+                  ...prev,
+                  places: updatedPetriNet.places || prev.places,
+                  transitions: updatedPetriNet.transitions || prev.transitions,
+                  arcs: updatedPetriNet.arcs || prev.arcs
+                };
+                // Add to history after state update
+                updateHistory(newState);
+                return newState;
+              });
+            }}
           />
           {/* ImportExportPanel removed as requested */}
         </div>
