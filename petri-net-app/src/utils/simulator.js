@@ -4,6 +4,8 @@
  * using Pyodide to compute enabled transitions and update markings.
  */
 
+import { loadPyodideInstance } from './pyodide-loader';
+
 // Keep a single instance of Pyodide to avoid reloading
 let pyodideInstance = null;
 let simulator = null;
@@ -162,45 +164,14 @@ export async function initializePyodide() {
   }
 
   try {
-    console.log('Loading Pyodide from CDN...');
+    console.log('Loading Pyodide...');
     // Create a loading promise to prevent multiple simultaneous loads
     pyodideLoading = new Promise(async (resolve, reject) => {
       try {
-        // Check if Pyodide is already loaded
-        if (window.loadPyodide) {
-          console.log('Pyodide already loaded globally');
-          pyodideInstance = await window.loadPyodide();
-          await loadSimulatorCode(pyodideInstance);
-          resolve(pyodideInstance);
-          return;
-        }
-        
-        // Load Pyodide script from CDN
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
-        script.async = true;
-        
-        script.onload = async () => {
-          try {
-            console.log('Pyodide script loaded, initializing...');
-            // Initialize Pyodide
-            pyodideInstance = await window.loadPyodide();
-            await loadSimulatorCode(pyodideInstance);
-            resolve(pyodideInstance);
-          } catch (error) {
-            console.error('Error initializing Pyodide after script load:', error);
-            useJsFallback = true;
-            reject(error);
-          }
-        };
-        
-        script.onerror = (error) => {
-          console.error('Error loading Pyodide script:', error);
-          useJsFallback = true;
-          reject(new Error('Failed to load Pyodide script'));
-        };
-        
-        document.head.appendChild(script);
+        // Use the loadPyodideInstance function from the pyodide-loader module
+        pyodideInstance = await loadPyodideInstance();
+        await loadSimulatorCode(pyodideInstance);
+        resolve(pyodideInstance);
       } catch (error) {
         console.error('Error in Pyodide loading process:', error);
         useJsFallback = true;
@@ -212,8 +183,7 @@ export async function initializePyodide() {
   } catch (error) {
     console.error('Error initializing Pyodide:', error);
     useJsFallback = true;
-    pyodideLoading = null;
-    throw error;
+    return null;
   }
 }
 
@@ -247,7 +217,7 @@ async function loadSimulatorCode(pyodide) {
 async function fetchSimulatorCode() {
   // Define the simulator code inline to avoid fetch issues
   return `
-"""\nPetri Net Simulator Engine\nThis module provides functions to simulate Petri nets, including:\n- Computing enabled transitions\n- Firing transitions\n- Updating markings\n"""\n\nclass PetriNetSimulator:\n    """\n    A simulator for Petri nets that computes enabled transitions and updates markings.\n    """\n    \n    def __init__(self, petri_net):\n        """\n        Initialize the simulator with a Petri net.\n        \n        Args:\n            petri_net (dict): The Petri net in JSON format with places, transitions, and arcs\n        """\n        self.petri_net = petri_net\n        self.places = petri_net.get('places', [])\n        self.transitions = petri_net.get('transitions', [])\n        self.arcs = petri_net.get('arcs', [])\n        \n    def get_input_places(self, transition_id):\n        """\n        Get all input places for a transition.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            list: List of (place, arc) tuples for all input places\n        """\n        input_places = []\n        \n        for arc in self.arcs:\n            # Check if the arc is from a place to this transition\n            source_id = arc.get('sourceId') or arc.get('source')\n            target_id = arc.get('targetId') or arc.get('target')\n            source_type = arc.get('sourceType')\n            \n            # Handle both editor-created arcs and PNML-loaded arcs\n            if ((source_type == 'place' and target_id == transition_id) or \n                (arc.get('type') == 'place-to-transition' and target_id == transition_id)):\n                # Find the place\n                place = next((p for p in self.places if p.get('id') == source_id), None)\n                if place:\n                    input_places.append((place, arc))\n                    \n        return input_places\n    \n    def get_output_places(self, transition_id):\n        """\n        Get all output places for a transition.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            list: List of (place, arc) tuples for all output places\n        """\n        output_places = []\n        \n        for arc in self.arcs:\n            # Check if the arc is from this transition to a place\n            source_id = arc.get('sourceId') or arc.get('source')\n            target_id = arc.get('targetId') or arc.get('target')\n            target_type = arc.get('targetType')\n            \n            # Handle both editor-created arcs and PNML-loaded arcs\n            if ((target_type == 'place' and source_id == transition_id) or \n                (arc.get('type') == 'transition-to-place' and source_id == transition_id)):\n                # Find the place\n                place = next((p for p in self.places if p.get('id') == target_id), None)\n                if place:\n                    output_places.append((place, arc))\n                    \n        return output_places\n    \n    def is_transition_enabled(self, transition_id):\n        """\n        Check if a transition is enabled.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            bool: True if the transition is enabled, False otherwise\n        """\n        input_places = self.get_input_places(transition_id)\n        \n        # A transition is enabled if all input places have enough tokens\n        for place, arc in input_places:\n            # Get the arc weight (default to 1 if not specified)\n            weight = arc.get('weight', 1)\n            \n            # Check if the place has enough tokens\n            if place.get('tokens', 0) < weight:\n                return False\n                \n        return True\n    \n    def get_enabled_transitions(self):\n        """\n        Get all enabled transitions in the Petri net.\n        \n        Returns:\n            list: List of enabled transition objects\n        """\n        enabled_transitions = []\n        \n        for transition in self.transitions:\n            if self.is_transition_enabled(transition.get('id')):\n                enabled_transitions.append(transition)\n                \n        return enabled_transitions\n    \n    def fire_transition(self, transition_id):\n        """\n        Fire a transition and update the marking.\n        \n        Args:\n            transition_id (str): The ID of the transition to fire\n            \n        Returns:\n            dict: Updated Petri net with new marking\n            \n        Raises:\n            ValueError: If the transition is not enabled\n        """\n        # Check if the transition is enabled\n        if not self.is_transition_enabled(transition_id):\n            raise ValueError(f"Transition {transition_id} is not enabled")\n            \n        # Get input and output places\n        input_places = self.get_input_places(transition_id)\n        output_places = self.get_output_places(transition_id)\n        \n        # Create a deep copy of the Petri net to update\n        updated_petri_net = {\n            'places': [dict(place) for place in self.places],\n            'transitions': self.transitions,\n            'arcs': self.arcs\n        }\n        \n        # Remove tokens from input places\n        for place, arc in input_places:\n            weight = arc.get('weight', 1)\n            place_id = place.get('id')\n            \n            # Find the place in the updated Petri net\n            updated_place = next((p for p in updated_petri_net['places'] if p.get('id') == place_id), None)\n            if updated_place:\n                updated_place['tokens'] = max(0, updated_place.get('tokens', 0) - weight)\n        \n        # Add tokens to output places\n        for place, arc in output_places:\n            weight = arc.get('weight', 1)\n            place_id = place.get('id')\n            \n            # Find the place in the updated Petri net\n            updated_place = next((p for p in updated_petri_net['places'] if p.get('id') == place_id), None)\n            if updated_place:\n                # Enforce token limit (20 per place)\n                updated_place['tokens'] = min(20, updated_place.get('tokens', 0) + weight)\n        \n        return updated_petri_net\n    \n    def compute_reachable_markings(self, max_steps=100):\n        """\n        Compute all reachable markings from the current marking.\n        \n        Args:\n            max_steps (int): Maximum number of steps to compute\n            \n        Returns:\n            list: List of reachable markings\n        """\n        # Start with the current marking\n        markings = [self._extract_marking()]\n        visited_markings = set([self._marking_to_tuple(markings[0])])\n        \n        # Keep track of the current Petri net state\n        current_petri_net = self.petri_net\n        \n        # Breadth-first search for reachable markings\n        steps = 0\n        while steps < max_steps:\n            steps += 1\n            \n            # Create a simulator for the current Petri net\n            simulator = PetriNetSimulator(current_petri_net)\n            \n            # Get enabled transitions\n            enabled_transitions = simulator.get_enabled_transitions()\n            if not enabled_transitions:\n                break\n                \n            # Try firing each enabled transition\n            new_markings_found = False\n            for transition in enabled_transitions:\n                # Fire the transition\n                new_petri_net = simulator.fire_transition(transition.get('id'))\n                \n                # Extract the new marking\n                new_marking = self._extract_marking(new_petri_net)\n                new_marking_tuple = self._marking_to_tuple(new_marking)\n                \n                # Check if we've seen this marking before\n                if new_marking_tuple not in visited_markings:\n                    markings.append(new_marking)\n                    visited_markings.add(new_marking_tuple)\n                    new_markings_found = True\n                    \n                    # Update the current Petri net\n                    current_petri_net = new_petri_net\n            \n            # If no new markings were found, we've reached a fixed point\n            if not new_markings_found:\n                break\n                \n        return markings\n    \n    def _extract_marking(self, petri_net=None):\n        """\n        Extract the current marking from the Petri net.\n        \n        Args:\n            petri_net (dict, optional): The Petri net to extract the marking from.\n                If None, use the simulator's Petri net.\n                \n        Returns:\n            dict: Mapping from place ID to token count\n        """\n        petri_net = petri_net or self.petri_net\n        places = petri_net.get('places', [])\n        \n        marking = {}\n        for place in places:\n            marking[place.get('id')] = place.get('tokens', 0)\n            \n        return marking\n    \n    def _marking_to_tuple(self, marking):\n        """\n        Convert a marking dict to a tuple for hashing.\n        \n        Args:\n            marking (dict): Mapping from place ID to token count\n            \n        Returns:\n            tuple: Tuple representation of the marking\n        """\n        return tuple(sorted((k, v) for k, v in marking.items())))
+"""\nPetri Net Simulator Engine\nThis module provides functions to simulate Petri nets, including:\n- Computing enabled transitions\n- Firing transitions\n- Updating markings\n"""\n\nclass PetriNetSimulator:\n    """\n    A simulator for Petri nets that computes enabled transitions and updates markings.\n    """\n    \n    def __init__(self, petri_net):\n        """\n        Initialize the simulator with a Petri net.\n        \n        Args:\n            petri_net (dict): The Petri net in JSON format with places, transitions, and arcs\n        """\n        self.petri_net = petri_net\n        self.places = petri_net.get('places', [])\n        self.transitions = petri_net.get('transitions', [])\n        self.arcs = petri_net.get('arcs', [])\n        \n    def get_input_places(self, transition_id):\n        """\n        Get all input places for a transition.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            list: List of (place, arc) tuples for all input places\n        """\n        input_places = []\n        \n        for arc in self.arcs:\n            # Check if the arc is from a place to this transition\n            source_id = arc.get('sourceId') or arc.get('source')\n            target_id = arc.get('targetId') or arc.get('target')\n            source_type = arc.get('sourceType')\n            \n            # Handle both editor-created arcs and PNML-loaded arcs\n            if ((source_type == 'place' and target_id == transition_id) or \n                (arc.get('type') == 'place-to-transition' and target_id == transition_id)):\n                # Find the place\n                place = next((p for p in self.places if p.get('id') == source_id), None)\n                if place:\n                    input_places.append((place, arc))\n                    \n        return input_places\n    \n    def get_output_places(self, transition_id):\n        """\n        Get all output places for a transition.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            list: List of (place, arc) tuples for all output places\n        """\n        output_places = []\n        \n        for arc in self.arcs:\n            # Check if the arc is from this transition to a place\n            source_id = arc.get('sourceId') or arc.get('source')\n            target_id = arc.get('targetId') or arc.get('target')\n            target_type = arc.get('targetType')\n            \n            # Handle both editor-created arcs and PNML-loaded arcs\n            if ((target_type == 'place' and source_id == transition_id) or \n                (arc.get('type') == 'transition-to-place' and source_id == transition_id)):\n                # Find the place\n                place = next((p for p in self.places if p.get('id') == target_id), None)\n                if place:\n                    output_places.append((place, arc))\n                    \n        return output_places\n    \n    def is_transition_enabled(self, transition_id):\n        """\n        Check if a transition is enabled.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            bool: True if the transition is enabled, False otherwise\n        """\n        input_places = self.get_input_places(transition_id)\n        \n        # A transition is enabled if all input places have enough tokens\n        for place, arc in input_places:\n            # Get the arc weight (default to 1 if not specified)\n            weight = arc.get('weight', 1)\n            \n            # Check if the place has enough tokens\n            if place.get('tokens', 0) < weight:\n                return False\n                \n        return True\n    \n    def get_enabled_transitions(self):\n        """\n        Get all enabled transitions in the Petri net.\n        \n        Returns:\n            list: List of enabled transition objects\n        """\n        enabled_transitions = []\n        \n        for transition in self.transitions:\n            if self.is_transition_enabled(transition.get('id')):\n                enabled_transitions.append(transition)\n                \n        return enabled_transitions\n    \n    def fire_transition(self, transition_id):\n        """\n        Fire a transition and update the marking.\n        \n        Args:\n            transition_id (str): The ID of the transition to fire\n            \n        Returns:\n            dict: Updated Petri net with new marking\n            \n        Raises:\n            ValueError: If the transition is not enabled\n        """\n        # Check if the transition is enabled\n        if not self.is_transition_enabled(transition_id):\n            raise ValueError(f"Transition {transition_id} is not enabled")\n            \n        # Get input and output places\n        input_places = self.get_input_places(transition_id)\n        output_places = self.get_output_places(transition_id)\n        \n        # Create a deep copy of the Petri net to update\n        updated_petri_net = {\n            'places': [dict(place) for place in self.places],\n            'transitions': self.transitions,\n            'arcs': self.arcs\n        }\n        \n        # Remove tokens from input places\n        for place, arc in input_places:\n            weight = arc.get('weight', 1)\n            place_id = place.get('id')\n            \n            # Find the place in the updated Petri net\n            updated_place = next((p for p in updated_petri_net['places'] if p.get('id') == place_id), None)\n            if updated_place:\n                updated_place['tokens'] = max(0, updated_place.get('tokens', 0) - weight)\n        \n        # Add tokens to output places\n        for place, arc in output_places:\n            weight = arc.get('weight', 1)\n            place_id = place.get('id')\n            \n            # Find the place in the updated Petri net\n            updated_place = next((p for p in updated_petri_net['places'] if p.get('id') == place_id), None)\n            if updated_place:\n                # Enforce token limit (20 per place)\n                updated_place['tokens'] = min(20, updated_place.get('tokens', 0) + weight)\n        \n        return updated_petri_net\n    \n    def compute_reachable_markings(self, max_steps=100):\n        """\n        Compute all reachable markings from the current marking.\n        \n        Args:\n            max_steps (int): Maximum number of steps to compute\n            \n        Returns:\n            list: List of reachable markings\n        """\n        # Start with the current marking\n        markings = [self._extract_marking()]\n        visited_markings = set([self._marking_to_tuple(markings[0])])\n        \n        # Keep track of the current Petri net state\n        current_petri_net = self.petri_net\n        \n        # Breadth-first search for reachable markings\n        steps = 0\n        while steps < max_steps:\n            steps += 1\n            \n            # Create a simulator for the current Petri net\n            simulator = PetriNetSimulator(current_petri_net)\n            \n            # Get enabled transitions\n            enabled_transitions = simulator.get_enabled_transitions()\n            if not enabled_transitions:\n                break\n                \n            # Try firing each enabled transition\n            new_markings_found = False\n            for transition in enabled_transitions:\n                # Fire the transition\n                new_petri_net = simulator.fire_transition(transition.get('id'))\n                \n                # Extract the new marking\n                new_marking = self._extract_marking(new_petri_net)\n                new_marking_tuple = self._marking_to_tuple(new_marking)\n                \n                # Check if we've seen this marking before\n                if new_marking_tuple not in visited_markings:\n                    markings.append(new_marking)\n                    visited_markings.add(new_marking_tuple)\n                    new_markings_found = True\n                    \n                    # Update the current Petri net\n                    current_petri_net = new_petri_net\n            \n            # If no new markings were found, we've reached a fixed point\n            if not new_markings_found:\n                break\n                \n        return markings\n    \n    def _extract_marking(self, petri_net=None):\n        """\n        Extract the current marking from the Petri net.\n        \n        Args:\n            petri_net (dict, optional): The Petri net to extract the marking from.\n                If None, use the simulator's Petri net.\n                \n        Returns:\n            dict: Mapping from place ID to token count\n        """\n        petri_net = petri_net or self.petri_net\n        places = petri_net.get('places', [])\n        \n        marking = {}\n        for place in places:\n            marking[place.get('id')] = place.get('tokens', 0)\n            \n        return marking\n    \n    def _marking_to_tuple(self, marking):\n        """\n        Convert a marking dict to a tuple for hashing.\n        \n        Args:\n            marking (dict): Mapping from place ID to token count\n            \n        Returns:\n            tuple: Tuple representation of the marking\n        """\n        return tuple(sorted((k, v) for k, v in marking.items()))
   `;
 }
 
@@ -317,7 +287,17 @@ export async function getEnabledTransitions() {
     const enabledTransitions = await simulator.get_enabled_transitions();
     
     // Convert the Python list to a JavaScript array
-    return enabledTransitions.toJs();
+    const jsTransitions = enabledTransitions.toJs();
+    console.log('Enabled transitions from Python:', jsTransitions);
+    
+    // Ensure the transitions have the required properties
+    return jsTransitions.map(transition => {
+      // Make sure each transition has an id and name property
+      return {
+        id: transition.id || transition.get?.('id'),
+        name: transition.name || transition.get?.('name') || `T${transition.id?.split('-')[1] || '?'}`
+      };
+    });
   } catch (error) {
     console.error('Error getting enabled transitions:', error);
     throw error;
@@ -344,7 +324,173 @@ export async function fireTransition(transitionId) {
     const updatedPetriNet = await simulator.fire_transition(transitionId);
     
     // Convert the Python object to a JavaScript object
-    return updatedPetriNet.toJs();
+    const jsPetriNet = updatedPetriNet.toJs();
+    console.log('Updated Petri net from Python:', jsPetriNet);
+    
+    // Create a properly structured Petri net object
+    const result = { places: [], transitions: [], arcs: [] };
+    
+    // Handle the case where jsPetriNet is a Map
+    if (jsPetriNet instanceof Map) {
+      console.log('Processing Map object from Python');
+      
+      // Extract places array from the Map
+      const placesArray = jsPetriNet.get('places');
+      if (placesArray && Array.isArray(placesArray)) {
+        result.places = placesArray.map(place => {
+          // If place is a Map, extract its properties
+          if (place instanceof Map) {
+            return {
+              id: place.get('id'),
+              name: place.get('name'),
+              tokens: place.get('tokens') || 0,
+              x: place.get('x') || 0,
+              y: place.get('y') || 0
+            };
+          } else if (typeof place === 'object') {
+            return {
+              id: place.id,
+              name: place.name,
+              tokens: place.tokens || 0,
+              x: place.x || 0,
+              y: place.y || 0
+            };
+          }
+          return place;
+        });
+      }
+      
+      // Extract transitions array from the Map
+      const transitionsArray = jsPetriNet.get('transitions');
+      if (transitionsArray && Array.isArray(transitionsArray)) {
+        result.transitions = transitionsArray.map(transition => {
+          // If transition is a Map, extract its properties
+          if (transition instanceof Map) {
+            return {
+              id: transition.get('id'),
+              name: transition.get('name'),
+              x: transition.get('x') || 0,
+              y: transition.get('y') || 0
+            };
+          } else if (typeof transition === 'object') {
+            return {
+              id: transition.id,
+              name: transition.name,
+              x: transition.x || 0,
+              y: transition.y || 0
+            };
+          }
+          return transition;
+        });
+      }
+      
+      // Extract arcs array from the Map
+      const arcsArray = jsPetriNet.get('arcs');
+      if (arcsArray && Array.isArray(arcsArray)) {
+        result.arcs = arcsArray.map(arc => {
+          // If arc is a Map, extract its properties
+          if (arc instanceof Map) {
+            return {
+              id: arc.get('id'),
+              sourceId: arc.get('sourceId') || arc.get('source'),
+              targetId: arc.get('targetId') || arc.get('target'),
+              sourceType: arc.get('sourceType'),
+              targetType: arc.get('targetType'),
+              sourceDirection: arc.get('sourceDirection'),
+              targetDirection: arc.get('targetDirection'),
+              weight: arc.get('weight') || 1,
+              // Ensure we preserve any additional properties needed for rendering
+              type: arc.get('type')
+            };
+          } else if (typeof arc === 'object') {
+            return {
+              id: arc.id,
+              sourceId: arc.sourceId || arc.source,
+              targetId: arc.targetId || arc.target,
+              sourceType: arc.sourceType,
+              targetType: arc.targetType,
+              sourceDirection: arc.sourceDirection,
+              targetDirection: arc.targetDirection,
+              weight: arc.weight || 1,
+              // Ensure we preserve any additional properties needed for rendering
+              type: arc.type
+            };
+          }
+          return arc;
+        });
+      }
+      
+      console.log('Converted Petri net:', result);
+      // We don't update this.petriNet here because 'this' is not the simulator instance
+      return result;
+    }
+    
+    // Handle the case where jsPetriNet is a regular object
+    if (jsPetriNet.places) {
+      result.places = jsPetriNet.places.map(place => {
+        // Make sure the tokens property is correctly set
+        if (place instanceof Map) {
+          return {
+            id: place.get('id'),
+            name: place.get('name'),
+            tokens: place.get('tokens') || 0,
+            x: place.get('x') || 0,
+            y: place.get('y') || 0
+          };
+        }
+        return {
+          ...place,
+          tokens: place.tokens || 0
+        };
+      });
+      
+      // Ensure transitions maintain their coordinates
+      result.transitions = (jsPetriNet.transitions || []).map(transition => {
+        if (transition instanceof Map) {
+          return {
+            id: transition.get('id'),
+            name: transition.get('name'),
+            x: transition.get('x') || 0,
+            y: transition.get('y') || 0
+          };
+        }
+        return {
+          ...transition,
+          x: transition.x || 0,
+          y: transition.y || 0
+        };
+      });
+      
+      // Ensure arcs maintain all their properties
+      result.arcs = (jsPetriNet.arcs || []).map(arc => {
+        if (arc instanceof Map) {
+          return {
+            id: arc.get('id'),
+            sourceId: arc.get('sourceId') || arc.get('source'),
+            targetId: arc.get('targetId') || arc.get('target'),
+            sourceType: arc.get('sourceType'),
+            targetType: arc.get('targetType'),
+            sourceDirection: arc.get('sourceDirection'),
+            targetDirection: arc.get('targetDirection'),
+            weight: arc.get('weight') || 1,
+            type: arc.get('type')
+          };
+        }
+        return {
+          ...arc,
+          sourceId: arc.sourceId || arc.source,
+          targetId: arc.targetId || arc.target,
+          weight: arc.weight || 1
+        };
+      });
+      
+      console.log('Converted Petri net:', result);
+      return result;
+    }
+    
+    // If all else fails, return the original object
+    console.log('Returning Petri net as is:', jsPetriNet);
+    return jsPetriNet;
   } catch (error) {
     console.error(`Error firing transition ${transitionId}:`, error);
     throw error;

@@ -2,42 +2,79 @@ import React from 'react';
 import { Line, Text, Group, Rect } from 'react-konva';
 
 const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x: 0, y: 0 } }) => {
-  // Find source and target elements
-  // Handle both the editor-created arcs and PNML-loaded arcs
+  // Debugging to help trace arc rendering issues
+  console.log(`Rendering arc ${arc.id}:`, arc);
+  
+  // Normalize arc properties to handle different formats
+  const normalizedArc = {
+    ...arc,
+    sourceId: arc.sourceId || arc.source,
+    targetId: arc.targetId || arc.target,
+    sourceType: arc.sourceType || 
+               (arc.type === 'place-to-transition' ? 'place' : 'transition')
+  };
+  
+  // Determine targetType if not explicitly provided
+  if (!normalizedArc.targetType) {
+    normalizedArc.targetType = arc.type === 'place-to-transition' ? 'transition' : 'place';
+  }
+  
+  console.log(`Normalized arc ${normalizedArc.id}:`, normalizedArc);
+  
+  // Find source and target elements with more robust lookups
   let source, target;
   
-  // Get source - handle both formats
-  if (arc.sourceId) {
-    // Editor-created arc
-    source = arc.sourceType === 'place' 
-      ? places.find(p => p.id === arc.sourceId)
-      : transitions.find(t => t.id === arc.sourceId);
-  } else if (arc.source) {
-    // PNML-loaded arc
-    source = places.find(p => p.id === arc.source) || transitions.find(t => t.id === arc.source);
+  // Get source using normalized sourceId
+  if (normalizedArc.sourceId) {
+    if (normalizedArc.sourceType === 'place') {
+      source = places.find(p => p.id === normalizedArc.sourceId);
+      console.log(`Looking for source place ${normalizedArc.sourceId}:`, source ? 'Found' : 'Not found');
+    } else {
+      source = transitions.find(t => t.id === normalizedArc.sourceId);
+      console.log(`Looking for source transition ${normalizedArc.sourceId}:`, source ? 'Found' : 'Not found');
+    }
   }
   
-  // Get target - handle both formats
-  if (arc.targetId) {
-    // Editor-created arc
-    target = arc.targetType === 'place' 
-      ? places.find(p => p.id === arc.targetId)
-      : transitions.find(t => t.id === arc.targetId);
-  } else if (arc.target) {
-    // PNML-loaded arc
-    target = places.find(p => p.id === arc.target) || transitions.find(t => t.id === arc.target);
+  // Get target using normalized targetId
+  if (normalizedArc.targetId) {
+    if (normalizedArc.targetType === 'place') {
+      target = places.find(p => p.id === normalizedArc.targetId);
+      console.log(`Looking for target place ${normalizedArc.targetId}:`, target ? 'Found' : 'Not found');
+    } else {
+      target = transitions.find(t => t.id === normalizedArc.targetId);
+      console.log(`Looking for target transition ${normalizedArc.targetId}:`, target ? 'Found' : 'Not found');
+    }
   }
   
-  // Determine source and target types
-  const sourceType = arc.sourceType || 
-                   (arc.type === 'place-to-transition' ? 'place' : 'transition') ||
-                   (places.some(p => p.id === arc.source) ? 'place' : 'transition');
+  // Fall back to less specific lookup if needed
+  if (!source && normalizedArc.sourceId) {
+    source = places.find(p => p.id === normalizedArc.sourceId) || 
+             transitions.find(t => t.id === normalizedArc.sourceId);
+    if (source) {
+      console.log(`Found source using fallback lookup:`, source);
+      // Update sourceType based on what we found
+      normalizedArc.sourceType = places.some(p => p.id === normalizedArc.sourceId) ? 'place' : 'transition';
+    }
+  }
   
-  const targetType = arc.targetType || 
-                   (arc.type === 'place-to-transition' ? 'transition' : 'place') ||
-                   (places.some(p => p.id === arc.target) ? 'place' : 'transition');
+  if (!target && normalizedArc.targetId) {
+    target = places.find(p => p.id === normalizedArc.targetId) || 
+             transitions.find(t => t.id === normalizedArc.targetId);
+    if (target) {
+      console.log(`Found target using fallback lookup:`, target);
+      // Update targetType based on what we found
+      normalizedArc.targetType = places.some(p => p.id === normalizedArc.targetId) ? 'place' : 'transition';
+    }
+  }
 
-  if (!source || !target) return null;
+  if (!source || !target) {
+    console.log(`Arc ${normalizedArc.id} not rendered - missing source or target`);
+    return null;
+  }
+  
+  // Use the normalized source and target types
+  const sourceType = normalizedArc.sourceType;
+  const targetType = normalizedArc.targetType;
 
   // Calculate start and end points
   const startX = source.x;

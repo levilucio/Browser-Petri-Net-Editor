@@ -629,9 +629,64 @@ function App() {
   // Add this effect to expose state for testing
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-      window.__PETRI_NET_STATE__ = elements;
+      // Expose the state and simulator info for testing
+      window.__PETRI_NET_STATE__ = {
+        ...elements,
+        simulator: {
+          enabledTransitions: enabledTransitions
+        }
+      };
+      
+      // Add a custom event listener for setting tokens
+      const handleSetTokens = (event) => {
+        const { id, tokens } = event.detail;
+        if (id && typeof tokens === 'number') {
+          setElements(prev => {
+            const updatedPlaces = prev.places.map(place => {
+              if (place.id === id) {
+                return { ...place, tokens };
+              }
+              return place;
+            });
+            return { ...prev, places: updatedPlaces };
+          });
+          
+          // Force the simulator to update enabled transitions
+          setTimeout(() => {
+            updateEnabledTransitions();
+          }, 100);
+        }
+      };
+      
+      // Add a custom event listener for firing transitions
+      const handleFireTransitionEvent = (event) => {
+        const { id } = event.detail;
+        if (id) {
+          console.log('Custom event: Firing transition', id);
+          // Call the simulator's function directly to fire the transition
+          if (simulator) {
+            simulator.fireTransition(id)
+              .then(updatedPetriNet => {
+                console.log('Transition fired via custom event, updating state');
+                onUpdateElements(updatedPetriNet);
+              })
+              .catch(error => {
+                console.error('Error firing transition via custom event:', error);
+              });
+          }
+        }
+      };
+      
+      document.addEventListener('set-tokens', handleSetTokens);
+      document.addEventListener('fire-transition', handleFireTransitionEvent);
+      
+      // Clean up the event listeners
+      return () => {
+        document.removeEventListener('set-tokens', handleSetTokens);
+        document.removeEventListener('fire-transition', handleFireTransitionEvent);
+      };
     }
-  }, [elements]);
+  }, [elements, enabledTransitions]);
   
   // Handle scroll events to navigate the virtual canvas
   const handleScroll = (e) => {
@@ -996,12 +1051,48 @@ function App() {
             onUpdateElements={(updatedPetriNet) => {
               // Update the elements state with the new Petri net state
               setElements(prev => {
+                // Create a deep copy of the previous arcs to ensure we preserve all properties
+                const preservedArcs = prev.arcs.map(arc => ({
+                  ...arc,
+                  // Ensure we have both sourceId and source (for compatibility)
+                  sourceId: arc.sourceId || arc.source,
+                  targetId: arc.targetId || arc.target
+                }));
+                
+                // If updatedPetriNet has arcs, merge them with preserved arcs
+                const mergedArcs = updatedPetriNet.arcs ? 
+                  updatedPetriNet.arcs.map(updatedArc => {
+                    // Find the corresponding arc in the preserved arcs
+                    const existingArc = preservedArcs.find(arc => arc.id === updatedArc.id);
+                    if (existingArc) {
+                      // Merge the updated arc with the existing arc to preserve all properties
+                      return {
+                        ...existingArc,
+                        ...updatedArc,
+                        // Ensure these critical properties are preserved
+                        sourceId: updatedArc.sourceId || updatedArc.source || existingArc.sourceId || existingArc.source,
+                        targetId: updatedArc.targetId || updatedArc.target || existingArc.targetId || existingArc.target,
+                        sourceType: updatedArc.sourceType || existingArc.sourceType,
+                        targetType: updatedArc.targetType || existingArc.targetType,
+                        sourceDirection: updatedArc.sourceDirection || existingArc.sourceDirection,
+                        targetDirection: updatedArc.targetDirection || existingArc.targetDirection
+                      };
+                    }
+                    return updatedArc;
+                  }) : 
+                  preservedArcs;
+                
                 const newState = {
                   ...prev,
                   places: updatedPetriNet.places || prev.places,
                   transitions: updatedPetriNet.transitions || prev.transitions,
-                  arcs: updatedPetriNet.arcs || prev.arcs
+                  arcs: mergedArcs
                 };
+                
+                // Log the arcs for debugging
+                console.log('Previous arcs:', prev.arcs);
+                console.log('Updated arcs:', mergedArcs);
+                
                 // Add to history after state update
                 updateHistory(newState);
                 return newState;

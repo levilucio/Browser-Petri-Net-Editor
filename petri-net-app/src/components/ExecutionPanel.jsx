@@ -7,8 +7,7 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
   const [isSimulatorReady, setIsSimulatorReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [simulationMode, setSimulationMode] = useState('step'); // 'step', 'quick', 'non-visual'
-  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationMode, setSimulationMode] = useState('step'); // Only 'step' mode is used now
   
   // Initialize the simulator when the elements change
   useEffect(() => {
@@ -71,87 +70,22 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
     }
   };
   
-  // Handle quick simulation mode
-  const handleQuickSimulation = async () => {
+  // Handle firing the first enabled transition
+  const handleFirePetriNet = async () => {
     if (!isSimulatorReady || enabledTransitions.length === 0) return;
-    
-    setIsSimulating(true);
-    
-    try {
-      // Fire the first enabled transition
-      await handleFireTransition(enabledTransitions[0].id);
-      
-      // Schedule the next firing after a delay
-      if (enabledTransitions.length > 0) {
-        setTimeout(() => {
-          if (isSimulating) {
-            handleQuickSimulation();
-          }
-        }, 200); // 200ms delay between firings
-      } else {
-        setIsSimulating(false);
-      }
-    } catch (err) {
-      console.error('Error in quick simulation:', err);
-      setError('Failed to continue simulation');
-      setIsSimulating(false);
-    }
-  };
-  
-  // Handle non-visual simulation mode
-  const handleNonVisualSimulation = async () => {
-    if (!isSimulatorReady) return;
     
     setIsLoading(true);
     setError(null);
     
     try {
-      // Keep firing enabled transitions until no more are enabled
-      let currentPetriNet = { ...elements };
-      let currentEnabledTransitions = [...enabledTransitions];
-      
-      while (currentEnabledTransitions.length > 0) {
-        // Fire the first enabled transition
-        const transitionId = currentEnabledTransitions[0].id;
-        currentPetriNet = await fireTransition(transitionId);
-        
-        // Update the simulator with the new state
-        await updateSimulator(currentPetriNet);
-        
-        // Compute the new enabled transitions
-        currentEnabledTransitions = await getEnabledTransitions();
-      }
-      
-      // Update the elements in the parent component
-      if (onUpdateElements) {
-        onUpdateElements(currentPetriNet);
-      }
-      
-      // Update the enabled transitions
-      setEnabledTransitions([]);
+      // Fire the first enabled transition
+      await handleFireTransition(enabledTransitions[0].id);
     } catch (err) {
-      console.error('Error in non-visual simulation:', err);
-      setError('Failed to complete simulation');
+      console.error('Error firing transition:', err);
+      setError('Failed to fire transition');
     } finally {
       setIsLoading(false);
     }
-  };
-  
-  // Handle starting simulation based on the selected mode
-  const handleStartSimulation = () => {
-    if (simulationMode === 'step') {
-      // Step-by-step mode is handled by the user clicking on enabled transitions
-      return;
-    } else if (simulationMode === 'quick') {
-      handleQuickSimulation();
-    } else if (simulationMode === 'non-visual') {
-      handleNonVisualSimulation();
-    }
-  };
-  
-  // Handle stopping simulation
-  const handleStopSimulation = () => {
-    setIsSimulating(false);
   };
   
   return (
@@ -165,37 +99,14 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
       )}
       
       <div className="flex mb-4">
-        <div className="mr-4">
-          <label className="block text-sm font-medium mb-1">Simulation Mode</label>
-          <select
-            className="border rounded px-2 py-1"
-            value={simulationMode}
-            onChange={(e) => setSimulationMode(e.target.value)}
-            disabled={isSimulating || isLoading}
-          >
-            <option value="step">Step-by-Step</option>
-            <option value="quick">Quick Visual</option>
-            <option value="non-visual">Non-Visual</option>
-          </select>
-        </div>
-        
         <div className="flex items-end">
-          {!isSimulating ? (
-            <button
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
-              onClick={handleStartSimulation}
-              disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || simulationMode === 'step'}
-            >
-              Start Simulation
-            </button>
-          ) : (
-            <button
-              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-              onClick={handleStopSimulation}
-            >
-              Stop Simulation
-            </button>
-          )}
+          <button
+            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+            onClick={handleFirePetriNet}
+            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading}
+          >
+            Fire
+          </button>
         </div>
       </div>
       
@@ -231,9 +142,10 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
               {enabledTransitions.map(transition => (
                 <button
                   key={transition.id}
+                  data-testid={`enabled-transition-${transition.id}`}
                   className="px-3 py-1 bg-green-100 border border-green-300 rounded hover:bg-green-200"
                   onClick={() => simulationMode === 'step' && handleFireTransition(transition.id)}
-                  disabled={isSimulating || isLoading || simulationMode !== 'step'}
+                  disabled={isLoading}
                 >
                   {transition.name}
                 </button>

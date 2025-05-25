@@ -5,50 +5,74 @@ import App from '../App';
 // Set up Jest timers
 jest.useFakeTimers();
 
+// Create a mock stage object for testing
+const mockStage = {
+  getPointerPosition: jest.fn().mockReturnValue({ x: 100, y: 100 }),
+};
+
+// Create mock components with React.forwardRef to properly handle refs
+const MockStage = React.forwardRef(({ children, onClick, ...props }, ref) => (
+  <div 
+    data-testid="stage" 
+    ref={ref}
+    {...props} 
+    onClick={(e) => {
+      // Mock the getStage method
+      e.target.getStage = () => mockStage;
+      if (onClick) onClick(e);
+    }}
+  >
+    {children}
+  </div>
+));
+
+const MockLayer = React.forwardRef(({ children, ...props }, ref) => (
+  <div data-testid="layer" ref={ref} {...props}>{children}</div>
+));
+
+const MockGroup = React.forwardRef(({ children, onClick, ...props }, ref) => (
+  <div 
+    data-testid="group" 
+    ref={ref}
+    {...props} 
+    onClick={(e) => {
+      // Prevent event propagation to simulate Konva behavior
+      e.stopPropagation();
+      if (onClick) onClick(e);
+    }}
+  >
+    {children}
+  </div>
+));
+
+const MockCircle = React.forwardRef((props, ref) => <div data-testid="circle" ref={ref} {...props} />);
+const MockRect = React.forwardRef((props, ref) => <div data-testid="rect" ref={ref} {...props} />);
+const MockLine = React.forwardRef((props, ref) => <div data-testid="line" ref={ref} {...props} />);
+const MockArrow = React.forwardRef((props, ref) => <div data-testid="arrow" ref={ref} {...props} />);
+const MockText = React.forwardRef(({ text, ...props }, ref) => <div data-testid="text" ref={ref} {...props}>{text}</div>);
+
 // Mock Konva components
-jest.mock('react-konva', () => {
-  const mockStage = {
-    getPointerPosition: jest.fn().mockReturnValue({ x: 100, y: 100 }),
-  };
-  
-  return {
-    Stage: ({ children, onClick, ...props }) => {
-      // Ensure the stage is rendered with the correct data-testid
-      return (
-        <div 
-          data-testid="stage" 
-          {...props} 
-          onClick={(e) => {
-            // Mock the getStage method
-            e.target.getStage = () => mockStage;
-            if (onClick) onClick(e);
-          }}
-        >
-          {children}
-        </div>
-      );
-    },
-    Layer: ({ children, ...props }) => <div data-testid="layer" {...props}>{children}</div>,
-    Group: ({ children, onClick, ...props }) => (
-      <div 
-        data-testid="group" 
-        {...props} 
-        onClick={(e) => {
-          // Prevent event propagation to simulate Konva behavior
-          e.stopPropagation();
-          if (onClick) onClick(e);
-        }}
-      >
-        {children}
-      </div>
-    ),
-    Circle: (props) => <div data-testid="circle" {...props} />,
-    Rect: (props) => <div data-testid="rect" {...props} />,
-    Line: (props) => <div data-testid="line" {...props} />,
-    Arrow: (props) => <div data-testid="arrow" {...props} />,
-    Text: ({ text, ...props }) => <div data-testid="text" {...props}>{text}</div>,
-  };
-});
+jest.mock('react-konva', () => ({
+  Stage: 'MockStage',
+  Layer: 'MockLayer',
+  Group: 'MockGroup',
+  Circle: 'MockCircle',
+  Rect: 'MockRect',
+  Line: 'MockLine',
+  Arrow: 'MockArrow',
+  Text: 'MockText'
+}));
+
+// Replace the string placeholders with actual components after the mock
+const reactKonva = require('react-konva');
+reactKonva.Stage = MockStage;
+reactKonva.Layer = MockLayer;
+reactKonva.Group = MockGroup;
+reactKonva.Circle = MockCircle;
+reactKonva.Rect = MockRect;
+reactKonva.Line = MockLine;
+reactKonva.Arrow = MockArrow;
+reactKonva.Text = MockText;
 
 // Mock child components
 jest.mock('../components/Place', () => ({ place, isSelected, onClick }) => (

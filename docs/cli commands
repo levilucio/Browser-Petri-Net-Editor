@@ -1,9 +1,41 @@
-Start the app: npm run dev
+# Petri Net Editor CLI Commands (PowerShell Syntax)
 
-Run tests: npm run test:e2e
+# Start the development server
+Set-Location -Path .\petri-net-app; npm run dev
 
-Run tests in watch mode: npm run test:watch
+# Run unit tests
+Set-Location -Path .\petri-net-app; npm test
 
-Stop node: taskkill /F /IM node.exe
+# Run specific unit tests
+Set-Location -Path .\petri-net-app; npm test -- path/to/test/file.test.js
 
-Run tests for developer: npx playwright test --ui
+# Run tests with coverage
+Set-Location -Path .\petri-net-app; npm test -- --coverage
+
+# Run end-to-end tests
+Set-Location -Path .\petri-net-app; npm run test:e2e
+
+# Run tests in watch mode
+Set-Location -Path .\petri-net-app; npm run test:watch
+
+# Stop all Node.js processes
+taskkill /F /IM node.exe
+
+# Git commands
+# Check status
+git status
+
+# Add all changes
+git add .
+
+# Commit changes
+git commit -m "Your commit message here"
+
+# Push changes
+git push origin master
+
+# Force push to revert remote HEAD to current state
+git push -f origin master
+
+# Run tests for developer
+Set-Location -Path .\petri-net-app; npx playwright test --ui

@@ -196,6 +196,7 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
             value={formValues.tokens}
             onChange={handleTokensChange}
             onBlur={handleTokensBlur}
+            data-testid="tokens-input"
             className={`w-full px-3 py-2 border ${isTokenCountValid ? 'border-gray-300' : 'border-red-500'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
           />
           {!isTokenCountValid && (

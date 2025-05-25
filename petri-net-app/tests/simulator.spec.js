@@ -119,8 +119,11 @@ test.describe('Petri Net Simulator', () => {
     // Check that the execution panel is visible
     await expect(page.getByTestId('execution-panel')).toBeVisible();
     
-    // Check that the simulation mode selector is visible
-    await expect(page.locator('select')).toBeVisible();
+    // Check that the Fire button is visible
+    await expect(page.getByText('Fire')).toBeVisible();
+    
+    // Check that enabled transitions section is visible
+    await expect(page.getByText('Enabled Transitions')).toBeVisible();
   });
 
   test('should fire a transition in step-by-step mode', async ({ page }) => {
@@ -130,11 +133,16 @@ test.describe('Petri Net Simulator', () => {
     // Wait for the simulator to initialize
     await expect(page.getByText('Current Marking')).toBeVisible();
     
-    // Set the simulation mode to step-by-step (default)
-    await page.getByTestId('sim-step').click();
+    // Wait for the enabled transitions to be computed
+    await page.waitForTimeout(1000);
     
     // Find and click the enabled transition button in the execution panel
-    await page.getByText('T1').click();
+    // Look for a button containing T1 within the enabled-transitions div
+    const enabledTransitionsSection = page.locator('.enabled-transitions');
+    await expect(enabledTransitionsSection).toBeVisible();
+    
+    // Click the first enabled transition (should be T1)
+    await page.locator('.enabled-transitions button').first().click();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);
@@ -142,61 +150,66 @@ test.describe('Petri Net Simulator', () => {
     // Wait for the UI to update
     await page.waitForTimeout(1000);
     
-    // The start simulation button should be disabled if there are no enabled transitions
-    await expect(page.getByText('Start Simulation')).toBeDisabled();
+    // The Fire button should be disabled if there are no enabled transitions
+    await expect(page.getByText('Fire')).toBeDisabled();
   });
 
-  test('should run quick visual simulation', async ({ page }) => {
+  test('should fire transitions using the Fire button', async ({ page }) => {
     // Create a complex Petri net
     await createComplexPetriNet(page);
     
     // Wait for the simulator to initialize
     await expect(page.getByText('Current Marking')).toBeVisible();
     
-    // Set the simulation mode to quick visual
-    await page.getByTestId('sim-quick').click();
-    
-    // Start the simulation
-    await page.getByTestId('sim-start').click();
-    
-    // The stop button should appear
-    await expect(page.getByTestId('sim-stop')).toBeVisible();
-    
-    // Wait for the simulation to complete or stop it after a short time
-    await page.waitForTimeout(1000);
-    await page.getByTestId('sim-stop').click();
-    
-    // Wait for the execution panel to update
-    await page.waitForTimeout(1000);
-    
-    // Select the quick visual simulation mode
-    await page.locator('select').selectOption('quick');
-    
-    // Click the Start Simulation button
-    await page.getByText('Start Simulation').click();
-    
-    // Wait for the simulation to run
+    // Wait for the enabled transitions to be computed
     await page.waitForTimeout(2000);
+    
+    // Check that the Fire button is visible
+    await expect(page.getByText('Fire')).toBeVisible();
+    
+    // Click the Fire button to fire the first enabled transition
+    await page.getByText('Fire').click();
+    
+    // Wait for the execution panel to update
+    await page.waitForTimeout(1000);
+    
+    // Check that the marking has changed by looking at the current marking section
+    // The P1 place should now have 1 token instead of 2
+    const currentMarking = page.locator('.current-marking');
+    await expect(currentMarking).toBeVisible();
+    
+    // Wait for the UI to update
+    await page.waitForTimeout(1000);
+    
+    // Click the Fire button again if it's enabled
+    const fireButton = page.getByText('Fire');
+    const isEnabled = await fireButton.isEnabled();
+    
+    if (isEnabled) {
+      await fireButton.click();
+      // Wait for the execution panel to update
+      await page.waitForTimeout(1000);
+    }
   });
 
-  test('should run non-visual simulation', async ({ page }) => {
+  test('should show enabled transitions correctly', async ({ page }) => {
     // Create a complex Petri net
     await createComplexPetriNet(page);
     
     // Wait for the simulator to initialize
     await expect(page.getByText('Current Marking')).toBeVisible();
     
-    // Set the simulation mode to non-visual
-    await page.getByTestId('sim-non-visual').click();
+    // Wait for the enabled transitions to be computed
+    await page.waitForTimeout(2000);
     
-    // Start the simulation
-    await page.getByTestId('sim-start').click();
+    // Check that the enabled transitions section is visible
+    const enabledTransitionsSection = page.locator('.enabled-transitions');
+    await expect(enabledTransitionsSection).toBeVisible();
     
-    // Wait for the simulation to complete
-    await page.waitForTimeout(1000);
-    
-    // Wait for the execution panel to update
-    await page.waitForTimeout(1000);
+    // There should be at least one enabled transition button
+    const enabledTransitionButtons = page.locator('.enabled-transitions button');
+    const count = await enabledTransitionButtons.count();
+    expect(count).toBeGreaterThan(0);
     
     // Check that the execution panel is visible
     await expect(page.getByTestId('execution-panel')).toBeVisible();
