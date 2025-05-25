@@ -1,0 +1,9 @@
+Start the app: npm run dev
+
+Run tests: npm run test:e2e
+
+Run tests in watch mode: npm run test:watch
+
+Stop node: taskkill /F /IM node.exe
+
+Run tests for developer: npx playwright test --ui
