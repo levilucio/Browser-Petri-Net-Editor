@@ -92,16 +92,16 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅Implement simulator engine in Python (Pyodide) to compute enabled transitions and update markings.
   - Add execution panel to display current marking and enabled transitions.
   - Implement three simulation modes:
-    - **Step-by-Step**: User selects enabled transition; yellow highlight and token animation (black dots).
+    - ✅**Step-by-Step**: User selects enabled transition; yellow highlight and token animation (black dots).
     - **Quick Visual**: Automated firing (200ms delay) with animation.
     - **Non-Visual**: Compute final marking without animation.
   - Ensure token limit (20 per place) is enforced during firing.
   - Optimize performance (< 100ms per transition, < 50ms editor actions).
-  - Write comprehensive tests for simulator logic and performance.
+  - ✅Write comprehensive tests for simulator logic and performance.
 - **Deliverables**:
   - Complete P/T net simulator with all modes and visual feedback.
   - Documentation for Phase 1 features and usage.
-  - Test suite covering simulator, validation, and performance. not finished
+  - Test suite covering simulator, validation, and performance.
   - Bug when the simulator is running and the user tries to edit the net, or when the net runs the execution through and hangs
   - Refactor large files
 - **Success Criteria**:

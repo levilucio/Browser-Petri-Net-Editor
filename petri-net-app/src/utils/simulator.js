@@ -287,21 +287,398 @@ export async function getEnabledTransitions() {
     const enabledTransitions = await simulator.get_enabled_transitions();
     
     // Convert the Python list to a JavaScript array
-    const jsTransitions = enabledTransitions.toJs();
-    console.log('Enabled transitions from Python:', jsTransitions);
+    const jsEnabledTransitions = enabledTransitions.toJs();
+    console.log('Enabled transitions from Python:', jsEnabledTransitions);
     
-    // Ensure the transitions have the required properties
-    return jsTransitions.map(transition => {
-      // Make sure each transition has an id and name property
-      return {
-        id: transition.id || transition.get?.('id'),
-        name: transition.name || transition.get?.('name') || `T${transition.id?.split('-')[1] || '?'}`
-      };
+    // Return the transitions as properly structured objects
+    return jsEnabledTransitions.map(transition => {
+      if (transition instanceof Map) {
+        return {
+          id: transition.get('id'),
+          name: transition.get('name')
+        };
+      } else if (typeof transition === 'object') {
+        return {
+          id: transition.id,
+          name: transition.name
+        };
+      }
+      return transition;
     });
   } catch (error) {
     console.error('Error getting enabled transitions:', error);
     throw error;
   }
+}
+
+/**
+ * Check if two transitions are in conflict (share an input place with insufficient tokens for both)
+ * @param {string} transition1Id - ID of the first transition
+ * @param {string} transition2Id - ID of the second transition
+ * @param {Array} places - Array of places in the Petri net
+ * @param {Array} arcs - Array of arcs in the Petri net
+ * @returns {Promise<boolean>} - True if the transitions are in conflict, false otherwise
+ */
+export async function areTransitionsInConflict(transition1Id, transition2Id, places, arcs) {
+  try {
+    if (!simulator) {
+      throw new Error('Simulator not initialized');
+    }
+    
+    // Check if we're using the JavaScript fallback
+    if (simulator instanceof JsPetriNetSimulator) {
+      // Get input places with their arcs for both transitions
+      const inputPlacesWithArcs1 = simulator.getInputPlaces(transition1Id);
+      const inputPlacesWithArcs2 = simulator.getInputPlaces(transition2Id);
+      
+      // Find shared input places
+      const sharedPlaceIds = inputPlacesWithArcs1.map(([place]) => place.id)
+        .filter(placeId => inputPlacesWithArcs2.some(([place]) => place.id === placeId));
+      
+      // If no shared places, no conflict
+      if (sharedPlaceIds.length === 0) {
+        return false;
+      }
+      
+      // Check if any shared place has insufficient tokens for both transitions
+      for (const sharedPlaceId of sharedPlaceIds) {
+        // Find the place object
+        const place = places.find(p => p.id === sharedPlaceId);
+        if (!place) continue;
+        
+        // Get the arcs from this place to both transitions
+        const arcToT1 = arcs.find(a => {
+          const sourceId = a.sourceId || a.source;
+          const targetId = a.targetId || a.target;
+          return sourceId === sharedPlaceId && targetId === transition1Id;
+        });
+        
+        const arcToT2 = arcs.find(a => {
+          const sourceId = a.sourceId || a.source;
+          const targetId = a.targetId || a.target;
+          return sourceId === sharedPlaceId && targetId === transition2Id;
+        });
+        
+        if (!arcToT1 || !arcToT2) continue;
+        
+        // Get arc weights (default to 1 if not specified)
+        const weight1 = arcToT1.weight || 1;
+        const weight2 = arcToT2.weight || 1;
+        
+        // Check if the place has enough tokens for both transitions
+        const availableTokens = place.tokens || 0;
+        if (availableTokens < weight1 + weight2) {
+          // Not enough tokens for both transitions, they are in conflict
+          return true;
+        }
+      }
+      
+      // If we get here, all shared places have enough tokens for both transitions
+      return false;
+    }
+    
+    // For Pyodide implementation, we'll use a similar approach
+    // First, find input places with their arc weights for each transition
+    const inputPlacesT1 = new Map();
+    const inputPlacesT2 = new Map();
+    
+    // Find input places and weights for transition1
+    for (const arc of arcs) {
+      const sourceId = arc.sourceId || arc.source;
+      const targetId = arc.targetId || arc.target;
+      const sourceType = arc.sourceType;
+      
+      if ((sourceType === 'place' && targetId === transition1Id) || 
+          (arc.type === 'place-to-transition' && targetId === transition1Id)) {
+        inputPlacesT1.set(sourceId, arc.weight || 1);
+      }
+    }
+    
+    // Find input places and weights for transition2
+    for (const arc of arcs) {
+      const sourceId = arc.sourceId || arc.source;
+      const targetId = arc.targetId || arc.target;
+      const sourceType = arc.sourceType;
+      
+      if ((sourceType === 'place' && targetId === transition2Id) || 
+          (arc.type === 'place-to-transition' && targetId === transition2Id)) {
+        inputPlacesT2.set(sourceId, arc.weight || 1);
+      }
+    }
+    
+    // Find shared input places
+    const sharedPlaceIds = [...inputPlacesT1.keys()].filter(placeId => inputPlacesT2.has(placeId));
+    
+    // If no shared places, no conflict
+    if (sharedPlaceIds.length === 0) {
+      return false;
+    }
+    
+    // Check if any shared place has insufficient tokens for both transitions
+    for (const sharedPlaceId of sharedPlaceIds) {
+      // Find the place
+      const place = places.find(p => p.id === sharedPlaceId);
+      if (!place) continue;
+      
+      // Get the weights for both arcs
+      const weight1 = inputPlacesT1.get(sharedPlaceId);
+      const weight2 = inputPlacesT2.get(sharedPlaceId);
+      
+      // Check if the place has enough tokens for both transitions
+      const availableTokens = place.tokens || 0;
+      if (availableTokens < weight1 + weight2) {
+        // Not enough tokens for both transitions, they are in conflict
+        return true;
+      }
+    }
+    
+    // If we get here, all shared places have enough tokens for both transitions
+    return false;
+  } catch (error) {
+    console.error('Error checking transition conflicts:', error);
+    throw error;
+  }
+}
+
+/**
+ * Find all non-conflicting enabled transitions to fire simultaneously
+ * @param {Array} enabledTransitions - Array of enabled transition objects
+ * @param {Array} places - Array of places in the Petri net
+ * @param {Array} arcs - Array of arcs in the Petri net
+ * @returns {Promise<Array>} - Array of transition IDs to fire
+ */
+export async function findNonConflictingTransitions(enabledTransitions, places, arcs) {
+  // If there are no enabled transitions, return an empty array
+  if (!enabledTransitions || enabledTransitions.length === 0) {
+    return [];
+  }
+  
+  // If there's only one enabled transition, return it
+  if (enabledTransitions.length === 1) {
+    return [enabledTransitions[0].id];
+  }
+  
+  // Shuffle the enabled transitions to ensure non-deterministic selection when conflicts exist
+  const shuffledTransitions = [...enabledTransitions].sort(() => Math.random() - 0.5);
+  
+  const transitionsToFire = [];
+  const conflictGroups = new Map(); // Maps transition IDs to their conflict group
+  
+  // Create conflict groups
+  for (let i = 0; i < shuffledTransitions.length; i++) {
+    const transitionId = shuffledTransitions[i].id;
+    let foundGroup = false;
+    
+    // Check if this transition conflicts with any existing group
+    for (const [groupId, groupTransitions] of conflictGroups.entries()) {
+      let hasConflict = false;
+      
+      // Check if this transition conflicts with any transition in the group
+      for (const groupTransitionId of groupTransitions) {
+        const conflicting = await areTransitionsInConflict(transitionId, groupTransitionId, places, arcs);
+        if (conflicting) {
+          hasConflict = true;
+          break;
+        }
+      }
+      
+      if (hasConflict) {
+        // Add to existing conflict group
+        conflictGroups.get(groupId).push(transitionId);
+        foundGroup = true;
+        break;
+      }
+    }
+    
+    if (!foundGroup) {
+      // Create a new conflict group
+      const newGroupId = `group-${i}`;
+      conflictGroups.set(newGroupId, [transitionId]);
+    }
+  }
+  
+  // Select one transition from each conflict group (non-deterministically)
+  for (const [groupId, groupTransitions] of conflictGroups.entries()) {
+    // If the group has only one transition, select it
+    if (groupTransitions.length === 1) {
+      transitionsToFire.push(groupTransitions[0]);
+    } else {
+      // Randomly select one transition from the group
+      const selectedTransition = groupTransitions[Math.floor(Math.random() * groupTransitions.length)];
+      transitionsToFire.push(selectedTransition);
+    }
+  }
+  
+  return transitionsToFire;
+}
+
+/**
+ * Fire multiple transitions simultaneously and update the marking
+ * @param {Array} transitionIds - Array of transition IDs to fire
+ * @returns {Promise<Object>} - Updated Petri net with new marking
+ */
+export async function fireMultipleTransitions(transitionIds) {
+  try {
+    if (!simulator) {
+      throw new Error('Simulator not initialized');
+    }
+    
+    if (transitionIds.length === 0) {
+      throw new Error('No transitions to fire');
+    }
+    
+    // If there's only one transition, use the existing fireTransition function
+    if (transitionIds.length === 1) {
+      return await fireTransition(transitionIds[0]);
+    }
+    
+    // For JavaScript fallback, fire transitions one by one
+    if (simulator instanceof JsPetriNetSimulator) {
+      let updatedPetriNet = null;
+      
+      // Fire each transition in sequence
+      for (const transitionId of transitionIds) {
+        updatedPetriNet = simulator.fireTransition(transitionId);
+        
+        // Update the simulator with the new state after each firing
+        simulator = new JsPetriNetSimulator(updatedPetriNet);
+      }
+      
+      return updatedPetriNet;
+    }
+    
+    // For Pyodide, we'll implement a simpler version until we add Python support for this
+    // This is a simplification - it fires transitions sequentially, not truly simultaneously
+    // For truly simultaneous firing, we would need to compute all token changes first,
+    // then apply them all at once (which would require modifying the Python code)
+    let currentPetriNet = null;
+    
+    // Fire each transition in sequence
+    for (const transitionId of transitionIds) {
+      // Call the Python function to fire the transition
+      const updatedPetriNet = await simulator.fire_transition(transitionId);
+      currentPetriNet = updatedPetriNet.toJs();
+      
+      // Update the simulator with the new state
+      await updateSimulator(currentPetriNet);
+    }
+    
+    // Return the final updated Petri net with proper structure
+    return processUpdatedPetriNet(currentPetriNet);
+  } catch (error) {
+    console.error('Error firing multiple transitions:', error);
+    throw error;
+  }
+}
+
+/**
+ * Process the updated Petri net from Pyodide to ensure proper structure
+ * @param {Object} jsPetriNet - The Petri net object from Pyodide
+ * @returns {Object} - A properly structured Petri net object
+ */
+function processUpdatedPetriNet(jsPetriNet) {
+  // Create a properly structured Petri net object
+  const result = { places: [], transitions: [], arcs: [] };
+  
+  // Handle the case where jsPetriNet is a Map
+  if (jsPetriNet instanceof Map) {
+    // Extract places array from the Map
+    const placesArray = jsPetriNet.get('places');
+    if (placesArray && Array.isArray(placesArray)) {
+      result.places = placesArray.map(place => {
+        // If place is a Map, extract its properties
+        if (place instanceof Map) {
+          return {
+            id: place.get('id'),
+            name: place.get('name'),
+            tokens: place.get('tokens') || 0,
+            x: place.get('x') || 0,
+            y: place.get('y') || 0
+          };
+        } else if (typeof place === 'object') {
+          return {
+            id: place.id,
+            name: place.name,
+            tokens: place.tokens || 0,
+            x: place.x || 0,
+            y: place.y || 0
+          };
+        }
+        return place;
+      });
+    }
+    
+    // Extract transitions array from the Map
+    const transitionsArray = jsPetriNet.get('transitions');
+    if (transitionsArray && Array.isArray(transitionsArray)) {
+      result.transitions = transitionsArray.map(transition => {
+        // If transition is a Map, extract its properties
+        if (transition instanceof Map) {
+          return {
+            id: transition.get('id'),
+            name: transition.get('name'),
+            x: transition.get('x') || 0,
+            y: transition.get('y') || 0
+          };
+        } else if (typeof transition === 'object') {
+          return {
+            id: transition.id,
+            name: transition.name,
+            x: transition.x || 0,
+            y: transition.y || 0
+          };
+        }
+        return transition;
+      });
+    }
+    
+    // Extract arcs array from the Map
+    const arcsArray = jsPetriNet.get('arcs');
+    if (arcsArray && Array.isArray(arcsArray)) {
+      result.arcs = arcsArray.map(arc => {
+        // If arc is a Map, extract its properties
+        if (arc instanceof Map) {
+          return {
+            id: arc.get('id'),
+            sourceId: arc.get('sourceId') || arc.get('source'),
+            targetId: arc.get('targetId') || arc.get('target'),
+            sourceType: arc.get('sourceType'),
+            targetType: arc.get('targetType'),
+            sourceDirection: arc.get('sourceDirection'),
+            targetDirection: arc.get('targetDirection'),
+            weight: arc.get('weight') || 1,
+            type: arc.get('type')
+          };
+        } else if (typeof arc === 'object') {
+          return {
+            id: arc.id,
+            sourceId: arc.sourceId || arc.source,
+            targetId: arc.targetId || arc.target,
+            sourceType: arc.sourceType,
+            targetType: arc.targetType,
+            sourceDirection: arc.sourceDirection,
+            targetDirection: arc.targetDirection,
+            weight: arc.weight || 1,
+            type: arc.type
+          };
+        }
+        return arc;
+      });
+    }
+  } else if (typeof jsPetriNet === 'object') {
+    // Handle the case where jsPetriNet is a regular object
+    if (jsPetriNet.places && Array.isArray(jsPetriNet.places)) {
+      result.places = jsPetriNet.places;
+    }
+    if (jsPetriNet.transitions && Array.isArray(jsPetriNet.transitions)) {
+      result.transitions = jsPetriNet.transitions;
+    }
+    if (jsPetriNet.arcs && Array.isArray(jsPetriNet.arcs)) {
+      result.arcs = jsPetriNet.arcs;
+    }
+  }
+  
+  return result;
 }
 
 /**

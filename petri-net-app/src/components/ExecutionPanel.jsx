@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { initializeSimulator, getEnabledTransitions, fireTransition, updateSimulator } from '../utils/simulator';
+import { 
+  initializeSimulator, 
+  getEnabledTransitions, 
+  fireTransition, 
+  updateSimulator,
+  findNonConflictingTransitions,
+  fireMultipleTransitions
+} from '../utils/simulator';
 
 const ExecutionPanel = ({ elements, onUpdateElements }) => {
   const { places, transitions, arcs } = elements;
@@ -70,7 +77,7 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
     }
   };
   
-  // Handle firing the first enabled transition
+  // Handle firing all non-conflicting enabled transitions simultaneously
   const handleFirePetriNet = async () => {
     if (!isSimulatorReady || enabledTransitions.length === 0) return;
     
@@ -78,11 +85,33 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
     setError(null);
     
     try {
-      // Fire the first enabled transition
-      await handleFireTransition(enabledTransitions[0].id);
+      // Find all non-conflicting transitions to fire simultaneously
+      const transitionsToFire = await findNonConflictingTransitions(enabledTransitions, places, arcs);
+      
+      if (transitionsToFire.length === 0) {
+        setError('No transitions to fire');
+        return;
+      }
+      
+      // If there's only one transition to fire, use the original method for consistency
+      if (transitionsToFire.length === 1) {
+        await handleFireTransition(transitionsToFire[0]);
+      } else {
+        // Fire multiple transitions simultaneously
+        const updatedPetriNet = await fireMultipleTransitions(transitionsToFire);
+        
+        // Compute the new enabled transitions
+        const newEnabledTransitions = await getEnabledTransitions();
+        setEnabledTransitions(newEnabledTransitions);
+        
+        // Update the elements in the parent component
+        if (onUpdateElements) {
+          onUpdateElements(updatedPetriNet);
+        }
+      }
     } catch (err) {
-      console.error('Error firing transition:', err);
-      setError('Failed to fire transition');
+      console.error('Error firing transitions:', err);
+      setError('Failed to fire transitions');
     } finally {
       setIsLoading(false);
     }

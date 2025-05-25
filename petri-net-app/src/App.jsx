@@ -574,7 +574,7 @@ function App() {
   };
   
   // Function to handle undo
-  const handleUndo = () => {
+  const handleUndo = async () => {
     if (!canUndo) return;
     
     const result = historyManager.undo();
@@ -584,11 +584,22 @@ function App() {
       setElements(result.state);
       setCanUndo(result.canUndo);
       setCanRedo(result.canRedo);
+      
+      // Reinitialize simulator with the new state to ensure conflict detection works correctly
+      if (isSimulating) {
+        try {
+          await initializeSimulator(result.state);
+          const enabled = await getEnabledTransitions();
+          setEnabledTransitions(enabled);
+        } catch (error) {
+          console.error('Error reinitializing simulator after undo:', error);
+        }
+      }
     }
   };
   
   // Function to handle redo
-  const handleRedo = () => {
+  const handleRedo = async () => {
     if (!canRedo) return;
     
     const result = historyManager.redo();
@@ -598,6 +609,17 @@ function App() {
       setElements(result.state);
       setCanUndo(result.canUndo);
       setCanRedo(result.canRedo);
+      
+      // Reinitialize simulator with the new state to ensure conflict detection works correctly
+      if (isSimulating) {
+        try {
+          await initializeSimulator(result.state);
+          const enabled = await getEnabledTransitions();
+          setEnabledTransitions(enabled);
+        } catch (error) {
+          console.error('Error reinitializing simulator after redo:', error);
+        }
+      }
     }
   };
   
