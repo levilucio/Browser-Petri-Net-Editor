@@ -1,7 +1,7 @@
 import React from 'react';
 import { Rect, Text, Group, Line } from 'react-konva';
 
-const Transition = ({ transition, isSelected, isDragging, onClick, onDragStart, onDragMove, onDragEnd }) => {
+const Transition = ({ transition, isSelected, isDragging, isEnabled, onClick, onDragStart, onDragMove, onDragEnd }) => {
   const width = 30;
   const height = 40;
   
@@ -52,9 +52,9 @@ const Transition = ({ transition, isSelected, isDragging, onClick, onDragStart, 
         y={-height / 2}
         width={width}
         height={height}
-        fill="gray"
-        stroke={isSelected ? 'blue' : (isDragging ? 'rgba(0, 150, 255, 0.7)' : 'black')}
-        strokeWidth={isSelected || isDragging ? 2 : 1}
+        fill={isEnabled ? 'rgba(255, 255, 0, 0.8)' : 'gray'}
+        stroke={isSelected ? 'blue' : (isDragging ? 'rgba(0, 150, 255, 0.7)' : (isEnabled ? 'rgba(255, 180, 0, 1)' : 'black'))}
+        strokeWidth={isSelected || isDragging ? 2 : (isEnabled ? 3 : 1)}
       />
       
       {/* Transition name */}

@@ -8,7 +8,7 @@ import {
   fireMultipleTransitions
 } from '../utils/simulator';
 
-const ExecutionPanel = ({ elements, onUpdateElements }) => {
+const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange }) => {
   const { places, transitions, arcs } = elements;
   const [enabledTransitions, setEnabledTransitions] = useState([]);
   const [isSimulatorReady, setIsSimulatorReady] = useState(false);
@@ -22,6 +22,11 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
       if (places.length === 0 && transitions.length === 0) {
         setIsSimulatorReady(false);
         setEnabledTransitions([]);
+        
+        // Clear enabled transitions in parent component
+        if (onEnabledTransitionsChange) {
+          onEnabledTransitionsChange([]);
+        }
         return;
       }
       
@@ -35,6 +40,11 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
         // Compute enabled transitions
         const enabled = await getEnabledTransitions();
         setEnabledTransitions(enabled);
+        
+        // Notify parent component about enabled transitions
+        if (onEnabledTransitionsChange) {
+          onEnabledTransitionsChange(enabled);
+        }
       } catch (err) {
         console.error('Error initializing simulator:', err);
         setError('Failed to initialize simulator');
@@ -45,7 +55,7 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
     };
     
     initSimulator();
-  }, [elements]);
+  }, [elements]);  // Remove onEnabledTransitionsChange from dependencies to prevent loops
   
   // Handle firing a transition
   const handleFireTransition = async (transitionId) => {
@@ -61,13 +71,18 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
       // Update the simulator with the new state
       await updateSimulator(updatedPetriNet);
       
+      // Update the elements in the parent component
+      if (onUpdateElements) {
+        onUpdateElements(updatedPetriNet);
+      }
+      
       // Compute the new enabled transitions
       const newEnabledTransitions = await getEnabledTransitions();
       setEnabledTransitions(newEnabledTransitions);
       
-      // Update the elements in the parent component
-      if (onUpdateElements) {
-        onUpdateElements(updatedPetriNet);
+      // Notify parent component about enabled transitions
+      if (onEnabledTransitionsChange) {
+        onEnabledTransitionsChange(newEnabledTransitions);
       }
     } catch (err) {
       console.error(`Error firing transition ${transitionId}:`, err);
@@ -100,13 +115,18 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
         // Fire multiple transitions simultaneously
         const updatedPetriNet = await fireMultipleTransitions(transitionsToFire);
         
+        // Update the elements in the parent component
+        if (onUpdateElements) {
+          onUpdateElements(updatedPetriNet);
+        }
+        
         // Compute the new enabled transitions
         const newEnabledTransitions = await getEnabledTransitions();
         setEnabledTransitions(newEnabledTransitions);
         
-        // Update the elements in the parent component
-        if (onUpdateElements) {
-          onUpdateElements(updatedPetriNet);
+        // Notify parent component about enabled transitions
+        if (onEnabledTransitionsChange) {
+          onEnabledTransitionsChange(newEnabledTransitions);
         }
       }
     } catch (err) {
@@ -158,30 +178,7 @@ const ExecutionPanel = ({ elements, onUpdateElements }) => {
           )}
         </div>
         
-        <div className="enabled-transitions w-1/2">
-          <h3 className="text-sm font-medium mb-2">Enabled Transitions</h3>
-          {isLoading ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : transitions.length === 0 ? (
-            <p className="text-gray-500">No transitions defined</p>
-          ) : enabledTransitions.length === 0 ? (
-            <p className="text-gray-500">No enabled transitions</p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {enabledTransitions.map(transition => (
-                <button
-                  key={transition.id}
-                  data-testid={`enabled-transition-${transition.id}`}
-                  className="px-3 py-1 bg-green-100 border border-green-300 rounded hover:bg-green-200"
-                  onClick={() => simulationMode === 'step' && handleFireTransition(transition.id)}
-                  disabled={isLoading}
-                >
-                  {transition.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Enabled transitions section removed as requested */}
       </div>
     </div>
   );

@@ -26,10 +26,12 @@ function App() {
   const appRef = useRef(null); // Reference to the app container for keyboard events
   
   // Simulation state
-  const [simulationMode, setSimulationMode] = useState('step'); // step, quick, non-visual
+  const [simulationMode, setSimulationMode] = useState('step'); // step, quick, full
   const [isSimulating, setIsSimulating] = useState(false);
-  const [enabledTransitions, setEnabledTransitions] = useState([]);
+  const [enabledTransitionIds, setEnabledTransitionIds] = useState([]);
   const [simulationError, setSimulationError] = useState(null);
+  const [visualAnimationInterval, setVisualAnimationInterval] = useState(null);
+  const [isVisualAnimationRunning, setIsVisualAnimationRunning] = useState(false);
 
   // Use state for stage dimensions to allow for resizing
   const [stageDimensions, setStageDimensions] = useState({
@@ -107,23 +109,141 @@ function App() {
     setCanRedo(historyStatus.canRedo);
   };
   
+  // Function to fire a transition and update the state
+  const fireTransitionAndUpdate = async (transitionId) => {
+    try {
+      // Get the transition from the enabledTransitionIds
+      if (!enabledTransitionIds.includes(transitionId)) {
+        console.warn(`Transition ${transitionId} is not enabled`);
+        return false;
+      }
+      
+      console.log(`Firing transition ${transitionId} in visual animation mode`);
+      
+      // Import the fireTransition function directly
+      const { fireTransition } = await import('./utils/simulator');
+      
+      // Fire the transition and get the updated Petri net
+      const updatedPetriNet = await fireTransition(transitionId);
+      
+      // Update the elements state
+      setElements(updatedPetriNet);
+      
+      // Add to history
+      updateHistory(updatedPetriNet);
+      
+      // Import the getEnabledTransitions function directly
+      const { getEnabledTransitions } = await import('./utils/simulator');
+      
+      // Get the new enabled transitions
+      const newEnabled = await getEnabledTransitions();
+      console.log('New enabled transitions:', newEnabled);
+      
+      // Update enabled transitions
+      updateEnabledTransitions(newEnabled);
+      
+      return newEnabled.length > 0; // Return true if there are still enabled transitions
+    } catch (error) {
+      console.error(`Error firing transition ${transitionId}:`, error);
+      setSimulationError(`Error firing transition: ${error.message}`);
+      return false;
+    }
+  };
+  
+  // Function to run the visual animation
+  const runVisualAnimation = async () => {
+    console.log('Running visual animation cycle', { 
+      isSimulating, 
+      simulationMode, 
+      enabledTransitionIds 
+    });
+    
+    if (!isSimulating || simulationMode !== 'quick' || !enabledTransitionIds.length) {
+      console.log('Stopping visual animation - conditions not met');
+      stopVisualAnimation();
+      return;
+    }
+    
+    // Get the first enabled transition
+    const transitionId = enabledTransitionIds[0];
+    console.log(`Attempting to fire transition ${transitionId}`);
+    
+    // Fire the transition and update the state
+    const hasMoreTransitions = await fireTransitionAndUpdate(transitionId);
+    
+    // If there are no more enabled transitions, stop the animation
+    if (!hasMoreTransitions) {
+      console.log('No more enabled transitions, stopping animation');
+      stopVisualAnimation();
+    }
+  };
+  
+  // Function to start the visual animation
+  const startVisualAnimation = () => {
+    if (isVisualAnimationRunning) {
+      console.log('Visual animation already running, not starting again');
+      return;
+    }
+    
+    console.log('Starting visual animation with interval');
+    setIsVisualAnimationRunning(true);
+    
+    // Run the first animation cycle immediately
+    runVisualAnimation();
+    
+    // Start the animation interval for subsequent cycles
+    const interval = setInterval(() => {
+      console.log('Animation interval triggered');
+      runVisualAnimation();
+    }, 500); // Fire a transition every 500ms
+    
+    setVisualAnimationInterval(interval);
+  };
+  
+  // Function to stop the visual animation
+  const stopVisualAnimation = () => {
+    console.log('Stopping visual animation');
+    if (visualAnimationInterval) {
+      console.log('Clearing animation interval');
+      clearInterval(visualAnimationInterval);
+      setVisualAnimationInterval(null);
+    }
+    setIsVisualAnimationRunning(false);
+  };
+  
   // Function to start simulation based on the selected mode
   const startSimulation = async () => {
     if (simulationMode === 'step') {
       // Step-by-step mode is handled by the ExecutionPanel
       return;
     }
-    
-    setIsSimulating(true);
-    setSimulationError(null);
-    
     try {
+      console.log('Starting simulation with mode:', simulationMode);
+      
       // Initialize the simulator with the current Petri net state
+      const { initializeSimulator } = await import('./utils/simulator');
       await initializeSimulator(elements);
       
       // Get the enabled transitions
+      const { getEnabledTransitions } = await import('./utils/simulator');
       const enabled = await getEnabledTransitions();
-      setEnabledTransitions(enabled);
+      console.log('Enabled transitions after initialization:', enabled);
+      
+      // Update the enabled transitions
+      updateEnabledTransitions(enabled);
+      
+      // Set the simulation state
+      setIsSimulating(true);
+      setSimulationError(null);
+      
+      // If we're in quick mode, start the visual animation
+      if (simulationMode === 'quick') {
+        console.log('Starting visual animation from simulation start');
+        // Add a small delay to ensure state is updated
+        setTimeout(() => {
+          startVisualAnimation();
+        }, 100);
+      }
       
       // The actual simulation logic is handled by the ExecutionPanel component
     } catch (error) {
@@ -135,6 +255,10 @@ function App() {
   
   // Function to stop simulation
   const stopSimulation = () => {
+    // Stop the visual animation if it's running
+    stopVisualAnimation();
+    
+    // Set simulation state to false
     setIsSimulating(false);
   };
   
@@ -159,7 +283,21 @@ function App() {
     
     // Reset simulation state
     setIsSimulating(false);
-    setEnabledTransitions([]);
+    setEnabledTransitionIds([]);
+  };
+
+  // Function to update enabled transitions
+  const updateEnabledTransitions = (enabledTransitions) => {
+    if (!enabledTransitions) {
+      console.log('No enabled transitions provided, clearing state');
+      setEnabledTransitionIds([]);
+      return;
+    }
+    
+    // Extract just the IDs from the enabled transitions
+    const transitionIds = enabledTransitions.map(t => t.id);
+    console.log('Updating enabled transition IDs:', transitionIds);
+    setEnabledTransitionIds(transitionIds);
   };
 
   // Function to handle the end of dragging an element
@@ -655,7 +793,7 @@ function App() {
       window.__PETRI_NET_STATE__ = {
         ...elements,
         simulator: {
-          enabledTransitions: enabledTransitions
+          enabledTransitions: enabledTransitionIds
         }
       };
       
@@ -708,7 +846,7 @@ function App() {
         document.removeEventListener('fire-transition', handleFireTransitionEvent);
       };
     }
-  }, [elements, enabledTransitions]);
+  }, [elements, enabledTransitionIds]);
   
   // Handle scroll events to navigate the virtual canvas
   const handleScroll = (e) => {
@@ -727,6 +865,16 @@ function App() {
       }));
     }
   };
+
+  // Effect to clean up the visual animation interval when component unmounts or simulation mode changes
+  useEffect(() => {
+    // Clean up function to stop the visual animation
+    return () => {
+      if (visualAnimationInterval) {
+        clearInterval(visualAnimationInterval);
+      }
+    };
+  }, [visualAnimationInterval, simulationMode]);
 
   // Update dimensions when window is resized
   useEffect(() => {
@@ -884,6 +1032,7 @@ function App() {
                   isSelected={selectedElement && selectedElement.id === transition.id || 
                     (arcStart && arcStart.element.id === transition.id)}
                   isDragging={draggedElement && draggedElement.element.id === transition.id}
+                  isEnabled={enabledTransitionIds.includes(transition.id)}
                   onClick={() => handleElementClick(transition, 'transition')}
                   onDragStart={() => handleDragStart(transition, 'transition')}
                   onDragMove={(e) => {
@@ -1111,15 +1260,12 @@ function App() {
                   arcs: mergedArcs
                 };
                 
-                // Log the arcs for debugging
-                console.log('Previous arcs:', prev.arcs);
-                console.log('Updated arcs:', mergedArcs);
-                
                 // Add to history after state update
                 updateHistory(newState);
                 return newState;
               });
             }}
+            onEnabledTransitionsChange={updateEnabledTransitions}
           />
           {/* ImportExportPanel removed as requested */}
         </div>

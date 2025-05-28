@@ -513,25 +513,16 @@ const Toolbar = ({
               Visual
             </button>
             <button 
-              style={buttonStyle(simulationMode === 'non-visual' && !isSimulating)}
-              onClick={() => setSimulationMode('non-visual')}
+              style={buttonStyle(simulationMode === 'full' && !isSimulating)}
+              onClick={() => setSimulationMode('full')}
               disabled={isSimulating}
-              title="Non-Visual Simulation"
-              data-testid="sim-non-visual"
+              title="Full Simulation Mode"
+              data-testid="sim-full"
             >
-              Analyze
+              Full
             </button>
-            {!isSimulating ? (
-              <button 
-                style={buttonStyle(false)}
-                onClick={startSimulation}
-                disabled={simulationMode === 'step'}
-                title="Start Simulation"
-                data-testid="sim-start"
-              >
-                Start
-              </button>
-            ) : (
+            {/* Analyze button removed */}
+            {isSimulating && (
               <button 
                 style={{...buttonStyle(false), backgroundColor: '#f87171', color: 'white'}}
                 onClick={stopSimulation}
@@ -541,14 +532,7 @@ const Toolbar = ({
                 Stop
               </button>
             )}
-            <button 
-              style={buttonStyle(false)}
-              onClick={clearCanvas}
-              title="Clear Canvas"
-              data-testid="clear-canvas"
-            >
-              Clear
-            </button>
+            {/* Clear button removed */}
           </div>
         </div>
 

@@ -11,16 +11,20 @@ let pyodideInstance = null;
 let simulator = null;
 let pyodideLoading = null;
 
-// Simple implementation of Petri net simulator in JavaScript as a fallback
-// Export the class for testing
-export class JsPetriNetSimulator {
+// JavaScript fallback simulator
+class JsPetriNetSimulator {
   constructor(petriNet) {
     this.petriNet = petriNet;
     this.places = petriNet.places || [];
     this.transitions = petriNet.transitions || [];
     this.arcs = petriNet.arcs || [];
+    console.log('JavaScript fallback simulator initialized with:', {
+      places: this.places.length,
+      transitions: this.transitions.length,
+      arcs: this.arcs.length
+    });
   }
-
+  
   getInputPlaces(transitionId) {
     const inputPlaces = [];
     
@@ -84,7 +88,8 @@ export class JsPetriNetSimulator {
     return true;
   }
 
-  getEnabledTransitions() {
+  async getEnabledTransitions() {
+    console.log('JS Fallback: Getting enabled transitions');
     const enabledTransitions = [];
     
     for (const transition of this.transitions) {
@@ -93,18 +98,24 @@ export class JsPetriNetSimulator {
       }
     }
     
+    console.log('JS Fallback found enabled transitions:', enabledTransitions.map(t => t.id));
     return enabledTransitions;
   }
 
-  fireTransition(transitionId) {
+  async fireTransition(transitionId) {
+    console.log(`JS Fallback: Firing transition ${transitionId}`);
+    
     // Check if the transition is enabled
     if (!this.isTransitionEnabled(transitionId)) {
-      throw new Error(`Transition ${transitionId} is not enabled`);
+      console.warn(`JS Fallback: Transition ${transitionId} is not enabled`);
+      return this.petriNet; // Return unchanged Petri net instead of throwing
     }
     
     // Get input and output places
     const inputPlaces = this.getInputPlaces(transitionId);
     const outputPlaces = this.getOutputPlaces(transitionId);
+    
+    console.log(`JS Fallback: Found ${inputPlaces.length} input places and ${outputPlaces.length} output places`);
     
     // Create a deep copy of the Petri net to update
     const updatedPetriNet = {
@@ -121,7 +132,9 @@ export class JsPetriNetSimulator {
       // Find the place in the updated Petri net
       const updatedPlace = updatedPetriNet.places.find(p => p.id === placeId);
       if (updatedPlace) {
-        updatedPlace.tokens = Math.max(0, (updatedPlace.tokens || 0) - weight);
+        const oldTokens = updatedPlace.tokens || 0;
+        updatedPlace.tokens = Math.max(0, oldTokens - weight);
+        console.log(`JS Fallback: Place ${placeId} tokens: ${oldTokens} -> ${updatedPlace.tokens}`);
       }
     }
     
@@ -133,10 +146,16 @@ export class JsPetriNetSimulator {
       // Find the place in the updated Petri net
       const updatedPlace = updatedPetriNet.places.find(p => p.id === placeId);
       if (updatedPlace) {
+        const oldTokens = updatedPlace.tokens || 0;
         // Enforce token limit (20 per place)
-        updatedPlace.tokens = Math.min(20, (updatedPlace.tokens || 0) + weight);
+        updatedPlace.tokens = Math.min(20, oldTokens + weight);
+        console.log(`JS Fallback: Place ${placeId} tokens: ${oldTokens} -> ${updatedPlace.tokens}`);
       }
     }
+    
+    // Update the internal state of the simulator
+    this.petriNet = updatedPetriNet;
+    this.places = updatedPetriNet.places;
     
     return updatedPetriNet;
   }
@@ -243,18 +262,42 @@ export async function initializeSimulator(petriNet) {
       // If Pyodide failed to load, use the JavaScript fallback
       if (!pyodide) {
         console.log('Pyodide failed to load, using JavaScript fallback');
+        useJsFallback = true;
         simulator = new JsPetriNetSimulator(petriNet);
         return;
       }
       
-      // Convert the Petri net to a Python object
-      const petriNetPy = pyodide.toPy(petriNet);
+      // Check if toPy function exists (it might not in some Pyodide versions)
+      if (typeof pyodide.toPy !== 'function') {
+        console.warn('Pyodide.toPy function not available, using JavaScript fallback');
+        useJsFallback = true;
+        simulator = new JsPetriNetSimulator(petriNet);
+        return;
+      }
       
-      // Create a new simulator instance
-      simulator = await pyodide.runPythonAsync(`
-        simulator = PetriNetSimulator(${petriNetPy})
-        simulator
-      `);
+      try {
+        // Convert the Petri net to a Python object
+        const petriNetPy = pyodide.toPy(petriNet);
+        
+        // Create a new simulator instance
+        simulator = await pyodide.runPythonAsync(`
+          simulator = PetriNetSimulator(${petriNetPy})
+          simulator
+        `);
+        
+        // Verify that the simulator was created successfully
+        if (!simulator || typeof simulator.get_enabled_transitions !== 'function') {
+          console.warn('Python simulator not properly initialized, using JavaScript fallback');
+          useJsFallback = true;
+          simulator = new JsPetriNetSimulator(petriNet);
+          return;
+        }
+      } catch (error) {
+        console.error('Error initializing Python simulator:', error);
+        console.warn('Falling back to JavaScript simulator due to Python error');
+        useJsFallback = true;
+        simulator = new JsPetriNetSimulator(petriNet);
+      }
       
       console.log('Simulator initialized with Petri net using Pyodide');
     } catch (error) {
@@ -274,40 +317,64 @@ export async function initializeSimulator(petriNet) {
  */
 export async function getEnabledTransitions() {
   try {
+    // Check if the simulator is initialized
     if (!simulator) {
-      throw new Error('Simulator not initialized');
+      console.error('Simulator not initialized');
+      return [];
     }
     
     // Check if we're using the JavaScript fallback
-    if (simulator instanceof JsPetriNetSimulator) {
+    if (useJsFallback) {
+      console.log('Using JavaScript fallback for getEnabledTransitions');
       return simulator.getEnabledTransitions();
     }
     
-    // Call the Python function to get enabled transitions
-    const enabledTransitions = await simulator.get_enabled_transitions();
-    
-    // Convert the Python list to a JavaScript array
-    const jsEnabledTransitions = enabledTransitions.toJs();
-    console.log('Enabled transitions from Python:', jsEnabledTransitions);
-    
-    // Return the transitions as properly structured objects
-    return jsEnabledTransitions.map(transition => {
-      if (transition instanceof Map) {
-        return {
-          id: transition.get('id'),
-          name: transition.get('name')
-        };
-      } else if (typeof transition === 'object') {
-        return {
-          id: transition.id,
-          name: transition.name
-        };
+    try {
+      // Get the enabled transitions from the Python simulator
+      const enabledTransitions = await simulator.get_enabled_transitions();
+      
+      // Check if toJs function exists
+      if (typeof enabledTransitions.toJs !== 'function') {
+        console.warn('Pyodide result does not have toJs function, using JavaScript fallback');
+        useJsFallback = true;
+        simulator = new JsPetriNetSimulator(simulator.petriNet || {});
+        return simulator.getEnabledTransitions();
       }
-      return transition;
-    });
+      
+      // Convert the Python list to a JavaScript array
+      const jsEnabledTransitions = enabledTransitions.toJs();
+      console.log('Enabled transitions from Python:', jsEnabledTransitions);
+      
+      // Return the transitions as properly structured objects
+      return jsEnabledTransitions.map(transition => {
+        if (transition instanceof Map) {
+          return {
+            id: transition.get('id'),
+            name: transition.get('name')
+          };
+        } else if (typeof transition === 'object') {
+          return {
+            id: transition.id,
+            name: transition.name
+          };
+        }
+        return transition;
+      });
+    } catch (error) {
+      console.error('Error getting enabled transitions from Python:', error);
+      console.warn('Falling back to JavaScript simulator for getEnabledTransitions');
+      useJsFallback = true;
+      if (simulator.petriNet) {
+        simulator = new JsPetriNetSimulator(simulator.petriNet);
+      } else {
+        console.error('No Petri net available for JavaScript fallback');
+        return [];
+      }
+      return simulator.getEnabledTransitions();
+    }
   } catch (error) {
-    console.error('Error getting enabled transitions:', error);
-    throw error;
+    console.error('Error in getEnabledTransitions:', error);
+    return [];
   }
 }
 
@@ -693,29 +760,129 @@ export async function fireTransition(transitionId) {
     }
     
     // Check if we're using the JavaScript fallback
-    if (simulator instanceof JsPetriNetSimulator) {
+    if (useJsFallback || simulator instanceof JsPetriNetSimulator) {
+      console.log('Using JavaScript fallback for fireTransition');
       return simulator.fireTransition(transitionId);
     }
     
-    // Call the Python function to fire the transition
-    const updatedPetriNet = await simulator.fire_transition(transitionId);
-    
-    // Convert the Python object to a JavaScript object
-    const jsPetriNet = updatedPetriNet.toJs();
-    console.log('Updated Petri net from Python:', jsPetriNet);
-    
-    // Create a properly structured Petri net object
-    const result = { places: [], transitions: [], arcs: [] };
-    
-    // Handle the case where jsPetriNet is a Map
-    if (jsPetriNet instanceof Map) {
-      console.log('Processing Map object from Python');
+    try {
+      // Call the Python function to fire the transition
+      const updatedPetriNet = await simulator.fire_transition(transitionId);
       
-      // Extract places array from the Map
-      const placesArray = jsPetriNet.get('places');
-      if (placesArray && Array.isArray(placesArray)) {
-        result.places = placesArray.map(place => {
-          // If place is a Map, extract its properties
+      // Check if toJs function exists
+      if (typeof updatedPetriNet.toJs !== 'function') {
+        console.warn('Pyodide result does not have toJs function, using JavaScript fallback');
+        useJsFallback = true;
+        simulator = new JsPetriNetSimulator(simulator.petriNet || {});
+        return simulator.fireTransition(transitionId);
+      }
+      
+      // Convert the Python object to a JavaScript object
+      const jsPetriNet = updatedPetriNet.toJs();
+      console.log('Updated Petri net from Python:', jsPetriNet);
+      
+      // Create a properly structured Petri net object
+      const result = { places: [], transitions: [], arcs: [] };
+      
+      // Handle the case where jsPetriNet is a Map
+      if (jsPetriNet instanceof Map) {
+        console.log('Processing Map object from Python');
+        
+        // Extract places array from the Map
+        const placesArray = jsPetriNet.get('places');
+        if (placesArray && Array.isArray(placesArray)) {
+          result.places = placesArray.map(place => {
+            // If place is a Map, extract its properties
+            if (place instanceof Map) {
+              return {
+                id: place.get('id'),
+                name: place.get('name'),
+                tokens: place.get('tokens') || 0,
+                x: place.get('x') || 0,
+                y: place.get('y') || 0
+              };
+            } else if (typeof place === 'object') {
+              return {
+                id: place.id,
+                name: place.name,
+                tokens: place.tokens || 0,
+                x: place.x || 0,
+                y: place.y || 0
+              };
+            }
+            return place;
+          });
+        }
+        
+        // Extract transitions array from the Map
+        const transitionsArray = jsPetriNet.get('transitions');
+        if (transitionsArray && Array.isArray(transitionsArray)) {
+          result.transitions = transitionsArray.map(transition => {
+            // If transition is a Map, extract its properties
+            if (transition instanceof Map) {
+              return {
+                id: transition.get('id'),
+                name: transition.get('name'),
+                x: transition.get('x') || 0,
+                y: transition.get('y') || 0
+              };
+            } else if (typeof transition === 'object') {
+              return {
+                id: transition.id,
+                name: transition.name,
+                x: transition.x || 0,
+                y: transition.y || 0
+              };
+            }
+            return transition;
+          });
+        }
+        
+        // Extract arcs array from the Map
+        const arcsArray = jsPetriNet.get('arcs');
+        if (arcsArray && Array.isArray(arcsArray)) {
+          result.arcs = arcsArray.map(arc => {
+            // If arc is a Map, extract its properties
+            if (arc instanceof Map) {
+              return {
+                id: arc.get('id'),
+                sourceId: arc.get('sourceId') || arc.get('source'),
+                targetId: arc.get('targetId') || arc.get('target'),
+                sourceType: arc.get('sourceType'),
+                targetType: arc.get('targetType'),
+                sourceDirection: arc.get('sourceDirection'),
+                targetDirection: arc.get('targetDirection'),
+                weight: arc.get('weight') || 1,
+                // Ensure we preserve any additional properties needed for rendering
+                type: arc.get('type')
+              };
+            } else if (typeof arc === 'object') {
+              return {
+                id: arc.id,
+                sourceId: arc.sourceId || arc.source,
+                targetId: arc.targetId || arc.target,
+                sourceType: arc.sourceType,
+                targetType: arc.targetType,
+                sourceDirection: arc.sourceDirection,
+                targetDirection: arc.targetDirection,
+                weight: arc.weight || 1,
+                // Ensure we preserve any additional properties needed for rendering
+                type: arc.type
+              };
+            }
+            return arc;
+          });
+        }
+        
+        console.log('Converted Petri net:', result);
+        // We don't update this.petriNet here because 'this' is not the simulator instance
+        return result;
+      }
+      
+      // Handle the case where jsPetriNet is a regular object
+      if (jsPetriNet.places) {
+        result.places = jsPetriNet.places.map(place => {
+          // Make sure the tokens property is correctly set
           if (place instanceof Map) {
             return {
               id: place.get('id'),
@@ -724,24 +891,15 @@ export async function fireTransition(transitionId) {
               x: place.get('x') || 0,
               y: place.get('y') || 0
             };
-          } else if (typeof place === 'object') {
-            return {
-              id: place.id,
-              name: place.name,
-              tokens: place.tokens || 0,
-              x: place.x || 0,
-              y: place.y || 0
-            };
           }
-          return place;
+          return {
+            ...place,
+            tokens: place.tokens || 0
+          };
         });
-      }
-      
-      // Extract transitions array from the Map
-      const transitionsArray = jsPetriNet.get('transitions');
-      if (transitionsArray && Array.isArray(transitionsArray)) {
-        result.transitions = transitionsArray.map(transition => {
-          // If transition is a Map, extract its properties
+        
+        // Ensure transitions maintain their coordinates
+        result.transitions = (jsPetriNet.transitions || []).map(transition => {
           if (transition instanceof Map) {
             return {
               id: transition.get('id'),
@@ -749,23 +907,16 @@ export async function fireTransition(transitionId) {
               x: transition.get('x') || 0,
               y: transition.get('y') || 0
             };
-          } else if (typeof transition === 'object') {
-            return {
-              id: transition.id,
-              name: transition.name,
-              x: transition.x || 0,
-              y: transition.y || 0
-            };
           }
-          return transition;
+          return {
+            ...transition,
+            x: transition.x || 0,
+            y: transition.y || 0
+          };
         });
-      }
-      
-      // Extract arcs array from the Map
-      const arcsArray = jsPetriNet.get('arcs');
-      if (arcsArray && Array.isArray(arcsArray)) {
-        result.arcs = arcsArray.map(arc => {
-          // If arc is a Map, extract its properties
+        
+        // Ensure arcs maintain all their properties
+        result.arcs = (jsPetriNet.arcs || []).map(arc => {
           if (arc instanceof Map) {
             return {
               id: arc.get('id'),
@@ -776,98 +927,31 @@ export async function fireTransition(transitionId) {
               sourceDirection: arc.get('sourceDirection'),
               targetDirection: arc.get('targetDirection'),
               weight: arc.get('weight') || 1,
-              // Ensure we preserve any additional properties needed for rendering
               type: arc.get('type')
             };
-          } else if (typeof arc === 'object') {
-            return {
-              id: arc.id,
-              sourceId: arc.sourceId || arc.source,
-              targetId: arc.targetId || arc.target,
-              sourceType: arc.sourceType,
-              targetType: arc.targetType,
-              sourceDirection: arc.sourceDirection,
-              targetDirection: arc.targetDirection,
-              weight: arc.weight || 1,
-              // Ensure we preserve any additional properties needed for rendering
-              type: arc.type
-            };
           }
-          return arc;
+          return {
+            ...arc,
+            sourceId: arc.sourceId || arc.source,
+            targetId: arc.targetId || arc.target,
+            weight: arc.weight || 1
+          };
         });
+        
+        console.log('Converted Petri net:', result);
+        return result;
       }
       
-      console.log('Converted Petri net:', result);
-      // We don't update this.petriNet here because 'this' is not the simulator instance
-      return result;
+      // If all else fails, return the original object
+      console.log('Returning Petri net as is:', jsPetriNet);
+      return jsPetriNet;
+    } catch (error) {
+      console.error('Error in Python simulator:', error);
+      console.warn('Falling back to JavaScript simulator due to Python error');
+      useJsFallback = true;
+      simulator = new JsPetriNetSimulator(simulator.petriNet || {});
+      return simulator.fireTransition(transitionId);
     }
-    
-    // Handle the case where jsPetriNet is a regular object
-    if (jsPetriNet.places) {
-      result.places = jsPetriNet.places.map(place => {
-        // Make sure the tokens property is correctly set
-        if (place instanceof Map) {
-          return {
-            id: place.get('id'),
-            name: place.get('name'),
-            tokens: place.get('tokens') || 0,
-            x: place.get('x') || 0,
-            y: place.get('y') || 0
-          };
-        }
-        return {
-          ...place,
-          tokens: place.tokens || 0
-        };
-      });
-      
-      // Ensure transitions maintain their coordinates
-      result.transitions = (jsPetriNet.transitions || []).map(transition => {
-        if (transition instanceof Map) {
-          return {
-            id: transition.get('id'),
-            name: transition.get('name'),
-            x: transition.get('x') || 0,
-            y: transition.get('y') || 0
-          };
-        }
-        return {
-          ...transition,
-          x: transition.x || 0,
-          y: transition.y || 0
-        };
-      });
-      
-      // Ensure arcs maintain all their properties
-      result.arcs = (jsPetriNet.arcs || []).map(arc => {
-        if (arc instanceof Map) {
-          return {
-            id: arc.get('id'),
-            sourceId: arc.get('sourceId') || arc.get('source'),
-            targetId: arc.get('targetId') || arc.get('target'),
-            sourceType: arc.get('sourceType'),
-            targetType: arc.get('targetType'),
-            sourceDirection: arc.get('sourceDirection'),
-            targetDirection: arc.get('targetDirection'),
-            weight: arc.get('weight') || 1,
-            type: arc.get('type')
-          };
-        }
-        return {
-          ...arc,
-          sourceId: arc.sourceId || arc.source,
-          targetId: arc.targetId || arc.target,
-          weight: arc.weight || 1
-        };
-      });
-      
-      console.log('Converted Petri net:', result);
-      return result;
-    }
-    
-    // If all else fails, return the original object
-    console.log('Returning Petri net as is:', jsPetriNet);
-    return jsPetriNet;
   } catch (error) {
     console.error(`Error firing transition ${transitionId}:`, error);
     throw error;
