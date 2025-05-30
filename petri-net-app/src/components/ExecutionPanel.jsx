@@ -16,9 +16,11 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
   const [error, setError] = useState(null);
   const [simulationMode, setSimulationMode] = useState('step'); // Only 'step' mode is used now
   const [isSimulating, setIsSimulating] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
   const simulationIntervalRef = useRef(null);
   const simulationIterationCountRef = useRef(0);
   const MAX_SIMULATION_ITERATIONS = 100; // Increased from 20 to 100 to handle complex nets
+  const MAX_RUN_ITERATIONS = 1000; // Increased to 1000 to ensure all transitions can fire
   
   // Initialize the simulator when the elements change
   useEffect(() => {
@@ -150,14 +152,15 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
     }
   };
   
-  // Helper to stop the simulation
+  // Helper to stop the simulation or run
   const stopSimulation = () => {
     if (simulationIntervalRef.current) {
       clearInterval(simulationIntervalRef.current);
       simulationIntervalRef.current = null;
     }
     setIsSimulating(false);
-    console.log('Simulation stopped');
+    setIsRunning(false);
+    console.log('Simulation or run stopped');
   };
 
   // One simulation step
@@ -262,6 +265,88 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       });
     }
   };
+  
+  // Handle full-speed run without displaying intermediate states
+  const handleRun = async () => {
+    if (isRunning) {
+      // Stop run
+      stopSimulation();
+    } else {
+      try {
+        // Start run
+        setIsRunning(true);
+        
+        // Reset counters
+        simulationIterationCountRef.current = 0;
+        
+        console.log('Starting full-speed run');
+        
+        // Check if there are any enabled transitions
+        const currentEnabled = await getEnabledTransitions();
+        console.log(`Run starting with ${currentEnabled.length} enabled transitions`);
+        
+        if (currentEnabled.length === 0) {
+          console.log('No enabled transitions to run');
+          setIsRunning(false);
+          return;
+        }
+        
+        // Simple execution approach - keep firing transitions until none are enabled
+        let iterationCount = 0;
+        let canContinue = true;
+        
+        while (canContinue && iterationCount < MAX_RUN_ITERATIONS) {
+          iterationCount++;
+          
+          // Get current enabled transitions
+          const enabled = await getEnabledTransitions();
+          
+          if (enabled.length === 0) {
+            console.log('No more enabled transitions');
+            break;
+          }
+          
+          // Find non-conflicting transitions to fire - this is the same logic used by the Fire button
+          const transitionsToFire = await findNonConflictingTransitions(enabled, places, arcs);
+          
+          if (transitionsToFire.length === 0) {
+            console.log('No transitions to fire');
+            break;
+          }
+          
+          // Fire the transitions using the same logic as the Fire button
+          console.log(`Firing transitions: ${transitionsToFire.join(', ')}`);
+          const updatedPetriNet = await fireMultipleTransitions(transitionsToFire);
+          
+          // Update the elements in the parent component
+          if (onUpdateElements) {
+            onUpdateElements(updatedPetriNet);
+          }
+          
+          // Check if there are still enabled transitions
+          const afterFiringEnabled = await getEnabledTransitions();
+          canContinue = afterFiringEnabled.length > 0;
+          
+          // Add a small delay every few iterations to prevent browser freezing
+          if (iterationCount % 10 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 0));
+          }
+        }
+        
+        // Log if we hit the iteration limit
+        if (iterationCount >= MAX_RUN_ITERATIONS) {
+          console.warn(`Run hit the maximum iteration limit (${MAX_RUN_ITERATIONS})`);
+        }
+        
+        console.log(`Run completed after ${iterationCount} iterations`);
+      } catch (error) {
+        console.error('Error during run:', error);
+      } finally {
+        // Always ensure we reset the running state
+        setIsRunning(false);
+      }
+    }
+  };  
 
   return (
     <div data-testid="execution-panel" className="execution-panel p-4 bg-gray-100 border-t border-gray-300">
@@ -273,19 +358,20 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         </div>
       )}
       
-      <div className="flex mb-4">
-        <div className="flex items-end space-x-2">
+      <div className="flex flex-col space-y-2 mb-4">
+        {/* First row with Fire, Simulate and Run buttons */}
+        <div className="flex items-center space-x-2">
           <button
             className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
             onClick={handleFirePetriNet}
-            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating}
+            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating || isRunning}
           >
             Fire
           </button>
           <button
             className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
             onClick={handleSimulate}
-            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating}
+            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating || isRunning}
           >
             <span>Simulate</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -294,15 +380,23 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
             </svg>
           </button>
           <button
+            className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
+            onClick={handleRun}
+            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating || isRunning}
+          >
+            <span>Run</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+        
+        {/* Second row with just the Stop button */}
+        <div className="flex items-center">
+          <button
             className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
-            onClick={() => {
-              if (simulationIntervalRef.current) {
-                clearInterval(simulationIntervalRef.current);
-                simulationIntervalRef.current = null;
-              }
-              setIsSimulating(false);
-            }}
-            disabled={!isSimulating}
+            onClick={stopSimulation}
+            disabled={!isSimulating && !isRunning}
           >
             <span>Stop</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
