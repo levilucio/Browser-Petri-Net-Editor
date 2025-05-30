@@ -164,9 +164,14 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       // Define a function to handle a single simulation step
       const simulationStep = async () => {
         try {
+          // First, explicitly check the current state of enabled transitions
+          // This is important in case the state wasn't correctly updated
+          const currentEnabled = await getEnabledTransitions();
+          
           // Only continue if there are enabled transitions
-          if (enabledTransitions.length === 0) {
+          if (currentEnabled.length === 0 || enabledTransitions.length === 0) {
             // No more enabled transitions, stop simulation
+            console.log('No enabled transitions, stopping simulation');
             if (simulationIntervalRef.current) {
               clearInterval(simulationIntervalRef.current);
               simulationIntervalRef.current = null;
@@ -185,14 +190,25 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
             console.warn('Error during firing, continuing simulation:', fireError);
           }
           
-          // Check if there are still enabled transitions after firing
-          // This will be updated by handleFirePetriNet through the getEnabledTransitions call
-          return enabledTransitions.length > 0; // Continue if there are still enabled transitions
+          // After firing, explicitly check again if there are any enabled transitions left
+          const remainingEnabled = await getEnabledTransitions();
+          if (remainingEnabled.length === 0) {
+            console.log('No remaining enabled transitions after firing, stopping simulation');
+            return false; // No more enabled transitions, should stop
+          }
+          
+          return true; // Continue simulation if there are still enabled transitions
         } catch (err) {
           console.error('Error during simulation step:', err);
           
-          // Still continue simulation if there are enabled transitions
-          return enabledTransitions.length > 0;
+          // Check enabled transitions directly as a safety measure
+          try {
+            const checkEnabled = await getEnabledTransitions();
+            return checkEnabled.length > 0;
+          } catch (checkErr) {
+            console.error('Error checking enabled transitions:', checkErr);
+            return false; // Stop on error
+          }
         }
       };
       
@@ -248,11 +264,32 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
             Fire
           </button>
           <button
-            className={`px-3 py-1 ${isSimulating ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded disabled:bg-gray-400`}
+            className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
             onClick={handleSimulate}
-            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading}
+            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating}
           >
-            {isSimulating ? 'Stop' : 'Simulate'}
+            <span>Simulate</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+          <button
+            className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
+            onClick={() => {
+              if (simulationIntervalRef.current) {
+                clearInterval(simulationIntervalRef.current);
+                simulationIntervalRef.current = null;
+              }
+              setIsSimulating(false);
+            }}
+            disabled={!isSimulating}
+          >
+            <span>Stop</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10h6v6H9z" />
+            </svg>
           </button>
         </div>
       </div>
