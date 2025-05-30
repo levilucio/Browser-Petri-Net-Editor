@@ -619,22 +619,50 @@ export async function fireMultipleTransitions(transitionIds) {
     // For truly simultaneous firing, we would need to compute all token changes first,
     // then apply them all at once (which would require modifying the Python code)
     let currentPetriNet = null;
+    let atLeastOneTransitionFired = false;
     
-    // Fire each transition in sequence
+    // Get the current state before firing any transitions
+    const initialPetriNet = {
+      places: simulator?.petriNet?.places ? [...simulator.petriNet.places] : [],
+      transitions: simulator?.petriNet?.transitions ? [...simulator.petriNet.transitions] : [],
+      arcs: simulator?.petriNet?.arcs ? [...simulator.petriNet.arcs] : []
+    };
+    
+    // Fire each transition in sequence, handling errors for individual transitions
     for (const transitionId of transitionIds) {
-      // Call the Python function to fire the transition
-      const updatedPetriNet = await simulator.fire_transition(transitionId);
-      currentPetriNet = updatedPetriNet.toJs();
-      
-      // Update the simulator with the new state
-      await updateSimulator(currentPetriNet);
+      try {
+        // Check if the transition is still enabled before trying to fire it
+        const isEnabled = await isTransitionEnabled(transitionId);
+        if (!isEnabled) {
+          console.warn(`Transition ${transitionId} is no longer enabled, skipping`);
+          continue;
+        }
+        
+        // Call the Python function to fire the transition
+        const updatedPetriNet = await simulator.fire_transition(transitionId);
+        currentPetriNet = updatedPetriNet.toJs();
+        
+        // Update the simulator with the new state
+        await updateSimulator(currentPetriNet);
+        atLeastOneTransitionFired = true;
+      } catch (transitionError) {
+        console.warn(`Error firing transition ${transitionId}:`, transitionError);
+        // Continue with the next transition
+      }
+    }
+    
+    // If no transitions were fired successfully, return the initial Petri net
+    if (!atLeastOneTransitionFired) {
+      return initialPetriNet;
     }
     
     // Return the final updated Petri net with proper structure
     return processUpdatedPetriNet(currentPetriNet);
   } catch (error) {
     console.error('Error firing multiple transitions:', error);
-    throw error;
+    // Return the current Petri net state instead of throwing
+    // This allows the simulation to continue even if there's an error
+    return simulator?.petriNet ? simulator.petriNet : { places: [], transitions: [], arcs: [] };
   }
 }
 
@@ -977,8 +1005,16 @@ export async function isTransitionEnabled(transitionId) {
     // Call the Python function to check if the transition is enabled
     const isEnabled = await simulator.is_transition_enabled(transitionId);
     
-    // Convert the Python boolean to a JavaScript boolean
-    return isEnabled.toJs();
+    // Convert the Python boolean to a JavaScript boolean safely
+    if (typeof isEnabled === 'boolean') {
+      return isEnabled;
+    } else if (typeof isEnabled?.toJs === 'function') {
+      return isEnabled.toJs();
+    } else if (isEnabled) {
+      // If it's truthy but not a boolean or has no toJs function
+      return true;
+    }
+    return false;
   } catch (error) {
     console.error(`Error checking if transition ${transitionId} is enabled:`, error);
     throw error;

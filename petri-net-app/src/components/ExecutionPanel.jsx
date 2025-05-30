@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   initializeSimulator, 
   getEnabledTransitions, 
@@ -15,6 +15,8 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [simulationMode, setSimulationMode] = useState('step'); // Only 'step' mode is used now
+  const [isSimulating, setIsSimulating] = useState(false);
+  const simulationIntervalRef = useRef(null);
   
   // Initialize the simulator when the elements change
   useEffect(() => {
@@ -92,6 +94,15 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
     }
   };
   
+  // Clean up simulation interval when component unmounts
+  useEffect(() => {
+    return () => {
+      if (simulationIntervalRef.current) {
+        clearInterval(simulationIntervalRef.current);
+      }
+    };
+  }, []);
+
   // Handle firing all non-conflicting enabled transitions simultaneously
   const handleFirePetriNet = async () => {
     if (!isSimulatorReady || enabledTransitions.length === 0) return;
@@ -137,6 +148,86 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
     }
   };
   
+  // Start or stop automatic simulation
+  const handleSimulate = () => {
+    if (isSimulating) {
+      // Stop simulation
+      if (simulationIntervalRef.current) {
+        clearInterval(simulationIntervalRef.current);
+        simulationIntervalRef.current = null;
+      }
+      setIsSimulating(false);
+    } else {
+      // Start simulation
+      setIsSimulating(true);
+      
+      // Define a function to handle a single simulation step
+      const simulationStep = async () => {
+        try {
+          // Only continue if there are enabled transitions
+          if (enabledTransitions.length === 0) {
+            // No more enabled transitions, stop simulation
+            if (simulationIntervalRef.current) {
+              clearInterval(simulationIntervalRef.current);
+              simulationIntervalRef.current = null;
+            }
+            setIsSimulating(false);
+            return false; // Indicate simulation should stop
+          }
+          
+          // Wrap the fire call in try-catch to continue simulation even if errors occur
+          try {
+            // Simply call handleFirePetriNet directly - this ensures exact same behavior
+            // as clicking the "Fire" button
+            await handleFirePetriNet();
+          } catch (fireError) {
+            // Log the error but continue simulation
+            console.warn('Error during firing, continuing simulation:', fireError);
+          }
+          
+          // Check if there are still enabled transitions after firing
+          // This will be updated by handleFirePetriNet through the getEnabledTransitions call
+          return enabledTransitions.length > 0; // Continue if there are still enabled transitions
+        } catch (err) {
+          console.error('Error during simulation step:', err);
+          
+          // Still continue simulation if there are enabled transitions
+          return enabledTransitions.length > 0;
+        }
+      };
+      
+      // First firing immediately
+      simulationStep().then(canContinue => {
+        if (canContinue) {
+          // Then set up interval for subsequent firings
+          simulationIntervalRef.current = setInterval(async () => {
+            try {
+              const canContinue = await simulationStep();
+              if (!canContinue && simulationIntervalRef.current) {
+                clearInterval(simulationIntervalRef.current);
+                simulationIntervalRef.current = null;
+                setIsSimulating(false);
+              }
+            } catch (intervalError) {
+              console.error('Error in simulation interval:', intervalError);
+              // Check if we should continue despite the error
+              if (enabledTransitions.length === 0) {
+                if (simulationIntervalRef.current) {
+                  clearInterval(simulationIntervalRef.current);
+                  simulationIntervalRef.current = null;
+                }
+                setIsSimulating(false);
+              }
+            }
+          }, 500);
+        }
+      }).catch(error => {
+        console.error('Error starting simulation:', error);
+        setIsSimulating(false);
+      });
+    }
+  };
+
   return (
     <div data-testid="execution-panel" className="execution-panel p-4 bg-gray-100 border-t border-gray-300">
       <h2 className="text-lg font-semibold mb-2">Execution</h2>
@@ -148,13 +239,20 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       )}
       
       <div className="flex mb-4">
-        <div className="flex items-end">
+        <div className="flex items-end space-x-2">
           <button
             className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
             onClick={handleFirePetriNet}
-            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading}
+            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating}
           >
             Fire
+          </button>
+          <button
+            className={`px-3 py-1 ${isSimulating ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'} text-white rounded disabled:bg-gray-400`}
+            onClick={handleSimulate}
+            disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading}
+          >
+            {isSimulating ? 'Stop' : 'Simulate'}
           </button>
         </div>
       </div>
