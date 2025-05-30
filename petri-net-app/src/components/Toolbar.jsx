@@ -480,61 +480,7 @@ const Toolbar = ({
           </div>
         </div>
         
-        {/* Visual separator - engraved effect */}
-        <div className="h-full" style={{ 
-          borderRight: '1px solid rgba(180, 180, 190, 0.9)',
-          borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
-          margin: '0 12px',
-          height: '50px',
-          alignSelf: 'center',
-          opacity: 0.85
-        }}></div>
-        
-        {/* Simulation Tools Group */}
-        <div className="simulation-tools p-2">
-          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Simulation</h3>
-          <div className="flex justify-between">
-            <button 
-              style={buttonStyle(simulationMode === 'step' && !isSimulating)}
-              onClick={() => setSimulationMode('step')}
-              disabled={isSimulating}
-              title="Step-by-Step Simulation"
-              data-testid="sim-step"
-            >
-              Step
-            </button>
-            <button 
-              style={buttonStyle(simulationMode === 'quick' && !isSimulating)}
-              onClick={() => setSimulationMode('quick')}
-              disabled={isSimulating}
-              title="Quick Visual Simulation"
-              data-testid="sim-quick"
-            >
-              Visual
-            </button>
-            <button 
-              style={buttonStyle(simulationMode === 'full' && !isSimulating)}
-              onClick={() => setSimulationMode('full')}
-              disabled={isSimulating}
-              title="Full Simulation Mode"
-              data-testid="sim-full"
-            >
-              Full
-            </button>
-            {/* Analyze button removed */}
-            {isSimulating && (
-              <button 
-                style={{...buttonStyle(false), backgroundColor: '#f87171', color: 'white'}}
-                onClick={stopSimulation}
-                title="Stop Simulation"
-                data-testid="sim-stop"
-              >
-                Stop
-              </button>
-            )}
-            {/* Clear button removed */}
-          </div>
-        </div>
+
 
         <div className="history-tools p-2 ml-auto">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">History</h3>

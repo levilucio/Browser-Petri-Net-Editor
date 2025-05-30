@@ -7,6 +7,7 @@ import {
   findNonConflictingTransitions,
   fireMultipleTransitions
 } from '../utils/simulator';
+import MarkingsPanel from './MarkingsPanel';
 
 const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange }) => {
   const { places, transitions, arcs } = elements;
@@ -21,6 +22,9 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
   const simulationIterationCountRef = useRef(0);
   const MAX_SIMULATION_ITERATIONS = 100; // Increased from 20 to 100 to handle complex nets
   const MAX_RUN_ITERATIONS = 1000; // Increased to 1000 to ensure all transitions can fire
+  
+  // State for the markings panel
+  const [isMarkingsPanelOpen, setIsMarkingsPanelOpen] = useState(false);
   
   // Initialize the simulator when the elements change
   useEffect(() => {
@@ -407,26 +411,25 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         </div>
       </div>
       
-      <div className="flex">
-        <div className="current-marking mr-8 w-1/2">
-          <h3 className="text-sm font-medium mb-2">Current Marking</h3>
-          {isLoading ? (
-            <p className="text-gray-500">Loading...</p>
-          ) : places.length === 0 ? (
-            <p className="text-gray-500">No places defined</p>
-          ) : (
-            <div className="grid grid-cols-3 gap-2">
-              {places.map(place => (
-                <div key={place.id} className="flex items-center">
-                  <span className="font-medium mr-2">{place.name}:</span>
-                  <span>{place.tokens || 0}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        
-        {/* Enabled transitions section removed as requested */}
+      <div className="mt-4">
+        {!isMarkingsPanelOpen ? (
+          <button
+            className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded flex items-center space-x-1"
+            onClick={() => setIsMarkingsPanelOpen(true)}
+          >
+            <span>Show Markings</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </button>
+        ) : (
+          <MarkingsPanel 
+            places={places} 
+            isLoading={isLoading} 
+            isOpen={isMarkingsPanelOpen} 
+            onClose={() => setIsMarkingsPanelOpen(false)} 
+          />
+        )}
       </div>
     </div>
   );
