@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  initializeSimulator, 
-  getEnabledTransitions, 
-  fireTransition, 
+import {
+  initializeSimulator,
   updateSimulator,
+  fireTransition,
+  fireMultipleTransitions,
   findNonConflictingTransitions,
-  fireMultipleTransitions
+  getEnabledTransitions
 } from '../utils/simulator';
 
 const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange }) => {
@@ -14,11 +14,11 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
   const [isSimulatorReady, setIsSimulatorReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [simulationMode, setSimulationMode] = useState('step'); // Only 'step' mode is used now
   const [isSimulating, setIsSimulating] = useState(false);
   const simulationIntervalRef = useRef(null);
+  const noEnabledTransitionsCountRef = useRef(0);
   const simulationIterationCountRef = useRef(0);
-  const MAX_SIMULATION_ITERATIONS = 100; // Increased from 20 to 100 to handle complex nets
+  const MAX_SIMULATION_ITERATIONS = 20;
   
   // Initialize the simulator when the elements change
   useEffect(() => {
@@ -175,7 +175,20 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       
       // Check for enabled transitions
       const currentEnabled = await getEnabledTransitions();
-      console.log(`Currently enabled transitions: ${currentEnabled.length}`, currentEnabled);
+      
+      // If no transitions are enabled
+      if (currentEnabled.length === 0) {
+        noEnabledTransitionsCountRef.current++;
+        console.log(`No enabled transitions found (count: ${noEnabledTransitionsCountRef.current})`);
+        
+        if (noEnabledTransitionsCountRef.current >= 2) {
+          console.log('No enabled transitions for 2 consecutive checks, stopping simulation');
+          return false;
+        }
+      } else {
+        // Reset counter when we find enabled transitions
+        noEnabledTransitionsCountRef.current = 0;
+      }
       
       // Don't proceed if there are no enabled transitions
       if (currentEnabled.length === 0) {
@@ -190,14 +203,9 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         
         // Check if there are still enabled transitions after firing
         const afterFiringEnabled = await getEnabledTransitions();
-        
-        // Important: We want to continue even if only one transition is enabled
-        // Only stop if there are NO enabled transitions
         if (afterFiringEnabled.length === 0) {
           console.log('No transitions enabled after firing, stopping simulation');
           return false;
-        } else {
-          console.log(`${afterFiringEnabled.length} transition(s) still enabled, continuing simulation`);
         }
         
         // Continue simulation
@@ -235,6 +243,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       setIsSimulating(true);
       
       // Reset counters
+      noEnabledTransitionsCountRef.current = 0;
       simulationIterationCountRef.current = 0;
       
       console.log('Starting simulation');
@@ -295,13 +304,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
           </button>
           <button
             className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
-            onClick={() => {
-              if (simulationIntervalRef.current) {
-                clearInterval(simulationIntervalRef.current);
-                simulationIntervalRef.current = null;
-              }
-              setIsSimulating(false);
-            }}
+            onClick={stopSimulation}
             disabled={!isSimulating}
           >
             <span>Stop</span>
@@ -331,8 +334,6 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
             </div>
           )}
         </div>
-        
-        {/* Enabled transitions section removed as requested */}
       </div>
     </div>
   );

@@ -628,7 +628,32 @@ export async function fireMultipleTransitions(transitionIds) {
       arcs: simulator?.petriNet?.arcs ? [...simulator.petriNet.arcs] : []
     };
     
-    // Fire each transition in sequence, handling errors for individual transitions
+    // Special case for single enabled transition (to avoid skipping T3)
+    // Get the actually enabled transitions from Python simulator
+    const enabledTransitions = await getEnabledTransitions();
+    if (enabledTransitions.length === 1) {
+      console.log('Only one transition is enabled, firing it directly', enabledTransitions[0]);
+      const singleTransitionId = enabledTransitions[0].id;
+      
+      try {
+        // Fire it directly using the simulator
+        const updatedPetriNet = await simulator.fire_transition(singleTransitionId);
+        currentPetriNet = updatedPetriNet.toJs();
+        
+        // Update the simulator with the new state
+        await updateSimulator(currentPetriNet);
+        atLeastOneTransitionFired = true;
+        
+        // If this succeeded, return the updated Petri net
+        console.log(`Successfully fired single transition ${singleTransitionId}`);
+        return processUpdatedPetriNet(currentPetriNet);
+      } catch (singleTransitionError) {
+        console.error(`Error firing single transition ${singleTransitionId}:`, singleTransitionError);
+      }
+    }
+    
+    // If we get here, either we didn't have a single transition case or it failed
+    // Standard case: Fire each transition in sequence, handling errors for individual transitions
     for (const transitionId of transitionIds) {
       try {
         // Check if the transition is still enabled before trying to fire it
