@@ -12,7 +12,7 @@ let simulator = null;
 let pyodideLoading = null;
 
 // JavaScript fallback simulator
-class JsPetriNetSimulator {
+export class JsPetriNetSimulator {
   constructor(petriNet) {
     this.petriNet = petriNet;
     this.places = petriNet.places || [];
@@ -88,7 +88,7 @@ class JsPetriNetSimulator {
     return true;
   }
 
-  async getEnabledTransitions() {
+  getEnabledTransitions() {
     console.log('JS Fallback: Getting enabled transitions');
     const enabledTransitions = [];
     
@@ -102,13 +102,13 @@ class JsPetriNetSimulator {
     return enabledTransitions;
   }
 
-  async fireTransition(transitionId) {
+  fireTransition(transitionId) {
     console.log(`JS Fallback: Firing transition ${transitionId}`);
     
     // Check if the transition is enabled
     if (!this.isTransitionEnabled(transitionId)) {
       console.warn(`JS Fallback: Transition ${transitionId} is not enabled`);
-      return this.petriNet; // Return unchanged Petri net instead of throwing
+      throw new Error(`Transition ${transitionId} is not enabled`);
     }
     
     // Get input and output places
