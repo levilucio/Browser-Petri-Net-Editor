@@ -4,7 +4,7 @@ const EnabledTransitionsPanel = ({ enabledTransitions, isLoading, isOpen, onClos
   if (!isOpen) return null;
 
   return (
-    <div className="enabled-transitions-panel mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
+    <div data-testid="enabled-transitions" className="enabled-transitions-panel mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-md font-semibold">Enabled Transitions</h3>
         <button 

@@ -368,6 +368,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         {/* First row with Fire, Simulate and Run buttons */}
         <div className="flex items-center space-x-2">
           <button
+            data-testid="sim-fire"
             className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
             onClick={handleFirePetriNet}
             disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating || isRunning}
@@ -375,6 +376,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
             Fire
           </button>
           <button
+            data-testid="sim-simulate"
             className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
             onClick={handleSimulate}
             disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating || isRunning}
@@ -386,6 +388,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
             </svg>
           </button>
           <button
+            data-testid="sim-run"
             className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
             onClick={handleRun}
             disabled={!isSimulatorReady || enabledTransitions.length === 0 || isLoading || isSimulating || isRunning}
@@ -400,6 +403,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         {/* Second row with just the Stop button */}
         <div className="flex items-center">
           <button
+            data-testid="sim-stop"
             className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded disabled:bg-gray-400 flex items-center space-x-1"
             onClick={stopSimulation}
             disabled={!isSimulating && !isRunning}
@@ -419,6 +423,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         <div>
           {!isMarkingsPanelOpen ? (
             <button
+              data-testid="show-markings"
               className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded flex items-center space-x-1"
               onClick={() => setIsMarkingsPanelOpen(true)}
             >
@@ -444,6 +449,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         <div>
           {!isEnabledTransitionsPanelOpen ? (
             <button
+              data-testid="show-enabled-transitions"
               className="px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded flex items-center space-x-1"
               onClick={() => setIsEnabledTransitionsPanelOpen(true)}
             >

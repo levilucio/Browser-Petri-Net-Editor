@@ -4,7 +4,7 @@ const MarkingsPanel = ({ places, isLoading, isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="markings-panel mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
+    <div data-testid="current-marking" className="markings-panel mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-md font-semibold">Current Markings</h3>
         <button 

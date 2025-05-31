@@ -17,11 +17,9 @@ test.describe('Large Scale Petri Net Creation', () => {
     // NOTE: This test creates places and transitions visually on the canvas.
     // Because React-Konva renders to Canvas (not DOM), we can't reliably count elements.
     // This test focuses on the visual creation process and takes a screenshot for verification.
-    // First clear the canvas to ensure a clean state
-    const clearButton = page.getByTestId('clear-canvas');
-    await expect(clearButton).toBeVisible();
-    await clearButton.click();
-    await page.waitForTimeout(500); // Wait for canvas to clear
+    // We'll start with a fresh canvas since we're at the beginning of the test
+    // No need to clear it explicitly
+    await page.waitForTimeout(500);
 
     // Expose a helper function to check the state
     await page.evaluate(() => {

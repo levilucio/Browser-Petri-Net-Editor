@@ -27,7 +27,7 @@ describe('Transition Component', () => {
     id: 'transition-1',
     x: 150,
     y: 150,
-    name: 'T1'
+    label: 'T1'
   };
   
   const mockProps = {
@@ -59,8 +59,9 @@ describe('Transition Component', () => {
 
   test('displays correct transition name', () => {
     render(<Transition {...mockProps} />);
-    const nameText = screen.getByText('T1');
-    expect(nameText).toBeInTheDocument();
+    const texts = screen.queryAllByTestId('text');
+    const nameText = texts.find(text => text.textContent === 'T1');
+    expect(nameText).toBeTruthy();
   });
 
   test('calls onClick handler when clicked', () => {

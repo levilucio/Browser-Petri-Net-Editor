@@ -20,7 +20,7 @@ describe('PropertiesPanel Component', () => {
   test('renders place properties when a place is selected', () => {
     const mockPlace = {
       id: 'place-1',
-      name: 'P1',
+      label: 'P1',
       tokens: 5,
       x: 100,
       y: 100
@@ -30,10 +30,10 @@ describe('PropertiesPanel Component', () => {
     
     expect(screen.getByText('Properties')).toBeInTheDocument();
     
-    // Find the name input by looking for the div containing the label 'Name'
-    const nameDiv = screen.getByText('Name').closest('div');
-    const nameInput = within(nameDiv).getByRole('textbox');
-    expect(nameInput).toHaveValue('P1');
+    // Find the label input by looking for the div containing the label 'Label'
+    const labelDiv = screen.getByText('Label').closest('div');
+    const labelInput = within(labelDiv).getByRole('textbox');
+    expect(labelInput).toHaveValue('P1');
     
     // Find the tokens input by looking for the div containing the label 'Tokens (0-20)'
     const tokensDiv = screen.getByText('Tokens (0-20)').closest('div');
@@ -44,7 +44,7 @@ describe('PropertiesPanel Component', () => {
   test('renders transition properties when a transition is selected', () => {
     const mockTransition = {
       id: 'transition-1',
-      name: 'T1',
+      label: 'T1',
       x: 100,
       y: 100
     };
@@ -53,10 +53,10 @@ describe('PropertiesPanel Component', () => {
     
     expect(screen.getByText('Properties')).toBeInTheDocument();
     
-    // Find the name input by looking for the div containing the label 'Name'
-    const nameDiv = screen.getByText('Name').closest('div');
-    const nameInput = within(nameDiv).getByRole('textbox');
-    expect(nameInput).toHaveValue('T1');
+    // Find the label input by looking for the div containing the label 'Label'
+    const labelDiv = screen.getByText('Label').closest('div');
+    const labelInput = within(labelDiv).getByRole('textbox');
+    expect(labelInput).toHaveValue('T1');
     
     // Transition should not have token input
     expect(screen.queryByText('Tokens (0-20)')).not.toBeInTheDocument();
@@ -65,7 +65,7 @@ describe('PropertiesPanel Component', () => {
   test('renders arc properties when an arc is selected', () => {
     const mockArc = {
       id: 'arc-1',
-      name: 'A1',
+      label: 'A1',
       weight: 3,
       sourceId: 'place-1',
       targetId: 'transition-1',
@@ -77,10 +77,10 @@ describe('PropertiesPanel Component', () => {
     
     expect(screen.getByText('Properties')).toBeInTheDocument();
     
-    // Find the name input by looking for the div containing the label 'Name'
-    const nameDiv = screen.getByText('Name').closest('div');
-    const nameInput = within(nameDiv).getByRole('textbox');
-    expect(nameInput).toHaveValue('A1');
+    // Find the label input by looking for the div containing the label 'Label'
+    const labelDiv = screen.getByText('Label').closest('div');
+    const labelInput = within(labelDiv).getByRole('textbox');
+    expect(labelInput).toHaveValue('A1');
     
     // Find the weight input by looking for the div containing the label 'Weight (1-20)'
     const weightDiv = screen.getByText('Weight (1-20)').closest('div');
@@ -91,7 +91,7 @@ describe('PropertiesPanel Component', () => {
   test('updates place name when input changes', () => {
     const mockPlace = {
       id: 'place-1',
-      name: 'P1',
+      label: 'P1',
       tokens: 5,
       x: 100,
       y: 100
@@ -99,9 +99,9 @@ describe('PropertiesPanel Component', () => {
 
     render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} />);
     
-    const nameDiv = screen.getByText('Name').closest('div');
-    const nameInput = within(nameDiv).getByRole('textbox');
-    fireEvent.change(nameInput, { target: { value: 'NewPlaceName' } });
+    const labelDiv = screen.getByText('Label').closest('div');
+    const labelInput = within(labelDiv).getByRole('textbox');
+    fireEvent.change(labelInput, { target: { value: 'NewPlaceName' } });
     
     expect(mockSetElements).toHaveBeenCalled();
     // Check that the first call to mockSetElements is a function
@@ -111,7 +111,7 @@ describe('PropertiesPanel Component', () => {
   test('updates place tokens when input changes', () => {
     const mockPlace = {
       id: 'place-1',
-      name: 'P1',
+      label: 'P1',
       tokens: 5,
       x: 100,
       y: 100
@@ -129,16 +129,16 @@ describe('PropertiesPanel Component', () => {
   test('updates transition name when input changes', () => {
     const mockTransition = {
       id: 'transition-1',
-      name: 'T1',
+      label: 'T1',
       x: 100,
       y: 100
     };
 
     render(<PropertiesPanel selectedElement={mockTransition} setElements={mockSetElements} />);
     
-    const nameDiv = screen.getByText('Name').closest('div');
-    const nameInput = within(nameDiv).getByRole('textbox');
-    fireEvent.change(nameInput, { target: { value: 'NewTransitionName' } });
+    const labelDiv = screen.getByText('Label').closest('div');
+    const labelInput = within(labelDiv).getByRole('textbox');
+    fireEvent.change(labelInput, { target: { value: 'NewTransitionName' } });
     
     expect(mockSetElements).toHaveBeenCalled();
   });
@@ -146,7 +146,7 @@ describe('PropertiesPanel Component', () => {
   test('updates arc weight when input changes', () => {
     const mockArc = {
       id: 'arc-1',
-      name: 'A1',
+      label: 'A1',
       weight: 3,
       sourceId: 'place-1',
       targetId: 'transition-1',
@@ -166,7 +166,7 @@ describe('PropertiesPanel Component', () => {
   test('validates token count within range (0-20)', () => {
     const mockPlace = {
       id: 'place-1',
-      name: 'P1',
+      label: 'P1',
       tokens: 5,
       x: 100,
       y: 100
@@ -198,7 +198,7 @@ describe('PropertiesPanel Component', () => {
   test('validates arc weight within range (1-20)', () => {
     const mockArc = {
       id: 'arc-1',
-      name: 'A1',
+      label: 'A1',
       weight: 3,
       sourceId: 'place-1',
       targetId: 'transition-1',

@@ -20,7 +20,7 @@ test.describe('Arc Cancellation Functionality', () => {
     await page.goto('/');
   });
 
-  test('should cancel arc creation when clicking on empty canvas', async ({ page }) => {
+  test('should cancel arc creation when pressing the Escape key', async ({ page }) => {
     // Step 1: Create a place
     const placeButton = page.locator('[data-testid="toolbar-place"]');
     await expect(placeButton).toBeVisible();
@@ -32,7 +32,7 @@ test.describe('Arc Cancellation Functionality', () => {
     await page.waitForTimeout(300);
     
     // Step 2: Create a transition
-    const transitionButton = page.locator('button:has-text("Transition")');
+    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
     await expect(transitionButton).toBeVisible();
     await transitionButton.click();
     await page.waitForTimeout(300);
@@ -57,7 +57,7 @@ test.describe('Arc Cancellation Functionality', () => {
     expect(initialState.arcs).toBe(0);
     
     // Step 3: Start creating an arc
-    const arcButton = page.locator('button:has-text("Arc")');
+    const arcButton = page.locator('[data-testid="toolbar-arc"]');
     await expect(arcButton).toBeVisible();
     await arcButton.click();
     await page.waitForTimeout(300);
@@ -66,9 +66,8 @@ test.describe('Arc Cancellation Functionality', () => {
     await page.mouse.click(200, 200);
     await page.waitForTimeout(300);
     
-    // Step 4: Cancel arc creation by clicking on empty canvas
-    // Click on an empty area of the canvas (away from both place and transition)
-    await page.mouse.click(300, 300);
+    // Step 4: Cancel arc creation by pressing the Escape key
+    await page.keyboard.press('Escape');
     await page.waitForTimeout(500);
     
     // Step 5: Verify no arc was created

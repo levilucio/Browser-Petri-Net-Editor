@@ -46,6 +46,86 @@ test.describe('Petri Net Simulator', () => {
   }
 
   /**
+   * Helper function to create a Petri net with conflicting transitions
+   * This creates a net with P1 having 1 token connected to both T1 and T2,
+   * and P4 having 10 tokens connected to T3.
+   * When firing, T1 and T2 are in conflict for P1's token, while T3 can fire independently.
+   */
+  async function createConflictingPetriNet(page) {
+    // Switch to place mode and add places
+    await page.getByTestId('toolbar-place').click();
+    
+    // Add P1 with 1 token
+    await page.locator('.konvajs-content').click({ position: { x: 260, y: 100 } });
+    // Select P1 to add tokens
+    await page.getByTestId('toolbar-select').click();
+    await page.locator('.konvajs-content').click({ position: { x: 260, y: 100 } });
+    // Set 1 token
+    await page.locator('input[type="number"]').first().fill('1');
+    
+    // Add P2
+    await page.getByTestId('toolbar-place').click();
+    await page.locator('.konvajs-content').click({ position: { x: 680, y: 100 } });
+    
+    // Add P3
+    await page.locator('.konvajs-content').click({ position: { x: 680, y: 220 } });
+    
+    // Add P4 with 10 tokens
+    await page.locator('.konvajs-content').click({ position: { x: 260, y: 400 } });
+    // Select P4 to add tokens
+    await page.getByTestId('toolbar-select').click();
+    await page.locator('.konvajs-content').click({ position: { x: 260, y: 400 } });
+    // Set 10 tokens
+    await page.locator('input[type="number"]').first().fill('10');
+    
+    // Add P5
+    await page.getByTestId('toolbar-place').click();
+    await page.locator('.konvajs-content').click({ position: { x: 680, y: 400 } });
+    
+    // Add transitions
+    await page.getByTestId('toolbar-transition').click();
+    
+    // Add T1
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 220 } });
+    
+    // Add T2
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 100 } });
+    
+    // Add T3
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 400 } });
+    
+    // Add arcs
+    await page.getByTestId('toolbar-arc').click();
+    
+    // Arc from P1 to T1
+    await page.locator('.konvajs-content').click({ position: { x: 260, y: 100 } });
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 220 } });
+    
+    // Arc from P1 to T2
+    await page.locator('.konvajs-content').click({ position: { x: 260, y: 100 } });
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 100 } });
+    
+    // Arc from T2 to P2
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 100 } });
+    await page.locator('.konvajs-content').click({ position: { x: 680, y: 100 } });
+    
+    // Arc from T1 to P3
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 220 } });
+    await page.locator('.konvajs-content').click({ position: { x: 680, y: 220 } });
+    
+    // Arc from P4 to T3
+    await page.locator('.konvajs-content').click({ position: { x: 260, y: 400 } });
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 400 } });
+    
+    // Arc from T3 to P5
+    await page.locator('.konvajs-content').click({ position: { x: 460, y: 400 } });
+    await page.locator('.konvajs-content').click({ position: { x: 680, y: 400 } });
+    
+    // Switch back to select mode
+    await page.getByTestId('toolbar-select').click();
+  }
+  
+  /**
    * Helper function to create a more complex Petri net in the editor
    */
   async function createComplexPetriNet(page) {
@@ -105,9 +185,6 @@ test.describe('Petri Net Simulator', () => {
     await createSimplePetriNet(page);
     
     // Wait for the simulator to initialize and compute enabled transitions
-    await expect(page.getByText('Current Marking')).toBeVisible();
-    
-    // Check that the execution panel is visible
     await expect(page.getByTestId('execution-panel')).toBeVisible();
     
     // Wait for the execution panel to update
@@ -120,38 +197,93 @@ test.describe('Petri Net Simulator', () => {
     await expect(page.getByTestId('execution-panel')).toBeVisible();
     
     // Check that the Fire button is visible
-    await expect(page.getByText('Fire')).toBeVisible();
+    await expect(page.getByTestId('sim-fire')).toBeVisible();
+    
+    // Click the Show Enabled Transitions button
+    await page.getByTestId('show-enabled-transitions').click();
     
     // Check that enabled transitions section is visible
-    await expect(page.getByText('Enabled Transitions')).toBeVisible();
+    await expect(page.getByTestId('enabled-transitions')).toBeVisible();
   });
 
-  test('should fire a transition in step-by-step mode', async ({ page }) => {
-    // Create a simple Petri net
-    await createSimplePetriNet(page);
+  test('should fire all enabled transitions simultaneously with the Fire button', async ({ page }) => {
+    // Create a Petri net with conflicting transitions
+    await createConflictingPetriNet(page);
     
     // Wait for the simulator to initialize
-    await expect(page.getByText('Current Marking')).toBeVisible();
+    await expect(page.getByTestId('execution-panel')).toBeVisible();
     
     // Wait for the enabled transitions to be computed
     await page.waitForTimeout(1000);
     
-    // Find and click the enabled transition button in the execution panel
-    // Look for a button containing T1 within the enabled-transitions div
-    const enabledTransitionsSection = page.locator('.enabled-transitions');
-    await expect(enabledTransitionsSection).toBeVisible();
+    // Get the initial state of the Petri net
+    const initialState = await page.evaluate(() => {
+      // @ts-ignore - Custom property added for testing
+      return window.__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
+    });
     
-    // Click the first enabled transition (should be T1)
-    await page.locator('.enabled-transitions button').first().click();
+    // Verify initial state: P1 has 1 token, P4 has 10 tokens
+    const p1 = initialState.places.find(p => p.x === 260 && p.y === 100);
+    const p4 = initialState.places.find(p => p.x === 260 && p.y === 400);
+    expect(p1.tokens).toBe(1);
+    expect(p4.tokens).toBe(10);
+    
+    // Click the Fire button to fire all enabled transitions simultaneously
+    await page.getByTestId('sim-fire').click();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);
     
-    // Wait for the UI to update
+    // Get the updated state of the Petri net
+    const updatedState = await page.evaluate(() => {
+      // @ts-ignore - Custom property added for testing
+      return window.__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
+    });
+    
+    // Verify that P1's token is consumed (should be 0)
+    // This means either T1 or T2 fired (but not both, since they're in conflict)
+    const updatedP1 = updatedState.places.find(p => p.x === 260 && p.y === 100);
+    expect(updatedP1.tokens).toBe(0);
+    
+    // Verify that P4's tokens are reduced by 1 (T3 should have fired)
+    const updatedP4 = updatedState.places.find(p => p.x === 260 && p.y === 400);
+    expect(updatedP4.tokens).toBe(9);
+    
+    // Verify that P5 received a token from T3
+    const updatedP5 = updatedState.places.find(p => p.x === 680 && p.y === 400);
+    expect(updatedP5.tokens).toBe(1);
+    
+    // Verify that either P2 or P3 (but not both) received a token
+    // This confirms the non-deterministic behavior of conflicting transitions
+    const updatedP2 = updatedState.places.find(p => p.x === 680 && p.y === 100);
+    const updatedP3 = updatedState.places.find(p => p.x === 680 && p.y === 220);
+    
+    // Either P2 or P3 should have 1 token, but not both
+    const tokenSum = (updatedP2.tokens || 0) + (updatedP3.tokens || 0);
+    expect(tokenSum).toBe(1);
+    
+    // Click the Show Enabled Transitions button to check enabled transitions
+    await page.getByTestId('show-enabled-transitions').click();
+    
+    // Wait for the enabled transitions to be computed
     await page.waitForTimeout(1000);
     
-    // The Fire button should be disabled if there are no enabled transitions
-    await expect(page.getByText('Fire')).toBeDisabled();
+    // Verify that there are still enabled transitions (T3 should be enabled since P4 still has tokens)
+    const enabledTransitionsSection = page.getByTestId('enabled-transitions');
+    await expect(enabledTransitionsSection).toBeVisible();
+    
+    // Check if there's at least one button in the enabled transitions panel
+    const enabledButtons = page.locator('[data-testid="enabled-transitions"] button');
+    await expect(enabledButtons).toBeVisible();
+    
+    // Verify that P4 still has tokens (which means T3 is still enabled)
+    const finalState = await page.evaluate(() => {
+      // @ts-ignore - Custom property added for testing
+      return window.__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
+    });
+    
+    const finalP4 = finalState.places.find(p => p.x === 260 && p.y === 400);
+    expect(finalP4.tokens).toBeGreaterThan(0);
   });
 
   test('should fire transitions using the Fire button', async ({ page }) => {
@@ -159,30 +291,33 @@ test.describe('Petri Net Simulator', () => {
     await createComplexPetriNet(page);
     
     // Wait for the simulator to initialize
-    await expect(page.getByText('Current Marking')).toBeVisible();
+    await expect(page.getByTestId('execution-panel')).toBeVisible();
     
     // Wait for the enabled transitions to be computed
     await page.waitForTimeout(2000);
     
     // Check that the Fire button is visible
-    await expect(page.getByText('Fire')).toBeVisible();
+    await expect(page.getByTestId('sim-fire')).toBeVisible();
     
     // Click the Fire button to fire the first enabled transition
-    await page.getByText('Fire').click();
+    await page.getByTestId('sim-fire').click();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);
     
+    // Click the Show Markings button
+    await page.getByTestId('show-markings').click();
+    
     // Check that the marking has changed by looking at the current marking section
     // The P1 place should now have 1 token instead of 2
-    const currentMarking = page.locator('.current-marking');
+    const currentMarking = page.getByTestId('current-marking');
     await expect(currentMarking).toBeVisible();
     
     // Wait for the UI to update
     await page.waitForTimeout(1000);
     
     // Click the Fire button again if it's enabled
-    const fireButton = page.getByText('Fire');
+    const fireButton = page.getByTestId('sim-fire');
     const isEnabled = await fireButton.isEnabled();
     
     if (isEnabled) {
@@ -197,17 +332,20 @@ test.describe('Petri Net Simulator', () => {
     await createComplexPetriNet(page);
     
     // Wait for the simulator to initialize
-    await expect(page.getByText('Current Marking')).toBeVisible();
+    await expect(page.getByTestId('execution-panel')).toBeVisible();
     
     // Wait for the enabled transitions to be computed
     await page.waitForTimeout(2000);
     
+    // Click the Show Enabled Transitions button
+    await page.getByTestId('show-enabled-transitions').click();
+    
     // Check that the enabled transitions section is visible
-    const enabledTransitionsSection = page.locator('.enabled-transitions');
+    const enabledTransitionsSection = page.getByTestId('enabled-transitions');
     await expect(enabledTransitionsSection).toBeVisible();
     
     // There should be at least one enabled transition button
-    const enabledTransitionButtons = page.locator('.enabled-transitions button');
+    const enabledTransitionButtons = page.locator('[data-testid="enabled-transitions"] button');
     const count = await enabledTransitionButtons.count();
     expect(count).toBeGreaterThan(0);
     
@@ -257,9 +395,8 @@ test.describe('Petri Net Simulator', () => {
     await page.locator('.konvajs-content').click({ position: { x: 300, y: 100 } });
     await page.locator('input[type="number"]').first().fill('15');
     
-    // Fire the transition in step-by-step mode
-    await page.getByTestId('sim-step').click();
-    await page.getByText('T1').click();
+    // Fire the transition
+    await page.getByTestId('sim-fire').click();
     
     // Wait for the UI to update
     await page.waitForTimeout(2000);
@@ -273,13 +410,13 @@ test.describe('Petri Net Simulator', () => {
     await createSimplePetriNet(page);
     
     // Wait for the simulator to initialize
-    await expect(page.getByText('Current Marking')).toBeVisible();
+    await expect(page.getByTestId('execution-panel')).toBeVisible();
     
     // Measure the time to fire a transition
     const startTime = Date.now();
     
     // Fire the transition
-    await page.getByText('T1').click();
+    await page.getByTestId('sim-fire').click();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);

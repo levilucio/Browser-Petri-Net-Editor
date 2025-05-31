@@ -75,7 +75,7 @@ test.describe('Petri Net Editor', () => {
     expect(placesCount).toBeGreaterThan(0);
     
     // Step 2: Add a transition
-    const transitionButton = page.locator('button:has-text("Transition")');
+    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
     await expect(transitionButton).toBeVisible();
     await transitionButton.click();
     await page.waitForTimeout(300);
@@ -92,7 +92,7 @@ test.describe('Petri Net Editor', () => {
     expect(transitionsCount).toBeGreaterThan(0);
     
     // Step 3: Create an arc from place to transition
-    const arcButton = page.locator('button:has-text("Arc")');
+    const arcButton = page.locator('[data-testid="toolbar-arc"]');
     await expect(arcButton).toBeVisible();
     await arcButton.click();
     await page.waitForTimeout(300);
@@ -114,7 +114,7 @@ test.describe('Petri Net Editor', () => {
     
     // Step 4: Select and delete the arc
     // First, switch to select mode
-    const selectButton = page.locator('button:has-text("Select")');
+    const selectButton = page.locator('[data-testid="toolbar-select"]');
     await expect(selectButton).toBeVisible();
     await selectButton.click();
     await page.waitForTimeout(300);
@@ -137,7 +137,7 @@ test.describe('Petri Net Editor', () => {
 
   test('should create a transition with two places and delete the transition with its arcs', async ({ page }) => {
     // Step 1: Add a transition in the middle
-    const transitionButton = page.locator('button:has-text("Transition")');
+    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
     await expect(transitionButton).toBeVisible();
     await transitionButton.click();
     await page.waitForTimeout(300);

@@ -27,7 +27,7 @@ describe('Place Component', () => {
     id: 'place-1',
     x: 100,
     y: 100,
-    name: 'P1',
+    label: 'P1',
     tokens: 3
   };
   

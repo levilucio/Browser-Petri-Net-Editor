@@ -578,6 +578,17 @@ function App() {
     
     updateVirtualCanvasSize();
   }, [stageDimensions, MIN_ZOOM]);
+  
+  // Expose Petri net state for e2e testing
+  useEffect(() => {
+    if (import.meta.env.MODE === 'development' || import.meta.env.MODE === 'test') {
+      window.__PETRI_NET_STATE__ = {
+        places: elements.places,
+        transitions: elements.transitions,
+        arcs: elements.arcs
+      };
+    }
+  }, [elements.places, elements.transitions, elements.arcs]);
 
   // Function to get cardinal points of an element (N, E, S, W points)
   const getCardinalPoints = (element, elementType) => {

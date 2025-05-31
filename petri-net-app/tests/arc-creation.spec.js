@@ -8,16 +8,14 @@ test.describe('Arc Creation Test', () => {
     // Go to the app before each test
     await page.goto('/');
     // Wait for the app to be fully loaded
-    await page.waitForSelector('button:has-text("Place")');
+    await page.waitForSelector('[data-testid="toolbar-place"]');
     await page.waitForSelector('.stage-container');
   });
 
   test('should create a simple Petri net with arcs', async ({ page }) => {
-    // First clear the canvas to ensure a clean state
-    const clearButton = page.getByTestId('clear-canvas');
-    await expect(clearButton).toBeVisible();
-    await clearButton.click();
-    await page.waitForTimeout(1000);
+    // We'll start with a fresh canvas since we're at the beginning of the test
+    // No need to clear it explicitly
+    await page.waitForTimeout(500);
 
     // Expose a helper function to check the state
     await page.evaluate(() => {
@@ -31,7 +29,7 @@ test.describe('Arc Creation Test', () => {
     console.log('Creating a simple Petri net with arcs...');
 
     // Step 1: Create a place
-    const placeButton = page.locator('button:has-text("Place")');
+    const placeButton = page.locator('[data-testid="toolbar-place"]');
     await expect(placeButton).toBeVisible();
     await placeButton.click();
     await page.waitForTimeout(500);
@@ -41,7 +39,7 @@ test.describe('Arc Creation Test', () => {
     await page.waitForTimeout(500);
 
     // Step 2: Create a transition
-    const transitionButton = page.locator('button:has-text("Transition")');
+    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
     await expect(transitionButton).toBeVisible();
     await transitionButton.click();
     await page.waitForTimeout(500);
@@ -62,7 +60,7 @@ test.describe('Arc Creation Test', () => {
 
     // Step 3: Create an arc from place to transition
     console.log('Creating an arc from place to transition...');
-    const arcButton = page.locator('button:has-text("Arc")');
+    const arcButton = page.locator('[data-testid="toolbar-arc"]');
     await expect(arcButton).toBeVisible();
     await arcButton.click();
     await page.waitForTimeout(1000);
