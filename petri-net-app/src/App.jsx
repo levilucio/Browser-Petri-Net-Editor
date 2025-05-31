@@ -11,6 +11,7 @@ import Grid from './components/Grid';
 import { HistoryManager } from './utils/historyManager';
 // Import the simulator functions
 import { initializeSimulator, getEnabledTransitions } from './utils/simulator';
+import { applyAutoLayout } from './utils/autoLayout';
 
 function App() {
   const [elements, setElements] = useState({
@@ -55,6 +56,12 @@ function App() {
     y: 0
   });
   
+  // Zoom level for the canvas (1.0 = 100%)
+  const [zoomLevel, setZoomLevel] = useState(1.0);
+  const MIN_ZOOM = 0.1;  // 10% zoom
+  const MAX_ZOOM = 3.0;  // 300% zoom
+  const ZOOM_STEP = 0.1; // 10% per step
+  
   // Constants for canvas expansion
   const expansionThreshold = 100; // px from edge to trigger expansion
   const expansionAmount = 500;    // px to expand in each direction
@@ -97,9 +104,61 @@ function App() {
     setGridSnappingEnabled(prev => !prev);
   };
   
+  // Function to apply auto-layout to the Petri net
+  const handleAutoLayout = () => {
+    // Apply the auto-layout algorithm
+    const newElements = applyAutoLayout(elements, virtualCanvasDimensions, gridSize);
+    
+    // Update the elements state
+    setElements(newElements);
+    
+    // Add to history
+    updateHistory(newElements);
+  };
+  
   // Function to handle the start of dragging an element
   const handleDragStart = (element, elementType) => {
     setDraggedElement({ element, elementType });
+  };
+
+  // Function to handle the end of dragging an element and update its position
+  const handleDragEnd = (element, elementType, newPos) => {
+    // Clear the dragged element state
+    setDraggedElement(null);
+    
+    // Snap the new position to grid if enabled
+    const snappedPos = snapToGrid(newPos.x, newPos.y);
+    
+    // Update the element's position in the state
+    setElements(prev => {
+      let newState;
+      
+      if (elementType === 'place') {
+        // Update the place position
+        const updatedPlaces = prev.places.map(place => {
+          if (place.id === element.id) {
+            return { ...place, x: snappedPos.x / zoomLevel, y: snappedPos.y / zoomLevel };
+          }
+          return place;
+        });
+        
+        newState = { ...prev, places: updatedPlaces };
+      } else if (elementType === 'transition') {
+        // Update the transition position
+        const updatedTransitions = prev.transitions.map(transition => {
+          if (transition.id === element.id) {
+            return { ...transition, x: snappedPos.x / zoomLevel, y: snappedPos.y / zoomLevel };
+          }
+          return transition;
+        });
+        
+        newState = { ...prev, transitions: updatedTransitions };
+      }
+      
+      // Add to history after state update
+      updateHistory(newState);
+      return newState;
+    });
   };
   
   // Function to update history after state changes
@@ -300,151 +359,36 @@ function App() {
     setEnabledTransitionIds(transitionIds);
   };
 
-  // Function to handle the end of dragging an element
-  const handleDragEnd = (element, elementType, newPosition) => {
-    // Snap the final position to grid
-    const snappedPos = snapToGrid(newPosition.x, newPosition.y);
+  // Find potential arc target (place or transition) near the given position
+  const findPotentialArcTarget = (position) => {
+    // Adjust detection radius based on zoom level
+    const detectionRadius = 30 / zoomLevel;
     
-    // Update the element's position
-    if (elementType === 'place') {
-      setElements(prev => {
-        const newState = {
-          ...prev,
-          places: prev.places.map(p => 
-            p.id === element.id ? { ...p, x: snappedPos.x, y: snappedPos.y } : p
-          )
-        };
-        // Add to history after state update
-        updateHistory(newState);
-        return newState;
-      });
-    } else if (elementType === 'transition') {
-      setElements(prev => {
-        const newState = {
-          ...prev,
-          transitions: prev.transitions.map(t => 
-            t.id === element.id ? { ...t, x: snappedPos.x, y: snappedPos.y } : t
-          )
-        };
-        // Add to history after state update
-        updateHistory(newState);
-        return newState;
+    // If arc starts from a place, we can only connect to a transition
+    if (arcStart && arcStart.elementType === 'place') {
+      // Find the closest transition
+      return elements.transitions.find(transition => {
+        const distance = Math.sqrt(
+          Math.pow(transition.x - position.x, 2) + 
+          Math.pow(transition.y - position.y, 2)
+        );
+        return distance < detectionRadius;
       });
     }
     
-    // Clear the dragged element state
-    setDraggedElement(null);
-  };
-
-  // Function to add a new element to the canvas
-  const addElement = (type, x, y) => {
-    const snappedPos = snapToGrid(x, y);
-    
-    if (type === 'place') {
-      const newPlace = {
-        id: `place-${Date.now()}`,
-        x: snappedPos.x,
-        y: snappedPos.y,
-        name: `P${elements.places.length + 1}`,
-        tokens: 0
-      };
-      setElements(prev => {
-        const newState = {
-          ...prev,
-          places: [...prev.places, newPlace]
-        };
-        // Add to history after state update
-        updateHistory(newState);
-        return newState;
-      });
-    } else if (type === 'transition') {
-      const newTransition = {
-        id: `transition-${Date.now()}`,
-        x: snappedPos.x,
-        y: snappedPos.y,
-        name: `T${elements.transitions.length + 1}`
-      };
-      setElements(prev => {
-        const newState = {
-          ...prev,
-          transitions: [...prev.transitions, newTransition]
-        };
-        // Add to history after state update
-        updateHistory(newState);
-        return newState;
+    // If arc starts from a transition, we can only connect to a place
+    if (arcStart && arcStart.elementType === 'transition') {
+      // Find the closest place
+      return elements.places.find(place => {
+        const distance = Math.sqrt(
+          Math.pow(place.x - position.x, 2) + 
+          Math.pow(place.y - position.y, 2)
+        );
+        return distance < detectionRadius;
       });
     }
-  };
-
-  // Function to handle stage click
-  const handleStageClick = (e) => {
-    // Get position relative to the stage
-    const stage = e.target.getStage();
-    const pointerPosition = stage.getPointerPosition();
     
-    // Adjust for scroll position to get the actual position in the virtual canvas
-    const x = pointerPosition.x + canvasScroll.x;
-    const y = pointerPosition.y + canvasScroll.y;
-    
-    // Check if we need to expand the canvas
-    checkAndExpandCanvas(x, y);
-    
-    // In Konva, we can check the name of the clicked target
-    // If e.target === stage or e.target.name() === undefined, we clicked on the empty canvas
-    const clickedOnEmptyCanvas = e.target === stage || e.target.name() === 'background';
-    
-    if (mode === 'place') {
-      addElement('place', x, y);
-    } else if (mode === 'transition') {
-      addElement('transition', x, y);
-    } else if (mode === 'arc' && arcStart) {
-      // If we're in arc creation mode and have started an arc,
-      // clicking anywhere on the stage cancels the arc creation
-      setArcStart(null);
-      setTempArcEnd(null);
-    }
-  };
-
-  // Calculate cardinal points for an element
-  const getCardinalPoints = (element, elementType) => {
-    const points = {};
-    if (elementType === 'place') {
-      // For places (circles)
-      const radius = 20;
-      points.north = { x: element.x, y: element.y - radius };
-      points.south = { x: element.x, y: element.y + radius };
-      points.east = { x: element.x + radius, y: element.y };
-      points.west = { x: element.x - radius, y: element.y };
-    } else if (elementType === 'transition') {
-      // For transitions (rectangles)
-      const width = 30;
-      const height = 40;
-      points.north = { x: element.x, y: element.y - height/2 };
-      points.south = { x: element.x, y: element.y + height/2 };
-      points.east = { x: element.x + width/2, y: element.y };
-      points.west = { x: element.x - width/2, y: element.y };
-    }
-    return points;
-  };
-  
-  // Find the nearest cardinal point to a position
-  const findNearestCardinalPoint = (element, elementType, position) => {
-    const points = getCardinalPoints(element, elementType);
-    let nearest = 'north';
-    let minDistance = Infinity;
-    
-    Object.entries(points).forEach(([direction, point]) => {
-      const dx = point.x - position.x;
-      const dy = point.y - position.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearest = direction;
-      }
-    });
-    
-    return { direction: nearest, point: points[nearest] };
+    return null;
   };
 
   // Function to find potential target elements near a point
@@ -481,23 +425,69 @@ function App() {
       });
     });
     
-    return closestElement ? { element: closestElement, type: validTargetType, point: closestPoint } : null;
+    // Check if the closest element is within the detection radius
+    const potentialTarget = findPotentialArcTarget({ x, y });
+    
+    if (potentialTarget) {
+      return { element: potentialTarget, type: validTargetType, point: closestPoint };
+    } else {
+      return null;
+    }
   };
-
+  
+  // Handle stage click for element creation
+  const handleStageClick = (e) => {
+    // Only handle clicks on the background
+    if (e.target.name() === 'background') {
+      // Get click position
+      const pointerPos = e.target.getStage().getPointerPosition();
+      const clickPos = {
+        x: pointerPos.x / zoomLevel + canvasScroll.x / zoomLevel,
+        y: pointerPos.y / zoomLevel + canvasScroll.y / zoomLevel
+      };
+      
+      // Snap to grid if enabled
+      const snappedPos = snapToGrid(clickPos.x, clickPos.y);
+      
+      // Check if we need to expand the canvas
+      checkCanvasExpansion(clickPos);
+      
+      // Create new element based on mode
+      switch (mode) {
+        case 'place':
+          addElement('place', snappedPos.x, snappedPos.y);
+          break;
+        case 'transition':
+          addElement('transition', snappedPos.x, snappedPos.y);
+          break;
+        case 'arc':
+          if (arcStart) {
+            // If we're in arc creation mode and have started an arc,
+            // clicking anywhere on the stage cancels the arc creation
+            setArcStart(null);
+            setTempArcEnd(null);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  };
+  
   // Function to handle mouse move for arc creation visual feedback
   const handleMouseMove = (e) => {
     if (mode === 'arc' && arcStart) {
       const stage = e.target.getStage();
       const pointerPosition = stage.getPointerPosition();
       
-      // Adjust for scroll position
+      // Adjust for scroll position and zoom
       const adjustedPosition = {
-        x: pointerPosition.x + canvasScroll.x,
-        y: pointerPosition.y + canvasScroll.y
+        x: (pointerPosition.x + canvasScroll.x) / zoomLevel,
+        y: (pointerPosition.y + canvasScroll.y) / zoomLevel
       };
       
       // Check if we need to expand the canvas
-      checkAndExpandCanvas(adjustedPosition.x, adjustedPosition.y);
+      checkCanvasExpansion(adjustedPosition);
       
       // Find the nearest cardinal point on the source element
       const sourcePoint = findNearestCardinalPoint(
@@ -507,57 +497,37 @@ function App() {
       ).point;
       
       // Check if mouse is near a potential target
-      const potentialTarget = findPotentialTarget(adjustedPosition.x, adjustedPosition.y);
+      const potentialTarget = findPotentialArcTarget(adjustedPosition);
       
       setTempArcEnd({
         sourcePoint,
-        x: potentialTarget ? potentialTarget.point.point.x : adjustedPosition.x,
-        y: potentialTarget ? potentialTarget.point.point.y : adjustedPosition.y,
+        x: potentialTarget ? potentialTarget.x : adjustedPosition.x,
+        y: potentialTarget ? potentialTarget.y : adjustedPosition.y,
         potentialTarget
       });
     }
   };
 
-  // Function to check if we need to expand the canvas and do so if necessary
-  const checkAndExpandCanvas = (x, y) => {
-    let needsUpdate = false;
+  // Function to check if we need to expand the canvas
+  const checkCanvasExpansion = (position) => {
+    let needsExpansion = false;
     let newWidth = virtualCanvasDimensions.width;
     let newHeight = virtualCanvasDimensions.height;
     
-    // Check right edge
-    if (x > virtualCanvasDimensions.width - expansionThreshold) {
+    // Check if we're near the right edge, accounting for zoom
+    if (position.x > virtualCanvasDimensions.width - expansionThreshold / zoomLevel) {
       newWidth = virtualCanvasDimensions.width + expansionAmount;
-      needsUpdate = true;
+      needsExpansion = true;
     }
     
-    // Check bottom edge
-    if (y > virtualCanvasDimensions.height - expansionThreshold) {
+    // Check if we're near the bottom edge, accounting for zoom
+    if (position.y > virtualCanvasDimensions.height - expansionThreshold / zoomLevel) {
       newHeight = virtualCanvasDimensions.height + expansionAmount;
-      needsUpdate = true;
-    }
-    
-    // Check left edge (expand and adjust scroll position)
-    if (x < expansionThreshold && canvasScroll.x > 0) {
-      newWidth = virtualCanvasDimensions.width + expansionAmount;
-      setCanvasScroll(prev => ({
-        ...prev,
-        x: Math.max(0, prev.x - expansionAmount)
-      }));
-      needsUpdate = true;
-    }
-    
-    // Check top edge (expand and adjust scroll position)
-    if (y < expansionThreshold && canvasScroll.y > 0) {
-      newHeight = virtualCanvasDimensions.height + expansionAmount;
-      setCanvasScroll(prev => ({
-        ...prev,
-        y: Math.max(0, prev.y - expansionAmount)
-      }));
-      needsUpdate = true;
+      needsExpansion = true;
     }
     
     // Update virtual canvas dimensions if needed
-    if (needsUpdate) {
+    if (needsExpansion) {
       console.log(`Expanding canvas to ${newWidth}x${newHeight}`);
       setVirtualCanvasDimensions({
         width: newWidth,
@@ -566,7 +536,7 @@ function App() {
     }
   };
   
-  // Function to handle element click for arc creation
+  // Function to handle element click for selection or arc creation
   const handleElementClick = (element, elementType) => {
     if (mode === 'arc') {
       if (!arcStart) {
@@ -584,7 +554,6 @@ function App() {
               (startType === 'transition' && endType === 'place')) {
             
             // Simple arc creation with fixed directions based on element types
-            // This is more reliable and less prone to errors
             let sourceDirection, targetDirection;
             
             // For place->transition arcs, use east->west
@@ -726,9 +695,10 @@ function App() {
       // Reinitialize simulator with the new state to ensure conflict detection works correctly
       if (isSimulating) {
         try {
+          const { initializeSimulator, getEnabledTransitions } = await import('./utils/simulator');
           await initializeSimulator(result.state);
           const enabled = await getEnabledTransitions();
-          setEnabledTransitions(enabled);
+          updateEnabledTransitions(enabled);
         } catch (error) {
           console.error('Error reinitializing simulator after undo:', error);
         }
@@ -751,9 +721,10 @@ function App() {
       // Reinitialize simulator with the new state to ensure conflict detection works correctly
       if (isSimulating) {
         try {
+          const { initializeSimulator, getEnabledTransitions } = await import('./utils/simulator');
           await initializeSimulator(result.state);
           const enabled = await getEnabledTransitions();
-          setEnabledTransitions(enabled);
+          updateEnabledTransitions(enabled);
         } catch (error) {
           console.error('Error reinitializing simulator after redo:', error);
         }
@@ -855,14 +826,57 @@ function App() {
       e.preventDefault();
       e.stopPropagation();
       
-      const deltaX = e.deltaX;
-      const deltaY = e.deltaY;
+      // Check if Ctrl key is pressed for zooming
+      if (e.ctrlKey) {
+        // Zoom with the wheel
+        const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+        handleZoom(delta, { x: e.clientX, y: e.clientY });
+      } else {
+        // Regular scrolling
+        const deltaX = e.deltaX;
+        const deltaY = e.deltaY;
+        
+        // Update scroll position with limits
+        setCanvasScroll(prev => ({
+          x: Math.max(0, Math.min(virtualCanvasDimensions.width * zoomLevel - stageDimensions.width, prev.x + deltaX)),
+          y: Math.max(0, Math.min(virtualCanvasDimensions.height * zoomLevel - stageDimensions.height, prev.y + deltaY))
+        }));
+      }
+    }
+  };
+  
+  // Handle zoom in/out
+  const handleZoom = (delta, point = null) => {
+    // Calculate new zoom level with limits
+    const newZoomLevel = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoomLevel + delta));
+    
+    if (newZoomLevel !== zoomLevel) {
+      // If we have a specific point to zoom around (like mouse position)
+      if (point && containerRef.current) {
+        // Get container bounds
+        const containerRect = containerRef.current.getBoundingClientRect();
+        
+        // Calculate point relative to container
+        const relativeX = point.x - containerRect.left;
+        const relativeY = point.y - containerRect.top;
+        
+        // Calculate point in virtual canvas coordinates
+        const virtualX = (relativeX + canvasScroll.x) / zoomLevel;
+        const virtualY = (relativeY + canvasScroll.y) / zoomLevel;
+        
+        // Calculate new scroll position to keep the point under cursor
+        const newScrollX = (virtualX * newZoomLevel) - relativeX;
+        const newScrollY = (virtualY * newZoomLevel) - relativeY;
+        
+        // Update scroll with limits
+        setCanvasScroll({
+          x: Math.max(0, Math.min(virtualCanvasDimensions.width * newZoomLevel - stageDimensions.width, newScrollX)),
+          y: Math.max(0, Math.min(virtualCanvasDimensions.height * newZoomLevel - stageDimensions.height, newScrollY))
+        });
+      }
       
-      // Update scroll position with limits
-      setCanvasScroll(prev => ({
-        x: Math.max(0, Math.min(virtualCanvasDimensions.width - stageDimensions.width, prev.x + deltaX)),
-        y: Math.max(0, Math.min(virtualCanvasDimensions.height - stageDimensions.height, prev.y + deltaY))
-      }));
+      // Update zoom level
+      setZoomLevel(newZoomLevel);
     }
   };
 
@@ -913,7 +927,7 @@ function App() {
     return () => {
       document.removeEventListener('wheel', handleWheelEvent);
     };
-  }, [canvasScroll, virtualCanvasDimensions, stageDimensions]);
+  }, [canvasScroll, virtualCanvasDimensions, stageDimensions, zoomLevel]);
 
   return (
     <div className="flex flex-col h-screen" ref={appRef} tabIndex="0">
@@ -936,6 +950,7 @@ function App() {
           startSimulation={startSimulation}
           stopSimulation={stopSimulation}
           clearCanvas={clearCanvas}
+          onAutoLayout={handleAutoLayout}
         />
       </div>
       
@@ -945,6 +960,34 @@ function App() {
           ref={containerRef}
           style={{ overflow: 'hidden', position: 'relative' }}
         >
+          {/* Zoom controls */}
+          <div className="absolute top-4 right-4 z-10 flex flex-col space-y-2">
+            <button 
+              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+              onClick={() => handleZoom(ZOOM_STEP)}
+              title="Zoom In"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+            <button 
+              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+              onClick={() => handleZoom(-ZOOM_STEP)}
+              title="Zoom Out"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
+              </svg>
+            </button>
+            <button 
+              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none text-xs font-mono"
+              onClick={() => setZoomLevel(1.0)}
+              title="Reset Zoom"
+            >
+              {Math.round(zoomLevel * 100)}%
+            </button>
+          </div>
           <Stage 
             ref={stageRef}
             data-testid="canvas"
@@ -953,6 +996,8 @@ function App() {
             onClick={handleStageClick}
             onMouseMove={handleMouseMove}
             className="canvas-container"
+            scaleX={zoomLevel}
+            scaleY={zoomLevel}
           >
             <Layer>
               {/* Background for detecting clicks on empty canvas */}
@@ -976,8 +1021,8 @@ function App() {
                 width={virtualCanvasDimensions.width} 
                 height={virtualCanvasDimensions.height} 
                 gridSize={gridSize} 
-                scrollX={-canvasScroll.x}
-                scrollY={-canvasScroll.y}
+                scrollX={-canvasScroll.x / zoomLevel}
+                scrollY={-canvasScroll.y / zoomLevel}
               />
               
               {/* Places - adjust position to account for scroll */}
@@ -986,8 +1031,8 @@ function App() {
                   key={place.id}
                   place={{
                     ...place,
-                    x: place.x - canvasScroll.x,
-                    y: place.y - canvasScroll.y
+                    x: place.x - canvasScroll.x / zoomLevel,
+                    y: place.y - canvasScroll.y / zoomLevel
                   }}
                   isSelected={selectedElement && selectedElement.id === place.id || 
                     (arcStart && arcStart.element.id === place.id)}
@@ -1012,8 +1057,8 @@ function App() {
                   }}
                   onDragEnd={(e) => {
                     const newPos = { 
-                      x: e.target.x() + canvasScroll.x, 
-                      y: e.target.y() + canvasScroll.y 
+                      x: e.target.x() * zoomLevel + canvasScroll.x, 
+                      y: e.target.y() * zoomLevel + canvasScroll.y 
                     };
                     handleDragEnd(place, 'place', newPos);
                   }}
@@ -1026,8 +1071,8 @@ function App() {
                   key={transition.id}
                   transition={{
                     ...transition,
-                    x: transition.x - canvasScroll.x,
-                    y: transition.y - canvasScroll.y
+                    x: transition.x - canvasScroll.x / zoomLevel,
+                    y: transition.y - canvasScroll.y / zoomLevel
                   }}
                   isSelected={selectedElement && selectedElement.id === transition.id || 
                     (arcStart && arcStart.element.id === transition.id)}
@@ -1053,8 +1098,8 @@ function App() {
                   }}
                   onDragEnd={(e) => {
                     const newPos = { 
-                      x: e.target.x() + canvasScroll.x, 
-                      y: e.target.y() + canvasScroll.y 
+                      x: e.target.x() * zoomLevel + canvasScroll.x, 
+                      y: e.target.y() * zoomLevel + canvasScroll.y 
                     };
                     handleDragEnd(transition, 'transition', newPos);
                   }}
@@ -1071,6 +1116,7 @@ function App() {
                   isSelected={selectedElement && selectedElement.id === arc.id}
                   onClick={() => setSelectedElement(arc)}
                   canvasScroll={canvasScroll}
+                  zoomLevel={zoomLevel}
                 />
               ))}
               
@@ -1079,10 +1125,10 @@ function App() {
                 <>
                   <Line
                     points={[
-                      tempArcEnd.sourcePoint.x - canvasScroll.x,
-                      tempArcEnd.sourcePoint.y - canvasScroll.y,
-                      tempArcEnd.x - canvasScroll.x,
-                      tempArcEnd.y - canvasScroll.y
+                      tempArcEnd.sourcePoint.x - canvasScroll.x / zoomLevel,
+                      tempArcEnd.sourcePoint.y - canvasScroll.y / zoomLevel,
+                      tempArcEnd.x - canvasScroll.x / zoomLevel,
+                      tempArcEnd.y - canvasScroll.y / zoomLevel
                     ]}
                     stroke="#FF9800" /* Orange color for transient nature */
                     strokeWidth={2}
@@ -1090,8 +1136,8 @@ function App() {
                   />
                   {/* Visual cue for source point */}
                   <Circle
-                    x={tempArcEnd.sourcePoint.x - canvasScroll.x}
-                    y={tempArcEnd.sourcePoint.y - canvasScroll.y}
+                    x={tempArcEnd.sourcePoint.x - canvasScroll.x / zoomLevel}
+                    y={tempArcEnd.sourcePoint.y - canvasScroll.y / zoomLevel}
                     radius={4}
                     fill="#FF9800"
                     stroke="white"

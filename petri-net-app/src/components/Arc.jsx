@@ -1,7 +1,7 @@
 import React from 'react';
 import { Line, Text, Group, Rect } from 'react-konva';
 
-const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x: 0, y: 0 } }) => {
+const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x: 0, y: 0 }, zoomLevel = 1 }) => {
   // Debugging to help trace arc rendering issues
   console.log(`Rendering arc ${arc.id}:`, arc);
   
@@ -160,15 +160,15 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
   const nameOffsetX = 10 * Math.sin(angle);
   const nameOffsetY = -10 * Math.cos(angle);
 
-  // Apply canvas scroll adjustment to all coordinates
+  // Apply canvas scroll adjustment to all coordinates and account for zoom level
   const scrollX = canvasScroll.x;
   const scrollY = canvasScroll.y;
   
-  // Adjust positions for scrolling
-  const displayStartX = adjustedStartX - scrollX;
-  const displayStartY = adjustedStartY - scrollY;
-  const displayEndX = adjustedEndX - scrollX;
-  const displayEndY = adjustedEndY - scrollY;
+  // Adjust positions for scrolling and zoom
+  const displayStartX = adjustedStartX - scrollX / zoomLevel;
+  const displayStartY = adjustedStartY - scrollY / zoomLevel;
+  const displayEndX = adjustedEndX - scrollX / zoomLevel;
+  const displayEndY = adjustedEndY - scrollY / zoomLevel;
 
   return (
     <Group onClick={onClick}>

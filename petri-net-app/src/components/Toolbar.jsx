@@ -20,7 +20,8 @@ const Toolbar = ({
   isSimulating,
   startSimulation,
   stopSimulation,
-  clearCanvas
+  clearCanvas,
+  onAutoLayout
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -475,6 +476,14 @@ const Toolbar = ({
                 onClick={() => setMode('arc')}
               >
                 Arc
+              </button>
+              <button 
+                style={buttonStyle(false)}
+                data-testid="toolbar-auto-layout"
+                onClick={onAutoLayout}
+                title="Auto-arrange elements for better visualization"
+              >
+                Auto Layout
               </button>
             </div>
           </div>
