@@ -95,9 +95,11 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
     - ✅**Step-by-Step**: User selects enabled transition; yellow highlight and token animation (black dots).
     - **Quick Visual**: Automated firing (200ms delay) with animation.
     - **Non-Visual**: Compute final marking without animation.
-  - Ensure token limit (20 per place) is enforced during firing.
+  - ✅ Ensure token limit (20 per place) is enforced during firing.
   - Optimize performance (< 100ms per transition, < 50ms editor actions).
   - ✅Write comprehensive tests for simulator logic and performance.
+  - ✅Show enabled transitions by yellow highlight
+  - Add zoom in/out and pan functionality to canvas
 - **Deliverables**:
   - Complete P/T net simulator with all modes and visual feedback.
   - Documentation for Phase 1 features and usage.

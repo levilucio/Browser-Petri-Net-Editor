@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const PropertiesPanel = ({ selectedElement, setElements }) => {
   // Local state for form values to provide immediate feedback
   const [formValues, setFormValues] = useState({
-    name: '',
+    label: '',
     tokens: 0,
     weight: 1
   });
@@ -12,7 +12,7 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
   useEffect(() => {
     if (selectedElement) {
       setFormValues({
-        name: selectedElement.name || '',
+        label: selectedElement.label || '',
         tokens: selectedElement.tokens || 0,
         weight: selectedElement.weight || 1
       });
@@ -28,31 +28,31 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
     );
   }
 
-  const handleNameChange = (e) => {
-    const newName = e.target.value;
+  const handleLabelChange = (e) => {
+    const newLabel = e.target.value;
     // Update local state for immediate feedback
-    setFormValues(prev => ({ ...prev, name: newName }));
+    setFormValues(prev => ({ ...prev, label: newLabel }));
     
     // Update the global state
     if (selectedElement.id.startsWith('place')) {
       setElements(prev => ({
         ...prev,
         places: prev.places.map(place => 
-          place.id === selectedElement.id ? { ...place, name: newName } : place
+          place.id === selectedElement.id ? { ...place, label: newLabel } : place
         )
       }));
     } else if (selectedElement.id.startsWith('transition')) {
       setElements(prev => ({
         ...prev,
         transitions: prev.transitions.map(transition => 
-          transition.id === selectedElement.id ? { ...transition, name: newName } : transition
+          transition.id === selectedElement.id ? { ...transition, label: newLabel } : transition
         )
       }));
     } else if (selectedElement.id.startsWith('arc')) {
       setElements(prev => ({
         ...prev,
         arcs: prev.arcs.map(arc => 
-          arc.id === selectedElement.id ? { ...arc, name: newName } : arc
+          arc.id === selectedElement.id ? { ...arc, label: newLabel } : arc
         )
       }));
     }
@@ -172,15 +172,15 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
       
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Name
+          Label
         </label>
         <input
           type="text"
-          value={formValues.name}
-          onChange={handleNameChange}
+          value={formValues.label}
+          onChange={handleLabelChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder={selectedElement.id.startsWith('place') ? 'Place name' : 
-                      selectedElement.id.startsWith('transition') ? 'Transition name' : 'Arc name'}
+          placeholder={selectedElement.id.startsWith('place') ? 'P1, P2, etc.' : 
+                      selectedElement.id.startsWith('transition') ? 'T1, T2, etc.' : 'Arc label'}
         />
       </div>
 

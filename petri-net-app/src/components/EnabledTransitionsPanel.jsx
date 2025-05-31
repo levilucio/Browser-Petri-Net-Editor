@@ -26,7 +26,7 @@ const EnabledTransitionsPanel = ({ enabledTransitions, isLoading, isOpen, onClos
         <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
           {enabledTransitions.map(transition => (
             <div key={transition.id} className="flex items-center">
-              <span className="font-medium">{transition.name || transition.id.substring(11, 17)}</span>
+              <span className="font-medium">{transition.label || transition.id.substring(11, 17)}</span>
             </div>
           ))}
         </div>

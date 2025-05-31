@@ -57,9 +57,9 @@ const Transition = ({ transition, isSelected, isDragging, isEnabled, onClick, on
         strokeWidth={isSelected || isDragging ? 2 : (isEnabled ? 3 : 1)}
       />
       
-      {/* Transition name */}
+      {/* Transition label */}
       <Text
-        text={transition.name}
+        text={transition.label}
         fontSize={12}
         fill="black"
         x={-width / 2}

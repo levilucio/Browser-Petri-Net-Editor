@@ -39,3 +39,5 @@ git push -f origin master
 
 # Run tests for developer
 Set-Location -Path .\petri-net-app; npx playwright test --ui
+
+# Reset to last commit

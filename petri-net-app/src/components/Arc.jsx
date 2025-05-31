@@ -1,81 +1,36 @@
 import React from 'react';
-import { Line, Text, Group, Rect } from 'react-konva';
+import { Line, Text, Group } from 'react-konva';
 
 const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x: 0, y: 0 }, zoomLevel = 1 }) => {
-  // Debugging to help trace arc rendering issues
-  console.log(`Rendering arc ${arc.id}:`, arc);
-  
   // Normalize arc properties to handle different formats
-  const normalizedArc = {
-    ...arc,
-    sourceId: arc.sourceId || arc.source,
-    targetId: arc.targetId || arc.target,
-    sourceType: arc.sourceType || 
-               (arc.type === 'place-to-transition' ? 'place' : 'transition')
-  };
+  const sourceId = arc.sourceId || arc.source;
+  const targetId = arc.targetId || arc.target;
+  const arcSourceType = arc.sourceType || (arc.type === 'place-to-transition' ? 'place' : 'transition');
+  const arcTargetType = arc.targetType || (arc.type === 'place-to-transition' ? 'transition' : 'place');
   
-  // Determine targetType if not explicitly provided
-  if (!normalizedArc.targetType) {
-    normalizedArc.targetType = arc.type === 'place-to-transition' ? 'transition' : 'place';
-  }
-  
-  console.log(`Normalized arc ${normalizedArc.id}:`, normalizedArc);
-  
-  // Find source and target elements with more robust lookups
+  // Find source and target elements
   let source, target;
   
-  // Get source using normalized sourceId
-  if (normalizedArc.sourceId) {
-    if (normalizedArc.sourceType === 'place') {
-      source = places.find(p => p.id === normalizedArc.sourceId);
-      console.log(`Looking for source place ${normalizedArc.sourceId}:`, source ? 'Found' : 'Not found');
-    } else {
-      source = transitions.find(t => t.id === normalizedArc.sourceId);
-      console.log(`Looking for source transition ${normalizedArc.sourceId}:`, source ? 'Found' : 'Not found');
-    }
+  // Get source element
+  if (arcSourceType === 'place') {
+    source = places.find(p => p.id === sourceId);
+  } else {
+    source = transitions.find(t => t.id === sourceId);
   }
   
-  // Get target using normalized targetId
-  if (normalizedArc.targetId) {
-    if (normalizedArc.targetType === 'place') {
-      target = places.find(p => p.id === normalizedArc.targetId);
-      console.log(`Looking for target place ${normalizedArc.targetId}:`, target ? 'Found' : 'Not found');
-    } else {
-      target = transitions.find(t => t.id === normalizedArc.targetId);
-      console.log(`Looking for target transition ${normalizedArc.targetId}:`, target ? 'Found' : 'Not found');
-    }
-  }
-  
-  // Fall back to less specific lookup if needed
-  if (!source && normalizedArc.sourceId) {
-    source = places.find(p => p.id === normalizedArc.sourceId) || 
-             transitions.find(t => t.id === normalizedArc.sourceId);
-    if (source) {
-      console.log(`Found source using fallback lookup:`, source);
-      // Update sourceType based on what we found
-      normalizedArc.sourceType = places.some(p => p.id === normalizedArc.sourceId) ? 'place' : 'transition';
-    }
-  }
-  
-  if (!target && normalizedArc.targetId) {
-    target = places.find(p => p.id === normalizedArc.targetId) || 
-             transitions.find(t => t.id === normalizedArc.targetId);
-    if (target) {
-      console.log(`Found target using fallback lookup:`, target);
-      // Update targetType based on what we found
-      normalizedArc.targetType = places.some(p => p.id === normalizedArc.targetId) ? 'place' : 'transition';
-    }
+  // Get target element
+  if (arcTargetType === 'place') {
+    target = places.find(p => p.id === targetId);
+  } else {
+    target = transitions.find(t => t.id === targetId);
   }
 
+  // If source or target not found, don't render the arc
   if (!source || !target) {
-    console.log(`Arc ${normalizedArc.id} not rendered - missing source or target`);
+    console.log(`Arc ${arc.id} not rendered - missing source or target`);
     return null;
   }
   
-  // Use the normalized source and target types
-  const sourceType = normalizedArc.sourceType;
-  const targetType = normalizedArc.targetType;
-
   // Calculate start and end points
   const startX = source.x;
   const startY = source.y;
@@ -90,7 +45,7 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
   // Adjust start and end points based on source and target shapes
   let adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY;
   
-  if (sourceType === 'place') {
+  if (arcSourceType === 'place') {
     // Adjust for circle (place)
     const radius = 20;
     adjustedStartX = startX + Math.cos(angle) * radius;
@@ -114,7 +69,7 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
     }
   }
   
-  if (targetType === 'place') {
+  if (arcTargetType === 'place') {
     // Adjust for circle (place)
     const radius = 20;
     adjustedEndX = endX - Math.cos(angle) * radius;
@@ -160,58 +115,45 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
   const nameOffsetX = 10 * Math.sin(angle);
   const nameOffsetY = -10 * Math.cos(angle);
 
-  // Apply canvas scroll adjustment to all coordinates and account for zoom level
-  const scrollX = canvasScroll.x;
-  const scrollY = canvasScroll.y;
-  
   // Adjust positions for scrolling and zoom
-  const displayStartX = adjustedStartX - scrollX / zoomLevel;
-  const displayStartY = adjustedStartY - scrollY / zoomLevel;
-  const displayEndX = adjustedEndX - scrollX / zoomLevel;
-  const displayEndY = adjustedEndY - scrollY / zoomLevel;
+  const displayStartX = adjustedStartX - canvasScroll.x / zoomLevel;
+  const displayStartY = adjustedStartY - canvasScroll.y / zoomLevel;
+  const displayEndX = adjustedEndX - canvasScroll.x / zoomLevel;
+  const displayEndY = adjustedEndY - canvasScroll.y / zoomLevel;
 
+  // Arrow head points adjusted for scroll
+  const displayArrowPoint1X = arrowPoint1X - canvasScroll.x / zoomLevel;
+  const displayArrowPoint1Y = arrowPoint1Y - canvasScroll.y / zoomLevel;
+  const displayArrowPoint2X = arrowPoint2X - canvasScroll.x / zoomLevel;
+  const displayArrowPoint2Y = arrowPoint2Y - canvasScroll.y / zoomLevel;
+  
+  // Label positions adjusted for scroll
+  const displayMidX = midX - canvasScroll.x / zoomLevel;
+  const displayMidY = midY - canvasScroll.y / zoomLevel;
+  
+  // Render arc, arrow head, and labels
   return (
     <Group onClick={onClick}>
-      {/* Invisible wider line for easier selection */}
+      {/* Main arc line with hitbox for better selection */}
       <Line
-        points={[
-          displayStartX,
-          displayStartY,
-          displayEndX,
-          displayEndY
-        ]}
-        stroke="transparent"
-        strokeWidth={15}
-        hitStrokeWidth={20}
-      />
-      
-      {/* Arc line */}
-      <Line
-        points={[
-          displayStartX,
-          displayStartY,
-          displayEndX,
-          displayEndY
-        ]}
+        points={[displayStartX, displayStartY, displayEndX, displayEndY]}
         stroke={isSelected ? 'blue' : 'black'}
         strokeWidth={isSelected ? 2 : 1}
+        hitStrokeWidth={10} /* Wider hit area for easier selection */
       />
       
       {/* Arrow head */}
       <Line
-        points={[
-          displayEndX,
-          displayEndY,
-          displayEndX - arrowHeadSize * Math.cos(angle - Math.PI / 6),
-          displayEndY - arrowHeadSize * Math.sin(angle - Math.PI / 6),
-          displayEndX - arrowHeadSize * Math.cos(angle + Math.PI / 6),
-          displayEndY - arrowHeadSize * Math.sin(angle + Math.PI / 6),
-          displayEndX,
-          displayEndY
-        ]}
-        closed={true}
-        fill="black"
-        stroke="black"
+        points={[displayEndX, displayEndY, displayArrowPoint1X, displayArrowPoint1Y]}
+        stroke={isSelected ? 'blue' : 'black'}
+        strokeWidth={isSelected ? 2 : 1}
+        hitStrokeWidth={10} /* Wider hit area for easier selection */
+      />
+      <Line
+        points={[displayEndX, displayEndY, displayArrowPoint2X, displayArrowPoint2Y]}
+        stroke={isSelected ? 'blue' : 'black'}
+        strokeWidth={isSelected ? 2 : 1}
+        hitStrokeWidth={10} /* Wider hit area for easier selection */
       />
       
       {/* Weight label */}
@@ -219,24 +161,23 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
         <Text
           text={arc.weight.toString()}
           fontSize={12}
-          fontStyle="bold"
           fill="black"
-          x={(displayStartX + displayEndX) / 2 - 5}
-          y={(displayStartY + displayEndY) / 2 - 10}
-          width={20}
+          x={displayMidX + weightOffsetX - 5}
+          y={displayMidY + weightOffsetY - 5}
+          width={10}
           align="center"
         />
       )}
       
-      {/* Arc name label */}
-      {arc.name && arc.name.trim() !== '' && (
+      {/* Arc name if present */}
+      {arc.label && (
         <Text
-          text={arc.name}
-          fontSize={11}
-          fill="black"
-          x={midX + nameOffsetX - 30}
-          y={midY + nameOffsetY - 6}
-          width={60}
+          text={arc.label}
+          fontSize={10}
+          fill="gray"
+          x={displayMidX + nameOffsetX - 15}
+          y={displayMidY + nameOffsetY - 5}
+          width={30}
           align="center"
         />
       )}

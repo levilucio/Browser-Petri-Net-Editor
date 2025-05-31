@@ -350,12 +350,12 @@ export async function getEnabledTransitions() {
         if (transition instanceof Map) {
           return {
             id: transition.get('id'),
-            name: transition.get('name')
+            label: transition.get('label') || transition.get('name')
           };
         } else if (typeof transition === 'object') {
           return {
             id: transition.id,
-            name: transition.name
+            label: transition.label || transition.name
           };
         }
         return transition;
@@ -711,6 +711,7 @@ function processUpdatedPetriNet(jsPetriNet) {
           return {
             id: place.get('id'),
             name: place.get('name'),
+            label: place.get('label') || place.get('name'),
             tokens: place.get('tokens') || 0,
             x: place.get('x') || 0,
             y: place.get('y') || 0
@@ -719,6 +720,7 @@ function processUpdatedPetriNet(jsPetriNet) {
           return {
             id: place.id,
             name: place.name,
+            label: place.label || place.name,
             tokens: place.tokens || 0,
             x: place.x || 0,
             y: place.y || 0
@@ -737,6 +739,7 @@ function processUpdatedPetriNet(jsPetriNet) {
           return {
             id: transition.get('id'),
             name: transition.get('name'),
+            label: transition.get('label') || transition.get('name'),
             x: transition.get('x') || 0,
             y: transition.get('y') || 0
           };
@@ -744,6 +747,7 @@ function processUpdatedPetriNet(jsPetriNet) {
           return {
             id: transition.id,
             name: transition.name,
+            label: transition.label || transition.name,
             x: transition.x || 0,
             y: transition.y || 0
           };
@@ -767,7 +771,8 @@ function processUpdatedPetriNet(jsPetriNet) {
             sourceDirection: arc.get('sourceDirection'),
             targetDirection: arc.get('targetDirection'),
             weight: arc.get('weight') || 1,
-            type: arc.get('type')
+            type: arc.get('type'),
+            label: arc.get('label') || arc.get('name')
           };
         } else if (typeof arc === 'object') {
           return {
@@ -779,7 +784,8 @@ function processUpdatedPetriNet(jsPetriNet) {
             sourceDirection: arc.sourceDirection,
             targetDirection: arc.targetDirection,
             weight: arc.weight || 1,
-            type: arc.type
+            type: arc.type,
+            label: arc.label || arc.name
           };
         }
         return arc;
@@ -850,6 +856,7 @@ export async function fireTransition(transitionId) {
               return {
                 id: place.get('id'),
                 name: place.get('name'),
+                label: place.get('label') || place.get('name'),
                 tokens: place.get('tokens') || 0,
                 x: place.get('x') || 0,
                 y: place.get('y') || 0
@@ -858,6 +865,7 @@ export async function fireTransition(transitionId) {
               return {
                 id: place.id,
                 name: place.name,
+                label: place.label || place.name,
                 tokens: place.tokens || 0,
                 x: place.x || 0,
                 y: place.y || 0
@@ -876,6 +884,7 @@ export async function fireTransition(transitionId) {
               return {
                 id: transition.get('id'),
                 name: transition.get('name'),
+                label: transition.get('label') || transition.get('name'),
                 x: transition.get('x') || 0,
                 y: transition.get('y') || 0
               };
@@ -883,6 +892,7 @@ export async function fireTransition(transitionId) {
               return {
                 id: transition.id,
                 name: transition.name,
+                label: transition.label || transition.name,
                 x: transition.x || 0,
                 y: transition.y || 0
               };
@@ -907,7 +917,8 @@ export async function fireTransition(transitionId) {
                 targetDirection: arc.get('targetDirection'),
                 weight: arc.get('weight') || 1,
                 // Ensure we preserve any additional properties needed for rendering
-                type: arc.get('type')
+                type: arc.get('type'),
+                label: arc.get('label') || arc.get('name')
               };
             } else if (typeof arc === 'object') {
               return {
@@ -920,7 +931,8 @@ export async function fireTransition(transitionId) {
                 targetDirection: arc.targetDirection,
                 weight: arc.weight || 1,
                 // Ensure we preserve any additional properties needed for rendering
-                type: arc.type
+                type: arc.type,
+                label: arc.label || arc.name
               };
             }
             return arc;
@@ -940,6 +952,7 @@ export async function fireTransition(transitionId) {
             return {
               id: place.get('id'),
               name: place.get('name'),
+              label: place.get('label') || place.get('name'),
               tokens: place.get('tokens') || 0,
               x: place.get('x') || 0,
               y: place.get('y') || 0
@@ -947,7 +960,8 @@ export async function fireTransition(transitionId) {
           }
           return {
             ...place,
-            tokens: place.tokens || 0
+            tokens: place.tokens || 0,
+            label: place.label || place.name
           };
         });
         
@@ -957,6 +971,7 @@ export async function fireTransition(transitionId) {
             return {
               id: transition.get('id'),
               name: transition.get('name'),
+              label: transition.get('label') || transition.get('name'),
               x: transition.get('x') || 0,
               y: transition.get('y') || 0
             };
@@ -964,7 +979,8 @@ export async function fireTransition(transitionId) {
           return {
             ...transition,
             x: transition.x || 0,
-            y: transition.y || 0
+            y: transition.y || 0,
+            label: transition.label || transition.name
           };
         });
         
@@ -980,14 +996,16 @@ export async function fireTransition(transitionId) {
               sourceDirection: arc.get('sourceDirection'),
               targetDirection: arc.get('targetDirection'),
               weight: arc.get('weight') || 1,
-              type: arc.get('type')
+              type: arc.get('type'),
+              label: arc.get('label') || arc.get('name')
             };
           }
           return {
             ...arc,
             sourceId: arc.sourceId || arc.source,
             targetId: arc.targetId || arc.target,
-            weight: arc.weight || 1
+            weight: arc.weight || 1,
+            label: arc.label || arc.name
           };
         });
         

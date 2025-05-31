@@ -26,7 +26,7 @@ const MarkingsPanel = ({ places, isLoading, isOpen, onClose }) => {
         <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
           {places.map(place => (
             <div key={place.id} className="flex items-center">
-              <span className="font-medium mr-2">{place.name || place.id.substring(6, 12)}:</span>
+              <span className="font-medium mr-2">{place.label || place.id.substring(6, 12)}:</span>
               <span>{place.tokens || 0}</span>
             </div>
           ))}

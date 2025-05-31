@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Stage, Layer, Line, Circle, Rect } from 'react-konva';
+import { Stage, Layer, Line, Circle, Rect, Text } from 'react-konva';
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
 import ExecutionPanel from './components/ExecutionPanel';
@@ -46,8 +46,8 @@ function App() {
   
   // Virtual canvas dimensions (can be larger than visible area)
   const [virtualCanvasDimensions, setVirtualCanvasDimensions] = useState({
-    width: 2000,  // Initial width of virtual canvas
-    height: 1500  // Initial height of virtual canvas
+    width: 10000,  // Initial width of virtual canvas
+    height: 7500   // Initial height of virtual canvas
   });
   
   // Scroll position for the canvas
@@ -359,33 +359,80 @@ function App() {
     setEnabledTransitionIds(transitionIds);
   };
 
-  // Find potential arc target (place or transition) near the given position
+  // Function to find a potential arc target near the cursor position
   const findPotentialArcTarget = (position) => {
-    // Adjust detection radius based on zoom level
-    const detectionRadius = 30 / zoomLevel;
+    // Constants for element dimensions
+    const PLACE_RADIUS = 20;
+    const TRANSITION_WIDTH = 30;
+    const TRANSITION_HEIGHT = 40;
     
     // If arc starts from a place, we can only connect to a transition
     if (arcStart && arcStart.elementType === 'place') {
-      // Find the closest transition
-      return elements.transitions.find(transition => {
-        const distance = Math.sqrt(
-          Math.pow(transition.x - position.x, 2) + 
-          Math.pow(transition.y - position.y, 2)
+      // Find a transition that contains the position
+      const nearbyTransition = elements.transitions.find(transition => {
+        // Skip if this is the source element
+        if (transition.id === arcStart.element.id) return false;
+        
+        // Check if position is inside the transition rectangle
+        const halfWidth = TRANSITION_WIDTH / 2;
+        const halfHeight = TRANSITION_HEIGHT / 2;
+        return (
+          position.x >= transition.x - halfWidth &&
+          position.x <= transition.x + halfWidth &&
+          position.y >= transition.y - halfHeight &&
+          position.y <= transition.y + halfHeight
         );
-        return distance < detectionRadius;
       });
+      
+      if (nearbyTransition) {
+        // Get the optimal connection point
+        const point = findNearestCardinalPoint(
+          nearbyTransition,
+          'transition',
+          { x: arcStart.element.x, y: arcStart.element.y }
+        );
+        
+        return {
+          x: nearbyTransition.x,
+          y: nearbyTransition.y,
+          element: nearbyTransition,
+          elementType: 'transition',
+          point: point
+        };
+      }
     }
     
     // If arc starts from a transition, we can only connect to a place
     if (arcStart && arcStart.elementType === 'transition') {
-      // Find the closest place
-      return elements.places.find(place => {
+      // Find a place that contains the position
+      const nearbyPlace = elements.places.find(place => {
+        // Skip if this is the source element
+        if (place.id === arcStart.element.id) return false;
+        
+        // Check if position is inside the place circle
         const distance = Math.sqrt(
           Math.pow(place.x - position.x, 2) + 
           Math.pow(place.y - position.y, 2)
         );
-        return distance < detectionRadius;
+        return distance <= PLACE_RADIUS; // Use <= to include the edge
       });
+      
+      if (nearbyPlace) {
+        // Get the optimal connection point
+        const point = findNearestCardinalPoint(
+          nearbyPlace,
+          'place',
+          { x: arcStart.element.x, y: arcStart.element.y }
+        );
+        
+        return {
+          x: nearbyPlace.x,
+          y: nearbyPlace.y,
+          element: nearbyPlace,
+          elementType: 'place',
+          point: point
+        };
+      }
     }
     
     return null;
@@ -464,6 +511,7 @@ function App() {
           if (arcStart) {
             // If we're in arc creation mode and have started an arc,
             // clicking anywhere on the stage cancels the arc creation
+            console.log('Arc creation canceled by clicking on empty area');
             setArcStart(null);
             setTempArcEnd(null);
           }
@@ -482,8 +530,8 @@ function App() {
       
       // Adjust for scroll position and zoom
       const adjustedPosition = {
-        x: (pointerPosition.x + canvasScroll.x) / zoomLevel,
-        y: (pointerPosition.y + canvasScroll.y) / zoomLevel
+        x: (pointerPosition.x / zoomLevel) + (canvasScroll.x / zoomLevel),
+        y: (pointerPosition.y / zoomLevel) + (canvasScroll.y / zoomLevel)
       };
       
       // Check if we need to expand the canvas
@@ -499,36 +547,119 @@ function App() {
       // Check if mouse is near a potential target
       const potentialTarget = findPotentialArcTarget(adjustedPosition);
       
+      // Update the temporary arc end point
       setTempArcEnd({
         sourcePoint,
         x: potentialTarget ? potentialTarget.x : adjustedPosition.x,
         y: potentialTarget ? potentialTarget.y : adjustedPosition.y,
-        potentialTarget
+        potentialTarget,
+        mousePosition: adjustedPosition // Store the raw mouse position
       });
+      
+      // Prevent default to avoid text selection during arc drawing
+      e.evt.preventDefault();
     }
+  };
+
+  // Effect to update virtual canvas dimensions when necessary
+  useEffect(() => {
+    // Adjust virtual canvas size based on stage dimensions and zoom level
+    const updateVirtualCanvasSize = () => {
+      if (stageDimensions.width && stageDimensions.height) {
+        // At minimum zoom (10%), the virtual canvas should be 10x the visible area
+        // This ensures the entire canvas is filled at maximum zoom out
+        const minZoomMultiplier = 1 / MIN_ZOOM;
+        setVirtualCanvasDimensions({
+          width: stageDimensions.width * minZoomMultiplier,
+          height: stageDimensions.height * minZoomMultiplier
+        });
+      }
+    };
+    
+    updateVirtualCanvasSize();
+  }, [stageDimensions, MIN_ZOOM]);
+
+  // Function to get cardinal points of an element (N, E, S, W points)
+  const getCardinalPoints = (element, elementType) => {
+    // Hardcoded dimensions from the Place and Transition components
+    const PLACE_RADIUS = 20;
+    const TRANSITION_WIDTH = 30;
+    const TRANSITION_HEIGHT = 40;
+    
+    // Calculate cardinal points based on element type
+    if (elementType === 'place') {
+      return {
+        north: { point: { x: element.x, y: element.y - PLACE_RADIUS } },
+        east: { point: { x: element.x + PLACE_RADIUS, y: element.y } },
+        south: { point: { x: element.x, y: element.y + PLACE_RADIUS } },
+        west: { point: { x: element.x - PLACE_RADIUS, y: element.y } }
+      };
+    } else if (elementType === 'transition') {
+      // For transitions (rectangles), use the center points of each side
+      const halfWidth = TRANSITION_WIDTH / 2;
+      const halfHeight = TRANSITION_HEIGHT / 2;
+      return {
+        north: { point: { x: element.x, y: element.y - halfHeight } },
+        east: { point: { x: element.x + halfWidth, y: element.y } },
+        south: { point: { x: element.x, y: element.y + halfHeight } },
+        west: { point: { x: element.x - halfWidth, y: element.y } }
+      };
+    }
+    
+    // Default fallback (should not reach here)
+    return {
+      north: { point: { x: element.x, y: element.y } },
+      east: { point: { x: element.x, y: element.y } },
+      south: { point: { x: element.x, y: element.y } },
+      west: { point: { x: element.x, y: element.y } }
+    };
+  };
+
+  // Function to find the nearest cardinal point to a given position
+  const findNearestCardinalPoint = (element, elementType, position) => {
+    const points = getCardinalPoints(element, elementType);
+    
+    let minDistance = Infinity;
+    let nearestPoint = null;
+    let direction = null;
+    
+    Object.entries(points).forEach(([dir, point]) => {
+      const distance = Math.sqrt(
+        Math.pow(point.point.x - position.x, 2) + 
+        Math.pow(point.point.y - position.y, 2)
+      );
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestPoint = point.point;
+        direction = dir;
+      }
+    });
+    
+    return { point: nearestPoint, direction };
   };
 
   // Function to check if we need to expand the canvas
   const checkCanvasExpansion = (position) => {
-    let needsExpansion = false;
+    const expandMargin = 200; // px
+    let needsUpdate = false;
     let newWidth = virtualCanvasDimensions.width;
     let newHeight = virtualCanvasDimensions.height;
     
-    // Check if we're near the right edge, accounting for zoom
-    if (position.x > virtualCanvasDimensions.width - expansionThreshold / zoomLevel) {
-      newWidth = virtualCanvasDimensions.width + expansionAmount;
-      needsExpansion = true;
+    // Check if we need to expand width
+    if (position.x > virtualCanvasDimensions.width - expandMargin) {
+      newWidth = virtualCanvasDimensions.width + 500;
+      needsUpdate = true;
     }
     
-    // Check if we're near the bottom edge, accounting for zoom
-    if (position.y > virtualCanvasDimensions.height - expansionThreshold / zoomLevel) {
-      newHeight = virtualCanvasDimensions.height + expansionAmount;
-      needsExpansion = true;
+    // Check if we need to expand height
+    if (position.y > virtualCanvasDimensions.height - expandMargin) {
+      newHeight = virtualCanvasDimensions.height + 500;
+      needsUpdate = true;
     }
     
-    // Update virtual canvas dimensions if needed
-    if (needsExpansion) {
-      console.log(`Expanding canvas to ${newWidth}x${newHeight}`);
+    // Update dimensions if needed
+    if (needsUpdate) {
       setVirtualCanvasDimensions({
         width: newWidth,
         height: newHeight
@@ -536,46 +667,106 @@ function App() {
     }
   };
   
+  // Function to add a new element (place or transition) to the canvas
+  const addElement = (type, x, y) => {
+    const id = `${type}-${Date.now()}`;
+    
+    // Create the new element with the requested naming convention
+    const newElement = {
+      id,
+      x,
+      y,
+      label: type === 'place' ? `P${elements.places.length + 1}` : `T${elements.transitions.length + 1}`
+    };
+    
+    // Add tokens field if it's a place
+    if (type === 'place') {
+      newElement.tokens = 0;
+    }
+    
+    // Update the state with the new element
+    setElements(prev => {
+      // Create a new array with the new element added
+      const updatedElements = {
+        ...prev,
+        [`${type}s`]: [...prev[`${type}s`], newElement]
+      };
+      
+      // Add to history
+      updateHistory(updatedElements);
+      
+      return updatedElements;
+    });
+    
+    // No longer automatically switch to select mode
+    // This allows the user to continue adding the same element type
+  };
+  
   // Function to handle element click for selection or arc creation
   const handleElementClick = (element, elementType) => {
+    console.log(`Element clicked: ${elementType} ${element.id} in mode: ${mode}`);
+    
     if (mode === 'arc') {
       if (!arcStart) {
         // Start creating an arc
         setArcStart({ element, elementType });
         console.log(`Arc creation started from ${elementType} ${element.id}`);
+        
+        // Initialize tempArcEnd with the source element's position
+        const sourcePoint = findNearestCardinalPoint(
+          element,
+          elementType,
+          { x: element.x + 1, y: element.y + 1 } // Slight offset to force a direction
+        ).point;
+        
+        setTempArcEnd({
+          sourcePoint,
+          x: element.x,
+          y: element.y,
+          potentialTarget: null,
+          mousePosition: { x: element.x, y: element.y }
+        });
       } else {
         try {
           // Complete the arc if valid connection
           const startType = arcStart.elementType;
           const endType = elementType;
           
+          // Don't allow connecting to the same element
+          if (arcStart.element.id === element.id) {
+            console.log('Cannot connect an element to itself');
+            return;
+          }
+          
           // Validate: arcs can only connect place->transition or transition->place
           if ((startType === 'place' && endType === 'transition') ||
               (startType === 'transition' && endType === 'place')) {
             
-            // Simple arc creation with fixed directions based on element types
-            let sourceDirection, targetDirection;
+            // Get optimal connection points
+            const sourceCardinal = findNearestCardinalPoint(
+              arcStart.element,
+              startType,
+              element
+            );
             
-            // For place->transition arcs, use east->west
-            // For transition->place arcs, use south->north
-            if (startType === 'place') {
-              sourceDirection = 'east';
-              targetDirection = 'west';
-            } else {
-              sourceDirection = 'south';
-              targetDirection = 'north';
-            }
+            const targetCardinal = findNearestCardinalPoint(
+              element,
+              endType,
+              arcStart.element
+            );
             
             const newArc = {
               id: `arc-${Date.now()}`,
               sourceId: arcStart.element.id,
-              sourceType: startType,
               targetId: element.id,
+              sourceType: startType,
               targetType: endType,
-              sourceDirection,
-              targetDirection,
+              sourceDirection: sourceCardinal.direction,
+              targetDirection: targetCardinal.direction,
               weight: 1
             };
+            
+            console.log('Creating new arc:', newArc);
             
             setElements(prev => {
               const newState = {
@@ -586,7 +777,7 @@ function App() {
               updateHistory(newState);
               return newState;
             });
-            console.log(`Arc created from ${startType} to ${endType}`);
+            console.log(`Arc created from ${startType} ${arcStart.element.id} to ${endType} ${element.id}`);
           } else {
             console.log(`Invalid arc connection: ${startType} to ${endType}`);
           }
@@ -738,12 +929,69 @@ function App() {
     setTempArcEnd(null);
   };
 
-  // Update mode handler to reset arc creation state
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Only process shortcuts if not typing in an input field
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+      
+      // Escape key to cancel arc creation
+      if (e.key === 'Escape' && arcStart) {
+        e.preventDefault();
+        console.log('Arc creation canceled by Escape key');
+        setArcStart(null);
+        setTempArcEnd(null);
+        return;
+      }
+      
+      // Ctrl+Z for undo
+      if (e.ctrlKey && e.key === 'z') {
+        e.preventDefault();
+        handleUndo();
+      }
+      
+      // Ctrl+Y for redo
+      if (e.ctrlKey && e.key === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+      
+      // Delete key to delete selected element
+      if (e.key === 'Delete' && selectedElement) {
+        e.preventDefault();
+        deleteSelectedElement();
+      }
+    };
+    
+    // Add event listener to the document
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Clean up event listener on component unmount
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedElement, arcStart, handleUndo, handleRedo]); // Re-add listener when dependencies change
+
+  // Handle mode change from toolbar
   const handleModeChange = (newMode) => {
-    if (mode === 'arc' && newMode !== 'arc') {
+    console.log(`Mode changing from ${mode} to ${newMode}`);
+    
+    // If we were in arc mode and switching to another mode, cancel arc creation
+    if (mode === 'arc' && arcStart) {
       cancelArcCreation();
     }
+    
+    // Set the new mode
     setMode(newMode);
+    
+    // Special handling for arc mode
+    if (newMode === 'arc') {
+      console.log('Entering arc creation mode - click on a source element');
+      setArcStart(null);
+      setTempArcEnd(null);
+    }
   };
 
   // Effect to add and remove keyboard event listeners
@@ -756,69 +1004,7 @@ function App() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedElement, canUndo, canRedo]); // Re-add listener when dependencies change
-  
-  // Add this effect to expose state for testing
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
-      // Expose the state and simulator info for testing
-      window.__PETRI_NET_STATE__ = {
-        ...elements,
-        simulator: {
-          enabledTransitions: enabledTransitionIds
-        }
-      };
-      
-      // Add a custom event listener for setting tokens
-      const handleSetTokens = (event) => {
-        const { id, tokens } = event.detail;
-        if (id && typeof tokens === 'number') {
-          setElements(prev => {
-            const updatedPlaces = prev.places.map(place => {
-              if (place.id === id) {
-                return { ...place, tokens };
-              }
-              return place;
-            });
-            return { ...prev, places: updatedPlaces };
-          });
-          
-          // Force the simulator to update enabled transitions
-          setTimeout(() => {
-            updateEnabledTransitions();
-          }, 100);
-        }
-      };
-      
-      // Add a custom event listener for firing transitions
-      const handleFireTransitionEvent = (event) => {
-        const { id } = event.detail;
-        if (id) {
-          console.log('Custom event: Firing transition', id);
-          // Call the simulator's function directly to fire the transition
-          if (simulator) {
-            simulator.fireTransition(id)
-              .then(updatedPetriNet => {
-                console.log('Transition fired via custom event, updating state');
-                onUpdateElements(updatedPetriNet);
-              })
-              .catch(error => {
-                console.error('Error firing transition via custom event:', error);
-              });
-          }
-        }
-      };
-      
-      document.addEventListener('set-tokens', handleSetTokens);
-      document.addEventListener('fire-transition', handleFireTransitionEvent);
-      
-      // Clean up the event listeners
-      return () => {
-        document.removeEventListener('set-tokens', handleSetTokens);
-        document.removeEventListener('fire-transition', handleFireTransitionEvent);
-      };
-    }
-  }, [elements, enabledTransitionIds]);
-  
+
   // Handle scroll events to navigate the virtual canvas
   const handleScroll = (e) => {
     // Only prevent default if we're handling the scroll
@@ -837,14 +1023,20 @@ function App() {
         const deltaY = e.deltaY;
         
         // Update scroll position with limits
-        setCanvasScroll(prev => ({
-          x: Math.max(0, Math.min(virtualCanvasDimensions.width * zoomLevel - stageDimensions.width, prev.x + deltaX)),
-          y: Math.max(0, Math.min(virtualCanvasDimensions.height * zoomLevel - stageDimensions.height, prev.y + deltaY))
-        }));
+        setCanvasScroll(prev => {
+          // Calculate max scroll positions based on virtual canvas size and zoom level
+          const maxScrollX = Math.max(0, virtualCanvasDimensions.width * zoomLevel - stageDimensions.width);
+          const maxScrollY = Math.max(0, virtualCanvasDimensions.height * zoomLevel - stageDimensions.height);
+          
+          return {
+            x: Math.max(0, Math.min(maxScrollX, prev.x + deltaX)),
+            y: Math.max(0, Math.min(maxScrollY, prev.y + deltaY))
+          };
+        });
       }
     }
   };
-  
+
   // Handle zoom in/out
   const handleZoom = (delta, point = null) => {
     // Calculate new zoom level with limits
@@ -1123,6 +1315,7 @@ function App() {
               {/* Temporary arc during creation */}
               {arcStart && tempArcEnd && (
                 <>
+                  {/* Main arc line - dashed for temporary state */}
                   <Line
                     points={[
                       tempArcEnd.sourcePoint.x - canvasScroll.x / zoomLevel,
@@ -1130,10 +1323,55 @@ function App() {
                       tempArcEnd.x - canvasScroll.x / zoomLevel,
                       tempArcEnd.y - canvasScroll.y / zoomLevel
                     ]}
-                    stroke="#FF9800" /* Orange color for transient nature */
+                    stroke={tempArcEnd.potentialTarget ? "#4CAF50" : "#FF9800"} 
                     strokeWidth={2}
-                    dash={[5, 5]}
+                    dash={[8, 3]}
+                    lineCap="round"
                   />
+                  
+                  {/* Arrow head for temporary arc */}
+                  {tempArcEnd.potentialTarget && (
+                    <>
+                      {/* Arrow head lines */}
+                      {(() => {
+                        // Calculate angle for arrow head
+                        const dx = tempArcEnd.x - tempArcEnd.sourcePoint.x;
+                        const dy = tempArcEnd.y - tempArcEnd.sourcePoint.y;
+                        const angle = Math.atan2(dy, dx);
+                        
+                        // Arrow head properties
+                        const arrowHeadSize = 12;
+                        const arrowAngle1 = angle - Math.PI / 6;
+                        const arrowAngle2 = angle + Math.PI / 6;
+                        
+                        // Calculate arrow head points
+                        const endX = tempArcEnd.x - canvasScroll.x / zoomLevel;
+                        const endY = tempArcEnd.y - canvasScroll.y / zoomLevel;
+                        const point1X = endX - arrowHeadSize * Math.cos(arrowAngle1);
+                        const point1Y = endY - arrowHeadSize * Math.sin(arrowAngle1);
+                        const point2X = endX - arrowHeadSize * Math.cos(arrowAngle2);
+                        const point2Y = endY - arrowHeadSize * Math.sin(arrowAngle2);
+                        
+                        return (
+                          <>
+                            <Line
+                              points={[endX, endY, point1X, point1Y]}
+                              stroke="#4CAF50"
+                              strokeWidth={2}
+                              dash={[5, 3]}
+                            />
+                            <Line
+                              points={[endX, endY, point2X, point2Y]}
+                              stroke="#4CAF50"
+                              strokeWidth={2}
+                              dash={[5, 3]}
+                            />
+                          </>
+                        );
+                      })()} 
+                    </>
+                  )}
+                  
                   {/* Visual cue for source point */}
                   <Circle
                     x={tempArcEnd.sourcePoint.x - canvasScroll.x / zoomLevel}
@@ -1142,18 +1380,22 @@ function App() {
                     fill="#FF9800"
                     stroke="white"
                     strokeWidth={1}
+                    listening={false} /* Make non-interactive so it doesn't block clicks */
                   />
-                  {/* Visual cue for target point if hovering near a valid target */}
-                  {tempArcEnd.potentialTarget && (
-                    <Circle
-                      x={tempArcEnd.potentialTarget.point.point.x - canvasScroll.x}
-                      y={tempArcEnd.potentialTarget.point.point.y - canvasScroll.y}
-                      radius={4}
-                      fill="#FF9800"
-                      stroke="white"
-                      strokeWidth={1}
-                    />
-                  )}
+                  
+                  {/* Visual cue for mouse position */}
+                  <Circle
+                    x={tempArcEnd.x - canvasScroll.x / zoomLevel}
+                    y={tempArcEnd.y - canvasScroll.y / zoomLevel}
+                    radius={tempArcEnd.potentialTarget ? 6 : 4}
+                    fill={tempArcEnd.potentialTarget ? "#4CAF50" : "#FF9800"}
+                    stroke="white"
+                    strokeWidth={1}
+                    opacity={tempArcEnd.potentialTarget ? 1 : 0.7}
+                    listening={false} /* Make non-interactive so it doesn't block clicks */
+                  />
+                  
+                  {/* Removed "Click to connect" text as requested */}
                 </>
               )}
             </Layer>
@@ -1179,17 +1421,18 @@ function App() {
               style={{
                 position: 'absolute',
                 left: (() => {
-                  // Calculate the maximum scrollable area
-                  const maxScrollX = Math.max(0, virtualCanvasDimensions.width - stageDimensions.width);
+                  // Calculate the maximum scrollable area, accounting for zoom level
+                  const maxScrollX = Math.max(0, virtualCanvasDimensions.width * zoomLevel - stageDimensions.width);
                   // Calculate the percentage of scrolling (0 to 1)
                   const scrollPercentage = maxScrollX > 0 ? canvasScroll.x / maxScrollX : 0;
                   // Calculate the available space for the thumb to move (container width - thumb width)
-                  const thumbWidth = Math.max(10, (stageDimensions.width / virtualCanvasDimensions.width) * 100);
+                  // Thumb width should reflect the visible portion of the virtual canvas
+                  const thumbWidth = Math.max(10, (stageDimensions.width / (virtualCanvasDimensions.width * zoomLevel)) * 100);
                   const availableSpace = 100 - thumbWidth;
                   // Return the position as a percentage
                   return `${scrollPercentage * availableSpace}%`;
                 })(),
-                width: `${Math.max(10, (stageDimensions.width / virtualCanvasDimensions.width) * 100)}%`, // Minimum 10% width for visibility
+                width: `${Math.max(10, (stageDimensions.width / (virtualCanvasDimensions.width * zoomLevel)) * 100)}%`, // Minimum 10% width for visibility
                 height: '100%',
                 background: 'rgba(100,100,100,0.5)',
                 borderRadius: '4px',
@@ -1217,17 +1460,18 @@ function App() {
               style={{
                 position: 'absolute',
                 top: (() => {
-                  // Calculate the maximum scrollable area
-                  const maxScrollY = Math.max(0, virtualCanvasDimensions.height - stageDimensions.height);
+                  // Calculate the maximum scrollable area, accounting for zoom level
+                  const maxScrollY = Math.max(0, virtualCanvasDimensions.height * zoomLevel - stageDimensions.height);
                   // Calculate the percentage of scrolling (0 to 1)
                   const scrollPercentage = maxScrollY > 0 ? canvasScroll.y / maxScrollY : 0;
                   // Calculate the available space for the thumb to move (container height - thumb height)
-                  const thumbHeight = Math.max(10, (stageDimensions.height / virtualCanvasDimensions.height) * 100);
+                  // Thumb height should reflect the visible portion of the virtual canvas
+                  const thumbHeight = Math.max(10, (stageDimensions.height / (virtualCanvasDimensions.height * zoomLevel)) * 100);
                   const availableSpace = 100 - thumbHeight;
                   // Return the position as a percentage
                   return `${scrollPercentage * availableSpace}%`;
                 })(),
-                height: `${Math.max(10, (stageDimensions.height / virtualCanvasDimensions.height) * 100)}%`, // Minimum 10% height for visibility
+                height: `${Math.max(10, (stageDimensions.height / (virtualCanvasDimensions.height * zoomLevel)) * 100)}%`, // Minimum 10% height for visibility
                 width: '100%',
                 background: 'rgba(100,100,100,0.5)',
                 borderRadius: '4px',

@@ -122,9 +122,9 @@ const Place = ({ place, isSelected, isDragging, onClick, onDragStart, onDragMove
         strokeWidth={isSelected || isDragging ? 2 : 1}
       />
       
-      {/* Place name */}
+      {/* Place label */}
       <Text
-        text={place.name}
+        text={place.label}
         fontSize={12}
         fill="black"
         x={-radius}

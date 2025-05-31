@@ -429,7 +429,10 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
             </button>
           ) : (
             <MarkingsPanel 
-              places={places} 
+              places={places.map(place => ({
+                ...place,
+                label: place.label || place.name || place.id.substring(6, 12)
+              }))} 
               isLoading={isLoading} 
               isOpen={isMarkingsPanelOpen} 
               onClose={() => setIsMarkingsPanelOpen(false)} 
