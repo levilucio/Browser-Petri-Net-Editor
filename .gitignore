@@ -49,6 +49,10 @@ playwright-report
 .temp
 .tmp
 .cache
+
+# Test screenshots
+*.png
+!public/**/*.png  # Allow images in public directory
 __pycache__/
 *.py[cod]
 *$py.class

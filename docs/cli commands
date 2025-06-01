@@ -41,3 +41,4 @@ git push -f origin master
 Set-Location -Path .\petri-net-app; npx playwright test --ui
 
 # Reset to last commit
+Set-Location -Path .\petri-net-app; git reset --hard HEAD

@@ -90,16 +90,19 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
 #### Milestone 1.3: P/T Net Simulator (4 weeks, Weeks 9–12)
 - **Tasks**:
   - ✅Implement simulator engine in Python (Pyodide) to compute enabled transitions and update markings.
-  - Add execution panel to display current marking and enabled transitions.
+  - ✅Add execution panel to display current marking and enabled transitions.
   - Implement three simulation modes:
-    - ✅**Step-by-Step**: User selects enabled transition; yellow highlight and token animation (black dots).
+    - **Step-by-Step**: User selects enabled transition; yellow highlight and token animation (black dots).
     - **Quick Visual**: Automated firing (200ms delay) with animation.
     - **Non-Visual**: Compute final marking without animation.
-  - ✅ Ensure token limit (20 per place) is enforced during firing.
+  - Ensure token limit (20 per place) is enforced during firing.
   - Optimize performance (< 100ms per transition, < 50ms editor actions).
   - ✅Write comprehensive tests for simulator logic and performance.
-  - ✅Show enabled transitions by yellow highlight
-  - Add zoom in/out and pan functionality to canvas
+  - ✅ Show enabled transitions by yellow highlight
+  - ✅ Add zoom in/out and pan functionality to canvas
+  - Add dynamic max number of tokens in places and arcs
+  - Add dynamic max number of iterations in the simulator
+  - Allow for visual reorganization of the elements in the canvas for better visibility and organization
 - **Deliverables**:
   - Complete P/T net simulator with all modes and visual feedback.
   - Documentation for Phase 1 features and usage.
@@ -114,6 +117,7 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
 ### Phase 2: Algebraic Petri Net Extension (12 weeks)
 #### Milestone 2.1: ADT Management and XML Parsing (4 weeks, Weeks 13–16)
 - **Tasks**:
+  - Refactor code base to break down large files into smaller, more manageable components
   - Extend XML parser to handle algebraic net schema (Section 4.4) with types, guards, actions, and bindings.
   - Implement ADT XML parser for Section 4.5 schema, including `<type>`, `<operation>`, `<axioms>`, and `<axiom>` elements.
   - Validate ADT definitions: operation arity/result types, axiom syntax (well-formed equations, type-consistent variables).
