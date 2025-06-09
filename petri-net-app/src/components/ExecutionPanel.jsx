@@ -10,7 +10,7 @@ import {
 import MarkingsPanel from './MarkingsPanel';
 import EnabledTransitionsPanel from './EnabledTransitionsPanel';
 
-const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange }) => {
+const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange, simulationSettings }) => {
   const { places, transitions, arcs } = elements;
   const [enabledTransitions, setEnabledTransitions] = useState([]);
   const [isSimulatorReady, setIsSimulatorReady] = useState(false);
@@ -21,8 +21,6 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
   const [isRunning, setIsRunning] = useState(false);
   const simulationIntervalRef = useRef(null);
   const simulationIterationCountRef = useRef(0);
-  const MAX_SIMULATION_ITERATIONS = 100; // Increased from 20 to 100 to handle complex nets
-  const MAX_RUN_ITERATIONS = 1000; // Increased to 1000 to ensure all transitions can fire
   
   // State for panels
   const [isMarkingsPanelOpen, setIsMarkingsPanelOpen] = useState(false);
@@ -177,8 +175,9 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       console.log(`Simulation iteration: ${simulationIterationCountRef.current}`);
       
       // Safety check - if we've exceeded the maximum number of iterations, force stop
-      if (simulationIterationCountRef.current > MAX_SIMULATION_ITERATIONS) {
-        console.log(`Maximum simulation iterations (${MAX_SIMULATION_ITERATIONS}) reached, stopping`);
+      const maxIterations = simulationSettings?.maxIterations || 100; // Default to 100 if settings not provided
+      if (maxIterations !== Infinity && simulationIterationCountRef.current > maxIterations) {
+        console.log(`Maximum simulation iterations (${maxIterations}) reached, stopping`);
         return false;
       }
       
@@ -301,7 +300,11 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         let iterationCount = 0;
         let canContinue = true;
         
-        while (canContinue && iterationCount < MAX_RUN_ITERATIONS) {
+        // Get max iterations from settings, default to 1000 if not provided
+        const maxIterations = simulationSettings?.maxIterations || 1000;
+        const iterationLimit = maxIterations === Infinity ? 1000 : maxIterations;
+        
+        while (canContinue && iterationCount < iterationLimit) {
           iterationCount++;
           
           // Get current enabled transitions
@@ -340,8 +343,8 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         }
         
         // Log if we hit the iteration limit
-        if (iterationCount >= MAX_RUN_ITERATIONS) {
-          console.warn(`Run hit the maximum iteration limit (${MAX_RUN_ITERATIONS})`);
+        if (maxIterations !== Infinity && iterationCount >= iterationLimit) {
+          console.warn(`Run hit the maximum iteration limit (${iterationLimit})`);
         }
         
         console.log(`Run completed after ${iterationCount} iterations`);

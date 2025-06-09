@@ -21,7 +21,8 @@ const Toolbar = ({
   startSimulation,
   stopSimulation,
   clearCanvas,
-  onAutoLayout
+  onAutoLayout,
+  onOpenSettings
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -489,9 +490,17 @@ const Toolbar = ({
           </div>
         </div>
         
+        {/* Visual separator before history tools */}
+        <div className="h-full" style={{ 
+          borderRight: '1px solid rgba(180, 180, 190, 0.9)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
+          margin: '0 12px',
+          height: '50px',
+          alignSelf: 'center',
+          opacity: 0.85
+        }}></div>
 
-
-        <div className="history-tools p-2 ml-auto">
+        <div className="history-tools p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">History</h3>
           <div className="flex justify-between">
             <button 
@@ -509,6 +518,31 @@ const Toolbar = ({
               title="Redo (Ctrl+Y)"
             >
               Redo
+            </button>
+          </div>
+        </div>
+        
+        {/* Visual separator between history and settings */}
+        <div className="h-full" style={{ 
+          borderRight: '1px solid rgba(180, 180, 190, 0.9)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
+          margin: '0 12px',
+          height: '50px',
+          alignSelf: 'center',
+          opacity: 0.85
+        }}></div>
+        
+        {/* Settings Group */}
+        <div className="settings-tools p-2 ml-auto">
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Settings</h3>
+          <div className="flex justify-between">
+            <button 
+              style={buttonStyle(false)}
+              onClick={onOpenSettings}
+              title="Simulation Settings"
+              data-testid="toolbar-settings"
+            >
+              Settings
             </button>
           </div>
         </div>

@@ -8,6 +8,7 @@ import Place from './components/Place';
 import Transition from './components/Transition';
 import Arc from './components/Arc';
 import Grid from './components/Grid';
+import SettingsDialog from './components/SettingsDialog';
 import { HistoryManager } from './utils/historyManager';
 // Import the simulator functions
 import { initializeSimulator, getEnabledTransitions } from './utils/simulator';
@@ -33,6 +34,12 @@ function App() {
   const [simulationError, setSimulationError] = useState(null);
   const [visualAnimationInterval, setVisualAnimationInterval] = useState(null);
   const [isVisualAnimationRunning, setIsVisualAnimationRunning] = useState(false);
+  
+  // Settings dialog state
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [simulationSettings, setSimulationSettings] = useState({
+    maxIterations: 100 // Default value, can be set to Infinity
+  });
 
   // Use state for stage dimensions to allow for resizing
   const [stageDimensions, setStageDimensions] = useState({
@@ -235,28 +242,6 @@ function App() {
       console.log('No more enabled transitions, stopping animation');
       stopVisualAnimation();
     }
-  };
-  
-  // Function to start the visual animation
-  const startVisualAnimation = () => {
-    if (isVisualAnimationRunning) {
-      console.log('Visual animation already running, not starting again');
-      return;
-    }
-    
-    console.log('Starting visual animation with interval');
-    setIsVisualAnimationRunning(true);
-    
-    // Run the first animation cycle immediately
-    runVisualAnimation();
-    
-    // Start the animation interval for subsequent cycles
-    const interval = setInterval(() => {
-      console.log('Animation interval triggered');
-      runVisualAnimation();
-    }, 500); // Fire a transition every 500ms
-    
-    setVisualAnimationInterval(interval);
   };
   
   // Function to stop the visual animation
@@ -985,6 +970,98 @@ function App() {
     };
   }, [selectedElement, arcStart, handleUndo, handleRedo]); // Re-add listener when dependencies change
 
+  // Function to handle the start of a full simulation (non-visual)
+  const startFullSimulation = async () => {
+    try {
+      // Import the computeReachableMarkings function directly
+      const { computeReachableMarkings } = await import('./utils/simulator');
+      
+      // Compute all reachable markings with the configured max iterations
+      const maxIterations = simulationSettings.maxIterations === Infinity ? 1000 : simulationSettings.maxIterations;
+      const reachableMarkings = await computeReachableMarkings(maxIterations);
+      
+      // If there are reachable markings, update the elements state with the final marking
+      if (reachableMarkings && reachableMarkings.length > 0) {
+        const finalMarking = reachableMarkings[reachableMarkings.length - 1];
+        
+        // Update the elements state
+        setElements(prev => {
+          // Create a copy of the previous state
+          const newState = { ...prev };
+          
+          // Update the tokens in each place
+          newState.places = newState.places.map(place => {
+            const placeId = place.id;
+            const tokens = finalMarking[placeId] || 0;
+            return { ...place, tokens };
+          });
+          
+          return newState;
+        });
+        
+        // Add to history
+        updateHistory(elements);
+      }
+    } catch (error) {
+      console.error('Error in full simulation:', error);
+      setSimulationError('Error in full simulation: ' + error.message);
+    }
+  };
+
+  // Function to handle the start of a visual animation simulation
+  const startVisualAnimation = () => {
+    if (isVisualAnimationRunning) return;
+    
+    setIsVisualAnimationRunning(true);
+    
+    // Reset iteration counter
+    let iterationCount = 0;
+    const maxIterations = simulationSettings.maxIterations;
+    
+    // Set up an interval to fire transitions automatically
+    const interval = setInterval(async () => {
+      try {
+        // Check if we've reached the maximum number of iterations
+        if (maxIterations !== Infinity && iterationCount >= maxIterations) {
+          console.log(`Maximum iterations (${maxIterations}) reached, stopping animation`);
+          stopVisualAnimation();
+          return;
+        }
+        
+        // Increment iteration counter
+        iterationCount++;
+        
+        // Check if there are any enabled transitions
+        const enabledTransitions = await getEnabledTransitions();
+        
+        if (enabledTransitions.length === 0) {
+          // No more enabled transitions, stop the animation
+          stopVisualAnimation();
+          return;
+        }
+        
+        // Fire the first enabled transition
+        await fireTransitionAndUpdate(enabledTransitions[0].id);
+      } catch (error) {
+        console.error('Error in visual animation:', error);
+        stopVisualAnimation();
+      }
+    }, 200); // 200ms delay between transitions
+    
+    setVisualAnimationInterval(interval);
+  };
+
+  // Function to handle opening the settings dialog
+  const handleOpenSettings = () => {
+    setIsSettingsDialogOpen(true);
+  };
+  
+  // Function to handle saving settings
+  const handleSaveSettings = (newSettings) => {
+    setSimulationSettings(newSettings);
+    console.log('Simulation settings updated:', newSettings);
+  };
+
   // Handle mode change from toolbar
   const handleModeChange = (newMode) => {
     console.log(`Mode changing from ${mode} to ${newMode}`);
@@ -1154,6 +1231,7 @@ function App() {
           stopSimulation={stopSimulation}
           clearCanvas={clearCanvas}
           onAutoLayout={handleAutoLayout}
+          onOpenSettings={handleOpenSettings}
         />
       </div>
       
@@ -1567,10 +1645,19 @@ function App() {
               });
             }}
             onEnabledTransitionsChange={updateEnabledTransitions}
+            simulationSettings={simulationSettings}
           />
           {/* ImportExportPanel removed as requested */}
         </div>
       </div>
+      
+      {/* Settings Dialog */}
+      <SettingsDialog 
+        isOpen={isSettingsDialogOpen}
+        onClose={() => setIsSettingsDialogOpen(false)}
+        settings={simulationSettings}
+        onSave={handleSaveSettings}
+      />
     </div>
   );
 }
