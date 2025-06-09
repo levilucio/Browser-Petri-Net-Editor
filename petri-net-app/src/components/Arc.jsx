@@ -156,17 +156,71 @@ const Arc = ({
   const arrowPoint2X = adjustedEndX - arrowHeadSize * Math.cos(arrowAngle2);
   const arrowPoint2Y = adjustedEndY - arrowHeadSize * Math.sin(arrowAngle2);
 
-  // Calculate midpoint for labels
-  const midX = (adjustedStartX + adjustedEndX) / 2;
-  const midY = (adjustedStartY + adjustedEndY) / 2;
+  // Calculate midpoint for labels based on the middle segment of the arc
+  let midX, midY, midSegmentAngle;
+  
+  if (anglePoints.length === 0) {
+    // If no angle points, use the midpoint of the direct line
+    midX = (adjustedStartX + adjustedEndX) / 2;
+    midY = (adjustedStartY + adjustedEndY) / 2;
+    midSegmentAngle = finalSegmentAngle;
+  } else {
+    // Find the middle segment of the arc
+    const allPoints = [
+      { x: adjustedStartX, y: adjustedStartY },
+      ...anglePoints.map(p => ({ x: p.x, y: p.y })),
+      { x: adjustedEndX, y: adjustedEndY }
+    ];
+    
+    // Calculate total arc length to find the middle segment
+    let totalLength = 0;
+    const segmentLengths = [];
+    
+    for (let i = 0; i < allPoints.length - 1; i++) {
+      const dx = allPoints[i + 1].x - allPoints[i].x;
+      const dy = allPoints[i + 1].y - allPoints[i].y;
+      const length = Math.sqrt(dx * dx + dy * dy);
+      segmentLengths.push(length);
+      totalLength += length;
+    }
+    
+    // Find the middle segment
+    let accumulatedLength = 0;
+    let middleSegmentIndex = 0;
+    
+    for (let i = 0; i < segmentLengths.length; i++) {
+      if (accumulatedLength + segmentLengths[i] >= totalLength / 2) {
+        middleSegmentIndex = i;
+        break;
+      }
+      accumulatedLength += segmentLengths[i];
+    }
+    
+    // Calculate how far along the middle segment the midpoint should be
+    const remainingLength = totalLength / 2 - accumulatedLength;
+    const segmentRatio = remainingLength / segmentLengths[middleSegmentIndex];
+    
+    // Get the points of the middle segment
+    const p1 = allPoints[middleSegmentIndex];
+    const p2 = allPoints[middleSegmentIndex + 1];
+    
+    // Calculate the midpoint along this segment
+    midX = p1.x + (p2.x - p1.x) * segmentRatio;
+    midY = p1.y + (p2.y - p1.y) * segmentRatio;
+    
+    // Calculate the angle of this segment for the offset
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    midSegmentAngle = Math.atan2(dy, dx);
+  }
   
   // Offset the weight label slightly to not overlap with the line (on one side)
-  const weightOffsetX = -10 * Math.sin(finalSegmentAngle);
-  const weightOffsetY = 10 * Math.cos(finalSegmentAngle);
+  const weightOffsetX = -10 * Math.sin(midSegmentAngle);
+  const weightOffsetY = 10 * Math.cos(midSegmentAngle);
   
   // Calculate name label position (on the opposite side of the arc from the weight)
-  const nameOffsetX = 10 * Math.sin(finalSegmentAngle);
-  const nameOffsetY = -10 * Math.cos(finalSegmentAngle);
+  const nameOffsetX = 10 * Math.sin(midSegmentAngle);
+  const nameOffsetY = -10 * Math.cos(midSegmentAngle);
 
   // Since places and transitions are already adjusted for scroll in App.jsx,
   // we don't need to adjust these positions again
@@ -351,9 +405,9 @@ const Arc = ({
           text={arc.weight.toString()}
           fontSize={12}
           fill="black"
-          x={displayMidX + weightOffsetX - 5}
+          x={displayMidX + weightOffsetX - 10}
           y={displayMidY + weightOffsetY - 5}
-          width={10}
+          width={30}
           align="center"
         />
       )}
