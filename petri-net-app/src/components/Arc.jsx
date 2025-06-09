@@ -11,7 +11,9 @@ const Arc = ({
   zoomLevel = 1,
   onAnglePointAdded,
   onAnglePointDragged,
-  onAnglePointDeleted
+  onAnglePointDeleted,
+  gridSize = 20,
+  gridSnappingEnabled = true
 }) => {
   // Normalize arc properties to handle different formats
   const sourceId = arc.sourceId || arc.source;
@@ -213,6 +215,17 @@ const Arc = ({
     e.cancelBubble = true;
   };
   
+  // Function to snap position to grid (local implementation to match App.jsx)
+  const snapToGrid = (x, y) => {
+    if (gridSnappingEnabled) {
+      return {
+        x: Math.round(x / gridSize) * gridSize,
+        y: Math.round(y / gridSize) * gridSize
+      };
+    }
+    return { x, y };
+  };
+
   // Handle dragging an angle point
   const handleAnglePointDrag = (index, e) => {
     if (!onAnglePointDragged) return;
@@ -225,8 +238,19 @@ const Arc = ({
     const virtualX = pointerPos.x / zoomLevel + canvasScroll.x;
     const virtualY = pointerPos.y / zoomLevel + canvasScroll.y;
     
-    // Update the angle point position
-    onAnglePointDragged(arc.id, index, { x: virtualX, y: virtualY });
+    // Apply grid snapping during drag
+    const snappedPos = snapToGrid(virtualX, virtualY);
+    
+    // If this is a drag move (not drag end), update the node position directly for visual feedback
+    if (e.type === 'dragmove') {
+      e.target.position({
+        x: (snappedPos.x - canvasScroll.x) / zoomLevel,
+        y: (snappedPos.y - canvasScroll.y) / zoomLevel
+      });
+    }
+    
+    // Update the angle point position in the data model
+    onAnglePointDragged(arc.id, index, snappedPos);
   };
   
   // Handle double-click to delete an angle point
@@ -257,7 +281,7 @@ const Arc = ({
       <Line
         points={linePoints}
         stroke={isSelected ? '#3498db' : '#000'}
-        strokeWidth={2}
+        strokeWidth={isSelected ? 2 : 1}
         lineCap="round"
         lineJoin="round"
         shadowEnabled={isSelected}
@@ -300,6 +324,16 @@ const Arc = ({
             draggable={true}
             onDragMove={(e) => handleAnglePointDrag(index, e)}
             onDragEnd={(e) => handleAnglePointDrag(index, e)}
+            dragBoundFunc={(pos) => {
+              // Apply grid snapping during drag for visual feedback
+              const virtualX = pos.x * zoomLevel + canvasScroll.x;
+              const virtualY = pos.y * zoomLevel + canvasScroll.y;
+              const snappedPos = snapToGrid(virtualX, virtualY);
+              return {
+                x: (snappedPos.x - canvasScroll.x) / zoomLevel,
+                y: (snappedPos.y - canvasScroll.y) / zoomLevel
+              };
+            }}
             onDblClick={(e) => handleAnglePointDoubleClick(index, e)}
             shadowEnabled={true}
             shadowColor="#2980b9"

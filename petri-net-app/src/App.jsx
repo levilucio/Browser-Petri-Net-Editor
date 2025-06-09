@@ -1413,9 +1413,15 @@ function App() {
                 fill="transparent"
                 name="background"
                 onClick={() => {
+                  // Clear arc creation state if in arc mode
                   if (mode === 'arc' && arcStart) {
                     setArcStart(null);
                     setTempArcEnd(null);
+                  }
+                  
+                  // Clear element selection when clicking on empty canvas
+                  if (selectedElement) {
+                    setSelectedElement(null);
                   }
                 }}
               />
@@ -1521,6 +1527,8 @@ function App() {
                   onClick={() => handleElementClick(arc, 'arc')}
                   canvasScroll={canvasScroll}
                   zoomLevel={zoomLevel}
+                  gridSize={gridSize}
+                  gridSnappingEnabled={gridSnappingEnabled}
                   onAnglePointAdded={(arcId, anglePoint) => handleAddAnglePoint(arcId, anglePoint)}
                   onAnglePointDragged={(arcId, index, newPosition) => handleDragAnglePoint(arcId, index, newPosition)}
                   onAnglePointDeleted={(arcId, index) => handleDeleteAnglePoint(arcId, index)}
