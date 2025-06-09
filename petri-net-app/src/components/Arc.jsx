@@ -146,6 +146,8 @@ const Arc = ({
     }
   }
 
+  // We don't need to duplicate the start/end points here as they're already defined above
+  
   // Calculate arrow head points
   const arrowHeadSize = 10;
   const arrowAngle1 = finalSegmentAngle - Math.PI / 6;
@@ -156,20 +158,32 @@ const Arc = ({
   const arrowPoint2X = adjustedEndX - arrowHeadSize * Math.cos(arrowAngle2);
   const arrowPoint2Y = adjustedEndY - arrowHeadSize * Math.sin(arrowAngle2);
 
+  // Define display coordinates for rendering (adjusted for scroll)
+  const displayStartX = adjustedStartX;
+  const displayStartY = adjustedStartY;
+  const displayEndX = adjustedEndX;
+  const displayEndY = adjustedEndY;
+
+  // Arrow head points (no additional scroll adjustment needed)
+  const displayArrowPoint1X = arrowPoint1X;
+  const displayArrowPoint1Y = arrowPoint1Y;
+  const displayArrowPoint2X = arrowPoint2X;
+  const displayArrowPoint2Y = arrowPoint2Y;
+
   // Calculate midpoint for labels based on the middle segment of the arc
   let midX, midY, midSegmentAngle;
   
   if (anglePoints.length === 0) {
     // If no angle points, use the midpoint of the direct line
-    midX = (adjustedStartX + adjustedEndX) / 2;
-    midY = (adjustedStartY + adjustedEndY) / 2;
-    midSegmentAngle = finalSegmentAngle;
+    midX = (displayStartX + displayEndX) / 2;
+    midY = (displayStartY + displayEndY) / 2;
+    midSegmentAngle = Math.atan2(displayEndY - displayStartY, displayEndX - displayStartX);
   } else {
-    // Find the middle segment of the arc
+    // Find the middle segment of the arc using display points that are already adjusted for scroll
     const allPoints = [
-      { x: adjustedStartX, y: adjustedStartY },
-      ...anglePoints.map(p => ({ x: p.x, y: p.y })),
-      { x: adjustedEndX, y: adjustedEndY }
+      { x: displayStartX, y: displayStartY },
+      ...displayAnglePoints,
+      { x: displayEndX, y: displayEndY }
     ];
     
     // Calculate total arc length to find the middle segment
@@ -221,23 +235,6 @@ const Arc = ({
   // Calculate name label position (on the opposite side of the arc from the weight)
   const nameOffsetX = 10 * Math.sin(midSegmentAngle);
   const nameOffsetY = -10 * Math.cos(midSegmentAngle);
-
-  // Since places and transitions are already adjusted for scroll in App.jsx,
-  // we don't need to adjust these positions again
-  const displayStartX = adjustedStartX;
-  const displayStartY = adjustedStartY;
-  const displayEndX = adjustedEndX;
-  const displayEndY = adjustedEndY;
-
-  // Arrow head points (no additional scroll adjustment needed)
-  const displayArrowPoint1X = arrowPoint1X;
-  const displayArrowPoint1Y = arrowPoint1Y;
-  const displayArrowPoint2X = arrowPoint2X;
-  const displayArrowPoint2Y = arrowPoint2Y;
-  
-  // Label positions adjusted for scroll (consistent with other adjustments)
-  const displayMidX = midX;
-  const displayMidY = midY;
 
   // Prepare line points for drawing
   let linePoints = [];
@@ -405,8 +402,8 @@ const Arc = ({
           text={arc.weight.toString()}
           fontSize={12}
           fill="black"
-          x={displayMidX + weightOffsetX - 10}
-          y={displayMidY + weightOffsetY - 5}
+          x={midX + weightOffsetX - 10}
+          y={midY + weightOffsetY - 5}
           width={30}
           align="center"
         />
@@ -418,8 +415,8 @@ const Arc = ({
           text={arc.label}
           fontSize={10}
           fill="gray"
-          x={displayMidX + nameOffsetX - 15}
-          y={displayMidY + nameOffsetY - 5}
+          x={midX + nameOffsetX - 15}
+          y={midY + nameOffsetY - 5}
           width={30}
           align="center"
         />
