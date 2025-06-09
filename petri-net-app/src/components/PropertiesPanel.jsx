@@ -33,33 +33,41 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
     // Update local state for immediate feedback
     setFormValues(prev => ({ ...prev, label: newLabel }));
     
+    // Get the actual element ID, handling both direct and nested structures
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
+    const elementType = selectedElement.type || (elementId.split('-')[0]);
+    
     // Update the global state
-    if (selectedElement.id.startsWith('place')) {
+    if (elementType === 'place') {
       setElements(prev => ({
         ...prev,
         places: prev.places.map(place => 
-          place.id === selectedElement.id ? { ...place, label: newLabel } : place
+          place.id === elementId ? { ...place, label: newLabel } : place
         )
       }));
-    } else if (selectedElement.id.startsWith('transition')) {
+    } else if (elementType === 'transition') {
       setElements(prev => ({
         ...prev,
         transitions: prev.transitions.map(transition => 
-          transition.id === selectedElement.id ? { ...transition, label: newLabel } : transition
+          transition.id === elementId ? { ...transition, label: newLabel } : transition
         )
       }));
-    } else if (selectedElement.id.startsWith('arc')) {
+    } else if (elementType === 'arc') {
       setElements(prev => ({
         ...prev,
         arcs: prev.arcs.map(arc => 
-          arc.id === selectedElement.id ? { ...arc, label: newLabel } : arc
+          arc.id === elementId ? { ...arc, label: newLabel } : arc
         )
       }));
     }
   };
 
   const handleTokensChange = (e) => {
-    if (!selectedElement.id.startsWith('place')) return;
+    // Get the actual element ID and type
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
+    const elementType = selectedElement.type || (elementId.split('-')[0]);
+    
+    if (elementType !== 'place') return;
     
     // Get the raw input value
     const inputValue = e.target.value;
@@ -90,7 +98,7 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
       setElements(prev => ({
         ...prev,
         places: prev.places.map(place => 
-          place.id === selectedElement.id ? { ...place, tokens: validTokens } : place
+          place.id === elementId ? { ...place, tokens: validTokens } : place
         )
       }));
     }
@@ -98,21 +106,31 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
   
   // Handle blur event for token input to ensure a valid value is set
   const handleTokensBlur = () => {
+    // Get the actual element ID and type
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
+    const elementType = selectedElement.type || (elementId.split('-')[0]);
+    
     // If the field is empty or invalid when focus is lost, set to 0
     if (formValues.tokens === '') {
       setFormValues(prev => ({ ...prev, tokens: 0 }));
       
-      setElements(prev => ({
-        ...prev,
-        places: prev.places.map(place => 
-          place.id === selectedElement.id ? { ...place, tokens: 0 } : place
-        )
-      }));
+      if (elementType === 'place') {
+        setElements(prev => ({
+          ...prev,
+          places: prev.places.map(place => 
+            place.id === elementId ? { ...place, tokens: 0 } : place
+          )
+        }));
+      }
     }
   };
 
   const handleWeightChange = (e) => {
-    if (!selectedElement.id.startsWith('arc')) return;
+    // Get the actual element ID and type
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
+    const elementType = selectedElement.type || (elementId.split('-')[0]);
+    
+    if (elementType !== 'arc') return;
     
     // Get the raw input value
     const inputValue = e.target.value;
@@ -143,7 +161,7 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
       setElements(prev => ({
         ...prev,
         arcs: prev.arcs.map(arc => 
-          arc.id === selectedElement.id ? { ...arc, weight: validWeight } : arc
+          arc.id === elementId ? { ...arc, weight: validWeight } : arc
         )
       }));
     }
@@ -167,12 +185,16 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
   // Get max tokens from simulation settings or use default 20
   const maxTokens = simulationSettings?.maxTokens || 20;
 
+  // Get the actual element ID, handling both direct and nested structures
+  const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
+  const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
+  
   // Determine if token count is valid
-  const isTokenCountValid = selectedElement.id.startsWith('place') && 
+  const isTokenCountValid = elementType === 'place' && 
     (formValues.tokens === '' || (parseInt(formValues.tokens, 10) >= 0 && parseInt(formValues.tokens, 10) <= maxTokens));
 
   // Determine if weight is valid
-  const isWeightValid = selectedElement.id.startsWith('arc') && 
+  const isWeightValid = elementType === 'arc' && 
     (formValues.weight === '' || (parseInt(formValues.weight, 10) >= 1 && parseInt(formValues.weight, 10) <= maxTokens));
 
   return (
@@ -188,12 +210,12 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
           value={formValues.label}
           onChange={handleLabelChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder={selectedElement.id.startsWith('place') ? 'P1, P2, etc.' : 
-                      selectedElement.id.startsWith('transition') ? 'T1, T2, etc.' : 'Arc label'}
+          placeholder={elementType === 'place' ? 'P1, P2, etc.' : 
+                      elementType === 'transition' ? 'T1, T2, etc.' : 'Arc label'}
         />
       </div>
 
-      {selectedElement.id.startsWith('place') && (
+      {elementType === 'place' && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Tokens (0-{maxTokens})
@@ -214,7 +236,7 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
         </div>
       )}
 
-      {selectedElement.id.startsWith('arc') && (
+      {elementType === 'arc' && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Weight (1-{maxTokens})

@@ -1,7 +1,18 @@
 import React from 'react';
-import { Line, Text, Group } from 'react-konva';
+import { Line, Text, Group, Circle } from 'react-konva';
 
-const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x: 0, y: 0 }, zoomLevel = 1 }) => {
+const Arc = ({ 
+  arc, 
+  places, 
+  transitions, 
+  isSelected, 
+  onClick, 
+  canvasScroll = { x: 0, y: 0 }, 
+  zoomLevel = 1,
+  onAnglePointAdded,
+  onAnglePointDragged,
+  onAnglePointDeleted
+}) => {
   // Normalize arc properties to handle different formats
   const sourceId = arc.sourceId || arc.source;
   const targetId = arc.targetId || arc.target;
@@ -37,10 +48,42 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
   const endX = target.x;
   const endY = target.y;
 
-  // Calculate distance and angle for arrow head
-  const dx = endX - startX;
-  const dy = endY - startY;
-  const angle = Math.atan2(dy, dx);
+  // Get angle points from arc or initialize empty array if none exist
+  const anglePoints = arc.anglePoints || [];
+  
+  // Calculate start and end angles based on angle points or direct connection
+  let startAngle, endAngle;
+  
+  if (anglePoints.length > 0) {
+    // If angle points exist, calculate angle from source to first angle point
+    const firstPoint = anglePoints[0];
+    const lastPoint = anglePoints[anglePoints.length - 1];
+    
+    const dx1 = firstPoint.x - startX;
+    const dy1 = firstPoint.y - startY;
+    startAngle = Math.atan2(dy1, dx1);
+    
+    const dx2 = endX - lastPoint.x;
+    const dy2 = endY - lastPoint.y;
+    endAngle = Math.atan2(dy2, dx2);
+  } else {
+    // If no angle points, direct line from source to target
+    const dx = endX - startX;
+    const dy = endY - startY;
+    startAngle = Math.atan2(dy, dx);
+    endAngle = startAngle;  // Same angle
+  }
+  
+  // Calculate angle for final segment (for arrow head)
+  let finalSegmentAngle;
+  if (anglePoints.length > 0) {
+    const lastPoint = anglePoints[anglePoints.length - 1];
+    const dxLast = endX - lastPoint.x;
+    const dyLast = endY - lastPoint.y;
+    finalSegmentAngle = Math.atan2(dyLast, dxLast);
+  } else {
+    finalSegmentAngle = startAngle; // Direct line
+  }
   
   // Adjust start and end points based on source and target shapes
   let adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY;
@@ -48,23 +91,23 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
   if (arcSourceType === 'place') {
     // Adjust for circle (place)
     const radius = 20;
-    adjustedStartX = startX + Math.cos(angle) * radius;
-    adjustedStartY = startY + Math.sin(angle) * radius;
+    adjustedStartX = startX + Math.cos(startAngle) * radius;
+    adjustedStartY = startY + Math.sin(startAngle) * radius;
   } else {
     // Adjust for rectangle (transition)
     const width = 30;
     const height = 40;
     
     // Determine which side of the rectangle to start from
-    if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
+    if (Math.abs(Math.cos(startAngle)) > Math.abs(Math.sin(startAngle))) {
       // Horizontal side
-      const sign = Math.cos(angle) > 0 ? 1 : -1;
+      const sign = Math.cos(startAngle) > 0 ? 1 : -1;
       adjustedStartX = startX + sign * width / 2;
-      adjustedStartY = startY + Math.sin(angle) / Math.cos(angle) * sign * width / 2;
+      adjustedStartY = startY + Math.sin(startAngle) / Math.cos(startAngle) * sign * width / 2;
     } else {
       // Vertical side
-      const sign = Math.sin(angle) > 0 ? 1 : -1;
-      adjustedStartX = startX + Math.cos(angle) / Math.sin(angle) * sign * height / 2;
+      const sign = Math.sin(startAngle) > 0 ? 1 : -1;
+      adjustedStartX = startX + Math.cos(startAngle) / Math.sin(startAngle) * sign * height / 2;
       adjustedStartY = startY + sign * height / 2;
     }
   }
@@ -72,31 +115,31 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
   if (arcTargetType === 'place') {
     // Adjust for circle (place)
     const radius = 20;
-    adjustedEndX = endX - Math.cos(angle) * radius;
-    adjustedEndY = endY - Math.sin(angle) * radius;
+    adjustedEndX = endX - Math.cos(endAngle) * radius;
+    adjustedEndY = endY - Math.sin(endAngle) * radius;
   } else {
     // Adjust for rectangle (transition)
     const width = 30;
     const height = 40;
     
     // Determine which side of the rectangle to end at
-    if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
+    if (Math.abs(Math.cos(endAngle)) > Math.abs(Math.sin(endAngle))) {
       // Horizontal side
-      const sign = Math.cos(angle) > 0 ? -1 : 1;
+      const sign = Math.cos(endAngle) > 0 ? -1 : 1;
       adjustedEndX = endX + sign * width / 2;
-      adjustedEndY = endY + Math.sin(angle) / Math.cos(angle) * sign * width / 2;
+      adjustedEndY = endY + Math.sin(endAngle) / Math.cos(endAngle) * sign * width / 2;
     } else {
       // Vertical side
-      const sign = Math.sin(angle) > 0 ? -1 : 1;
-      adjustedEndX = endX + Math.cos(angle) / Math.sin(angle) * sign * height / 2;
+      const sign = Math.sin(endAngle) > 0 ? -1 : 1;
+      adjustedEndX = endX + Math.cos(endAngle) / Math.sin(endAngle) * sign * height / 2;
       adjustedEndY = endY + sign * height / 2;
     }
   }
 
   // Calculate arrow head points
   const arrowHeadSize = 10;
-  const arrowAngle1 = angle - Math.PI / 6;
-  const arrowAngle2 = angle + Math.PI / 6;
+  const arrowAngle1 = finalSegmentAngle - Math.PI / 6;
+  const arrowAngle2 = finalSegmentAngle + Math.PI / 6;
   
   const arrowPoint1X = adjustedEndX - arrowHeadSize * Math.cos(arrowAngle1);
   const arrowPoint1Y = adjustedEndY - arrowHeadSize * Math.sin(arrowAngle1);
@@ -108,12 +151,12 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
   const midY = (adjustedStartY + adjustedEndY) / 2;
   
   // Offset the weight label slightly to not overlap with the line (on one side)
-  const weightOffsetX = -10 * Math.sin(angle);
-  const weightOffsetY = 10 * Math.cos(angle);
+  const weightOffsetX = -10 * Math.sin(finalSegmentAngle);
+  const weightOffsetY = 10 * Math.cos(finalSegmentAngle);
   
   // Calculate name label position (on the opposite side of the arc from the weight)
-  const nameOffsetX = 10 * Math.sin(angle);
-  const nameOffsetY = -10 * Math.cos(angle);
+  const nameOffsetX = 10 * Math.sin(finalSegmentAngle);
+  const nameOffsetY = -10 * Math.cos(finalSegmentAngle);
 
   // Adjust positions for scrolling and zoom
   const displayStartX = adjustedStartX - canvasScroll.x / zoomLevel;
@@ -130,16 +173,99 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
   // Label positions adjusted for scroll
   const displayMidX = midX - canvasScroll.x / zoomLevel;
   const displayMidY = midY - canvasScroll.y / zoomLevel;
+
+  // Create array of points for the polyline
+  let linePoints = [];
   
-  // Render arc, arrow head, and labels
+  // Add starting point
+  linePoints.push(adjustedStartX, adjustedStartY);
+  
+  // Add angle points if they exist (with canvas scroll and zoom adjustment)
+  if (anglePoints && anglePoints.length > 0) {
+    anglePoints.forEach(point => {
+      // Adjust points for canvas scroll and zoom
+      const adjustedX = point.x - canvasScroll.x;
+      const adjustedY = point.y - canvasScroll.y;
+      linePoints.push(adjustedX, adjustedY);
+    });
+  }
+  
+  // Add ending point
+  linePoints.push(adjustedEndX, adjustedEndY);
+
+  // Handle adding a new angle point when clicking on the arc line
+  const handleLineClick = (e) => {
+    // Only add angle points when the arc is selected
+    if (!isSelected || !onAnglePointAdded) return;
+    
+    // Get the click position relative to the stage
+    const stage = e.target.getStage();
+    const pointerPos = stage.getPointerPosition();
+    
+    // Adjust for canvas scroll and zoom to get the virtual canvas coordinates
+    const virtualX = pointerPos.x / zoomLevel + canvasScroll.x;
+    const virtualY = pointerPos.y / zoomLevel + canvasScroll.y;
+    
+    // Add the new angle point
+    onAnglePointAdded(arc.id, { x: virtualX, y: virtualY });
+    
+    // Stop event propagation to prevent selecting the arc again
+    e.cancelBubble = true;
+  };
+  
+  // Handle dragging an angle point
+  const handleAnglePointDrag = (index, e) => {
+    if (!onAnglePointDragged) return;
+    
+    // Get the drag position relative to the stage
+    const stage = e.target.getStage();
+    const pointerPos = stage.getPointerPosition();
+    
+    // Adjust for canvas scroll and zoom to get the virtual canvas coordinates
+    const virtualX = pointerPos.x / zoomLevel + canvasScroll.x;
+    const virtualY = pointerPos.y / zoomLevel + canvasScroll.y;
+    
+    // Update the angle point position
+    onAnglePointDragged(arc.id, index, { x: virtualX, y: virtualY });
+  };
+  
+  // Handle double-click to delete an angle point
+  const handleAnglePointDoubleClick = (index, e) => {
+    if (!onAnglePointDeleted) return;
+    
+    // Delete the angle point
+    onAnglePointDeleted(arc.id, index);
+    
+    // Stop event propagation
+    e.cancelBubble = true;
+  };
+
+  // Return the arc component with polyline, arrow head, angle points, and weight label
   return (
     <Group onClick={onClick}>
-      {/* Main arc line with hitbox for better selection */}
+      {/* Invisible wider line underneath for easier selection */}
       <Line
-        points={[displayStartX, displayStartY, displayEndX, displayEndY]}
-        stroke={isSelected ? 'blue' : 'black'}
-        strokeWidth={isSelected ? 2 : 1}
-        hitStrokeWidth={10} /* Wider hit area for easier selection */
+        points={linePoints}
+        stroke="transparent"
+        strokeWidth={15}  /* Much wider stroke for easier selection */
+        lineCap="round"
+        lineJoin="round"
+        onClick={onClick}  /* This wider line handles the arc selection */
+      />
+      
+      {/* Visible arc line */}
+      <Line
+        points={linePoints}
+        stroke={isSelected ? '#3498db' : '#000'}
+        strokeWidth={2}
+        lineCap="round"
+        lineJoin="round"
+        shadowEnabled={isSelected}
+        shadowColor="#3498db"
+        shadowBlur={10}
+        shadowOpacity={0.5}
+        onClick={handleLineClick}  /* This line handles adding angle points */
+        hitStrokeWidth={10}  /* Increased hit area for the visible line */
       />
       
       {/* Arrow head */}
@@ -155,6 +281,33 @@ const Arc = ({ arc, places, transitions, isSelected, onClick, canvasScroll = { x
         strokeWidth={isSelected ? 2 : 1}
         hitStrokeWidth={10} /* Wider hit area for easier selection */
       />
+      
+      {/* Render angle points as blue circles if the arc is selected */}
+      {isSelected && anglePoints && anglePoints.length > 0 && anglePoints.map((point, index) => {
+        // Adjust for canvas scroll and zoom
+        const x = point.x - canvasScroll.x;
+        const y = point.y - canvasScroll.y;
+        
+        return (
+          <Circle
+            key={`angle-point-${index}`}
+            x={x}
+            y={y}
+            radius={5}
+            fill="#3498db"
+            stroke="#2980b9"
+            strokeWidth={1}
+            draggable={true}
+            onDragMove={(e) => handleAnglePointDrag(index, e)}
+            onDragEnd={(e) => handleAnglePointDrag(index, e)}
+            onDblClick={(e) => handleAnglePointDoubleClick(index, e)}
+            shadowEnabled={true}
+            shadowColor="#2980b9"
+            shadowBlur={5}
+            shadowOpacity={0.5}
+          />
+        );
+      })}
       
       {/* Weight label */}
       {arc.weight && arc.weight > 1 && (

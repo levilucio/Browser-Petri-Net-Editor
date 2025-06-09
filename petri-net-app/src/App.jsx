@@ -112,6 +112,120 @@ function App() {
     setGridSnappingEnabled(prev => !prev);
   };
   
+  // Function to handle adding an angle point to an arc
+  const handleAddAnglePoint = (arcId, anglePoint) => {
+    setElements(prev => {
+      // Find the arc to update
+      const updatedArcs = prev.arcs.map(arc => {
+        if (arc.id === arcId) {
+          // Apply snap to grid if enabled
+          const point = gridSnappingEnabled ? 
+            snapToGrid(anglePoint.x, anglePoint.y) : 
+            anglePoint;
+          
+          // Create or update the anglePoints array
+          const anglePoints = arc.anglePoints ? [...arc.anglePoints] : [];
+          anglePoints.push(point);
+          
+          // Return updated arc with new angle point
+          return {
+            ...arc,
+            anglePoints
+          };
+        }
+        return arc;
+      });
+      
+      // Create new state with updated arcs
+      const newState = {
+        ...prev,
+        arcs: updatedArcs
+      };
+      
+      // Add to history
+      const historyStatus = historyManager.addState(newState);
+      setCanUndo(historyStatus.canUndo);
+      setCanRedo(historyStatus.canRedo);
+      
+      return newState;
+    });
+  };
+  
+  // Function to handle dragging an angle point
+  const handleDragAnglePoint = (arcId, pointIndex, newPosition) => {
+    setElements(prev => {
+      // Find the arc to update
+      const updatedArcs = prev.arcs.map(arc => {
+        if (arc.id === arcId && arc.anglePoints && arc.anglePoints[pointIndex]) {
+          // Apply snap to grid if enabled
+          const position = gridSnappingEnabled ? 
+            snapToGrid(newPosition.x, newPosition.y) : 
+            newPosition;
+          
+          // Create a copy of the angle points array
+          const anglePoints = [...arc.anglePoints];
+          
+          // Update the position of the dragged angle point
+          anglePoints[pointIndex] = position;
+          
+          // Return updated arc with modified angle point
+          return {
+            ...arc,
+            anglePoints
+          };
+        }
+        return arc;
+      });
+      
+      // Create new state with updated arcs
+      const newState = {
+        ...prev,
+        arcs: updatedArcs
+      };
+      
+      // Add to history
+      const historyStatus = historyManager.addState(newState);
+      setCanUndo(historyStatus.canUndo);
+      setCanRedo(historyStatus.canRedo);
+      
+      return newState;
+    });
+  };
+  
+  // Function to handle deleting an angle point
+  const handleDeleteAnglePoint = (arcId, pointIndex) => {
+    setElements(prev => {
+      // Find the arc to update
+      const updatedArcs = prev.arcs.map(arc => {
+        if (arc.id === arcId && arc.anglePoints && arc.anglePoints[pointIndex] !== undefined) {
+          // Create a copy of the angle points array without the deleted point
+          const anglePoints = [...arc.anglePoints];
+          anglePoints.splice(pointIndex, 1);
+          
+          // Return updated arc with modified angle points array
+          return {
+            ...arc,
+            anglePoints
+          };
+        }
+        return arc;
+      });
+      
+      // Create new state with updated arcs
+      const newState = {
+        ...prev,
+        arcs: updatedArcs
+      };
+      
+      // Add to history
+      const historyStatus = historyManager.addState(newState);
+      setCanUndo(historyStatus.canUndo);
+      setCanRedo(historyStatus.canRedo);
+      
+      return newState;
+    });
+  };
+  
   // Function to apply auto-layout to the Petri net
   const handleAutoLayout = () => {
     // Apply the auto-layout algorithm
@@ -704,6 +818,14 @@ function App() {
     console.log(`Element clicked: ${elementType} ${element.id} in mode: ${mode}`);
     
     if (mode === 'arc') {
+      // Prevent starting an arc from another arc
+      if (elementType === 'arc') {
+        console.log('Cannot start an arc from another arc');
+        // Instead, select the arc when clicked in arc mode
+        setSelectedElement({ element, type: elementType });
+        return;
+      }
+      
       if (!arcStart) {
         // Start creating an arc
         setArcStart({ element, elementType });
@@ -1388,7 +1510,7 @@ function App() {
                 />
               ))}
               
-              {/* Arcs - the Arc component will handle scroll offset internally */}
+              {/* Arcs - adjust position to account for scroll */}
               {elements.arcs.map(arc => (
                 <Arc
                   key={arc.id}
@@ -1396,14 +1518,17 @@ function App() {
                   places={elements.places}
                   transitions={elements.transitions}
                   isSelected={selectedElement && selectedElement.id === arc.id}
-                  onClick={() => setSelectedElement(arc)}
+                  onClick={() => handleElementClick(arc, 'arc')}
                   canvasScroll={canvasScroll}
                   zoomLevel={zoomLevel}
+                  onAnglePointAdded={(arcId, anglePoint) => handleAddAnglePoint(arcId, anglePoint)}
+                  onAnglePointDragged={(arcId, index, newPosition) => handleDragAnglePoint(arcId, index, newPosition)}
+                  onAnglePointDeleted={(arcId, index) => handleDeleteAnglePoint(arcId, index)}
                 />
               ))}
               
               {/* Temporary arc during creation */}
-              {arcStart && tempArcEnd && (
+              {tempArcEnd && (
                 <>
                   {/* Main arc line - dashed for temporary state */}
                   <Line
@@ -1484,8 +1609,6 @@ function App() {
                     opacity={tempArcEnd.potentialTarget ? 1 : 0.7}
                     listening={false} /* Make non-interactive so it doesn't block clicks */
                   />
-                  
-                  {/* Removed "Click to connect" text as requested */}
                 </>
               )}
             </Layer>

@@ -105,6 +105,7 @@ describe('ExecutionPanel Buttons', () => {
         elements={mockElements}
         onUpdateElements={mockUpdateElements}
         onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
       />
     );
     
@@ -123,6 +124,7 @@ describe('ExecutionPanel Buttons', () => {
         elements={mockElements}
         onUpdateElements={mockUpdateElements}
         onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
       />
     );
     
@@ -152,6 +154,7 @@ describe('ExecutionPanel Buttons', () => {
         elements={mockElements}
         onUpdateElements={mockUpdateElements}
         onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
       />
     );
     
@@ -203,6 +206,7 @@ describe('ExecutionPanel Buttons', () => {
         elements={mockElements}
         onUpdateElements={mockUpdateElements}
         onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
       />
     );
     
@@ -248,6 +252,7 @@ describe('ExecutionPanel Buttons', () => {
         elements={mockElements}
         onUpdateElements={mockUpdateElements}
         onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
       />
     );
     
@@ -281,6 +286,7 @@ describe('ExecutionPanel Buttons', () => {
         elements={mockElements}
         onUpdateElements={mockUpdateElements}
         onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
       />
     );
     
@@ -311,6 +317,7 @@ describe('ExecutionPanel Buttons', () => {
         elements={mockElements}
         onUpdateElements={mockUpdateElements}
         onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
       />
     );
     
