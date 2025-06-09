@@ -6,17 +6,20 @@ import React, { useState, useEffect } from 'react';
 const SettingsDialog = ({ isOpen, onClose, settings, onSave }) => {
   const [maxIterations, setMaxIterations] = useState(settings.maxIterations);
   const [isInfinite, setIsInfinite] = useState(settings.maxIterations === Infinity);
+  const [maxTokens, setMaxTokens] = useState(settings.maxTokens || 20);
   
   // Update local state when settings prop changes
   useEffect(() => {
     setMaxIterations(settings.maxIterations === Infinity ? 100 : settings.maxIterations);
     setIsInfinite(settings.maxIterations === Infinity);
+    setMaxTokens(settings.maxTokens || 20);
   }, [settings]);
   
   // Handle save button click
   const handleSave = () => {
     onSave({
-      maxIterations: isInfinite ? Infinity : Math.max(1, maxIterations)
+      maxIterations: isInfinite ? Infinity : Math.max(1, maxIterations),
+      maxTokens: Math.max(1, maxTokens)
     });
     onClose();
   };
@@ -40,6 +43,14 @@ const SettingsDialog = ({ isOpen, onClose, settings, onSave }) => {
   // Handle infinite checkbox change
   const handleInfiniteChange = (e) => {
     setIsInfinite(e.target.checked);
+  };
+
+  // Handle max tokens input change
+  const handleMaxTokensChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (!isNaN(value)) {
+      setMaxTokens(Math.max(1, value));
+    }
   };
   
   if (!isOpen) return null;
@@ -77,6 +88,20 @@ const SettingsDialog = ({ isOpen, onClose, settings, onSave }) => {
             {isInfinite 
               ? "The simulation will run until no transitions are enabled."
               : "The simulation will stop after this many iterations or when no transitions are enabled."}
+          </p>
+        </div>
+
+        <div className="mb-4">
+          <label className="block mb-2 font-medium">Maximum Tokens per Place</label>
+          <input
+            type="number"
+            value={maxTokens}
+            onChange={handleMaxTokensChange}
+            min="1"
+            className="border border-gray-300 rounded px-3 py-2 w-full"
+          />
+          <p className="text-sm text-gray-500 mt-1">
+            Places and arcs will be limited to this maximum number of tokens.
           </p>
         </div>
         

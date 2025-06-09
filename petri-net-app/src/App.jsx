@@ -38,7 +38,8 @@ function App() {
   // Settings dialog state
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [simulationSettings, setSimulationSettings] = useState({
-    maxIterations: 100 // Default value, can be set to Infinity
+    maxIterations: 100, // Default value, can be set to Infinity
+    maxTokens: 20      // Default max tokens per place
   });
 
   // Use state for stage dimensions to allow for resizing
@@ -1595,6 +1596,7 @@ function App() {
             elements={elements}
             setElements={setElements}
             updateHistory={updateHistory}
+            simulationSettings={simulationSettings}
           />
           <ExecutionPanel 
             elements={elements}

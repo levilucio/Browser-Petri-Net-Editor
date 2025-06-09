@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const PropertiesPanel = ({ selectedElement, setElements }) => {
+const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) => {
   // Local state for form values to provide immediate feedback
   const [formValues, setFormValues] = useState({
     label: '',
@@ -80,8 +80,11 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
     if (value !== '') {
       const tokens = parseInt(value, 10);
       
-      // Validate token count (0-20)
-      const validTokens = Math.min(Math.max(tokens, 0), 20);
+      // Get max tokens from simulation settings or use default 20
+      const maxTokens = simulationSettings?.maxTokens || 20;
+      
+      // Validate token count (0-maxTokens)
+      const validTokens = Math.min(Math.max(tokens, 0), maxTokens);
       
       // Update the global state
       setElements(prev => ({
@@ -130,8 +133,11 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
     if (value !== '') {
       const weight = parseInt(value, 10);
       
-      // Validate weight (1-20)
-      const validWeight = Math.min(Math.max(weight, 1), 20);
+      // Get max tokens from simulation settings or use default 20
+      const maxTokens = simulationSettings?.maxTokens || 20;
+      
+      // Validate weight (1-maxTokens)
+      const validWeight = Math.min(Math.max(weight, 1), maxTokens);
       
       // Update the global state
       setElements(prev => ({
@@ -158,13 +164,16 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
     }
   };
 
+  // Get max tokens from simulation settings or use default 20
+  const maxTokens = simulationSettings?.maxTokens || 20;
+
   // Determine if token count is valid
   const isTokenCountValid = selectedElement.id.startsWith('place') && 
-    (formValues.tokens === '' || (parseInt(formValues.tokens, 10) >= 0 && parseInt(formValues.tokens, 10) <= 20));
+    (formValues.tokens === '' || (parseInt(formValues.tokens, 10) >= 0 && parseInt(formValues.tokens, 10) <= maxTokens));
 
   // Determine if weight is valid
   const isWeightValid = selectedElement.id.startsWith('arc') && 
-    (formValues.weight === '' || (parseInt(formValues.weight, 10) >= 1 && parseInt(formValues.weight, 10) <= 20));
+    (formValues.weight === '' || (parseInt(formValues.weight, 10) >= 1 && parseInt(formValues.weight, 10) <= maxTokens));
 
   return (
     <div className="properties-panel w-64 p-4 bg-gray-50 border-l border-gray-300 overflow-y-auto">
@@ -187,12 +196,12 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
       {selectedElement.id.startsWith('place') && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Tokens (0-20)
+            Tokens (0-{maxTokens})
           </label>
           <input
             type="number"
             min="0"
-            max="20"
+            max={maxTokens}
             value={formValues.tokens}
             onChange={handleTokensChange}
             onBlur={handleTokensBlur}
@@ -200,7 +209,7 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
             className={`w-full px-3 py-2 border ${isTokenCountValid ? 'border-gray-300' : 'border-red-500'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
           />
           {!isTokenCountValid && (
-            <p className="text-red-500 text-xs mt-1">Token count must be between 0 and 20</p>
+            <p className="text-red-500 text-xs mt-1">Token count must be between 0 and {maxTokens}</p>
           )}
         </div>
       )}
@@ -208,19 +217,19 @@ const PropertiesPanel = ({ selectedElement, setElements }) => {
       {selectedElement.id.startsWith('arc') && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Weight (1-20)
+            Weight (1-{maxTokens})
           </label>
           <input
             type="number"
             min="1"
-            max="20"
+            max={maxTokens}
             value={formValues.weight}
             onChange={handleWeightChange}
             onBlur={handleWeightBlur}
             className={`w-full px-3 py-2 border ${isWeightValid ? 'border-gray-300' : 'border-red-500'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
           />
           {!isWeightValid && (
-            <p className="text-red-500 text-xs mt-1">Weight must be between 1 and 20</p>
+            <p className="text-red-500 text-xs mt-1">Weight must be between 1 and {maxTokens}</p>
           )}
         </div>
       )}

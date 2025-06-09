@@ -26,7 +26,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
   const [isMarkingsPanelOpen, setIsMarkingsPanelOpen] = useState(false);
   const [isEnabledTransitionsPanelOpen, setIsEnabledTransitionsPanelOpen] = useState(false);
   
-  // Initialize the simulator when the elements change
+  // Initialize the simulator when the elements change or simulation settings change
   useEffect(() => {
     const initSimulator = async () => {
       if (places.length === 0 && transitions.length === 0) {
@@ -44,7 +44,10 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       setError(null);
       
       try {
-        await initializeSimulator(elements);
+        // Pass simulation settings to the simulator initialization
+        await initializeSimulator(elements, {
+          maxTokens: simulationSettings.maxTokens
+        });
         setIsSimulatorReady(true);
         
         // Compute enabled transitions
@@ -65,7 +68,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
     };
     
     initSimulator();
-  }, [elements]);  // Remove onEnabledTransitionsChange from dependencies to prevent loops
+  }, [elements, simulationSettings.maxTokens]);  // Add simulationSettings.maxTokens to dependencies
   
   // Handle firing a transition
   const handleFireTransition = async (transitionId) => {
