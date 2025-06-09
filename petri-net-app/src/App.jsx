@@ -228,14 +228,65 @@ function App() {
   
   // Function to apply auto-layout to the Petri net
   const handleAutoLayout = () => {
-    // Apply the auto-layout algorithm
-    const newElements = applyAutoLayout(elements, virtualCanvasDimensions, gridSize);
+    // Get the current canvas dimensions for the auto-layout algorithm
+    const layoutDimensions = {
+      width: virtualCanvasDimensions.width,
+      height: virtualCanvasDimensions.height
+    };
+    
+    // Apply the auto-layout algorithm (using a copy of elements to avoid mutation)
+    const newElements = applyAutoLayout(
+      JSON.parse(JSON.stringify(elements)), 
+      layoutDimensions, 
+      gridSize
+    );
     
     // Update the elements state
     setElements(newElements);
     
     // Add to history
     updateHistory(newElements);
+    
+    // Center the view on the newly laid out elements
+    centerViewOnElements(newElements);
+  };
+  
+  // Function to center the view on a set of elements
+  const centerViewOnElements = (elements) => {
+    if (!elements.places.length && !elements.transitions.length) return;
+    
+    // Calculate the bounding box of all elements
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    // Check places
+    elements.places.forEach(place => {
+      minX = Math.min(minX, place.x);
+      minY = Math.min(minY, place.y);
+      maxX = Math.max(maxX, place.x);
+      maxY = Math.max(maxY, place.y);
+    });
+    
+    // Check transitions
+    elements.transitions.forEach(transition => {
+      minX = Math.min(minX, transition.x);
+      minY = Math.min(minY, transition.y);
+      maxX = Math.max(maxX, transition.x);
+      maxY = Math.max(maxY, transition.y);
+    });
+    
+    // Calculate center of the bounding box
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    
+    // Calculate the center of the viewport
+    const viewportCenterX = stageDimensions.width / 2;
+    const viewportCenterY = stageDimensions.height / 2;
+    
+    // Set the scroll position to center the elements
+    setCanvasScroll({
+      x: centerX * zoomLevel - viewportCenterX,
+      y: centerY * zoomLevel - viewportCenterY
+    });
   };
   
   // Function to handle the start of dragging an element

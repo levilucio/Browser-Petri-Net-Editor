@@ -479,12 +479,13 @@ const Toolbar = ({
                 Arc
               </button>
               <button 
-                style={buttonStyle(false)}
+                style={{ ...buttonStyle(false), opacity: 0.5 }}
                 data-testid="toolbar-auto-layout"
                 onClick={onAutoLayout}
                 title="Auto-arrange elements for better visualization"
+                disabled={true}
               >
-                Auto Layout
+                Auto
               </button>
             </div>
           </div>
