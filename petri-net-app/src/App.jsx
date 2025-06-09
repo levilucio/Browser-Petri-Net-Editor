@@ -1521,8 +1521,16 @@ function App() {
                 <Arc
                   key={arc.id}
                   arc={arc}
-                  places={elements.places}
-                  transitions={elements.transitions}
+                  places={elements.places.map(place => ({
+                    ...place,
+                    x: place.x - canvasScroll.x / zoomLevel,
+                    y: place.y - canvasScroll.y / zoomLevel
+                  }))}
+                  transitions={elements.transitions.map(transition => ({
+                    ...transition,
+                    x: transition.x - canvasScroll.x / zoomLevel,
+                    y: transition.y - canvasScroll.y / zoomLevel
+                  }))}
                   isSelected={selectedElement && selectedElement.id === arc.id}
                   onClick={() => handleElementClick(arc, 'arc')}
                   canvasScroll={canvasScroll}

@@ -44,7 +44,7 @@ const Arc = ({
     return null;
   }
   
-  // Calculate start and end points
+  // Calculate start and end points - source and target positions are already adjusted for scroll
   const startX = source.x;
   const startY = source.y;
   const endX = target.x;
@@ -53,13 +53,21 @@ const Arc = ({
   // Get angle points from arc or initialize empty array if none exist
   const anglePoints = arc.anglePoints || [];
   
+  // Create adjusted angle points for display
+  // Since we're handling the scroll adjustment in App.jsx for places and transitions,
+  // we need to be consistent and handle angle points the same way
+  const displayAnglePoints = anglePoints.map(point => ({
+    x: point.x - canvasScroll.x / zoomLevel,
+    y: point.y - canvasScroll.y / zoomLevel
+  }));
+  
   // Calculate start and end angles based on angle points or direct connection
   let startAngle, endAngle;
   
-  if (anglePoints.length > 0) {
+  if (displayAnglePoints.length > 0) {
     // If angle points exist, calculate angle from source to first angle point
-    const firstPoint = anglePoints[0];
-    const lastPoint = anglePoints[anglePoints.length - 1];
+    const firstPoint = displayAnglePoints[0];
+    const lastPoint = displayAnglePoints[displayAnglePoints.length - 1];
     
     const dx1 = firstPoint.x - startX;
     const dy1 = firstPoint.y - startY;
@@ -78,8 +86,8 @@ const Arc = ({
   
   // Calculate angle for final segment (for arrow head)
   let finalSegmentAngle;
-  if (anglePoints.length > 0) {
-    const lastPoint = anglePoints[anglePoints.length - 1];
+  if (displayAnglePoints.length > 0) {
+    const lastPoint = displayAnglePoints[displayAnglePoints.length - 1];
     const dxLast = endX - lastPoint.x;
     const dyLast = endY - lastPoint.y;
     finalSegmentAngle = Math.atan2(dyLast, dxLast);
@@ -160,40 +168,38 @@ const Arc = ({
   const nameOffsetX = 10 * Math.sin(finalSegmentAngle);
   const nameOffsetY = -10 * Math.cos(finalSegmentAngle);
 
-  // Adjust positions for scrolling and zoom
-  const displayStartX = adjustedStartX - canvasScroll.x / zoomLevel;
-  const displayStartY = adjustedStartY - canvasScroll.y / zoomLevel;
-  const displayEndX = adjustedEndX - canvasScroll.x / zoomLevel;
-  const displayEndY = adjustedEndY - canvasScroll.y / zoomLevel;
+  // Since places and transitions are already adjusted for scroll in App.jsx,
+  // we don't need to adjust these positions again
+  const displayStartX = adjustedStartX;
+  const displayStartY = adjustedStartY;
+  const displayEndX = adjustedEndX;
+  const displayEndY = adjustedEndY;
 
-  // Arrow head points adjusted for scroll
-  const displayArrowPoint1X = arrowPoint1X - canvasScroll.x / zoomLevel;
-  const displayArrowPoint1Y = arrowPoint1Y - canvasScroll.y / zoomLevel;
-  const displayArrowPoint2X = arrowPoint2X - canvasScroll.x / zoomLevel;
-  const displayArrowPoint2Y = arrowPoint2Y - canvasScroll.y / zoomLevel;
+  // Arrow head points (no additional scroll adjustment needed)
+  const displayArrowPoint1X = arrowPoint1X;
+  const displayArrowPoint1Y = arrowPoint1Y;
+  const displayArrowPoint2X = arrowPoint2X;
+  const displayArrowPoint2Y = arrowPoint2Y;
   
-  // Label positions adjusted for scroll
-  const displayMidX = midX - canvasScroll.x / zoomLevel;
-  const displayMidY = midY - canvasScroll.y / zoomLevel;
+  // Label positions adjusted for scroll (consistent with other adjustments)
+  const displayMidX = midX;
+  const displayMidY = midY;
 
-  // Create array of points for the polyline
+  // Prepare line points for drawing
   let linePoints = [];
   
-  // Add starting point
-  linePoints.push(adjustedStartX, adjustedStartY);
+  // Start with the adjusted start point (adjusted for scroll)
+  linePoints.push(displayStartX, displayStartY);
   
-  // Add angle points if they exist (with canvas scroll and zoom adjustment)
-  if (anglePoints && anglePoints.length > 0) {
-    anglePoints.forEach(point => {
-      // Adjust points for canvas scroll and zoom
-      const adjustedX = point.x - canvasScroll.x;
-      const adjustedY = point.y - canvasScroll.y;
-      linePoints.push(adjustedX, adjustedY);
+  // Add all angle points if they exist
+  if (displayAnglePoints.length > 0) {
+    displayAnglePoints.forEach(point => {
+      linePoints.push(point.x, point.y);
     });
   }
   
-  // Add ending point
-  linePoints.push(adjustedEndX, adjustedEndY);
+  // End with the adjusted end point (adjusted for scroll)
+  linePoints.push(displayEndX, displayEndY);
 
   // Handle adding a new angle point when clicking on the arc line
   const handleLineClick = (e) => {
@@ -307,16 +313,12 @@ const Arc = ({
       />
       
       {/* Render angle points as blue circles if the arc is selected */}
-      {isSelected && anglePoints && anglePoints.length > 0 && anglePoints.map((point, index) => {
-        // Adjust for canvas scroll and zoom
-        const x = point.x - canvasScroll.x;
-        const y = point.y - canvasScroll.y;
-        
+      {isSelected && displayAnglePoints && displayAnglePoints.length > 0 && displayAnglePoints.map((point, index) => {
         return (
           <Circle
             key={`angle-point-${index}`}
-            x={x}
-            y={y}
+            x={point.x}
+            y={point.y}
             radius={5}
             fill="#3498db"
             stroke="#2980b9"
