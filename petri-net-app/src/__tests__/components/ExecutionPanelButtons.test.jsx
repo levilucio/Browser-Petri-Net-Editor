@@ -26,7 +26,7 @@ jest.mock('../../utils/simulator', () => {
       });
     }),
     updateSimulator: jest.fn().mockResolvedValue(undefined),
-    findNonConflictingTransitions: jest.fn().mockResolvedValue(['transition-1']),
+    findNonConflictingTransitions: jest.fn().mockResolvedValue([{ id: 'transition-1', name: 'T1' }]),
     fireMultipleTransitions: jest.fn().mockImplementation((transitionIds) => {
       return Promise.resolve({
         places: [
@@ -75,8 +75,11 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-
 describe('ExecutionPanel Buttons', () => {
+  // Get reference to the mocked simulator module
+  const simulatorMock = require('../../utils/simulator');
+  
+  // Mock elements for testing
   const mockElements = {
     places: [
       { id: 'place-1', name: 'P1', tokens: 1 },
@@ -91,12 +94,19 @@ describe('ExecutionPanel Buttons', () => {
     ]
   };
   
+  // Mock callback functions
   const mockUpdateElements = jest.fn();
   const mockEnabledTransitionsChange = jest.fn();
   
   beforeEach(() => {
-    // Clear all mocks before each test
+    // Reset all mocks before each test
     jest.clearAllMocks();
+    
+    // Default mock implementation for getEnabledTransitions
+    simulatorMock.getEnabledTransitions.mockResolvedValue([
+      { id: 'transition-1', name: 'T1' },
+      { id: 'transition-2', name: 'T2' }
+    ]);
   });
   
   test('Fire button should be enabled when transitions are enabled', async () => {
@@ -130,11 +140,13 @@ describe('ExecutionPanel Buttons', () => {
     
     // Wait for the simulator to initialize
     await waitFor(() => {
-      expect(screen.getByText('Fire')).not.toBeDisabled();
+      expect(screen.getByTestId('sim-run')).not.toBeDisabled();
     });
     
-    // Click the Fire button
-    fireEvent.click(screen.getByText('Fire'));
+    // Click the Run button
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('sim-run'));
+    });
     
     // Wait for the async operations to complete
     await waitFor(() => {
@@ -145,6 +157,87 @@ describe('ExecutionPanel Buttons', () => {
     // Check if the onUpdateElements callback was called with the updated Petri net
     await waitFor(() => {
       expect(mockUpdateElements).toHaveBeenCalled();
+    });
+  });
+  
+  test('Fire button should fire a transition', async () => {
+    // Reset mocks for this test
+    simulatorMock.fireTransition.mockReset();
+    simulatorMock.findNonConflictingTransitions.mockReset();
+    simulatorMock.fireMultipleTransitions.mockReset();
+    
+    // Mock findNonConflictingTransitions to return transitions to fire
+    simulatorMock.findNonConflictingTransitions.mockResolvedValue(['transition-1']);
+    
+    // Mock fireMultipleTransitions for the case when multiple transitions are fired
+    simulatorMock.fireMultipleTransitions.mockResolvedValue({
+      places: [
+        { id: 'place-1', name: 'P1', tokens: 0 },
+        { id: 'place-2', name: 'P2', tokens: 1 }
+      ],
+      transitions: mockElements.transitions,
+      arcs: mockElements.arcs
+    });
+    
+    render(
+      <ExecutionPanel
+        elements={mockElements}
+        onUpdateElements={mockUpdateElements}
+        onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
+      />
+    );
+    
+    // Wait for the simulator to initialize and get enabled transitions
+    await waitFor(() => {
+      expect(screen.getByTestId('sim-fire')).not.toBeDisabled();
+    });
+    
+    // Click the Fire button
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('sim-fire'));
+    });
+    
+    // Wait for findNonConflictingTransitions to be called
+    await waitFor(() => {
+      expect(simulatorMock.findNonConflictingTransitions).toHaveBeenCalled();
+    });
+    
+    // Check if fireTransition was called (since we're mocking a single transition)
+    await waitFor(() => {
+      expect(simulatorMock.fireTransition).toHaveBeenCalled();
+    });
+    
+    // Check if the onUpdateElements callback was called
+    await waitFor(() => {
+      expect(mockUpdateElements).toHaveBeenCalled();
+    });
+  });
+  
+  // Test for the Simulate button
+  test('Simulate button should start simulation', async () => {
+    render(
+      <ExecutionPanel
+        elements={mockElements}
+        onUpdateElements={mockUpdateElements}
+        onEnabledTransitionsChange={mockEnabledTransitionsChange}
+        simulationSettings={{ maxTokens: 20 }}
+      />
+    );
+    
+    // Wait for the simulator to initialize
+    await waitFor(() => {
+      expect(screen.getByTestId('sim-simulate')).not.toBeDisabled();
+    });
+    
+    // Click the Simulate button
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('sim-simulate'));
+    });
+    
+    // Verify that isSimulating is set to true (by checking that the stop button is enabled)
+    await waitFor(() => {
+      expect(screen.getByTestId('sim-stop')).not.toBeDisabled();
     });
   });
   
@@ -160,33 +253,28 @@ describe('ExecutionPanel Buttons', () => {
     
     // Wait for the simulator to initialize
     await waitFor(() => {
-      expect(screen.getByText('Simulate')).not.toBeDisabled();
+      expect(screen.getByTestId('sim-simulate')).not.toBeDisabled();
     });
     
-    // Mock simulateOneStep to resolve successfully
-    simulatorMock.getEnabledTransitions.mockResolvedValue([
-      { id: 'transition-1', name: 'T1' }
-    ]);
-    
     // Click the Simulate button to start simulation
-    fireEvent.click(screen.getByText('Simulate'));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('sim-simulate'));
+    });
     
-    // Wait for the simulation to start
+    // Verify that isSimulating is set to true (by checking that the stop button is enabled)
     await waitFor(() => {
-      // Check if the Stop button is now visible
-      const stopButton = screen.getByText('Stop');
-      expect(stopButton).toBeInTheDocument();
-      expect(stopButton).not.toBeDisabled();
+      expect(screen.getByTestId('sim-stop')).not.toBeDisabled();
     });
     
     // Click the Stop button to stop simulation
-    fireEvent.click(screen.getByText('Stop'));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('sim-stop'));
+    });
     
-    // Wait for the simulation to stop
     await waitFor(() => {
       // Check that the Simulate button is enabled again
-      expect(screen.getByText('Simulate')).not.toBeDisabled();
-    });
+      expect(screen.getByTestId('sim-simulate')).not.toBeDisabled();
+    }, { timeout: 1000 });
   });
   
   test('Run button should execute full simulation until no transitions are enabled', async () => {
@@ -212,15 +300,15 @@ describe('ExecutionPanel Buttons', () => {
     
     // Wait for the simulator to initialize
     await waitFor(() => {
-      expect(screen.getByText('Run')).not.toBeDisabled();
+      expect(screen.getByTestId('sim-run')).not.toBeDisabled();
     });
     
     // Click the Run button
-    fireEvent.click(screen.getByText('Run'));
+    fireEvent.click(screen.getByTestId('sim-run'));
     
     // Check if the Stop button is now visible and enabled
     await waitFor(() => {
-      const stopButton = screen.getByText('Stop');
+      const stopButton = screen.getByTestId('sim-stop');
       expect(stopButton).not.toBeDisabled();
     });
     
@@ -231,11 +319,11 @@ describe('ExecutionPanel Buttons', () => {
     });
     
     // Simulate the run completing by clicking stop
-    fireEvent.click(screen.getByText('Stop'));
+    fireEvent.click(screen.getByTestId('sim-stop'));
     
     // Wait for the Run button to be enabled again
     await waitFor(() => {
-      expect(screen.getByText('Run')).not.toBeDisabled();
+      expect(screen.getByTestId('sim-run')).not.toBeDisabled();
     });
   });
   
@@ -258,16 +346,16 @@ describe('ExecutionPanel Buttons', () => {
     
     // Wait for the simulator to initialize
     await waitFor(() => {
-      expect(screen.getByText('Run')).not.toBeDisabled();
+      expect(screen.getByTestId('sim-run')).not.toBeDisabled();
     });
     
     // Click the Run button
     await act(async () => {
-      fireEvent.click(screen.getByText('Run'));
+      fireEvent.click(screen.getByTestId('sim-run'));
     });
     
     // Check if the Stop button is now visible
-    const stopButton = screen.getByText('Stop');
+    const stopButton = screen.getByTestId('sim-stop');
     expect(stopButton).toBeInTheDocument();
     expect(stopButton).not.toBeDisabled();
     
@@ -277,7 +365,7 @@ describe('ExecutionPanel Buttons', () => {
     });
     
     // Check that the Run button is enabled again after stopping
-    expect(screen.getByText('Run')).not.toBeDisabled();
+    expect(screen.getByTestId('sim-run')).not.toBeDisabled();
   });
   
   test('Markings panel button should toggle the panel visibility', async () => {
@@ -292,14 +380,14 @@ describe('ExecutionPanel Buttons', () => {
     
     // Wait for the simulator to initialize
     await waitFor(() => {
-      expect(screen.getByText('Show Markings')).toBeInTheDocument();
+      expect(screen.getByTestId('show-markings')).toBeInTheDocument();
     });
     
     // Initially, the markings panel should not be visible
     expect(screen.queryByText('Current Markings')).not.toBeInTheDocument();
     
     // Click the Show Markings button
-    fireEvent.click(screen.getByText('Show Markings'));
+    fireEvent.click(screen.getByTestId('show-markings'));
     
     // The markings panel should now be visible
     expect(screen.getByText('Current Markings')).toBeInTheDocument();
@@ -323,14 +411,14 @@ describe('ExecutionPanel Buttons', () => {
     
     // Wait for the simulator to initialize
     await waitFor(() => {
-      expect(screen.getByText('Show Enabled Transitions')).toBeInTheDocument();
+      expect(screen.getByTestId('show-enabled-transitions')).toBeInTheDocument();
     });
     
     // Initially, the enabled transitions panel should not be visible
     expect(screen.queryByText('Enabled Transitions')).not.toBeInTheDocument();
     
     // Click the Show Enabled Transitions button
-    fireEvent.click(screen.getByText('Show Enabled Transitions'));
+    fireEvent.click(screen.getByTestId('show-enabled-transitions'));
     
     // The enabled transitions panel should now be visible
     expect(screen.getByText('Enabled Transitions')).toBeInTheDocument();
