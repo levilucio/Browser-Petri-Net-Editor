@@ -167,7 +167,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
     }
     setIsSimulating(false);
     setIsRunning(false);
-    console.log('Simulation or run stopped');
+    // Simulation or run stopped
   };
 
   // One simulation step
@@ -175,22 +175,22 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
     try {
       // Increment the iteration counter
       simulationIterationCountRef.current++;
-      console.log(`Simulation iteration: ${simulationIterationCountRef.current}`);
+      // Simulation iteration tracking
       
       // Safety check - if we've exceeded the maximum number of iterations, force stop
       const maxIterations = simulationSettings?.maxIterations || 100; // Default to 100 if settings not provided
       if (maxIterations !== Infinity && simulationIterationCountRef.current > maxIterations) {
-        console.log(`Maximum simulation iterations (${maxIterations}) reached, stopping`);
+        // Maximum simulation iterations reached, stopping
         return false;
       }
       
       // Check for enabled transitions
       const currentEnabled = await getEnabledTransitions();
-      console.log(`Currently enabled transitions: ${currentEnabled.length}`, currentEnabled);
+      // Track currently enabled transitions
       
       // Don't proceed if there are no enabled transitions
       if (currentEnabled.length === 0) {
-        console.log('No enabled transitions to fire, stopping simulation');
+        // No enabled transitions to fire, stopping simulation
         return false;
       }
       
@@ -205,10 +205,10 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         // Important: We want to continue even if only one transition is enabled
         // Only stop if there are NO enabled transitions
         if (afterFiringEnabled.length === 0) {
-          console.log('No transitions enabled after firing, stopping simulation');
+          // No transitions enabled after firing, stopping simulation
           return false;
         } else {
-          console.log(`${afterFiringEnabled.length} transition(s) still enabled, continuing simulation`);
+          // Transitions still enabled, continuing simulation
         }
         
         // Continue simulation
@@ -220,7 +220,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         try {
           const errorCheckEnabled = await getEnabledTransitions();
           if (errorCheckEnabled.length === 0) {
-            console.log('No enabled transitions after error, stopping simulation');
+            // No enabled transitions after error, stopping simulation
             return false;
           }
           // If we still have enabled transitions, continue despite the error
@@ -248,7 +248,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       // Reset counters
       simulationIterationCountRef.current = 0;
       
-      console.log('Starting simulation');
+      // Starting simulation
       
       // Run the first step immediately
       simulateOneStep().then(canContinue => {
@@ -287,14 +287,14 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         // Reset counters
         simulationIterationCountRef.current = 0;
         
-        console.log('Starting full-speed run');
+        // Starting full-speed run
         
         // Check if there are any enabled transitions
         const currentEnabled = await getEnabledTransitions();
-        console.log(`Run starting with ${currentEnabled.length} enabled transitions`);
+        // Run starting with enabled transitions
         
         if (currentEnabled.length === 0) {
-          console.log('No enabled transitions to run');
+          // No enabled transitions to run
           setIsRunning(false);
           return;
         }
@@ -314,7 +314,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
           const enabled = await getEnabledTransitions();
           
           if (enabled.length === 0) {
-            console.log('No more enabled transitions');
+            // No more enabled transitions
             break;
           }
           
@@ -322,12 +322,12 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
           const transitionsToFire = await findNonConflictingTransitions(enabled, places, arcs);
           
           if (transitionsToFire.length === 0) {
-            console.log('No transitions to fire');
+            // No transitions to fire
             break;
           }
           
           // Fire the transitions using the same logic as the Fire button
-          console.log(`Firing transitions: ${transitionsToFire.join(', ')}`);
+          // Firing selected transitions
           const updatedPetriNet = await fireMultipleTransitions(transitionsToFire);
           
           // Update the elements in the parent component
@@ -350,7 +350,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
           console.warn(`Run hit the maximum iteration limit (${iterationLimit})`);
         }
         
-        console.log(`Run completed after ${iterationCount} iterations`);
+        // Run completed
       } catch (error) {
         console.error('Error during run:', error);
       } finally {

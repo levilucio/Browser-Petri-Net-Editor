@@ -40,7 +40,7 @@ const Arc = ({
 
   // If source or target not found, don't render the arc
   if (!source || !target) {
-    console.log(`Arc ${arc.id} not rendered - missing source or target`);
+    // Arc not rendered - missing source or target
     return null;
   }
   

@@ -350,7 +350,7 @@ function App() {
         return false;
       }
       
-      console.log(`Firing transition ${transitionId} in visual animation mode`);
+      // Firing transition in visual animation mode
       
       // Import the fireTransition function directly
       const { fireTransition } = await import('./utils/simulator');
@@ -369,7 +369,7 @@ function App() {
       
       // Get the new enabled transitions
       const newEnabled = await getEnabledTransitions();
-      console.log('New enabled transitions:', newEnabled);
+      // Track new enabled transitions
       
       // Update enabled transitions
       updateEnabledTransitions(newEnabled);
@@ -384,37 +384,34 @@ function App() {
   
   // Function to run the visual animation
   const runVisualAnimation = async () => {
-    console.log('Running visual animation cycle', { 
-      isSimulating, 
-      simulationMode, 
-      enabledTransitionIds 
-    });
+    // Running visual animation cycle with current state
+    // (isSimulating, simulationMode, enabledTransitionIds)
     
     if (!isSimulating || simulationMode !== 'quick' || !enabledTransitionIds.length) {
-      console.log('Stopping visual animation - conditions not met');
+      // Stopping visual animation - conditions not met
       stopVisualAnimation();
       return;
     }
     
     // Get the first enabled transition
     const transitionId = enabledTransitionIds[0];
-    console.log(`Attempting to fire transition ${transitionId}`);
+    // Attempting to fire transition
     
     // Fire the transition and update the state
     const hasMoreTransitions = await fireTransitionAndUpdate(transitionId);
     
     // If there are no more enabled transitions, stop the animation
     if (!hasMoreTransitions) {
-      console.log('No more enabled transitions, stopping animation');
+      // No more enabled transitions, stopping animation
       stopVisualAnimation();
     }
   };
   
   // Function to stop the visual animation
   const stopVisualAnimation = () => {
-    console.log('Stopping visual animation');
+    // Stopping visual animation
     if (visualAnimationInterval) {
-      console.log('Clearing animation interval');
+      // Clearing animation interval
       clearInterval(visualAnimationInterval);
       setVisualAnimationInterval(null);
     }
@@ -428,7 +425,7 @@ function App() {
       return;
     }
     try {
-      console.log('Starting simulation with mode:', simulationMode);
+      // Starting simulation with selected mode
       
       // Initialize the simulator with the current Petri net state
       const { initializeSimulator } = await import('./utils/simulator');
@@ -437,7 +434,7 @@ function App() {
       // Get the enabled transitions
       const { getEnabledTransitions } = await import('./utils/simulator');
       const enabled = await getEnabledTransitions();
-      console.log('Enabled transitions after initialization:', enabled);
+      // Track enabled transitions after initialization
       
       // Update the enabled transitions
       updateEnabledTransitions(enabled);
@@ -448,7 +445,7 @@ function App() {
       
       // If we're in quick mode, start the visual animation
       if (simulationMode === 'quick') {
-        console.log('Starting visual animation from simulation start');
+        // Starting visual animation from simulation start
         // Add a small delay to ensure state is updated
         setTimeout(() => {
           startVisualAnimation();
@@ -499,14 +496,14 @@ function App() {
   // Function to update enabled transitions
   const updateEnabledTransitions = (enabledTransitions) => {
     if (!enabledTransitions) {
-      console.log('No enabled transitions provided, clearing state');
+      // No enabled transitions provided, clearing state
       setEnabledTransitionIds([]);
       return;
     }
     
     // Extract just the IDs from the enabled transitions
     const transitionIds = enabledTransitions.map(t => t.id);
-    console.log('Updating enabled transition IDs:', transitionIds);
+    // Updating enabled transition IDs
     setEnabledTransitionIds(transitionIds);
   };
 
@@ -662,7 +659,7 @@ function App() {
           if (arcStart) {
             // If we're in arc creation mode and have started an arc,
             // clicking anywhere on the stage cancels the arc creation
-            console.log('Arc creation canceled by clicking on empty area');
+            // Arc creation canceled by clicking on empty area
             setArcStart(null);
             setTempArcEnd(null);
           }
@@ -731,14 +728,15 @@ function App() {
   }, [stageDimensions, MIN_ZOOM]);
   
   // Expose Petri net state for e2e testing
+  // Expose Petri net state for e2e testing
+  // This is needed for Playwright tests to verify the state
   useEffect(() => {
-    if (import.meta.env.MODE === 'development' || import.meta.env.MODE === 'test') {
-      window.__PETRI_NET_STATE__ = {
-        places: elements.places,
-        transitions: elements.transitions,
-        arcs: elements.arcs
-      };
-    }
+    // Always expose state for tests, regardless of environment
+    window.__PETRI_NET_STATE__ = {
+      places: elements.places,
+      transitions: elements.transitions,
+      arcs: elements.arcs
+    };
   }, [elements.places, elements.transitions, elements.arcs]);
 
   // Function to get cardinal points of an element (N, E, S, W points)
@@ -866,12 +864,12 @@ function App() {
   
   // Function to handle element click for selection or arc creation
   const handleElementClick = (element, elementType) => {
-    console.log(`Element clicked: ${elementType} ${element.id} in mode: ${mode}`);
+    // Element clicked in current mode
     
     if (mode === 'arc') {
       // Prevent starting an arc from another arc
       if (elementType === 'arc') {
-        console.log('Cannot start an arc from another arc');
+        // Cannot start an arc from another arc
         // Instead, select the arc when clicked in arc mode
         setSelectedElement({ element, type: elementType });
         return;
@@ -880,7 +878,7 @@ function App() {
       if (!arcStart) {
         // Start creating an arc
         setArcStart({ element, elementType });
-        console.log(`Arc creation started from ${elementType} ${element.id}`);
+        // Arc creation started from element
         
         // Initialize tempArcEnd with the source element's position
         const sourcePoint = findNearestCardinalPoint(
@@ -904,7 +902,7 @@ function App() {
           
           // Don't allow connecting to the same element
           if (arcStart.element.id === element.id) {
-            console.log('Cannot connect an element to itself');
+            // Cannot connect an element to itself
             return;
           }
           
@@ -936,7 +934,7 @@ function App() {
               weight: 1
             };
             
-            console.log('Creating new arc:', newArc);
+            // Creating new arc
             
             setElements(prev => {
               const newState = {
@@ -947,9 +945,9 @@ function App() {
               updateHistory(newState);
               return newState;
             });
-            console.log(`Arc created from ${startType} ${arcStart.element.id} to ${endType} ${element.id}`);
+            // Arc created successfully
           } else {
-            console.log(`Invalid arc connection: ${startType} to ${endType}`);
+            // Invalid arc connection type
           }
         } catch (error) {
           console.error('Error during arc creation:', error);
@@ -1110,7 +1108,7 @@ function App() {
       // Escape key to cancel arc creation
       if (e.key === 'Escape' && arcStart) {
         e.preventDefault();
-        console.log('Arc creation canceled by Escape key');
+        // Arc creation canceled by Escape key
         setArcStart(null);
         setTempArcEnd(null);
         return;
@@ -1197,7 +1195,7 @@ function App() {
       try {
         // Check if we've reached the maximum number of iterations
         if (maxIterations !== Infinity && iterationCount >= maxIterations) {
-          console.log(`Maximum iterations (${maxIterations}) reached, stopping animation`);
+          // Maximum iterations reached, stopping animation
           stopVisualAnimation();
           return;
         }
@@ -1233,12 +1231,12 @@ function App() {
   // Function to handle saving settings
   const handleSaveSettings = (newSettings) => {
     setSimulationSettings(newSettings);
-    console.log('Simulation settings updated:', newSettings);
+    // Simulation settings updated
   };
 
   // Handle mode change from toolbar
   const handleModeChange = (newMode) => {
-    console.log(`Mode changing from ${mode} to ${newMode}`);
+    // Mode changing
     
     // If we were in arc mode and switching to another mode, cancel arc creation
     if (mode === 'arc' && arcStart) {
@@ -1250,7 +1248,7 @@ function App() {
     
     // Special handling for arc mode
     if (newMode === 'arc') {
-      console.log('Entering arc creation mode - click on a source element');
+      // Entering arc creation mode - click on a source element
       setArcStart(null);
       setTempArcEnd(null);
     }

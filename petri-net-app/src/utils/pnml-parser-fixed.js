@@ -10,7 +10,7 @@
  * @returns {Object} - Petri net in JSON format
  */
 export function parsePNML(pnmlString) {
-  console.log('Starting robust PNML parsing...');
+  // Starting robust PNML parsing
   
   // Initialize empty result structure
   const result = {
@@ -31,15 +31,15 @@ export function parsePNML(pnmlString) {
       throw new Error('Invalid XML: ' + parserError.textContent);
     }
     
-    console.log('XML parsed successfully');
+    // XML parsed successfully
     
     // Extract namespace information
     const pnmlElement = xmlDoc.documentElement;
-    console.log('Root element:', pnmlElement.tagName);
+    // Root element identified
     
     // Handle namespaces properly
     const PNML_NS = pnmlElement.namespaceURI || "http://www.pnml.org/version-2009/grammar/pnml";
-    console.log('Using namespace URI:', PNML_NS);
+    // Using namespace URI
     
     // First find the page element that contains places, transitions, and arcs
     // Start by looking for the net element
@@ -49,13 +49,13 @@ export function parsePNML(pnmlString) {
     const netElementsNS = xmlDoc.getElementsByTagNameNS(PNML_NS, 'net');
     if (netElementsNS && netElementsNS.length > 0) {
       netElement = netElementsNS[0];
-      console.log('Found net element with namespace');
+      // Found net element with namespace
     } else {
       // Try without namespace
       const netElements = xmlDoc.getElementsByTagName('net');
       if (netElements && netElements.length > 0) {
         netElement = netElements[0];
-        console.log('Found net element without namespace');
+        // Found net element without namespace
       }
     }
     
@@ -71,13 +71,13 @@ export function parsePNML(pnmlString) {
     const pageElementsNS = netElement.getElementsByTagNameNS(PNML_NS, 'page');
     if (pageElementsNS && pageElementsNS.length > 0) {
       pageElement = pageElementsNS[0];
-      console.log('Found page element with namespace');
+      // Found page element with namespace
     } else {
       // Try without namespace
       const pageElements = netElement.getElementsByTagName('page');
       if (pageElements && pageElements.length > 0) {
         pageElement = pageElements[0];
-        console.log('Found page element without namespace');
+        // Found page element without namespace
       }
     }
     
@@ -93,13 +93,13 @@ export function parsePNML(pnmlString) {
     const placesNS = pageElement.getElementsByTagNameNS(PNML_NS, 'place');
     if (placesNS && placesNS.length > 0) {
       places = Array.from(placesNS);
-      console.log(`Found ${places.length} places with namespace`);
+      // Found places with namespace
     } else {
       // Try without namespace
       const placesNoNS = pageElement.getElementsByTagName('place');
       if (placesNoNS && placesNoNS.length > 0) {
         places = Array.from(placesNoNS);
-        console.log(`Found ${places.length} places without namespace`);
+        // Found places without namespace
       }
     }
     
@@ -178,7 +178,7 @@ export function parsePNML(pnmlString) {
           tokens: tokens
         };
         
-        console.log('Adding place:', placeObj);
+        // Adding place
         result.places.push(placeObj);
       } catch (e) {
         console.error('Error processing place:', e);
@@ -192,13 +192,13 @@ export function parsePNML(pnmlString) {
     const transitionsNS = pageElement.getElementsByTagNameNS(PNML_NS, 'transition');
     if (transitionsNS && transitionsNS.length > 0) {
       transitions = Array.from(transitionsNS);
-      console.log(`Found ${transitions.length} transitions with namespace`);
+      // Found transitions with namespace
     } else {
       // Try without namespace
       const transitionsNoNS = pageElement.getElementsByTagName('transition');
       if (transitionsNoNS && transitionsNoNS.length > 0) {
         transitions = Array.from(transitionsNoNS);
-        console.log(`Found ${transitions.length} transitions without namespace`);
+        // Found transitions without namespace
       }
     }
     
@@ -220,7 +220,7 @@ export function parsePNML(pnmlString) {
           y: y
         };
         
-        console.log('Adding transition:', transitionObj);
+        // Adding transition
         result.transitions.push(transitionObj);
       } catch (e) {
         console.error('Error processing transition:', e);
@@ -234,13 +234,13 @@ export function parsePNML(pnmlString) {
     const arcsNS = pageElement.getElementsByTagNameNS(PNML_NS, 'arc');
     if (arcsNS && arcsNS.length > 0) {
       arcs = Array.from(arcsNS);
-      console.log(`Found ${arcs.length} arcs with namespace`);
+      // Found arcs with namespace
     } else {
       // Try without namespace
       const arcsNoNS = pageElement.getElementsByTagName('arc');
       if (arcsNoNS && arcsNoNS.length > 0) {
         arcs = Array.from(arcsNoNS);
-        console.log(`Found ${arcs.length} arcs without namespace`);
+        // Found arcs without namespace
       }
     }
     
@@ -255,7 +255,7 @@ export function parsePNML(pnmlString) {
           return;
         }
         
-        console.log(`Processing arc ${arcId}: source=${sourceId}, target=${targetId}`);
+        // Processing arc
         
         // Get directional metadata
         let sourceDirection = 'north';
@@ -321,18 +321,17 @@ export function parsePNML(pnmlString) {
           targetDirection: targetDirection
         };
         
-        console.log('Adding arc:', arcObj);
+        // Adding arc
         result.arcs.push(arcObj);
       } catch (e) {
         console.error('Error processing arc:', e);
       }
     });
     
-    console.log('PNML parsing complete. Result:', {
-      places: result.places.length,
-      transitions: result.transitions.length,
-      arcs: result.arcs.length
-    });
+    // PNML parsing complete. Result contains:
+    // - places: result.places.length
+    // - transitions: result.transitions.length
+    // - arcs: result.arcs.length
     
     return result;
   } catch (error) {
@@ -347,7 +346,7 @@ export function parsePNML(pnmlString) {
  * @returns {string} - PNML XML string
  */
 export function generatePNML(petriNetJson) {
-  console.log('Starting PNML generation...');
+  // Starting PNML generation
   
   try {
     // Create XML document
@@ -464,7 +463,7 @@ export function generatePNML(petriNetJson) {
       return true;
     });
     
-    console.log(`Saving ${validArcs.length} valid arcs (filtered out ${arcs.length - validArcs.length} invalid arcs)`);
+    // Saving valid arcs after filtering
     
     validArcs.forEach(arc => {
       const arcElement = xmlDoc.createElement('arc');
@@ -508,7 +507,7 @@ export function generatePNML(petriNetJson) {
     const serializer = new XMLSerializer();
     const xmlString = serializer.serializeToString(xmlDoc);
     
-    console.log('PNML generation complete');
+    // PNML generation complete
     return xmlString;
   } catch (error) {
     console.error('Error generating PNML:', error);

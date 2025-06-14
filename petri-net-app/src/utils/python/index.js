@@ -12,7 +12,7 @@ import { parsePNML, generatePNML } from '../pnml-parser-fixed';
  */
 export async function exportToPNML(petriNetJson) {
   try {
-    console.log('Exporting to PNML...');
+    // Exporting to PNML
     
     // Use the pure JavaScript implementation
     const pnmlString = generatePNML(petriNetJson);
@@ -31,12 +31,12 @@ export async function exportToPNML(petriNetJson) {
  */
 export async function importFromPNML(pnmlString) {
   try {
-    console.log('Importing from PNML...');
+    // Importing from PNML
     
     // Use the pure JavaScript implementation
     const result = parsePNML(pnmlString);
     
-    console.log('PNML import successful:', result);
+    // PNML import successful
     
     return result;
   } catch (error) {

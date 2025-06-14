@@ -14,7 +14,7 @@ try {
       // Dynamically load Pyodide from CDN
       if (typeof window !== 'undefined') {
         if (!window.loadPyodide) {
-          console.log('Loading Pyodide from CDN...');
+          // Loading Pyodide from CDN
           const script = document.createElement('script');
           script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
           document.head.appendChild(script);
@@ -45,11 +45,11 @@ try {
 function createMockPyodide() {
   return {
     runPython: (code) => {
-      console.log('Mock runPython called with:', code);
+      // Mock runPython called
       return null;
     },
     runPythonAsync: async (code) => {
-      console.log('Mock runPythonAsync called with:', code);
+      // Mock runPythonAsync called
       
       // Check if this is the simulator initialization code
       if (code.includes('PetriNetSimulator')) {
@@ -75,12 +75,12 @@ function createMockPyodide() {
       };
     },
     loadPackagesFromImports: async () => {
-      console.log('Mock loadPackagesFromImports called');
+      // Mock loadPackagesFromImports called
       return null;
     },
     // Add toPy function to the mock instance
     toPy: (jsObj) => {
-      console.log('Mock toPy called with:', jsObj);
+      // Mock toPy called
       return jsObj; // Just return the object as-is in the mock
     },
     globals: {
@@ -98,22 +98,22 @@ function createMockPyodide() {
  */
 export async function loadPyodideInstance() {
   try {
-    console.log('Loading Pyodide...');
+    // Loading Pyodide
     // Try to load Pyodide from the module or CDN
     const pyodide = await pyodideModule.loadPyodide({
       indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
     });
     
     if (!pyodide) {
-      console.log('Pyodide not available, returning mock instance');
+      // Pyodide not available, returning mock instance
       return createMockPyodide();
     }
     
-    console.log('Pyodide loaded successfully');
+    // Pyodide loaded successfully
     return pyodide;
   } catch (error) {
     console.error('Error loading Pyodide:', error);
-    console.log('Falling back to mock Pyodide instance');
+    // Falling back to mock Pyodide instance
     return createMockPyodide();
   }
 }

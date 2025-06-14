@@ -29,7 +29,7 @@ const MAX_ANGLE_POINTS = 1;   // Maximum number of angle points to add (limit co
 export const applyAutoLayout = (elements, canvasDimensions, gridSize = 20) => {
   // Validate inputs to prevent errors
   if (!elements || !elements.places || !elements.transitions || !elements.arcs) {
-    console.error('Invalid elements object provided to applyAutoLayout');
+    // Invalid elements object provided to applyAutoLayout
     return elements; // Return original elements if invalid
   }
   

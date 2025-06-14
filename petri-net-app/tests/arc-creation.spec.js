@@ -26,7 +26,7 @@ test.describe('Arc Creation Test', () => {
       };
     });
 
-    console.log('Creating a simple Petri net with arcs...');
+    // Creating a simple Petri net with arcs
 
     // Step 1: Create a place
     const placeButton = page.locator('[data-testid="toolbar-place"]');
@@ -54,12 +54,12 @@ test.describe('Arc Creation Test', () => {
       return window.getNetState();
     });
     
-    console.log(`Created ${elements.places.length} place and ${elements.transitions.length} transition`);
+    // Created places and transitions
     expect(elements.places.length).toBe(1);
     expect(elements.transitions.length).toBe(1);
 
     // Step 3: Create an arc from place to transition
-    console.log('Creating an arc from place to transition...');
+    // Creating an arc from place to transition
     const arcButton = page.locator('[data-testid="toolbar-arc"]');
     await expect(arcButton).toBeVisible();
     await arcButton.click();
@@ -83,7 +83,7 @@ test.describe('Arc Creation Test', () => {
       return window.getNetState();
     });
 
-    console.log(`Final state: ${finalState.places.length} place, ${finalState.transitions.length} transition, ${finalState.arcs.length} arc`);
+    // Final state includes places, transitions, and arcs
     
     // Take a screenshot of the result
     await page.screenshot({ path: 'simple-petri-net.png' });

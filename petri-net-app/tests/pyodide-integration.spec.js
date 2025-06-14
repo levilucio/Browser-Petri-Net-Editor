@@ -50,17 +50,17 @@ test('Arcs should remain visible after firing transitions', async ({ page }) => 
     await tokenInput.waitFor({ state: 'visible', timeout: 5000 });
     await tokenInput.fill('1');
     await tokenInput.press('Enter');
-    console.log('Set tokens to 1 via UI');
+    // Set tokens to 1 via UI
   } catch (error) {
-    console.log('Failed to set tokens via UI, using alternative method');
+    // Failed to set tokens via UI, using alternative method
     // If we can't find the tokens input, try using JavaScript to update the state
     await page.evaluate(() => {
       try {
         // Try to update the application state directly
         const appElement = document.querySelector('[data-testid="app"]');
-        if (appElement && appElement.__reactProps$) {
+        if (appElement && appElement.__reactProps$) { // @ts-ignore - Accessing React internals
           // Try to access React props to update state
-          const setElements = appElement.__reactProps$.setElements;
+          const setElements = appElement.__reactProps$.setElements; // @ts-ignore - Accessing React internals
           if (typeof setElements === 'function') {
             setElements(prevState => {
               const updatedPlaces = prevState.places.map((place, index) => {
@@ -71,13 +71,13 @@ test('Arcs should remain visible after firing transitions', async ({ page }) => 
               });
               return { ...prevState, places: updatedPlaces };
             });
-            console.log('Updated state via React props');
+            // Updated state via React props
             return;
           }
         }
         
         // Fallback to the custom event approach
-        console.log('Using custom event approach');
+        // Using custom event approach
         document.dispatchEvent(new CustomEvent('set-tokens', { 
           detail: { id: 'place-1', tokens: 1 } 
         }));
@@ -96,13 +96,13 @@ test('Arcs should remain visible after firing transitions', async ({ page }) => 
   // Get the number of arcs in the application state before firing
   const arcsBeforeFiring = await page.evaluate(() => {
     // Access the internal state through the window.__PETRI_NET_STATE__ property
-    const state = window.__PETRI_NET_STATE__ || {};
+    const state = window.__PETRI_NET_STATE__ || {}; // @ts-ignore - Custom state property
     const arcs = state.arcs || [];
-    console.log('Internal arcs state before firing:', JSON.stringify(arcs));
+    // Get internal arcs state before firing
     return arcs.length;
   });
   
-  console.log('Arcs before firing:', arcsBeforeFiring);
+  // Arcs before firing
   expect(arcsBeforeFiring).toBeGreaterThan(0);
   
   // Wait for the execution panel to show enabled transitions
@@ -113,12 +113,15 @@ test('Arcs should remain visible after firing transitions', async ({ page }) => 
     // Try to access the internal state to check enabled transitions
     const enabledTransitionsElement = document.querySelector('.enabled-transitions');
     if (enabledTransitionsElement) {
-      console.log('Enabled transitions panel content:', enabledTransitionsElement.textContent);
+      // Get enabled transitions panel content
     }
     
     // Try to access the simulator state
+    // @ts-ignore - Custom state property
+    // @ts-ignore - Custom state property
     if (window.__PETRI_NET_STATE__) {
-      const simulator = window.__PETRI_NET_STATE__.simulator;
+      // @ts-ignore - Custom state property
+      const simulator = window.__PETRI_NET_STATE__?.simulator;
       if (simulator && simulator.enabledTransitions) {
         return simulator.enabledTransitions;
       }
@@ -126,11 +129,11 @@ test('Arcs should remain visible after firing transitions', async ({ page }) => 
     return null;
   });
   
-  console.log('Enabled transitions:', enabledTransitions);
+  // Enabled transitions
   
   // If the simulator doesn't show enabled transitions, try to trigger a transition directly
   if (!enabledTransitions || enabledTransitions.length === 0) {
-    console.log('No enabled transitions found, trying to fire transition directly');
+    // No enabled transitions found, trying to fire transition directly
     
     // Try to fire the transition directly via JavaScript
     await page.evaluate(() => {
@@ -151,13 +154,13 @@ test('Arcs should remain visible after firing transitions', async ({ page }) => 
     
     // Check if the Fire button is enabled
     const isEnabled = await fireButton.isEnabled();
-    console.log('Fire button enabled:', isEnabled);
+    // Fire button enabled status
     
     if (isEnabled) {
       // Click the Fire button if it's enabled
       await fireButton.click();
     } else {
-      console.log('Fire button is disabled, trying to fire transition directly');
+      // Fire button is disabled, trying to fire transition directly
       // Try to fire the transition directly
       await page.evaluate(() => {
         // Trigger the transition to fire using a custom event
@@ -177,13 +180,13 @@ test('Arcs should remain visible after firing transitions', async ({ page }) => 
   // Get the number of arcs in the application state after firing
   const arcsAfterFiring = await page.evaluate(() => {
     // Access the internal state through the window.__PETRI_NET_STATE__ property
-    const state = window.__PETRI_NET_STATE__ || {};
+    const state = window.__PETRI_NET_STATE__ || {}; // @ts-ignore - Custom state property
     const arcs = state.arcs || [];
-    console.log('Internal arcs state after firing:', JSON.stringify(arcs));
+    // Get internal arcs state after firing
     return arcs.length;
   });
   
-  console.log('Arcs after firing:', arcsAfterFiring);
+  // Arcs after firing
   
   // Verify that arcs are still present after firing
   expect(arcsAfterFiring).toBeGreaterThan(0);

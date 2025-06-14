@@ -42,7 +42,7 @@ test.describe('Large Scale Petri Net Creation', () => {
     const transitionStartY = 100;
 
     // Step 1: Create 100 places in a grid pattern
-    console.log('Creating 100 places...');
+    // Creating 100 places
     const placeButton = page.locator('[data-testid="toolbar-place"]');
     await expect(placeButton).toBeVisible();
     await placeButton.click();
@@ -59,14 +59,14 @@ test.describe('Large Scale Petri Net Creation', () => {
     }
 
     // Step 2: Create 100 transitions in a grid pattern
-    console.log('Creating 100 transitions...');
+    // Creating 100 transitions
     const transitionButton = page.locator('[data-testid="toolbar-transition"]');
     await expect(transitionButton).toBeVisible();
     await transitionButton.click();
     await page.waitForTimeout(500);
     
     // Log progress on transition creation
-    console.log(`Attempting to create ${gridSize * gridSize} transitions...`);
+    // Attempting to create transitions
     // Create transitions row by row
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
@@ -79,13 +79,13 @@ test.describe('Large Scale Petri Net Creation', () => {
     // Transition creation completed
 
     // Note on Canvas-based rendering
-    console.log('Note: Elements rendered to Canvas cannot be counted via DOM queries');
-    console.log('Visual verification: Taking a screenshot to verify elements were created');
+    // Note: Elements rendered to Canvas cannot be counted via DOM queries
+    // Visual verification: Taking a screenshot to verify elements were created
     
     // Take a screenshot of the final result
     await page.screenshot({ path: 'large-scale-petri-net.png', fullPage: true });
     
-    console.log('Test completed - Visual creation process finished');
-    console.log(`Visually created ${gridSize * gridSize} places and ${gridSize * gridSize} transitions`);
+    // Test completed - Visual creation process finished
+    // Visually created places and transitions
   });
 });

@@ -19,12 +19,6 @@ export class JsPetriNetSimulator {
     this.transitions = petriNet.transitions || [];
     this.arcs = petriNet.arcs || [];
     this.maxTokens = options.maxTokens || 20; // Default to 20 if not specified
-    console.log('JavaScript fallback simulator initialized with:', {
-      places: this.places.length,
-      transitions: this.transitions.length,
-      arcs: this.arcs.length,
-      maxTokens: this.maxTokens
-    });
   }
   
   getInputPlaces(transitionId) {
@@ -91,7 +85,7 @@ export class JsPetriNetSimulator {
   }
 
   getEnabledTransitions() {
-    console.log('JS Fallback: Getting enabled transitions');
+    // Getting enabled transitions
     const enabledTransitions = [];
     
     for (const transition of this.transitions) {
@@ -100,12 +94,12 @@ export class JsPetriNetSimulator {
       }
     }
     
-    console.log('JS Fallback found enabled transitions:', enabledTransitions.map(t => t.id));
+    // Found enabled transitions
     return enabledTransitions;
   }
 
   fireTransition(transitionId) {
-    console.log(`JS Fallback: Firing transition ${transitionId}`);
+    // Firing transition
     
     // Check if the transition is enabled
     if (!this.isTransitionEnabled(transitionId)) {
@@ -117,7 +111,7 @@ export class JsPetriNetSimulator {
     const inputPlaces = this.getInputPlaces(transitionId);
     const outputPlaces = this.getOutputPlaces(transitionId);
     
-    console.log(`JS Fallback: Found ${inputPlaces.length} input places and ${outputPlaces.length} output places`);
+    // Found input and output places
     
     // Create a deep copy of the Petri net to update
     const updatedPetriNet = {
@@ -136,7 +130,7 @@ export class JsPetriNetSimulator {
       if (updatedPlace) {
         const oldTokens = updatedPlace.tokens || 0;
         updatedPlace.tokens = Math.max(0, oldTokens - weight);
-        console.log(`JS Fallback: Place ${placeId} tokens: ${oldTokens} -> ${updatedPlace.tokens}`);
+        // Updated place tokens
       }
     }
     
@@ -151,7 +145,7 @@ export class JsPetriNetSimulator {
         const oldTokens = updatedPlace.tokens || 0;
         // Enforce token limit (using the configured maxTokens)
         updatedPlace.tokens = Math.min(this.maxTokens, oldTokens + weight);
-        console.log(`JS Fallback: Place ${placeId} tokens: ${oldTokens} -> ${updatedPlace.tokens}`);
+        // Updated place tokens
       }
     }
     
@@ -185,7 +179,7 @@ export async function initializePyodide() {
   }
 
   try {
-    console.log('Loading Pyodide...');
+    // Loading Pyodide
     // Create a loading promise to prevent multiple simultaneous loads
     pyodideLoading = new Promise(async (resolve, reject) => {
       try {
@@ -215,7 +209,7 @@ export async function initializePyodide() {
  */
 async function loadSimulatorCode(pyodide) {
   try {
-    console.log('Loading simulator module...');
+    // Loading simulator module
     // We don't need micropip or lxml for our basic simulator
     
     // Load the simulator code
@@ -224,7 +218,7 @@ async function loadSimulatorCode(pyodide) {
     // Run the simulator code
     await pyodide.runPythonAsync(simulatorCode);
     
-    console.log('Pyodide and simulator module loaded successfully');
+    // Pyodide and simulator module loaded successfully
   } catch (error) {
     console.error('Error loading simulator code:', error);
     throw error;
@@ -253,7 +247,7 @@ export async function initializeSimulator(petriNet, options = {}) {
   try {
     // Check if we should use the JavaScript fallback
     if (useJsFallback) {
-      console.log('Using JavaScript fallback for simulator');
+      // Using JavaScript fallback for simulator
       simulator = new JsPetriNetSimulator(petriNet, options);
       return;
     }
@@ -265,7 +259,7 @@ export async function initializeSimulator(petriNet, options = {}) {
       
       // If Pyodide failed to load, use the JavaScript fallback
       if (!pyodide) {
-        console.log('Pyodide failed to load, using JavaScript fallback');
+        // Pyodide failed to load, using JavaScript fallback
         useJsFallback = true;
         simulator = new JsPetriNetSimulator(petriNet, options);
         return;
@@ -304,10 +298,10 @@ export async function initializeSimulator(petriNet, options = {}) {
         simulator = new JsPetriNetSimulator(petriNet, options);
       }
       
-      console.log('Simulator initialized with Petri net using Pyodide');
+      // Simulator initialized with Petri net using Pyodide
     } catch (error) {
       console.error('Error initializing Pyodide simulator:', error);
-      console.log('Falling back to JavaScript simulator');
+      // Falling back to JavaScript simulator
       simulator = new JsPetriNetSimulator(petriNet, options);
     }
   } catch (error) {
@@ -330,7 +324,7 @@ export async function getEnabledTransitions() {
     
     // Check if we're using the JavaScript fallback
     if (useJsFallback) {
-      console.log('Using JavaScript fallback for getEnabledTransitions');
+      // Using JavaScript fallback for getEnabledTransitions
       return simulator.getEnabledTransitions();
     }
     
@@ -348,7 +342,7 @@ export async function getEnabledTransitions() {
       
       // Convert the Python list to a JavaScript array
       const jsEnabledTransitions = enabledTransitions.toJs();
-      console.log('Enabled transitions from Python:', jsEnabledTransitions);
+      // Got enabled transitions from Python
       
       // Return the transitions as properly structured objects
       return jsEnabledTransitions.map(transition => {
@@ -637,7 +631,7 @@ export async function fireMultipleTransitions(transitionIds) {
     // Get the actually enabled transitions from Python simulator
     const enabledTransitions = await getEnabledTransitions();
     if (enabledTransitions.length === 1) {
-      console.log('Only one transition is enabled, firing it directly', enabledTransitions[0]);
+      // Only one transition is enabled, firing it directly
       const singleTransitionId = enabledTransitions[0].id;
       
       try {
@@ -650,7 +644,7 @@ export async function fireMultipleTransitions(transitionIds) {
         atLeastOneTransitionFired = true;
         
         // If this succeeded, return the updated Petri net
-        console.log(`Successfully fired single transition ${singleTransitionId}`);
+        // Successfully fired single transition
         return processUpdatedPetriNet(currentPetriNet);
       } catch (singleTransitionError) {
         console.error(`Error firing single transition ${singleTransitionId}:`, singleTransitionError);
@@ -825,7 +819,7 @@ export async function fireTransition(transitionId) {
     
     // Check if we're using the JavaScript fallback
     if (useJsFallback || simulator instanceof JsPetriNetSimulator) {
-      console.log('Using JavaScript fallback for fireTransition');
+      // Using JavaScript fallback for fireTransition
       return simulator.fireTransition(transitionId);
     }
     
@@ -843,14 +837,14 @@ export async function fireTransition(transitionId) {
       
       // Convert the Python object to a JavaScript object
       const jsPetriNet = updatedPetriNet.toJs();
-      console.log('Updated Petri net from Python:', jsPetriNet);
+      // Updated Petri net from Python
       
       // Create a properly structured Petri net object
       const result = { places: [], transitions: [], arcs: [] };
       
       // Handle the case where jsPetriNet is a Map
       if (jsPetriNet instanceof Map) {
-        console.log('Processing Map object from Python');
+        // Processing Map object from Python
         
         // Extract places array from the Map
         const placesArray = jsPetriNet.get('places');
@@ -944,7 +938,7 @@ export async function fireTransition(transitionId) {
           });
         }
         
-        console.log('Converted Petri net:', result);
+        // Converted Petri net
         // We don't update this.petriNet here because 'this' is not the simulator instance
         return result;
       }
@@ -1014,12 +1008,12 @@ export async function fireTransition(transitionId) {
           };
         });
         
-        console.log('Converted Petri net:', result);
+        // Converted Petri net
         return result;
       }
       
       // If all else fails, return the original object
-      console.log('Returning Petri net as is:', jsPetriNet);
+      // Returning Petri net as is
       return jsPetriNet;
     } catch (error) {
       console.error('Error in Python simulator:', error);

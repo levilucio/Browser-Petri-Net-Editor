@@ -425,11 +425,11 @@ test.describe('Petri Net Simulator', () => {
     const elapsedTime = endTime - startTime;
     
     // Log the performance metric
-    console.log(`Time to fire transition: ${elapsedTime}ms`);
+    // Performance metric: time to fire transition
     
     // The transition should fire in a reasonable amount of time
     // We're being very lenient in the test to account for browser overhead and test environment
     expect(elapsedTime).toBeLessThan(10000);
-    console.log(`Transition firing time: ${elapsedTime}ms`);
+    // Performance test completed
   });
 });

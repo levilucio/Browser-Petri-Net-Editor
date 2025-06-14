@@ -98,7 +98,7 @@ const Toolbar = ({
           throw new Error('The file does not appear to be a valid PNML file');
         }
         
-        console.log('File content loaded, converting PNML to JSON...');
+        // File content loaded, converting PNML to JSON
         
         // Convert the PNML to JSON with a timeout to prevent UI freezing
         const petriNetJsonPromise = importFromPNML(fileContent);
@@ -111,7 +111,7 @@ const Toolbar = ({
         // Race the promises to handle timeouts
         const petriNetJson = await Promise.race([petriNetJsonPromise, timeoutPromise]);
         
-        console.log('PNML converted to JSON successfully:', petriNetJson);
+        // PNML converted to JSON successfully
         
         // Validate the result structure
         if (!petriNetJson || typeof petriNetJson !== 'object') {
@@ -120,10 +120,10 @@ const Toolbar = ({
         
         // Use our arc debugging tool if available
         if (window.analyzePNML) {
-          console.log('Running enhanced PNML analysis on the imported file...');
+          // Running enhanced PNML analysis on the imported file
           const analysis = window.analyzePNML(fileContent);
-          window.__DEBUG_PNML_ANALYSIS__ = analysis;
-          console.log('Enhanced PNML analysis completed. See window.__DEBUG_PNML_ANALYSIS__ for details.');
+          // Analysis complete
+          // Enhanced PNML analysis completed
           
           // Check for specific arc issues
           if (analysis && analysis.differences && analysis.differences.foundButNotParsed.length > 0) {
@@ -133,7 +133,7 @@ const Toolbar = ({
           // Try to recover arcs if our analysis found more than the parser did
           if (analysis && analysis.directAnalysis.arcs > 0 && 
              (petriNetJson.arcs.length === 0 || analysis.directAnalysis.arcs > petriNetJson.arcs.length)) {
-            console.log('Attempting to recover missing arcs from direct analysis...');
+            // Attempting to recover missing arcs from direct analysis
             const recoveredArcs = analysis.directAnalysis.details.map(arc => ({
               id: arc.id,
               source: arc.source,
@@ -152,7 +152,7 @@ const Toolbar = ({
             };
             
             // Use the enhanced version from now on
-            console.log(`Recovered ${recoveredArcs.length} arcs from direct analysis`);
+            // Recovered arcs from direct analysis
             
             // Continue with the enhanced version
             return enhancedPetriNetJson;
@@ -166,26 +166,26 @@ const Toolbar = ({
           arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : []
         };
         
-        console.log('About to update Petri net state with:', safeJson);
+        // About to update Petri net state
         
         // Verify the structure of the imported data
         if (safeJson.places && safeJson.places.length > 0) {
-          console.log('Places found:', safeJson.places.length);
-          console.log('First place:', safeJson.places[0]);
+          // Places found in imported file
+          // First place processed
         } else {
           console.warn('No places found in imported data');
         }
         
         if (safeJson.transitions && safeJson.transitions.length > 0) {
-          console.log('Transitions found:', safeJson.transitions.length);
-          console.log('First transition:', safeJson.transitions[0]);
+          // Transitions found in imported file
+          // First transition processed
         } else {
           console.warn('No transitions found in imported data');
         }
         
         if (safeJson.arcs && safeJson.arcs.length > 0) {
-          console.log('Arcs found (before validation):', safeJson.arcs.length);
-          console.log('First arc:', safeJson.arcs[0]);
+          // Arcs found before validation
+          // First arc processed
           
           // Filter out arcs with undefined or invalid source/target
           const validArcs = safeJson.arcs.filter(arc => {
@@ -210,9 +210,9 @@ const Toolbar = ({
             return true;
           });
           
-          console.log(`Filtered out ${safeJson.arcs.length - validArcs.length} invalid arcs`);
+          // Filtered out invalid arcs
           safeJson.arcs = validArcs;
-          console.log('Valid arcs count:', validArcs.length);
+          // Valid arcs count after filtering
           
           // Ensure all arcs have a valid type property
           safeJson.arcs = safeJson.arcs.map(arc => {
@@ -222,10 +222,10 @@ const Toolbar = ({
               const targetIsPlace = safeJson.places.some(p => p.id === arc.target);
               
               if (sourceIsPlace && !targetIsPlace) {
-                console.log(`Fixed arc ${arc.id} type to place-to-transition`);
+                // Fixed arc type to place-to-transition
                 return { ...arc, type: 'place-to-transition' };
               } else if (!sourceIsPlace && targetIsPlace) {
-                console.log(`Fixed arc ${arc.id} type to transition-to-place`);
+                // Fixed arc type to transition-to-place
                 return { ...arc, type: 'transition-to-place' };
               } else {
                 // Default to place-to-transition as fallback
@@ -243,11 +243,11 @@ const Toolbar = ({
         setElements(safeJson);
         
         // Verify the state was updated by exposing it to the window for debugging
-        window.__DEBUG_LOADED_STATE__ = safeJson;
+        // State prepared for loading
         
         // Add to history
         if (updateHistory) {
-          console.log('Adding imported state to history');
+          // Adding imported state to history
           updateHistory(safeJson);
         } else {
           console.warn('updateHistory function not available');

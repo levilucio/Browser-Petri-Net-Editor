@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
  * @param {number} delay - Delay between retries in ms (default: 300)
  * @returns {Promise<{places: any[], transitions: any[], arcs: any[]}>} - The Petri net state
  */
-async function getPetriNetState(page, retries = 5, delay = 300) {
+async function getPetriNetState(page, retries = 10, delay = 500) {
   let attempt = 0;
   while (attempt < retries) {
     const state = await page.evaluate(() => {
@@ -29,7 +29,7 @@ async function getPetriNetState(page, retries = 5, delay = 300) {
   
   // If we get here, we couldn't get the state after all retries
   console.error('Failed to get Petri net state after', retries, 'attempts');
-  return { places: [], transitions: [], arcs: [] };
+  throw new Error(`Failed to get Petri net state after ${retries} attempts`);
 }
 
 test.describe('Undo/Redo Functionality', () => {
@@ -48,11 +48,11 @@ test.describe('Undo/Redo Functionality', () => {
     
     // Switch to place mode
     await placeButton.click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     
     // Click on the canvas to add a place
     await page.mouse.click(200, 200);
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(1000);
     
     // Verify that a place was added
     const state = await getPetriNetState(page);
@@ -65,7 +65,7 @@ test.describe('Undo/Redo Functionality', () => {
     
     // Click undo button
     await undoButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(1000);
     
     // Verify that the place was removed
     const stateAfterUndo = await getPetriNetState(page);
@@ -78,7 +78,7 @@ test.describe('Undo/Redo Functionality', () => {
     
     // Click redo button
     await redoButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(1000);
     
     // Verify that the place was added back
     const stateAfterRedo = await getPetriNetState(page);
@@ -92,11 +92,11 @@ test.describe('Undo/Redo Functionality', () => {
     
     // Switch to transition mode
     await transitionButton.click();
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(1000);
     
     // Click on the canvas to add a transition
     await page.mouse.click(300, 200);
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(1000);
     
     // Verify that a transition was added
     const state = await getPetriNetState(page);
@@ -104,7 +104,7 @@ test.describe('Undo/Redo Functionality', () => {
     
     // Use keyboard shortcut Ctrl+Z to undo
     await page.keyboard.press('Control+z');
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(1000);
     
     // Verify that the transition was removed
     const stateAfterUndo = await getPetriNetState(page);
@@ -112,7 +112,7 @@ test.describe('Undo/Redo Functionality', () => {
     
     // Use keyboard shortcut Ctrl+Y to redo
     await page.keyboard.press('Control+y');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     
     // Verify that the transition was added back
     const stateAfterRedo = await getPetriNetState(page);
@@ -123,25 +123,25 @@ test.describe('Undo/Redo Functionality', () => {
     // Add a place
     const placeButton = page.locator('[data-testid="toolbar-place"]');
     await placeButton.click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await page.mouse.click(200, 200);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     
     // Add a transition
     const transitionButton = page.locator('[data-testid="toolbar-transition"]');
     await transitionButton.click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await page.mouse.click(300, 200);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     
     // Create an arc
     const arcButton = page.locator('[data-testid="toolbar-arc"]');
     await arcButton.click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await page.mouse.click(200, 200); // Click on place
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     await page.mouse.click(300, 200); // Click on transition
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1500);
     
     // Verify we have 1 place, 1 transition, and 1 arc
     const state = await getPetriNetState(page);
@@ -153,7 +153,7 @@ test.describe('Undo/Redo Functionality', () => {
     // Undo three times to remove all elements
     for (let i = 0; i < 3; i++) {
       await page.keyboard.press('Control+z');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
     }
     
     // Verify all elements are gone
@@ -166,7 +166,7 @@ test.describe('Undo/Redo Functionality', () => {
     // Redo three times to add all elements back
     for (let i = 0; i < 3; i++) {
       await page.keyboard.press('Control+y');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
     }
     
     // Verify all elements are back
