@@ -397,7 +397,7 @@ const Arc = ({
       })}
       
       {/* Weight label */}
-      {arc.weight && arc.weight > 1 && (
+      {arc.weight && parseInt(arc.weight) > 1 && (
         <Text
           text={arc.weight.toString()}
           fontSize={12}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) => {
+const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
   // Local state for form values to provide immediate feedback
   const [formValues, setFormValues] = useState({
     label: '',
@@ -14,7 +14,7 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
       setFormValues({
         label: selectedElement.label || '',
         tokens: selectedElement.tokens || 0,
-        weight: selectedElement.weight || 1
+        weight: selectedElement.weight !== undefined ? selectedElement.weight : 1
       });
     }
   }, [selectedElement]);
@@ -126,11 +126,11 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
   };
 
   const handleWeightChange = (e) => {
-    // Get the actual element ID and type
-    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
-    const elementType = selectedElement.type || (elementId.split('-')[0]);
+    // Get the actual element ID
+    const elementId = selectedElement ? selectedElement.id : '';
     
-    if (elementType !== 'arc') return;
+    // Check if this is an arc by looking at the ID prefix
+    if (!elementId || !elementId.startsWith('arc-')) return;
     
     // Get the raw input value
     const inputValue = e.target.value;
@@ -158,27 +158,47 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
       const validWeight = Math.min(Math.max(weight, 1), maxTokens);
       
       // Update the global state
-      setElements(prev => ({
-        ...prev,
-        arcs: prev.arcs.map(arc => 
-          arc.id === elementId ? { ...arc, weight: validWeight } : arc
-        )
-      }));
+      setElements(prev => {
+        const newState = {
+          ...prev,
+          arcs: prev.arcs.map(arc => 
+            arc.id === elementId ? { ...arc, weight: validWeight } : arc
+          )
+        };
+        
+        // Add to history
+        updateHistory(newState);
+        
+        return newState;
+      });
     }
   };
   
   // Handle blur event for weight input to ensure a valid value is set
   const handleWeightBlur = () => {
+    // Get the actual element ID
+    const elementId = selectedElement ? selectedElement.id : '';
+    
+    // Check if this is an arc by looking at the ID prefix
+    if (!elementId || !elementId.startsWith('arc-')) return;
+    
     // If the field is empty or invalid when focus is lost, set to minimum valid value (1)
     if (formValues.weight === '' || parseInt(formValues.weight, 10) < 1) {
       setFormValues(prev => ({ ...prev, weight: 1 }));
       
-      setElements(prev => ({
-        ...prev,
-        arcs: prev.arcs.map(arc => 
-          arc.id === selectedElement.id ? { ...arc, weight: 1 } : arc
-        )
-      }));
+      setElements(prev => {
+        const newState = {
+          ...prev,
+          arcs: prev.arcs.map(arc => 
+            arc.id === elementId ? { ...arc, weight: 1 } : arc
+          )
+        };
+        
+        // Add to history
+        updateHistory(newState);
+        
+        return newState;
+      });
     }
   };
 
@@ -187,6 +207,7 @@ const PropertiesPanel = ({ selectedElement, setElements, simulationSettings }) =
 
   // Get the actual element ID, handling both direct and nested structures
   const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
+  // Extract element type from ID (place-123, transition-456, arc-789)
   const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
   
   // Determine if token count is valid

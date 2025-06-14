@@ -871,7 +871,7 @@ function App() {
       if (elementType === 'arc') {
         // Cannot start an arc from another arc
         // Instead, select the arc when clicked in arc mode
-        setSelectedElement({ element, type: elementType });
+        setSelectedElement(element);
         return;
       }
       
