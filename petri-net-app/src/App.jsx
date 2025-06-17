@@ -204,6 +204,12 @@ function AppContent() {
     // Actual implementation would involve creating a JSON file from 'elements' and triggering download
   };
 
+  // Prevent scroll events from propagating when they occur on fixed elements
+  const handlePreventScroll = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   const handleKeyDown = (event) => {
     if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable) {
       return; // Don't interfere with text input
@@ -263,9 +269,12 @@ function AppContent() {
   };
 
   return (
-    <div ref={appRef} className="app-container flex flex-col h-screen max-h-screen overflow-hidden" tabIndex={-1} onKeyDown={handleKeyDown}>
+    <div ref={appRef} className="app-container h-screen max-h-screen overflow-hidden" tabIndex={-1} onKeyDown={handleKeyDown}>
       {/* Toolbar - fixed at the top */}
-      <div className="sticky top-0 z-30 w-full">
+      <div 
+        className="fixed top-0 left-0 right-0 z-30 bg-white" 
+        onWheel={handlePreventScroll}
+      >
         <Toolbar 
           mode={mode}
           setMode={setMode} 
@@ -283,122 +292,122 @@ function AppContent() {
         />
       </div>
       
-      {/* Main content area with a 2-column layout */}
-      <div className="flex-1 relative">
-        {/* LEFT SIDE: Canvas Area with scrolling and zoom controls */}
-        <div className="absolute inset-0 right-64">
-          {/* Scrollable canvas container */}
-          <div 
-            className="absolute inset-0 overflow-auto stage-container bg-gray-200 dark:bg-gray-700"
-            data-testid="canvas-container"
-            ref={localCanvasContainerDivRef}
-            onScroll={handleNativeCanvasScroll}
-          >
-            <CanvasManager handleZoom={handleZoom} ZOOM_STEP={ZOOM_STEP} />
-          </div>
-
-          {/* Zoom controls - fixed position in the right side of the canvas area, properly positioned below the toolbar */}
-          <div className="fixed top-20 right-[280px] z-20 flex flex-col space-y-2">
-            <button 
-              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
-              onClick={() => handleZoom(ZOOM_STEP)}
-              title="Zoom In"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </button>
-            <button 
-              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
-              onClick={() => handleZoom(-ZOOM_STEP)}
-              title="Zoom Out"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
-              </svg>
-            </button>
-            <button 
-              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none text-xs font-mono"
-              onClick={() => {
-                setZoomLevel(1.0);
-                setCanvasScroll({ x: 0, y: 0 }); 
-              }}
-              title="Reset Zoom"
-            >
-              {Math.round(zoomLevel * 100)}%
-            </button>
-          </div>
+      {/* RIGHT SIDE: Side panels with properties and execution controls */}
+      <div 
+        className="fixed w-64 right-0 top-16 bottom-0 z-10 border-l-4 border-blue-500 bg-white overflow-y-auto shadow-lg"
+        onWheel={handlePreventScroll}
+      >
+        {/* Properties panel */}
+        <div className="p-2">
+          <PropertiesPanel 
+            selectedElement={selectedElement} 
+            elements={elements}
+            setElements={setElements}
+            updateHistory={updateHistory}
+            simulationSettings={simulationSettings}
+          />
         </div>
         
-        {/* RIGHT SIDE: Side panels with properties and execution controls */}
-        <div className="w-64 flex-shrink-0 border-l-4 border-blue-500 bg-white overflow-y-auto shadow-lg fixed right-0 top-16 bottom-0 z-10">
-          {/* Properties panel */}
-          <div className="p-2">
-            <PropertiesPanel 
-              selectedElement={selectedElement} 
-              elements={elements}
-              setElements={setElements}
-              updateHistory={updateHistory}
-              simulationSettings={simulationSettings}
-            />
-          </div>
-          
-          {/* Execution panel */}
-          <div className="border-t-2 border-gray-200 p-2">
-            <ExecutionPanel 
-              elements={elements}
-              onUpdateElements={(updatedPetriNet) => {
-                // Update the elements state with the new Petri net state
-                setElements(prev => {
-                  // Create a deep copy of the previous arcs to ensure we preserve all properties
-                  const preservedArcs = prev.arcs.map(arc => ({
-                    ...arc,
-                    // Ensure we have both sourceId and source (for compatibility)
-                    sourceId: arc.sourceId || arc.source,
-                    targetId: arc.targetId || arc.target
-                  }));
-                  
-                  // If updatedPetriNet has arcs, merge them with preserved arcs
-                  const mergedArcs = updatedPetriNet.arcs ? 
-                    updatedPetriNet.arcs.map(updatedArc => {
-                      // Find the corresponding arc in the preserved arcs
-                      const existingArc = preservedArcs.find(arc => arc.id === updatedArc.id);
-                      if (existingArc) {
-                        // Merge the updated arc with the existing arc to preserve all properties
-                        return {
-                          ...existingArc,
-                          ...updatedArc,
-                          // Ensure these critical properties are preserved
-                          sourceId: updatedArc.sourceId || updatedArc.source || existingArc.sourceId || existingArc.source,
-                          targetId: updatedArc.targetId || updatedArc.target || existingArc.targetId || existingArc.target,
-                          sourceType: updatedArc.sourceType || existingArc.sourceType,
-                          targetType: updatedArc.targetType || existingArc.targetType,
-                          sourceDirection: updatedArc.sourceDirection || existingArc.sourceDirection,
-                          targetDirection: updatedArc.targetDirection || existingArc.targetDirection
-                        };
-                      }
-                      return updatedArc;
-                    }) : 
-                    preservedArcs;
-                  
-                  const newState = {
-                    ...prev,
-                    places: updatedPetriNet.places || prev.places,
-                    transitions: updatedPetriNet.transitions || prev.transitions,
-                    arcs: mergedArcs
-                  };
-                  
-                  // Add to history after state update
-                  updateHistory(newState);
-                  return newState;
-                });
-              }}
-              onEnabledTransitionsChange={refreshEnabledTransitions}
-              simulationSettings={simulationSettings}
-            />
-          </div>
+        {/* Execution panel */}
+        <div className="border-t-2 border-gray-200 p-2">
+          <ExecutionPanel 
+            elements={elements}
+            onUpdateElements={(updatedPetriNet) => {
+              // Update the elements state with the new Petri net state
+              setElements(prev => {
+                // Create a deep copy of the previous arcs to ensure we preserve all properties
+                const preservedArcs = prev.arcs.map(arc => ({
+                  ...arc,
+                  // Ensure we have both sourceId and source (for compatibility)
+                  sourceId: arc.sourceId || arc.source,
+                  targetId: arc.targetId || arc.target
+                }));
+                
+                // If updatedPetriNet has arcs, merge them with preserved arcs
+                const mergedArcs = updatedPetriNet.arcs ? 
+                  updatedPetriNet.arcs.map(updatedArc => {
+                    // Find the corresponding arc in the preserved arcs
+                    const existingArc = preservedArcs.find(arc => arc.id === updatedArc.id);
+                    if (existingArc) {
+                      // Merge the updated arc with the existing arc to preserve all properties
+                      return {
+                        ...existingArc,
+                        ...updatedArc,
+                        // Ensure these critical properties are preserved
+                        sourceId: updatedArc.sourceId || updatedArc.source || existingArc.sourceId || existingArc.source,
+                        targetId: updatedArc.targetId || updatedArc.target || existingArc.targetId || existingArc.target,
+                        sourceType: updatedArc.sourceType || existingArc.sourceType,
+                        targetType: updatedArc.targetType || existingArc.targetType,
+                        sourceDirection: updatedArc.sourceDirection || existingArc.sourceDirection,
+                        targetDirection: updatedArc.targetDirection || existingArc.targetDirection
+                      };
+                    }
+                    return updatedArc;
+                  }) : 
+                  preservedArcs;
+                
+                const newState = {
+                  ...prev,
+                  places: updatedPetriNet.places || prev.places,
+                  transitions: updatedPetriNet.transitions || prev.transitions,
+                  arcs: mergedArcs
+                };
+                
+                // Add to history after state update
+                updateHistory(newState);
+                return newState;
+              });
+            }}
+            onEnabledTransitionsChange={refreshEnabledTransitions}
+            simulationSettings={simulationSettings}
+          />
         </div>
-      </div> {/* Closes the main content flex container */}
+      </div>
+      
+      {/* Canvas Area - positioned in the remaining space with its own scrolling context */}
+      <div className="fixed inset-0 pt-12 right-64">
+        {/* Scrollable canvas container */}
+        <div 
+          className="absolute inset-0 overflow-auto stage-container bg-gray-200 dark:bg-gray-700"
+          data-testid="canvas-container"
+          ref={localCanvasContainerDivRef}
+          onScroll={handleNativeCanvasScroll}
+        >
+          <CanvasManager handleZoom={handleZoom} ZOOM_STEP={ZOOM_STEP} />
+        </div>
+        
+        {/* Zoom controls - fixed position in the right side of the canvas area, properly positioned below the toolbar */}
+        <div className="fixed top-20 right-[280px] z-20 flex flex-col space-y-2">
+          <button 
+            className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+            onClick={() => handleZoom(ZOOM_STEP)}
+            title="Zoom In"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </button>
+          <button 
+            className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+            onClick={() => handleZoom(-ZOOM_STEP)}
+            title="Zoom Out"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
+            </svg>
+          </button>
+          <button 
+            className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none text-xs font-mono"
+            onClick={() => {
+              setZoomLevel(1.0);
+              setCanvasScroll({ x: 0, y: 0 }); 
+            }}
+            title="Reset Zoom"
+          >
+            {Math.round(zoomLevel * 100)}%
+          </button>
+        </div>
+      </div>
       
       {/* Settings Dialog */}
       <SettingsDialog 
