@@ -294,7 +294,7 @@ function AppContent() {
       
       {/* RIGHT SIDE: Side panels with properties and execution controls */}
       <div 
-        className="fixed w-64 right-0 top-16 bottom-0 z-10 border-l-4 border-blue-500 bg-white overflow-y-auto shadow-lg"
+        className="fixed w-80 right-0 top-16 bottom-0 z-10 border-l-4 border-blue-500 bg-white overflow-y-auto shadow-lg"
         onWheel={handlePreventScroll}
       >
         {/* Properties panel */}
@@ -365,7 +365,7 @@ function AppContent() {
       </div>
       
       {/* Canvas Area - positioned in the remaining space with its own scrolling context */}
-      <div className="fixed inset-0 pt-12 right-64">
+      <div className="fixed top-16 left-0 right-80 bottom-0">
         {/* Scrollable canvas container */}
         <div 
           className="absolute inset-0 overflow-auto stage-container bg-gray-200 dark:bg-gray-700"
@@ -377,7 +377,7 @@ function AppContent() {
         </div>
         
         {/* Zoom controls - fixed position in the right side of the canvas area, properly positioned below the toolbar */}
-        <div className="fixed top-20 right-[280px] z-20 flex flex-col space-y-2">
+        <div className="fixed top-24 right-[336px] z-20 flex flex-col space-y-2">
           <button 
             className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
             onClick={() => handleZoom(ZOOM_STEP)}
