@@ -7,6 +7,7 @@ import ExecutionPanel from './components/ExecutionPanel';
 import SettingsDialog from './components/SettingsDialog';
 import { v4 as uuidv4 } from 'uuid'; // Keep for element creation if any remains here, or for other UUID needs.
 import CanvasManager from './features/canvas/CanvasManager'; // Import CanvasManager
+import { useElementManager } from './features/elements/useElementManager'; // Import the new hook
 
 // Import the simulator functions
 import { initializeSimulator, getEnabledTransitions } from './utils/simulator';
@@ -54,6 +55,8 @@ function AppContent() {
     refreshEnabledTransitions, // Function from context
     handleSaveSettings // Function from context
   } = usePetriNet();
+
+  const { handleDeleteElement, clearAllElements } = useElementManager();
 
   // Removed draggedElement state, MIN_ZOOM, MAX_ZOOM, ZOOM_STEP constants - managed by CanvasManager
   // Removed expansionThreshold, expansionAmount constants - managed by CanvasManager or context
@@ -184,14 +187,7 @@ function AppContent() {
     }
   }, [localCanvasContainerDivRef, setContainerRef]);
 
-  const clearCanvas = () => {
-    console.warn("clearCanvas function called - using placeholder implementation.");
-    setElements({ places: [], transitions: [], arcs: [] });
-    setSelectedElement(null);
-    setArcStart(null);
-    setTempArcEnd(null);
-    // History will be updated by useEffect in context
-  };
+
 
   const handleFileOpen = async (event) => {
     console.warn("handleFileOpen function called - placeholder, no action.");
@@ -229,21 +225,7 @@ function AppContent() {
         case 'Backspace':
           if (selectedElement) {
             event.preventDefault();
-            const { type, id } = selectedElement;
-            let newElementsState = JSON.parse(JSON.stringify(elements)); 
-
-            if (type === 'place') {
-              newElementsState.places = newElementsState.places.filter(p => p.id !== id);
-              newElementsState.arcs = newElementsState.arcs.filter(arc => arc.source !== id && arc.target !== id);
-            } else if (type === 'transition') {
-              newElementsState.transitions = newElementsState.transitions.filter(t => t.id !== id);
-              newElementsState.arcs = newElementsState.arcs.filter(arc => arc.source !== id && arc.target !== id);
-            } else if (type === 'arc') {
-              newElementsState.arcs = newElementsState.arcs.filter(a => a.id !== id);
-            }
-            
-            setElements(newElementsState); 
-            setSelectedElement(null);
+            handleDeleteElement();
           }
           break;
         case 'p': case 'P':
@@ -278,7 +260,7 @@ function AppContent() {
         <Toolbar 
           mode={mode}
           setMode={setMode} 
-          onNew={clearCanvas}
+          onNew={clearAllElements}
           onOpen={handleFileOpen}
           onSave={handleFileSave}
           onUndo={handleUndo} 

@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Stage, Layer, Rect, Line, Circle, Text } from 'react-konva';
 import { usePetriNet } from '../../contexts/PetriNetContext';
-import { v4 as uuidv4 } from 'uuid';
+import { useElementManager } from '../elements/useElementManager';
 
 // Assuming these components exist and will be created/moved later
 // Placeholder imports - adjust paths as necessary when components are created/moved
 import Place from '../../components/Place'; 
 import Transition from '../../components/Transition';
-import Arc from '../../components/Arc';
+import ArcManager from '../arcs/ArcManager';
 import Grid from '../../components/Grid'; 
 
 
@@ -30,9 +30,15 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     enabledTransitionIds,
     snapToGrid, gridSize, gridSnappingEnabled, // Added gridSnappingEnabled
     containerRef, // Ref for the stage container div
-    stageRef, // Ref for the Konva Stage
-    updateHistory // For operations that modify elements directly
+    stageRef // Ref for the Konva Stage
   } = usePetriNet();
+
+  const { 
+    handleCreateElement, 
+    handleElementClick, 
+    handleElementDragEnd, 
+    handleAddAnglePoint, 
+  } = useElementManager();
 
   const [draggedElement, setDraggedElement] = useState(null);
 
@@ -69,21 +75,8 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     if (e.target !== stageRef.current && e.target.name() !== 'background') {
       return;
     }
-
-    let pos = getVirtualPointerPosition();
-    if (!pos) return;
-
-    if (gridSnappingEnabled) {
-      pos = snapToGrid(pos.x, pos.y);
-    }
-
-    if (mode === 'place') {
-      const newPlace = { id: uuidv4(), x: pos.x, y: pos.y, label: `P${elements.places.length + 1}`, tokens: 0 };
-      setElements(prev => ({ ...prev, places: [...prev.places, newPlace] }));
-    } else if (mode === 'transition') {
-      const newTransition = { id: uuidv4(), x: pos.x, y: pos.y, label: `T${elements.transitions.length + 1}` };
-      setElements(prev => ({ ...prev, transitions: [...prev.transitions, newTransition] }));
-    }
+    const pos = getVirtualPointerPosition();
+    handleCreateElement(pos);
   };
 
   const handleMouseMove = (e) => {
@@ -113,51 +106,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     // Add other mouse move logic like canvas expansion on drag if needed
   };
 
-  const handleElementClick = (element, type) => {
-    if (mode === 'select' || mode === 'arc_angle') {
-      setSelectedElement({ ...element, type });
-      setArcStart(null); // Clear any pending arc
-      setTempArcEnd(null);
-    } else if (mode === 'arc') {
-      if (!arcStart) {
-        // Starting an arc
-        setSelectedElement({ ...element, type }); // Highlight source
-        // Determine connection point based on element type and shape
-        // For simplicity, using center for now. Could be edge points later.
-        setArcStart({ element: {id: element.id, type}, point: { x: element.x, y: element.y } });
-        setTempArcEnd({ sourcePoint: { x: element.x, y: element.y }, x: element.x, y: element.y, potentialTarget: null });
-      } else {
-        // Completing an arc
-        if (arcStart.element.id === element.id) return; // Cannot connect to self
 
-        // Validate arc (e.g., place to transition or transition to place)
-        const sourceType = arcStart.element.type;
-        const targetType = type;
-        if (sourceType === targetType) {
-          console.warn("Invalid arc: Cannot connect elements of the same type.");
-          setArcStart(null);
-          setTempArcEnd(null);
-          setSelectedElement(null);
-          return;
-        }
-
-        const newArc = {
-          id: uuidv4(),
-          source: arcStart.element.id,
-          target: element.id,
-          weight: 1,
-          anglePoints: [], // Initialize with no angle points
-          sourceType: arcStart.element.type,
-          targetType: type,
-        };
-        setElements(prev => ({ ...prev, arcs: [...prev.arcs, newArc] }));
-        setArcStart(null);
-        setTempArcEnd(null);
-        setSelectedElement(null); 
-        // setMode('select'); // Optionally switch back to select mode
-      }
-    }
-  };
 
   const handleDragStart = (element, type) => {
     setSelectedElement({ ...element, type });
@@ -165,65 +114,14 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     // Konva handles visual dragging, state update is onDragEnd
   };
 
-  const handleDragEnd = (elementData, type, newPosition) => {
-    setElements(prev => {
-      const updatedElements = { ...prev };
-      let found = false;
-      if (type === 'place') {
-        updatedElements.places = prev.places.map(p => {
-          if (p.id === elementData.id) {
-            found = true;
-            return { ...p, x: newPosition.x, y: newPosition.y };
-          }
-          return p;
-        });
-      } else if (type === 'transition') {
-        updatedElements.transitions = prev.transitions.map(t => {
-          if (t.id === elementData.id) {
-            found = true;
-            return { ...t, x: newPosition.x, y: newPosition.y };
-          }
-          return t;
-        });
-      }
-      // Add to history if an element was actually moved
-      if (found) {
-        updateHistory(updatedElements); // Manually trigger history if setElements doesn't capture this specific change pattern for history
-      }
-      return found ? updatedElements : prev;
-    });
+  const onDragEnd = (elementData, type, newPosition) => {
+    handleElementDragEnd(elementData, type, newPosition);
     setDraggedElement(null);
   };
   
-  const handleAddAnglePoint = (arcId, anglePoint) => {
-    setElements(prev => {
-      const updatedArcs = prev.arcs.map(arc => {
-        if (arc.id === arcId) {
-          const point = gridSnappingEnabled ? snapToGrid(anglePoint.x, anglePoint.y) : anglePoint;
-          const anglePoints = arc.anglePoints ? [...arc.anglePoints] : [];
-          anglePoints.push(point);
-          return { ...arc, anglePoints };
-        }
-        return arc;
-      });
-      return { ...prev, arcs: updatedArcs };
-    });
-  };
+
   
-  const handleDragAnglePoint = (arcId, pointIndex, newPosition) => {
-    setElements(prev => {
-      const updatedArcs = prev.arcs.map(arc => {
-        if (arc.id === arcId && arc.anglePoints && arc.anglePoints[pointIndex]) {
-          const position = gridSnappingEnabled ? snapToGrid(newPosition.x, newPosition.y) : newPosition;
-          const anglePoints = [...arc.anglePoints];
-          anglePoints[pointIndex] = position;
-          return { ...arc, anglePoints };
-        }
-        return arc;
-      });
-      return { ...prev, arcs: updatedArcs };
-    });
-  };
+
   
   const handleWheelEvent = React.useCallback((e) => {
     // This function will be called by the document event listener
@@ -272,19 +170,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     };
   }, [containerRef, handleWheelEvent]); // Updated dependencies
 
-  const handleDeleteAnglePoint = (arcId, pointIndex) => {
-    setElements(prev => {
-      const updatedArcs = prev.arcs.map(arc => {
-        if (arc.id === arcId && arc.anglePoints && arc.anglePoints[pointIndex]) {
-          const anglePoints = [...arc.anglePoints];
-          anglePoints.splice(pointIndex, 1);
-          return { ...arc, anglePoints };
-        }
-        return arc;
-      });
-      return { ...prev, arcs: updatedArcs };
-    });
-  };
+
 
   return (
       <Stage
@@ -360,7 +246,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
                     y: (e.target.y() * zoomLevel) + canvasScroll.y
                 };
                 const snappedFinalPos = gridSnappingEnabled ? snapToGrid(finalVirtualPos.x, finalVirtualPos.y) : finalVirtualPos;
-                handleDragEnd(place, 'place', snappedFinalPos);
+                onDragEnd(place, 'place', snappedFinalPos);
               }}
             />
           ))}
@@ -399,47 +285,13 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
                     y: (e.target.y() * zoomLevel) + canvasScroll.y
                 };
                 const snappedFinalPos = gridSnappingEnabled ? snapToGrid(finalVirtualPos.x, finalVirtualPos.y) : finalVirtualPos;
-                handleDragEnd(transition, 'transition', snappedFinalPos);
+                onDragEnd(transition, 'transition', snappedFinalPos);
               }}
             />
           ))}
           
-          {/* Arcs - Pass scroll and zoom for its internal calculations */}
-          {elements.arcs.map(arc => (
-            <Arc
-              key={arc.id}
-              arcData={arc}
-              places={elements.places}
-              transitions={elements.transitions}
-              isSelected={selectedElement && selectedElement.id === arc.id}
-              onClick={() => handleElementClick(arc, 'arc')}
-              canvasScroll={canvasScroll}
-              zoomLevel={zoomLevel}
-              gridSize={gridSize}
-              gridSnappingEnabled={gridSnappingEnabled}
-              onAddAnglePoint={(point) => handleAddAnglePoint(arc.id, point)}
-              onDragAnglePoint={(index, newPos) => handleDragAnglePoint(arc.id, index, newPos)}
-              onDeleteAnglePoint={(index) => handleDeleteAnglePoint(arc.id, index)}
-              mode={mode} // Pass mode to Arc for conditional rendering of angle points
-            />
-          ))}
-
-          {/* Temporary Arc for visualization */}
-          {tempArcEnd && tempArcEnd.sourcePoint && (
-            <Line
-              points={[
-                (tempArcEnd.sourcePoint.x - canvasScroll.x) / zoomLevel,
-                (tempArcEnd.sourcePoint.y - canvasScroll.y) / zoomLevel,
-                (tempArcEnd.x - canvasScroll.x) / zoomLevel,
-                (tempArcEnd.y - canvasScroll.y) / zoomLevel,
-              ]}
-              stroke="grey"
-              strokeWidth={2 / zoomLevel} // Adjusted for zoom
-              dash={[5 / zoomLevel, 5 / zoomLevel]} // Adjusted for zoom
-              listening={false} // Not interactive
-            />
-          )}
         </Layer>
+        <ArcManager />
       </Stage>
   );
 };
