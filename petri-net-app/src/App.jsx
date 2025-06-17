@@ -294,25 +294,23 @@ function AppContent() {
       
       {/* RIGHT SIDE: Side panels with properties and execution controls */}
       <div 
-        className="fixed w-80 right-0 top-16 bottom-0 z-10 border-l-4 border-blue-500 bg-white overflow-y-auto shadow-lg"
+        className="fixed w-80 right-0 top-16 bottom-0 z-10 bg-gray-100 overflow-y-auto shadow-lg pt-4"
         onWheel={handlePreventScroll}
       >
         {/* Properties panel */}
-        <div className="p-2">
-          <PropertiesPanel 
-            selectedElement={selectedElement} 
-            elements={elements}
-            setElements={setElements}
-            updateHistory={updateHistory}
-            simulationSettings={simulationSettings}
-          />
-        </div>
+        <PropertiesPanel 
+          selectedElement={selectedElement} 
+          elements={elements}
+          setElements={setElements}
+          updateHistory={updateHistory}
+          simulationSettings={simulationSettings}
+        />
         
         {/* Execution panel */}
-        <div className="border-t-2 border-gray-200 p-2">
-          <ExecutionPanel 
-            elements={elements}
-            onUpdateElements={(updatedPetriNet) => {
+        <div className="border-t-2 border-gray-200 w-full"></div>
+        <ExecutionPanel 
+          elements={elements}
+          onUpdateElements={(updatedPetriNet) => {
               // Update the elements state with the new Petri net state
               setElements(prev => {
                 // Create a deep copy of the previous arcs to ensure we preserve all properties
@@ -360,8 +358,7 @@ function AppContent() {
             }}
             onEnabledTransitionsChange={refreshEnabledTransitions}
             simulationSettings={simulationSettings}
-          />
-        </div>
+        />
       </div>
       
       {/* Canvas Area - positioned in the remaining space with its own scrolling context */}

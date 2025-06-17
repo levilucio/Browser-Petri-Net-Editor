@@ -21,7 +21,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
   if (!selectedElement) {
     return (
-      <div className="properties-panel w-64 p-4 bg-gray-50 border-l border-gray-300 overflow-y-auto">
+      <div className="properties-panel w-full px-4 py-2 overflow-y-auto mx-0">
         <h2 className="text-lg font-semibold mb-4">Properties</h2>
         <p className="text-gray-500">Select an element to edit its properties</p>
       </div>
@@ -219,7 +219,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     (formValues.weight === '' || (parseInt(formValues.weight, 10) >= 1 && parseInt(formValues.weight, 10) <= maxTokens));
 
   return (
-    <div className="properties-panel w-64 p-4 bg-gray-50 border-l border-gray-300 overflow-y-auto">
+    <div className="properties-panel w-full px-4 py-2 overflow-y-auto mx-0">
       <h2 className="text-lg font-semibold mb-4">Properties</h2>
       
       <div className="mb-4">

@@ -361,7 +361,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
   };  
 
   return (
-    <div data-testid="execution-panel" className="execution-panel p-4 bg-gray-100 border-t border-gray-300">
+    <div data-testid="execution-panel" className="execution-panel w-full px-4 py-2 mx-0">
       <h2 className="text-lg font-semibold mb-2">Execution</h2>
       
       {error && (
