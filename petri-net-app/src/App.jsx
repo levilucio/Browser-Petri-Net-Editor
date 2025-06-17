@@ -263,30 +263,33 @@ function AppContent() {
   };
 
   return (
-    <div ref={appRef} className="app-container flex flex-col h-screen max-h-screen" tabIndex={-1} onKeyDown={handleKeyDown}>
-      <Toolbar 
-        mode={mode}
-        setMode={setMode} 
-        onNew={clearCanvas}
-        onOpen={handleFileOpen}
-        onSave={handleFileSave}
-        onUndo={handleUndo} 
-        canUndo={canUndo}   
-        onRedo={handleRedo} 
-        canRedo={canRedo}   
-        onAutoLayout={handleAutoLayout}
-        gridSnappingEnabled={gridSnappingEnabled} 
-        onToggleGridSnapping={toggleGridSnapping} 
-        onSettings={() => setIsSettingsDialogOpen(true)} 
-      />
+    <div ref={appRef} className="app-container flex flex-col h-screen max-h-screen overflow-hidden" tabIndex={-1} onKeyDown={handleKeyDown}>
+      {/* Toolbar - fixed at the top */}
+      <div className="sticky top-0 z-30 w-full">
+        <Toolbar 
+          mode={mode}
+          setMode={setMode} 
+          onNew={clearCanvas}
+          onOpen={handleFileOpen}
+          onSave={handleFileSave}
+          onUndo={handleUndo} 
+          canUndo={canUndo}   
+          onRedo={handleRedo} 
+          canRedo={canRedo}   
+          onAutoLayout={handleAutoLayout}
+          gridSnappingEnabled={gridSnappingEnabled} 
+          onToggleGridSnapping={toggleGridSnapping} 
+          onSettings={() => setIsSettingsDialogOpen(true)} 
+        />
+      </div>
       
       {/* Main content area with a 2-column layout */}
-      <div className="flex flex-row flex-1 h-full">
+      <div className="flex-1 relative">
         {/* LEFT SIDE: Canvas Area with scrolling and zoom controls */}
-        <div className="flex-1 relative h-full pr-64">
+        <div className="absolute inset-0 right-64">
           {/* Scrollable canvas container */}
           <div 
-            className="h-full w-full overflow-auto stage-container bg-gray-200 dark:bg-gray-700"
+            className="absolute inset-0 overflow-auto stage-container bg-gray-200 dark:bg-gray-700"
             data-testid="canvas-container"
             ref={localCanvasContainerDivRef}
             onScroll={handleNativeCanvasScroll}
@@ -294,8 +297,8 @@ function AppContent() {
             <CanvasManager handleZoom={handleZoom} ZOOM_STEP={ZOOM_STEP} />
           </div>
 
-          {/* Zoom controls - fixed position in the top-right corner of the canvas area */}
-          <div className="fixed top-16 right-[280px] z-20 flex flex-col space-y-2">
+          {/* Zoom controls - fixed position in the right side of the canvas area, properly positioned below the toolbar */}
+          <div className="fixed top-20 right-[280px] z-20 flex flex-col space-y-2">
             <button 
               className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
               onClick={() => handleZoom(ZOOM_STEP)}
@@ -328,7 +331,7 @@ function AppContent() {
         </div>
         
         {/* RIGHT SIDE: Side panels with properties and execution controls */}
-        <div className="w-64 flex-shrink-0 border-l-4 border-blue-500 bg-white overflow-y-auto shadow-lg fixed right-0 top-12 bottom-0 z-10">
+        <div className="w-64 flex-shrink-0 border-l-4 border-blue-500 bg-white overflow-y-auto shadow-lg fixed right-0 top-16 bottom-0 z-10">
           {/* Properties panel */}
           <div className="p-2">
             <PropertiesPanel 
