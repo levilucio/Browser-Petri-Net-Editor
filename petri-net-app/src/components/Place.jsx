@@ -1,67 +1,66 @@
 import React from 'react';
-import { Circle, Text, Group, Line } from 'react-konva';
+import { Circle, Text, Group } from 'react-konva';
 
-const Place = ({ place, isSelected, isDragging, onClick, onDragStart, onDragMove, onDragEnd }) => {
-  const radius = 20;
-  
-  // Visual indicators for grid snapping
-  const renderSnapIndicators = () => {
-    if (!isDragging) return null;
-    
-    const indicatorLength = 10;
-    const indicatorColor = 'rgba(0, 150, 255, 0.7)';
-    const indicatorWidth = 1;
-    
-    return (
-      <>
-        {/* Horizontal indicator */}
-        <Line
-          points={[-radius - indicatorLength, 0, radius + indicatorLength, 0]}
-          stroke={indicatorColor}
-          strokeWidth={indicatorWidth}
-          dash={[4, 2]}
-        />
-        {/* Vertical indicator */}
-        <Line
-          points={[0, -radius - indicatorLength, 0, radius + indicatorLength]}
-          stroke={indicatorColor}
-          strokeWidth={indicatorWidth}
-          dash={[4, 2]}
-        />
-      </>
-    );
+const Place = ({
+  id,
+  x,
+  y,
+  label,
+  tokens,
+  isSelected,
+  onSelect,
+  onChange,
+  zoomLevel,
+  canvasScroll,
+}) => {
+  const radius = 30;
+
+  // A guard to prevent rendering if essential props are not available yet.
+  if (canvasScroll === undefined || zoomLevel === undefined) {
+    return null;
+  }
+
+  // Transform virtual coordinates to stage coordinates
+  const stageX = (x - canvasScroll.x) / zoomLevel;
+  const stageY = (y - canvasScroll.y) / zoomLevel;
+
+  const handleDragEnd = (e) => {
+    // When drag ends, transform stage coordinates back to virtual coordinates
+    const newVirtualPos = {
+      x: (e.target.x() * zoomLevel) + canvasScroll.x,
+      y: (e.target.y() * zoomLevel) + canvasScroll.y,
+    };
+    // The onChange handler (from useElementManager) expects the new virtual position
+    onChange(newVirtualPos);
   };
-  
-  // Render token visualization based on token count
+
   const renderTokens = () => {
-    // For 0 tokens, just show "0"
-    if (place.tokens === 0) {
+    const scaledRadius = radius / zoomLevel;
+
+    if (tokens === 0) {
       return (
         <Text
           text="0"
-          fontSize={14}
+          fontSize={14 / zoomLevel}
           fill="black"
-          x={-radius}
-          y={-7}
-          width={radius * 2}
+          x={-scaledRadius}
+          y={-7 / zoomLevel}
+          width={scaledRadius * 2}
           align="center"
+          listening={false}
         />
       );
     }
-    
-    // For 1-5 tokens, show visual circles and the count
-    if (place.tokens <= 5) {
+
+    if (tokens <= 5) {
       return (
         <>
-          {/* Visual representation of tokens as circles */}
-          {Array.from({ length: place.tokens }).map((_, index) => {
-            // Position tokens in a circle pattern
-            const angle = (2 * Math.PI * index) / place.tokens;
-            const tokenRadius = 4;
-            const distance = radius / 2;
+          {Array.from({ length: tokens }).map((_, index) => {
+            const angle = (2 * Math.PI * index) / tokens;
+            const tokenRadius = 4 / zoomLevel;
+            const distance = (radius / 2) / zoomLevel;
             const tokenX = Math.cos(angle) * distance;
             const tokenY = Math.sin(angle) * distance;
-            
             return (
               <Circle
                 key={index}
@@ -69,71 +68,66 @@ const Place = ({ place, isSelected, isDragging, onClick, onDragStart, onDragMove
                 y={tokenY}
                 radius={tokenRadius}
                 fill="black"
+                listening={false}
               />
             );
           })}
-          
-          {/* Small token count text */}
           <Text
-            text={place.tokens.toString()}
-            fontSize={14}
+            text={tokens.toString()}
+            fontSize={14 / zoomLevel}
             fill="black"
-            x={-radius}
-            y={-7}
-            width={radius * 2}
+            x={-scaledRadius}
+            y={-7 / zoomLevel}
+            width={scaledRadius * 2}
             align="center"
+            listening={false}
           />
         </>
       );
     }
-    
-    // For more than 5 tokens, just show the number
+
     return (
       <Text
-        text={place.tokens.toString()}
-        fontSize={16}
+        text={tokens.toString()}
+        fontSize={16 / zoomLevel}
         fill="black"
-        x={-radius}
-        y={-7}
-        width={radius * 2}
+        x={-scaledRadius}
+        y={-8 / zoomLevel}
+        width={scaledRadius * 2}
         align="center"
+        listening={false}
       />
     );
   };
-  
+
   return (
     <Group
-      x={place.x}
-      y={place.y}
-      onClick={onClick}
-      draggable={true}
-      onDragStart={onDragStart}
-      onDragMove={onDragMove}
-      onDragEnd={onDragEnd}
+      x={stageX}
+      y={stageY}
+      onClick={onSelect}
+      onTap={onSelect}
+      draggable
+      onDragEnd={handleDragEnd}
+      id={id} // Pass id for hit detection in ArcManager
+      name='element' // Generic name for easier hit detection
+      elementType='place' // Custom attribute for type-specific logic
     >
-      {/* Grid snap indicators */}
-      {renderSnapIndicators()}
-      
-      {/* Place circle */}
       <Circle
-        radius={radius}
+        radius={radius / zoomLevel}
         fill="white"
-        stroke={isSelected ? 'blue' : (isDragging ? 'rgba(0, 150, 255, 0.7)' : 'black')}
-        strokeWidth={isSelected || isDragging ? 2 : 1}
+        stroke={isSelected ? 'blue' : 'black'}
+        strokeWidth={2 / zoomLevel}
       />
-      
-      {/* Place label */}
       <Text
-        text={place.label}
-        fontSize={12}
+        text={label}
+        fontSize={12 / zoomLevel}
         fill="black"
-        x={-radius}
-        y={radius + 5}
-        width={radius * 2}
+        x={-radius / zoomLevel}
+        y={(radius + 5) / zoomLevel}
+        width={(radius * 2) / zoomLevel}
         align="center"
+        listening={false}
       />
-      
-      {/* Render tokens based on count */}
       {renderTokens()}
     </Group>
   );

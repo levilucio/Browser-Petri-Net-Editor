@@ -217,37 +217,12 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
           {elements.places.map(place => (
             <Place
               key={place.id}
-              placeData={{
-                ...place,
-                x: (place.x - canvasScroll.x) / zoomLevel,
-                y: (place.y - canvasScroll.y) / zoomLevel
-              }}
-              isSelected={selectedElement && selectedElement.id === place.id || 
-                (arcStart && arcStart.element.id === place.id)}
-              isDragging={draggedElement && draggedElement.element.id === place.id}
-              onClick={() => handleElementClick(place, 'place')}
-              onDragStart={() => handleDragStart(place, 'place')}
-              onDragMove={(e) => {
-                const stage = e.target.getStage();
-                const pointerPosition = stage.getPointerPosition();
-                const virtualPos = {
-                    x: (pointerPosition.x / zoomLevel) + canvasScroll.x,
-                    y: (pointerPosition.y / zoomLevel) + canvasScroll.y
-                };
-                const snappedPos = gridSnappingEnabled ? snapToGrid(virtualPos.x, virtualPos.y) : virtualPos;
-                e.target.position({
-                  x: (snappedPos.x - canvasScroll.x) / zoomLevel,
-                  y: (snappedPos.y - canvasScroll.y) / zoomLevel
-                });
-              }}
-              onDragEnd={(e) => {
-                const finalVirtualPos = {
-                    x: (e.target.x() * zoomLevel) + canvasScroll.x,
-                    y: (e.target.y() * zoomLevel) + canvasScroll.y
-                };
-                const snappedFinalPos = gridSnappingEnabled ? snapToGrid(finalVirtualPos.x, finalVirtualPos.y) : finalVirtualPos;
-                onDragEnd(place, 'place', snappedFinalPos);
-              }}
+              {...place}
+              isSelected={selectedElement?.id === place.id}
+              onSelect={() => handleElementClick(place, 'place')}
+              onChange={(newAttrs) => handleElementDragEnd(place.id, 'places', newAttrs)}
+              zoomLevel={zoomLevel}
+              canvasScroll={canvasScroll}
             />
           ))}
           
@@ -255,38 +230,13 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
           {elements.transitions.map(transition => (
             <Transition
               key={transition.id}
-              transitionData={{
-                ...transition,
-                x: (transition.x - canvasScroll.x) / zoomLevel,
-                y: (transition.y - canvasScroll.y) / zoomLevel
-              }}
-              isSelected={selectedElement && selectedElement.id === transition.id || 
-                (arcStart && arcStart.element.id === transition.id)}
-              isDragging={draggedElement && draggedElement.element.id === transition.id}
+              {...transition}
+              isSelected={selectedElement?.id === transition.id}
+              onSelect={() => handleElementClick(transition, 'transition')}
+              onChange={(newAttrs) => handleElementDragEnd(transition.id, 'transitions', newAttrs)}
               isEnabled={enabledTransitionIds.includes(transition.id)}
-              onClick={() => handleElementClick(transition, 'transition')}
-              onDragStart={() => handleDragStart(transition, 'transition')}
-              onDragMove={(e) => {
-                const stage = e.target.getStage();
-                const pointerPosition = stage.getPointerPosition();
-                const virtualPos = {
-                    x: (pointerPosition.x / zoomLevel) + canvasScroll.x,
-                    y: (pointerPosition.y / zoomLevel) + canvasScroll.y
-                };
-                const snappedPos = gridSnappingEnabled ? snapToGrid(virtualPos.x, virtualPos.y) : virtualPos;
-                e.target.position({
-                  x: (snappedPos.x - canvasScroll.x) / zoomLevel,
-                  y: (snappedPos.y - canvasScroll.y) / zoomLevel
-                });
-              }}
-              onDragEnd={(e) => {
-                const finalVirtualPos = {
-                    x: (e.target.x() * zoomLevel) + canvasScroll.x,
-                    y: (e.target.y() * zoomLevel) + canvasScroll.y
-                };
-                const snappedFinalPos = gridSnappingEnabled ? snapToGrid(finalVirtualPos.x, finalVirtualPos.y) : finalVirtualPos;
-                onDragEnd(transition, 'transition', snappedFinalPos);
-              }}
+              zoomLevel={zoomLevel}
+              canvasScroll={canvasScroll}
             />
           ))}
           

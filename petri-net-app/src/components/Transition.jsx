@@ -1,71 +1,74 @@
 import React from 'react';
-import { Rect, Text, Group, Line } from 'react-konva';
+import { Rect, Text, Group } from 'react-konva';
 
-const Transition = ({ transition, isSelected, isDragging, isEnabled, onClick, onDragStart, onDragMove, onDragEnd }) => {
-  const width = 30;
-  const height = 40;
-  
-  // Visual indicators for grid snapping
-  const renderSnapIndicators = () => {
-    if (!isDragging) return null;
-    
-    const indicatorLength = 10;
-    const indicatorColor = 'rgba(0, 150, 255, 0.7)';
-    const indicatorWidth = 1;
-    
-    return (
-      <>
-        {/* Horizontal indicator */}
-        <Line
-          points={[-width/2 - indicatorLength, 0, width/2 + indicatorLength, 0]}
-          stroke={indicatorColor}
-          strokeWidth={indicatorWidth}
-          dash={[4, 2]}
-        />
-        {/* Vertical indicator */}
-        <Line
-          points={[0, -height/2 - indicatorLength, 0, height/2 + indicatorLength]}
-          stroke={indicatorColor}
-          strokeWidth={indicatorWidth}
-          dash={[4, 2]}
-        />
-      </>
-    );
+const Transition = ({
+  id,
+  x,
+  y,
+  label,
+  isSelected,
+  isEnabled,
+  onSelect,
+  onChange,
+  zoomLevel,
+  canvasScroll,
+}) => {
+  const baseWidth = 40;
+  const baseHeight = 50;
+
+  // A guard to prevent rendering if essential props are not available yet.
+  if (canvasScroll === undefined || zoomLevel === undefined) {
+    return null;
+  }
+
+  // Transform virtual coordinates to stage coordinates
+  const stageX = (x - canvasScroll.x) / zoomLevel;
+  const stageY = (y - canvasScroll.y) / zoomLevel;
+
+  // Scale dimensions based on zoom level
+  const scaledWidth = baseWidth / zoomLevel;
+  const scaledHeight = baseHeight / zoomLevel;
+
+  const handleDragEnd = (e) => {
+    // When drag ends, transform stage coordinates back to virtual coordinates
+    const newVirtualPos = {
+      x: (e.target.x() * zoomLevel) + canvasScroll.x,
+      y: (e.target.y() * zoomLevel) + canvasScroll.y,
+    };
+    // The onChange handler (from useElementManager) expects the new virtual position
+    onChange(newVirtualPos);
   };
-  
+
   return (
     <Group
-      x={transition.x}
-      y={transition.y}
-      onClick={onClick}
-      draggable={true}
-      onDragStart={onDragStart}
-      onDragMove={onDragMove}
-      onDragEnd={onDragEnd}
+      x={stageX}
+      y={stageY}
+      onClick={onSelect}
+      onTap={onSelect}
+      draggable
+      onDragEnd={handleDragEnd}
+      id={id} // Pass id for hit detection in ArcManager
+      name='element' // Generic name for easier hit detection
+      elementType='transition' // Custom attribute for type-specific logic
     >
-      {/* Grid snap indicators */}
-      {renderSnapIndicators()}
-      
-      {/* Transition rectangle */}
       <Rect
-        x={-width / 2}
-        y={-height / 2}
-        width={width}
-        height={height}
+        x={-scaledWidth / 2}
+        y={-scaledHeight / 2}
+        width={scaledWidth}
+        height={scaledHeight}
         fill={isEnabled ? 'rgba(255, 255, 0, 0.8)' : 'gray'}
-        stroke={isSelected ? 'blue' : (isDragging ? 'rgba(0, 150, 255, 0.7)' : (isEnabled ? 'rgba(255, 180, 0, 1)' : 'black'))}
-        strokeWidth={isSelected || isDragging ? 2 : (isEnabled ? 3 : 1)}
+        stroke={isSelected ? 'blue' : (isEnabled ? 'rgba(255, 180, 0, 1)' : 'black')}
+        strokeWidth={(isSelected ? 3 : (isEnabled ? 3 : 2)) / zoomLevel}
       />
-      
-      {/* Transition label */}
       <Text
-        text={transition.label}
-        fontSize={12}
+        text={label}
+        fontSize={14 / zoomLevel}
         fill="black"
-        x={-width / 2}
-        y={height / 2 + 5}
-        width={width}
+        x={-scaledWidth / 2}
+        y={(scaledHeight / 2) + (5 / zoomLevel)}
+        width={scaledWidth}
         align="center"
+        listening={false}
       />
     </Group>
   );
