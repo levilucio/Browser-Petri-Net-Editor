@@ -103,7 +103,7 @@ export const PetriNetProvider = ({ children }) => {
       // Ensure elements has the expected structure for getEnabledTransitions
       const currentElements = JSON.parse(JSON.stringify(elements)); // Deep copy to be safe
       const ids = getEnabledTransitions(currentElements, simulationMode);
-      setEnabledTransitionIds(ids);
+      setEnabledTransitionIds(ids || []); // Ensure it's always an array
       setSimulationError(null); // Clear previous errors
     } catch (error) {
       console.error("Error calculating enabled transitions:", error);

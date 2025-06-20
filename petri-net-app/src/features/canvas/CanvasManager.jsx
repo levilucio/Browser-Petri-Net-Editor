@@ -5,8 +5,7 @@ import { useElementManager } from '../elements/useElementManager';
 
 // Assuming these components exist and will be created/moved later
 // Placeholder imports - adjust paths as necessary when components are created/moved
-import Place from '../../components/Place'; 
-import Transition from '../../components/Transition';
+import ElementManager from '../elements/ElementManager';
 import ArcManager from '../arcs/ArcManager';
 import Grid from '../../components/Grid'; 
 
@@ -213,34 +212,16 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
             zoomLevel={zoomLevel} // Pass zoomLevel if grid lines need to adjust thickness or visibility
           />
 
-          {/* Places - adjust position to account for scroll and zoom */}
-          {elements.places.map(place => (
-            <Place
-              key={place.id}
-              {...place}
-              isSelected={selectedElement?.id === place.id}
-              onSelect={() => handleElementClick(place, 'place')}
-              onChange={(newAttrs) => handleElementDragEnd(place.id, 'places', newAttrs)}
-              zoomLevel={zoomLevel}
-              canvasScroll={canvasScroll}
-            />
-          ))}
-          
-          {/* Transitions - adjust position to account for scroll and zoom */}
-          {elements.transitions.map(transition => (
-            <Transition
-              key={transition.id}
-              {...transition}
-              isSelected={selectedElement?.id === transition.id}
-              onSelect={() => handleElementClick(transition, 'transition')}
-              onChange={(newAttrs) => handleElementDragEnd(transition.id, 'transitions', newAttrs)}
-              isEnabled={enabledTransitionIds.includes(transition.id)}
-              zoomLevel={zoomLevel}
-              canvasScroll={canvasScroll}
-            />
-          ))}
-          
         </Layer>
+        <ElementManager 
+            elements={elements}
+            selectedElement={selectedElement}
+            handleElementClick={handleElementClick}
+            handleElementDragEnd={handleElementDragEnd}
+            enabledTransitionIds={enabledTransitionIds}
+            zoomLevel={zoomLevel}
+            canvasScroll={canvasScroll}
+        />
         <ArcManager />
       </Stage>
   );
