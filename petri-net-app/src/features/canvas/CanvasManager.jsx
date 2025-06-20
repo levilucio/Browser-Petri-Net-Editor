@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback, memo } from 'react';
 import { Stage, Layer, Rect, Line, Circle, Text } from 'react-konva';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import { useElementManager } from '../elements/useElementManager';
@@ -8,8 +8,6 @@ import { useElementManager } from '../elements/useElementManager';
 import ElementManager from '../elements/ElementManager';
 import ArcManager from '../arcs/ArcManager';
 import Grid from '../../components/Grid'; 
-
-
 
 // Constants for canvas expansion (can be moved to context if shared)
 // const expansionThreshold = 100; // px from edge to trigger expansion
@@ -28,7 +26,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     elements, setElements,
     enabledTransitionIds,
     snapToGrid, gridSize, gridSnappingEnabled, // Added gridSnappingEnabled
-    containerRef, // Ref for the stage container div
+    setContainerRef, // Setter for the stage container div
     stageRef // Ref for the Konva Stage
   } = usePetriNet();
 
@@ -41,20 +39,25 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
 
   const [draggedElement, setDraggedElement] = useState(null);
 
+  // Create a local ref to handle the container reference
+  const localContainerRef = useRef(null);
+  
   // Effect to set stage dimensions based on its container
   useEffect(() => {
-    // containerRef from context is now the DOM node itself (or null).
-    // Directly check if it exists before using its properties.
-    if (containerRef) {
-      const rect = containerRef.getBoundingClientRect();
+    // Check if the local ref exists before using its properties
+    if (localContainerRef.current) {
+      const rect = localContainerRef.current.getBoundingClientRect();
       const newWidth = rect.width;
       const newHeight = rect.height;
       if (newWidth > 0 && newHeight > 0 && (newWidth !== stageDimensions.width || newHeight !== stageDimensions.height)) {
         setStageDimensions({ width: newWidth, height: newHeight });
       }
+      
+      // Set the container ref in the context
+      setContainerRef(localContainerRef.current);
     }
     // Consider ResizeObserver for more dynamic updates if needed
-  }, [containerRef, stageDimensions, setStageDimensions]); // stageDimensions object as dependency
+  }, [localContainerRef, stageDimensions, setStageDimensions, setContainerRef]);
 
 
 
@@ -147,6 +150,17 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
       });
     }
   }, [ZOOM_STEP, handleZoom, setCanvasScroll, zoomLevel, virtualCanvasDimensions, stageDimensions]);
+  
+  // Add the missing handleScroll function
+  const handleScroll = React.useCallback((e) => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollTop } = e.target;
+      setCanvasScroll({
+        x: scrollLeft,
+        y: scrollTop
+      });
+    }
+  }, [setCanvasScroll]);
 
   // Effect to add wheel event listener for zoom and scroll
   useEffect(() => {
@@ -167,11 +181,31 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     return () => {
       document.removeEventListener('wheel', wheelListener);
     };
-  }, [containerRef, handleWheelEvent]); // Updated dependencies
+  }, [localContainerRef, handleWheelEvent]); // Use localContainerRef instead of containerRef
 
 
 
+  // Mouse event handlers are defined inline in the JSX
+
+  // Connect the local ref with the context using setContainerRef when the ref is available
+  useEffect(() => {
+    if (localContainerRef.current) {
+      setContainerRef(localContainerRef.current);
+    }
+  }, [localContainerRef, setContainerRef]);
+  
   return (
+    <div
+      ref={localContainerRef}
+      className="canvas-container"
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: 'auto',
+        position: 'relative',
+      }}
+      onScroll={handleScroll}
+    >
       <Stage
         ref={stageRef}
         width={virtualCanvasDimensions.width}
@@ -211,19 +245,19 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
             scrollY={-canvasScroll.y / zoomLevel}
             zoomLevel={zoomLevel} // Pass zoomLevel if grid lines need to adjust thickness or visibility
           />
-
         </Layer>
         <ElementManager 
-            elements={elements}
-            selectedElement={selectedElement}
-            handleElementClick={handleElementClick}
-            handleElementDragEnd={handleElementDragEnd}
-            enabledTransitionIds={enabledTransitionIds}
-            zoomLevel={zoomLevel}
-            canvasScroll={canvasScroll}
+          elements={elements}
+          selectedElement={selectedElement}
+          handleElementClick={handleElementClick}
+          handleElementDragEnd={handleElementDragEnd}
+          enabledTransitionIds={enabledTransitionIds}
+          zoomLevel={zoomLevel}
+          canvasScroll={canvasScroll}
         />
         <ArcManager />
       </Stage>
+    </div>
   );
 };
 

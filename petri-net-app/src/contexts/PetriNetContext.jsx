@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import debounce from 'lodash/debounce';
 import { HistoryManager } from '../utils/historyManager';
 import useSimulationManager from '../features/simulation/useSimulationManager';
 
@@ -50,12 +51,31 @@ export const PetriNetProvider = ({ children }) => {
   const [containerRefValue, setContainerRefValue] = useState(null); // Changed from useRef to useState
   const stageRef = useRef(null);
 
-  // Update history when elements change
+  // More aggressive debounce for history updates to improve responsiveness
+  const debouncedAddStateRef = useRef(
+    debounce((state) => {
+      const historyStatus = historyManagerRef.current.addState(state);
+      setCanUndo(historyStatus.canUndo);
+      setCanRedo(historyStatus.canRedo);
+    }, 500) // Increased debounce time for better performance
+  );
+
+  // Track if we're currently dragging or changing modes to avoid expensive operations
+  const [isDragging, setIsDragging] = useState(false);
+  const prevModeRef = useRef(mode);
+  
+  // Only update history when not dragging and not just changing modes
   useEffect(() => {
-    const historyStatus = historyManagerRef.current.addState(elements);
-    setCanUndo(historyStatus.canUndo);
-    setCanRedo(historyStatus.canRedo);
-  }, [elements]);
+    // Skip history updates for mode changes or during dragging
+    if (!isDragging && prevModeRef.current === mode) {
+      debouncedAddStateRef.current(elements);
+    }
+    
+    // Update the previous mode reference
+    prevModeRef.current = mode;
+    
+    return () => debouncedAddStateRef.current.cancel();
+  }, [elements, isDragging, mode]);
 
   const updateHistory = (newState) => {
     const historyStatus = historyManagerRef.current.addState(newState);
@@ -111,6 +131,7 @@ export const PetriNetProvider = ({ children }) => {
       mode, setMode,
       arcStart, setArcStart,
       tempArcEnd, setTempArcEnd,
+      isDragging, setIsDragging, // Expose dragging state to optimize performance
       isContinuousSimulating,
       isRunning,
       enabledTransitionIds,

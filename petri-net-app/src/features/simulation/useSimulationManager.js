@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import debounce from 'lodash.debounce';
-import {
-  getEnabledTransitions,
-  fireTransition,
-  initializeSimulator,
-  updateSimulator,
+import { 
+  initializeSimulator, 
+  updateSimulator, 
+  getEnabledTransitions, 
+  fireTransition, 
+  activateSimulation, 
+  deactivateSimulation 
 } from '../../utils/simulator';
 
 const useSimulationManager = (elements, setElements) => {
@@ -18,13 +20,25 @@ const useSimulationManager = (elements, setElements) => {
   const isRunningRef = useRef(false);
 
   useEffect(() => {
-    initializeSimulator(elements);
+    const initSimulator = async () => {
+      try {
+        // Initialize with JS fallback for better performance during editing
+        await initializeSimulator(elements, { maxTokens: 20 });
+      } catch (error) {
+        console.error('Error initializing simulator:', error);
+        setSimulationError('Failed to initialize simulator');
+      }
+    };
+
+    initSimulator();
+    
+    // Cleanup - make sure simulation is deactivated when component unmounts
+    return () => {
+      deactivateSimulation();
+    };
   }, []);
 
-  useEffect(() => {
-    updateSimulator(elements);
-  }, [elements]);
-
+  // Define refreshEnabledTransitions before using it
   const refreshEnabledTransitions = useCallback(async () => {
     try {
       const enabled = await getEnabledTransitions();
@@ -38,18 +52,35 @@ const useSimulationManager = (elements, setElements) => {
     }
   }, []);
 
-  const debouncedRefresh = useCallback(debounce(refreshEnabledTransitions, 300), [
+  const debouncedRefresh = useCallback(debounce(refreshEnabledTransitions, 100), [
     refreshEnabledTransitions,
   ]);
+  
+  useEffect(() => {
+    if (isContinuousSimulating || isRunning) {
+      // Activate simulation mode when starting simulation
+      activateSimulation();
+      refreshEnabledTransitions();
+    } else {
+      // Deactivate simulation mode when stopping simulation
+      deactivateSimulation();
+      // Clear enabled transitions when simulation stops
+      setEnabledTransitionIds([]);
+    }
+  }, [isContinuousSimulating, isRunning, refreshEnabledTransitions]);
 
   useEffect(() => {
-    debouncedRefresh();
+    if (isRunning || isContinuousSimulating) {
+      debouncedRefresh();
+    }
     return () => debouncedRefresh.cancel();
-  }, [elements, debouncedRefresh]);
+  }, [isRunning, isContinuousSimulating, debouncedRefresh]);
 
   const handleFireTransition = useCallback(
     async (transitionId) => {
       try {
+        // Activate simulation mode before firing transition
+        activateSimulation();
         const newElements = await fireTransition(transitionId);
         setElements(newElements);
         setSimulationError(null);
@@ -73,18 +104,22 @@ const useSimulationManager = (elements, setElements) => {
     if (isContinuousSimulating || isRunning) return;
     setIsContinuousSimulating(true);
     isAnimatingRef.current = true;
+    refreshEnabledTransitions();
     animationIntervalRef.current = setInterval(() => {
       if (isAnimatingRef.current) {
         stepSimulation();
       }
     }, 1000);
-  }, [isContinuousSimulating, isRunning, stepSimulation]);
+  }, [isContinuousSimulating, isRunning, stepSimulation, refreshEnabledTransitions]);
 
   const startRunSimulation = useCallback(async () => {
     if (isContinuousSimulating || isRunningRef.current) return;
 
+    activateSimulation(); // Activate simulation mode
     setIsRunning(true);
+    setIsContinuousSimulating(false);
     isRunningRef.current = true;
+    refreshEnabledTransitions();
 
     const runStep = async () => {
       if (!isRunningRef.current) {
@@ -114,20 +149,14 @@ const useSimulationManager = (elements, setElements) => {
     };
 
     runStep();
-  }, [isContinuousSimulating, setElements]);
+  }, [isContinuousSimulating, setElements, refreshEnabledTransitions]);
 
   const stopAllSimulations = useCallback(() => {
     setIsContinuousSimulating(false);
-    isAnimatingRef.current = false;
-    if (animationIntervalRef.current) {
-      clearInterval(animationIntervalRef.current);
-      animationIntervalRef.current = null;
-    }
-
-    isRunningRef.current = false;
     setIsRunning(false);
 
     setSimulationError(null);
+    setEnabledTransitionIds([]);
   }, []);
 
   return {

@@ -453,28 +453,48 @@ const Toolbar = ({
               <button 
                 style={{ ...buttonStyle(mode === 'select') }}
                 data-testid="toolbar-select"
-                onClick={() => setMode('select')}
+                onClick={() => {
+                  // Use immediate state update for better responsiveness
+                  if (mode !== 'select') {
+                    setMode('select');
+                  }
+                }}
               >
                 Select
               </button>
               <button 
                 style={buttonStyle(mode === 'place')}
                 data-testid="toolbar-place"
-                onClick={() => setMode('place')}
+                onClick={() => {
+                  // Use immediate state update for better responsiveness
+                  if (mode !== 'place') {
+                    setMode('place');
+                  }
+                }}
               >
                 Place
               </button>
               <button 
                 style={buttonStyle(mode === 'transition')}
                 data-testid="toolbar-transition"
-                onClick={() => setMode('transition')}
+                onClick={() => {
+                  // Use immediate state update for better responsiveness
+                  if (mode !== 'transition') {
+                    setMode('transition');
+                  }
+                }}
               >
                 Transition
               </button>
               <button 
                 style={buttonStyle(mode === 'arc')}
                 data-testid="toolbar-arc"
-                onClick={() => setMode('arc')}
+                onClick={() => {
+                  // Use immediate state update for better responsiveness
+                  if (mode !== 'arc') {
+                    setMode('arc');
+                  }
+                }}
               >
                 Arc
               </button>

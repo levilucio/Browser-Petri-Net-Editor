@@ -1,5 +1,6 @@
 import React from 'react';
 import { Circle, Text, Group } from 'react-konva';
+import { usePetriNet } from '../contexts/PetriNetContext';
 
 const Place = ({
   id,
@@ -24,12 +25,22 @@ const Place = ({
   const stageX = (x - canvasScroll.x) / zoomLevel;
   const stageY = (y - canvasScroll.y) / zoomLevel;
 
+    // Access the isDragging state from context
+  const { isDragging, setIsDragging } = usePetriNet();
+  
+  const handleDragStart = () => {
+    // Set dragging state to true when drag starts
+    setIsDragging(true);
+  };
+
   const handleDragEnd = (e) => {
     // When drag ends, transform stage coordinates back to virtual coordinates
     const newVirtualPos = {
       x: (e.target.x() * zoomLevel) + canvasScroll.x,
       y: (e.target.y() * zoomLevel) + canvasScroll.y,
     };
+    // Set dragging state to false when drag ends
+    setIsDragging(false);
     // The onChange handler (from useElementManager) expects the new virtual position
     onChange(newVirtualPos);
   };
@@ -104,10 +115,11 @@ const Place = ({
     <Group
       x={stageX}
       y={stageY}
-      onClick={onSelect}
-      onTap={onSelect}
-      draggable
+      draggable={true}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onClick={() => onSelect(id)}
+      onTap={() => onSelect(id)}
       id={id} // Pass id for hit detection in ArcManager
       name='element' // Generic name for easier hit detection
       elementType='place' // Custom attribute for type-specific logic

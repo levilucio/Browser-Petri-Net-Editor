@@ -157,8 +157,27 @@ export class JsPetriNetSimulator {
   }
 }
 
-// Flag to use JavaScript fallback if Pyodide fails
-let useJsFallback = false;
+// Flag to use JavaScript fallback by default for better performance
+let useJsFallback = true;
+
+// Only set to false when simulation is actually running
+
+/**
+ * Activate simulation mode - switches to use the full Pyodide simulator
+ * This should be called when starting simulation to ensure accurate results
+ */
+export function activateSimulation() {
+  useJsFallback = false;
+}
+
+/**
+ * Deactivate simulation mode - switches back to JS fallback for better performance
+ * This should be called when stopping simulation to improve editor responsiveness
+ */
+export function deactivateSimulation() {
+  useJsFallback = true;
+}
+let simulationActive = false;
 
 /**
  * Initialize Pyodide and load the simulator module
@@ -241,9 +260,16 @@ async function fetchSimulatorCode() {
  * @param {Object} petriNet - The Petri net in JSON format with places, transitions, and arcs
  * @param {Object} options - Additional options for the simulator
  * @param {number} options.maxTokens - Maximum number of tokens per place (default: 20)
+ * @param {boolean} options.forceInitialize - Force initialization even if not in simulation mode
  * @returns {Promise<void>}
  */
 export async function initializeSimulator(petriNet, options = {}) {
+  // Skip expensive initialization during normal editing
+  if (!simulationActive && !options.forceInitialize) {
+    // Just create the JS fallback for basic operations
+    simulator = new JsPetriNetSimulator(petriNet, options);
+    return;
+  }
   try {
     // Check if we should use the JavaScript fallback
     if (useJsFallback) {
