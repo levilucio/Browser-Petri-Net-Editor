@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { HistoryManager } from '../utils/historyManager';
-import { getEnabledTransitions } from '../utils/simulator'; // Assuming historyManager.js is in utils
+import useSimulationManager from '../features/simulation/useSimulationManager';
 
 const PetriNetContext = createContext();
 
@@ -17,13 +17,16 @@ export const PetriNetProvider = ({ children }) => {
   const [arcStart, setArcStart] = useState(null); // For arc creation
   const [tempArcEnd, setTempArcEnd] = useState(null); // For visual feedback during arc creation
   
-  // Simulation state
-  const [simulationMode, setSimulationMode] = useState('step'); // step, quick, full
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [enabledTransitionIds, setEnabledTransitionIds] = useState([]);
-  const [simulationError, setSimulationError] = useState(null);
-  const [visualAnimationInterval, setVisualAnimationInterval] = useState(null);
-  const [isVisualAnimationRunning, setIsVisualAnimationRunning] = useState(false);
+  const {
+    isContinuousSimulating,
+    isRunning,
+    enabledTransitionIds,
+    simulationError,
+    stepSimulation,
+    startContinuousSimulation,
+    startRunSimulation,
+    stopAllSimulations,
+  } = useSimulationManager(elements, setElements);
   
   // Settings dialog state
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
@@ -94,28 +97,7 @@ export const PetriNetProvider = ({ children }) => {
     setGridSnappingEnabled(prev => !prev);
   };
 
-  const refreshEnabledTransitions = () => {
-    if (!elements || (!elements.places && !elements.transitions)) {
-      setEnabledTransitionIds([]);
-      return;
-    }
-    try {
-      // Ensure elements has the expected structure for getEnabledTransitions
-      const currentElements = JSON.parse(JSON.stringify(elements)); // Deep copy to be safe
-      const ids = getEnabledTransitions(currentElements, simulationMode);
-      setEnabledTransitionIds(ids || []); // Ensure it's always an array
-      setSimulationError(null); // Clear previous errors
-    } catch (error) {
-      console.error("Error calculating enabled transitions:", error);
-      setSimulationError(error.message || "Failed to update enabled transitions.");
-      setEnabledTransitionIds([]);
-    }
-  };
 
-  // Automatically update enabled transitions when elements or simulation mode changes
-  useEffect(() => {
-    refreshEnabledTransitions();
-  }, [elements, simulationMode]);
 
   const handleSaveSettings = (newSettings) => {
     setSimulationSettings(newSettings);
@@ -129,12 +111,14 @@ export const PetriNetProvider = ({ children }) => {
       mode, setMode,
       arcStart, setArcStart,
       tempArcEnd, setTempArcEnd,
-      simulationMode, setSimulationMode,
-      isSimulating, setIsSimulating,
-      enabledTransitionIds, setEnabledTransitionIds,
-      simulationError, setSimulationError,
-      visualAnimationInterval, setVisualAnimationInterval,
-      isVisualAnimationRunning, setIsVisualAnimationRunning,
+      isContinuousSimulating,
+      isRunning,
+      enabledTransitionIds,
+      simulationError,
+      stepSimulation,
+      startContinuousSimulation,
+      startRunSimulation,
+      stopAllSimulations,
       isSettingsDialogOpen, setIsSettingsDialogOpen,
       simulationSettings, setSimulationSettings,
       stageDimensions, setStageDimensions,
@@ -157,7 +141,6 @@ export const PetriNetProvider = ({ children }) => {
       containerRef: containerRefValue, // Expose the state value
       setContainerRef: setContainerRefValue, // Expose the setter
       stageRef,
-      refreshEnabledTransitions, // Expose the new function
       handleSaveSettings, // Expose settings save handler
       MIN_ZOOM, // Expose MIN_ZOOM
       MAX_ZOOM  // Expose MAX_ZOOM

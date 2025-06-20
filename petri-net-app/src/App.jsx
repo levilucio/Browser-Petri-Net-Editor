@@ -2,15 +2,14 @@ import React, { useEffect, useState, useRef } from 'react';
 // Konva imports removed as CanvasManager handles them
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
-import ExecutionPanel from './components/ExecutionPanel';
+import SimulationManager from './features/simulation/SimulationManager';
 // Element/Grid components imports removed as CanvasManager handles them
 import SettingsDialog from './components/SettingsDialog';
 import { v4 as uuidv4 } from 'uuid'; // Keep for element creation if any remains here, or for other UUID needs.
 import CanvasManager from './features/canvas/CanvasManager'; // Import CanvasManager
 import { useElementManager } from './features/elements/useElementManager'; // Import the new hook
 
-// Import the simulator functions
-import { initializeSimulator, getEnabledTransitions } from './utils/simulator';
+
 import { applyAutoLayout } from './utils/autoLayout';
 
 import { PetriNetProvider, usePetriNet } from './contexts/PetriNetContext';
@@ -25,12 +24,7 @@ function AppContent() {
     mode, setMode,
     arcStart, setArcStart,
     tempArcEnd, setTempArcEnd,
-    simulationMode, setSimulationMode,
-    isSimulating, setIsSimulating,
-    enabledTransitionIds, setEnabledTransitionIds,
-    simulationError, setSimulationError,
-    visualAnimationInterval, setVisualAnimationInterval,
-    isVisualAnimationRunning, setIsVisualAnimationRunning,
+
     isSettingsDialogOpen, setIsSettingsDialogOpen,
     simulationSettings, setSimulationSettings,
     stageDimensions, setStageDimensions,
@@ -52,7 +46,7 @@ function AppContent() {
     containerRef, // Context ref (value)
     setContainerRef, // Context ref setter
     stageRef, // Context ref
-    refreshEnabledTransitions, // Function from context
+
     handleSaveSettings // Function from context
   } = usePetriNet();
 
@@ -106,15 +100,7 @@ function AppContent() {
 
   // Removed handleScroll and handleZoom functions - managed by CanvasManager
 
-  // Effect to clean up the visual animation interval when component unmounts or simulation mode changes
-  useEffect(() => {
-    // Clean up function to stop the visual animation
-    return () => {
-      if (visualAnimationInterval) {
-        clearInterval(visualAnimationInterval);
-      }
-    };
-  }, [visualAnimationInterval, simulationMode]);
+
 
   // Removed useEffect for updateDimensions (window resize) - managed by CanvasManager
   // Removed useEffect for wheel event listener - managed by CanvasManager
@@ -288,59 +274,9 @@ function AppContent() {
           simulationSettings={simulationSettings}
         />
         
-        {/* Execution panel */}
+        {/* Simulation Manager */}
         <div className="border-t-2 border-gray-200 w-full"></div>
-        <ExecutionPanel 
-          elements={elements}
-          onUpdateElements={(updatedPetriNet) => {
-              // Update the elements state with the new Petri net state
-              setElements(prev => {
-                // Create a deep copy of the previous arcs to ensure we preserve all properties
-                const preservedArcs = prev.arcs.map(arc => ({
-                  ...arc,
-                  // Ensure we have both sourceId and source (for compatibility)
-                  sourceId: arc.sourceId || arc.source,
-                  targetId: arc.targetId || arc.target
-                }));
-                
-                // If updatedPetriNet has arcs, merge them with preserved arcs
-                const mergedArcs = updatedPetriNet.arcs ? 
-                  updatedPetriNet.arcs.map(updatedArc => {
-                    // Find the corresponding arc in the preserved arcs
-                    const existingArc = preservedArcs.find(arc => arc.id === updatedArc.id);
-                    if (existingArc) {
-                      // Merge the updated arc with the existing arc to preserve all properties
-                      return {
-                        ...existingArc,
-                        ...updatedArc,
-                        // Ensure these critical properties are preserved
-                        sourceId: updatedArc.sourceId || updatedArc.source || existingArc.sourceId || existingArc.source,
-                        targetId: updatedArc.targetId || updatedArc.target || existingArc.targetId || existingArc.target,
-                        sourceType: updatedArc.sourceType || existingArc.sourceType,
-                        targetType: updatedArc.targetType || existingArc.targetType,
-                        sourceDirection: updatedArc.sourceDirection || existingArc.sourceDirection,
-                        targetDirection: updatedArc.targetDirection || existingArc.targetDirection
-                      };
-                    }
-                    return updatedArc;
-                  }) : 
-                  preservedArcs;
-                
-                const newState = {
-                  ...prev,
-                  places: updatedPetriNet.places || prev.places,
-                  transitions: updatedPetriNet.transitions || prev.transitions,
-                  arcs: mergedArcs
-                };
-                
-                // Add to history after state update
-                updateHistory(newState);
-                return newState;
-              });
-            }}
-            onEnabledTransitionsChange={refreshEnabledTransitions}
-            simulationSettings={simulationSettings}
-        />
+        <SimulationManager />
       </div>
       
       {/* Canvas Area - positioned in the remaining space with its own scrolling context */}
