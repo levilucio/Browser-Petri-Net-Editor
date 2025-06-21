@@ -15,12 +15,37 @@ const Transition = ({
   const baseWidth = 40;
   const baseHeight = 50;
 
-  // Access the isDragging state from context
-  const { setIsDragging } = usePetriNet();
+  // Access the context states
+  const { 
+    setIsDragging, 
+    gridSnappingEnabled, 
+    snapToGrid, 
+    setSnapIndicator 
+  } = usePetriNet();
   
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
     setIsDragging(true);
+  };
+
+  const handleDragMove = (e) => {
+    // Only show snap indicator if grid snapping is enabled
+    if (gridSnappingEnabled) {
+      const currentPos = {
+        x: e.target.x(),
+        y: e.target.y()
+      };
+      
+      // Calculate where this would snap to
+      const snappedPos = snapToGrid(currentPos.x, currentPos.y);
+      
+      // Update the snap indicator position
+      setSnapIndicator({
+        visible: true,
+        position: snappedPos,
+        elementType: 'transition'
+      });
+    }
   };
 
   const handleDragEnd = (e) => {
@@ -29,8 +54,17 @@ const Transition = ({
       x: e.target.x(),
       y: e.target.y(),
     };
+    
     // Set dragging state to false when drag ends
     setIsDragging(false);
+    
+    // Hide the snap indicator
+    setSnapIndicator({
+      visible: false,
+      position: null,
+      elementType: null
+    });
+    
     // The onChange handler (from useElementManager) expects the new virtual position
     onChange(newVirtualPos);
   };
@@ -43,6 +77,7 @@ const Transition = ({
       onTap={onSelect}
       draggable
       onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       id={id} // Pass id for hit detection in ArcManager
       name='element' // Generic name for easier hit detection

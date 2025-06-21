@@ -62,6 +62,7 @@ export const PetriNetProvider = ({ children }) => {
 
   // Track if we're currently dragging or changing modes to avoid expensive operations
   const [isDragging, setIsDragging] = useState(false);
+  const [snapIndicator, setSnapIndicator] = useState({ visible: false, position: null, elementType: null });
   const prevModeRef = useRef(mode);
   
   // Only update history when not dragging and not just changing modes
@@ -149,6 +150,8 @@ export const PetriNetProvider = ({ children }) => {
       gridSnappingEnabled,
       toggleGridSnapping,
       gridSize,
+      snapIndicator,
+      setSnapIndicator,
       historyManagerRef, // Expose ref for direct manipulation if needed, though prefer actions
       canUndo,
       setCanUndo, // Expose setters if direct manipulation is needed, else remove

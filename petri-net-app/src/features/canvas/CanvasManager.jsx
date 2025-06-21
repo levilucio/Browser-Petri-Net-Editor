@@ -6,6 +6,7 @@ import ElementManager from '../elements/ElementManager';
 import ArcManager from '../arcs/ArcManager';
 import Grid from '../../components/Grid';
 import CustomScrollbar from '../../components/CustomScrollbar';
+import SnapIndicator from '../../components/SnapIndicator';
 
 const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
   const {
@@ -22,6 +23,9 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     setContainerRef,
     stageRef,
     gridSize,
+    gridSnappingEnabled,
+    snapToGrid,
+    snapIndicator, setSnapIndicator,
   } = usePetriNet();
 
   const { 
@@ -80,25 +84,45 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
   };
 
   const handleMouseMove = () => {
+    const pos = getVirtualPointerPosition();
+    if (!pos) return;
+    
+    // Handle arc drawing
     if (mode === 'arc' && arcStart) {
-      const pos = getVirtualPointerPosition();
-      if (pos) {
-        let potentialTarget = null;
-        const stage = stageRef.current;
-        if (stage) {
-            const pointerPos = stage.getPointerPosition();
-            const shape = stage.getIntersection(pointerPos);
-            if (shape && (shape.attrs.elementType === 'place' || shape.attrs.elementType === 'transition')) {
-                if (shape.attrs.id !== arcStart.element.id) {
-                    potentialTarget = { id: shape.attrs.id, type: shape.attrs.elementType };
-                }
-            }
-        }
-        setTempArcEnd({ 
-            sourcePoint: arcStart.point,
-            x: pos.x,
-            y: pos.y, 
-            potentialTarget 
+      let potentialTarget = null;
+      const stage = stageRef.current;
+      if (stage) {
+          const pointerPos = stage.getPointerPosition();
+          const shape = stage.getIntersection(pointerPos);
+          if (shape && (shape.attrs.elementType === 'place' || shape.attrs.elementType === 'transition')) {
+              if (shape.attrs.id !== arcStart.element.id) {
+                  potentialTarget = { id: shape.attrs.id, type: shape.attrs.elementType };
+              }
+          }
+      }
+      setTempArcEnd({ 
+          sourcePoint: arcStart.point,
+          x: pos.x,
+          y: pos.y, 
+          potentialTarget 
+      });
+    }
+    
+    // Show snap indicator when grid snapping is enabled and in place/transition mode
+    if (gridSnappingEnabled && (mode === 'place' || mode === 'transition')) {
+      const snappedPos = snapToGrid(pos.x, pos.y);
+      setSnapIndicator({
+        visible: true,
+        position: snappedPos,
+        elementType: mode
+      });
+    } else {
+      // Hide indicator if not in place/transition mode or grid snapping disabled
+      if (snapIndicator.visible) {
+        setSnapIndicator({
+          visible: false,
+          position: null,
+          elementType: null
         });
       }
     }
@@ -202,6 +226,13 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
             width={virtualCanvasDimensions.width} 
             height={virtualCanvasDimensions.height} 
             gridSize={gridSize} 
+          />
+          
+          {/* Snap indicator layer */}
+          <SnapIndicator 
+            position={snapIndicator.position}
+            visible={snapIndicator.visible}
+            elementType={snapIndicator.elementType}
           />
         </Layer>
         <ElementManager 
