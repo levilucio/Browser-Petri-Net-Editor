@@ -13,8 +13,6 @@ const ArcManager = () => {
     getVirtualPointerPosition,
     gridSnappingEnabled,
     snapToGrid,
-    canvasScroll,
-    zoomLevel,
   } = usePetriNet();
 
   const { handleElementClick } = useElementManager();
@@ -28,27 +26,11 @@ const ArcManager = () => {
     return elements.places.find(p => p.id === id) || elements.transitions.find(t => t.id === id);
   };
 
-  const toStagePoints = (points) => {
-    const stagePoints = [];
-    for (let i = 0; i < points.length; i += 2) {
-      stagePoints.push(
-        (points[i] - canvasScroll.x) / zoomLevel,
-        (points[i + 1] - canvasScroll.y) / zoomLevel
-      );
-    }
-    return stagePoints;
-  };
-
-  const toStagePos = (pos) => ({
-    x: (pos.x - canvasScroll.x) / zoomLevel,
-    y: (pos.y - canvasScroll.y) / zoomLevel,
-  });
-
   const getAdjustedPoints = (source, target, anglePoints = []) => {
     const allPoints = [{...source}, ...anglePoints, {...target}];
-    const placeRadius = 30;
-    const transitionWidth = 50;
-    const transitionHeight = 20;
+    const placeRadius = 30; // from Place.jsx
+    const transitionWidth = 40; // from Transition.jsx
+    const transitionHeight = 50; // from Transition.jsx
 
     const start = { ...allPoints[0] };
     const end = { ...allPoints[allPoints.length - 1] };
@@ -118,19 +100,18 @@ const ArcManager = () => {
           {...target, type: arc.targetType}, 
           arc.anglePoints
         );
-        const stagePoints = toStagePoints(virtualPoints);
 
-        const textPos = toStagePos({
+        const textPos = {
           x: (virtualPoints[0] + virtualPoints[virtualPoints.length - 2]) / 2,
           y: (virtualPoints[1] + virtualPoints[virtualPoints.length - 1]) / 2 - 15,
-        });
+        };
 
         return (
           <Group key={arc.id}>
             <Arrow
-              points={stagePoints}
+              points={virtualPoints}
               stroke={selectedElement?.id === arc.id ? 'blue' : 'black'}
-              strokeWidth={2 / zoomLevel}
+              strokeWidth={2}
               fill="black"
               pointerLength={10}
               pointerWidth={10}
@@ -147,7 +128,7 @@ const ArcManager = () => {
               x={textPos.x}
               y={textPos.y}
               text={arc.weight > 1 ? arc.weight : ''}
-              fontSize={14 / zoomLevel}
+              fontSize={14}
             />
           </Group>
         );
@@ -156,10 +137,10 @@ const ArcManager = () => {
       {/* Render temporary arc for creation */}
       {tempArcEnd && tempArcEnd.sourcePoint && (
         <Line
-          points={toStagePoints([tempArcEnd.sourcePoint.x, tempArcEnd.sourcePoint.y, tempArcEnd.x, tempArcEnd.y])}
+          points={[tempArcEnd.sourcePoint.x, tempArcEnd.sourcePoint.y, tempArcEnd.x, tempArcEnd.y]}
           stroke="grey"
-          strokeWidth={2 / zoomLevel}
-          dash={[5 / zoomLevel, 5 / zoomLevel]}
+          strokeWidth={2}
+          dash={[5, 5]}
           listening={false}
         />
       )}
@@ -169,23 +150,19 @@ const ArcManager = () => {
     <Layer key="handles-layer">
       {selectedElement?.type === 'arc' && mode === 'arc_angle' && (
         selectedElement.anglePoints.map((point, index) => {
-          const stagePos = toStagePos(point);
           return (
             <Circle
               key={`angle-${selectedElement.id}-${index}`}
-              x={stagePos.x}
-              y={stagePos.y}
-              radius={6 / zoomLevel}
+              x={point.x}
+              y={point.y}
+              radius={6}
               fill="red"
               stroke="black"
-              strokeWidth={1 / zoomLevel}
+              strokeWidth={1}
               draggable
               onDragEnd={(e) => {
-                const virtualPos = {
-                  x: (e.target.x() * zoomLevel) + canvasScroll.x,
-                  y: (e.target.y() * zoomLevel) + canvasScroll.y,
-                };
-                const finalPos = gridSnappingEnabled ? snapToGrid(virtualPos.x, virtualPos.y) : virtualPos;
+                const newPos = { x: e.target.x(), y: e.target.y() };
+                const finalPos = gridSnappingEnabled ? snapToGrid(newPos.x, newPos.y) : newPos;
                 handleDragAnglePoint(selectedElement.id, index, finalPos);
               }}
               onClick={(e) => {

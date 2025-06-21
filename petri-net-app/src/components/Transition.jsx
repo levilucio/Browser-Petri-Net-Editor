@@ -11,27 +11,12 @@ const Transition = ({
   isEnabled,
   onSelect,
   onChange,
-  zoomLevel,
-  canvasScroll,
 }) => {
   const baseWidth = 40;
   const baseHeight = 50;
 
-  // A guard to prevent rendering if essential props are not available yet.
-  if (canvasScroll === undefined || zoomLevel === undefined) {
-    return null;
-  }
-
-  // Transform virtual coordinates to stage coordinates
-  const stageX = (x - canvasScroll.x) / zoomLevel;
-  const stageY = (y - canvasScroll.y) / zoomLevel;
-
-  // Scale dimensions based on zoom level
-  const scaledWidth = baseWidth / zoomLevel;
-  const scaledHeight = baseHeight / zoomLevel;
-
   // Access the isDragging state from context
-  const { isDragging, setIsDragging } = usePetriNet();
+  const { setIsDragging } = usePetriNet();
   
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
@@ -39,10 +24,10 @@ const Transition = ({
   };
 
   const handleDragEnd = (e) => {
-    // When drag ends, transform stage coordinates back to virtual coordinates
+    // When drag ends, the new position is in the parent's coordinate system (virtual coordinates)
     const newVirtualPos = {
-      x: (e.target.x() * zoomLevel) + canvasScroll.x,
-      y: (e.target.y() * zoomLevel) + canvasScroll.y,
+      x: e.target.x(),
+      y: e.target.y(),
     };
     // Set dragging state to false when drag ends
     setIsDragging(false);
@@ -52,8 +37,8 @@ const Transition = ({
 
   return (
     <Group
-      x={stageX}
-      y={stageY}
+      x={x}
+      y={y}
       onClick={onSelect}
       onTap={onSelect}
       draggable
@@ -64,21 +49,21 @@ const Transition = ({
       elementType='transition' // Custom attribute for type-specific logic
     >
       <Rect
-        x={-scaledWidth / 2}
-        y={-scaledHeight / 2}
-        width={scaledWidth}
-        height={scaledHeight}
+        x={-baseWidth / 2}
+        y={-baseHeight / 2}
+        width={baseWidth}
+        height={baseHeight}
         fill={isEnabled ? 'rgba(255, 255, 0, 0.8)' : 'gray'}
         stroke={isSelected ? 'blue' : (isEnabled ? 'rgba(255, 180, 0, 1)' : 'black')}
-        strokeWidth={(isSelected ? 3 : (isEnabled ? 3 : 2)) / zoomLevel}
+        strokeWidth={isSelected ? 3 : (isEnabled ? 3 : 2)}
       />
       <Text
         text={label}
-        fontSize={14 / zoomLevel}
+        fontSize={14}
         fill="black"
-        x={-scaledWidth / 2}
-        y={(scaledHeight / 2) + (5 / zoomLevel)}
-        width={scaledWidth}
+        x={-baseWidth / 2}
+        y={(baseHeight / 2) + 5}
+        width={baseWidth}
         align="center"
         listening={false}
       />

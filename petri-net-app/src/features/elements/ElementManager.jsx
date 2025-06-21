@@ -9,8 +9,6 @@ const ElementManager = ({
   handleElementClick,
   handleElementDragEnd,
   enabledTransitionIds,
-  zoomLevel,
-  canvasScroll,
 }) => {
   return (
     <Layer>
@@ -22,8 +20,6 @@ const ElementManager = ({
           isSelected={selectedElement?.id === place.id}
           onSelect={() => handleElementClick(place, 'place')}
           onChange={(newAttrs) => handleElementDragEnd(place.id, 'places', newAttrs)}
-          zoomLevel={zoomLevel}
-          canvasScroll={canvasScroll}
         />
       ))}
 
@@ -36,8 +32,6 @@ const ElementManager = ({
           onSelect={() => handleElementClick(transition, 'transition')}
           onChange={(newAttrs) => handleElementDragEnd(transition.id, 'transitions', newAttrs)}
           isEnabled={Array.isArray(enabledTransitionIds) ? enabledTransitionIds.includes(transition.id) : false}
-          zoomLevel={zoomLevel}
-          canvasScroll={canvasScroll}
         />
       ))}
     </Layer>

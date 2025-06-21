@@ -11,22 +11,11 @@ const Place = ({
   isSelected,
   onSelect,
   onChange,
-  zoomLevel,
-  canvasScroll,
 }) => {
   const radius = 30;
 
-  // A guard to prevent rendering if essential props are not available yet.
-  if (canvasScroll === undefined || zoomLevel === undefined) {
-    return null;
-  }
-
-  // Transform virtual coordinates to stage coordinates
-  const stageX = (x - canvasScroll.x) / zoomLevel;
-  const stageY = (y - canvasScroll.y) / zoomLevel;
-
-    // Access the isDragging state from context
-  const { isDragging, setIsDragging } = usePetriNet();
+  // Access the isDragging state from context
+  const { setIsDragging } = usePetriNet();
   
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
@@ -34,10 +23,10 @@ const Place = ({
   };
 
   const handleDragEnd = (e) => {
-    // When drag ends, transform stage coordinates back to virtual coordinates
+    // When drag ends, the new position is in the parent's coordinate system (virtual coordinates)
     const newVirtualPos = {
-      x: (e.target.x() * zoomLevel) + canvasScroll.x,
-      y: (e.target.y() * zoomLevel) + canvasScroll.y,
+      x: e.target.x(),
+      y: e.target.y(),
     };
     // Set dragging state to false when drag ends
     setIsDragging(false);
@@ -46,17 +35,15 @@ const Place = ({
   };
 
   const renderTokens = () => {
-    const scaledRadius = radius / zoomLevel;
-
     if (tokens === 0) {
       return (
         <Text
           text="0"
-          fontSize={14 / zoomLevel}
+          fontSize={14}
           fill="black"
-          x={-scaledRadius}
-          y={-7 / zoomLevel}
-          width={scaledRadius * 2}
+          x={-radius}
+          y={-7}
+          width={radius * 2}
           align="center"
           listening={false}
         />
@@ -68,8 +55,8 @@ const Place = ({
         <>
           {Array.from({ length: tokens }).map((_, index) => {
             const angle = (2 * Math.PI * index) / tokens;
-            const tokenRadius = 4 / zoomLevel;
-            const distance = (radius / 2) / zoomLevel;
+            const tokenRadius = 4;
+            const distance = radius / 2;
             const tokenX = Math.cos(angle) * distance;
             const tokenY = Math.sin(angle) * distance;
             return (
@@ -85,11 +72,11 @@ const Place = ({
           })}
           <Text
             text={tokens.toString()}
-            fontSize={14 / zoomLevel}
+            fontSize={14}
             fill="black"
-            x={-scaledRadius}
-            y={-7 / zoomLevel}
-            width={scaledRadius * 2}
+            x={-radius}
+            y={-7}
+            width={radius * 2}
             align="center"
             listening={false}
           />
@@ -100,11 +87,11 @@ const Place = ({
     return (
       <Text
         text={tokens.toString()}
-        fontSize={16 / zoomLevel}
+        fontSize={16}
         fill="black"
-        x={-scaledRadius}
-        y={-8 / zoomLevel}
-        width={scaledRadius * 2}
+        x={-radius}
+        y={-8}
+        width={radius * 2}
         align="center"
         listening={false}
       />
@@ -113,8 +100,8 @@ const Place = ({
 
   return (
     <Group
-      x={stageX}
-      y={stageY}
+      x={x}
+      y={y}
       draggable={true}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
@@ -125,18 +112,18 @@ const Place = ({
       elementType='place' // Custom attribute for type-specific logic
     >
       <Circle
-        radius={radius / zoomLevel}
+        radius={radius}
         fill="white"
         stroke={isSelected ? 'blue' : 'black'}
-        strokeWidth={2 / zoomLevel}
+        strokeWidth={2}
       />
       <Text
         text={label}
-        fontSize={12 / zoomLevel}
+        fontSize={12}
         fill="black"
-        x={-radius / zoomLevel}
-        y={(radius + 5) / zoomLevel}
-        width={(radius * 2) / zoomLevel}
+        x={-radius}
+        y={radius + 5}
+        width={radius * 2}
         align="center"
         listening={false}
       />
