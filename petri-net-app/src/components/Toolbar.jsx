@@ -7,7 +7,7 @@ const Toolbar = ({
   mode, 
   setMode, 
   gridSnappingEnabled, 
-  toggleGridSnapping, 
+  onToggleGridSnapping, 
   canUndo, 
   canRedo, 
   onUndo, 
@@ -444,7 +444,7 @@ const Toolbar = ({
                 id="grid-snap-toggle"
                 data-testid="grid-snap-toggle"
                 checked={gridSnappingEnabled}
-                onChange={toggleGridSnapping}
+                onChange={onToggleGridSnapping}
                 className="mr-1"
               />
               <label htmlFor="grid-snap-toggle" className="text-xs text-gray-700">Snap to Grid</label>
