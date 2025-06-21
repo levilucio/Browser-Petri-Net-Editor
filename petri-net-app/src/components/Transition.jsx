@@ -29,7 +29,7 @@ const Transition = ({
   };
 
   const handleDragMove = (e) => {
-    // Only show snap indicator if grid snapping is enabled
+    // Only apply snapping if grid snapping is enabled
     if (gridSnappingEnabled) {
       const currentPos = {
         x: e.target.x(),
@@ -44,6 +44,12 @@ const Transition = ({
         visible: true,
         position: snappedPos,
         elementType: 'transition'
+      });
+      
+      // Force the element to snap to grid during drag
+      e.target.position({
+        x: snappedPos.x,
+        y: snappedPos.y
       });
     }
   };
