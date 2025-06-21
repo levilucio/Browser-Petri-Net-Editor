@@ -257,6 +257,9 @@ function AppContent() {
           gridSnappingEnabled={gridSnappingEnabled} 
           onToggleGridSnapping={toggleGridSnapping} 
           onSettings={() => setIsSettingsDialogOpen(true)} 
+          elements={elements}
+          setElements={setElements}
+          updateHistory={updateHistory}
         />
       </div>
       
