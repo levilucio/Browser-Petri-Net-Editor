@@ -19,7 +19,7 @@ const ElementManager = ({
           {...place}
           isSelected={selectedElement?.id === place.id}
           onSelect={() => handleElementClick(place, 'place')}
-          onChange={(newAttrs) => handleElementDragEnd(place.id, 'places', newAttrs)}
+          onChange={(newAttrs) => handleElementDragEnd(place, 'place', newAttrs)}
         />
       ))}
 
@@ -30,7 +30,7 @@ const ElementManager = ({
           {...transition}
           isSelected={selectedElement?.id === transition.id}
           onSelect={() => handleElementClick(transition, 'transition')}
-          onChange={(newAttrs) => handleElementDragEnd(transition.id, 'transitions', newAttrs)}
+          onChange={(newAttrs) => handleElementDragEnd(transition, 'transition', newAttrs)}
           isEnabled={Array.isArray(enabledTransitionIds) ? enabledTransitionIds.includes(transition.id) : false}
         />
       ))}

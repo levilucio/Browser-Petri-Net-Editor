@@ -74,20 +74,23 @@ export const useElementManager = () => {
   }, [mode, arcStart, setSelectedElement, setArcStart, setTempArcEnd, handleCompleteArc]);
 
   const handleElementDragEnd = useCallback((elementData, type, newPosition) => {
+    // Apply grid snapping if enabled
+    const snappedPosition = gridSnappingEnabled ? snapToGrid(newPosition.x, newPosition.y) : newPosition;
+    
     setElements(prev => {
       const updatedElements = { ...prev };
       if (type === 'place') {
         updatedElements.places = prev.places.map(p => 
-          p.id === elementData.id ? { ...p, x: newPosition.x, y: newPosition.y } : p
+          p.id === elementData.id ? { ...p, x: snappedPosition.x, y: snappedPosition.y } : p
         );
       } else if (type === 'transition') {
         updatedElements.transitions = prev.transitions.map(t => 
-          t.id === elementData.id ? { ...t, x: newPosition.x, y: newPosition.y } : t
+          t.id === elementData.id ? { ...t, x: snappedPosition.x, y: snappedPosition.y } : t
         );
       }
       return updatedElements;
     });
-  }, [setElements]);
+  }, [setElements, gridSnappingEnabled, snapToGrid]);
 
   return {
     handleDeleteElement,
