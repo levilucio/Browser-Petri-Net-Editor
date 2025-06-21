@@ -24,7 +24,7 @@ const mockHistoryManager = {
   getCurrentState: jest.fn().mockReturnValue({ places: [], transitions: [], arcs: [] })
 };
 
-jest.mock('../../utils/historyManager', () => {
+jest.mock('../../features/history/historyManager', () => {
   return {
     HistoryManager: jest.fn(() => mockHistoryManager)
   };

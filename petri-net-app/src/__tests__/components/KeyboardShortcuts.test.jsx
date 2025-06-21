@@ -7,7 +7,7 @@ const mockUndo = jest.fn();
 const mockRedo = jest.fn();
 
 // Mock the historyManager
-jest.mock('../../utils/historyManager', () => {
+jest.mock('../../features/history/historyManager', () => {
   return {
     HistoryManager: jest.fn().mockImplementation(() => ({
       addState: jest.fn().mockReturnValue({ canUndo: true, canRedo: false }),

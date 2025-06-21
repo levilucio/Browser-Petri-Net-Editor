@@ -1,4 +1,4 @@
-import { HistoryManager } from '../../utils/historyManager';
+import { HistoryManager } from '../../../features/history/historyManager';
 
 describe('HistoryManager', () => {
   let historyManager;

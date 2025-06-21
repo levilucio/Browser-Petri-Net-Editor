@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import * as historyManagerModule from '../../utils/historyManager';
+import * as historyManagerModule from '../../features/history/historyManager';
 import App from '../../App';
 
 // Mock the HistoryManager class
@@ -9,7 +9,7 @@ let mockUndo;
 let mockRedo;
 let mockAddState;
 
-jest.mock('../../utils/historyManager', () => {
+jest.mock('../../features/history/historyManager', () => {
   return {
     HistoryManager: jest.fn(() => mockHistoryManager)
   };
