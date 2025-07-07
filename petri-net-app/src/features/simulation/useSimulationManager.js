@@ -76,6 +76,23 @@ const useSimulationManager = (elements, setElements) => {
     return () => debouncedRefresh.cancel();
   }, [isRunning, isContinuousSimulating, debouncedRefresh]);
 
+  // Update simulator and refresh enabled transitions when elements change
+  useEffect(() => {
+    const updateAndRefresh = async () => {
+      try {
+        // Update the simulator with the current elements
+        await updateSimulator(elements);
+        // Refresh the enabled transitions
+        await refreshEnabledTransitions();
+      } catch (error) {
+        console.error('Error updating simulator:', error);
+        setSimulationError('Failed to update simulator');
+      }
+    };
+    
+    updateAndRefresh();
+  }, [elements, refreshEnabledTransitions]);
+
   const handleFireTransition = useCallback(
     async (transitionId) => {
       try {

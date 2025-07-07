@@ -92,23 +92,25 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅Implement simulator engine in Python (Pyodide) to compute enabled transitions and update markings.
   - ✅Add execution panel to display current marking and enabled transitions.
   - Implement three simulation modes:
-    - **Step-by-Step**: User selects enabled transition; yellow highlight and token animation (black dots).
-    - **Quick Visual**: Automated firing (200ms delay) with animation.
-    - **Non-Visual**: Compute final marking without animation.
-  - Ensure token limit (20 per place) is enforced during firing.
+    -✅ **Step-by-Step**: User selects enabled transition; yellow highlight and token animation (black dots).
+    -✅ **Quick Visual**: Automated firing (200ms delay) with animation.
+    -✅**As fast as possible**: Compute final marking without animation.
   - Optimize performance (< 100ms per transition, < 50ms editor actions).
   - ✅Write comprehensive tests for simulator logic and performance.
   - ✅ Show enabled transitions by yellow highlight
   - ✅ Add zoom in/out and pan functionality to canvas
   - Add dynamic max number of tokens in places and arcs
-  - Add dynamic max number of iterations in the simulator
+  - ✅ Add dynamic max number of iterations in the simulator
   - Allow for visual reorganization of the elements in the canvas for better visibility and organization
 - **Deliverables**:
-  - Complete P/T net simulator with all modes and visual feedback.
+  -✅ Complete P/T net simulator with all modes and visual feedback.
   - Documentation for Phase 1 features and usage.
-  - Test suite covering simulator, validation, and performance.
+  -✅ Test suite covering simulator, validation, and performance.
   - Bug when the simulator is running and the user tries to edit the net, or when the net runs the execution through and hangs
   - Refactor large files
+    - arcs still not allowing angles
+    - arc render wrongly when loaded from xml, but correctly if built by hand
+    - arc weights cannot be changed
 - **Success Criteria**:
   - Simulate P/T nets with correct marking updates and token animations.
   - All modes functional, with performance within limits.
