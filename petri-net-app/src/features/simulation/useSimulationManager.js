@@ -82,8 +82,14 @@ const useSimulationManager = (elements, setElements) => {
       try {
         // Update the simulator with the current elements
         await updateSimulator(elements);
-        // Refresh the enabled transitions
-        await refreshEnabledTransitions();
+        
+        // Only refresh enabled transitions if we're not already simulating
+        // This prevents auto-starting simulation
+        if (!isContinuousSimulating && !isRunning) {
+          const enabled = await getEnabledTransitions();
+          const ids = (enabled || []).map((t) => t.id);
+          setEnabledTransitionIds(ids);
+        }
       } catch (error) {
         console.error('Error updating simulator:', error);
         setSimulationError('Failed to update simulator');
@@ -91,7 +97,7 @@ const useSimulationManager = (elements, setElements) => {
     };
     
     updateAndRefresh();
-  }, [elements, refreshEnabledTransitions]);
+  }, [elements, isContinuousSimulating, isRunning]);
 
   const handleFireTransition = useCallback(
     async (transitionId) => {
@@ -169,9 +175,22 @@ const useSimulationManager = (elements, setElements) => {
   }, [isContinuousSimulating, setElements, refreshEnabledTransitions]);
 
   const stopAllSimulations = useCallback(() => {
+    // Reset state flags
     setIsContinuousSimulating(false);
     setIsRunning(false);
-
+    isAnimatingRef.current = false;
+    isRunningRef.current = false;
+    
+    // Clear any running intervals
+    if (animationIntervalRef.current) {
+      clearInterval(animationIntervalRef.current);
+      animationIntervalRef.current = null;
+    }
+    
+    // Deactivate simulation mode
+    deactivateSimulation();
+    
+    // Clear error and enabled transitions
     setSimulationError(null);
     setEnabledTransitionIds([]);
   }, []);
