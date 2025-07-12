@@ -186,10 +186,11 @@ function AppContent() {
     // Actual implementation would involve creating a JSON file from 'elements' and triggering download
   };
 
-  // Prevent scroll events from propagating when they occur on fixed elements
+  // Handle scroll events on fixed elements without using preventDefault
   const handlePreventScroll = (e) => {
-    e.preventDefault();
+    // Only use stopPropagation as preventDefault causes errors with passive listeners
     e.stopPropagation();
+    // We can control scrolling behavior through CSS instead
   };
 
   const handleKeyDown = (event) => {

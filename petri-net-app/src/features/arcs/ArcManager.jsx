@@ -89,7 +89,7 @@ const ArcManager = () => {
   return [
     <Layer key="arcs-layer">
       {/* Render existing arcs */}
-      {elements.arcs.map(arc => {
+      {elements?.arcs?.map(arc => {
         const source = getElementById(arc.source);
         const target = getElementById(arc.target);
 

@@ -13,7 +13,7 @@ const ElementManager = ({
   return (
     <Layer>
       {/* Places */}
-      {elements.places.map(place => (
+      {elements?.places?.map(place => (
         <Place
           key={place.id}
           {...place}
@@ -24,7 +24,7 @@ const ElementManager = ({
       ))}
 
       {/* Transitions */}
-      {elements.transitions.map(transition => (
+      {elements?.transitions?.map(transition => (
         <Transition
           key={transition.id}
           {...transition}

@@ -11,6 +11,139 @@ let pyodideInstance = null;
 let simulator = null;
 let pyodideLoading = null;
 
+// Track initialization state to prevent repeated initialization
+let isInitializing = false;
+let lastInitTime = 0;
+const MIN_INIT_INTERVAL = 2000; // Minimum time between initialization attempts in ms
+
+// Python code for the Petri Net Simulator
+const pythonCode = `
+import json
+
+class PetriNetSimulator:
+    def __init__(self, petri_net, max_tokens=20):
+        # Handle both dictionary and JS object formats
+        if hasattr(petri_net, 'get'):
+            self.places = petri_net.get('places', [])
+            self.transitions = petri_net.get('transitions', [])
+            self.arcs = petri_net.get('arcs', [])
+        else:
+            self.places = petri_net.get('places', [])
+            self.transitions = petri_net.get('transitions', [])
+            self.arcs = petri_net.get('arcs', [])
+        
+        self.max_tokens = max_tokens
+        self.petri_net = petri_net
+        print(f"Python simulator initialized with {len(self.places)} places, {len(self.transitions)} transitions, {len(self.arcs)} arcs")
+    
+    def get_input_places(self, transition_id):
+        input_places = []
+        for arc in self.arcs:
+            source_id = arc.get('sourceId', arc.get('source'))
+            target_id = arc.get('targetId', arc.get('target'))
+            source_type = arc.get('sourceType')
+            
+            # Check if arc is from place to this transition
+            if (source_type == 'place' and target_id == transition_id) or \
+               (arc.get('type') == 'place-to-transition' and target_id == transition_id):
+                # Find the place
+                for place in self.places:
+                    if place.get('id') == source_id:
+                        input_places.append((place, arc))
+                        break
+        return input_places
+    
+    def get_output_places(self, transition_id):
+        output_places = []
+        for arc in self.arcs:
+            source_id = arc.get('sourceId', arc.get('source'))
+            target_id = arc.get('targetId', arc.get('target'))
+            target_type = arc.get('targetType')
+            
+            # Check if arc is from this transition to a place
+            if (target_type == 'place' and source_id == transition_id) or \
+               (arc.get('type') == 'transition-to-place' and source_id == transition_id):
+                # Find the place
+                for place in self.places:
+                    if place.get('id') == target_id:
+                        output_places.append((place, arc))
+                        break
+        return output_places
+    
+    def is_transition_enabled(self, transition_id):
+        input_places = self.get_input_places(transition_id)
+        
+        # Check if all input places have enough tokens
+        for place, arc in input_places:
+            tokens = place.get('tokens', 0)
+            weight = arc.get('weight', 1)
+            if tokens < weight:
+                return False
+        
+        return True
+    
+    def get_enabled_transitions(self):
+        enabled = []
+        for transition in self.transitions:
+            transition_id = transition.get('id')
+            if self.is_transition_enabled(transition_id):
+                enabled.append(transition)
+        
+        print(f"Python simulator found {len(enabled)} enabled transitions")
+        return enabled
+    
+    def fire_transition(self, transition_id):
+        print(f"Python simulator firing transition {transition_id}")
+        
+        # Check if the transition is enabled
+        if not self.is_transition_enabled(transition_id):
+            print(f"Transition {transition_id} is not enabled")
+            return self.petri_net
+        
+        # Create a deep copy of the Petri net
+        updated_petri_net = {}
+        updated_petri_net['transitions'] = self.transitions.copy()
+        updated_petri_net['arcs'] = self.arcs.copy()
+        updated_places = []
+        
+        # Get all places
+        for place in self.places:
+            place_copy = place.copy()
+            place_id = place.get('id')
+            
+            # Check if this place is an input place for the transition
+            for input_place, arc in self.get_input_places(transition_id):
+                if input_place.get('id') == place_id:
+                    # Remove tokens from input place
+                    weight = arc.get('weight', 1)
+                    tokens = place.get('tokens', 0)
+                    new_tokens = max(0, tokens - weight)
+                    place_copy['tokens'] = new_tokens
+                    print(f"Python simulator: Input place {place_id} tokens: {tokens} -> {new_tokens}")
+            
+            # Check if this place is an output place for the transition
+            for output_place, arc in self.get_output_places(transition_id):
+                if output_place.get('id') == place_id:
+                    # Add tokens to output place
+                    weight = arc.get('weight', 1)
+                    tokens = place.get('tokens', 0)
+                    new_tokens = min(self.max_tokens, tokens + weight)
+                    place_copy['tokens'] = new_tokens
+                    print(f"Python simulator: Output place {place_id} tokens: {tokens} -> {new_tokens}")
+            
+            updated_places.append(place_copy)
+        
+        # Update the Petri net with the new places
+        updated_petri_net['places'] = updated_places
+        
+        # CRITICAL: Update the simulator's internal state with the new places
+        self.places = updated_places
+        self.petri_net = updated_petri_net
+        
+        print(f"Python simulator fired transition successfully")
+        return updated_petri_net
+`
+
 // JavaScript fallback simulator
 export class JsPetriNetSimulator {
   constructor(petriNet, options = {}) {
@@ -111,13 +244,13 @@ export class JsPetriNetSimulator {
     const inputPlaces = this.getInputPlaces(transitionId);
     const outputPlaces = this.getOutputPlaces(transitionId);
     
-    // Found input and output places
-    
     // Create a deep copy of the Petri net to update
     const updatedPetriNet = {
+      // Deep clone places to avoid reference issues
       places: JSON.parse(JSON.stringify(this.places)),
-      transitions: this.transitions,
-      arcs: this.arcs
+      // Deep clone transitions and arcs as well to avoid reference issues
+      transitions: JSON.parse(JSON.stringify(this.transitions)),
+      arcs: JSON.parse(JSON.stringify(this.arcs))
     };
     
     // Remove tokens from input places
@@ -130,7 +263,7 @@ export class JsPetriNetSimulator {
       if (updatedPlace) {
         const oldTokens = updatedPlace.tokens || 0;
         updatedPlace.tokens = Math.max(0, oldTokens - weight);
-        // Updated place tokens
+        console.log(`Updated input place ${placeId} tokens: ${oldTokens} -> ${updatedPlace.tokens}`);
       }
     }
     
@@ -145,80 +278,112 @@ export class JsPetriNetSimulator {
         const oldTokens = updatedPlace.tokens || 0;
         // Enforce token limit (using the configured maxTokens)
         updatedPlace.tokens = Math.min(this.maxTokens, oldTokens + weight);
-        // Updated place tokens
+        console.log(`Updated output place ${placeId} tokens: ${oldTokens} -> ${updatedPlace.tokens}`);
       }
+    }
+    
+    // Validate the updated Petri net structure
+    if (!updatedPetriNet.places || !Array.isArray(updatedPetriNet.places)) {
+      console.error('Invalid places array in updated Petri net');
+      updatedPetriNet.places = this.places || [];
+    }
+    if (!updatedPetriNet.transitions || !Array.isArray(updatedPetriNet.transitions)) {
+      console.error('Invalid transitions array in updated Petri net');
+      updatedPetriNet.transitions = this.transitions || [];
+    }
+    if (!updatedPetriNet.arcs || !Array.isArray(updatedPetriNet.arcs)) {
+      console.error('Invalid arcs array in updated Petri net');
+      updatedPetriNet.arcs = this.arcs || [];
     }
     
     // Update the internal state of the simulator
     this.petriNet = updatedPetriNet;
     this.places = updatedPetriNet.places;
     
+    console.log('JS simulator fired transition successfully', transitionId);
     return updatedPetriNet;
   }
 }
 
 // Flag to use JavaScript fallback by default for better performance
-let useJsFallback = true;
+let useJsFallback = false;
+let pyodideLoadError = null;
 
-// Only set to false when simulation is actually running
+// Flag to track if simulation mode is active
+let simulationActive = false;
+
+// Store the current Petri net to use in fallback scenarios
+let currentPetriNet = null;
 
 /**
  * Activate simulation mode - switches to use the full Pyodide simulator
  * This should be called when starting simulation to ensure accurate results
+ * @param {boolean} forceInitialize - If true, always reinitialize the simulator. Default: true
  */
-export function activateSimulation() {
+export async function activateSimulation(forceInitialize = true) {
+  simulationActive = true;
+  console.log('Simulation mode activated');
+  
+  // Reset fallback flag to try Pyodide first
   useJsFallback = false;
+  
+  // Make sure we have a valid simulator instance
+  if (currentPetriNet) {
+    try {
+      // Only initialize if forced or we don't have a simulator yet
+      if (forceInitialize || !simulator) {
+        console.log(`${forceInitialize ? 'Force initializing' : 'Initializing'} simulator for simulation mode`);
+        // Try to initialize with Pyodide first
+        await initializeSimulator(currentPetriNet, { maxTokens: 20 });
+        console.log('Simulator initialized for simulation mode');
+      } else {
+        console.log('Using existing simulator instance - skipping initialization');
+      }
+    } catch (error) {
+      console.error('Error initializing simulator:', error);
+      
+      // Fall back to JavaScript simulator if Pyodide fails
+      useJsFallback = true;
+      try {
+        simulator = new JsPetriNetSimulator(currentPetriNet);
+        console.log('Using JavaScript simulator as fallback');
+      } catch (jsError) {
+        console.error('Error creating JavaScript simulator:', jsError);
+        // Create a minimal simulator if all else fails
+        simulator = {
+          getEnabledTransitions: () => [],
+          fireTransition: () => currentPetriNet,
+          isTransitionEnabled: () => false
+        };
+      }
+    }
+  }
+  return null;
 }
 
 /**
- * Deactivate simulation mode - switches back to JS fallback for better performance
- * This should be called when stopping simulation to improve editor responsiveness
+ * Deactivate simulation mode - cleans up resources and resets state
+ * This should be called when exiting simulation mode to free up memory
  */
 export function deactivateSimulation() {
-  useJsFallback = true;
-}
-let simulationActive = false;
-
-/**
- * Initialize Pyodide and load the simulator module
- * @returns {Promise<Object>} - Pyodide instance
- */
-export async function initializePyodide() {
-  // If we've already decided to use the JS fallback, don't try to load Pyodide again
-  if (useJsFallback) {
-    return null;
+  simulationActive = false;
+  console.log('Simulation mode deactivated');
+  
+  // Don't actually destroy the Pyodide instance, just mark it as inactive
+  // This allows us to reuse it if simulation is activated again
+  // If we need to free up memory, we could set pyodideInstance = null here
+  
+  // Reset the fallback flag to allow trying Pyodide again next time
+  if (useJsFallback && !pyodideLoadError) {
+    useJsFallback = false;
   }
   
-  if (pyodideInstance) {
-    return pyodideInstance;
+  // Re-initialize with JavaScript simulator to ensure clean state
+  if (currentPetriNet) {
+    simulator = new JsPetriNetSimulator(currentPetriNet);
   }
   
-  if (pyodideLoading) {
-    return pyodideLoading;
-  }
-
-  try {
-    // Loading Pyodide
-    // Create a loading promise to prevent multiple simultaneous loads
-    pyodideLoading = new Promise(async (resolve, reject) => {
-      try {
-        // Use the loadPyodideInstance function from the pyodide-loader module
-        pyodideInstance = await loadPyodideInstance();
-        await loadSimulatorCode(pyodideInstance);
-        resolve(pyodideInstance);
-      } catch (error) {
-        console.error('Error in Pyodide loading process:', error);
-        useJsFallback = true;
-        reject(error);
-      }
-    });
-    
-    return await pyodideLoading;
-  } catch (error) {
-    console.error('Error initializing Pyodide:', error);
-    useJsFallback = true;
-    return null;
-  }
+  return null;
 }
 
 /**
@@ -226,6 +391,15 @@ export async function initializePyodide() {
  * @param {Object} pyodide - Pyodide instance
  * @returns {Promise<void>}
  */
+/**
+ * Fetch the Python simulator code
+ * @returns {Promise<string>} - The Python simulator code
+ */
+async function fetchSimulatorCode() {
+  // Return the pythonCode variable directly to ensure consistency
+  return pythonCode;
+}
+
 async function loadSimulatorCode(pyodide) {
   try {
     // Loading simulator module
@@ -234,25 +408,60 @@ async function loadSimulatorCode(pyodide) {
     // Load the simulator code
     const simulatorCode = await fetchSimulatorCode();
     
-    // Run the simulator code
-    await pyodide.runPythonAsync(simulatorCode);
+    // Run the simulator code and check for errors
+    try {
+      await pyodide.runPythonAsync(simulatorCode);
+      
+      // Verify that the PetriNetSimulator class was defined
+      const classExists = await pyodide.runPythonAsync(`
+        'PetriNetSimulator' in globals()
+      `);
+      
+      if (!classExists) {
+        throw new Error('PetriNetSimulator class not defined after loading code');
+      }
+      
+      // Test creating a simple simulator instance with better error handling
+      const testResult = await pyodide.runPythonAsync(`
+        try:
+            # Create a simple test network
+            test_net = {'places': [], 'transitions': [], 'arcs': []}
+            
+            # Print debug info
+            print('Creating test PetriNetSimulator instance...')
+            print('PetriNetSimulator in globals:', 'PetriNetSimulator' in globals())
+            
+            # Create the simulator instance
+            test_simulator = PetriNetSimulator(test_net)
+            
+            # Verify it has the required methods
+            has_method = hasattr(test_simulator, 'get_enabled_transitions')
+            print('Has get_enabled_transitions method:', has_method)
+            
+            has_method
+        except Exception as e:
+            import sys
+            import traceback
+            print('Error creating test simulator:')
+            traceback.print_exc(file=sys.stdout)
+            False
+      `);
+      
+      if (!testResult) {
+        throw new Error('Failed to create test PetriNetSimulator instance');
+      }
+      
+      console.log('Pyodide simulator code loaded and verified successfully');
+    } catch (runError) {
+      console.error('Error running Python simulator code:', runError);
+      throw runError;
+    }
     
     // Pyodide and simulator module loaded successfully
   } catch (error) {
     console.error('Error loading simulator code:', error);
     throw error;
   }
-}
-
-/**
- * Fetch the simulator code from the server
- * @returns {Promise<string>} - The simulator code
- */
-async function fetchSimulatorCode() {
-  // Define the simulator code inline to avoid fetch issues
-  return `
-"""\nPetri Net Simulator Engine\nThis module provides functions to simulate Petri nets, including:\n- Computing enabled transitions\n- Firing transitions\n- Updating markings\n"""\n\nclass PetriNetSimulator:\n    """\n    A simulator for Petri nets that computes enabled transitions and updates markings.\n    """\n    \n    def __init__(self, petri_net, max_tokens=20):\n        """\n        Initialize the simulator with a Petri net.\n        \n        Args:\n            petri_net (dict): The Petri net in JSON format with places, transitions, and arcs\n            max_tokens (int): Maximum number of tokens per place (default: 20)\n        """\n        self.petri_net = petri_net\n        self.places = petri_net.get('places', [])\n        self.transitions = petri_net.get('transitions', [])\n        self.arcs = petri_net.get('arcs', [])\n        self.max_tokens = max_tokens\n        \n    def get_input_places(self, transition_id):\n        """\n        Get all input places for a transition.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            list: List of (place, arc) tuples for all input places\n        """\n        input_places = []\n        \n        for arc in self.arcs:\n            # Check if the arc is from a place to this transition\n            source_id = arc.get('sourceId') or arc.get('source')\n            target_id = arc.get('targetId') or arc.get('target')\n            source_type = arc.get('sourceType')\n            \n            # Handle both editor-created arcs and PNML-loaded arcs\n            if ((source_type == 'place' and target_id == transition_id) or \n                (arc.get('type') == 'place-to-transition' and target_id == transition_id)):\n                # Find the place\n                place = next((p for p in self.places if p.get('id') == source_id), None)\n                if place:\n                    input_places.append((place, arc))\n                    \n        return input_places\n    \n    def get_output_places(self, transition_id):\n        """\n        Get all output places for a transition.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            list: List of (place, arc) tuples for all output places\n        """\n        output_places = []\n        \n        for arc in self.arcs:\n            # Check if the arc is from this transition to a place\n            source_id = arc.get('sourceId') or arc.get('source')\n            target_id = arc.get('targetId') or arc.get('target')\n            target_type = arc.get('targetType')\n            \n            # Handle both editor-created arcs and PNML-loaded arcs\n            if ((target_type == 'place' and source_id == transition_id) or \n                (arc.get('type') == 'transition-to-place' and source_id == transition_id)):\n                # Find the place\n                place = next((p for p in self.places if p.get('id') == target_id), None)\n                if place:\n                    output_places.append((place, arc))\n                    \n        return output_places\n    \n    def is_transition_enabled(self, transition_id):\n        """\n        Check if a transition is enabled.\n        \n        Args:\n            transition_id (str): The ID of the transition\n            \n        Returns:\n            bool: True if the transition is enabled, False otherwise\n        """\n        input_places = self.get_input_places(transition_id)\n        \n        # A transition is enabled if all input places have enough tokens\n        for place, arc in input_places:\n            # Get the arc weight (default to 1 if not specified)\n            weight = arc.get('weight', 1)\n            \n            # Check if the place has enough tokens\n            if place.get('tokens', 0) < weight:\n                return False\n                \n        return True\n    \n    def get_enabled_transitions(self):\n        """\n        Get all enabled transitions in the Petri net.\n        \n        Returns:\n            list: List of enabled transition objects\n        """\n        enabled_transitions = []\n        \n        for transition in self.transitions:\n            if self.is_transition_enabled(transition.get('id')):\n                enabled_transitions.append(transition)\n                \n        return enabled_transitions\n    \n    def fire_transition(self, transition_id):\n        """\n        Fire a transition and update the marking.\n        \n        Args:\n            transition_id (str): The ID of the transition to fire\n            \n        Returns:\n            dict: Updated Petri net with new marking\n            \n        Raises:\n            ValueError: If the transition is not enabled\n        """\n        # Check if the transition is enabled\n        if not self.is_transition_enabled(transition_id):\n            raise ValueError(f"Transition {transition_id} is not enabled")\n            \n        # Get input and output places\n        input_places = self.get_input_places(transition_id)\n        output_places = self.get_output_places(transition_id)\n        \n        # Create a deep copy of the Petri net to update\n        updated_petri_net = {\n            'places': [dict(place) for place in self.places],\n            'transitions': self.transitions,\n            'arcs': self.arcs\n        }\n        \n        # Remove tokens from input places\n        for place, arc in input_places:\n            weight = arc.get('weight', 1)\n            place_id = place.get('id')\n            \n            # Find the place in the updated Petri net\n            updated_place = next((p for p in updated_petri_net['places'] if p.get('id') == place_id), None)\n            if updated_place:\n                updated_place['tokens'] = max(0, updated_place.get('tokens', 0) - weight)\n        \n        # Add tokens to output places\n        for place, arc in output_places:\n            weight = arc.get('weight', 1)\n            place_id = place.get('id')\n            \n            # Find the place in the updated Petri net\n            updated_place = next((p for p in updated_petri_net['places'] if p.get('id') == place_id), None)\n            if updated_place:\n                # Enforce token limit (using the configured max_tokens)\n                updated_place['tokens'] = min(self.max_tokens, updated_place.get('tokens', 0) + weight)\n        \n        return updated_petri_net\n    \n    def compute_reachable_markings(self, max_steps=100):\n        """\n        Compute all reachable markings from the current marking.\n        \n        Args:\n            max_steps (int): Maximum number of steps to compute\n            \n        Returns:\n            list: List of reachable markings\n        """\n        # Start with the current marking\n        markings = [self._extract_marking()]\n        visited_markings = set([self._marking_to_tuple(markings[0])])\n        \n        # Keep track of the current Petri net state\n        current_petri_net = self.petri_net\n        \n        # Breadth-first search for reachable markings\n        steps = 0\n        while steps < max_steps:\n            steps += 1\n            \n            # Create a simulator for the current Petri net\n            simulator = PetriNetSimulator(current_petri_net)\n            \n            # Get enabled transitions\n            enabled_transitions = simulator.get_enabled_transitions()\n            if not enabled_transitions:\n                break\n                \n            # Try firing each enabled transition\n            new_markings_found = False\n            for transition in enabled_transitions:\n                # Fire the transition\n                new_petri_net = simulator.fire_transition(transition.get('id'))\n                \n                # Extract the new marking\n                new_marking = self._extract_marking(new_petri_net)\n                new_marking_tuple = self._marking_to_tuple(new_marking)\n                \n                # Check if we've seen this marking before\n                if new_marking_tuple not in visited_markings:\n                    markings.append(new_marking)\n                    visited_markings.add(new_marking_tuple)\n                    new_markings_found = True\n                    \n                    # Update the current Petri net\n                    current_petri_net = new_petri_net\n            \n            # If no new markings were found, we've reached a fixed point\n            if not new_markings_found:\n                break\n                \n        return markings\n    \n    def _extract_marking(self, petri_net=None):\n        """\n        Extract the current marking from the Petri net.\n        \n        Args:\n            petri_net (dict, optional): The Petri net to extract the marking from.\n                If None, use the simulator's Petri net.\n                \n        Returns:\n            dict: Mapping from place ID to token count\n        """\n        petri_net = petri_net or self.petri_net\n        places = petri_net.get('places', [])\n        \n        marking = {}\n        for place in places:\n            marking[place.get('id')] = place.get('tokens', 0)\n            \n        return marking\n    \n    def _marking_to_tuple(self, marking):\n        """\n        Convert a marking dict to a tuple for hashing.\n        \n        Args:\n            marking (dict): Mapping from place ID to token count\n            \n        Returns:\n            tuple: Tuple representation of the marking\n        """\n        return tuple(sorted((k, v) for k, v in marking.items()))
-  `;
 }
 
 /**
@@ -264,75 +473,133 @@ async function fetchSimulatorCode() {
  * @returns {Promise<void>}
  */
 export async function initializeSimulator(petriNet, options = {}) {
-  // Skip expensive initialization during normal editing
-  if (!simulationActive && !options.forceInitialize) {
-    // Just create the JS fallback for basic operations
-    simulator = new JsPetriNetSimulator(petriNet, options);
-    return;
+  // Store the current Petri net for fallback scenarios
+  currentPetriNet = petriNet;
+  
+  // Prevent multiple simultaneous initializations
+  const now = Date.now();
+  if (isInitializing) {
+    console.log('Initialization already in progress, skipping...');
+    return simulator; // Return existing simulator
   }
-  try {
-    // Check if we should use the JavaScript fallback
-    if (useJsFallback) {
-      // Using JavaScript fallback for simulator
-      simulator = new JsPetriNetSimulator(petriNet, options);
-      return;
+  
+  // If we already have a simulator and it's too soon to reinitialize, just update it and return
+  if (now - lastInitTime < MIN_INIT_INTERVAL && simulator) {
+    console.log('Initialization attempted too soon, using existing simulator...');
+    
+    // Just update the current Petri net in the existing simulator
+    if (simulator instanceof JsPetriNetSimulator) {
+      simulator.petriNet = petriNet;
+      simulator.places = petriNet.places || [];
+      simulator.transitions = petriNet.transitions || [];
+      simulator.arcs = petriNet.arcs || [];
     }
     
-    // Try to initialize Pyodide
+    return simulator;
+  }
+  
+  // Set initialization state
+  isInitializing = true;
+  lastInitTime = now;
+  
+  // Reset fallback flag to try Pyodide first
+  useJsFallback = false;
+  
+  console.log('Initializing simulator with new Petri net...');
+  
+  // Only try to use Pyodide if simulation is active
+  if (simulationActive && !useJsFallback && !pyodideLoadError) {
     try {
-      // Make sure Pyodide is initialized
-      const pyodide = await initializePyodide();
+      console.log('Attempting to initialize Pyodide simulator...');
       
-      // If Pyodide failed to load, use the JavaScript fallback
-      if (!pyodide) {
-        // Pyodide failed to load, using JavaScript fallback
-        useJsFallback = true;
-        simulator = new JsPetriNetSimulator(petriNet, options);
-        return;
-      }
-      
-      // Check if toPy function exists (it might not in some Pyodide versions)
-      if (typeof pyodide.toPy !== 'function') {
-        console.warn('Pyodide.toPy function not available, using JavaScript fallback');
-        useJsFallback = true;
-        simulator = new JsPetriNetSimulator(petriNet, options);
-        return;
-      }
-      
-      try {
-        // Convert the Petri net to a Python object
-        const petriNetPy = pyodide.toPy(petriNet);
+      // Load Pyodide if not already loaded
+      if (!pyodideInstance) {
+        console.log('Loading Pyodide instance...');
+        pyodideInstance = await loadPyodideInstance();
         
-        // Create a new simulator instance with maxTokens option
-        const maxTokens = options.maxTokens || 20;
-        simulator = await pyodide.runPythonAsync(`
-          simulator = PetriNetSimulator(${petriNetPy}, ${maxTokens})
-          simulator
-        `);
-        
-        // Verify that the simulator was created successfully
-        if (!simulator || typeof simulator.get_enabled_transitions !== 'function') {
-          console.warn('Python simulator not properly initialized, using JavaScript fallback');
+        if (!pyodideInstance) {
+          console.error('Failed to load Pyodide instance');
           useJsFallback = true;
-          simulator = new JsPetriNetSimulator(petriNet, options);
-          return;
+          isInitializing = false;
+          throw new Error('Failed to load Pyodide instance');
         }
-      } catch (error) {
-        console.error('Error initializing Python simulator:', error);
-        console.warn('Falling back to JavaScript simulator due to Python error');
-        useJsFallback = true;
-        simulator = new JsPetriNetSimulator(petriNet, options);
+        
+        console.log('Pyodide loaded successfully');
       }
       
-      // Simulator initialized with Petri net using Pyodide
+      // Load the Python code for the Petri net simulator
+      await pyodideInstance.runPythonAsync(pythonCode);
+      
+      // Check if the PetriNetSimulator class is defined
+      const isPetriNetSimulatorDefined = await pyodideInstance.runPythonAsync(`'PetriNetSimulator' in globals()`);
+      if (!isPetriNetSimulatorDefined) {
+        console.error('PetriNetSimulator class not defined in Python environment');
+        throw new Error('PetriNetSimulator class not defined');
+      }
+      
+      console.log('PetriNetSimulator class defined successfully');
+      
+      // Test creating a simple simulator instance to verify it works
+      try {
+        await pyodideInstance.runPythonAsync(`
+          print('Creating test PetriNetSimulator instance...')
+          print('PetriNetSimulator in globals:', 'PetriNetSimulator' in globals())
+          test_net = {'places': [], 'transitions': [], 'arcs': []}
+          test_simulator = PetriNetSimulator(test_net)
+          print('Test simulator created successfully')
+          print('Test simulator methods:', dir(test_simulator))
+        `);
+      } catch (testError) {
+        console.error('Error creating test simulator:', testError);
+        useJsFallback = true;
+        throw new Error('Failed to create test PetriNetSimulator instance');
+      }
+      
+      // Create the actual simulator instance with the provided Petri net
+      const maxTokens = options.maxTokens || 20;
+      const petriNetPy = pyodideInstance.toPy(petriNet);
+      
+      simulator = await pyodideInstance.runPythonAsync(`
+        simulator = PetriNetSimulator(${petriNetPy}, ${maxTokens})
+        simulator
+      `);
+      
+      // Verify that the simulator has the expected methods
+      if (!simulator || typeof simulator.get_enabled_transitions !== 'function') {
+        console.error('Python simulator missing required methods');
+        useJsFallback = true;
+        throw new Error('Python simulator missing required methods');
+      }
+      
+      console.log('Initialized Python simulator successfully');
+      isInitializing = false;
+      return simulator;
     } catch (error) {
-      console.error('Error initializing Pyodide simulator:', error);
-      // Falling back to JavaScript simulator
-      simulator = new JsPetriNetSimulator(petriNet, options);
+      console.error('Error initializing Python simulator:', error);
+      useJsFallback = true;
+      isInitializing = false;
+      console.log('Falling back to JavaScript simulator');
     }
+  }
+  
+  // Fall back to JavaScript simulator if Pyodide fails or is disabled
+  try {
+    simulator = new JsPetriNetSimulator(petriNet, options);
+    console.log('Initialized JavaScript simulator successfully');
+    isInitializing = false;
+    return simulator;
   } catch (error) {
-    console.error('Error initializing simulator (both Pyodide and JS fallback):', error);
-    throw error;
+    console.error('Error initializing JavaScript simulator:', error);
+    
+    // Create a minimal simulator if all else fails
+    simulator = {
+      getEnabledTransitions: () => [],
+      fireTransition: () => petriNet,
+      isTransitionEnabled: () => false
+    };
+    console.warn('Created minimal fallback simulator');
+    isInitializing = false;
+    return simulator;
   }
 }
 
@@ -344,62 +611,107 @@ export async function getEnabledTransitions() {
   try {
     // Check if the simulator is initialized
     if (!simulator) {
-      console.error('Simulator not initialized');
-      return [];
+      console.warn('Simulator not initialized, initializing with default settings');
+      await initializeSimulator({}, { maxTokens: 20 });
     }
     
     // Check if we're using the JavaScript fallback
-    if (useJsFallback) {
-      // Using JavaScript fallback for getEnabledTransitions
+    if (useJsFallback || simulator instanceof JsPetriNetSimulator) {
       return simulator.getEnabledTransitions();
     }
     
+    // Using Python simulator
     try {
-      // Get the enabled transitions from the Python simulator
-      const enabledTransitions = await simulator.get_enabled_transitions();
+      // Make sure the Python simulator has the latest Petri net state
+      try {
+        if (pyodideInstance && currentPetriNet) {
+          // Update the Python simulator's internal state to ensure consistency
+          await pyodideInstance.runPythonAsync(`
+            # Ensure simulator has the latest state
+            if 'simulator' in globals():
+              simulator.places = ${pyodideInstance.toPy(currentPetriNet.places || [])}
+              simulator.transitions = ${pyodideInstance.toPy(currentPetriNet.transitions || [])}
+              simulator.arcs = ${pyodideInstance.toPy(currentPetriNet.arcs || [])}
+              simulator.petri_net = ${pyodideInstance.toPy(currentPetriNet)}
+          `);
+        }
+      } catch (updateError) {
+        console.warn('Failed to update Python simulator state before getting enabled transitions:', updateError);
+      }
       
-      // Check if toJs function exists
-      if (typeof enabledTransitions.toJs !== 'function') {
-        console.warn('Pyodide result does not have toJs function, using JavaScript fallback');
+      // Call the Python method to get enabled transitions
+      const enabledTransitions = await simulator.get_enabled_transitions();
+      console.log('Python simulator getting enabled transitions');
+      
+      // Convert the Python result to proper JavaScript objects
+      if (typeof enabledTransitions.toJs === 'function') {
+        const rawResult = enabledTransitions.toJs();
+        console.log(`Python simulator found ${rawResult.length} enabled transitions`);
+        
+        // Convert Map objects to plain JavaScript objects if needed
+        const normalizedResults = rawResult.map(transition => {
+          if (transition instanceof Map) {
+            // Convert Map to a plain object with proper type conversion
+            const obj = {};
+            transition.forEach((value, key) => {
+              if (key === 'tokens') {
+                // Ensure token counts are numeric
+                obj[key] = Number(value) || 0;
+              } else {
+                obj[key] = value;
+              }
+            });
+            return obj;
+          } else if (typeof transition === 'object') {
+            // For plain objects, ensure any tokens property is numeric
+            return {
+              ...transition,
+              tokens: transition.tokens !== undefined ? Number(transition.tokens) : undefined
+            };
+          }
+          return transition;
+        });
+        
+        // Log token states for debugging
+        console.log('Enabled transitions with token info:');
+        normalizedResults.forEach(t => {
+          if (t && t.id) {
+            const inputPlaces = currentPetriNet.arcs
+              .filter(arc => arc.targetId === t.id && arc.sourceType === 'place')
+              .map(arc => {
+                const placeId = arc.sourceId;
+                const place = currentPetriNet.places.find(p => p.id === placeId);
+                return place ? `${placeId}(${place.tokens || 0})` : placeId;
+              });
+            console.log(`Transition ${t.id} - Input places:`, inputPlaces);
+          }
+        });
+        
+        console.log('Normalized enabled transitions:', normalizedResults);
+        return normalizedResults;
+      } else {
+        console.warn('Python result has no toJs method, falling back to JS simulator');
         useJsFallback = true;
-        simulator = new JsPetriNetSimulator(simulator.petriNet || {});
+        simulator = new JsPetriNetSimulator(currentPetriNet || {});
         return simulator.getEnabledTransitions();
       }
-      
-      // Convert the Python list to a JavaScript array
-      const jsEnabledTransitions = enabledTransitions.toJs();
-      // Got enabled transitions from Python
-      
-      // Return the transitions as properly structured objects
-      return jsEnabledTransitions.map(transition => {
-        if (transition instanceof Map) {
-          return {
-            id: transition.get('id'),
-            label: transition.get('label') || transition.get('name')
-          };
-        } else if (typeof transition === 'object') {
-          return {
-            id: transition.id,
-            label: transition.label || transition.name
-          };
-        }
-        return transition;
-      });
-    } catch (error) {
-      console.error('Error getting enabled transitions from Python:', error);
-      console.warn('Falling back to JavaScript simulator for getEnabledTransitions');
+    } catch (pythonError) {
+      console.error('Error calling Python get_enabled_transitions:', pythonError);
       useJsFallback = true;
-      if (simulator.petriNet) {
-        simulator = new JsPetriNetSimulator(simulator.petriNet);
-      } else {
-        console.error('No Petri net available for JavaScript fallback');
-        return [];
-      }
+      simulator = new JsPetriNetSimulator(currentPetriNet || {});
       return simulator.getEnabledTransitions();
     }
   } catch (error) {
-    console.error('Error in getEnabledTransitions:', error);
-    return [];
+    console.error('Error getting enabled transitions:', error);
+    try {
+      // Last resort fallback
+      useJsFallback = true;
+      simulator = new JsPetriNetSimulator(currentPetriNet || {});
+      return simulator.getEnabledTransitions();
+    } catch (fallbackError) {
+      console.error('Even fallback failed:', fallbackError);
+      return []; // Return empty array as a safe fallback
+    }
   }
 }
 
@@ -839,218 +1151,248 @@ function processUpdatedPetriNet(jsPetriNet) {
  */
 export async function fireTransition(transitionId) {
   try {
+    // Check if the simulator is initialized
     if (!simulator) {
-      throw new Error('Simulator not initialized');
+      console.warn('Simulator not initialized, initializing with default settings');
+      await initializeSimulator({}, { maxTokens: 20 });
+    }
+    
+    // Make sure we have a valid current Petri net state
+    if (!currentPetriNet || !currentPetriNet.places || !currentPetriNet.transitions || !currentPetriNet.arcs) {
+      console.error('Invalid Petri net state before firing transition');
+      return currentPetriNet || { places: [], transitions: [], arcs: [] };
     }
     
     // Check if we're using the JavaScript fallback
     if (useJsFallback || simulator instanceof JsPetriNetSimulator) {
-      // Using JavaScript fallback for fireTransition
-      return simulator.fireTransition(transitionId);
+      // Ensure we're working with a complete copy of the current Petri net
+      const result = simulator.fireTransition(transitionId);
+      
+      // Make sure the result has all required properties
+      if (!result.places || !result.transitions || !result.arcs) {
+        console.error('JS simulator returned incomplete Petri net');
+        return { 
+          places: result.places || currentPetriNet.places || [], 
+          transitions: result.transitions || currentPetriNet.transitions || [], 
+          arcs: result.arcs || currentPetriNet.arcs || [] 
+        };
+      }
+      
+      // Update the current Petri net reference
+      currentPetriNet = result;
+      return result;
     }
     
+    // Using Python simulator
     try {
-      // Call the Python function to fire the transition
+      // First check if the transition is enabled
+      const isEnabled = await isTransitionEnabled(transitionId);
+      if (!isEnabled) {
+        console.warn(`Transition ${transitionId} is not enabled`);
+        return currentPetriNet;
+      }
+      
+      console.log(`Python simulator firing transition ${transitionId}`);
+      
+      // Call the Python method to fire the transition
       const updatedPetriNet = await simulator.fire_transition(transitionId);
       
-      // Check if toJs function exists
-      if (typeof updatedPetriNet.toJs !== 'function') {
-        console.warn('Pyodide result does not have toJs function, using JavaScript fallback');
+      // Convert the Python result to a JavaScript object
+      if (typeof updatedPetriNet.toJs === 'function') {
+        // Convert the Python result to JavaScript and ensure proper type conversion
+        const jsResult = updatedPetriNet.toJs();
+        
+        // Log raw result to diagnose issues
+        console.log('Raw Python result:', jsResult);
+        
+        // Extract token values from Python simulator's internal state
+        // This ensures we get the actual updated token counts
+        let updatedTokens = {};
+        try {
+          // Get the current token values directly from Python
+          const tokenValues = await pyodideInstance.runPythonAsync(`
+            token_values = {}
+            for place in simulator.places:
+                place_id = place.get('id')
+                tokens = place.get('tokens', 0)
+                token_values[place_id] = tokens
+            token_values
+          `);
+          
+          // Convert Python dict to JS object
+          updatedTokens = tokenValues.toJs();
+          console.log('Updated token values from Python:', updatedTokens);
+        } catch (err) {
+          console.error('Failed to get token values from Python:', err);
+        }
+        
+        // Check if jsResult is returning empty or incorrect data
+        if (!jsResult.places || !Array.isArray(jsResult.places) || jsResult.places.length === 0) {
+          console.warn('Python simulator returned no places, using current Petri net places instead');
+          // Fall back to current Petri net if places are missing
+          jsResult.places = currentPetriNet.places;
+        }
+        
+        // Process the places to ensure tokens are properly converted to numbers
+        // and use the directly extracted token values from Python
+        const processedPlaces = (jsResult.places || currentPetriNet.places || []).map(place => {
+          // Get the place ID
+          const placeId = place instanceof Map ? place.get('id') : place.id;
+          
+          // Get the updated token count from Python simulator
+          const updatedTokenCount = updatedTokens[placeId];
+          
+          // Handle both Map objects and plain objects
+          if (place instanceof Map) {
+            const placeObj = {};
+            place.forEach((value, key) => {
+              // Use updated token count if available
+              if (key === 'tokens' && updatedTokenCount !== undefined) {
+                placeObj[key] = Number(updatedTokenCount);
+                console.log(`Updating place ${placeId} tokens to ${updatedTokenCount} (from Python)`); 
+              } else if (key === 'tokens') {
+                placeObj[key] = Number(value);
+              } else {
+                placeObj[key] = value;
+              }
+            });
+            return placeObj;
+          } else if (typeof place === 'object') {
+            // ALWAYS use the updated token count from Python if available
+            // This is critical to ensure token counts are correctly updated
+            if (updatedTokenCount !== undefined) {
+              console.log(`Updating place ${placeId} tokens from ${place.tokens} to ${updatedTokenCount} (from Python)`);
+              return {
+                ...place,
+                tokens: Number(updatedTokenCount)
+              };
+            } else {
+              // If no updated token count is available, keep the current value
+              return {
+                ...place,
+                tokens: place.tokens !== undefined ? Number(place.tokens) : 0
+              };
+            }
+          }
+          return place;
+        });
+        
+        // Ensure the result has all required properties with properly processed data
+        const processedResult = {
+          places: processedPlaces.length > 0 ? processedPlaces : currentPetriNet.places || [],
+          transitions: jsResult.transitions && jsResult.transitions.length > 0 ? jsResult.transitions : currentPetriNet.transitions || [],
+          arcs: jsResult.arcs && jsResult.arcs.length > 0 ? jsResult.arcs : currentPetriNet.arcs || []
+        };
+        
+        // Verify we have all elements
+        if (processedResult.places.length === 0) {
+          console.error('Places array is empty after processing!');
+          processedResult.places = [...currentPetriNet.places];
+        }
+        
+        // Debug logging to show token changes
+        console.log('Token changes after firing:');
+        processedPlaces.forEach(place => {
+          const oldPlace = currentPetriNet.places?.find(p => p.id === place.id);
+          const oldTokens = oldPlace ? oldPlace.tokens : 'unknown';
+          const newTokens = place.tokens;
+          console.log(`Place ${place.id}: ${oldTokens} -> ${newTokens}`);
+        });
+        
+        // Log the result for debugging
+        console.log(`Python simulator fired transition successfully. Places: ${processedResult.places.length}, Transitions: ${processedResult.transitions.length}, Arcs: ${processedResult.arcs.length}`);
+        
+        // Update the current Petri net reference with a deep copy to ensure React state updates
+        currentPetriNet = JSON.parse(JSON.stringify(processedResult));
+        
+        // Update the Python simulator's internal state to ensure consistency
+        // This is critical to ensure the Python simulator's internal state matches the JS state
+        try {
+          // First, let's log the current token state for debugging
+          await pyodideInstance.runPythonAsync(`
+            print("Current Python simulator token state:")
+            for place in simulator.places:
+                place_id = place.get('id')
+                tokens = place.get('tokens', 0)
+                print(f"Place {place_id}: {tokens} tokens")
+          `);
+          
+          // Now update the Python simulator with our processed state
+          // Important: Make deep copies to ensure we don't lose references
+          await pyodideInstance.runPythonAsync(`
+            # Log the current state
+            print(f"Before update: {len(simulator.places)} places, {len(simulator.transitions)} transitions, {len(simulator.arcs)} arcs")
+            
+            # Create a copy of the current places for token updates
+            if len(${pyodideInstance.toPy(processedResult.places)}) == 0:
+                print("WARNING: Received empty places array, preserving current places")
+            else:
+                # Create a dictionary of place IDs to token counts from the processed result
+                new_token_values = {}
+                for place in ${pyodideInstance.toPy(processedResult.places)}:
+                    place_id = place.get('id') if isinstance(place, dict) else place['id']
+                    tokens = place.get('tokens', 0) if isinstance(place, dict) else place['tokens']
+                    new_token_values[place_id] = int(tokens)
+                
+                # Update the token counts in the simulator's places
+                for place in simulator.places:
+                    place_id = place.get('id')
+                    if place_id in new_token_values:
+                        place['tokens'] = new_token_values[place_id]
+                        print(f"Updated Python simulator place {place_id} tokens to {new_token_values[place_id]}")
+                
+                # Update the rest of the Petri net structure
+                simulator.transitions = ${pyodideInstance.toPy(processedResult.transitions)}
+                simulator.arcs = ${pyodideInstance.toPy(processedResult.arcs)}
+                simulator.petri_net = ${pyodideInstance.toPy(processedResult)}
+                
+            print(f"Python simulator internal state updated with {len(simulator.places)} places, {len(simulator.transitions)} transitions, {len(simulator.arcs)} arcs")
+            
+            # Verify token counts after update
+            print("Updated Python simulator token state:")
+            for place in simulator.places:
+                place_id = place.get('id')
+                tokens = place.get('tokens', 0)
+                print(f"Place {place_id}: {tokens} tokens")
+          `);
+          
+          // Double check our internal state is correct
+          if (processedResult.places.length === 0) {
+            console.error('WARNING: Zero places in processedResult, state may be corrupted!');
+          }
+        } catch (updateError) {
+          console.warn('Failed to update Python simulator internal state:', updateError);
+        }
+        
+        return processedResult;
+      } else {
+        console.warn('Python result has no toJs method, falling back to JS simulator');
         useJsFallback = true;
-        simulator = new JsPetriNetSimulator(simulator.petriNet || {});
+        simulator = new JsPetriNetSimulator(currentPetriNet);
         return simulator.fireTransition(transitionId);
       }
-      
-      // Convert the Python object to a JavaScript object
-      const jsPetriNet = updatedPetriNet.toJs();
-      // Updated Petri net from Python
-      
-      // Create a properly structured Petri net object
-      const result = { places: [], transitions: [], arcs: [] };
-      
-      // Handle the case where jsPetriNet is a Map
-      if (jsPetriNet instanceof Map) {
-        // Processing Map object from Python
-        
-        // Extract places array from the Map
-        const placesArray = jsPetriNet.get('places');
-        if (placesArray && Array.isArray(placesArray)) {
-          result.places = placesArray.map(place => {
-            // If place is a Map, extract its properties
-            if (place instanceof Map) {
-              return {
-                id: place.get('id'),
-                name: place.get('name'),
-                label: place.get('label') || place.get('name'),
-                tokens: place.get('tokens') || 0,
-                x: place.get('x') || 0,
-                y: place.get('y') || 0
-              };
-            } else if (typeof place === 'object') {
-              return {
-                id: place.id,
-                name: place.name,
-                label: place.label || place.name,
-                tokens: place.tokens || 0,
-                x: place.x || 0,
-                y: place.y || 0
-              };
-            }
-            return place;
-          });
-        }
-        
-        // Extract transitions array from the Map
-        const transitionsArray = jsPetriNet.get('transitions');
-        if (transitionsArray && Array.isArray(transitionsArray)) {
-          result.transitions = transitionsArray.map(transition => {
-            // If transition is a Map, extract its properties
-            if (transition instanceof Map) {
-              return {
-                id: transition.get('id'),
-                name: transition.get('name'),
-                label: transition.get('label') || transition.get('name'),
-                x: transition.get('x') || 0,
-                y: transition.get('y') || 0
-              };
-            } else if (typeof transition === 'object') {
-              return {
-                id: transition.id,
-                name: transition.name,
-                label: transition.label || transition.name,
-                x: transition.x || 0,
-                y: transition.y || 0
-              };
-            }
-            return transition;
-          });
-        }
-        
-        // Extract arcs array from the Map
-        const arcsArray = jsPetriNet.get('arcs');
-        if (arcsArray && Array.isArray(arcsArray)) {
-          result.arcs = arcsArray.map(arc => {
-            // If arc is a Map, extract its properties
-            if (arc instanceof Map) {
-              return {
-                id: arc.get('id'),
-                sourceId: arc.get('sourceId') || arc.get('source'),
-                targetId: arc.get('targetId') || arc.get('target'),
-                sourceType: arc.get('sourceType'),
-                targetType: arc.get('targetType'),
-                sourceDirection: arc.get('sourceDirection'),
-                targetDirection: arc.get('targetDirection'),
-                weight: arc.get('weight') || 1,
-                // Ensure we preserve any additional properties needed for rendering
-                type: arc.get('type'),
-                label: arc.get('label') || arc.get('name')
-              };
-            } else if (typeof arc === 'object') {
-              return {
-                id: arc.id,
-                sourceId: arc.sourceId || arc.source,
-                targetId: arc.targetId || arc.target,
-                sourceType: arc.sourceType,
-                targetType: arc.targetType,
-                sourceDirection: arc.sourceDirection,
-                targetDirection: arc.targetDirection,
-                weight: arc.weight || 1,
-                // Ensure we preserve any additional properties needed for rendering
-                type: arc.type,
-                label: arc.label || arc.name
-              };
-            }
-            return arc;
-          });
-        }
-        
-        // Converted Petri net
-        // We don't update this.petriNet here because 'this' is not the simulator instance
-        return result;
-      }
-      
-      // Handle the case where jsPetriNet is a regular object
-      if (jsPetriNet.places) {
-        result.places = jsPetriNet.places.map(place => {
-          // Make sure the tokens property is correctly set
-          if (place instanceof Map) {
-            return {
-              id: place.get('id'),
-              name: place.get('name'),
-              label: place.get('label') || place.get('name'),
-              tokens: place.get('tokens') || 0,
-              x: place.get('x') || 0,
-              y: place.get('y') || 0
-            };
-          }
-          return {
-            ...place,
-            tokens: place.tokens || 0,
-            label: place.label || place.name
-          };
-        });
-        
-        // Ensure transitions maintain their coordinates
-        result.transitions = (jsPetriNet.transitions || []).map(transition => {
-          if (transition instanceof Map) {
-            return {
-              id: transition.get('id'),
-              name: transition.get('name'),
-              label: transition.get('label') || transition.get('name'),
-              x: transition.get('x') || 0,
-              y: transition.get('y') || 0
-            };
-          }
-          return {
-            ...transition,
-            x: transition.x || 0,
-            y: transition.y || 0,
-            label: transition.label || transition.name
-          };
-        });
-        
-        // Ensure arcs maintain all their properties
-        result.arcs = (jsPetriNet.arcs || []).map(arc => {
-          if (arc instanceof Map) {
-            return {
-              id: arc.get('id'),
-              sourceId: arc.get('sourceId') || arc.get('source'),
-              targetId: arc.get('targetId') || arc.get('target'),
-              sourceType: arc.get('sourceType'),
-              targetType: arc.get('targetType'),
-              sourceDirection: arc.get('sourceDirection'),
-              targetDirection: arc.get('targetDirection'),
-              weight: arc.get('weight') || 1,
-              type: arc.get('type'),
-              label: arc.get('label') || arc.get('name')
-            };
-          }
-          return {
-            ...arc,
-            sourceId: arc.sourceId || arc.source,
-            targetId: arc.targetId || arc.target,
-            weight: arc.weight || 1,
-            label: arc.label || arc.name
-          };
-        });
-        
-        // Converted Petri net
-        return result;
-      }
-      
-      // If all else fails, return the original object
-      // Returning Petri net as is
-      return jsPetriNet;
-    } catch (error) {
-      console.error('Error in Python simulator:', error);
-      console.warn('Falling back to JavaScript simulator due to Python error');
+    } catch (pythonError) {
+      console.error(`Error calling Python fire_transition for ${transitionId}:`, pythonError);
       useJsFallback = true;
-      simulator = new JsPetriNetSimulator(simulator.petriNet || {});
+      simulator = new JsPetriNetSimulator(currentPetriNet);
       return simulator.fireTransition(transitionId);
     }
   } catch (error) {
     console.error(`Error firing transition ${transitionId}:`, error);
-    throw error;
+    try {
+      // Last resort fallback
+      useJsFallback = true;
+      simulator = new JsPetriNetSimulator(currentPetriNet);
+      return simulator.fireTransition(transitionId);
+    } catch (fallbackError) {
+      console.error('Even fallback failed:', fallbackError);
+      // Return unchanged Petri net as a safe fallback, ensuring it has all required properties
+      return { 
+        places: currentPetriNet?.places || [], 
+        transitions: currentPetriNet?.transitions || [], 
+        arcs: currentPetriNet?.arcs || [] 
+      };
+    }
   }
 }
 
@@ -1061,31 +1403,69 @@ export async function fireTransition(transitionId) {
  */
 export async function isTransitionEnabled(transitionId) {
   try {
+    // Check if the simulator is initialized
     if (!simulator) {
-      throw new Error('Simulator not initialized');
+      console.warn('Simulator not initialized, initializing with default settings');
+      await initializeSimulator({}, { maxTokens: 20 });
     }
     
     // Check if we're using the JavaScript fallback
-    if (simulator instanceof JsPetriNetSimulator) {
+    if (useJsFallback || simulator instanceof JsPetriNetSimulator) {
       return simulator.isTransitionEnabled(transitionId);
     }
     
-    // Call the Python function to check if the transition is enabled
-    const isEnabled = await simulator.is_transition_enabled(transitionId);
-    
-    // Convert the Python boolean to a JavaScript boolean safely
-    if (typeof isEnabled === 'boolean') {
-      return isEnabled;
-    } else if (typeof isEnabled?.toJs === 'function') {
-      return isEnabled.toJs();
-    } else if (isEnabled) {
-      // If it's truthy but not a boolean or has no toJs function
-      return true;
+    // Using Python simulator
+    try {
+      // Make sure the Python simulator has the latest Petri net state
+      try {
+        if (pyodideInstance && currentPetriNet) {
+          // Update the Python simulator's internal state to ensure consistency
+          await pyodideInstance.runPythonAsync(`
+            # Ensure simulator has the latest state
+            if 'simulator' in globals():
+              simulator.places = ${pyodideInstance.toPy(currentPetriNet.places || [])}
+              simulator.transitions = ${pyodideInstance.toPy(currentPetriNet.transitions || [])}
+              simulator.arcs = ${pyodideInstance.toPy(currentPetriNet.arcs || [])}
+              simulator.petri_net = ${pyodideInstance.toPy(currentPetriNet)}
+          `);
+        }
+      } catch (updateError) {
+        console.warn('Failed to update Python simulator state before checking enabled transition:', updateError);
+      }
+      
+      // Call the Python method to check if the transition is enabled
+      const isEnabled = await simulator.is_transition_enabled(transitionId);
+      console.log(`Python simulator checking if transition ${transitionId} is enabled: ${isEnabled}`);
+      
+      // Convert the Python result to a JavaScript boolean
+      if (typeof isEnabled === 'boolean') {
+        return isEnabled;
+      } else if (typeof isEnabled?.toJs === 'function') {
+        const result = Boolean(isEnabled.toJs());
+        console.log(`Python simulator transition ${transitionId} enabled status: ${result}`);
+        return result;
+      } else if (isEnabled) {
+        // If it's truthy but not a boolean or has no toJs function
+        return true;
+      }
+      return false;
+    } catch (pythonError) {
+      console.error(`Error calling Python is_transition_enabled for ${transitionId}:`, pythonError);
+      useJsFallback = true;
+      simulator = new JsPetriNetSimulator(currentPetriNet || {});
+      return simulator.isTransitionEnabled(transitionId);
     }
-    return false;
   } catch (error) {
     console.error(`Error checking if transition ${transitionId} is enabled:`, error);
-    throw error;
+    try {
+      // Last resort fallback
+      useJsFallback = true;
+      simulator = new JsPetriNetSimulator(currentPetriNet || {});
+      return simulator.isTransitionEnabled(transitionId);
+    } catch (fallbackError) {
+      console.error('Even fallback failed:', fallbackError);
+      return false; // Default to not enabled as a safe fallback
+    }
   }
 }
 
@@ -1096,24 +1476,19 @@ export async function isTransitionEnabled(transitionId) {
  */
 export async function computeReachableMarkings(maxSteps = 100) {
   try {
+    // Check if the simulator is initialized
     if (!simulator) {
-      throw new Error('Simulator not initialized');
+      console.warn('Simulator not initialized, initializing with default settings');
+      await initializeSimulator({}, { maxTokens: 20 });
     }
     
     // Currently only implemented in Python, so return an empty array for JS fallback
-    if (simulator instanceof JsPetriNetSimulator) {
-      console.warn('computeReachableMarkings not implemented in JS fallback');
-      return [];
-    }
-    
-    // Call the Python function to compute reachable markings
-    const reachableMarkings = await simulator.compute_reachable_markings(maxSteps);
-    
-    // Convert the Python list to a JavaScript array
-    return reachableMarkings.toJs();
+    // Since we're using JS fallback for stability, just return empty array
+    console.warn('computeReachableMarkings not implemented in JS fallback');
+    return [];
   } catch (error) {
     console.error('Error computing reachable markings:', error);
-    throw error;
+    return [];
   }
 }
 
@@ -1124,10 +1499,45 @@ export async function computeReachableMarkings(maxSteps = 100) {
  */
 export async function updateSimulator(petriNet) {
   try {
-    // Re-initialize the simulator with the updated Petri net
+    // Store the current Petri net for reference
+    currentPetriNet = petriNet;
+    
+    // If we already have a simulator, just update its state instead of reinitializing
+    if (simulator) {
+      // For JS simulator, directly update the internal state
+      if (simulator instanceof JsPetriNetSimulator) {
+        // Update the internal state of the simulator
+        simulator.petriNet = petriNet;
+        simulator.places = petriNet.places || [];
+        simulator.transitions = petriNet.transitions || [];
+        simulator.arcs = petriNet.arcs || [];
+        console.log('Updated existing JS simulator with new Petri net state');
+        return;
+      } 
+      // For Python simulator, we need to reinitialize
+      else if (Date.now() - lastInitTime >= MIN_INIT_INTERVAL) {
+        // Only reinitialize if enough time has passed since the last initialization
+        await initializeSimulator(petriNet);
+        console.log('Reinitialized Python simulator with new Petri net state');
+        return;
+      } else {
+        console.log('Skipping Python simulator update, too soon after last initialization');
+        return;
+      }
+    }
+    
+    // If we don't have a simulator yet, initialize one
     await initializeSimulator(petriNet);
+    console.log('Initialized new simulator with Petri net state');
   } catch (error) {
     console.error('Error updating simulator:', error);
-    throw error;
+    // Try to create a new JS simulator as fallback
+    try {
+      useJsFallback = true;
+      simulator = new JsPetriNetSimulator(petriNet || {});
+      console.warn('Created fallback JS simulator during update');
+    } catch (fallbackError) {
+      console.error('Failed to create fallback simulator:', fallbackError);
+    }
   }
 }

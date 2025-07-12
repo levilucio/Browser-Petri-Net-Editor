@@ -49,13 +49,15 @@ export const useElementManager = () => {
     let pos = gridSnappingEnabled ? snapToGrid(position.x, position.y) : position;
 
     if (mode === 'place') {
-      const newPlace = { id: uuidv4(), x: pos.x, y: pos.y, label: `P${elements.places.length + 1}`, tokens: 0 };
-      setElements(prev => ({ ...prev, places: [...prev.places, newPlace] }));
+      const placesCount = elements?.places?.length || 0;
+      const newPlace = { id: uuidv4(), x: pos.x, y: pos.y, label: `P${placesCount + 1}`, tokens: 0 };
+      setElements(prev => ({ ...prev, places: [...(prev?.places || []), newPlace] }));
     } else if (mode === 'transition') {
-      const newTransition = { id: uuidv4(), x: pos.x, y: pos.y, label: `T${elements.transitions.length + 1}` };
-      setElements(prev => ({ ...prev, transitions: [...prev.transitions, newTransition] }));
+      const transitionsCount = elements?.transitions?.length || 0;
+      const newTransition = { id: uuidv4(), x: pos.x, y: pos.y, label: `T${transitionsCount + 1}` };
+      setElements(prev => ({ ...prev, transitions: [...(prev?.transitions || []), newTransition] }));
     }
-  }, [mode, elements.places.length, elements.transitions.length, setElements, snapToGrid, gridSnappingEnabled]);
+  }, [mode, elements?.places?.length, elements?.transitions?.length, setElements, snapToGrid, gridSnappingEnabled]);
 
   const handleElementClick = useCallback((element, type) => {
     if (mode === 'select' || mode === 'arc_angle') {
