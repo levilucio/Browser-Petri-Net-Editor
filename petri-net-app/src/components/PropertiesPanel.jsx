@@ -8,6 +8,9 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     weight: 1
   });
 
+  // State for markings panel
+  const [isMarkingsPanelOpen, setIsMarkingsPanelOpen] = useState(false);
+
   // Update local state when selected element changes
   useEffect(() => {
     if (selectedElement) {
@@ -277,7 +280,41 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         </div>
       )}
 
-
+      {/* Markings Panel Section */}
+      <div className="border-t border-gray-200 pt-4 mt-4">
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-md font-semibold text-gray-700">Current Markings</h3>
+          <button
+            data-testid="toggle-markings"
+            className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded text-sm flex items-center space-x-1 transition-colors"
+            onClick={() => setIsMarkingsPanelOpen(!isMarkingsPanelOpen)}
+          >
+            <span>{isMarkingsPanelOpen ? 'Hide' : 'Show'}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </button>
+        </div>
+        
+        {isMarkingsPanelOpen && (
+          <div data-testid="current-marking" className="markings-panel p-3 bg-gray-50 border border-gray-200 rounded-md">
+            {elements.places.length === 0 ? (
+              <p className="text-gray-500 text-sm">No places defined</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+                {elements.places.map(place => (
+                  <div key={place.id} className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-gray-700">
+                      {place.label || place.name || place.id.substring(6, 12)}:
+                    </span>
+                    <span className="font-bold text-purple-600">{place.tokens || 0}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
