@@ -23,18 +23,35 @@ import json
 class PetriNetSimulator:
     def __init__(self, petri_net, max_tokens=20):
         # Handle both dictionary and JS object formats
-        if hasattr(petri_net, 'get'):
-            self.places = petri_net.get('places', [])
-            self.transitions = petri_net.get('transitions', [])
-            self.arcs = petri_net.get('arcs', [])
-        else:
-            self.places = petri_net.get('places', [])
-            self.transitions = petri_net.get('transitions', [])
-            self.arcs = petri_net.get('arcs', [])
+        # Try to get properties using get() method first, then fall back to attribute access
+        try:
+            if hasattr(petri_net, 'get'):
+                self.places = petri_net.get('places', [])
+                self.transitions = petri_net.get('transitions', [])
+                self.arcs = petri_net.get('arcs', [])
+            else:
+                # Handle plain objects (like those from JavaScript)
+                self.places = getattr(petri_net, 'places', [])
+                self.transitions = getattr(petri_net, 'transitions', [])
+                self.arcs = getattr(petri_net, 'arcs', [])
+        except Exception as e:
+            print(f"Error accessing petri_net properties: {e}")
+            # Fallback to empty lists
+            self.places = []
+            self.transitions = []
+            self.arcs = []
         
         self.max_tokens = max_tokens
         self.petri_net = petri_net
+        
+        # Debug: Print what we received
+        print(f"Python simulator constructor received petri_net type: {type(petri_net)}")
+        print(f"Python simulator constructor received petri_net dir: {dir(petri_net)}")
         print(f"Python simulator initialized with {len(self.places)} places, {len(self.transitions)} transitions, {len(self.arcs)} arcs")
+        
+        # Debug: Print arc details
+        for i, arc in enumerate(self.arcs):
+            print(f"  Arc {i}: {arc}")
     
     def get_input_places(self, transition_id):
         input_places = []
@@ -103,13 +120,28 @@ class PetriNetSimulator:
         # Create a deep copy of the Petri net
         updated_petri_net = {}
         updated_petri_net['transitions'] = self.transitions.copy()
-        updated_petri_net['arcs'] = self.arcs.copy()
+        
+        # CRITICAL: Create a proper deep copy of arcs to preserve all properties
+        updated_arcs = []
+        for arc in self.arcs:
+            if hasattr(arc, 'copy'):
+                arc_copy = arc.copy()
+            else:
+                arc_copy = dict(arc) if isinstance(arc, dict) else arc
+            updated_arcs.append(arc_copy)
+        
+        updated_petri_net['arcs'] = updated_arcs
         updated_places = []
         
         # Get all places
         for place in self.places:
-            place_copy = place.copy()
-            place_id = place.get('id')
+            # Create a proper copy of the place
+            if hasattr(place, 'copy'):
+                place_copy = place.copy()
+            else:
+                place_copy = dict(place) if isinstance(place, dict) else place
+            
+            place_id = place.get('id') if hasattr(place, 'get') else place['id']
             
             # Check if this place is an input place for the transition
             for input_place, arc in self.get_input_places(transition_id):
@@ -140,7 +172,22 @@ class PetriNetSimulator:
         self.places = updated_places
         self.petri_net = updated_petri_net
         
+        # Verify the internal state was updated correctly
         print(f"Python simulator fired transition successfully")
+        print("Verifying internal state after firing:")
+        for place in self.places:
+            place_id = place.get('id') if hasattr(place, 'get') else place['id']
+            tokens = place.get('tokens', 0) if hasattr(place, 'get') else place.get('tokens', 0)
+            print(f"  Internal state - Place {place_id}: {tokens} tokens")
+        
+        # CRITICAL: Verify that arcs are properly preserved
+        print(f"Verifying arcs preservation: {len(updated_petri_net['arcs'])} arcs in result")
+        for i, arc in enumerate(updated_petri_net['arcs']):
+            arc_id = arc.get('id') if hasattr(arc, 'get') else arc.get('id', 'unknown')
+            source = arc.get('source') if hasattr(arc, 'get') else arc.get('source', 'unknown')
+            target = arc.get('target') if hasattr(arc, 'get') else arc.get('target', 'unknown')
+            print(f"  Arc {i}: id={arc_id}, source={source}, target={target}")
+        
         return updated_petri_net
 `
 
@@ -557,10 +604,30 @@ export async function initializeSimulator(petriNet, options = {}) {
       
       // Create the actual simulator instance with the provided Petri net
       const maxTokens = options.maxTokens || 20;
+      
+      // Debug: Log what we're about to convert
+      console.log('About to convert Petri net to Python:', petriNet);
+      console.log('Petri net arcs:', petriNet.arcs);
+      
       const petriNetPy = pyodideInstance.toPy(petriNet);
+      
+      // Debug: Log what the conversion produced
+      console.log('Petri net converted to Python object:', petriNetPy);
       
       simulator = await pyodideInstance.runPythonAsync(`
         simulator = PetriNetSimulator(${petriNetPy}, ${maxTokens})
+        
+        # Debug: Verify what the simulator received
+        print(f"Simulator created with {len(simulator.places)} places, {len(simulator.transitions)} transitions, {len(simulator.arcs)} arcs")
+        
+        # If arcs are missing, try to set them manually
+        if len(simulator.arcs) == 0:
+            print("WARNING: No arcs in simulator, attempting manual arc setup...")
+            # Convert the arcs from JavaScript to Python manually
+            arcs_data = ${pyodideInstance.toPy(petriNet.arcs || [])}
+            simulator.arcs = arcs_data
+            print(f"Manually set {len(simulator.arcs)} arcs")
+        
         simulator
       `);
       
@@ -1205,83 +1272,149 @@ export async function fireTransition(transitionId) {
         // Log raw result to diagnose issues
         console.log('Raw Python result:', jsResult);
         
+        // Debug: Check what properties are available in the result
+        if (jsResult.get) {
+          console.log('Result is a Map object');
+          console.log('Available keys:', Array.from(jsResult.keys()));
+          console.log('Places:', jsResult.get('places'));
+          console.log('Transitions:', jsResult.get('transitions'));
+          console.log('Arcs:', jsResult.get('arcs'));
+        } else {
+          console.log('Result is a plain object');
+          console.log('Available properties:', Object.keys(jsResult));
+          console.log('Places:', jsResult.places);
+          console.log('Transitions:', jsResult.transitions);
+          console.log('Arcs:', jsResult.arcs);
+        }
+        
         // Extract token values from Python simulator's internal state
         // This ensures we get the actual updated token counts
         let updatedTokens = {};
         try {
-          // Get the current token values directly from Python
+          // Get the current token values directly from Python simulator's internal state
           const tokenValues = await pyodideInstance.runPythonAsync(`
             token_values = {}
             for place in simulator.places:
-                place_id = place.get('id')
-                tokens = place.get('tokens', 0)
-                token_values[place_id] = tokens
+                try:
+                    # Handle different place object types
+                    if hasattr(place, 'get'):
+                        place_id = place.get('id')
+                        tokens = place.get('tokens', 0)
+                    elif isinstance(place, dict):
+                        place_id = place.get('id')
+                        tokens = place.get('tokens', 0)
+                    else:
+                        # Fallback for other object types
+                        place_id = getattr(place, 'id', str(place))
+                        tokens = getattr(place, 'tokens', 0)
+                    
+                    # Ensure we have valid values
+                    if place_id is not None and tokens is not None:
+                        token_values[str(place_id)] = int(tokens)
+                        print(f"Extracted tokens for place {place_id}: {tokens}")
+                    else:
+                        print(f"Warning: Invalid place data - id: {place_id}, tokens: {tokens}")
+                except Exception as e:
+                    print(f"Error processing place: {e}")
+                    continue
+            
+            print(f"Python simulator internal token state: {token_values}")
             token_values
           `);
           
           // Convert Python dict to JS object
           updatedTokens = tokenValues.toJs();
           console.log('Updated token values from Python:', updatedTokens);
+          
+          // Also verify the Python simulator's current state
+          await pyodideInstance.runPythonAsync(`
+            print("Verifying Python simulator state after firing:")
+            for place in simulator.places:
+                try:
+                    if hasattr(place, 'get'):
+                        place_id = place.get('id')
+                        tokens = place.get('tokens', 0)
+                    elif isinstance(place, dict):
+                        place_id = place.get('id')
+                        tokens = place.get('tokens', 0)
+                    else:
+                        place_id = getattr(place, 'id', str(place))
+                        tokens = getattr(place, 'tokens', 0)
+                    print(f"  Place {place_id}: {tokens} tokens")
+                except Exception as e:
+                    print(f"  Error reading place: {e}")
+          `);
         } catch (err) {
           console.error('Failed to get token values from Python:', err);
+          
+          // Fallback: try to extract tokens from the returned Petri net
+          console.log('Attempting fallback token extraction from returned Petri net...');
+          try {
+            const places = jsResult.get ? jsResult.get('places') : jsResult.places;
+            if (places && Array.isArray(places)) {
+              for (const place of places) {
+                const placeId = place instanceof Map ? place.get('id') : place.id;
+                const tokens = place instanceof Map ? place.get('tokens') : place.tokens;
+                if (placeId && tokens !== undefined) {
+                  updatedTokens.set(placeId, Number(tokens));
+                  console.log(`Fallback: extracted tokens for place ${placeId}: ${tokens}`);
+                }
+              }
+            }
+          } catch (fallbackErr) {
+            console.error('Fallback token extraction also failed:', fallbackErr);
+          }
         }
         
         // Check if jsResult is returning empty or incorrect data
-        if (!jsResult.places || !Array.isArray(jsResult.places) || jsResult.places.length === 0) {
+        const places = jsResult.get ? jsResult.get('places') : jsResult.places;
+        if (!places || !Array.isArray(places) || places.length === 0) {
           console.warn('Python simulator returned no places, using current Petri net places instead');
           // Fall back to current Petri net if places are missing
-          jsResult.places = currentPetriNet.places;
+          if (jsResult.get) {
+            jsResult.set('places', currentPetriNet.places);
+          } else {
+            jsResult.places = currentPetriNet.places;
+          }
         }
         
         // Process the places to ensure tokens are properly converted to numbers
         // and use the directly extracted token values from Python
-        const processedPlaces = (jsResult.places || currentPetriNet.places || []).map(place => {
-          // Get the place ID
-          const placeId = place instanceof Map ? place.get('id') : place.id;
-          
+        console.log('Processing places with updated tokens:', updatedTokens);
+        console.log('Current Petri net places:', currentPetriNet.places);
+        console.log('JS result places:', jsResult.get ? jsResult.get('places') : jsResult.places);
+        
+        // Instead of trying to process jsResult.places (which might be incomplete),
+        // we'll update the current places with new token values from Python
+        const processedPlaces = currentPetriNet.places.map(place => {
           // Get the updated token count from Python simulator
-          const updatedTokenCount = updatedTokens[placeId];
+          const updatedTokenCount = updatedTokens.get ? updatedTokens.get(place.id) : updatedTokens[place.id];
           
-          // Handle both Map objects and plain objects
-          if (place instanceof Map) {
-            const placeObj = {};
-            place.forEach((value, key) => {
-              // Use updated token count if available
-              if (key === 'tokens' && updatedTokenCount !== undefined) {
-                placeObj[key] = Number(updatedTokenCount);
-                console.log(`Updating place ${placeId} tokens to ${updatedTokenCount} (from Python)`); 
-              } else if (key === 'tokens') {
-                placeObj[key] = Number(value);
-              } else {
-                placeObj[key] = value;
-              }
-            });
-            return placeObj;
-          } else if (typeof place === 'object') {
-            // ALWAYS use the updated token count from Python if available
-            // This is critical to ensure token counts are correctly updated
-            if (updatedTokenCount !== undefined) {
-              console.log(`Updating place ${placeId} tokens from ${place.tokens} to ${updatedTokenCount} (from Python)`);
-              return {
-                ...place,
-                tokens: Number(updatedTokenCount)
-              };
-            } else {
-              // If no updated token count is available, keep the current value
-              return {
-                ...place,
-                tokens: place.tokens !== undefined ? Number(place.tokens) : 0
-              };
-            }
+          console.log(`Processing place ${place.id}: current tokens=${place.tokens}, updated tokens=${updatedTokenCount}`);
+          
+          // Always preserve all original properties and only update tokens
+          if (updatedTokenCount !== undefined) {
+            console.log(`Updating place ${place.id} tokens from ${place.tokens} to ${updatedTokenCount} (from Python)`);
+            return {
+              ...place,
+              tokens: Number(updatedTokenCount)
+            };
+          } else {
+            // If no updated token count is available, keep the current value
+            console.warn(`No updated token count available for place ${place.id}, keeping current value: ${place.tokens}`);
+            return {
+              ...place,
+              tokens: place.tokens !== undefined ? Number(place.tokens) : 0
+            };
           }
-          return place;
         });
         
         // Ensure the result has all required properties with properly processed data
+        // We only update places (tokens), transitions and arcs remain unchanged
         const processedResult = {
           places: processedPlaces.length > 0 ? processedPlaces : currentPetriNet.places || [],
-          transitions: jsResult.transitions && jsResult.transitions.length > 0 ? jsResult.transitions : currentPetriNet.transitions || [],
-          arcs: jsResult.arcs && jsResult.arcs.length > 0 ? jsResult.arcs : currentPetriNet.arcs || []
+          transitions: currentPetriNet.transitions || [], // Preserve current transitions
+          arcs: currentPetriNet.arcs || [] // Preserve current arcs
         };
         
         // Verify we have all elements
@@ -1290,20 +1423,82 @@ export async function fireTransition(transitionId) {
           processedResult.places = [...currentPetriNet.places];
         }
         
-        // Debug logging to show token changes
+        // Debug logging to show token changes and validate coordinates
         console.log('Token changes after firing:');
         processedPlaces.forEach(place => {
           const oldPlace = currentPetriNet.places?.find(p => p.id === place.id);
           const oldTokens = oldPlace ? oldPlace.tokens : 'unknown';
           const newTokens = place.tokens;
           console.log(`Place ${place.id}: ${oldTokens} -> ${newTokens}`);
+          
+          // Validate that coordinates are preserved
+          if (oldPlace) {
+            if (place.x !== oldPlace.x || place.y !== oldPlace.y) {
+              console.warn(`Place ${place.id} coordinates changed: (${oldPlace.x},${oldPlace.y}) -> (${place.x},${place.y})`);
+            }
+            if (isNaN(place.x) || isNaN(place.y)) {
+              console.error(`Place ${place.id} has invalid coordinates: x=${place.x}, y=${place.y}`);
+            }
+          }
         });
         
-        // Log the result for debugging
+        // Log the result for debugging and validate structure
         console.log(`Python simulator fired transition successfully. Places: ${processedResult.places.length}, Transitions: ${processedResult.transitions.length}, Arcs: ${processedResult.arcs.length}`);
         
+        // Validate that all elements have required properties
+        processedResult.places.forEach(place => {
+          if (!place.id || place.x === undefined || place.y === undefined || place.tokens === undefined) {
+            console.error(`Invalid place structure:`, place);
+          }
+        });
+        
+        processedResult.transitions.forEach(transition => {
+          if (!transition.id || transition.x === undefined || transition.y === undefined) {
+            console.error(`Invalid transition structure:`, transition);
+          }
+        });
+        
+        processedResult.arcs.forEach(arc => {
+          // Handle both sourceId/targetId (editor) and source/target (PNML) properties
+          const hasValidSource = arc.sourceId || arc.source;
+          const hasValidTarget = arc.targetId || arc.target;
+          if (!arc.id || !hasValidSource || !hasValidTarget) {
+            console.error(`Invalid arc structure:`, arc);
+          }
+        });
+        
+        // Final validation: ensure all elements have valid IDs and required properties
+        const validatedResult = {
+          places: processedResult.places.filter(place => {
+            if (!place.id || isNaN(place.x) || isNaN(place.y) || place.tokens === undefined) {
+              console.error(`Filtering out invalid place:`, place);
+              return false;
+            }
+            return true;
+          }),
+          transitions: processedResult.transitions.filter(transition => {
+            if (!transition.id || isNaN(transition.x) || isNaN(transition.y)) {
+              console.error(`Filtering out invalid transition:`, transition);
+              return false;
+            }
+            return true;
+          }),
+          arcs: processedResult.arcs.filter(arc => {
+            // Handle both sourceId/targetId (editor) and source/target (PNML) properties
+            const hasValidSource = arc.sourceId || arc.source;
+            const hasValidTarget = arc.targetId || arc.target;
+            if (!arc.id || !hasValidSource || !hasValidTarget) {
+              console.error(`Filtering out invalid arc:`, arc);
+              return false;
+            }
+            return true;
+          })
+        };
+        
+        console.log(`Validation complete. Valid elements: ${validatedResult.places.length} places, ${validatedResult.transitions.length} transitions, ${validatedResult.arcs.length} arcs`);
+        
         // Update the current Petri net reference with a deep copy to ensure React state updates
-        currentPetriNet = JSON.parse(JSON.stringify(processedResult));
+        currentPetriNet = JSON.parse(JSON.stringify(validatedResult));
         
         // Update the Python simulator's internal state to ensure consistency
         // This is critical to ensure the Python simulator's internal state matches the JS state
@@ -1341,10 +1536,9 @@ export async function fireTransition(transitionId) {
                         place['tokens'] = new_token_values[place_id]
                         print(f"Updated Python simulator place {place_id} tokens to {new_token_values[place_id]}")
                 
-                # Update the rest of the Petri net structure
-                simulator.transitions = ${pyodideInstance.toPy(processedResult.transitions)}
-                simulator.arcs = ${pyodideInstance.toPy(processedResult.arcs)}
-                simulator.petri_net = ${pyodideInstance.toPy(processedResult)}
+                # Only update token values, preserve the existing structure
+                # simulator.transitions and simulator.arcs should remain unchanged
+                # simulator.petri_net should only be updated with token changes
                 
             print(f"Python simulator internal state updated with {len(simulator.places)} places, {len(simulator.transitions)} transitions, {len(simulator.arcs)} arcs")
             
@@ -1364,7 +1558,7 @@ export async function fireTransition(transitionId) {
           console.warn('Failed to update Python simulator internal state:', updateError);
         }
         
-        return processedResult;
+        return validatedResult;
       } else {
         console.warn('Python result has no toJs method, falling back to JS simulator');
         useJsFallback = true;
