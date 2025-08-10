@@ -9,7 +9,7 @@ import {
   deactivateSimulation 
 } from '../../utils/simulator';
 
-const useSimulationManager = (elements, setElements) => {
+const useSimulationManager = (elements, setElements, updateHistory) => {
   const [isContinuousSimulating, setIsContinuousSimulating] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [isSimulationActive, setIsSimulationActive] = useState(false);
@@ -174,6 +174,13 @@ const useSimulationManager = (elements, setElements) => {
         
         // Update the Petri net state with the new elements
         setElements(elementsCopy);
+        
+        // Update history to record this simulation step for undo/redo
+        if (updateHistory) {
+          console.log('Recording simulation step in history:', elementsCopy);
+          updateHistory(elementsCopy, true); // true indicates this is a simulation step
+        }
+        
         setSimulationError(null);
         
         // Immediately refresh enabled transitions to reflect the new state
