@@ -257,7 +257,7 @@ function AppContent() {
           onAutoLayout={handleAutoLayout}
           gridSnappingEnabled={gridSnappingEnabled} 
           onToggleGridSnapping={toggleGridSnapping} 
-          onSettings={() => setIsSettingsDialogOpen(true)} 
+          onOpenSettings={() => setIsSettingsDialogOpen(true)} 
           elements={elements}
           setElements={setElements}
           updateHistory={updateHistory}
