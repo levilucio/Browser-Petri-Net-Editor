@@ -26,6 +26,21 @@ const ArcManager = () => {
     return elements.places.find(p => p.id === id) || elements.transitions.find(t => t.id === id);
   };
 
+  // Helper functions for arc type inference (to handle XML-loaded arcs)
+  const getArcSourceType = (arc) => {
+    if (arc.sourceType) return arc.sourceType;
+    if (arc.type === 'place-to-transition') return 'place';
+    if (arc.type === 'transition-to-place') return 'transition';
+    return 'place'; // fallback
+  };
+
+  const getArcTargetType = (arc) => {
+    if (arc.targetType) return arc.targetType;
+    if (arc.type === 'place-to-transition') return 'transition';
+    if (arc.type === 'transition-to-place') return 'place';
+    return 'transition'; // fallback
+  };
+
   const getAdjustedPoints = (source, target, anglePoints = []) => {
     const allPoints = [{...source}, ...anglePoints, {...target}];
     const placeRadius = 30; // from Place.jsx
@@ -96,8 +111,8 @@ const ArcManager = () => {
         if (!source || !target) return null;
 
         const virtualPoints = getAdjustedPoints(
-          {...source, type: arc.sourceType}, 
-          {...target, type: arc.targetType}, 
+          {...source, type: getArcSourceType(arc)}, 
+          {...target, type: getArcTargetType(arc)}, 
           arc.anglePoints
         );
 

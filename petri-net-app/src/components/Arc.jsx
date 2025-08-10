@@ -18,8 +18,32 @@ const Arc = ({
   // Normalize arc properties to handle different formats
   const sourceId = arc.sourceId || arc.source;
   const targetId = arc.targetId || arc.target;
-  const arcSourceType = arc.sourceType || (arc.type === 'place-to-transition' ? 'place' : 'transition');
-  const arcTargetType = arc.targetType || (arc.type === 'place-to-transition' ? 'transition' : 'place');
+  
+  // Fix the arc type inference logic to properly handle XML-loaded arcs
+  let arcSourceType, arcTargetType;
+  
+  if (arc.sourceType && arc.targetType) {
+    // If sourceType and targetType are explicitly set, use them
+    arcSourceType = arc.sourceType;
+    arcTargetType = arc.targetType;
+  } else if (arc.type) {
+    // Infer from arc.type property (for XML-loaded arcs)
+    if (arc.type === 'place-to-transition') {
+      arcSourceType = 'place';
+      arcTargetType = 'transition';
+    } else if (arc.type === 'transition-to-place') {
+      arcSourceType = 'transition';
+      arcTargetType = 'place';
+    } else {
+      // Fallback for unknown types
+      arcSourceType = 'place';
+      arcTargetType = 'transition';
+    }
+  } else {
+    // Fallback for arcs without type information
+    arcSourceType = 'place';
+    arcTargetType = 'transition';
+  }
   
   // Find source and target elements
   let source, target;
@@ -99,14 +123,14 @@ const Arc = ({
   let adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY;
   
   if (arcSourceType === 'place') {
-    // Adjust for circle (place)
-    const radius = 20;
+    // Adjust for circle (place) - use correct radius from Place.jsx
+    const radius = 30;
     adjustedStartX = startX + Math.cos(startAngle) * radius;
     adjustedStartY = startY + Math.sin(startAngle) * radius;
   } else {
-    // Adjust for rectangle (transition)
-    const width = 30;
-    const height = 40;
+    // Adjust for rectangle (transition) - use correct dimensions from Transition.jsx
+    const width = 40;
+    const height = 50;
     
     // Determine which side of the rectangle to start from
     if (Math.abs(Math.cos(startAngle)) > Math.abs(Math.sin(startAngle))) {
@@ -123,14 +147,14 @@ const Arc = ({
   }
   
   if (arcTargetType === 'place') {
-    // Adjust for circle (place)
-    const radius = 20;
+    // Adjust for circle (place) - use correct radius from Place.jsx
+    const radius = 30;
     adjustedEndX = endX - Math.cos(endAngle) * radius;
     adjustedEndY = endY - Math.sin(endAngle) * radius;
   } else {
-    // Adjust for rectangle (transition)
-    const width = 30;
-    const height = 40;
+    // Adjust for rectangle (transition) - use correct dimensions from Transition.jsx
+    const width = 40;
+    const height = 50;
     
     // Determine which side of the rectangle to end at
     if (Math.abs(Math.cos(endAngle)) > Math.abs(Math.sin(endAngle))) {
