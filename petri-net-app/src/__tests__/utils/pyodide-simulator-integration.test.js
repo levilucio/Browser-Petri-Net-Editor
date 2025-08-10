@@ -8,10 +8,10 @@
  * 4. Arcs are properly maintained after firing transitions
  */
 
-import { initializePyodide, initializeSimulator, fireTransition, getEnabledTransitions } from '../../utils/simulator';
+import { simulatorCore } from '../../features/simulation';
 
 // Mock the simulator module to avoid actual Pyodide initialization
-jest.mock('../../utils/simulator', () => {
+jest.mock('../../features/simulation', () => {
   // Create a mock Petri net for testing
   const mockPetriNet = {
     places: [
@@ -42,35 +42,30 @@ jest.mock('../../utils/simulator', () => {
   };
   
   return {
-    // Mock the initializePyodide function
-    initializePyodide: jest.fn().mockResolvedValue({
-      runPython: jest.fn(),
-      runPythonAsync: jest.fn(),
-      loadPackagesFromImports: jest.fn()
-    }),
-    
-    // Mock the initializeSimulator function
-    initializeSimulator: jest.fn().mockResolvedValue(mockPetriNet),
-    
-    // Mock the getEnabledTransitions function
-    getEnabledTransitions: jest.fn().mockResolvedValue([{
-      id: 'transition-1', 
-      name: 'T1', 
-      x: 200, 
-      y: 100
-    }]),
-    
-    // Mock the fireTransition function
-    fireTransition: jest.fn().mockImplementation((transitionId) => {
-      // Return a copy of the mock Petri net with updated token counts
-      return Promise.resolve({
-        ...mockPetriNet,
-        places: [
-          { id: 'place-1', name: 'P1', tokens: 0, x: 100, y: 100 },
-          { id: 'place-2', name: 'P2', tokens: 1, x: 300, y: 100 }
+    simulatorCore: {
+      // Mock the initialize function
+      initialize: jest.fn().mockResolvedValue(mockPetriNet),
+      
+      // Mock the getEnabledTransitions function
+      getEnabledTransitions: jest.fn().mockResolvedValue([{
+        id: 'transition-1', 
+        name: 'T1', 
+        x: 200, 
+        y: 100
+      }]),
+      
+      // Mock the fireTransition function
+      fireTransition: jest.fn().mockImplementation((transitionId) => {
+        // Return a copy of the mock Petri net with updated token counts
+        return Promise.resolve({
+          ...mockPetriNet,
+          places: [
+            { id: 'place-1', name: 'P1', tokens: 0, x: 100, y: 100 },
+            { id: 'place-2', name: 'P2', tokens: 1, x: 300, y: 100 }
         ]
-      });
-    })
+        });
+      })
+    }
   };
 });
 
@@ -116,7 +111,7 @@ describe('Pyodide Simulator Integration', () => {
       ]
     };
     
-    const result = await initializeSimulator(petriNet);
+    const result = await simulatorCore.initialize(petriNet);
     expect(result).toBeDefined();
   });
   
@@ -150,10 +145,10 @@ describe('Pyodide Simulator Integration', () => {
       ]
     };
     
-    await initializeSimulator(petriNet);
+    await simulatorCore.initialize(petriNet);
     
     // Get enabled transitions
-    const enabledTransitions = await getEnabledTransitions();
+    const enabledTransitions = await simulatorCore.getEnabledTransitions();
     expect(enabledTransitions.length).toBeGreaterThan(0);
     expect(enabledTransitions[0].id).toBe('transition-1');
   });
@@ -188,10 +183,10 @@ describe('Pyodide Simulator Integration', () => {
       ]
     };
     
-    await initializeSimulator(petriNet);
+    await simulatorCore.initialize(petriNet);
     
     // Fire the transition
-    const updatedPetriNet = await fireTransition('transition-1');
+    const updatedPetriNet = await simulatorCore.fireTransition('transition-1');
     
     // Verify that the marking has been updated
     expect(updatedPetriNet.places.find(p => p.id === 'place-1').tokens).toBe(0);

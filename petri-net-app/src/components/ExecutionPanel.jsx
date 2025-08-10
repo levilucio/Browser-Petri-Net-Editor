@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  initializeSimulator, 
-  getEnabledTransitions, 
-  fireTransition, 
-  updateSimulator,
-  findNonConflictingTransitions,
-  fireMultipleTransitions
-} from '../utils/simulator';
+  simulatorCore
+} from '../features/simulation';
 import MarkingsPanel from './MarkingsPanel';
 import EnabledTransitionsPanel from './EnabledTransitionsPanel';
 
@@ -45,13 +40,13 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       
       try {
         // Pass simulation settings to the simulator initialization
-        await initializeSimulator(elements, {
+        await simulatorCore.initialize(elements, {
           maxTokens: simulationSettings.maxTokens
         });
         setIsSimulatorReady(true);
         
         // Compute enabled transitions
-        const enabled = await getEnabledTransitions();
+        const enabled = await simulatorCore.getEnabledTransitions();
         setEnabledTransitions(enabled);
         
         // Notify parent component about enabled transitions
@@ -79,10 +74,10 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
     
     try {
       // Fire the transition and get the updated Petri net
-      const updatedPetriNet = await fireTransition(transitionId);
+      const updatedPetriNet = await simulatorCore.fireTransition(transitionId);
       
       // Update the simulator with the new state
-      await updateSimulator(updatedPetriNet);
+      await simulatorCore.update(updatedPetriNet);
       
       // Update the elements in the parent component
       if (onUpdateElements) {
@@ -90,7 +85,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       }
       
       // Compute the new enabled transitions
-      const newEnabledTransitions = await getEnabledTransitions();
+      const newEnabledTransitions = await simulatorCore.getEnabledTransitions();
       setEnabledTransitions(newEnabledTransitions);
       
       // Notify parent component about enabled transitions
@@ -123,7 +118,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
     
     try {
       // Find all non-conflicting transitions to fire simultaneously
-      const transitionsToFire = await findNonConflictingTransitions(enabledTransitions, places, arcs);
+      const transitionsToFire = await simulatorCore.findNonConflictingTransitions(enabledTransitions, places, arcs);
       
       if (transitionsToFire.length === 0) {
         setError('No transitions to fire');
@@ -135,7 +130,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         await handleFireTransition(transitionsToFire[0]);
       } else {
         // Fire multiple transitions simultaneously
-        const updatedPetriNet = await fireMultipleTransitions(transitionsToFire);
+        const updatedPetriNet = await simulatorCore.fireMultipleTransitions(transitionsToFire);
         
         // Update the elements in the parent component
         if (onUpdateElements) {
@@ -143,7 +138,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         }
         
         // Compute the new enabled transitions
-        const newEnabledTransitions = await getEnabledTransitions();
+        const newEnabledTransitions = await simulatorCore.getEnabledTransitions();
         setEnabledTransitions(newEnabledTransitions);
         
         // Notify parent component about enabled transitions
@@ -185,7 +180,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
       }
       
       // Check for enabled transitions
-      const currentEnabled = await getEnabledTransitions();
+      const currentEnabled = await simulatorCore.getEnabledTransitions();
       // Track currently enabled transitions
       
       // Don't proceed if there are no enabled transitions
@@ -200,7 +195,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         await handleFirePetriNet();
         
         // Check if there are still enabled transitions after firing
-        const afterFiringEnabled = await getEnabledTransitions();
+        const afterFiringEnabled = await simulatorCore.getEnabledTransitions();
         
         // Important: We want to continue even if only one transition is enabled
         // Only stop if there are NO enabled transitions
@@ -218,7 +213,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         
         // Try to check if any transitions are still enabled
         try {
-          const errorCheckEnabled = await getEnabledTransitions();
+          const errorCheckEnabled = await simulatorCore.getEnabledTransitions();
           if (errorCheckEnabled.length === 0) {
             // No enabled transitions after error, stopping simulation
             return false;
@@ -290,7 +285,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
         // Starting full-speed run
         
         // Check if there are any enabled transitions
-        const currentEnabled = await getEnabledTransitions();
+        const currentEnabled = await simulatorCore.getEnabledTransitions();
         // Run starting with enabled transitions
         
         if (currentEnabled.length === 0) {
@@ -311,7 +306,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
           iterationCount++;
           
           // Get current enabled transitions
-          const enabled = await getEnabledTransitions();
+          const enabled = await simulatorCore.getEnabledTransitions();
           
           if (enabled.length === 0) {
             // No more enabled transitions
@@ -319,7 +314,7 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
           }
           
           // Find non-conflicting transitions to fire - this is the same logic used by the Fire button
-          const transitionsToFire = await findNonConflictingTransitions(enabled, places, arcs);
+          const transitionsToFire = await simulatorCore.findNonConflictingTransitions(enabled, places, arcs);
           
           if (transitionsToFire.length === 0) {
             // No transitions to fire
@@ -328,15 +323,15 @@ const ExecutionPanel = ({ elements, onUpdateElements, onEnabledTransitionsChange
           
           // Fire the transitions using the same logic as the Fire button
           // Firing selected transitions
-          const updatedPetriNet = await fireMultipleTransitions(transitionsToFire);
+          const updatedPetriNet = await simulatorCore.fireMultipleTransitions(transitionsToFire);
           
           // Update the elements in the parent component
           if (onUpdateElements) {
             onUpdateElements(updatedPetriNet);
-          }
+        }
           
           // Check if there are still enabled transitions
-          const afterFiringEnabled = await getEnabledTransitions();
+          const afterFiringEnabled = await simulatorCore.getEnabledTransitions();
           canContinue = afterFiringEnabled.length > 0;
           
           // Add a small delay every few iterations to prevent browser freezing

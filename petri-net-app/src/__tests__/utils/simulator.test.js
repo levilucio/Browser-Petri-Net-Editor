@@ -2,7 +2,7 @@
  * Unit tests for the Petri net simulator
  * Tests the simulator logic and performance
  */
-import { JsPetriNetSimulator } from '../../utils/simulator';
+import { JsPetriNetSimulator } from '../../features/simulation';
 
 // Direct tests of the JsPetriNetSimulator class
 describe('JsPetriNetSimulator', () => {

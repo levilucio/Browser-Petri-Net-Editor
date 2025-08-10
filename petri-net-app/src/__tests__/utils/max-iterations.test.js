@@ -2,7 +2,7 @@
  * Unit tests for the Petri net simulator max iterations functionality
  * Tests that the simulation respects the configured max iterations
  */
-import { JsPetriNetSimulator } from '../../utils/simulator';
+import { JsPetriNetSimulator } from '../../features/simulation';
 
 // Mock console.log to track when max iterations message is logged
 describe('Petri Net Simulator Max Iterations', () => {

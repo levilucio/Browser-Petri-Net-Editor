@@ -1,7 +1,7 @@
 /**
  * Unit tests for the dynamic max tokens feature in the simulator
  */
-import { JsPetriNetSimulator } from '../../utils/simulator';
+import { JsPetriNetSimulator } from '../../features/simulation';
 
 describe('Max Tokens Tests', () => {
   // Test that the simulator respects the maxTokens setting

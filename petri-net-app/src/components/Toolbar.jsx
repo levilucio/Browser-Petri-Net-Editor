@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { exportToPNML, importFromPNML } from '../utils/python/index';
 // Import icons for simulation controls
-import { initializeSimulator } from '../utils/simulator';
+import { simulatorCore } from '../features/simulation';
 
 const Toolbar = ({ 
   mode, 

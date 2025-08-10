@@ -6,13 +6,15 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Transition from '../../components/Transition';
-import { initializeSimulator, getEnabledTransitions, fireTransition } from '../../utils/simulator';
+import { simulatorCore } from '../../features/simulation';
 
 // Mock the simulator module
-jest.mock('../../utils/simulator', () => ({
-  initializeSimulator: jest.fn(),
-  getEnabledTransitions: jest.fn(),
-  fireTransition: jest.fn()
+jest.mock('../../features/simulation', () => ({
+  simulatorCore: {
+    initialize: jest.fn(),
+    getEnabledTransitions: jest.fn(),
+    fireTransition: jest.fn()
+  }
 }));
 
 // Mock Konva components
