@@ -8,6 +8,7 @@ const SimulationManager = () => {
     isRunning,
     enabledTransitionIds,
     simulationError,
+    isSimulatorReady,
     stepSimulation,
     startContinuousSimulation,
     startRunSimulation,
@@ -27,12 +28,14 @@ const SimulationManager = () => {
       )}
 
       <div className="bg-gray-200 p-3 rounded-lg shadow-lg border border-gray-300">
+        {/* Status messages removed intentionally to keep panel minimal */}
+
         <div className="flex items-center justify-between space-x-3 mb-3">
           <button
             data-testid="sim-step"
             className="flex-1 h-12 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex flex-col items-center justify-center transition-all shadow-md"
             onClick={stepSimulation}
-            disabled={isAnySimulationRunning || enabledTransitionIds.length === 0}
+            disabled={!isSimulatorReady || isAnySimulationRunning || enabledTransitionIds.length === 0}
             title="Execute one step forward"
           >
             <div style={{ height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -47,7 +50,7 @@ const SimulationManager = () => {
             data-testid="sim-simulate"
             className="flex-1 h-12 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 flex flex-col items-center justify-center transition-all shadow-md"
             onClick={startContinuousSimulation}
-            disabled={isAnySimulationRunning || enabledTransitionIds.length === 0}
+            disabled={!isSimulatorReady || isAnySimulationRunning || enabledTransitionIds.length === 0}
             title="Simulate with animation"
           >
             <div style={{ height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -62,7 +65,7 @@ const SimulationManager = () => {
             data-testid="sim-run"
             className="flex-1 h-12 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:bg-gray-400 flex flex-col items-center justify-center transition-all shadow-md"
             onClick={startRunSimulation}
-            disabled={isAnySimulationRunning || enabledTransitionIds.length === 0}
+            disabled={!isSimulatorReady || isAnySimulationRunning || enabledTransitionIds.length === 0}
             title="Run to completion"
           >
             <div style={{ height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

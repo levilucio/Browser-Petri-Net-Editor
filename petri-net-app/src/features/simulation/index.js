@@ -4,11 +4,11 @@
  */
 
 // Core simulator
-export { simulatorCore, SimulatorCore } from './simulator-core';
+import simulatorCoreInstance, { SimulatorCore } from './simulator-core';
+export { simulatorCoreInstance as simulatorCore, SimulatorCore };
 
 // Individual simulators
-export { JsPetriNetSimulator } from './js-simulator';
-export { PythonSimulator } from './python-simulator';
+export { PyodideSimulator } from './pyodide-simulator';
 
 // Conflict resolution
 export { ConflictResolver } from './conflict-resolver';
@@ -26,4 +26,4 @@ export {
 } from './simulation-utils';
 
 // Legacy export for backward compatibility
-export { simulatorCore as default } from './simulator-core';
+export { default } from './simulator-core';

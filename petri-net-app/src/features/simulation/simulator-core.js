@@ -1,21 +1,15 @@
 /**
  * Core Simulator Interface
  * Provides the main interface for Petri net simulation operations
- * Coordinates between Python and JavaScript simulators
+ * Only uses the Python simulator via Pyodide
  */
 
-import { loadPyodideInstance } from '../../utils/pyodide-loader';
-import { JsPetriNetSimulator } from './js-simulator';
-import { PythonSimulator } from './python-simulator';
+import { PyodideSimulator } from './pyodide-simulator';
 import { ConflictResolver } from './conflict-resolver';
 
 // Global state management
-let pyodideInstance = null;
 let simulator = null;
-let pyodideLoading = null;
 let currentPetriNet = null;
-let useJsFallback = false;
-let pyodideLoadError = null;
 let simulationActive = false;
 
 // Configuration
@@ -35,15 +29,39 @@ export class SimulatorCore {
    * Initialize the simulator with a Petri net
    */
   async initialize(petriNet, options = {}) {
-    if (isInitializing) {
-      console.log('Simulator initialization already in progress, skipping...');
+    // Only initialize when we have actual Petri net elements and at least one arc
+    if (!petriNet || !petriNet.places || !petriNet.transitions || !petriNet.arcs ||
+        petriNet.places.length === 0 || petriNet.transitions.length === 0 || petriNet.arcs.length === 0) {
+      console.log('Insufficient Petri net data for initialization, skipping...');
       return;
+    }
+    
+    console.log('Initializing simulator with Petri net data...');
+    
+    // Use provided Petri net data
+    const netData = petriNet;
+
+    // If already initializing, wait for it to complete or force restart
+    if (isInitializing) {
+      console.log('Simulator initialization already in progress, waiting for completion...');
+      // Wait a bit for current initialization to complete
+      let waitCount = 0;
+      while (isInitializing && waitCount < 50) { // Wait up to 5 seconds
+        await new Promise(resolve => setTimeout(resolve, 100));
+        waitCount++;
+      }
+      
+      // If still initializing after waiting, force restart
+      if (isInitializing) {
+        console.log('Initialization taking too long, forcing restart...');
+        this.reset();
+      }
     }
 
     const now = Date.now();
     if (lastInitTime && (now - lastInitTime) < MIN_INIT_INTERVAL) {
-      console.log('Simulator initialization too recent, skipping...');
-      return;
+      console.log('Simulator initialization too recent, but forcing restart due to new data...');
+      // Don't skip - force restart for new data
     }
 
     // Check if we already have a working simulator with the same Petri net
@@ -59,34 +77,24 @@ export class SimulatorCore {
     lastInitTime = now;
     
     try {
-      currentPetriNet = petriNet;
-      console.log('Initializing simulator with Petri net:', petriNet.places?.length || 0, 'places,', petriNet.transitions?.length || 0, 'transitions');
+      currentPetriNet = netData;
+      console.log('Initializing Pyodide simulator with Petri net:', netData.places?.length || 0, 'places,', netData.transitions?.length || 0, 'transitions');
       
-      // Reset fallback flag for new initialization
-      useJsFallback = false;
+      // Only use Pyodide simulator
+      const pyodideSim = new PyodideSimulator();
+      await pyodideSim.initialize(netData, options);
       
-      try {
-        // Try Python simulator first
-        if (!useJsFallback) {
-          const pythonSim = new PythonSimulator();
-          await pythonSim.initialize(petriNet, options);
-          simulator = pythonSim;
-          console.log('Python simulator initialized successfully');
-          return;
-        }
-      } catch (error) {
-        console.warn('Python simulator failed, falling back to JavaScript:', error);
-        useJsFallback = true;
+      // Verify the simulator is actually ready before assigning it
+      if (!pyodideSim.isInitialized) {
+        throw new Error('Pyodide simulator initialization completed but isInitialized is false');
       }
-
-      // Fallback to JavaScript simulator
-      try {
-        simulator = new JsPetriNetSimulator(petriNet, options);
-        console.log('JavaScript simulator initialized as fallback');
-      } catch (error) {
-        console.error('JavaScript simulator also failed:', error);
-        throw error;
-      }
+      
+      simulator = pyodideSim;
+      console.log('Pyodide simulator initialized successfully');
+      
+    } catch (error) {
+      console.error('Pyodide simulator initialization failed:', error);
+      throw error;
     } finally {
       isInitializing = false;
     }
@@ -99,7 +107,13 @@ export class SimulatorCore {
     if (!simulator) {
       throw new Error('Simulator not initialized');
     }
-    return await simulator.getEnabledTransitions();
+
+    try {
+      return await simulator.getEnabledTransitions();
+    } catch (error) {
+      console.error('Error getting enabled transitions:', error);
+      throw error;
+    }
   }
 
   /**
@@ -109,17 +123,45 @@ export class SimulatorCore {
     if (!simulator) {
       throw new Error('Simulator not initialized');
     }
-    return await simulator.isTransitionEnabled(transitionId);
+
+    try {
+      return await simulator.isTransitionEnabled(transitionId);
+    } catch (error) {
+      console.error('Error checking transition enabled:', error);
+      throw error;
+    }
   }
 
   /**
-   * Fire a single transition
+   * Fire a transition
    */
   async fireTransition(transitionId) {
     if (!simulator) {
       throw new Error('Simulator not initialized');
     }
-    return await simulator.fireTransition(transitionId);
+
+    try {
+      return await simulator.fireTransition(transitionId);
+    } catch (error) {
+      console.error('Error firing transition:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Execute one simulation step
+   */
+  async stepSimulation() {
+    if (!simulator) {
+      throw new Error('Simulator not initialized');
+    }
+
+    try {
+      return await simulator.stepSimulation();
+    } catch (error) {
+      console.error('Error executing simulation step:', error);
+      throw error;
+    }
   }
 
   /**
@@ -129,145 +171,99 @@ export class SimulatorCore {
     if (!simulator) {
       throw new Error('Simulator not initialized');
     }
-    return await simulator.fireMultipleTransitions(transitionIds);
-  }
 
-  /**
-   * Check for conflicts between transitions
-   */
-  async areTransitionsInConflict(transition1Id, transition2Id, places, arcs) {
-    return this.conflictResolver.areTransitionsInConflict(
-      transition1Id, transition2Id, places, arcs
-    );
-  }
-
-  /**
-   * Find non-conflicting transitions
-   */
-  async findNonConflictingTransitions(enabledTransitions, places, arcs) {
-    return this.conflictResolver.findNonConflictingTransitions(
-      enabledTransitions, places, arcs
-    );
+    try {
+      return await simulator.fireMultipleTransitions(transitionIds);
+    } catch (error) {
+      console.error('Error firing multiple transitions:', error);
+      throw error;
+    }
   }
 
   /**
    * Update simulator with new Petri net state
    */
   async update(petriNet) {
-    currentPetriNet = petriNet;
-    if (simulator && simulator.update) {
-      await simulator.update(petriNet);
+    // Check if we have valid Petri net data before proceeding
+    if (!petriNet || !petriNet.places || !petriNet.transitions || !petriNet.arcs ||
+        petriNet.places.length === 0 || petriNet.transitions.length === 0 || petriNet.arcs.length === 0) {
+      console.log('Insufficient Petri net data for update, skipping...');
+      return;
     }
-  }
 
-  /**
-   * Get the type of simulator currently in use
-   */
-  getSimulatorType() {
     if (!simulator) {
-      return 'none';
-    }
-    
-    if (simulator instanceof PythonSimulator) {
-      return 'python';
-    } else if (simulator instanceof JsPetriNetSimulator) {
-      return 'javascript';
-    } else {
-      return 'unknown';
-    }
-  }
-
-  /**
-   * Get simulator status for debugging
-   */
-  getSimulatorStatus() {
-    return {
-      simulatorType: this.getSimulatorType(),
-      isInitializing,
-      lastInitTime,
-      hasCurrentPetriNet: !!currentPetriNet,
-      useJsFallback,
-      simulationActive,
-      simulatorStatus: simulator?.getStatus ? simulator.getStatus() : null
-    };
-  }
-
-  /**
-   * Check if using fallback
-   */
-  isUsingFallback() {
-    return useJsFallback;
-  }
-
-  /**
-   * Initialize simulator for simulation mode
-   */
-  async _initializeForSimulation() {
-    if (!currentPetriNet) {
-      throw new Error('No Petri net available for simulation');
-    }
-
-    try {
-      if (!useJsFallback) {
-        const pythonSim = new PythonSimulator();
-        await pythonSim.initialize(currentPetriNet, { maxTokens: 20 });
-        simulator = pythonSim;
-        console.log('Python simulator initialized for simulation mode');
+      console.log('No simulator instance, initializing...');
+      try {
+        await this.initialize(petriNet, { maxTokens: 20 });
         return;
+      } catch (error) {
+        console.error('Failed to initialize simulator during update:', error);
+        // Don't throw error for insufficient data - this is expected during Petri net construction
+        if (error.message.includes('insufficient Petri net data') || 
+            error.message.includes('invalid Petri net structure') ||
+            error.message.includes('missing required IDs')) {
+          console.log('Simulator initialization skipped due to incomplete Petri net data');
+          return;
+        }
+        throw new Error('Simulator initialization failed during update');
       }
-    } catch (error) {
-      console.warn('Python simulator failed during simulation initialization:', error);
-      useJsFallback = true;
     }
 
-    // Fallback to JavaScript simulator
+    if (!this.isReady()) {
+      console.log('Simulator not ready, attempting to reinitialize...');
+      try {
+        // Reset and reinitialize
+        this.reset();
+        await this.initialize(petriNet, { maxTokens: 20 });
+        return;
+      } catch (error) {
+        console.error('Failed to reinitialize simulator during update:', error);
+        throw new Error('Simulator not ready and reinitialization failed');
+      }
+    }
+
+    // Check if the Petri net has actually changed
+    // More reliable change detection - check if the core structure has actually changed
+    if (currentPetriNet && 
+        currentPetriNet.places && petriNet.places &&
+        currentPetriNet.transitions && petriNet.transitions &&
+        currentPetriNet.arcs && petriNet.arcs &&
+        currentPetriNet.places.length === petriNet.places.length &&
+        currentPetriNet.transitions.length === petriNet.transitions.length &&
+        currentPetriNet.arcs.length === petriNet.arcs.length) {
+      console.log('Petri net structure unchanged, skipping update');
+      return;
+    }
+
     try {
-      simulator = new JsPetriNetSimulator(currentPetriNet, { maxTokens: 20 });
-      console.log('JavaScript simulator initialized as fallback for simulation');
+      console.log('Updating simulator with new Petri net state...');
+      await simulator.update(petriNet);
+      currentPetriNet = petriNet;
+      console.log('Simulator update completed successfully');
     } catch (error) {
-      console.error('JavaScript simulator failed during simulation initialization:', error);
-      throw error;
+      console.error('Error updating simulator:', error);
+      // Try to reinitialize if update fails
+      try {
+        console.log('Update failed, attempting to reinitialize...');
+        this.reset();
+        await this.initialize(petriNet, { maxTokens: 20 });
+      } catch (reinitError) {
+        console.error('Reinitialization after update failure also failed:', reinitError);
+        throw new Error('Simulator update failed and reinitialization failed');
+      }
     }
   }
 
   /**
    * Activate simulation mode
    */
-  async activateSimulation(forceInitialize = true) {
+  async activateSimulation(continuous = false) {
+    if (!simulator) {
+      throw new Error('Simulator not initialized');
+    }
+
     simulationActive = true;
     console.log('Simulation mode activated');
-    
-    // Reset fallback flag to try Pyodide first
-    useJsFallback = false;
-    
-    if (currentPetriNet) {
-      try {
-        // Check if we already have a working simulator
-        if (simulator && simulator.getStatus && simulator.getStatus().isInitialized) {
-          console.log('Using existing working simulator instance - no initialization needed');
-          return;
-        }
-        
-        if (forceInitialize || !simulator) {
-          console.log(`${forceInitialize ? 'Force initializing' : 'Initializing'} simulator for simulation mode`);
-          await this._initializeForSimulation();
-          console.log('Simulator initialized for simulation mode');
-        } else {
-          console.log('Using existing simulator instance - skipping initialization');
-        }
-      } catch (error) {
-        console.error('Error initializing simulator for simulation:', error);
-        // Create a minimal fallback simulator
-        simulator = {
-          getEnabledTransitions: () => [],
-          fireTransition: () => currentPetriNet,
-          isTransitionEnabled: () => false,
-          update: () => Promise.resolve(),
-          getStatus: () => ({ isInitialized: false, type: 'fallback' })
-        };
-      }
-    }
-    return null;
   }
 
   /**
@@ -276,23 +272,59 @@ export class SimulatorCore {
   deactivateSimulation() {
     simulationActive = false;
     console.log('Simulation mode deactivated');
-    
-    if (useJsFallback && !pyodideLoadError) {
-      useJsFallback = false;
-    }
-    
-    if (currentPetriNet) {
-      simulator = new JsPetriNetSimulator(currentPetriNet);
-    }
-    
-    return null;
   }
 
   /**
-   * Check if simulation is active
+   * Get simulator type
    */
-  isSimulationActive() {
-    return simulationActive;
+  getSimulatorType() {
+    // Always return 'pyodide' if we have any simulator instance
+    // This prevents the UI from getting stuck waiting for 'none'
+    if (simulator) {
+      return 'pyodide';
+    }
+    
+    // If no simulator exists yet, return 'pyodide' to indicate it's available
+    // This allows the initialization process to proceed
+    return 'pyodide';
+  }
+
+  /**
+   * Get simulator status
+   */
+  getSimulatorStatus() {
+    return {
+      simulatorType: this.getSimulatorType(),
+      isInitializing,
+      lastInitTime,
+      hasCurrentPetriNet: !!currentPetriNet,
+      simulationActive,
+      simulatorStatus: simulator?.getStatus ? {
+        ...simulator.getStatus(),
+        simulator: simulator // Expose the simulator instance for event listening
+      } : null
+    };
+  }
+
+  /**
+   * Check if simulator is ready
+   */
+  async isReady() {
+    if (!simulator) {
+      return false;
+    }
+    
+    if (!simulator.getStatus) {
+      return false;
+    }
+    
+    const status = simulator.getStatus();
+    
+    // Simulator is ready if it has basic components
+    // The simulation panel activation is now handled by event listeners
+    return status.isInitialized && 
+           status.hasPyodide &&
+           status.hasSimulator;
   }
 
   /**
@@ -301,10 +333,60 @@ export class SimulatorCore {
   getCurrentPetriNet() {
     return currentPetriNet;
   }
+
+  /**
+   * Set simulation mode
+   */
+  async setSimulationMode(mode) {
+    if (!simulator) {
+      throw new Error('Simulator not initialized');
+    }
+
+    try {
+      await simulator.setSimulationMode(mode);
+      console.log('Simulation mode changed to:', mode);
+    } catch (error) {
+      console.error('Error setting simulation mode:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get current simulation mode
+   */
+  getSimulationMode() {
+    if (!simulator) {
+      return 'single';
+    }
+    return simulator.simulationMode || 'single';
+  }
+
+  /**
+   * Reset simulator state
+   */
+  reset() {
+    simulator = null;
+    currentPetriNet = null;
+    simulationActive = false;
+    isInitializing = false;
+    lastInitTime = 0;
+    console.log('Simulator state reset');
+  }
+
+  /**
+   * Force create a basic simulator instance
+   * Only creates simulator when there are enabled transitions to simulate
+   */
+  async forceCreateSimulator() {
+    if (simulator) {
+      console.log('Simulator already exists, skipping creation');
+      return;
+    }
+    
+    console.log('forceCreateSimulator called, but simulator will only be created when there are enabled transitions');
+    // Don't create simulator yet - wait for actual Petri net with enabled transitions
+  }
 }
 
 // Export singleton instance
-export const simulatorCore = new SimulatorCore();
-
-// Legacy export for backward compatibility
-export { simulatorCore as default };
+export default new SimulatorCore();

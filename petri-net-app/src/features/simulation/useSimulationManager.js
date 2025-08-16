@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import debounce from 'lodash.debounce';
-import { 
-  simulatorCore,
-  JsPetriNetSimulator
-} from './index';
+import { simulatorCore } from './index';
 
 const useSimulationManager = (elements, setElements, updateHistory) => {
   // Core simulation state
@@ -11,71 +8,140 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
   const [isRunning, setIsRunning] = useState(false);
   const [enabledTransitionIds, setEnabledTransitionIds] = useState([]);
   const [simulationError, setSimulationError] = useState(null);
+  const [isSimulatorReady, setIsSimulatorReady] = useState(false);
 
   // Refs for managing intervals and state
   const animationIntervalRef = useRef(null);
   const isAnimatingRef = useRef(false);
   const isRunningRef = useRef(false);
 
-  // Initialize simulator when component mounts
+  // Single effect to manage simulator initialization and updates
   useEffect(() => {
-    if (!elements || !elements.places || !elements.transitions) {
-      console.log('No elements available for simulator initialization, skipping...');
-      return;
-    }
+    const manageSimulator = async () => {
+      console.log('manageSimulator: Elements received:', {
+        hasElements: !!elements,
+        hasPlaces: !!elements?.places,
+        hasTransitions: !!elements?.transitions,
+        hasArcs: !!elements?.arcs,
+        placesLength: elements?.places?.length || 0,
+        transitionsLength: elements?.transitions?.length || 0,
+        arcsLength: elements?.arcs?.length || 0,
+        elements: elements
+      });
+      
+      // Only initialize simulator when the PN is structurally complete
+      // Require at least one place, one transition, and at least one arc
+      if (elements && elements.places && elements.transitions && elements.arcs && 
+          elements.places.length > 0 && elements.transitions.length > 0 && elements.arcs.length > 0) {
+        
+        // Always try to initialize simulator if not ready
+        if (!simulatorCore.isReady || !(await simulatorCore.isReady())) {
+          try {
+            console.log('Simulator not ready, attempting to initialize...');
+            await simulatorCore.initialize(elements, { maxTokens: 20 });
+            console.log('Simulator initialized successfully');
+          } catch (error) {
+            console.error('Failed to initialize simulator:', error);
+          }
+        }
 
-    const initSimulator = async () => {
-      try {
-        console.log('Initializing simulator with elements:', elements.places.length, 'places,', elements.transitions.length, 'transitions');
-        await simulatorCore.initialize(elements, { maxTokens: 20 });
-      } catch (error) {
-        console.error('Error initializing simulator:', error);
-        setSimulationError('Failed to initialize simulator');
+        // Always update simulator with latest elements (keeps it in sync)
+        try {
+          console.log('Updating simulator with latest elements');
+          await simulatorCore.update(elements);
+          console.log('Simulator update completed successfully');
+          
+                  // After update, check if transitions are enabled and update UI state
+        if (simulatorCore.isReady && await simulatorCore.isReady()) {
+          const enabled = await simulatorCore.getEnabledTransitions();
+          setEnabledTransitionIds(enabled || []);
+          setIsSimulatorReady(enabled && enabled.length > 0);
+          
+          console.log('Manual check - Enabled transitions:', enabled);
+          console.log('Manual check - Setting isSimulatorReady to:', enabled && enabled.length > 0);
+        }
+        } catch (error) {
+          console.error('Error updating simulator:', error);
+        }
+      } else {
+        // No valid Petri net yet, ensure simulator panel is disabled
+        setIsSimulatorReady(false);
+        setEnabledTransitionIds([]);
       }
     };
 
-    initSimulator();
-    
+    manageSimulator();
+  }, [elements.places.length, elements.transitions.length, elements.arcs.length]);
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
       simulatorCore.deactivateSimulation();
     };
-  }, []); // Only run once on mount, not on every elements change
+  }, []);
 
-  // Update simulator when elements change (without re-initializing)
+
+
+  // Listen to simulator events for transition state changes
   useEffect(() => {
-    if (!elements || !elements.places || !elements.transitions) {
-      return;
-    }
-
-    const updateSimulator = async () => {
+    let simulator = null;
+    let cleanupFn = null;
+    
+    const setupSimulatorListener = async () => {
       try {
-        // Only update if simulator is already initialized
-        if (simulatorCore.getSimulatorType && simulatorCore.getSimulatorType() !== 'none') {
-          console.log('Updating simulator with new elements (no re-initialization)');
-          await simulatorCore.update(elements);
-        } else {
-          console.log('Simulator not initialized, skipping update');
+        // Get the simulator instance from simulatorCore
+        const status = simulatorCore.getSimulatorStatus();
+        if (status?.simulatorStatus?.simulator) {
+          simulator = status.simulatorStatus.simulator;
+          
+          // Listen for transition state changes
+          const handleTransitionsChanged = (eventData) => {
+            console.log('Transition state changed event received:', eventData);
+            
+            // Update enabled transitions
+            setEnabledTransitionIds(eventData.enabled || []);
+            
+            // Update simulation ready state based on whether there are enabled transitions
+            setIsSimulatorReady(eventData.hasEnabled);
+          };
+          
+          simulator.addEventListener('transitionsChanged', handleTransitionsChanged);
+          
+          // Check initial state
+          await simulator.checkTransitionStateChanges();
+          
+          cleanupFn = () => {
+            if (simulator) {
+              simulator.removeEventListener('transitionsChanged', handleTransitionsChanged);
+            }
+          };
+          
+          return cleanupFn;
         }
       } catch (error) {
-        console.error('Error updating simulator:', error);
-        // Don't set error here as it's not critical
+        console.error('Error setting up simulator listener:', error);
       }
     };
+    
+    // Set up listener immediately
+    setupSimulatorListener();
+    
+    // Also set up a periodic check to see if simulator becomes available
+    const intervalId = setInterval(async () => {
+      if (!simulator) {
+        await setupSimulatorListener();
+      }
+    }, 1000); // Check every second
+    
+    return () => {
+      clearInterval(intervalId);
+      if (cleanupFn) {
+        cleanupFn();
+      }
+    };
+  }, []); // No dependencies - always run
 
-    updateSimulator();
-  }, [elements]); // Run when elements change, but only update, don't re-initialize
 
-  // Debug function to check simulator status
-  const debugSimulatorStatus = useCallback(() => {
-    if (simulatorCore.getSimulatorStatus) {
-      const status = simulatorCore.getSimulatorStatus();
-      console.log('Simulator status:', status);
-      return status;
-    } else {
-      console.log('Simulator status method not available');
-      return null;
-    }
-  }, []);
 
   // Clear error when it's resolved
   const clearError = useCallback(() => {
@@ -101,16 +167,14 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
     console.log('All simulations stopped');
   }, [clearError]);
 
-  // Refresh enabled transitions
+  // Refresh enabled transitions using simulator
   const refreshEnabledTransitions = useCallback(async () => {
     try {
-      const enabled = await simulatorCore.getEnabledTransitions();
-      if (enabled && Array.isArray(enabled)) {
-        const transitionIds = enabled.map(t => t instanceof Map ? t.get('id') : t.id);
-        setEnabledTransitionIds(transitionIds);
-        return transitionIds;
+      if (simulatorCore.isReady && await simulatorCore.isReady()) {
+        const enabled = await simulatorCore.getEnabledTransitions();
+        setEnabledTransitionIds(enabled || []);
+        return enabled || [];
       } else {
-        console.warn('No enabled transitions found or invalid format');
         setEnabledTransitionIds([]);
         return [];
       }
@@ -150,11 +214,15 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
   useEffect(() => {
     const updateAndRefresh = async () => {
       try {
+        // Always update simulator with latest elements
         await simulatorCore.update(elements);
         
-        // Only refresh enabled transitions if not simulating
-        if (!isContinuousSimulating && !isRunning) {
-          await refreshEnabledTransitions();
+        // Get enabled transitions from simulator
+        if (simulatorCore.isReady && await simulatorCore.isReady()) {
+          const enabled = await simulatorCore.getEnabledTransitions();
+          setEnabledTransitionIds(enabled || []);
+        } else {
+          setEnabledTransitionIds([]);
         }
       } catch (error) {
         console.error('Error updating simulator:', error);
@@ -163,12 +231,17 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
     };
     
     updateAndRefresh();
-  }, [elements, isContinuousSimulating, isRunning, refreshEnabledTransitions]);
+  }, [elements, isContinuousSimulating, isRunning]);
 
   // Fire a single transition
   const handleFireTransition = useCallback(async (transitionId) => {
     try {
       console.log(`=== Starting to fire transition ${transitionId} ===`);
+      
+      // Check if simulator is properly initialized
+      if (simulatorCore.getSimulatorType && simulatorCore.getSimulatorType() === 'none') {
+        throw new Error('Simulator not initialized. Please wait for initialization to complete.');
+      }
       
       await simulatorCore.activateSimulation(false);
       
@@ -236,27 +309,40 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
     try {
       console.log('=== Starting step simulation ===');
       
+      // Check if simulator is properly initialized
+      if (simulatorCore.getSimulatorType && simulatorCore.getSimulatorType() === 'none') {
+        throw new Error('Simulator not initialized. Please wait for initialization to complete.');
+      }
+      
+      // Ensure simulator has the very latest PN (avoid races where arcs/weights just changed)
+      try {
+        await simulatorCore.update(elements);
+      } catch (e) {
+        console.warn('Step pre-update skipped or failed (may be fine if no structural changes):', e?.message || e);
+      }
+
       await simulatorCore.activateSimulation(false);
       
-      const enabledTransitions = await simulatorCore.getEnabledTransitions();
-      console.log('Step simulation - enabled transitions:', enabledTransitions);
-
-      if (!enabledTransitions || enabledTransitions.length === 0) {
-        console.log('No enabled transitions available, stopping simulation');
-        stopAllSimulations();
-        return;
+      // Use the new stepSimulation method from the simulator
+      const newElements = await simulatorCore.stepSimulation();
+      
+      if (newElements) {
+        // Create a deep copy for React state update
+        const elementsCopy = JSON.parse(JSON.stringify(newElements));
+        
+        // Update the Petri net state
+        setElements(elementsCopy);
+        
+        // Update history for undo/redo
+        if (updateHistory) {
+          updateHistory(elementsCopy, true);
+        }
+        
+        clearError();
+        
+        // Refresh enabled transitions
+        await refreshEnabledTransitions();
       }
-
-      const transitionToFire = enabledTransitions[0];
-      const transitionId = transitionToFire instanceof Map ? 
-        transitionToFire.get('id') : transitionToFire.id;
-
-      if (!transitionId) {
-        throw new Error('Invalid transition selected for firing');
-      }
-
-      console.log(`Step simulation - firing transition: ${transitionId}`);
-      await handleFireTransition(transitionId);
       
       console.log('=== Step simulation completed ===');
     } catch (error) {
@@ -269,7 +355,7 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       setSimulationError('Error during simulation step: ' + (error.message || 'Unknown error'));
       stopAllSimulations();
     }
-  }, [handleFireTransition, stopAllSimulations]);
+  }, [setElements, updateHistory, clearError, refreshEnabledTransitions, stopAllSimulations]);
 
   // Start continuous simulation
   const startContinuousSimulation = useCallback(async () => {
@@ -359,12 +445,12 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
     isRunning,
     enabledTransitionIds,
     simulationError,
+    isSimulatorReady,
     stepSimulation,
     startContinuousSimulation,
     startRunSimulation,
     stopAllSimulations,
     clearError,
-    debugSimulatorStatus,
   };
 };
 

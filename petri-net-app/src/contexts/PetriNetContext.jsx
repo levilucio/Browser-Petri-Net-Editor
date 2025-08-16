@@ -1,3 +1,4 @@
+/* @refresh reload */
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import debounce from 'lodash/debounce';
 import { HistoryManager } from '../features/history/historyManager';
@@ -72,6 +73,7 @@ export const PetriNetProvider = ({ children }) => {
     isRunning,
     enabledTransitionIds,
     simulationError,
+    isSimulatorReady,
     stepSimulation,
     startContinuousSimulation,
     startRunSimulation,
@@ -146,6 +148,7 @@ export const PetriNetProvider = ({ children }) => {
       isDragging, setIsDragging, // Expose dragging state to optimize performance
       isContinuousSimulating,
       isRunning,
+      isSimulatorReady,
       enabledTransitionIds,
       simulationError,
       stepSimulation,
