@@ -353,8 +353,11 @@ result
 `);
       
       // Convert Pyodide result to JavaScript array
+      // Normalize to plain string array
       const jsResult = result.toJs();
-      return Array.isArray(jsResult) ? jsResult : [];
+      if (!jsResult) return [];
+      const arr = Array.isArray(jsResult) ? jsResult : Array.from(jsResult);
+      return arr.map((x) => (typeof x === 'string' ? x : (x?.id ?? String(x))));
       
     } catch (error) {
       console.error('Error getting enabled transitions:', error);
@@ -634,6 +637,11 @@ print(f"Functionality test: {test_places} places, {test_transitions} transitions
     }
     this.eventListeners.get(eventType).push(callback);
     console.log(`addEventListener: Total listeners for ${eventType}:`, this.eventListeners.get(eventType).length);
+    // Immediately emit current state for this event type so late listeners get synced
+    if (eventType === 'transitionsChanged') {
+      // Fire and forget; consumers don't care about awaiting here
+      this.checkTransitionStateChanges().catch(() => {});
+    }
   }
 
   /**

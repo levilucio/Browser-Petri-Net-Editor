@@ -64,9 +64,20 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
           console.error('Error updating simulator:', error);
         }
       } else {
-        // No valid Petri net yet, ensure simulator panel is disabled
-        setIsSimulatorReady(false);
-        setEnabledTransitionIds([]);
+        // No valid Petri net yet. If a simulator exists, still inform UI of current enabled set (likely empty) to avoid stale true
+        try {
+          if (simulatorCore.isReady && await simulatorCore.isReady()) {
+            const enabled = await simulatorCore.getEnabledTransitions();
+            setEnabledTransitionIds(enabled || []);
+            setIsSimulatorReady(!!(enabled && enabled.length > 0));
+          } else {
+            setIsSimulatorReady(false);
+            setEnabledTransitionIds([]);
+          }
+        } catch {
+          setIsSimulatorReady(false);
+          setEnabledTransitionIds([]);
+        }
       }
     };
 
@@ -105,10 +116,14 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
             setIsSimulatorReady(eventData.hasEnabled);
           };
           
-          simulator.addEventListener('transitionsChanged', handleTransitionsChanged);
+          try {
+            simulator.addEventListener('transitionsChanged', handleTransitionsChanged);
+          } catch (e) {
+            console.error('Failed to add transitionsChanged listener directly; queuing until simulator exists.', e);
+          }
           
           // Check initial state
-          await simulator.checkTransitionStateChanges();
+          try { await simulator.checkTransitionStateChanges(); } catch (_) {}
           
           cleanupFn = () => {
             if (simulator) {
@@ -118,6 +133,15 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
           
           return cleanupFn;
         }
+
+        // If simulator not yet present, register a pending listener via core so it attaches on init
+        const coreAny = simulatorCore;
+        if (coreAny && typeof coreAny.__queueListener === 'function') {
+          coreAny.__queueListener('transitionsChanged', (eventData) => {
+            setEnabledTransitionIds(eventData.enabled || []);
+            setIsSimulatorReady(eventData.hasEnabled);
+          });
+        }
       } catch (error) {
         console.error('Error setting up simulator listener:', error);
       }
@@ -126,15 +150,9 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
     // Set up listener immediately
     setupSimulatorListener();
     
-    // Also set up a periodic check to see if simulator becomes available
-    const intervalId = setInterval(async () => {
-      if (!simulator) {
-        await setupSimulatorListener();
-      }
-    }, 1000); // Check every second
+    // Remove previous polling: rely on immediate setup and queued listeners
     
     return () => {
-      clearInterval(intervalId);
       if (cleanupFn) {
         cleanupFn();
       }

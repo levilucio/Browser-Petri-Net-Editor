@@ -11,6 +11,8 @@ import { ConflictResolver } from './conflict-resolver';
 let simulator = null;
 let currentPetriNet = null;
 let simulationActive = false;
+// Queue listeners registered before the simulator exists
+const pendingListeners = new Map(); // eventType -> callback[]
 
 // Configuration
 const MIN_INIT_INTERVAL = 2000; // Minimum time between initialization attempts
@@ -23,6 +25,14 @@ let lastInitTime = 0;
 export class SimulatorCore {
   constructor() {
     this.conflictResolver = new ConflictResolver();
+  }
+
+  // Allow UI to queue listeners before simulator exists
+  __queueListener(eventType, callback) {
+    if (!pendingListeners.has(eventType)) {
+      pendingListeners.set(eventType, []);
+    }
+    pendingListeners.get(eventType).push(callback);
   }
 
   /**
@@ -91,6 +101,18 @@ export class SimulatorCore {
       
       simulator = pyodideSim;
       console.log('Pyodide simulator initialized successfully');
+
+      // Attach any listeners that were registered before the simulator existed
+      if (pendingListeners.size > 0) {
+        pendingListeners.forEach((callbacks, eventType) => {
+          callbacks.forEach((cb) => {
+            try { simulator.addEventListener(eventType, cb); } catch (e) { console.error('Failed attaching pending listener', eventType, e); }
+          });
+        });
+        pendingListeners.clear();
+        // Trigger an initial transition-state check so the UI gets current status immediately
+        try { await simulator.checkTransitionStateChanges?.(); } catch (_) {}
+      }
       
     } catch (error) {
       console.error('Pyodide simulator initialization failed:', error);
@@ -220,19 +242,6 @@ export class SimulatorCore {
         console.error('Failed to reinitialize simulator during update:', error);
         throw new Error('Simulator not ready and reinitialization failed');
       }
-    }
-
-    // Check if the Petri net has actually changed
-    // More reliable change detection - check if the core structure has actually changed
-    if (currentPetriNet && 
-        currentPetriNet.places && petriNet.places &&
-        currentPetriNet.transitions && petriNet.transitions &&
-        currentPetriNet.arcs && petriNet.arcs &&
-        currentPetriNet.places.length === petriNet.places.length &&
-        currentPetriNet.transitions.length === petriNet.transitions.length &&
-        currentPetriNet.arcs.length === petriNet.arcs.length) {
-      console.log('Petri net structure unchanged, skipping update');
-      return;
     }
 
     try {
