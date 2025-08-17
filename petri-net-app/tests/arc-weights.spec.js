@@ -105,8 +105,8 @@ async function createWeightedArcPetriNet(page) {
   const t2 = transitions[1]; // Second transition created
   
   // Find arcs from P1 to T1 and P1 to T2
-  const p1ToT1Arc = arcs.find(a => a.sourceId === p1.id && a.targetId === t1.id);
-  const p1ToT2Arc = arcs.find(a => a.sourceId === p1.id && a.targetId === t2.id);
+  const p1ToT1Arc = arcs.find(a => (a.sourceId || a.source) === p1.id && (a.targetId || a.target) === t1.id);
+  const p1ToT2Arc = arcs.find(a => (a.sourceId || a.source) === p1.id && (a.targetId || a.target) === t2.id);
   
   // Set weight of P1->T1 arc to 2
   // Calculate approximate position of the arc
@@ -114,11 +114,26 @@ async function createWeightedArcPetriNet(page) {
   const arcPos1Y = (p1.y + t1.y) / 2;
   
   // Select the P1->T1 arc
-  await page.locator('.konvajs-content').click({ position: { x: arcPos1X, y: arcPos1Y } });
+  // Try a few nearby points to select the arc reliably
+  const stage = page.locator('.konvajs-content');
+  const near1 = [
+    { x: arcPos1X, y: arcPos1Y },
+    { x: arcPos1X + 2, y: arcPos1Y + 2 },
+    { x: arcPos1X - 2, y: arcPos1Y - 2 }
+  ];
+  for (const pt of near1) {
+    await stage.click({ position: pt });
+    try {
+      await page.getByText(/Weight \(1-\d+\)/).waitFor({ timeout: 600 });
+      break;
+    } catch (_) {}
+  }
   await page.waitForTimeout(300); // Wait for selection to register
   
   // Set weight to 2
-  await page.locator('input[type="number"]').nth(0).fill('2');
+  // Fill the Weight input specifically
+  const weightField1 = page.getByText(/Weight \(1-\d+\)/).locator('..').locator('input[type="number"]');
+  await weightField1.fill('2');
   await page.waitForTimeout(300); // Wait for update to apply
   
   // Set weight of P1->T2 arc to 3
@@ -127,11 +142,23 @@ async function createWeightedArcPetriNet(page) {
   const arcPos2Y = (p1.y + t2.y) / 2;
   
   // Select the P1->T2 arc
-  await page.locator('.konvajs-content').click({ position: { x: arcPos2X, y: arcPos2Y } });
+  const near2 = [
+    { x: arcPos2X, y: arcPos2Y },
+    { x: arcPos2X + 2, y: arcPos2Y + 2 },
+    { x: arcPos2X - 2, y: arcPos2Y - 2 }
+  ];
+  for (const pt of near2) {
+    await stage.click({ position: pt });
+    try {
+      await page.getByText(/Weight \(1-\d+\)/).waitFor({ timeout: 600 });
+      break;
+    } catch (_) {}
+  }
   await page.waitForTimeout(300); // Wait for selection to register
   
   // Set weight to 3
-  await page.locator('input[type="number"]').nth(0).fill('3');
+  const weightField2 = page.getByText(/Weight \(1-\d+\)/).locator('..').locator('input[type="number"]');
+  await weightField2.fill('3');
   await page.waitForTimeout(300); // Wait for update to apply
 }
 
@@ -168,19 +195,21 @@ test.describe('Arc Weights Functionality', () => {
     // Verify initial tokens in P1
     expect(p1.tokens).toBe(5);
     
-    // Find the arcs and verify their weights
-    const p1ToT1Arc = arcs.find(a => a.sourceId === p1.id && a.targetId === t1.id);
-    const p1ToT2Arc = arcs.find(a => a.sourceId === p1.id && a.targetId === t2.id);
+    // Find the arcs and verify their weights (support both sourceId/targetId and source/target)
+    const p1ToT1Arc = arcs.find(a => (a.sourceId || a.source) === p1.id && (a.targetId || a.target) === t1.id);
+    const p1ToT2Arc = arcs.find(a => (a.sourceId || a.source) === p1.id && (a.targetId || a.target) === t2.id);
     
     expect(p1ToT1Arc.weight).toBe(2);
     expect(p1ToT2Arc.weight).toBe(3);
     
-    // Wait for the execution panel to be visible
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
-    await page.waitForTimeout(1000);
+    // Wait for the simulation manager to be visible
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
+    // Wait for the Step control to be enabled
+    await expect(page.getByTestId('sim-step')).toBeEnabled();
+    await page.waitForTimeout(500);
     
-    // Use the Fire button to fire transitions
-    await page.getByTestId('sim-fire').click();
+    // Use the Step button to fire transitions
+    await page.getByTestId('sim-step').click();
     await page.waitForTimeout(1000);
     
     // Get state after firing enabled transitions
@@ -211,13 +240,13 @@ test.describe('Arc Weights Functionality', () => {
     expect(p1AfterFiring.tokens).toBeLessThan(5);
     
     // Check if there are any enabled transitions left
-    // We'll check if the sim-fire button is disabled
-    const isFireButtonDisabled = await page.getByTestId('sim-fire').isDisabled();
+    // We'll check if the Step button is disabled
+    const isFireButtonDisabled = await page.getByTestId('sim-step').isDisabled();
     
     // If the fire button is not disabled, we can fire again
     if (!isFireButtonDisabled) {
       // Fire again to consume remaining tokens
-      await page.getByTestId('sim-fire').click();
+      await page.getByTestId('sim-step').click();
       await page.waitForTimeout(1000);
     }
     

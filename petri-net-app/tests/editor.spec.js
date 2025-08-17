@@ -119,8 +119,25 @@ test.describe('Petri Net Editor', () => {
     await selectButton.click();
     await page.waitForTimeout(300);
     
-    // Click on the arc to select it (somewhere between place and transition)
-    await page.mouse.click(250, 200);
+    // Click on the arc to select it (try multiple nearby points on the Konva canvas)
+    const stage = page.locator('.konvajs-content');
+    const candidatePoints = [
+      { x: 250, y: 200 },
+      { x: 248, y: 198 },
+      { x: 252, y: 202 },
+      { x: 246, y: 200 },
+      { x: 254, y: 200 }
+    ];
+    for (const pt of candidatePoints) {
+      await stage.click({ position: pt });
+      try {
+        await page.getByText(/Weight \(1-\d+\)/).waitFor({ timeout: 800 });
+        break;
+      } catch (_) {
+        // try next point
+      }
+    }
+    // Do not hard-rely on the properties panel text; proceed to deletion check
     await page.waitForTimeout(300);
     
     // Press Delete key to remove the arc
@@ -175,7 +192,7 @@ test.describe('Petri Net Editor', () => {
     expect(transitionsCount).toBe(1);
     
     // Step 4: Create an arc from transition to first place
-    const arcButton = page.locator('button:has-text("Arc")');
+    const arcButton = page.getByTestId('toolbar-arc');
     await expect(arcButton).toBeVisible();
     await arcButton.click();
     await page.waitForTimeout(300);
@@ -206,7 +223,7 @@ test.describe('Petri Net Editor', () => {
     expect(arcsCount).toBe(2);
     
     // Step 6: Select and delete the transition
-    const selectButton = page.locator('button:has-text("Select")');
+    const selectButton = page.getByTestId('toolbar-select');
     await expect(selectButton).toBeVisible();
     await selectButton.click();
     await page.waitForTimeout(300);

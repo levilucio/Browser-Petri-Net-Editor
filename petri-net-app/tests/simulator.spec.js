@@ -185,7 +185,7 @@ test.describe('Petri Net Simulator', () => {
     await createSimplePetriNet(page);
     
     // Wait for the simulator to initialize and compute enabled transitions
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);
@@ -193,14 +193,19 @@ test.describe('Petri Net Simulator', () => {
     // Wait for the simulator to initialize
     await page.waitForTimeout(2000);
     
-    // Check that the execution panel is visible
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
+    // Check that the simulation manager is visible
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
-    // Check that the Fire button is visible
-    await expect(page.getByTestId('sim-fire')).toBeVisible();
+    // Check that the Step/Simulate/Run controls are visible
+    await expect(page.getByTestId('sim-step')).toBeVisible();
+    await expect(page.getByTestId('sim-simulate')).toBeVisible();
+    await expect(page.getByTestId('sim-run')).toBeVisible();
     
-    // Click the Show Enabled Transitions button
-    await page.getByTestId('show-enabled-transitions').click();
+    // Click the Show Enabled Transitions button if available in this layout
+    const showEnabled = page.getByTestId('show-enabled-transitions');
+    if (await showEnabled.count()) {
+      await showEnabled.click();
+    }
     
     // Check that enabled transitions section is visible
     await expect(page.getByTestId('enabled-transitions')).toBeVisible();
@@ -211,7 +216,7 @@ test.describe('Petri Net Simulator', () => {
     await createConflictingPetriNet(page);
     
     // Wait for the simulator to initialize
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
     // Wait for the enabled transitions to be computed
     await page.waitForTimeout(1000);
@@ -228,8 +233,8 @@ test.describe('Petri Net Simulator', () => {
     expect(p1.tokens).toBe(1);
     expect(p4.tokens).toBe(10);
     
-    // Click the Fire button to fire all enabled transitions simultaneously
-    await page.getByTestId('sim-fire').click();
+    // Click the Run button to fire all enabled transitions (maximal concurrent)
+    await page.getByTestId('sim-run').click();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);
@@ -262,8 +267,11 @@ test.describe('Petri Net Simulator', () => {
     const tokenSum = (updatedP2.tokens || 0) + (updatedP3.tokens || 0);
     expect(tokenSum).toBe(1);
     
-    // Click the Show Enabled Transitions button to check enabled transitions
-    await page.getByTestId('show-enabled-transitions').click();
+    // Click the Show Enabled Transitions button (if present)
+    const showEnabled2 = page.getByTestId('show-enabled-transitions');
+    if (await showEnabled2.count()) {
+      await showEnabled2.click();
+    }
     
     // Wait for the enabled transitions to be computed
     await page.waitForTimeout(1000);
@@ -291,16 +299,16 @@ test.describe('Petri Net Simulator', () => {
     await createComplexPetriNet(page);
     
     // Wait for the simulator to initialize
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
     // Wait for the enabled transitions to be computed
     await page.waitForTimeout(2000);
     
-    // Check that the Fire button is visible
-    await expect(page.getByTestId('sim-fire')).toBeVisible();
+    // Check that the Step control is visible
+    await expect(page.getByTestId('sim-step')).toBeVisible();
     
-    // Click the Fire button to fire the first enabled transition
-    await page.getByTestId('sim-fire').click();
+    // Click Step to fire the first enabled transition
+    await page.getByTestId('sim-step').click();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);
@@ -317,7 +325,7 @@ test.describe('Petri Net Simulator', () => {
     await page.waitForTimeout(1000);
     
     // Click the Fire button again if it's enabled
-    const fireButton = page.getByTestId('sim-fire');
+    const fireButton = page.getByTestId('sim-step');
     const isEnabled = await fireButton.isEnabled();
     
     if (isEnabled) {
@@ -332,13 +340,16 @@ test.describe('Petri Net Simulator', () => {
     await createComplexPetriNet(page);
     
     // Wait for the simulator to initialize
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
     // Wait for the enabled transitions to be computed
     await page.waitForTimeout(2000);
     
-    // Click the Show Enabled Transitions button
-    await page.getByTestId('show-enabled-transitions').click();
+    // Click the Show Enabled Transitions button (if present)
+    const showEnabled3 = page.getByTestId('show-enabled-transitions');
+    if (await showEnabled3.count()) {
+      await showEnabled3.click();
+    }
     
     // Check that the enabled transitions section is visible
     const enabledTransitionsSection = page.getByTestId('enabled-transitions');
@@ -350,7 +361,7 @@ test.describe('Petri Net Simulator', () => {
     expect(count).toBeGreaterThan(0);
     
     // Check that the execution panel is visible
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
   });
 
   test('should enforce token limit during simulation', async ({ page }) => {
@@ -395,14 +406,14 @@ test.describe('Petri Net Simulator', () => {
     await page.locator('.konvajs-content').click({ position: { x: 300, y: 100 } });
     await page.locator('input[type="number"]').first().fill('15');
     
-    // Fire the transition
-    await page.getByTestId('sim-fire').click();
+    // Fire the transition with Step
+    await page.getByTestId('sim-step').click();
     
     // Wait for the UI to update
     await page.waitForTimeout(2000);
     
     // After firing, check that we can still interact with the execution panel
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
   });
 
   test('should measure performance of simulation operations', async ({ page }) => {
@@ -410,13 +421,13 @@ test.describe('Petri Net Simulator', () => {
     await createSimplePetriNet(page);
     
     // Wait for the simulator to initialize
-    await expect(page.getByTestId('execution-panel')).toBeVisible();
+    await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
     // Measure the time to fire a transition
     const startTime = Date.now();
     
-    // Fire the transition
-    await page.getByTestId('sim-fire').click();
+    // Fire the transition with Step
+    await page.getByTestId('sim-step').click();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);

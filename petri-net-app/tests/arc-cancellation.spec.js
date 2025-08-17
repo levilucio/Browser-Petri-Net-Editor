@@ -87,6 +87,10 @@ test.describe('Arc Cancellation Functionality', () => {
     expect(finalState.arcs).toBe(0);
     
     // Step 6: Verify we can start a new arc (arc creation mode was properly cancelled)
+    // Re-enable arc creation mode after Escape
+    await arcButton.click();
+    await page.waitForTimeout(300);
+
     // Click on the place again to start a new arc
     await page.mouse.click(200, 200);
     await page.waitForTimeout(300);
