@@ -2,6 +2,16 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Transition from '../../components/Transition';
 
+// Mock PetriNet context used by Transition
+jest.mock('../../contexts/PetriNetContext', () => ({
+  usePetriNet: () => ({
+    setIsDragging: jest.fn(),
+    gridSnappingEnabled: false,
+    snapToGrid: (x, y) => ({ x, y }),
+    setSnapIndicator: jest.fn(),
+  }),
+}));
+
 // Mock Konva components since they rely on Canvas which isn't available in Jest
 jest.mock('react-konva', () => {
   return {
@@ -21,7 +31,6 @@ jest.mock('react-konva', () => {
 });
 
 
-
 describe('Transition Component', () => {
   const mockTransition = {
     id: 'transition-1',
@@ -31,10 +40,11 @@ describe('Transition Component', () => {
   };
   
   const mockProps = {
-    transition: mockTransition,
+    ...mockTransition,
     isSelected: false,
-    onClick: jest.fn(),
-    onDragMove: jest.fn()
+    isEnabled: false,
+    onSelect: jest.fn(),
+    onChange: jest.fn(),
   };
 
   beforeEach(() => {
@@ -64,12 +74,12 @@ describe('Transition Component', () => {
     expect(nameText).toBeTruthy();
   });
 
-  test('calls onClick handler when clicked', () => {
+  test('calls onSelect handler when clicked', () => {
     render(<Transition {...mockProps} />);
     const groups = screen.queryAllByTestId('group');
     expect(groups.length).toBeGreaterThan(0);
     fireEvent.click(groups[0]);
-    expect(mockProps.onClick).toHaveBeenCalledTimes(1);
+    expect(mockProps.onSelect).toHaveBeenCalledTimes(1);
   });
 
   test('is draggable', () => {
@@ -90,7 +100,7 @@ describe('Transition Component', () => {
     render(<Transition {...mockProps} />);
     const rects = screen.queryAllByTestId('rect');
     expect(rects.length).toBeGreaterThan(0);
-    expect(rects[0]).toHaveAttribute('width', '30');
-    expect(rects[0]).toHaveAttribute('height', '40');
+    expect(rects[0]).toHaveAttribute('width', '40');
+    expect(rects[0]).toHaveAttribute('height', '50');
   });
 });

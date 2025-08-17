@@ -3,7 +3,7 @@
  * This module provides functions to convert between the Petri net editor's internal
  * JSON representation and standard PNML (Petri Net Markup Language) XML format.
  */
-import { parsePNML, generatePNML } from '../pnml-parser-fixed';
+import { parsePNML, generatePNML } from '../pnml-parser';
 
 /**
  * Convert the Petri net editor's JSON representation to PNML XML string

@@ -5,13 +5,14 @@ import PropertiesPanel from '../../components/PropertiesPanel';
 describe('PropertiesPanel Component', () => {
   // Mock setElements function
   const mockSetElements = jest.fn();
+  const mockUpdateHistory = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   test('renders empty panel when no element is selected', () => {
-    render(<PropertiesPanel selectedElement={null} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={null} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     expect(screen.getByText('Properties')).toBeInTheDocument();
     expect(screen.getByText('Select an element to edit its properties')).toBeInTheDocument();
@@ -26,7 +27,7 @@ describe('PropertiesPanel Component', () => {
       y: 100
     };
 
-    render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     expect(screen.getByText('Properties')).toBeInTheDocument();
     
@@ -49,7 +50,7 @@ describe('PropertiesPanel Component', () => {
       y: 100
     };
 
-    render(<PropertiesPanel selectedElement={mockTransition} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockTransition} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     expect(screen.getByText('Properties')).toBeInTheDocument();
     
@@ -73,7 +74,7 @@ describe('PropertiesPanel Component', () => {
       targetType: 'transition'
     };
 
-    render(<PropertiesPanel selectedElement={mockArc} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockArc} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     expect(screen.getByText('Properties')).toBeInTheDocument();
     
@@ -97,7 +98,7 @@ describe('PropertiesPanel Component', () => {
       y: 100
     };
 
-    render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     const labelDiv = screen.getByText('Label').closest('div');
     const labelInput = within(labelDiv).getByRole('textbox');
@@ -117,7 +118,7 @@ describe('PropertiesPanel Component', () => {
       y: 100
     };
 
-    render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     const tokensDiv = screen.getByText('Tokens (0-20)').closest('div');
     const tokensInput = within(tokensDiv).getByRole('spinbutton');
@@ -134,7 +135,7 @@ describe('PropertiesPanel Component', () => {
       y: 100
     };
 
-    render(<PropertiesPanel selectedElement={mockTransition} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockTransition} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     const labelDiv = screen.getByText('Label').closest('div');
     const labelInput = within(labelDiv).getByRole('textbox');
@@ -154,7 +155,7 @@ describe('PropertiesPanel Component', () => {
       targetType: 'transition'
     };
 
-    render(<PropertiesPanel selectedElement={mockArc} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockArc} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     const weightDiv = screen.getByText('Weight (1-20)').closest('div');
     const weightInput = within(weightDiv).getByRole('spinbutton');
@@ -172,7 +173,7 @@ describe('PropertiesPanel Component', () => {
       y: 100
     };
 
-    render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     const tokensDiv = screen.getByText('Tokens (0-20)').closest('div');
     const tokensInput = within(tokensDiv).getByRole('spinbutton');
@@ -206,7 +207,7 @@ describe('PropertiesPanel Component', () => {
       targetType: 'transition'
     };
 
-    render(<PropertiesPanel selectedElement={mockArc} setElements={mockSetElements} />);
+    render(<PropertiesPanel selectedElement={mockArc} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
     const weightDiv = screen.getByText('Weight (1-20)').closest('div');
     const weightInput = within(weightDiv).getByRole('spinbutton');

@@ -2,21 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
 
 const SettingsDialog = ({ isOpen, onClose }) => {
-  const { simulatorCore } = usePetriNet();
+  const { simulatorCore, simulationSettings, handleSaveSettings } = usePetriNet();
   const [simulationMode, setSimulationMode] = useState('single');
   const [isLoading, setIsLoading] = useState(false);
+  const [maxTokens, setMaxTokens] = useState(20);
+  const [maxIterations, setMaxIterations] = useState(100);
+  const [unlimitedIterations, setUnlimitedIterations] = useState(false);
 
   useEffect(() => {
-    if (isOpen && simulatorCore) {
+    if (isOpen) {
       // Get current simulation mode
       try {
-        const currentMode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single';
-        setSimulationMode(currentMode);
+        if (simulatorCore) {
+          const currentMode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single';
+          setSimulationMode(currentMode);
+        }
       } catch (error) {
         console.log('Could not get current simulation mode:', error.message);
       }
+
+      // Initialize settings from context
+      const ctxMaxTokens = Number(simulationSettings?.maxTokens ?? 20);
+      const ctxMaxIterations = simulationSettings?.maxIterations;
+      setMaxTokens(Number.isFinite(ctxMaxTokens) && ctxMaxTokens > 0 ? ctxMaxTokens : 20);
+      if (ctxMaxIterations === Infinity) {
+        setUnlimitedIterations(true);
+        setMaxIterations(100); // default UI value when toggling off unlimited
+      } else {
+        setUnlimitedIterations(false);
+        setMaxIterations(Number.isFinite(Number(ctxMaxIterations)) ? Number(ctxMaxIterations) : 100);
+      }
     }
-  }, [isOpen, simulatorCore]);
+  }, [isOpen, simulatorCore, simulationSettings]);
 
   const handleModeChange = async (newMode) => {
     if (!simulatorCore || !simulatorCore.setSimulationMode) {
@@ -38,6 +55,17 @@ const SettingsDialog = ({ isOpen, onClose }) => {
     }
   };
 
+  const onSave = () => {
+    const tokens = Math.max(1, Math.min(9999, Number(maxTokens) || 20));
+    const iterations = unlimitedIterations ? Infinity : Math.max(1, Math.min(1000000, Number(maxIterations) || 100));
+    handleSaveSettings({
+      ...simulationSettings,
+      maxTokens: tokens,
+      maxIterations: iterations,
+    });
+    onClose?.();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -54,6 +82,47 @@ const SettingsDialog = ({ isOpen, onClose }) => {
         </div>
 
         <div className="space-y-4">
+          {/* Limits */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Limits</label>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="text-sm">Max tokens (also caps arc weights)</div>
+                <input
+                  type="number"
+                  min={1}
+                  max={9999}
+                  value={maxTokens}
+                  onChange={(e) => setMaxTokens(e.target.value)}
+                  className="w-24 border rounded px-2 py-1 text-sm"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="text-sm">Max iterations</div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="number"
+                    min={1}
+                    max={1000000}
+                    value={unlimitedIterations ? '' : maxIterations}
+                    onChange={(e) => setMaxIterations(e.target.value)}
+                    disabled={unlimitedIterations}
+                    className="w-24 border rounded px-2 py-1 text-sm disabled:bg-gray-100"
+                  />
+                  <label className="flex items-center text-sm">
+                    <input
+                      type="checkbox"
+                      checked={unlimitedIterations}
+                      onChange={(e) => setUnlimitedIterations(e.target.checked)}
+                      className="mr-1"
+                    />
+                    Unlimited
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Simulation Mode
@@ -109,9 +178,15 @@ const SettingsDialog = ({ isOpen, onClose }) => {
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+            className="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors mr-2"
           >
-            Close
+            Cancel
+          </button>
+          <button
+            onClick={onSave}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            Save
           </button>
         </div>
       </div>

@@ -9,6 +9,7 @@ export { simulatorCoreInstance as simulatorCore, SimulatorCore };
 
 // Individual simulators
 export { PyodideSimulator } from './pyodide-simulator';
+export { JsPetriNetSimulator } from './js-simulator';
 
 // Conflict resolution
 export { ConflictResolver } from './conflict-resolver';

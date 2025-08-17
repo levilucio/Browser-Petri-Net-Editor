@@ -292,69 +292,7 @@ export class HistoryManager {
       return { places: [], transitions: [], arcs: [] };
     }
 
-    const validatedState = {
-      places: state.places.filter(place => {
-        // Ensure coordinates are valid numbers
-        if (typeof place.x !== 'number' || isNaN(place.x) || 
-            typeof place.y !== 'number' || isNaN(place.y)) {
-          console.warn(`Invalid coordinates for place ${place.id}: x=${place.x}, y=${place.y}`);
-          return false;
-        }
-        return true;
-      }).map(place => ({
-        ...place,
-        x: Number(place.x),
-        y: Number(place.y),
-        tokens: Number(place.tokens || 0)
-      })),
-      
-      transitions: state.transitions.filter(transition => {
-        // Ensure coordinates are valid numbers
-        if (typeof transition.x !== 'number' || isNaN(transition.x) || 
-            typeof transition.y !== 'number' || isNaN(transition.y)) {
-          console.warn(`Invalid coordinates for transition ${transition.id}: x=${transition.x}, y=${transition.y}`);
-          return false;
-        }
-        return true;
-      }).map(transition => ({
-        ...transition,
-        x: Number(transition.x),
-        y: Number(transition.y)
-      })),
-      
-      arcs: state.arcs.filter(arc => {
-        // Ensure arc has valid source and target IDs
-        if (!arc.sourceId && !arc.source) {
-          console.warn(`Arc ${arc.id} missing source`);
-          return false;
-        }
-        if (!arc.targetId && !arc.target) {
-          console.warn(`Arc ${arc.id} missing target`);
-          return false;
-        }
-        return true;
-      }).map(arc => {
-        // Create a new arc object that preserves ALL original properties
-        const validatedArc = { ...arc };
-        
-        // Only set fallbacks if the original values are actually missing
-        // This prevents overwriting valid sourceId/targetId with fallback values
-        if (!validatedArc.sourceId && validatedArc.source) {
-          validatedArc.sourceId = validatedArc.source;
-        }
-        if (!validatedArc.targetId && validatedArc.target) {
-          validatedArc.targetId = validatedArc.target;
-        }
-        
-        // Ensure weight is a number
-        if (typeof validatedArc.weight !== 'number' || isNaN(validatedArc.weight)) {
-          validatedArc.weight = Number(validatedArc.weight || 1);
-        }
-        
-        return validatedArc;
-      })
-    };
-
-    return validatedState;
+    // For history purposes, do not drop or coerce properties; just deep-copy
+    return this.deepCopyState(state);
   }
 }

@@ -260,6 +260,11 @@ class PetriNetSimulator:
             'arcs': [copy.deepcopy(a) for a in self.arcs]
         }
     
+    def load_from(self, petri_net_data):
+        """Reload Petri net data into the existing simulator instance"""
+        # Reuse current simulation_mode while rebuilding internal state
+        self.__init__(petri_net_data, self.simulation_mode)
+    
     def set_simulation_mode(self, mode):
         """Set simulation mode"""
         if mode in ['single', 'maximal']:
@@ -466,29 +471,34 @@ result
       console.log('Petri net unchanged, skipping update');
       return;
     }
-    
-    console.log('Updating simulator with new Petri net state');
-    
+
+    console.log('Updating simulator with new Petri net state (in-place reload)');
+
     if (this.simulator && this.pyodide) {
       try {
-        // Update the petri_net_data in Python context
+        // Update the petri_net_data in Python context and reload the existing simulator instance
         await this.pyodide.runPythonAsync(`
 petri_net_data = ${JSON.stringify(petriNet)}
+simulator.load_from(petri_net_data)
 `);
-        
-        // Recreate the simulator instance with new data
-        await this.createSimulatorInstance({ simulationMode: this.simulationMode });
-        
-        // IMPORTANT: Update the petriNet reference AFTER successful recreation
+
+        // Update the JS-side reference AFTER successful reload
         this.petriNet = petriNet;
-        
-        console.log('Simulator updated successfully');
-        
+
+        console.log('Simulator reloaded successfully');
+
         // Check for transition state changes after update
         await this.checkTransitionStateChanges();
       } catch (error) {
-        console.error('Error updating simulator:', error);
-        // Don't throw error here as it's not critical for operation
+        console.error('Error updating simulator (in-place reload):', error);
+        // As a fallback (should be rare), attempt to recreate the simulator instance
+        try {
+          await this.createSimulatorInstance({ simulationMode: this.simulationMode });
+          this.petriNet = petriNet;
+          await this.checkTransitionStateChanges();
+        } catch (recreateError) {
+          console.error('Fallback recreate after reload failure also failed:', recreateError);
+        }
       }
     } else {
       // If simulator or pyodide not available, just update the reference

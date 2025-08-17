@@ -1,7 +1,7 @@
 /**
  * Pure JavaScript PNML parser for handling Petri Net Markup Language
- * This implementation directly uses the browser's DOM capabilities
- * instead of relying on Python/Pyodide
+ * This is a completely new implementation that addresses namespace issues
+ * and arc handling problems in the previous version
  */
 
 /**
@@ -10,20 +10,17 @@
  * @returns {Object} - Petri net in JSON format
  */
 export function parsePNML(pnmlString) {
-  // Starting pure JavaScript PNML parsing
+  // Starting robust PNML parsing
   
-  // Initialize result structure with deep clone to prevent reference issues
+  // Initialize empty result structure
   const result = {
     places: [],
     transitions: [],
     arcs: []
   };
   
-  // Create a backup copy of the original PNML string to prevent modifications
-  const originalPnmlString = pnmlString;
-  
   try {
-    // Parse XML string using browser's DOMParser
+    // Parse XML using browser's DOMParser
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(pnmlString, 'application/xml');
     
@@ -36,71 +33,51 @@ export function parsePNML(pnmlString) {
     
     // XML parsed successfully
     
-    // Extract namespace from root element
+    // Extract namespace information
     const pnmlElement = xmlDoc.documentElement;
-    // Get root element
+    // Root element identified
     
-    // Handle namespaces properly - key part that was missing
+    // Handle namespaces properly
     const PNML_NS = pnmlElement.namespaceURI || "http://www.pnml.org/version-2009/grammar/pnml";
     // Using namespace URI
     
-    // Create namespace resolver function for XPath
-    const nsResolver = function(prefix) {
-      const ns = {
-        'pnml': PNML_NS
-      };
-      return ns[prefix] || null;
-    };
+    // First find the page element that contains places, transitions, and arcs
+    // Start by looking for the net element
+    let netElement = null;
     
-    // Function to find all elements with namespace consideration
-    const findElements = function(parentElem, localName) {
-      // Try with namespace first
-      let elements = parentElem.getElementsByTagNameNS(PNML_NS, localName);
-      
-      // If no elements found with namespace, try without namespace
-      if (elements.length === 0) {
-        elements = parentElem.getElementsByTagName(localName);
-      }
-      
-      // If still no elements found, try with tag that ends with the local name
-      if (elements.length === 0) {
-        const allElements = parentElem.getElementsByTagName('*');
-        const filtered = Array.from(allElements).filter(el => {
-          return el.localName === localName || 
-                 el.tagName.endsWith(':' + localName) || 
-                 el.tagName.toLowerCase() === localName.toLowerCase();
-        });
-        return filtered;
-      }
-      
-      return Array.from(elements);
-    };
-    
-    // Namespace configuration complete
-    
-    // Find the page element that contains places, transitions, and arcs
-    let pageElement = null;
-    
-    // First look for net element
-    const netElements = findElements(xmlDoc, 'net');
-    if (netElements.length > 0) {
-      const netElement = netElements[0];
-      // Found net element
-      
-      // Look for page element within net
-      const pageElements = findElements(netElement, 'page');
-      if (pageElements.length > 0) {
-        pageElement = pageElements[0];
-        // Found page element in net
+    // Try with namespace
+    const netElementsNS = xmlDoc.getElementsByTagNameNS(PNML_NS, 'net');
+    if (netElementsNS && netElementsNS.length > 0) {
+      netElement = netElementsNS[0];
+      // Found net element with namespace
+    } else {
+      // Try without namespace
+      const netElements = xmlDoc.getElementsByTagName('net');
+      if (netElements && netElements.length > 0) {
+        netElement = netElements[0];
+        // Found net element without namespace
       }
     }
     
-    // If page not found in net, look globally
-    if (!pageElement) {
-      const pageElements = findElements(xmlDoc, 'page');
-      if (pageElements.length > 0) {
+    if (!netElement) {
+      console.error('No net element found in the PNML file');
+      return result;
+    }
+    
+    // Find the page element inside the net
+    let pageElement = null;
+    
+    // Try with namespace
+    const pageElementsNS = netElement.getElementsByTagNameNS(PNML_NS, 'page');
+    if (pageElementsNS && pageElementsNS.length > 0) {
+      pageElement = pageElementsNS[0];
+      // Found page element with namespace
+    } else {
+      // Try without namespace
+      const pageElements = netElement.getElementsByTagName('page');
+      if (pageElements && pageElements.length > 0) {
         pageElement = pageElements[0];
-        // Found page element globally
+        // Found page element without namespace
       }
     }
     
@@ -110,212 +87,256 @@ export function parsePNML(pnmlString) {
     }
     
     // Process places
-    const places = findElements(pageElement, 'place');
-    // Found places
+    let places = [];
     
-    for (let i = 0; i < places.length; i++) {
-      const place = places[i];
-      const placeId = place.getAttribute('id');
-      // Processing place
-      
-      // Get name
-      let name = `P${result.places.length + 1}`; // Default name
-      const nameElements = findElements(place, 'name');
-      if (nameElements.length > 0) {
-        const textElements = findElements(nameElements[0], 'text');
-        if (textElements.length > 0 && textElements[0].textContent) {
-          name = textElements[0].textContent;
-        }
+    // Try with namespace
+    const placesNS = pageElement.getElementsByTagNameNS(PNML_NS, 'place');
+    if (placesNS && placesNS.length > 0) {
+      places = Array.from(placesNS);
+      // Found places with namespace
+    } else {
+      // Try without namespace
+      const placesNoNS = pageElement.getElementsByTagName('place');
+      if (placesNoNS && placesNoNS.length > 0) {
+        places = Array.from(placesNoNS);
+        // Found places without namespace
+      }
+    }
+    
+    // Helper function to find child elements regardless of namespace
+    const findChildElements = (parentElement, localName) => {
+      // Try with namespace first
+      const elementsNS = parentElement.getElementsByTagNameNS(PNML_NS, localName);
+      if (elementsNS && elementsNS.length > 0) {
+        return Array.from(elementsNS);
       }
       
-      // Get position
-      let x = 0, y = 0; // Default position
-      const graphicsElements = findElements(place, 'graphics');
+      // Try without namespace
+      const elements = parentElement.getElementsByTagName(localName);
+      if (elements && elements.length > 0) {
+        return Array.from(elements);
+      }
+      
+      // Return empty array if nothing found
+      return [];
+    };
+    
+    // Helper function to get text content from an element's child text node
+    const getTextContent = (parentElement, childElementName) => {
+      const elements = findChildElements(parentElement, childElementName);
+      if (elements.length > 0) {
+        const textElements = findChildElements(elements[0], 'text');
+        if (textElements.length > 0 && textElements[0].textContent) {
+          return textElements[0].textContent;
+        }
+      }
+      return '';
+    };
+    
+    // Helper function to get position coordinates
+    const getPosition = (element) => {
+      const graphicsElements = findChildElements(element, 'graphics');
       if (graphicsElements.length > 0) {
-        const positionElements = findElements(graphicsElements[0], 'position');
+        const positionElements = findChildElements(graphicsElements[0], 'position');
         if (positionElements.length > 0) {
-          x = parseInt(positionElements[0].getAttribute('x') || '0');
-          y = parseInt(positionElements[0].getAttribute('y') || '0');
+          const x = parseInt(positionElements[0].getAttribute('x') || '0');
+          const y = parseInt(positionElements[0].getAttribute('y') || '0');
+          return { x, y };
         }
       }
-      
-      // Get tokens (initial marking)
-      let tokens = 0; // Default tokens
-      const markingElements = findElements(place, 'initialMarking');
-      if (markingElements.length > 0) {
-        const textElements = findElements(markingElements[0], 'text');
-        if (textElements.length > 0 && textElements[0].textContent) {
+      return { x: 0, y: 0 };
+    };
+    
+    // Process places
+    places.forEach((place, index) => {
+      try {
+        const placeId = place.getAttribute('id');
+        
+        // Get name
+        const name = getTextContent(place, 'name') || `P${index + 1}`;
+        
+        // Get position
+        const { x, y } = getPosition(place);
+        
+        // Get tokens
+        let tokens = 0;
+        const markingText = getTextContent(place, 'initialMarking');
+        if (markingText) {
           try {
-            tokens = parseInt(textElements[0].textContent);
+            tokens = parseInt(markingText);
           } catch (e) {
             console.warn(`Could not parse tokens for ${placeId}:`, e);
           }
         }
+        
+        // Create place object
+        const placeObj = {
+          id: placeId,
+          name: name,
+          x: x,
+          y: y,
+          tokens: tokens
+        };
+        
+        // Adding place
+        result.places.push(placeObj);
+      } catch (e) {
+        console.error('Error processing place:', e);
       }
-      
-      // Add place to result
-      const placeObj = {
-        id: placeId,
-        name: name,
-        x: x,
-        y: y,
-        tokens: tokens
-      };
-      
-      // Adding place
-      result.places.push(placeObj);
-    }
+    });
     
     // Process transitions
-    const transitions = findElements(pageElement, 'transition');
-    // Found transitions
+    let transitions = [];
     
-    for (let i = 0; i < transitions.length; i++) {
-      const transition = transitions[i];
-      const transitionId = transition.getAttribute('id');
-      // Processing transition
-      
-      // Get name
-      let name = `T${result.transitions.length + 1}`; // Default name
-      const nameElements = findElements(transition, 'name');
-      if (nameElements.length > 0) {
-        const textElements = findElements(nameElements[0], 'text');
-        if (textElements.length > 0 && textElements[0].textContent) {
-          name = textElements[0].textContent;
-        }
+    // Try with namespace
+    const transitionsNS = pageElement.getElementsByTagNameNS(PNML_NS, 'transition');
+    if (transitionsNS && transitionsNS.length > 0) {
+      transitions = Array.from(transitionsNS);
+      // Found transitions with namespace
+    } else {
+      // Try without namespace
+      const transitionsNoNS = pageElement.getElementsByTagName('transition');
+      if (transitionsNoNS && transitionsNoNS.length > 0) {
+        transitions = Array.from(transitionsNoNS);
+        // Found transitions without namespace
       }
-      
-      // Get position
-      let x = 0, y = 0; // Default position
-      const graphicsElements = findElements(transition, 'graphics');
-      if (graphicsElements.length > 0) {
-        const positionElements = findElements(graphicsElements[0], 'position');
-        if (positionElements.length > 0) {
-          x = parseInt(positionElements[0].getAttribute('x') || '0');
-          y = parseInt(positionElements[0].getAttribute('y') || '0');
-        }
-      }
-      
-      // Add transition to result
-      const transitionObj = {
-        id: transitionId,
-        name: name,
-        x: x,
-        y: y
-      };
-      
-      // Adding transition
-      result.transitions.push(transitionObj);
     }
     
-    // Process arcs
-    const arcs = findElements(pageElement, 'arc');
-    // Found arcs
-    
-    for (let i = 0; i < arcs.length; i++) {
-      const arc = arcs[i];
-      const arcId = arc.getAttribute('id');
-      const sourceId = arc.getAttribute('source');
-      const targetId = arc.getAttribute('target');
-      
-      // Processing arc
-      
-      // Skip if missing source or target
-      if (!sourceId || !targetId) {
-        console.warn(`Skipping arc ${arcId} due to missing source or target`);
-        continue;
+    transitions.forEach((transition, index) => {
+      try {
+        const transitionId = transition.getAttribute('id');
+        
+        // Get name
+        const name = getTextContent(transition, 'name') || `T${index + 1}`;
+        
+        // Get position
+        const { x, y } = getPosition(transition);
+        
+        // Create transition object
+        const transitionObj = {
+          id: transitionId,
+          name: name,
+          x: x,
+          y: y
+        };
+        
+        // Adding transition
+        result.transitions.push(transitionObj);
+      } catch (e) {
+        console.error('Error processing transition:', e);
       }
-      
-      // Determine arc type based on existing places/transitions or ID patterns
-      // Check if the source and target elements exist in our places and transitions arrays
-      const placeIds = result.places.map(p => p.id);
-      const transitionIds = result.transitions.map(t => t.id);
-      
-      const sourceIsPlace = placeIds.includes(sourceId);
-      const sourceIsTransition = transitionIds.includes(sourceId);
-      const targetIsPlace = placeIds.includes(targetId);
-      const targetIsTransition = transitionIds.includes(targetId);
-      
-      // Arc source and target types
-      
-      let arcType;
-      if (sourceIsPlace && targetIsTransition) {
-        arcType = 'place-to-transition';
-      } else if (sourceIsTransition && targetIsPlace) {
-        arcType = 'transition-to-place';
-      } else {
-        // Try to infer from IDs if not found in our arrays (this is a fallback)
-        if (sourceId.toLowerCase().includes('place') && targetId.toLowerCase().includes('transition')) {
+    });
+    
+    // Process arcs
+    let arcs = [];
+    
+    // Try with namespace
+    const arcsNS = pageElement.getElementsByTagNameNS(PNML_NS, 'arc');
+    if (arcsNS && arcsNS.length > 0) {
+      arcs = Array.from(arcsNS);
+      // Found arcs with namespace
+    } else {
+      // Try without namespace
+      const arcsNoNS = pageElement.getElementsByTagName('arc');
+      if (arcsNoNS && arcsNoNS.length > 0) {
+        arcs = Array.from(arcsNoNS);
+        // Found arcs without namespace
+      }
+    }
+    
+    arcs.forEach((arc) => {
+      try {
+        const arcId = arc.getAttribute('id');
+        const sourceId = arc.getAttribute('source');
+        const targetId = arc.getAttribute('target');
+        
+        if (!sourceId || !targetId) {
+          console.warn(`Skipping arc ${arcId} due to missing source or target`);
+          return;
+        }
+        
+        // Processing arc
+        
+        // Get directional metadata
+        let sourceDirection = 'north';
+        let targetDirection = 'south';
+        
+        const graphicsElements = findChildElements(arc, 'graphics');
+        if (graphicsElements.length > 0) {
+          const metadataElements = findChildElements(graphicsElements[0], 'metadata');
+          if (metadataElements.length > 0) {
+            const sourceDirElements = findChildElements(metadataElements[0], 'sourceDirection');
+            if (sourceDirElements.length > 0 && sourceDirElements[0].textContent) {
+              sourceDirection = sourceDirElements[0].textContent;
+            }
+            
+            const targetDirElements = findChildElements(metadataElements[0], 'targetDirection');
+            if (targetDirElements.length > 0 && targetDirElements[0].textContent) {
+              targetDirection = targetDirElements[0].textContent;
+            }
+          }
+        }
+        
+        // Determine arc type by checking existing place and transition IDs
+        const placeIds = result.places.map(p => p.id);
+        const transitionIds = result.transitions.map(t => t.id);
+        
+        let arcType;
+        if (placeIds.includes(sourceId) && transitionIds.includes(targetId)) {
           arcType = 'place-to-transition';
-        } else if (sourceId.toLowerCase().includes('transition') && targetId.toLowerCase().includes('place')) {
-          arcType = 'transition-to-place';
-        } else if (/p[0-9]+/i.test(sourceId) && /t[0-9]+/i.test(targetId)) {
-          arcType = 'place-to-transition';
-        } else if (/t[0-9]+/i.test(sourceId) && /p[0-9]+/i.test(targetId)) {
+        } else if (transitionIds.includes(sourceId) && placeIds.includes(targetId)) {
           arcType = 'transition-to-place';
         } else {
-          // Force a default if we still can't determine
-          console.warn(`Cannot determine arc type for ${arcId}, using default place-to-transition`); 
-          arcType = 'place-to-transition';
+          // Try to determine type by ID conventions
+          if (sourceId.toLowerCase().includes('place') && targetId.toLowerCase().includes('transition')) {
+            arcType = 'place-to-transition';
+          } else if (sourceId.toLowerCase().includes('transition') && targetId.toLowerCase().includes('place')) {
+            arcType = 'transition-to-place';
+          } else {
+            // For IDs that don't follow convention, make an educated guess
+            arcType = 'place-to-transition'; // Default
+            console.warn(`Could not determine arc type for ${arcId}, defaulting to place-to-transition`);
+          }
         }
-      }
-      
-      // Get weight (inscription)
-      let weight = 1; // Default weight
-      const inscriptionElements = findElements(arc, 'inscription');
-      if (inscriptionElements.length > 0) {
-        const textElements = findElements(inscriptionElements[0], 'text');
-        if (textElements.length > 0 && textElements[0].textContent) {
+        
+        // Handle inscription/weight
+        let weight = 1;
+        const inscriptionText = getTextContent(arc, 'inscription');
+        if (inscriptionText) {
           try {
-            weight = parseInt(textElements[0].textContent);
+            weight = parseInt(inscriptionText);
           } catch (e) {
             console.warn(`Could not parse weight for ${arcId}:`, e);
           }
         }
+        
+        // Create arc object
+        const arcObj = {
+          id: arcId,
+          source: sourceId,
+          target: targetId,
+          type: arcType,
+          weight: weight,
+          sourceDirection: sourceDirection,
+          targetDirection: targetDirection
+        };
+        
+        // Adding arc
+        result.arcs.push(arcObj);
+      } catch (e) {
+        console.error('Error processing arc:', e);
       }
-      
-      // Get directions from metadata
-      let sourceDirection = 'north'; // Default source direction
-      let targetDirection = 'south'; // Default target direction
-      
-      const graphicsElements = findElements(arc, 'graphics');
-      if (graphicsElements.length > 0) {
-        const metadataElements = findElements(graphicsElements[0], 'metadata');
-        if (metadataElements.length > 0) {
-          const metadata = metadataElements[0];
-          
-          const sourceDirElements = findElements(metadata, 'sourceDirection');
-          if (sourceDirElements.length > 0 && sourceDirElements[0].textContent) {
-            sourceDirection = sourceDirElements[0].textContent;
-          }
-          
-          const targetDirElements = findElements(metadata, 'targetDirection');
-          if (targetDirElements.length > 0 && targetDirElements[0].textContent) {
-            targetDirection = targetDirElements[0].textContent;
-          }
-        }
-      }
-      
-      // Add arc to result
-      const arcObj = {
-        id: arcId,
-        source: sourceId,
-        target: targetId,
-        type: arcType,
-        weight: weight,
-        sourceDirection: sourceDirection,
-        targetDirection: targetDirection
-      };
-      
-      // Adding arc
-      result.arcs.push(arcObj);
-    }
+    });
     
-    // PNML parsing complete
+    // PNML parsing complete. Result contains:
+    // - places: result.places.length
+    // - transitions: result.transitions.length
+    // - arcs: result.arcs.length
+    
     return result;
   } catch (error) {
     console.error('Error parsing PNML:', error);
-    return result; // Return empty result on error
+    return result;
   }
 }
 
@@ -412,13 +433,48 @@ export function generatePNML(petriNetJson) {
       pageElement.appendChild(transitionElement);
     });
     
-    // Process arcs
+    // Process arcs - with validation to ensure only valid arcs are saved
     const arcs = petriNetJson.arcs || [];
-    arcs.forEach(arc => {
+    const placeIds = new Set(places.map(p => p.id));
+    const transitionIds = new Set(transitions.map(t => t.id));
+    
+    // Filter out invalid arcs before saving
+    const validArcs = arcs.filter(arc => {
+      // Get the source and target IDs - handle different arc structures
+      const sourceId = arc.source || arc.sourceId;
+      const targetId = arc.target || arc.targetId;
+      
+      // Skip arcs with undefined, missing, or invalid source/target
+      if (!sourceId || !targetId || 
+          sourceId === 'undefined' || targetId === 'undefined') {
+        console.warn(`Skipping invalid arc ${arc.id} during save - missing or undefined source/target`);
+        return false;
+      }
+      
+      // Check if source and target reference valid elements
+      const sourceExists = placeIds.has(sourceId) || transitionIds.has(sourceId);
+      const targetExists = placeIds.has(targetId) || transitionIds.has(targetId);
+      
+      if (!sourceExists || !targetExists) {
+        console.warn(`Skipping invalid arc ${arc.id} during save - references non-existent elements`);
+        return false;
+      }
+      
+      return true;
+    });
+    
+    // Saving valid arcs after filtering
+    
+    validArcs.forEach(arc => {
       const arcElement = xmlDoc.createElement('arc');
       arcElement.setAttribute('id', arc.id);
-      arcElement.setAttribute('source', arc.source);
-      arcElement.setAttribute('target', arc.target);
+      
+      // Handle different arc structures
+      const sourceId = arc.source || arc.sourceId;
+      const targetId = arc.target || arc.targetId;
+      
+      arcElement.setAttribute('source', sourceId);
+      arcElement.setAttribute('target', targetId);
       
       // Add graphics with metadata for source and target directions
       const graphicsElement = xmlDoc.createElement('graphics');

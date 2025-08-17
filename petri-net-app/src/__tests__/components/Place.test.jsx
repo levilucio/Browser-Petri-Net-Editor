@@ -2,6 +2,16 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Place from '../../components/Place';
 
+// Mock PetriNet context used by Place
+jest.mock('../../contexts/PetriNetContext', () => ({
+  usePetriNet: () => ({
+    setIsDragging: jest.fn(),
+    gridSnappingEnabled: false,
+    snapToGrid: (x, y) => ({ x, y }),
+    setSnapIndicator: jest.fn(),
+  }),
+}));
+
 // Mock Konva components since they rely on Canvas which isn't available in Jest
 jest.mock('react-konva', () => {
   return {
@@ -23,19 +33,15 @@ jest.mock('react-konva', () => {
 
 
 describe('Place Component', () => {
-  const mockPlace = {
+  const mockProps = {
     id: 'place-1',
     x: 100,
     y: 100,
     label: 'P1',
-    tokens: 3
-  };
-  
-  const mockProps = {
-    place: mockPlace,
+    tokens: 3,
     isSelected: false,
-    onClick: jest.fn(),
-    onDragMove: jest.fn()
+    onSelect: jest.fn(),
+    onChange: jest.fn(),
   };
 
   beforeEach(() => {
@@ -54,8 +60,8 @@ describe('Place Component', () => {
     render(<Place {...mockProps} isSelected={true} />);
     const circles = screen.queryAllByTestId('circle');
     expect(circles.length).toBeGreaterThan(0);
-    // Find the main circle (the one with radius 20)
-    const mainCircle = circles.find(circle => circle.getAttribute('radius') === '20');
+    // Find the main circle (the one with radius 30)
+    const mainCircle = circles.find(circle => circle.getAttribute('radius') === '30');
     expect(mainCircle).toBeDefined();
     expect(mainCircle).toHaveAttribute('stroke', 'blue');
   });
@@ -74,12 +80,13 @@ describe('Place Component', () => {
     expect(tokenText).toBeTruthy();
   });
 
-  test('calls onClick handler when clicked', () => {
+  test('calls onSelect handler when clicked', () => {
     render(<Place {...mockProps} />);
     const group = screen.queryAllByTestId('group');
     expect(group.length).toBeGreaterThan(0);
     fireEvent.click(group[0]);
-    expect(mockProps.onClick).toHaveBeenCalledTimes(1);
+    expect(mockProps.onSelect).toHaveBeenCalledTimes(1);
+    expect(mockProps.onSelect).toHaveBeenCalledWith('place-1');
   });
 
   test('is draggable', () => {

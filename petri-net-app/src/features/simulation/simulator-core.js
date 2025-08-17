@@ -131,7 +131,7 @@ export class SimulatorCore {
     }
 
     try {
-      return await simulator.getEnabledTransitions();
+    return await simulator.getEnabledTransitions();
     } catch (error) {
       console.error('Error getting enabled transitions:', error);
       throw error;
@@ -147,7 +147,7 @@ export class SimulatorCore {
     }
 
     try {
-      return await simulator.isTransitionEnabled(transitionId);
+    return await simulator.isTransitionEnabled(transitionId);
     } catch (error) {
       console.error('Error checking transition enabled:', error);
       throw error;
@@ -163,7 +163,7 @@ export class SimulatorCore {
     }
 
     try {
-      return await simulator.fireTransition(transitionId);
+    return await simulator.fireTransition(transitionId);
     } catch (error) {
       console.error('Error firing transition:', error);
       throw error;
@@ -195,7 +195,7 @@ export class SimulatorCore {
     }
 
     try {
-      return await simulator.fireMultipleTransitions(transitionIds);
+    return await simulator.fireMultipleTransitions(transitionIds);
     } catch (error) {
       console.error('Error firing multiple transitions:', error);
       throw error;
