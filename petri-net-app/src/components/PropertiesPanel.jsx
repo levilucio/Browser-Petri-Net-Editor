@@ -1,6 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { PetriNetContext } from '../contexts/PetriNetContext';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
+  // Read enabled transitions from context (fallback to defaults if no provider in unit tests)
+  const context = useContext(PetriNetContext) || {};
+  const enabledTransitionIds = context.enabledTransitionIds || [];
+  const isSimulatorReady = context.isSimulatorReady || false;
+
   // Local state for form values to provide immediate feedback
   const [formValues, setFormValues] = useState({
     label: '',
@@ -8,8 +14,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     weight: 1
   });
 
-  // State for markings panel
-  const [isMarkingsPanelOpen, setIsMarkingsPanelOpen] = useState(false);
+  // State for markings/enabled panels moved to PetriNetPanel
 
   // Update local state when selected element changes
   useEffect(() => {
@@ -22,14 +27,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     }
   }, [selectedElement]);
 
-  if (!selectedElement) {
-    return (
-      <div className="properties-panel w-full px-4 py-2 overflow-y-auto mx-0">
-        <h2 className="text-lg font-semibold mb-4">Properties</h2>
-        <p className="text-gray-500">Select an element to edit its properties</p>
-      </div>
-    );
-  }
+  // Do not early-return; we want markings and enabled transitions to always render
 
   const handleLabelChange = (e) => {
     const newLabel = e.target.value;
@@ -224,22 +222,28 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   return (
     <div className="properties-panel w-full px-4 py-2 overflow-y-auto mx-0">
       <h2 className="text-lg font-semibold mb-4">Properties</h2>
-      
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Label
-        </label>
-        <input
-          type="text"
-          value={formValues.label}
-          onChange={handleLabelChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder={elementType === 'place' ? 'P1, P2, etc.' : 
-                      elementType === 'transition' ? 'T1, T2, etc.' : 'Arc label'}
-        />
-      </div>
 
-      {elementType === 'place' && (
+      {!selectedElement && (
+        <p className="text-gray-500 mb-4">Select an element to edit its properties</p>
+      )}
+
+      {selectedElement && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Label
+          </label>
+          <input
+            type="text"
+            value={formValues.label}
+            onChange={handleLabelChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder={elementType === 'place' ? 'P1, P2, etc.' : 
+                        elementType === 'transition' ? 'T1, T2, etc.' : 'Arc label'}
+          />
+        </div>
+      )}
+
+      {selectedElement && elementType === 'place' && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Tokens (0-{maxTokens})
@@ -260,7 +264,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         </div>
       )}
 
-      {elementType === 'arc' && (
+      {selectedElement && elementType === 'arc' && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Weight (1-{maxTokens})
@@ -280,41 +284,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         </div>
       )}
 
-      {/* Markings Panel Section */}
-      <div className="border-t border-gray-200 pt-4 mt-4">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="text-md font-semibold text-gray-700">Current Markings</h3>
-          <button
-            data-testid="toggle-markings"
-            className="px-3 py-1 bg-purple-500 hover:bg-purple-600 text-white rounded text-sm flex items-center space-x-1 transition-colors"
-            onClick={() => setIsMarkingsPanelOpen(!isMarkingsPanelOpen)}
-          >
-            <span>{isMarkingsPanelOpen ? 'Hide' : 'Show'}</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </button>
-        </div>
-        
-        {isMarkingsPanelOpen && (
-          <div data-testid="current-marking" className="markings-panel p-3 bg-gray-50 border border-gray-200 rounded-md">
-            {elements.places.length === 0 ? (
-              <p className="text-gray-500 text-sm">No places defined</p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                {elements.places.map(place => (
-                  <div key={place.id} className="flex items-center justify-between text-sm">
-                    <span className="font-medium text-gray-700">
-                      {place.label || place.name || place.id.substring(6, 12)}:
-                    </span>
-                    <span className="font-bold text-purple-600">{place.tokens || 0}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      {/* Petri Net panel is rendered separately in the right sidebar */}
     </div>
   );
 };

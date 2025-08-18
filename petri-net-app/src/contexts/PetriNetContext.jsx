@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 import { HistoryManager } from '../features/history/historyManager';
 import useSimulationManager from '../features/simulation/useSimulationManager';
 
-const PetriNetContext = createContext();
+export const PetriNetContext = createContext();
 
 export const PetriNetProvider = ({ children }) => {
   const MIN_ZOOM = 0.1;

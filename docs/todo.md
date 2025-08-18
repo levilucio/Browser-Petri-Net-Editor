@@ -109,8 +109,12 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - Bug when the simulator is running and the user tries to edit the net, or when the net runs the execution through and hangs
   - Refactor large files
     - arcs still not allowing angles
-    - arc render wrongly when loaded from xml, but correctly if built by hand
     - arc weights cannot be changed
+  - arcs not selectable with current area, increase it
+  - simulator doesn't work in both modes
+  - One source of confusion: both SimulationManager.jsx and the legacy ExecutionPanel.jsx exist. Recommend standardizing on one (keep SimulationManager.jsx) and deleting the other to avoid drift in tests/selectors.
+  - Redo/undo breaks with firings, seems to work with the rest
+  - Simulate works badly and does not stop, run does not work
 - **Success Criteria**:
   - Simulate P/T nets with correct marking updates and token animations.
   - All modes functional, with performance within limits.

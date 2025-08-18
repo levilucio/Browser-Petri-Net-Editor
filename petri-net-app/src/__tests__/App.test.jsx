@@ -13,7 +13,7 @@ const App = () => {
       </div>
       <div data-testid="canvas"></div>
       <div data-testid="properties-panel"></div>
-      <div data-testid="execution-panel"></div>
+      <div data-testid="simulation-manager"></div>
     </div>
   );
 };
@@ -140,11 +140,7 @@ jest.mock('../components/PropertiesPanel', () => ({ selectedElement, setElements
   </div>
 ));
 
-jest.mock('../components/ExecutionPanel', () => ({ elements }) => (
-  <div data-testid="execution-panel">
-    Places: {elements.places.length}, Transitions: {elements.transitions.length}
-  </div>
-));
+// No need to mock SimulationManager; this test uses a mock App layout
 
 jest.mock('../components/Grid', () => () => <div data-testid="grid"></div>);
 
@@ -160,7 +156,7 @@ describe('App Component', () => {
     expect(screen.getByTestId('toolbar')).toBeInTheDocument();
     expect(screen.getByTestId('canvas')).toBeInTheDocument();
     expect(screen.getByTestId('properties-panel')).toBeInTheDocument();
-    expect(screen.getByTestId('execution-panel')).toBeInTheDocument();
+    expect(screen.getByTestId('simulation-manager')).toBeInTheDocument();
   });
 
   test('starts with select mode', () => {

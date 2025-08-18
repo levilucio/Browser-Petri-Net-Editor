@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 // Konva imports removed as CanvasManager handles them
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
+import PetriNetPanel from './components/PetriNetPanel';
 import SimulationManager from './features/simulation/SimulationManager';
 // Element/Grid components imports removed as CanvasManager handles them
 import SettingsDialog from './components/SettingsDialog';
@@ -49,7 +50,8 @@ const AppWrapper = () => {
       setContainerRef, // Context ref setter
       stageRef, // Context ref
 
-      handleSaveSettings // Function from context
+      handleSaveSettings, // Function from context
+      enabledTransitionIds
     } = usePetriNet();
 
     const { handleDeleteElement, clearAllElements } = useElementManager();
@@ -264,21 +266,30 @@ const AppWrapper = () => {
         
         {/* RIGHT SIDE: Side panels with properties and execution controls */}
         <div 
-          className="fixed w-80 right-0 top-16 bottom-0 z-10 bg-gray-100 overflow-y-auto shadow-lg pt-4"
+          className="fixed w-80 right-0 top-16 bottom-0 z-10 bg-gray-100 shadow-lg pt-4 flex flex-col overflow-hidden"
           onWheel={handlePreventScroll}
         >
-          {/* Properties panel */}
-          <PropertiesPanel 
-            selectedElement={selectedElement} 
-            elements={elements}
-            setElements={setElements}
-            updateHistory={updateHistory}
-            simulationSettings={simulationSettings}
-          />
+          {/* Properties panel (scrollable top) */}
+          <div className="overflow-y-auto pr-2">
+            <PropertiesPanel 
+              selectedElement={selectedElement} 
+              elements={elements}
+              setElements={setElements}
+              updateHistory={updateHistory}
+              simulationSettings={simulationSettings}
+            />
+          </div>
+
+          {/* Petri Net panel in the middle, fills remaining space */}
+          <div className="flex-1 overflow-y-auto pr-2">
+            <PetriNetPanel elements={elements} enabledTransitionIds={enabledTransitionIds} />
+          </div>
           
-          {/* Simulation Manager */}
+          {/* Simulation Manager pinned at bottom */}
           <div className="border-t-2 border-gray-200 w-full"></div>
-          <SimulationManager />
+          <div className="mt-auto sticky bottom-0 bg-gray-100">
+            <SimulationManager />
+          </div>
         </div>
         
         {/* Canvas Area - positioned in the remaining space with its own scrolling context */}

@@ -57,13 +57,17 @@ code {
 }
 
 .properties-panel {
-  width: 250px;
-  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: 10px 16px;
   background-color: #f9f9f9;
   border-left: 1px solid #ddd;
+  box-sizing: border-box;
 }
 
 .execution-panel {
+  /* Legacy: retained for static examples; UI now uses SimulationManager */
   padding: 10px;
   background-color: #f0f0f0;
   border-top: 1px solid #ddd;
