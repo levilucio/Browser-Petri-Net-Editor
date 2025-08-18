@@ -1,5 +1,6 @@
 /* @refresh reload */
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { simulatorCore } from '../features/simulation';
 import debounce from 'lodash/debounce';
 import { HistoryManager } from '../features/history/historyManager';
 import useSimulationManager from '../features/simulation/useSimulationManager';
@@ -182,6 +183,8 @@ export const PetriNetProvider = ({ children }) => {
       handleSaveSettings, // Expose settings save handler
       MIN_ZOOM, // Expose MIN_ZOOM
       MAX_ZOOM  // Expose MAX_ZOOM
+      ,
+      simulatorCore // Expose simulator core so Settings can change mode
     }}>
       {children}
     </PetriNetContext.Provider>

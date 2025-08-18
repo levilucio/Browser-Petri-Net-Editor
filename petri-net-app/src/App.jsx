@@ -281,7 +281,7 @@ const AppWrapper = () => {
           </div>
 
           {/* Petri Net panel in the middle, fills remaining space */}
-          <div className="flex-1 overflow-y-auto pr-2">
+          <div className="flex-1 overflow-y-auto pr-2 border-t-2 border-gray-200">
             <PetriNetPanel elements={elements} enabledTransitionIds={enabledTransitionIds} />
           </div>
           

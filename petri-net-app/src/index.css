@@ -61,7 +61,8 @@ code {
   max-width: 100%;
   overflow-x: hidden;
   padding: 10px 16px;
-  background-color: #f9f9f9;
+  /* Match right sidebar gray-100 */
+  background-color: #f3f4f6;
   border-left: 1px solid #ddd;
   box-sizing: border-box;
 }

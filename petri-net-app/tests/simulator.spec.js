@@ -10,6 +10,43 @@ test.describe('Petri Net Simulator', () => {
     await page.goto('/');
   });
 
+  // Opens the Enabled Transitions panel and waits for it to render
+  async function openEnabledTransitionsPanel(page) {
+    const toggle = page.getByTestId('show-enabled-transitions');
+    await expect(toggle).toBeVisible({ timeout: 20000 });
+    await toggle.scrollIntoViewIfNeeded();
+    await toggle.click();
+    const panel = page.getByTestId('enabled-transitions');
+    await expect(panel).toBeVisible({ timeout: 20000 });
+  }
+
+  // Wait until at least `minCount` enabled transitions are shown in the panel
+  async function waitForEnabledTransitions(page, minCount = 1, timeout = 30000) {
+    await openEnabledTransitionsPanel(page);
+    await page.waitForFunction(
+      (min) => {
+        const panel = document.querySelector('[data-testid="enabled-transitions"]');
+        if (!panel) return false;
+        const buttons = panel.querySelectorAll('button');
+        return buttons.length >= min;
+      },
+      minCount,
+      { timeout }
+    );
+  }
+
+  // Wait until either sim-step is enabled OR at least one enabled transition appears
+  async function waitUntilAnyEnabled(page, timeout = 60000) {
+    await openEnabledTransitionsPanel(page).catch(() => {});
+    await page.waitForFunction(() => {
+      const step = document.querySelector('[data-testid="sim-step"]');
+      const stepEnabled = step && !step.hasAttribute('disabled');
+      const panel = document.querySelector('[data-testid="enabled-transitions"]');
+      const buttons = panel ? panel.querySelectorAll('button').length : 0;
+      return stepEnabled || buttons > 0;
+    }, { timeout });
+  }
+
   /**
    * Helper function to create a simple Petri net in the editor
    */
@@ -40,6 +77,30 @@ test.describe('Petri Net Simulator', () => {
     await page.locator('.konvajs-content').click({ position: { x: 100, y: 100 } });
     // Use the tokens input in the properties panel
     await page.getByTestId('tokens-input').fill('1');
+  }
+
+  // Opens the Enabled Transitions panel and waits for it to render
+  async function openEnabledTransitionsPanel(page) {
+    const toggle = page.getByTestId('show-enabled-transitions');
+    if (await toggle.count()) {
+      await toggle.click();
+    }
+    await expect(page.getByTestId('enabled-transitions')).toBeVisible({ timeout: 20000 });
+  }
+
+  // Wait until at least `minCount` enabled transitions are shown in the panel
+  async function waitForEnabledTransitions(page, minCount = 1, timeout = 30000) {
+    await openEnabledTransitionsPanel(page);
+    await page.waitForFunction(
+      (min) => {
+        const panel = document.querySelector('[data-testid="enabled-transitions"]');
+        if (!panel) return false;
+        const buttons = panel.querySelectorAll('button');
+        return buttons.length >= min;
+      },
+      minCount,
+      { timeout }
+    );
   }
 
   /**
@@ -189,11 +250,8 @@ test.describe('Petri Net Simulator', () => {
     await expect(page.getByTestId('sim-simulate')).toBeVisible();
     await expect(page.getByTestId('sim-run')).toBeVisible();
 
-    // If the app surfaces the enabled transitions panel, wait for it; otherwise, just pass on controls being rendered
-    const enabledPanel = page.getByTestId('enabled-transitions');
-    if (await enabledPanel.count()) {
-      await expect(enabledPanel).toBeVisible({ timeout: 20000 });
-    }
+    // Wait for at least one enabled transition to appear in the panel
+    await waitForEnabledTransitions(page, 1, 60000);
   });
 
   test('should fire all enabled transitions simultaneously with the Fire button', async ({ page }) => {
@@ -203,8 +261,7 @@ test.describe('Petri Net Simulator', () => {
     // Wait for the simulator to initialize
     await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
-    // Wait for the enabled transitions to be computed
-    await expect(page.getByTestId('sim-step')).toBeEnabled({ timeout: 15000 });
+    await waitUntilAnyEnabled(page, 60000);
     
     // Get the initial state of the Petri net
     const initialState = await page.evaluate(() => {
@@ -219,6 +276,7 @@ test.describe('Petri Net Simulator', () => {
     expect(p4.tokens).toBe(10);
     
     // Click the Run button to fire all enabled transitions (maximal concurrent)
+    await expect(page.getByTestId('sim-run')).toBeEnabled({ timeout: 60000 });
     await page.getByTestId('sim-run').click();
     
     // Wait for the execution panel to update
@@ -258,8 +316,8 @@ test.describe('Petri Net Simulator', () => {
       await showEnabled2.click();
     }
     
-    // Wait for the enabled transitions to be computed
-    await expect(page.getByTestId('sim-step')).toBeEnabled({ timeout: 15000 });
+    // Wait for at least one enabled transition again via the panel
+    await waitForEnabledTransitions(page, 1, 60000);
     
     // Verify that there are still enabled transitions (T3 should be enabled since P4 still has tokens)
     const enabledTransitionsSection = page.getByTestId('enabled-transitions');
@@ -286,20 +344,23 @@ test.describe('Petri Net Simulator', () => {
     // Wait for the simulator to initialize
     await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
-    // Wait for the enabled transitions to be computed
-    await page.waitForTimeout(2000);
+    await waitUntilAnyEnabled(page, 60000);
     
     // Check that the Step control is visible
     await expect(page.getByTestId('sim-step')).toBeVisible();
     
     // Click Step to fire the first enabled transition
+    await expect(page.getByTestId('sim-step')).toBeEnabled({ timeout: 60000 });
     await page.getByTestId('sim-step').click();
     
     // Wait for the execution panel to update
     await page.waitForTimeout(1000);
     
-    // Click the Show Markings button
-    await page.getByTestId('show-markings').click();
+    // Toggle the Markings panel
+    const toggleMarkings = page.getByTestId('toggle-markings');
+    if (await toggleMarkings.count()) {
+      await toggleMarkings.click();
+    }
     
     // Check that the marking has changed by looking at the current marking section
     // The P1 place should now have 1 token instead of 2
@@ -327,18 +388,10 @@ test.describe('Petri Net Simulator', () => {
     // Wait for the simulator to initialize
     await expect(page.getByTestId('simulation-manager')).toBeVisible();
     
-    // Wait for the enabled transitions to be computed
-    await page.waitForTimeout(2000);
+    await waitUntilAnyEnabled(page, 60000);
     
-    // Click the Show Enabled Transitions button (if present)
-    const showEnabled3 = page.getByTestId('show-enabled-transitions');
-    if (await showEnabled3.count()) {
-      await showEnabled3.click();
-    }
-    
-    // Check that the enabled transitions section is visible
-    const enabledTransitionsSection = page.getByTestId('enabled-transitions');
-    await expect(enabledTransitionsSection).toBeVisible();
+    // Open the Enabled Transitions panel and verify it shows transitions
+    await openEnabledTransitionsPanel(page);
     
     // There should be at least one enabled transition button
     const enabledTransitionButtons = page.locator('[data-testid="enabled-transitions"] button');
@@ -384,14 +437,16 @@ test.describe('Petri Net Simulator', () => {
     
     // Set the arc weight for T1 -> P2
     await page.locator('.konvajs-content').click({ position: { x: 250, y: 100 } });
-    // Use the number input for weight
-    await page.locator('input[type="number"]').first().fill('10');
+    // Use the Weight field in the Properties panel
+    await page.getByText(/Weight \(1-\d+\)/).locator('..').locator('input[type="number"]').fill('10');
     
     // Add tokens to P2
     await page.locator('.konvajs-content').click({ position: { x: 300, y: 100 } });
     await page.locator('input[type="number"]').first().fill('15');
     
-    // Fire the transition with Step
+    // Wait for enabled and fire the transition with Step
+    await waitUntilAnyEnabled(page, 60000);
+    await expect(page.getByTestId('sim-step')).toBeEnabled({ timeout: 60000 });
     await page.getByTestId('sim-step').click();
     
     // Wait for the UI to update

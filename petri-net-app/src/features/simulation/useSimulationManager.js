@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import debounce from 'lodash.debounce';
 import { simulatorCore } from './index';
+import { ConflictResolver } from './conflict-resolver';
 
 const useSimulationManager = (elements, setElements, updateHistory) => {
   // Core simulation state
@@ -14,6 +15,7 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
   const animationIntervalRef = useRef(null);
   const isAnimatingRef = useRef(false);
   const isRunningRef = useRef(false);
+  const conflictResolverRef = useRef(new ConflictResolver());
 
   // Single effect to manage simulator initialization and updates
   useEffect(() => {
@@ -339,9 +341,45 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         console.warn('Step pre-update skipped or failed (may be fine if no structural changes):', e?.message || e);
       }
 
+      // Decide behavior based on simulation mode
+      let mode = 'single';
+      try {
+        mode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single';
+      } catch (_) {}
+
+      // If maximal concurrent, fire a maximal non-conflicting set in this step
+      if (mode === 'maximal') {
+        const enabled = await simulatorCore.getEnabledTransitions();
+        if (!enabled || enabled.length === 0) {
+          console.log('No enabled transitions for maximal step');
+          return;
+        }
+        const enabledObjs = (enabled || []).map((t) => {
+          if (typeof t === 'string') return { id: t };
+          if (t && typeof t === 'object') {
+            const id = t.id ?? (t.get ? t.get('id') : undefined);
+            return { id };
+          }
+          return { id: String(t) };
+        }).filter((t) => t.id);
+
+        const nonConflictingSets = conflictResolverRef.current.findNonConflictingTransitions(
+          enabledObjs,
+          elements.places || [],
+          elements.arcs || []
+        );
+        const chosenSet = nonConflictingSets[Math.floor(Math.random() * nonConflictingSets.length)] || [];
+        console.log('Maximal step - firing set:', chosenSet.map((t) => t.id));
+        for (const t of chosenSet) {
+          await handleFireTransition(t.id);
+        }
+        await refreshEnabledTransitions();
+        console.log('=== Maximal step completed ===');
+        return;
+      }
+
       await simulatorCore.activateSimulation(false);
-      
-      // Use the new stepSimulation method from the simulator
+      // Single mode: delegate to simulator step
       const newElements = await simulatorCore.stepSimulation();
       
       if (newElements) {
@@ -431,17 +469,30 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
             return;
           }
 
-          const randomIndex = Math.floor(Math.random() * enabled.length);
-          const transition = enabled[randomIndex];
-          const transitionToFire = transition instanceof Map ? 
-            transition.get('id') : transition.id;
-          
-          if (!transitionToFire) {
-            throw new Error('Invalid transition selected for firing');
+          // Maximal concurrent set: choose a largest non-conflicting subset, resolving conflicts nondeterministically
+          const enabledObjs = (enabled || []).map((t) => {
+            if (typeof t === 'string') return { id: t };
+            if (t && typeof t === 'object') {
+              const id = t.id ?? (t.get ? t.get('id') : undefined);
+              return { id };
+            }
+            return { id: String(t) };
+          }).filter((t) => t.id);
+
+          const nonConflictingSets = conflictResolverRef.current.findNonConflictingTransitions(
+            enabledObjs,
+            elements.places || [],
+            elements.arcs || []
+          );
+
+          // Pick one of the maximal sets randomly
+          const chosenSet = nonConflictingSets[Math.floor(Math.random() * nonConflictingSets.length)] || [];
+          console.log('Run simulation - chosen concurrent set:', chosenSet.map((t) => t.id));
+
+          // Fire all transitions in the chosen set sequentially (equivalent to concurrent for conflict-free set)
+          for (const t of chosenSet) {
+            await handleFireTransition(t.id);
           }
-          
-          console.log(`Run simulation - firing transition: ${transitionToFire}`);
-          await handleFireTransition(transitionToFire);
           setTimeout(runStep, 50);
         } catch (error) {
           console.error('Error in run simulation:', error);
@@ -456,7 +507,7 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       console.error('Error starting run simulation:', error);
       setSimulationError('Failed to start run simulation');
     }
-  }, [isContinuousSimulating, refreshEnabledTransitions, handleFireTransition]);
+  }, [isContinuousSimulating, refreshEnabledTransitions, handleFireTransition, elements]);
 
   return {
     isContinuousSimulating,

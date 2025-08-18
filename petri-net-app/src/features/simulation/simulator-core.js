@@ -367,7 +367,7 @@ export class SimulatorCore {
     if (!simulator) {
       return 'single';
     }
-    return simulator.simulationMode || 'single';
+    return simulator.simulationMode || (simulator.getStatus ? simulator.getStatus().simulationMode : 'single');
   }
 
   /**

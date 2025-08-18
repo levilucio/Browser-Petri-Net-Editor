@@ -5,7 +5,7 @@ const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
 	const [isEnabledPanelOpen, setIsEnabledPanelOpen] = useState(false);
 
 	return (
-		<div className="border-t border-gray-200 pt-4 mt-4 px-4">
+		<div className="pt-4 mt-4 px-4">
 			<h3 className="text-lg font-semibold text-gray-700 mb-3">Petri Net</h3>
 			{/* Current Markings */}
 			<div className="mb-4 pl-1">

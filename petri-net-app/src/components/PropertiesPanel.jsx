@@ -127,11 +127,12 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   };
 
   const handleWeightChange = (e) => {
-    // Get the actual element ID
-    const elementId = selectedElement ? selectedElement.id : '';
+    // Get the actual element ID and type (support both direct and nested structures)
+    const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
+    const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
     
-    // Check if this is an arc by looking at the ID prefix
-    if (!elementId || !elementId.startsWith('arc-')) return;
+    // Only handle weight changes for arcs
+    if (!elementId || elementType !== 'arc') return;
     
     // Get the raw input value
     const inputValue = e.target.value;
@@ -177,11 +178,12 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   
   // Handle blur event for weight input to ensure a valid value is set
   const handleWeightBlur = () => {
-    // Get the actual element ID
-    const elementId = selectedElement ? selectedElement.id : '';
+    // Get the actual element ID and type (support both direct and nested structures)
+    const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
+    const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
     
-    // Check if this is an arc by looking at the ID prefix
-    if (!elementId || !elementId.startsWith('arc-')) return;
+    // Only handle for arcs
+    if (!elementId || elementType !== 'arc') return;
     
     // If the field is empty or invalid when focus is lost, set to minimum valid value (1)
     if (formValues.weight === '' || parseInt(formValues.weight, 10) < 1) {

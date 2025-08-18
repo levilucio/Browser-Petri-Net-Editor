@@ -116,13 +116,24 @@ const ArcManager = () => {
           arc.anglePoints
         );
 
-        const textPos = {
-          x: (virtualPoints[0] + virtualPoints[virtualPoints.length - 2]) / 2,
-          y: (virtualPoints[1] + virtualPoints[virtualPoints.length - 1]) / 2 - 15,
-        };
+        // Midpoint of the arc to position labels
+        const midX = (virtualPoints[0] + virtualPoints[virtualPoints.length - 2]) / 2;
+        const midY = (virtualPoints[1] + virtualPoints[virtualPoints.length - 1]) / 2;
+        const weightOffset = 8; // closer to the arc
+        const labelOffset = 14; // vertical offset from the arc (opposite side)
 
         return (
           <Group key={arc.id}>
+            {/* Invisible, wide hit area behind the arrow to make selection easier */}
+            <Line
+              points={virtualPoints}
+              stroke="transparent"
+              strokeWidth={24}
+              lineCap="round"
+              lineJoin="round"
+              onClick={() => handleElementClick(arc, 'arc')}
+              onTap={() => handleElementClick(arc, 'arc')}
+            />
             <Arrow
               points={virtualPoints}
               stroke={selectedElement?.id === arc.id ? 'blue' : 'black'}
@@ -130,6 +141,7 @@ const ArcManager = () => {
               fill="black"
               pointerLength={10}
               pointerWidth={10}
+              hitStrokeWidth={20}
               onClick={() => handleElementClick(arc, 'arc')}
               onTap={() => handleElementClick(arc, 'arc')}
               onDblClick={(e) => {
@@ -139,12 +151,27 @@ const ArcManager = () => {
                 }
               }}
             />
-            <Text
-              x={textPos.x}
-              y={textPos.y}
-              text={arc.weight > 1 ? arc.weight : ''}
-              fontSize={14}
-            />
+            {/* Weight: render only when > 1, below the arc */}
+            {arc.weight > 1 && (
+              <Text
+                x={midX}
+                y={midY + weightOffset}
+                text={`${arc.weight}`}
+                fontSize={12}
+                align="center"
+              />
+            )}
+            {/* Arc label: render on the opposite side of the weight (above the arc) */}
+            {arc.label && (
+              <Text
+                x={midX}
+                y={midY - labelOffset}
+                text={`${arc.label}`}
+                fontSize={12}
+                fill="gray"
+                align="center"
+              />
+            )}
           </Group>
         );
       })}
