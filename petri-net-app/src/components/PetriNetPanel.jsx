@@ -71,7 +71,7 @@ const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
 							});
 							if (items.length === 0) {
 								return (
-									<div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1"></div>
+									<p className="text-gray-500 text-sm">No enabled transitions</p>
 								);
 							}
 							return (

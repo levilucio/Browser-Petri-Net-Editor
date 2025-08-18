@@ -278,6 +278,14 @@ const Toolbar = ({
       arcs: []
     };
     
+    try {
+      // Ensure simulator is fully reset so no stale enabled transitions remain
+      simulatorCore.deactivateSimulation?.();
+      simulatorCore.reset?.();
+    } catch (e) {
+      console.warn('Simulator reset on clear failed or not available:', e);
+    }
+
     setElements(emptyState);
     
     // Add to history

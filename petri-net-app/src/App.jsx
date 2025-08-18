@@ -293,10 +293,10 @@ const AppWrapper = () => {
         </div>
         
         {/* Canvas Area - positioned in the remaining space with its own scrolling context */}
-        <div className="fixed top-16 left-0 right-80 bottom-0">
+        <div className="fixed top-20 left-0 right-80 bottom-0">
           {/* Scrollable canvas container */}
           <div 
-            className="absolute inset-0 overflow-auto stage-container bg-gray-200 dark:bg-gray-700"
+            className="absolute inset-0 overflow-hidden stage-container bg-gray-200 dark:bg-gray-700"
             data-testid="canvas-container"
             ref={localCanvasContainerDivRef}
             onScroll={handleNativeCanvasScroll}

@@ -88,12 +88,14 @@ const CustomScrollbar = ({
   const maxThumbPosition = trackSize > thumbSize ? trackSize - thumbSize : 0;
   const thumbPosition = maxScroll > 0 ? (scrollPosition / maxScroll) * maxThumbPosition : 0;
 
+  const toolbarOffset = 64; // keep scrollbar below fixed toolbar
+  const rightSidebarOffset = 320; // approximate width of right sidebar
   const scrollbarStyle = {
     position: 'absolute',
     zIndex: 10,
     ...(isHorizontal
-      ? { left: '10px', right: '20px', bottom: '5px', height: '10px' }
-      : { top: '10px', bottom: '20px', right: '5px', width: '10px' }),
+      ? { left: '10px', right: `${rightSidebarOffset - 5}px`, bottom: '5px', height: '10px' }
+      : { top: `${toolbarOffset}px`, bottom: '20px', right: '5px', width: '10px' }),
   };
 
   const trackStyle = {

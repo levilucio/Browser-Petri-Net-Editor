@@ -257,7 +257,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
           <CustomScrollbar
               orientation="vertical"
               contentSize={virtualCanvasDimensions.height}
-              viewportSize={stageDimensions.height / zoomLevel}
+              viewportSize={(stageDimensions.height / zoomLevel)}
               scrollPosition={canvasScroll.y}
               onScroll={(newScroll) => handleScroll('y', newScroll)}
           />
