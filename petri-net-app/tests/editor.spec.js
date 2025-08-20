@@ -119,28 +119,27 @@ test.describe('Petri Net Editor', () => {
     await selectButton.click();
     await page.waitForTimeout(300);
     
-    // Click on the arc to select it (try multiple nearby points on the Konva canvas)
+    // Compute arc midpoint from actual element positions and click to select the arc
+    const { midX, midY } = await page.evaluate(() => {
+      // @ts-ignore - test hook
+      const s = window.__PETRI_NET_STATE__;
+      const p = s.places[0];
+      const t = s.transitions[0];
+      return { midX: (p.x + t.x) / 2, midY: (p.y + t.y) / 2 };
+    });
     const stage = page.locator('.konvajs-content');
-    const candidatePoints = [
-      { x: 250, y: 200 },
-      { x: 248, y: 198 },
-      { x: 252, y: 202 },
-      { x: 246, y: 200 },
-      { x: 254, y: 200 }
+    const delPts = [
+      { x: midX, y: midY },
+      { x: midX + 3, y: midY + 1 },
+      { x: midX - 3, y: midY - 1 },
     ];
-    for (const pt of candidatePoints) {
+    for (const pt of delPts) {
       await stage.click({ position: pt });
       try {
-        await page.getByText(/Weight \(1-\d+\)/).waitFor({ timeout: 800 });
+        await page.getByText(/Weight \(1-\d+\)/).waitFor({ timeout: 400 });
         break;
-      } catch (_) {
-        // try next point
-      }
+      } catch (_) {}
     }
-    // Do not hard-rely on the properties panel text; proceed to deletion check
-    await page.waitForTimeout(300);
-    
-    // Press Delete key to remove the arc
     await page.keyboard.press('Delete');
     await page.waitForTimeout(500);
     
@@ -150,6 +149,28 @@ test.describe('Petri Net Editor', () => {
       return window.__PETRI_NET_STATE__?.arcs?.length || 0;
     });
     expect(finalArcsCount).toBe(0);
+
+    // Ensure PN remains fully connected by removing now-isolated elements
+    // Delete the transition
+    await page.mouse.click(300, 200);
+    await page.waitForTimeout(200);
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(300);
+    // Delete the place
+    await page.mouse.click(200, 200);
+    await page.waitForTimeout(200);
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(300);
+
+    // Net should now be empty (trivially connected)
+    const finalCounts = await page.evaluate(() => {
+      // @ts-ignore
+      const s = window.__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
+      return { places: s.places.length || 0, transitions: s.transitions.length || 0, arcs: s.arcs.length || 0 };
+    });
+    expect(finalCounts.places).toBe(0);
+    expect(finalCounts.transitions).toBe(0);
+    expect(finalCounts.arcs).toBe(0);
   });
 
   test('should create a transition with two places and delete the transition with its arcs', async ({ page }) => {
@@ -250,11 +271,22 @@ test.describe('Petri Net Editor', () => {
     });
     expect(finalArcsCount).toBe(0);
     
-    // Verify places still exist
+    // Remove remaining isolated places to keep the PN fully connected (empty)
+    // Delete place at (200, 150)
+    await page.mouse.click(200, 150);
+    await page.waitForTimeout(200);
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(300);
+    // Delete place at (400, 250)
+    await page.mouse.click(400, 250);
+    await page.waitForTimeout(200);
+    await page.keyboard.press('Delete');
+    await page.waitForTimeout(300);
+
     const finalPlacesCount = await page.evaluate(() => {
       // @ts-ignore - Custom property added for testing
       return window.__PETRI_NET_STATE__?.places?.length || 0;
     });
-    expect(finalPlacesCount).toBe(2);
+    expect(finalPlacesCount).toBe(0);
   });
 });

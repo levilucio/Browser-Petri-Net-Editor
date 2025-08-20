@@ -15,10 +15,12 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
   const animationIntervalRef = useRef(null);
   const isAnimatingRef = useRef(false);
   const isRunningRef = useRef(false);
+  const latestElementsRef = useRef(elements);
   const conflictResolverRef = useRef(new ConflictResolver());
 
   // Single effect to manage simulator initialization and updates
   useEffect(() => {
+    latestElementsRef.current = elements;
     const manageSimulator = async () => {
       console.log('manageSimulator: Elements received:', {
         hasElements: !!elements,
@@ -50,7 +52,7 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         // Always update simulator with latest elements (keeps it in sync)
         try {
           console.log('Updating simulator with latest elements');
-          await simulatorCore.update(elements);
+          await simulatorCore.update(latestElementsRef.current);
           console.log('Simulator update completed successfully');
           
                   // After update, check if transitions are enabled and update UI state
@@ -294,8 +296,9 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       // Create a deep copy for React state update
       const elementsCopy = JSON.parse(JSON.stringify(newElements));
       
-      // Update the Petri net state
+      // Update the Petri net state and keep the ref in sync
       setElements(elementsCopy);
+      latestElementsRef.current = elementsCopy;
       
       // Update history for undo/redo
       if (updateHistory) {
@@ -334,12 +337,8 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         throw new Error('Simulator not initialized. Please wait for initialization to complete.');
       }
       
-      // Ensure simulator has the very latest PN (avoid races where arcs/weights just changed)
-      try {
-        await simulatorCore.update(elements);
-      } catch (e) {
-        console.warn('Step pre-update skipped or failed (may be fine if no structural changes):', e?.message || e);
-      }
+      // Avoid forcing a simulator update here; structural updates are handled by effects.
+      // Calling update here with a stale snapshot can reset tokens. Rely on prior updates instead.
 
       // Decide behavior based on simulation mode
       let mode = 'single';
@@ -365,8 +364,8 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
 
         const nonConflictingSets = conflictResolverRef.current.findNonConflictingTransitions(
           enabledObjs,
-          elements.places || [],
-          elements.arcs || []
+          (latestElementsRef.current?.places) || [],
+          (latestElementsRef.current?.arcs) || []
         );
         const chosenSet = nonConflictingSets[Math.floor(Math.random() * nonConflictingSets.length)] || [];
         console.log('Maximal step - firing set:', chosenSet.map((t) => t.id));
@@ -386,8 +385,9 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         // Create a deep copy for React state update
         const elementsCopy = JSON.parse(JSON.stringify(newElements));
         
-        // Update the Petri net state
+        // Update the Petri net state and keep the ref in sync
         setElements(elementsCopy);
+        latestElementsRef.current = elementsCopy;
         
         // Update history for undo/redo
         if (updateHistory) {
@@ -415,31 +415,33 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
 
   // Start continuous simulation
   const startContinuousSimulation = useCallback(async () => {
-    if (isContinuousSimulating || isRunning) return;
-    
+    if (isContinuousSimulating || isRunningRef.current) return;
     try {
-      simulatorCore.activateSimulation();
-      
+      await simulatorCore.activateSimulation();
       const enabled = await simulatorCore.getEnabledTransitions();
       if (!enabled || enabled.length === 0) {
         console.log('No enabled transitions available, cannot start simulation');
         return;
       }
-      
       setIsContinuousSimulating(true);
       isAnimatingRef.current = true;
-      setEnabledTransitionIds(enabled.map(t => t instanceof Map ? t.get('id') : t.id));
-      
-      animationIntervalRef.current = setInterval(() => {
-        if (isAnimatingRef.current) {
-          stepSimulation();
-        }
-      }, 1000);
+      setEnabledTransitionIds(enabled.map(t => (t && typeof t === 'object') ? (t.id ?? (t.get ? t.get('id') : undefined)) : String(t)).filter(Boolean));
+      const delay = (ms) => new Promise(res => setTimeout(res, ms));
+      while (isAnimatingRef.current) {
+        await stepSimulation();
+        const stillEnabled = await refreshEnabledTransitions();
+        if (!stillEnabled || stillEnabled.length === 0) break;
+        await delay(1000);
+      }
     } catch (error) {
       console.error('Error starting continuous simulation:', error);
       setSimulationError('Failed to start continuous simulation');
+    } finally {
+      isAnimatingRef.current = false;
+      setIsContinuousSimulating(false);
+      try { simulatorCore.deactivateSimulation(); } catch (_) {}
     }
-  }, [isContinuousSimulating, isRunning, stepSimulation]);
+  }, [isContinuousSimulating, stepSimulation]);
 
   // Start run simulation (to completion)
   const startRunSimulation = useCallback(async () => {
