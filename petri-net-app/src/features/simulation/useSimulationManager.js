@@ -367,9 +367,11 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
           (latestElementsRef.current?.places) || [],
           (latestElementsRef.current?.arcs) || []
         );
-        const chosenSet = nonConflictingSets[Math.floor(Math.random() * nonConflictingSets.length)] || [];
-        console.log('Maximal step - firing set:', chosenSet.map((t) => t.id));
-        for (const t of chosenSet) {
+        const setsArray = Array.isArray(nonConflictingSets) ? nonConflictingSets : Array.from(nonConflictingSets || []);
+        const candidate = setsArray.length ? setsArray[Math.floor(Math.random() * setsArray.length)] : [];
+        const chosenSet = Array.isArray(candidate) ? candidate : (candidate ? [candidate] : []);
+        console.log('Maximal step - firing set:', (Array.isArray(chosenSet) ? chosenSet : []).map((t) => t.id));
+        for (const t of (Array.isArray(chosenSet) ? chosenSet : [])) {
           await handleFireTransition(t.id);
         }
         await refreshEnabledTransitions();
@@ -488,11 +490,13 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
           );
 
           // Pick one of the maximal sets randomly
-          const chosenSet = nonConflictingSets[Math.floor(Math.random() * nonConflictingSets.length)] || [];
-          console.log('Run simulation - chosen concurrent set:', chosenSet.map((t) => t.id));
+          const setsArray = Array.isArray(nonConflictingSets) ? nonConflictingSets : Array.from(nonConflictingSets || []);
+          const candidate = setsArray.length ? setsArray[Math.floor(Math.random() * setsArray.length)] : [];
+          const chosenSet = Array.isArray(candidate) ? candidate : (candidate ? [candidate] : []);
+          console.log('Run simulation - chosen concurrent set:', (Array.isArray(chosenSet) ? chosenSet : []).map((t) => t.id));
 
           // Fire all transitions in the chosen set sequentially (equivalent to concurrent for conflict-free set)
-          for (const t of chosenSet) {
+          for (const t of (Array.isArray(chosenSet) ? chosenSet : [])) {
             await handleFireTransition(t.id);
           }
           setTimeout(runStep, 50);
