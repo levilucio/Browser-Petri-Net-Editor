@@ -200,9 +200,16 @@ test.describe('Petri Net Simulator', () => {
     await page.locator('.konvajs-content').click({ position: { x: 462, y: 400 } });
     await page.locator('.konvajs-content').click({ position: { x: 562, y: 400 } });
     
-    // Ensure fully connected PN by adding a bridging output arc T1 -> P4 (does not affect enabling)
+    // Ensure fully connected PN by adding a bridging transition TB with no initial effect
+    // TB connects P2 -> TB -> P4; since P2 has 0 tokens initially, it doesn't affect enabling
+    await page.getByTestId('toolbar-transition').click();
+    await page.locator('.konvajs-content').click({ position: { x: 360, y: 300 } }); // TB
     await page.getByTestId('toolbar-arc').click();
-    await page.locator('.konvajs-content').click({ position: { x: 460, y: 220 } });
+    // P2 -> TB
+    await page.locator('.konvajs-content').click({ position: { x: 560, y: 100 } });
+    await page.locator('.konvajs-content').click({ position: { x: 360, y: 300 } });
+    // TB -> P4
+    await page.locator('.konvajs-content').click({ position: { x: 360, y: 300 } });
     await page.locator('.konvajs-content').click({ position: { x: 260, y: 400 } });
     // Switch back to select mode
     await page.getByTestId('toolbar-select').click();
@@ -292,6 +299,19 @@ test.describe('Petri Net Simulator', () => {
     
     await waitUntilAnyEnabled(page, 60000).catch(() => {});
 
+    // Open settings and switch to maximal concurrency mode
+    await page.getByTestId('toolbar-settings').click();
+    const dialog = page.locator('.fixed.inset-0');
+    await expect(dialog.getByText('Simulation Settings')).toBeVisible();
+    // Click the label to toggle maximal mode; state change is async via simulatorCore
+    await dialog.getByText('Maximal Concurrent').click();
+    // Wait a tick to let mode propagate to simulator
+    await page.waitForTimeout(300);
+    // Click the Save button inside the dialog
+    await dialog.getByRole('button', { name: 'Save' }).click();
+    // Ensure dialog closed
+    await expect(dialog).toBeHidden();
+
     // Get the initial state of the Petri net
     const initialState = await page.evaluate(() => {
       // @ts-ignore - Custom property added for testing
@@ -304,41 +324,48 @@ test.describe('Petri Net Simulator', () => {
     expect(p1).toBeDefined();
     expect(p4).toBeDefined();
     
-    // Click the Run button to fire all enabled transitions (maximal concurrent)
-    const runBtn = page.getByTestId('sim-run');
-    if (await runBtn.isEnabled().catch(() => false)) {
-      await runBtn.click();
-      await page.waitForTimeout(500);
+    // Click the Step button; in maximal mode this fires a maximal non-conflicting set
+    const stepBtn = page.getByTestId('sim-step');
+    await expect(stepBtn).toBeVisible();
+    if (await stepBtn.isEnabled().catch(() => false)) {
+      await stepBtn.click();
+      await page.waitForTimeout(800);
+    }
+
+    // If still enabled (e.g., if only one subset fired), click once more to include any remaining independent transitions
+    if (await stepBtn.isEnabled().catch(() => false)) {
+      await stepBtn.click();
+      await page.waitForTimeout(800);
     }
     
-    // Wait for the execution panel to update
-    await page.waitForTimeout(1000);
-    
-    // Get the updated state of the Petri net
-    const updatedState = await page.evaluate(() => {
-      // @ts-ignore - Custom property added for testing
-      return window.__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
-    });
-    
-    // Ensure the PN remains fully connected after any run
-    await expectFullyConnected(page);
-    
-    // Click the Show Enabled Transitions button (if present)
-    const showEnabled2 = page.getByTestId('show-enabled-transitions');
-    if (await showEnabled2.count()) {
-      await showEnabled2.click();
-    }
-    
-    // Wait for at least one enabled transition again via the panel
-    // Optionally wait for panel content but don't fail test if not present
-    try { await waitForEnabledTransitions(page, 1, 60000); } catch (_) {}
-    
-    // Optionally inspect final state
+    // Get the final state of the Petri net after up to two maximal steps
     const finalState = await page.evaluate(() => {
       // @ts-ignore - Custom property added for testing
       return window.__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
     });
-    expect(finalState.places.length).toBeGreaterThan(0);
+
+    // Assertions against initial state to account for non-deterministic first firing
+    const initP1 = initialState.places.find(p => p.x === 260 && p.y === 100);
+    const initP4 = initialState.places.find(p => p.x === 260 && p.y === 400);
+    const initP5 = initialState.places.find(p => p.x === 560 && p.y === 400);
+    const initP2 = initialState.places.find(p => p.x === 560 && p.y === 100);
+    const initP3 = initialState.places.find(p => p.x === 560 && p.y === 220);
+
+    const finalP1 = finalState.places.find(p => p.x === 260 && p.y === 100);
+    const finalP4 = finalState.places.find(p => p.x === 260 && p.y === 400);
+    const finalP5 = finalState.places.find(p => p.x === 560 && p.y === 400);
+    const finalP2 = finalState.places.find(p => p.x === 560 && p.y === 100);
+    const finalP3 = finalState.places.find(p => p.x === 560 && p.y === 220);
+
+    // P1 had 1 token initially; after up to two maximal steps it must be 0
+    expect(finalP1.tokens).toBe(0);
+    // T3 must have fired at least once across the two steps
+    expect(finalP4.tokens).toBe(initP4.tokens - 1);
+    expect(finalP5.tokens).toBe(initP5.tokens + 1);
+    // Exactly one of P2 or P3 has received a token overall
+    const initSum = (initP2.tokens || 0) + (initP3.tokens || 0);
+    const finalSum = (finalP2.tokens || 0) + (finalP3.tokens || 0);
+    expect(finalSum).toBe(initSum + 1);
   });
 
   test('should fire transitions using the Fire button', async ({ page }) => {
