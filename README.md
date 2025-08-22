@@ -1,6 +1,6 @@
 # Petri Net Editor and Simulator
 
-A visual editor and simulator for Petri nets built with React and React-Konva.
+A visual editor and simulator for Petri nets built with React, React-Konva, and a Pyodide-backed simulator. The app runs entirely in the browser and supports PNML import/export.
 
 ## Project Overview
 
@@ -19,7 +19,7 @@ petri-net-editor/
 │   ├── src/                 # Source code
 │   │   ├── components/      # React components
 │   │   │   ├── Arc.jsx      # Arc component
-│   │   │   ├── ExecutionPanel.jsx # Execution panel
+│   │   │   ├── EnabledTransitionsPanel.jsx # Enabled transitions panel (if present)
 │   │   │   ├── Place.jsx    # Place component
 │   │   │   ├── PropertiesPanel.jsx # Properties panel
 │   │   │   ├── Toolbar.jsx  # Toolbar component
@@ -31,6 +31,8 @@ petri-net-editor/
 │   ├── package.json         # Dependencies and scripts
 │   └── vite.config.js       # Vite configuration
 └── docs/                    # Documentation
+    ├── developer-guide.md   # Developer guide
+    └── user-guide.md        # User guide
 ```
 
 ## Development Setup
@@ -72,7 +74,12 @@ If you're having issues with npm, you can run the application using a simple HTT
 2. Click on the canvas to add places and transitions
 3. Use arc mode to connect places to transitions or transitions to places
 4. Select elements to edit their properties in the properties panel
-5. Use the execution panel to simulate the Petri net
+5. Use the simulation panel to step, simulate, or run the Petri net
+
+## Documentation
+
+- User Guide: [docs/user-guide.md](docs/user-guide.md)
+- Developer Guide: [docs/developer-guide.md](docs/developer-guide.md)
 
 ## License
 

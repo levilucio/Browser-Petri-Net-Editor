@@ -101,21 +101,15 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅ Add zoom in/out and pan functionality to canvas
   - Add dynamic max number of tokens in places and arcs
   - ✅ Add dynamic max number of iterations in the simulator
-  - Allow for visual reorganization of the elements in the canvas for better visibility and organization
+  - ✅ Allow for visual reorganization of the elements in the canvas for better visibility and organization
 - **Deliverables**:
   -✅ Complete P/T net simulator with all modes and visual feedback.
   - Documentation for Phase 1 features and usage.
   -✅ Test suite covering simulator, validation, and performance.
-  - Bug when the simulator is running and the user tries to edit the net, or when the net runs the execution through and hangs
-  - Refactor large files
-    - arcs still not allowing angles
-    - arc weights cannot be changed
-  - simulator doesn't work in both modes
-  - Redo/undo breaks with firings, seems to work with the rest
-  - Simulate works badly and does not stop, run does not work
+
 - **Success Criteria**:
-  - Simulate P/T nets with correct marking updates and token animations.
-  - All modes functional, with performance within limits.
+  - ✅ Simulate P/T nets with correct marking updates and token animations.
+  - ✅ All modes functional, with performance within limits.
   - Learn basic editing/simulation in < 5 minutes (tested via user feedback).
 
 ### Phase 2: Algebraic Petri Net Extension (12 weeks)

@@ -18,7 +18,7 @@ npm install
 ```bash
 npm run dev
 ```
-The app will open at `http://localhost:5173`. If a port is busy, Vite may auto-pick another port and show it in the terminal.
+The app will open at `http://localhost:3000`. If a port is busy, Vite may auto-pick another port and show it in the terminal.
 
 4) Run tests (optional)
 - Unit tests: `npm test`

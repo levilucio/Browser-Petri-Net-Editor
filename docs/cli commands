@@ -15,6 +15,8 @@ Set-Location -Path .\petri-net-app; npm test -- --coverage
 # Run end-to-end tests
 Set-Location -Path .\petri-net-app; npm run test:e2e
 
+Set-Location -Path .\petri-net-app; npm run test:e2e -- tests/simulation.spec.js
+
 # Run tests in watch mode
 Set-Location -Path .\petri-net-app; npm run test:watch
 
