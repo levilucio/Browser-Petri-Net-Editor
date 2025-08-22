@@ -92,7 +92,7 @@ const AppWrapper = () => {
       }
     };
 
-    // Expose Petri net state for e2e testing
+    // Expose Petri net state and current mode for e2e testing
     useEffect(() => {
       // Always expose state for tests, regardless of environment
       window.__PETRI_NET_STATE__ = {
@@ -100,7 +100,15 @@ const AppWrapper = () => {
         transitions: elements.transitions,
         arcs: elements.arcs
       };
-    }, [elements.places, elements.transitions, elements.arcs]);
+      window.__PETRI_NET_MODE__ = mode;
+      try {
+        // Expose simulator core for E2E
+        const anyWin = window;
+        if (!anyWin.__PETRI_NET_SIM_CORE__ && simulatorCore) {
+          anyWin.__PETRI_NET_SIM_CORE__ = simulatorCore;
+        }
+      } catch (_) {}
+    }, [elements.places, elements.transitions, elements.arcs, mode]);
 
     // Removed handleScroll and handleZoom functions - managed by CanvasManager
 

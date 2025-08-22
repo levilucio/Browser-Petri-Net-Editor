@@ -105,6 +105,7 @@ class PetriNetSimulator:
         self.transitions = {}
         self.arcs = []
         self.petri_net = petri_net_data
+        self.last_fired_transition_id = None
         
         # Initialize places (preserve all fields from JS, normalize essentials)
         for place_data in petri_net_data.get('places', []):
@@ -203,6 +204,9 @@ class PetriNetSimulator:
             weight = arc.get('weight', 1)
             place['tokens'] = place['tokens'] + weight
         
+        # Track last fired transition for external inspection
+        self.last_fired_transition_id = str(transition_id)
+        
         # Return deep-copied state to avoid proxy identity reuse issues in JS
         import copy
         return copy.deepcopy(self.get_current_state())
@@ -257,7 +261,8 @@ class PetriNetSimulator:
         return {
             'places': [copy.deepcopy(p) for p in self.places.values()],
             'transitions': [copy.deepcopy(t) for t in self.transitions.values()],
-            'arcs': [copy.deepcopy(a) for a in self.arcs]
+            'arcs': [copy.deepcopy(a) for a in self.arcs],
+            'lastFiredTransitionId': self.last_fired_transition_id
         }
     
     def load_from(self, petri_net_data):
@@ -428,7 +433,16 @@ result
       
       // Convert Pyodide result to plain JavaScript objects (no PyProxies/Maps)
       const jsResult = result.toJs({ dict_converter: Object.fromEntries });
-      return this.validateResult(jsResult);
+      const validated = this.validateResult(jsResult);
+      // Bubble up last fired transition id to window for tests
+      try {
+        if (typeof window !== 'undefined' && jsResult && jsResult.lastFiredTransitionId) {
+          window.__LAST_FIRED_TRANSITION_ID__ = String(jsResult.lastFiredTransitionId);
+          const log = Array.isArray(window.__FIRED_TRANSITIONS__) ? window.__FIRED_TRANSITIONS__ : [];
+          window.__FIRED_TRANSITIONS__ = [...log, String(jsResult.lastFiredTransitionId)];
+        }
+      } catch (_) {}
+      return validated;
       
     } catch (error) {
       console.error('Error executing simulation step:', error);
@@ -454,7 +468,16 @@ result
       
       // Convert Pyodide result to plain JavaScript objects (no PyProxies/Maps)
       const jsResult = result.toJs({ dict_converter: Object.fromEntries });
-      return this.validateResult(jsResult);
+      const validated = this.validateResult(jsResult);
+      // Bubble up last fired transition id to window for tests
+      try {
+        if (typeof window !== 'undefined' && jsResult && jsResult.lastFiredTransitionId) {
+          window.__LAST_FIRED_TRANSITION_ID__ = String(jsResult.lastFiredTransitionId);
+          const log = Array.isArray(window.__FIRED_TRANSITIONS__) ? window.__FIRED_TRANSITIONS__ : [];
+          window.__FIRED_TRANSITIONS__ = [...log, String(jsResult.lastFiredTransitionId)];
+        }
+      } catch (_) {}
+      return validated;
       
     } catch (error) {
       console.error('Error firing transition:', error);

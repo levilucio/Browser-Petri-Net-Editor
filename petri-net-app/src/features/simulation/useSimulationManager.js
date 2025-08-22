@@ -316,6 +316,14 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       }, 50);
       
       console.log(`=== Successfully fired transition ${transitionId} ===`);
+      // Expose last fired transition for E2E tests
+      try {
+        if (typeof window !== 'undefined') {
+          window.__LAST_FIRED_TRANSITION_ID__ = transitionId;
+          const log = Array.isArray(window.__FIRED_TRANSITIONS__) ? window.__FIRED_TRANSITIONS__ : [];
+          window.__FIRED_TRANSITIONS__ = [...log, transitionId];
+        }
+      } catch (_) {}
     } catch (error) {
       console.error(`Error firing transition ${transitionId}:`, error);
       console.error('Error details:', {
