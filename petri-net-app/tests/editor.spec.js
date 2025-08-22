@@ -122,7 +122,7 @@ test.describe('Petri Net Editor', () => {
     // Compute arc midpoint from actual element positions and click to select the arc
     const { midX, midY } = await page.evaluate(() => {
       // @ts-ignore - test hook
-      const s = window.__PETRI_NET_STATE__;
+      const s = window.__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
       const p = s.places[0];
       const t = s.transitions[0];
       return { midX: (p.x + t.x) / 2, midY: (p.y + t.y) / 2 };
