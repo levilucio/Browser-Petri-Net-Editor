@@ -7,9 +7,8 @@
 import simulatorCoreInstance, { SimulatorCore } from './simulator-core';
 export { simulatorCoreInstance as simulatorCore, SimulatorCore };
 
-// Individual simulators
+// Individual simulator (Pyodide only)
 export { PyodideSimulator } from './pyodide-simulator';
-export { JsPetriNetSimulator } from './js-simulator';
 
 // Conflict resolution
 export { ConflictResolver } from './conflict-resolver';

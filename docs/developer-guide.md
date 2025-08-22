@@ -6,9 +6,7 @@ This guide helps developers understand the structure, key patterns, and testing 
 
 - **Front end**: A React application (Vite) renders the editor, canvas, panels, and simulation UI. The canvas is built with Konva (`react-konva`). Most logic lives in feature modules under `src/features/` and shared context under `src/contexts/`.
 - **Backend**: There is no traditional server-side backend for the core app. The app runs entirely in the browser. For development, Vite serves the app and static assets. A small `server.cjs` exists to support certain local flows, but persistence and simulation happen client-side.
-- **Simulation engine(s)**: Two implementations exist:
-  - A JavaScript-based simulator (fast, in `src/features/simulation/js-simulator.js`).
-  - A Python-based simulator running in Pyodide (`src/features/simulation/pyodide-simulator.js`) that loads Python sources from `src/utils/python/*.py` for parity with Python reference logic.
+- **Simulation engine**: A Python-based simulator running in Pyodide (`src/features/simulation/pyodide-simulator.js`) that loads Python sources from `src/utils/python/*.py` for parity with Python reference logic.
 
 ### Core React Patterns Used
 
@@ -39,7 +37,6 @@ This guide helps developers understand the structure, key patterns, and testing 
   - `src/features/simulation/index.js` – exports the simulator core factory.
   - `src/features/simulation/simulator-core.js` – unified API consumed by UI (`step`, `run`, `stop`, `setSimulationMode`, etc.).
   - `src/features/simulation/conflict-resolver.js` – logic for non-deterministic vs maximal firing sets.
-  - `src/features/simulation/js-simulator.js` – pure JS simulation engine implementation.
   - `src/features/simulation/pyodide-simulator.js` – Python-backed engine via Pyodide loading `src/utils/python/petri_net_simulator.py`.
 - Modes:
   - `single`: randomly selects one enabled transition to fire on step.
