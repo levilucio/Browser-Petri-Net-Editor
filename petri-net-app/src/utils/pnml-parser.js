@@ -169,10 +169,11 @@ export function parsePNML(pnmlString) {
           }
         }
         
-        // Create place object
+        // Create place object (standardize on label but keep name for compatibility)
         const placeObj = {
           id: placeId,
           name: name,
+          label: name,
           x: x,
           y: y,
           tokens: tokens
@@ -212,10 +213,11 @@ export function parsePNML(pnmlString) {
         // Get position
         const { x, y } = getPosition(transition);
         
-        // Create transition object
+        // Create transition object (standardize on label but keep name for compatibility)
         const transitionObj = {
           id: transitionId,
           name: name,
+          label: name,
           x: x,
           y: y
         };
@@ -382,10 +384,10 @@ export function generatePNML(petriNetJson) {
       const placeElement = xmlDoc.createElement('place');
       placeElement.setAttribute('id', place.id);
       
-      // Add name
+      // Add name (prefer label if present)
       const nameElement = xmlDoc.createElement('name');
       const textElement = xmlDoc.createElement('text');
-      textElement.textContent = place.name || `P${place.id}`;
+      textElement.textContent = (place.label || place.name || `P${place.id}`);
       nameElement.appendChild(textElement);
       placeElement.appendChild(nameElement);
       
@@ -415,10 +417,10 @@ export function generatePNML(petriNetJson) {
       const transitionElement = xmlDoc.createElement('transition');
       transitionElement.setAttribute('id', transition.id);
       
-      // Add name
+      // Add name (prefer label if present)
       const nameElement = xmlDoc.createElement('name');
       const textElement = xmlDoc.createElement('text');
-      textElement.textContent = transition.name || `T${transition.id}`;
+      textElement.textContent = (transition.label || transition.name || `T${transition.id}`);
       nameElement.appendChild(textElement);
       transitionElement.appendChild(nameElement);
       

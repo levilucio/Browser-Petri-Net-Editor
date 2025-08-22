@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { exportToPNML, importFromPNML } from '../utils/python/index';
 
 /**
@@ -8,6 +8,13 @@ function ImportExportPanel({ elements, setElements, updateHistory }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  
+  // Auto-dismiss success messages after 5 seconds
+  useEffect(() => {
+    if (!success) return;
+    const timeoutId = setTimeout(() => setSuccess(null), 5000);
+    return () => clearTimeout(timeoutId);
+  }, [success]);
 
   /**
    * Export the current Petri net to PNML format and download it
