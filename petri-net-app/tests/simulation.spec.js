@@ -1,3 +1,4 @@
+/// <reference path="./types/global.d.ts" />
 // @ts-check
 import { test, expect } from '@playwright/test';
 import path from 'path';
@@ -55,12 +56,20 @@ test.describe('Simple Simulation', () => {
   test('steps fire transitions sequentially from PNML via Load', async ({ page }) => {
     await page.goto('/');
 
-    // Open file chooser and load PNML
+    // Open file chooser and load PNML (robust against UI races)
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net1.pnml');
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.getByRole('button', { name: 'Load' }).click(),
-    ]);
+    const loadBtn = page.getByRole('button', { name: 'Load' });
+    await loadBtn.waitFor({ state: 'visible' });
+    let fileChooser;
+    try {
+      const fcPromise = page.waitForEvent('filechooser', { timeout: 5000 });
+      await loadBtn.click();
+      fileChooser = await fcPromise;
+    } catch (_) {
+      const fcPromise2 = page.waitForEvent('filechooser', { timeout: 10000 });
+      await loadBtn.click();
+      fileChooser = await fcPromise2;
+    }
     await fileChooser.setFiles(pnmlPath);
 
     // Wait for simulator panel and for Step to become enabled
@@ -121,7 +130,7 @@ test.describe('Simple Simulation', () => {
 
     // Force set maximal simulation mode via simulator API to avoid UI race
     await page.evaluate(async () => {
-      const anyWin = window;
+      const anyWin = /** @type {any} */ (window);
       const core = anyWin.__PETRI_NET_SIM_CORE__ || anyWin.simulatorCore || null;
       if (core && typeof core.setSimulationMode === 'function') {
         try { await core.setSimulationMode('maximal'); } catch (_) {}
@@ -157,7 +166,7 @@ test.describe('Simple Simulation', () => {
     await stepBtn.click();
     await page.waitForTimeout(300);
     const checkFinal = async () => page.evaluate(() => {
-      const s = window.__PETRI_NET_STATE__;
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return { done: false };
       const find = (x, y) => (s?.places?.find(p => Math.abs(p.x - x) < 2 && Math.abs(p.y - y) < 2) || { tokens: 0 }).tokens;
       const ptop = find(400, 140);
@@ -177,18 +186,26 @@ test.describe('Simple Simulation', () => {
   test('runs to completion via Simulate on petri-net3.pnml', async ({ page }) => {
     await page.goto('/');
 
-    // Load PN3
+    // Load PN3 (robust file chooser handling)
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net3.pnml');
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.getByRole('button', { name: 'Load' }).click(),
-    ]);
-    await fileChooser.setFiles(pnmlPath);
+    const loadBtnSim = page.getByRole('button', { name: 'Load' });
+    await loadBtnSim.waitFor({ state: 'visible' });
+    let fileChooserSim;
+    try {
+      const fcPromise = page.waitForEvent('filechooser', { timeout: 5000 });
+      await loadBtnSim.click();
+      fileChooserSim = await fcPromise;
+    } catch (_) {
+      const fcPromise2 = page.waitForEvent('filechooser', { timeout: 10000 });
+      await loadBtnSim.click();
+      fileChooserSim = await fcPromise2;
+    }
+    await fileChooserSim.setFiles(pnmlPath);
 
     // Helper to compute number of enabled transitions from exposed state
     async function countEnabled() {
       return page.evaluate(() => {
-        const s = window.__PETRI_NET_STATE__;
+        const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
         if (!s) return 0;
         const placesById = new Map(s.places.map(p => [p.id, p]));
         const arcs = s.arcs || [];
@@ -209,6 +226,12 @@ test.describe('Simple Simulation', () => {
       });
     }
 
+    // Ensure simulator is ready before starting simulate
+    await page.waitForFunction(() => {
+      const step = document.querySelector('[data-testid="sim-step"]');
+      return !!(step && !step.hasAttribute('disabled'));
+    }, { timeout: 60000 });
+
     // Start simulate (continuous)
     const stopBtn = page.getByTestId('sim-stop');
     await page.getByTestId('sim-simulate').click();
@@ -218,7 +241,7 @@ test.describe('Simple Simulation', () => {
     await expect(stopBtn).toBeDisabled({ timeout: 60000 });
     // Verify no transitions remain enabled
     await page.waitForFunction(() => {
-      const s = window.__PETRI_NET_STATE__;
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return false;
       const placesById = new Map(s.places.map(p => [p.id, p]));
       const arcs = s.arcs || [];
@@ -260,7 +283,7 @@ test.describe('Simple Simulation', () => {
     await expect(stopBtn).toBeDisabled({ timeout: 60000 });
     // Assert no enabled transitions remain
     await page.waitForFunction(() => {
-      const s = window.__PETRI_NET_STATE__;
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return false;
       const placesById = new Map(s.places.map(p => [p.id, p]));
       const arcs = s.arcs || [];
@@ -305,7 +328,7 @@ test.describe('Simple Simulation', () => {
       // Wait for state change and read last fired transition directly from window
 
       // Read transitions present before step for validation
-      const transitionIds = await page.evaluate(() => (window.__PETRI_NET_STATE__?.transitions || []).map(t => t.id));
+      const transitionIds = await page.evaluate(() => (((/** @type {any} */ (window)).__PETRI_NET_STATE__?.transitions) || []).map(t => t.id));
       expect(Array.isArray(transitionIds)).toBeTruthy();
       expect(transitionIds.length).toBeGreaterThanOrEqual(2);
 
@@ -314,7 +337,7 @@ test.describe('Simple Simulation', () => {
 
       // Wait for state to reflect the firing: P1 becomes 0, P2 becomes 1
       await page.waitForFunction(() => {
-        const s = window.__PETRI_NET_STATE__;
+        const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
         if (!s) return false;
         const find = (x, y) => (s?.places?.find(p => Math.abs(p.x - x) < 2 && Math.abs(p.y - y) < 2) || { tokens: 0 }).tokens;
         const p1 = find(320, 260);
@@ -322,7 +345,7 @@ test.describe('Simple Simulation', () => {
         return p1 === 0 && p2 === 1;
       }, { timeout: 5000 });
 
-      const firedId = await page.evaluate(() => window.__LAST_FIRED_TRANSITION_ID__ || 'unknown');
+      const firedId = await page.evaluate(() => (((/** @type {any} */ (window)).__LAST_FIRED_TRANSITION_ID__) || 'unknown'));
       // Ensure the fired id was one of the two transitions in the net
       expect(transitionIds).toContain(firedId);
       return firedId;
