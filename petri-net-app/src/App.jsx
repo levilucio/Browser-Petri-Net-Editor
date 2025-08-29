@@ -6,7 +6,6 @@ import PetriNetPanel from './components/PetriNetPanel';
 import SimulationManager from './features/simulation/SimulationManager';
 // Element/Grid components imports removed as CanvasManager handles them
 import SettingsDialog from './components/SettingsDialog';
-import { v4 as uuidv4 } from 'uuid'; // Keep for element creation if any remains here, or for other UUID needs.
 import CanvasManager from './features/canvas/CanvasManager'; // Import CanvasManager
 import { useElementManager } from './features/elements/useElementManager'; // Import the new hook
 
@@ -64,7 +63,6 @@ const AppWrapper = () => {
     // Function to handle auto-layout of Petri net elements
     const handleAutoLayout = () => {
       if (!elements || (!elements.places.length && !elements.transitions.length)) {
-        // console.log("Auto-layout skipped: No elements to layout.");
         return;
       }
       if (!virtualCanvasDimensions || !virtualCanvasDimensions.width || !virtualCanvasDimensions.height) {
@@ -150,7 +148,6 @@ const AppWrapper = () => {
         programmaticScrollRef.current = false; // Reset the flag
         return; // Ignore programmatically triggered scroll events
       }
-      console.log('Native scroll event:', event.target.scrollLeft, event.target.scrollTop);
       if (setCanvasScroll) {
         setCanvasScroll({
           x: event.target.scrollLeft,
@@ -183,16 +180,7 @@ const AppWrapper = () => {
       }
     }, [localCanvasContainerDivRef, setContainerRef]);
 
-    const handleFileOpen = async (event) => {
-      console.warn("handleFileOpen function called - placeholder, no action.");
-      // Actual implementation would involve reading file content and calling setElements
-      // Example: const file = event.target.files[0]; ... reader.onload ... setElements(...);
-    };
-
-    const handleFileSave = () => {
-      console.warn("handleFileSave function called - placeholder, no action.");
-      // Actual implementation would involve creating a JSON file from 'elements' and triggering download
-    };
+    // Removed unused file open/save placeholders
 
     // Handle scroll events on fixed elements without using preventDefault
     const handlePreventScroll = (e) => {
@@ -256,8 +244,6 @@ const AppWrapper = () => {
             mode={mode}
             setMode={setMode} 
             onNew={clearAllElements}
-            onOpen={handleFileOpen}
-            onSave={handleFileSave}
             onUndo={handleUndo} 
             canUndo={canUndo}   
             onRedo={handleRedo} 

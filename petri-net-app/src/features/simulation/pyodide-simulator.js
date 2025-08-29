@@ -22,12 +22,7 @@ export class PyodideSimulator {
    * Initialize the simulator with a Petri net
    */
   async initialize(petriNet, options = {}) {
-    console.log('=== Starting Pyodide simulator initialization ===');
-    console.log('Petri net data:', {
-      places: petriNet.places?.length || 0,
-      transitions: petriNet.transitions?.length || 0,
-      arcs: petriNet.arcs?.length || 0
-    });
+    // Initialize simulator (reduced logging)
     
     // Always initialize, even with empty Petri net
     this.petriNet = petriNet || { places: [], transitions: [], arcs: [] };
@@ -35,19 +30,13 @@ export class PyodideSimulator {
     
     try {
       // Load Pyodide instance
-      console.log('Loading Pyodide instance...');
       this.pyodide = await loadPyodideInstance();
-      console.log('Pyodide instance loaded successfully');
       
       // Set up Python environment
-      console.log('Setting up Python environment...');
       await this.setupPythonEnvironment();
-      console.log('Python environment setup complete');
       
       // Create simulator instance
-      console.log('Creating simulator instance...');
       await this.createSimulatorInstance(options);
-      console.log('Simulator instance created successfully');
       
       // Verify the simulator is actually ready before marking as initialized
       if (!this.simulator || !this.pyodide) {
@@ -61,21 +50,20 @@ export class PyodideSimulator {
 test_result = simulator.get_enabled_transitions()
 print(f"Test successful - enabled transitions: {test_result}")
 `);
-        console.log('Simulator functionality test passed');
+        // basic functionality verified
       } catch (error) {
         console.error('Simulator functionality test failed:', error);
         throw new Error('Simulator created but basic functionality test failed');
       }
       
              this.isInitialized = true;
-       console.log('=== Pyodide simulator initialization completed successfully ===');
+       // initialization completed
        
        // Check for initial transition state and emit event
        await this.checkTransitionStateChanges();
       
     } catch (error) {
-      console.error('=== Failed to initialize Pyodide simulator ===');
-      console.error('Error details:', error);
+      console.error('Failed to initialize Pyodide simulator:', error);
       throw error;
     }
   }
@@ -293,7 +281,7 @@ class PetriNetSimulator:
 
     const simulationMode = options.simulationMode || 'single';
     
-    console.log('Creating simulator instance with mode:', simulationMode);
+    // create instance with mode
     
     try {
       // Set the Petri net data in Python context
@@ -319,7 +307,7 @@ simulator = PetriNetSimulator(petri_net_data, simulation_mode)
         this.isInitialized = true;
       }
       
-      console.log('Simulator instance created successfully');
+      // instance created
       
     } catch (error) {
       console.error('Error creating simulator instance:', error);
@@ -340,7 +328,7 @@ simulator = PetriNetSimulator(petri_net_data, simulation_mode)
 simulator.set_simulation_mode("${mode}")
 `);
       this.simulationMode = mode;
-      console.log('Simulation mode changed to:', mode);
+      // mode changed
     } catch (error) {
       console.error('Error setting simulation mode:', error);
       throw error;
@@ -424,7 +412,7 @@ result
     }
 
     try {
-      console.log(`Executing simulation step in ${this.simulationMode} mode`);
+      // executing simulation step
       
       const result = await this.pyodide.runPythonAsync(`
 result = simulator.step_simulation()
@@ -459,7 +447,7 @@ result
     }
 
     try {
-      console.log(`Firing transition: ${transitionId}`);
+      // firing transition
       
       const result = await this.pyodide.runPythonAsync(`
 result = simulator.fire_transition("${transitionId}")
@@ -491,11 +479,10 @@ result
   async update(petriNet) {
     // Only update if the Petri net has actually changed
     if (JSON.stringify(this.petriNet) === JSON.stringify(petriNet)) {
-      console.log('Petri net unchanged, skipping update');
       return;
     }
 
-    console.log('Updating simulator with new Petri net state (in-place reload)');
+    // updating simulator with new Petri net state (in-place reload)
 
     if (this.simulator && this.pyodide) {
       try {
@@ -508,7 +495,7 @@ simulator.load_from(petri_net_data)
         // Update the JS-side reference AFTER successful reload
         this.petriNet = petriNet;
 
-        console.log('Simulator reloaded successfully');
+        // reloaded successfully
 
         // Check for transition state changes after update
         await this.checkTransitionStateChanges();
@@ -520,7 +507,7 @@ simulator.load_from(petri_net_data)
           this.petriNet = petriNet;
           await this.checkTransitionStateChanges();
         } catch (recreateError) {
-          console.error('Fallback recreate after reload failure also failed:', recreateError);
+          console.error('Recreate after reload failure also failed:', recreateError);
         }
       }
     } else {
@@ -664,12 +651,12 @@ print(f"Functionality test: {test_places} places, {test_transitions} transitions
    * Add event listener for transition state changes
    */
   addEventListener(eventType, callback) {
-    console.log(`addEventListener: Adding listener for ${eventType}`);
+    // add event listener
     if (!this.eventListeners.has(eventType)) {
       this.eventListeners.set(eventType, []);
     }
     this.eventListeners.get(eventType).push(callback);
-    console.log(`addEventListener: Total listeners for ${eventType}:`, this.eventListeners.get(eventType).length);
+    // listeners count updated
     // Immediately emit current state for this event type so late listeners get synced
     if (eventType === 'transitionsChanged') {
       // Fire and forget; consumers don't care about awaiting here
@@ -694,21 +681,16 @@ print(f"Functionality test: {test_places} places, {test_transitions} transitions
    * Emit event to all listeners
    */
   emitEvent(eventType, data) {
-    console.log(`emitEvent: Emitting ${eventType} event with data:`, data);
-    console.log(`emitEvent: Number of listeners:`, this.eventListeners.has(eventType) ? this.eventListeners.get(eventType).length : 0);
+    // emit event
     
     if (this.eventListeners.has(eventType)) {
       this.eventListeners.get(eventType).forEach((callback, index) => {
         try {
-          console.log(`emitEvent: Calling listener ${index}`);
           callback(data);
-          console.log(`emitEvent: Listener ${index} completed successfully`);
         } catch (error) {
           console.error(`emitEvent: Error in event listener ${index}:`, error);
         }
       });
-    } else {
-      console.log(`emitEvent: No listeners for event type: ${eventType}`);
     }
   }
 
@@ -717,17 +699,12 @@ print(f"Functionality test: {test_places} places, {test_transitions} transitions
    */
   async checkTransitionStateChanges() {
     if (!this.isInitialized || !this.simulator) {
-      console.log('checkTransitionStateChanges: Simulator not ready');
       return;
     }
 
     try {
       const currentEnabled = await this.getEnabledTransitions();
-      console.log('checkTransitionStateChanges: Current enabled transitions:', currentEnabled);
-      console.log('checkTransitionStateChanges: Last enabled transitions:', this.lastEnabledTransitions);
-      
       const hasChanged = JSON.stringify(currentEnabled.sort()) !== JSON.stringify(this.lastEnabledTransitions.sort());
-      console.log('checkTransitionStateChanges: Has changed:', hasChanged);
       
       if (hasChanged) {
         const oldEnabled = [...this.lastEnabledTransitions];
@@ -739,17 +716,9 @@ print(f"Functionality test: {test_places} places, {test_transitions} transitions
           previouslyEnabled: oldEnabled,
           hasEnabled: currentEnabled.length > 0
         };
-        
-        console.log('checkTransitionStateChanges: Emitting event with data:', eventData);
         this.emitEvent('transitionsChanged', eventData);
-        
-        console.log('Transition state changed:', {
-          from: oldEnabled,
-          to: currentEnabled,
-          hasEnabled: currentEnabled.length > 0
-        });
       } else {
-        console.log('checkTransitionStateChanges: No change detected');
+        // no change
       }
     } catch (error) {
       console.error('Error checking transition state changes:', error);

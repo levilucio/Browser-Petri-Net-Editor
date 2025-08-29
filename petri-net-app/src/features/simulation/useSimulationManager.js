@@ -22,16 +22,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
   useEffect(() => {
     latestElementsRef.current = elements;
     const manageSimulator = async () => {
-      console.log('manageSimulator: Elements received:', {
-        hasElements: !!elements,
-        hasPlaces: !!elements?.places,
-        hasTransitions: !!elements?.transitions,
-        hasArcs: !!elements?.arcs,
-        placesLength: elements?.places?.length || 0,
-        transitionsLength: elements?.transitions?.length || 0,
-        arcsLength: elements?.arcs?.length || 0,
-        elements: elements
-      });
       
       // Only initialize simulator when the PN is structurally complete
       // Require at least one place, one transition, and at least one arc
@@ -41,9 +31,7 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         // Always try to initialize simulator if not ready
         if (!simulatorCore.isReady || !(await simulatorCore.isReady())) {
           try {
-            console.log('Simulator not ready, attempting to initialize...');
             await simulatorCore.initialize(elements, { maxTokens: 20 });
-            console.log('Simulator initialized successfully');
           } catch (error) {
             console.error('Failed to initialize simulator:', error);
           }
@@ -51,18 +39,13 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
 
         // Always update simulator with latest elements (keeps it in sync)
         try {
-          console.log('Updating simulator with latest elements');
           await simulatorCore.update(latestElementsRef.current);
-          console.log('Simulator update completed successfully');
           
                   // After update, check if transitions are enabled and update UI state
         if (simulatorCore.isReady && await simulatorCore.isReady()) {
           const enabled = await simulatorCore.getEnabledTransitions();
           setEnabledTransitionIds(enabled || []);
           setIsSimulatorReady(enabled && enabled.length > 0);
-          
-          console.log('Manual check - Enabled transitions:', enabled);
-          console.log('Manual check - Setting isSimulatorReady to:', enabled && enabled.length > 0);
         }
         } catch (error) {
           console.error('Error updating simulator:', error);
@@ -186,7 +169,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
     clearError();
     setEnabledTransitionIds([]);
     
-    console.log('All simulations stopped');
   }, [clearError]);
 
   // Refresh enabled transitions using simulator
@@ -258,7 +240,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
   // Fire a single transition
   const handleFireTransition = useCallback(async (transitionId) => {
     try {
-      console.log(`=== Starting to fire transition ${transitionId} ===`);
       
       // Check if simulator is properly initialized
       if (simulatorCore.getSimulatorType && simulatorCore.getSimulatorType() === 'none') {
@@ -267,15 +248,7 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       
       await simulatorCore.activateSimulation(false);
       
-      console.log(`Firing transition ${transitionId}`);
       const newElements = await simulatorCore.fireTransition(transitionId);
-      
-      console.log('Received new elements from simulator:', {
-        hasNewElements: !!newElements,
-        type: typeof newElements,
-        isArray: Array.isArray(newElements),
-        keys: newElements ? Object.keys(newElements) : null
-      });
       
       // Validate the returned Petri net structure
       if (!newElements || typeof newElements !== 'object') {
@@ -287,11 +260,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
           !newElements.arcs || !Array.isArray(newElements.arcs)) {
         throw new Error('Incomplete Petri net structure returned from simulator');
       }
-      
-      console.log('Setting new elements after firing transition:', 
-        `Places: ${newElements.places.length}, ` +
-        `Transitions: ${newElements.transitions.length}, ` +
-        `Arcs: ${newElements.arcs.length}`);
       
       // Create a deep copy for React state update
       const elementsCopy = JSON.parse(JSON.stringify(newElements));
@@ -315,7 +283,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         simulatorCore.activateSimulation();
       }, 50);
       
-      console.log(`=== Successfully fired transition ${transitionId} ===`);
       // Expose last fired transition for E2E tests
       try {
         if (typeof window !== 'undefined') {
@@ -338,7 +305,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
   // Execute one simulation step
   const stepSimulation = useCallback(async () => {
     try {
-      console.log('=== Starting step simulation ===');
       
       // Check if simulator is properly initialized
       if (simulatorCore.getSimulatorType && simulatorCore.getSimulatorType() === 'none') {
@@ -358,7 +324,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       if (mode === 'maximal') {
         const enabled = await simulatorCore.getEnabledTransitions();
         if (!enabled || enabled.length === 0) {
-          console.log('No enabled transitions for maximal step');
           return;
         }
         const enabledObjs = (enabled || []).map((t) => {
@@ -378,12 +343,10 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         const setsArray = Array.isArray(nonConflictingSets) ? nonConflictingSets : Array.from(nonConflictingSets || []);
         const candidate = setsArray.length ? setsArray[Math.floor(Math.random() * setsArray.length)] : [];
         const chosenSet = Array.isArray(candidate) ? candidate : (candidate ? [candidate] : []);
-        console.log('Maximal step - firing set:', (Array.isArray(chosenSet) ? chosenSet : []).map((t) => t.id));
         for (const t of (Array.isArray(chosenSet) ? chosenSet : [])) {
           await handleFireTransition(t.id);
         }
         await refreshEnabledTransitions();
-        console.log('=== Maximal step completed ===');
         return;
       }
 
@@ -410,7 +373,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         await refreshEnabledTransitions();
       }
       
-      console.log('=== Step simulation completed ===');
     } catch (error) {
       console.error('Error in step simulation:', error);
       console.error('Step simulation error details:', {
@@ -430,7 +392,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       await simulatorCore.activateSimulation();
       const enabled = await simulatorCore.getEnabledTransitions();
       if (!enabled || enabled.length === 0) {
-        console.log('No enabled transitions available, cannot start simulation');
         return;
       }
       setIsContinuousSimulating(true);
@@ -472,10 +433,8 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
 
         try {
           const enabled = await simulatorCore.getEnabledTransitions();
-          console.log('Run simulation - enabled transitions:', enabled);
           
           if (!enabled || enabled.length === 0) {
-            console.log('No enabled transitions available, stopping run');
             isRunningRef.current = false;
             setIsRunning(false);
             return;
@@ -501,7 +460,6 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
           const setsArray = Array.isArray(nonConflictingSets) ? nonConflictingSets : Array.from(nonConflictingSets || []);
           const candidate = setsArray.length ? setsArray[Math.floor(Math.random() * setsArray.length)] : [];
           const chosenSet = Array.isArray(candidate) ? candidate : (candidate ? [candidate] : []);
-          console.log('Run simulation - chosen concurrent set:', (Array.isArray(chosenSet) ? chosenSet : []).map((t) => t.id));
 
           // Fire all transitions in the chosen set sequentially (equivalent to concurrent for conflict-free set)
           for (const t of (Array.isArray(chosenSet) ? chosenSet : [])) {

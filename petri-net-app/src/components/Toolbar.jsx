@@ -125,46 +125,7 @@ const Toolbar = ({
           throw new Error('Invalid data structure in the imported file');
         }
         
-        // Use our arc debugging tool if available
-        if (window.analyzePNML) {
-          // Running enhanced PNML analysis on the imported file
-          const analysis = window.analyzePNML(fileContent);
-          // Analysis complete
-          // Enhanced PNML analysis completed
-          
-          // Check for specific arc issues
-          if (analysis && analysis.differences && analysis.differences.foundButNotParsed.length > 0) {
-            console.warn(`Warning: ${analysis.differences.foundButNotParsed.length} arcs were found in the PNML but not properly parsed`);
-          }
-          
-          // Try to recover arcs if our analysis found more than the parser did
-          if (analysis && analysis.directAnalysis.arcs > 0 && 
-             (petriNetJson.arcs.length === 0 || analysis.directAnalysis.arcs > petriNetJson.arcs.length)) {
-            // Attempting to recover missing arcs from direct analysis
-            const recoveredArcs = analysis.directAnalysis.details.map(arc => ({
-              id: arc.id,
-              source: arc.source,
-              target: arc.target,
-              type: arc.type || 'place-to-transition', // Default type if unknown
-              weight: 1,
-              sourceDirection: 'north',
-              targetDirection: 'south'
-            }));
-            
-            // Add recovered arcs to the result - create a new object instead of reassigning
-            const enhancedPetriNetJson = {
-              places: petriNetJson.places || [],
-              transitions: petriNetJson.transitions || [],
-              arcs: recoveredArcs
-            };
-            
-            // Use the enhanced version from now on
-            // Recovered arcs from direct analysis
-            
-            // Continue with the enhanced version
-            return enhancedPetriNetJson;
-          }
-        }
+        // No ad-hoc PNML debug analysis in production code
         
         // Ensure the required arrays exist
         const safeJson = {
