@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-// Konva imports removed as CanvasManager handles them
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
 import PetriNetPanel from './components/PetriNetPanel';
@@ -54,6 +53,9 @@ const AppWrapper = () => {
     } = usePetriNet();
 
     const { handleDeleteElement, clearAllElements } = useElementManager();
+    
+    // Get simulator core for testing
+    const simulatorCore = window.__PETRI_NET_SIM_CORE__;
 
     const handleAutoLayout = () => {
       if (!elements || (!elements.places.length && !elements.transitions.length)) {
