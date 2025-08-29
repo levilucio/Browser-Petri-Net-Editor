@@ -4,6 +4,7 @@
  * JSON representation and standard PNML (Petri Net Markup Language) XML format.
  */
 import { parsePNML, generatePNML } from '../pnml-parser';
+import { parseADT, generateADT, validateADT } from '../adt-parser';
 
 /**
  * Convert the Petri net editor's JSON representation to PNML XML string
@@ -43,4 +44,31 @@ export async function importFromPNML(pnmlString) {
     console.error("Error importing from PNML:", error);
     throw error;
   }
+}
+
+/**
+ * Parse ADT XML string
+ * @param {string} xml
+ * @returns {Promise<{ types: any[] }>}
+ */
+export async function importADT(xml) {
+  return parseADT(xml);
+}
+
+/**
+ * Validate ADT structure
+ * @param {{ types: any[] }} adt
+ * @returns {Promise<{ valid: boolean, errors: string[] }>}
+ */
+export async function validateADTSpec(adt) {
+  return validateADT(adt);
+}
+
+/**
+ * Generate ADT XML from JSON
+ * @param {{ types: any[] }} adt
+ * @returns {Promise<string>}
+ */
+export async function exportADT(adt) {
+  return generateADT(adt);
 }

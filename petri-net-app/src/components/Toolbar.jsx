@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { exportToPNML, importFromPNML } from '../utils/python/index';
 // Import icons for simulation controls
 import { simulatorCore } from '../features/simulation';
+import { useAdtRegistry } from '../contexts/AdtContext';
+import AdtDialog from './AdtDialog';
 
 const Toolbar = ({ 
   mode, 
@@ -27,6 +29,13 @@ const Toolbar = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [isAdtOpen, setIsAdtOpen] = useState(false);
+  let adtRegistry = null;
+  try {
+    adtRegistry = useAdtRegistry();
+  } catch (_) {
+    adtRegistry = null;
+  }
   
   // Auto-dismiss success messages after 5 seconds
   useEffect(() => {
@@ -343,6 +352,12 @@ const Toolbar = ({
       '0 1px 0 rgba(255, 255, 255, 0.5), 0 -1px 0 rgba(0, 0, 0, 0.2)', // Engraved effect for non-selected buttons
   });
   
+  // Open in-app ADT dialog
+  const handleOpenAdtManager = () => {
+    if (!adtRegistry) { setError('ADT Manager unavailable in this context'); return; }
+    setIsAdtOpen(true);
+  };
+
   // Additional style for button hover state - will be applied via JavaScript
   document.addEventListener('DOMContentLoaded', () => {
     // Add hover effects to all buttons in the toolbar
@@ -536,6 +551,22 @@ const Toolbar = ({
           opacity: 0.85
         }}></div>
 
+        {/* Insert ADT Manager button between Editing and History */}
+        <div className="adt-tools p-2">
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">ADT Manager</h3>
+          <div className="flex justify-between">
+            <button
+              style={buttonStyle(false)}
+              onClick={handleOpenAdtManager}
+              title="Open ADT Manager"
+              data-testid="toolbar-adt-manager"
+            >
+              ADT Manager
+            </button>
+          </div>
+        </div>
+
+        {/* History Group */}
         <div className="history-tools p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">History</h3>
           <div className="flex justify-between">
@@ -584,6 +615,11 @@ const Toolbar = ({
         </div>
       </div>
       
+      {/* ADT Dialog */}
+      {isAdtOpen && (
+        <AdtDialog isOpen={isAdtOpen} onClose={() => setIsAdtOpen(false)} />
+      )}
+
       {/* Messages */}
       {error && (
         <div style={messageStyle(true)}>

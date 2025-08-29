@@ -39,6 +39,7 @@ export function parsePNML(pnmlString) {
     
     // Handle namespaces properly
     const PNML_NS = pnmlElement.namespaceURI || "http://www.pnml.org/version-2009/grammar/pnml";
+    const APN_NS = 'http://example.org/apn';
     // Using namespace URI
     
     // First find the page element that contains places, transitions, and arcs
@@ -110,6 +111,11 @@ export function parsePNML(pnmlString) {
       if (elementsNS && elementsNS.length > 0) {
         return Array.from(elementsNS);
       }
+      // Try APN namespace
+      const apnElements = parentElement.getElementsByTagNameNS(APN_NS, localName);
+      if (apnElements && apnElements.length > 0) {
+        return Array.from(apnElements);
+      }
       
       // Try without namespace
       const elements = parentElement.getElementsByTagName(localName);
@@ -125,7 +131,10 @@ export function parsePNML(pnmlString) {
     const getTextContent = (parentElement, childElementName) => {
       const elements = findChildElements(parentElement, childElementName);
       if (elements.length > 0) {
-        const textElements = findChildElements(elements[0], 'text');
+        // text element might be in PNML or APN ns
+        const textElements = elements[0].getElementsByTagName('text').length
+          ? Array.from(elements[0].getElementsByTagName('text'))
+          : Array.from(elements[0].getElementsByTagNameNS(APN_NS, 'text'));
         if (textElements.length > 0 && textElements[0].textContent) {
           return textElements[0].textContent;
         }
@@ -169,6 +178,8 @@ export function parsePNML(pnmlString) {
           }
         }
         
+        // Read optional type for algebraic nets
+        const typeText = getTextContent(place, 'type');
         // Create place object (standardize on label but keep name for compatibility)
         const placeObj = {
           id: placeId,
@@ -176,7 +187,8 @@ export function parsePNML(pnmlString) {
           label: name,
           x: x,
           y: y,
-          tokens: tokens
+          tokens: tokens,
+          type: typeText || undefined
         };
         
         // Adding place
@@ -213,13 +225,18 @@ export function parsePNML(pnmlString) {
         // Get position
         const { x, y } = getPosition(transition);
         
+        // Read optional guard/action for algebraic nets
+        const guardText = getTextContent(transition, 'guard');
+        const actionText = getTextContent(transition, 'action');
         // Create transition object (standardize on label but keep name for compatibility)
         const transitionObj = {
           id: transitionId,
           name: name,
           label: name,
           x: x,
-          y: y
+          y: y,
+          guard: guardText || undefined,
+          action: actionText || undefined
         };
         
         // Adding transition
@@ -301,7 +318,7 @@ export function parsePNML(pnmlString) {
           }
         }
         
-        // Handle inscription/weight
+        // Handle inscription/weight or algebraic binding
         let weight = 1;
         const inscriptionText = getTextContent(arc, 'inscription');
         if (inscriptionText) {
@@ -311,6 +328,7 @@ export function parsePNML(pnmlString) {
             console.warn(`Could not parse weight for ${arcId}:`, e);
           }
         }
+        const bindingText = getTextContent(arc, 'binding');
         
         // Create arc object
         const arcObj = {
@@ -319,6 +337,7 @@ export function parsePNML(pnmlString) {
           target: targetId,
           type: arcType,
           weight: weight,
+          binding: bindingText || undefined,
           sourceDirection: sourceDirection,
           targetDirection: targetDirection
         };
@@ -398,6 +417,15 @@ export function generatePNML(petriNetJson) {
       positionElement.setAttribute('y', place.y || 0);
       graphicsElement.appendChild(positionElement);
       placeElement.appendChild(graphicsElement);
+
+      // Optional type annotation for algebraic places (apn:type)
+      if (place.type) {
+        const typeEl = xmlDoc.createElementNS(APN_NS, 'apn:type');
+        const textEl = xmlDoc.createElementNS(APN_NS, 'apn:text');
+        textEl.textContent = String(place.type);
+        typeEl.appendChild(textEl);
+        placeElement.appendChild(typeEl);
+      }
       
       // Add initial marking (tokens)
       if (place.tokens > 0) {
@@ -431,6 +459,22 @@ export function generatePNML(petriNetJson) {
       positionElement.setAttribute('y', transition.y || 0);
       graphicsElement.appendChild(positionElement);
       transitionElement.appendChild(graphicsElement);
+
+      // Optional algebraic annotations
+      if (transition.guard) {
+        const guardEl = xmlDoc.createElementNS(APN_NS, 'apn:guard');
+        const textEl = xmlDoc.createElementNS(APN_NS, 'apn:text');
+        textEl.textContent = String(transition.guard);
+        guardEl.appendChild(textEl);
+        transitionElement.appendChild(guardEl);
+      }
+      if (transition.action) {
+        const actionEl = xmlDoc.createElementNS(APN_NS, 'apn:action');
+        const textEl = xmlDoc.createElementNS(APN_NS, 'apn:text');
+        textEl.textContent = String(transition.action);
+        actionEl.appendChild(textEl);
+        transitionElement.appendChild(actionEl);
+      }
       
       pageElement.appendChild(transitionElement);
     });
@@ -500,6 +544,15 @@ export function generatePNML(petriNetJson) {
         textElement.textContent = arc.weight;
         inscriptionElement.appendChild(textElement);
         arcElement.appendChild(inscriptionElement);
+      }
+
+      // Add algebraic binding if present (apn:binding)
+      if (arc.binding) {
+        const bindingEl = xmlDoc.createElementNS(APN_NS, 'apn:binding');
+        const textEl = xmlDoc.createElementNS(APN_NS, 'apn:text');
+        textEl.textContent = String(arc.binding);
+        bindingEl.appendChild(textEl);
+        arcElement.appendChild(bindingEl);
       }
       
       pageElement.appendChild(arcElement);

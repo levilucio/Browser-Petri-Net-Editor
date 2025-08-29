@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { exportToPNML, importFromPNML } from '../utils/python/index';
+import { exportToPNML, importFromPNML, importADT, validateADTSpec, exportADT } from '../utils/python/index';
+import { useAdtRegistry } from '../contexts/AdtContext';
 
 /**
  * Component for importing and exporting Petri nets in PNML format
@@ -8,6 +9,9 @@ function ImportExportPanel({ elements, setElements, updateHistory }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [adtError, setAdtError] = useState(null);
+  const [adtSuccess, setAdtSuccess] = useState(null);
+  const adtRegistry = useAdtRegistry();
   
   // Auto-dismiss success messages after 5 seconds
   useEffect(() => {
@@ -95,11 +99,65 @@ function ImportExportPanel({ elements, setElements, updateHistory }) {
     }
   };
 
+  // Import ADT XML file and validate
+  const handleImportADT = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.xml';
+    input.onchange = async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      try {
+        const txt = await file.text();
+        const adt = await importADT(txt);
+        const res = await validateADTSpec(adt);
+        if (!res.valid) {
+          setAdtError(`ADT validation failed: ${res.errors.join('; ')}`);
+          setAdtSuccess(null);
+        } else {
+          const regRes = adtRegistry.registerCustomADTXml(txt);
+          if (!regRes.ok) {
+            setAdtError(`ADT registration failed: ${(regRes.errors || []).join('; ')}`);
+            setAdtSuccess(null);
+            return;
+          }
+          setAdtSuccess('ADT file loaded, validated, and registered successfully.');
+          setAdtError(null);
+        }
+      } catch (err) {
+        setAdtError(`Error importing ADT: ${err.message || String(err)}`);
+        setAdtSuccess(null);
+      }
+    };
+    input.click();
+  };
+
+  // Export empty ADT scaffold
+  const handleExportADT = async () => {
+    try {
+      const xml = await exportADT({ types: [] });
+      const blob = new Blob([xml], { type: 'application/xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'adt.xml';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setAdtSuccess('Exported ADT scaffold to adt.xml');
+      setAdtError(null);
+    } catch (err) {
+      setAdtError(`Error exporting ADT: ${err.message || String(err)}`);
+      setAdtSuccess(null);
+    }
+  };
+
   return (
     <div className="p-4 border-t border-gray-300">
       <h3 className="text-lg font-medium mb-3">Import/Export</h3>
       
-      {/* Export button */}
+      {/* Export buttons */}
       <button
         className="w-full mb-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-blue-300"
         onClick={handleExport}
@@ -107,8 +165,15 @@ function ImportExportPanel({ elements, setElements, updateHistory }) {
       >
         {isLoading ? 'Processing...' : 'Export as PNML'}
       </button>
+      <button
+        className="w-full mb-2 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600 disabled:bg-indigo-300"
+        onClick={handleExportADT}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Processing...' : 'Export ADT XML'}
+      </button>
       
-      {/* Import file input */}
+      {/* Import PNML file input */}
       <div className="mb-2">
         <label className="block w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-green-300 text-center cursor-pointer">
           {isLoading ? 'Processing...' : 'Import PNML File'}
@@ -121,6 +186,15 @@ function ImportExportPanel({ elements, setElements, updateHistory }) {
           />
         </label>
       </div>
+
+      {/* Import ADT file */}
+      <button
+        className="w-full mb-2 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:bg-purple-300"
+        onClick={handleImportADT}
+        disabled={isLoading}
+      >
+        {isLoading ? 'Processing...' : 'Import ADT XML'}
+      </button>
       
       {/* Status messages */}
       {error && (
@@ -132,6 +206,16 @@ function ImportExportPanel({ elements, setElements, updateHistory }) {
       {success && (
         <div className="mt-2 p-2 bg-green-100 border border-green-300 text-green-700 rounded">
           {success}
+        </div>
+      )}
+      {adtError && (
+        <div className="mt-2 p-2 bg-red-100 border border-red-300 text-red-700 rounded">
+          {adtError}
+        </div>
+      )}
+      {adtSuccess && (
+        <div className="mt-2 p-2 bg-green-100 border border-green-300 text-green-700 rounded">
+          {adtSuccess}
         </div>
       )}
       
