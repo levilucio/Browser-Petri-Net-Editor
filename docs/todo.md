@@ -113,79 +113,81 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - Learn basic editing/simulation in < 5 minutes (tested via user feedback).
 
 ### Phase 2: Algebraic Petri Net Extension (12 weeks)
-#### Milestone 2.1: ADT Management and XML Parsing (4 weeks, Weeks 13–16)
+#### Milestone 2.1: Integer-Only Algebraic Petri Nets with Z3 (6 weeks, Weeks 13–18)
 - **Tasks**:
   - Refactor code base to break down large files into smaller, more manageable components
-  - Extend XML parser to handle algebraic net schema (Section 4.4) with types, guards, actions, and bindings.
-  - Implement ADT XML parser for Section 4.5 schema, including `<type>`, `<operation>`, `<axioms>`, and `<axiom>` elements.
-  - Validate ADT definitions: operation arity/result types, axiom syntax (well-formed equations, type-consistent variables).
-  - Create ADT management interface (UI panel) to load/edit/save ADT XML files via File API.
-  - Store axioms as strings without computational use (per prototype requirements).
-  - Add support for standard ADTs (Integer, Boolean, List, Character, String) and custom ADTs (e.g., Float).
-  - Write tests for ADT parsing and validation.
+  - Integrate Z3 solver through Pyodide for constraint solving and unification using Z3 theories only
+  - Implement integer-only algebraic Petri net editor with:
+    - Integer tokens (simple integers only, no expressions)
+    - Basic arithmetic operations using Z3 Int theory (+, -, *, /, etc.)
+    - Comparison operators using Z3 Int theory (==, !=, <, >, <=, >=) for guards
+    - Pattern matching on input arcs including:
+      - Variable binding (e.g., `x` from place P1, `y` from place P2)
+      - Term unification (e.g., matching `(x,1)` with token `(2,1)` to bind `x = 2`)
+      - Destructuring and value matching
+  - Extend XML parser to handle integer algebraic net schema with guards, actions, and bindings
+  - Implement dual-mode simulator supporting both P/T nets and integer algebraic nets
+  - Add simulation settings to switch between P/T mode and algebraic mode
+  - Ensure backward compatibility with existing P/T net files
+  - Set Z3 solver timeout to 10 seconds for performance
+  - Write comprehensive tests for integer algebraic net functionality
 - **Deliverables**:
-  - ADT XML parser and management interface.
-  - Extended net parser for algebraic nets.
-  - Unit tests for ADT and net parsing.
+  - Integer-only algebraic Petri net editor with Z3 theory integration
+  - Dual-mode simulator (P/T and integer algebraic)
+  - Extended XML parser for integer algebraic nets
+  - Unit tests for Z3 integration and integer algebraic functionality
 - **Success Criteria**:
-  - Load and validate ADT XML files, including axioms, for standard and custom types.
-  - Parse algebraic nets with guards, actions, and bindings.
+  - Create and simulate integer algebraic nets with Z3 theory-based guard evaluation
+  - Support pattern matching and term unification on input arcs using Z3
+  - Maintain compatibility with existing P/T net files
+  - Performance within Z3 timeout constraints (10 seconds)
 
-#### Milestone 2.2: Algebraic Net Editor Extensions (4 weeks, Weeks 17–20)
+#### Milestone 2.2: Full Type System with Multisets (6 weeks, Weeks 19–24)
 - **Tasks**:
-  - Extend canvas to display typed tokens (e.g., “[1, 2]” for Integer, “[[1], [2]]” for List) with color-coded types (blue for Integer, green for Boolean, orange for List, purple for Character, red for String).
-  - Add guard/action labels on transitions (truncated, with tooltips).
-  - Extend properties panel to edit guards (e.g., `(x + 5 == 7) or (x + 5 == 9)`) and actions (e.g., `y = x * 2 + 3`, `y = x + z, w = x - z`) with syntax highlighting.
-  - Support multiple input/output arcs and variables (e.g., `x`, `z` inputs, `y`, `w` outputs).
-  - Validate guards/actions: Boolean guards, type-consistent actions, variable matching, single ADT per place.
-  - Extend drag-and-drop to assign ADTs to places and bindings to arcs.
-  - Update undo/redo to include type assignments and guard/action edits.
-  - Ensure editor performance (< 50ms per action).
-  - Write tests for editor extensions and validation.
+  - Extend algebraic Petri nets to support full type system:
+    - Boolean, List, Pair, and String types in addition to Integer
+    - Multisets allowing mixed token types in places
+    - Z3 theories for all supported types (Bool, Seq, Tuple, String theories)
+  - Implement multiset operations and pattern matching:
+    - List destructuring and construction using Z3 Seq theory
+    - Pair/tuple pattern matching using Z3 Tuple theory
+    - String operations and matching using Z3 String theory
+    - Boolean logic operations using Z3 Bool theory
+  - Extend Z3 integration to handle:
+    - Type-specific theories and constraints
+    - Unification across different types using Z3 theories
+    - Complex pattern matching scenarios
+  - Update XML schema to support multiset tokens and mixed types
+  - Enhance simulation modes for multiset operations
+  - Optimize performance for complex type operations
 - **Deliverables**:
-  - Algebraic net editor with typed tokens, guard/action editing, and multiple input/output support.
-  - Unit tests for editor features; Playwright tests for UI interactions.
+  - Full algebraic Petri net editor with multiset support
+  - Complete Z3 theory integration for all supported types
+  - Enhanced XML format for multiset nets
+  - Performance optimization for complex operations
 - **Success Criteria**:
-  - Create/edit algebraic nets with typed places, guards, actions, and multiple arcs.
-  - Validation errors displayed for invalid guards/actions or token limits.
+  - Support all specified types (Integer, Boolean, List, Pair, String)
+  - Handle multisets with mixed token types
+  - Maintain performance within acceptable limits
+  - Full Z3 theory-based solving for all type operations
 
-#### Milestone 2.3: Algebraic Net Simulator and Finalization (4 weeks, Weeks 21–24)
+#### Milestone 2.3: Testing, Refinement, and Deployment (2 weeks, Weeks 25–26)
 - **Tasks**:
-  - Extend simulator engine to evaluate guards (e.g., `(x + 5 == 7) or (x + 5 == 9)`) and actions (e.g., `y = x + z, w = x - z`) using Python’s operational semantics.
-  - Support nested lists and all ADT operations (Section 4.3).
-  - Implement binding evaluation for multiple input places (e.g., `x = 2, z = 3`).
-  - Handle runtime errors (e.g., division by zero) with user notifications (e.g., “Division by zero in action”).
-  - Extend execution panel to show bindings and action results (e.g., `y = 5, w = -1`).
-  - Update simulation modes:
-    - **Step-by-Step**: User selects binding; animates multiple output tokens (e.g., “5”, “-1”).
-    - **Quick Visual**: Automated firing with 200ms delay and animations.
-    - **Non-Visual**: Compute final marking.
-  - Ensure token limit (20 per place) and performance (< 200ms per algebraic transition).
-  - Finalize documentation and test suite.
+  - Conduct comprehensive testing of both integer-only and full type system phases
+  - Test Z3 integration performance and timeout handling
+  - Validate backward compatibility with P/T nets
+  - Gather user feedback on usability and performance
+  - Fix bugs and optimize Z3 solver performance
+  - Deploy to static hosting (GitHub Pages or Netlify)
+  - Finalize documentation and prepare handoff
 - **Deliverables**:
-  - Complete algebraic net simulator with all modes and visual feedback.
-  - Comprehensive documentation (installation, usage, developer guide).
-  - Test suite covering simulator, validation, and performance.
+  - Deployed application with full algebraic Petri net support
+  - Final test reports and documentation
+  - User guide for both P/T and algebraic net modes
 - **Success Criteria**:
-  - Simulate algebraic nets with correct guard/action evaluation and token animations.
-  - Support multiple inputs/outputs, nested lists, and all ADT operations.
-  - Meet performance and usability goals.
-
-#### Milestone 2.4: Testing, Refinement, and Deployment (2 weeks, Weeks 25–26)
-- **Tasks**:
-  - Conduct end-to-end testing with sample P/T and algebraic nets (up to 1000 places/transitions).
-  - Test axiom parsing with standard and custom ADTs.
-  - Gather user feedback on usability (learnability < 5 minutes).
-  - Fix bugs and optimize performance (editor < 50ms, P/T transitions < 100ms, algebraic transitions < 200ms).
-  - Deploy to static hosting (GitHub Pages or Netlify).
-  - Finalize documentation and prepare handoff.
-- **Deliverables**:
-  - Deployed application.
-  - Final test reports and documentation.
-  - User guide for editing and simulation.
-- **Success Criteria**:
-  - Stable, bug-free application meeting all requirements.
-  - Successful deployment and user testing confirming usability.
+  - Stable, bug-free application meeting all requirements
+  - Successful deployment and user testing confirming usability
+  - Z3 integration working reliably within timeout constraints
 
 ## 6. Task Breakdown and Dependencies
 ### Phase 1 Tasks
@@ -205,14 +207,12 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - Dependencies: Editor features.
 
 ### Phase 2 Tasks
-- **ADT Parsing (Weeks 13–16)**: ADT XML parser, management interface, axiom validation.
+- **Integer Algebraic Nets (Weeks 13–18)**: Z3 integration, integer-only algebraic nets, dual-mode simulator.
   - Dependencies: Phase 1 complete.
-- **Editor Extensions (Weeks 17–20)**: Typed tokens, guard/action editing, multiple arcs, validation.
-  - Dependencies: ADT parsing.
-- **Simulator Extensions (Weeks 21–24)**: Guard/action evaluation, binding handling, runtime errors, simulation modes.
-  - Dependencies: Editor extensions.
-- **Testing/Deployment (Weeks 25–26)**: End-to-end testing, user feedback, deployment.
-  - Dependencies: Simulator extensions.
+- **Full Type System (Weeks 19–24)**: Extend to Boolean, List, Pair, String with multisets, complete Z3 integration.
+  - Dependencies: Integer algebraic nets complete.
+- **Testing/Deployment (Weeks 25–26)**: Comprehensive testing, Z3 performance validation, deployment.
+  - Dependencies: Full type system complete.
 
 ## 7. Risks and Mitigation
 - **Risk: Pyodide Integration Challenges** (e.g., performance, library compatibility).
@@ -238,10 +238,10 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - Simulator with step-by-step, quick visual, and non-visual modes, showing correct markings and animations.
   - XML-based saving/loading, performance within limits (< 50ms editor, < 100ms transitions).
 - **Phase 2** (Week 26):
-  - Algebraic net editor with typed tokens, guard/action editing, multiple input/output arcs, and nested list support.
-  - Simulator supporting guard/action evaluation, three modes, and runtime error handling.
-  - ADT management with axiomatic definitions parsed/stored (not computed).
-  - Performance (< 50ms editor, < 200ms algebraic transitions), usability (learnable in < 5 minutes), and stable deployment.
+  - Integer algebraic net editor with Z3 theory integration, pattern matching, and term unification.
+  - Full type system support (Integer, Boolean, List, Pair, String) with multisets and complete Z3 theory integration.
+  - Dual-mode simulator supporting both P/T nets and algebraic nets.
+  - Performance within Z3 timeout constraints (10 seconds), usability (learnable in < 5 minutes), and stable deployment.
 
 ## 10. Monitoring and Reporting
 - **Sprints**: 2-week iterations with planning, review, and retrospective meetings.
