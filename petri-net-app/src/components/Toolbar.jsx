@@ -522,7 +522,7 @@ const Toolbar = ({
               title="Open ADT Manager"
               data-testid="toolbar-adt-manager"
             >
-              ADT Manager
+              ADT
             </button>
           </div>
         </div>
