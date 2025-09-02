@@ -180,4 +180,144 @@ export async function solveEquation(lhsAst, rhsAst, maxModels = 5) {
   return { solutions, hasMore };
 }
 
+// Parse a simple predicate of the form "lhs OP rhs" where OP in ==, !=, <, <=, >, >=
+// lhs and rhs can be arithmetic expressions parsed by parseArithmetic in arith-parser
+export function parsePredicate(expr, parseArithmetic) {
+  if (typeof expr !== 'string') throw new Error('Predicate must be a string');
+  const src = expr.trim();
+  const ops = ['>=', '<=', '==', '!=', '>', '<'];
+  // Find first top-level operator
+  let depth = 0;
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (ch === '(') depth++;
+    else if (ch === ')') depth = Math.max(0, depth - 1);
+  }
+  let opIndex = -1;
+  let foundOp = null;
+  for (let i = 0, d = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (ch === '(') { d++; continue; }
+    if (ch === ')') { d = Math.max(0, d - 1); continue; }
+    if (d !== 0) continue;
+    const two = src.slice(i, i + 2);
+    if (ops.includes(two)) { foundOp = two; opIndex = i; break; }
+    if (ops.includes(ch)) { foundOp = ch; opIndex = i; break; }
+  }
+  if (!foundOp || opIndex < 0) throw new Error('Predicate must contain a comparison operator');
+  const leftStr = src.slice(0, opIndex).trim();
+  const rightStr = src.slice(opIndex + foundOp.length).trim();
+  const leftAst = parseArithmetic(leftStr);
+  const rightAst = parseArithmetic(rightStr);
+  return { type: 'cmp', op: foundOp, left: leftAst, right: rightAst };
+}
+
+// Evaluate guard predicate with optional variable bindings; returns boolean
+export async function evaluatePredicate(predicate, bindings, parseArithmetic) {
+  const { ctx } = await getContext();
+  const { Int, Solver, And, Not } = ctx;
+  const predAst = typeof predicate === 'string' ? parsePredicate(predicate, parseArithmetic) : predicate;
+  const vars = Array.from(collectVariables(predAst.left)).concat(Array.from(collectVariables(predAst.right)));
+  const uniqueVars = Array.from(new Set(vars));
+  const symMap = new Map(uniqueVars.map((v) => [v, Int.const(v)]));
+  const sym = (name) => symMap.get(name);
+  const l = buildZ3Expr(ctx, predAst.left, sym);
+  const r = buildZ3Expr(ctx, predAst.right, sym);
+  let cmp;
+  switch (predAst.op) {
+    case '==': cmp = l.eq(r); break;
+    case '!=': cmp = Not(l.eq(r)); break;
+    case '<': cmp = l.lt(r); break;
+    case '<=': cmp = l.le(r); break;
+    case '>': cmp = l.gt(r); break;
+    case '>=': cmp = l.ge(r); break;
+    default: throw new Error(`Unsupported predicate operator '${predAst.op}'`);
+  }
+  const s = new Solver();
+  try { s.set('timeout', 10000); } catch (_) {}
+  if (bindings && typeof bindings === 'object') {
+    const eqs = [];
+    for (const [name, value] of Object.entries(bindings)) {
+      if (symMap.has(name)) eqs.push(symMap.get(name).eq(Int.val(value | 0)));
+    }
+    if (eqs.length) s.add(And(...eqs));
+  }
+  s.add(cmp);
+  const res = await s.check();
+  return String(res) === 'sat';
+}
+
+// Evaluate arithmetic AST with variable bindings in pure JS
+export function evaluateArithmeticWithBindings(ast, bindings) {
+  function evalNode(node) {
+    if (node.type === 'int') return node.value | 0;
+    if (node.type === 'var') {
+      const v = bindings?.[node.name];
+      if (typeof v !== 'number') throw new Error(`Unbound variable '${node.name}'`);
+      return v | 0;
+    }
+    const a = evalNode(node.left);
+    const b = evalNode(node.right);
+    switch (node.op) {
+      case '+': return (a + b) | 0;
+      case '-': return (a - b) | 0;
+      case '*': return (a * b) | 0;
+      case '/': {
+        if (b === 0) throw new Error('Division by zero');
+        return Math.trunc(a / b) | 0;
+      }
+      default: throw new Error(`Unknown operator '${node.op}'`);
+    }
+  }
+  return evalNode(ast);
+}
+
+// Evaluate action assignments like "y = x + z, w = x - z"
+export function evaluateAction(actionString, bindings, parseArithmetic) {
+  if (!actionString || typeof actionString !== 'string') return {};
+  const result = {};
+  const parts = actionString.split(',');
+  for (const part of parts) {
+    const eqIdx = part.indexOf('=');
+    if (eqIdx === -1) continue;
+    const left = part.slice(0, eqIdx).trim();
+    const right = part.slice(eqIdx + 1).trim();
+    if (!left) continue;
+    const ast = parseArithmetic(right);
+    result[left] = evaluateArithmeticWithBindings(ast, bindings);
+  }
+  return result;
+}
+
+// Evaluate arithmetic AST with Z3 under concrete integer bindings for variables
+export async function evaluateTermWithBindings(ast, bindings) {
+  const { ctx } = await getContext();
+  const { Int, Solver, And } = ctx;
+  // Collect variables and create symbols
+  const vars = Array.from(collectVariables(ast));
+  const uniqueVars = Array.from(new Set(vars));
+  const symMap = new Map(uniqueVars.map((v) => [v, Int.const(v)]));
+  const sym = (name) => symMap.get(name);
+  const expr = buildZ3Expr(ctx, ast, sym);
+  const res = Int.const('result');
+  const s = new Solver();
+  try { s.set('timeout', 10000); } catch (_) {}
+  s.add(res.eq(expr));
+  // Bind variables to provided concrete integers
+  if (bindings && typeof bindings === 'object') {
+    const eqs = [];
+    for (const [name, value] of Object.entries(bindings)) {
+      if (symMap.has(name)) eqs.push(symMap.get(name).eq(Int.val(value | 0)));
+    }
+    if (eqs.length) s.add(And(...eqs));
+  }
+  const status = await s.check();
+  if (String(status) !== 'sat') throw new Error('Unsatisfiable under bindings');
+  const m = s.model();
+  const v = m.eval(res, true);
+  const n = Number.parseInt(v.asString?.() ?? String(v), 10);
+  if (!Number.isNaN(n)) return n;
+  return Number.parseInt(String(v), 10);
+}
+
 

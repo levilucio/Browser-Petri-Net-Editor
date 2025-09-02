@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useAdtRegistry } from '../contexts/AdtContext';
 import { generateADT, parseADT, validateADT } from '../utils/adt-parser';
+import { parseArithmetic } from '../utils/arith-parser';
+import { evaluateTermWithBindings, solveEquation } from '../utils/z3-arith';
 
 const sectionTitle = 'text-xs font-semibold text-gray-600 uppercase tracking-wider';
 
@@ -10,6 +12,14 @@ export default function AdtDialog({ isOpen, onClose }) {
   const [editorXml, setEditorXml] = useState('');
   const [editorError, setEditorError] = useState(null);
   const [editorSuccess, setEditorSuccess] = useState(null);
+  // Term/equation evaluator state
+  const [termInput, setTermInput] = useState('x + 2 * y');
+  const [bindingsInput, setBindingsInput] = useState('x=3, y=4');
+  const [termResult, setTermResult] = useState(null);
+  const [termError, setTermError] = useState(null);
+  const [equationInput, setEquationInput] = useState('x + y = 7');
+  const [solutions, setSolutions] = useState([]);
+  const [equationError, setEquationError] = useState(null);
 
   const preview = useMemo(() => {
     const arr = types.map((name) => reg.getType(name));
@@ -38,6 +48,58 @@ export default function AdtDialog({ isOpen, onClose }) {
       setEditorXml('');
     } catch (e) {
       setEditorError(String(e.message || e));
+    }
+  };
+
+  function parseBindings(text) {
+    const src = String(text || '').trim();
+    if (!src) return {};
+    // Try JSON first
+    try {
+      const asObj = JSON.parse(src);
+      if (asObj && typeof asObj === 'object' && !Array.isArray(asObj)) return asObj;
+    } catch (_) {}
+    // Fallback: comma-separated assignments: x=1, y = 2
+    const out = {};
+    for (const part of src.split(',')) {
+      const p = part.trim();
+      if (!p) continue;
+      const eq = p.indexOf('=');
+      if (eq === -1) continue;
+      const name = p.slice(0, eq).trim();
+      const val = p.slice(eq + 1).trim();
+      const n = Number.parseInt(val, 10);
+      if (name) out[name] = Number.isFinite(n) ? n : 0;
+    }
+    return out;
+  }
+
+  const handleEvaluateTerm = async () => {
+    setTermError(null);
+    setTermResult(null);
+    try {
+      const ast = parseArithmetic(String(termInput || ''));
+      const bindings = parseBindings(bindingsInput);
+      const value = await evaluateTermWithBindings(ast, bindings);
+      setTermResult(value);
+    } catch (e) {
+      setTermError(String(e.message || e));
+    }
+  };
+
+  const handleSolveEquation = async () => {
+    setEquationError(null);
+    setSolutions([]);
+    try {
+      const txt = String(equationInput || '').trim();
+      const eqIdx = txt.indexOf('=');
+      if (eqIdx === -1) throw new Error("Equation must contain '='");
+      const lhs = parseArithmetic(txt.slice(0, eqIdx));
+      const rhs = parseArithmetic(txt.slice(eqIdx + 1));
+      const { solutions: sols } = await solveEquation(lhs, rhs, 5);
+      setSolutions(sols || []);
+    } catch (e) {
+      setEquationError(String(e.message || e));
     }
   };
 
@@ -98,6 +160,70 @@ export default function AdtDialog({ isOpen, onClose }) {
             {editorSuccess && <div className="mt-2 p-2 text-green-700 bg-green-100 border border-green-200 rounded text-xs">{editorSuccess}</div>}
             <div className="mt-3 text-xs text-gray-600">
               Each operation and axiom is shown on its own line in the preview. Types are grouped into separate boxes.
+            </div>
+
+            <div className="mt-5 border-t pt-4">
+              <div className={sectionTitle}>Term Evaluator (Integers)</div>
+              <div className="mt-2 space-y-2">
+                <div>
+                  <label className="block text-xs text-gray-700 mb-1">Term</label>
+                  <input
+                    className="w-full border rounded p-2 text-xs font-mono"
+                    placeholder="e.g., x + 2 * y"
+                    value={termInput}
+                    onChange={(e) => setTermInput(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-700 mb-1">Bindings (JSON or x=1, y=2)</label>
+                  <input
+                    className="w-full border rounded p-2 text-xs font-mono"
+                    placeholder='{"x":3, "y":4} or x=3, y=4'
+                    value={bindingsInput}
+                    onChange={(e) => setBindingsInput(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={handleEvaluateTerm}>Evaluate</button>
+                  {termResult !== null && (
+                    <span className="text-xs">Result: <span className="font-mono">{String(termResult)}</span></span>
+                  )}
+                </div>
+                {termError && (
+                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-xs whitespace-pre-wrap">{termError}</div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <div className={sectionTitle}>Equation Solver (Integers)</div>
+              <div className="mt-2 space-y-2">
+                <div>
+                  <label className="block text-xs text-gray-700 mb-1">Equation</label>
+                  <input
+                    className="w-full border rounded p-2 text-xs font-mono"
+                    placeholder="e.g., x + y = 7"
+                    value={equationInput}
+                    onChange={(e) => setEquationInput(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={handleSolveEquation}>Solve</button>
+                </div>
+                {equationError && (
+                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-xs whitespace-pre-wrap">{equationError}</div>
+                )}
+                {solutions && solutions.length > 0 && (
+                  <div className="text-xs">
+                    <div className="font-semibold mb-1">Solutions (up to 5):</div>
+                    <ul className="list-disc ml-5 space-y-1">
+                      {solutions.map((s, idx) => (
+                        <li key={idx} className="font-mono">{JSON.stringify(s)}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
