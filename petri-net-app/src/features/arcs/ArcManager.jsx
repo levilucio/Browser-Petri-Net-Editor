@@ -13,7 +13,9 @@ const ArcManager = () => {
     getVirtualPointerPosition,
     gridSnappingEnabled,
     snapToGrid,
+    simulationSettings,
   } = usePetriNet();
+  const netMode = simulationSettings?.netMode || 'pt';
 
   const { handleElementClick } = useElementManager();
   const {
@@ -169,6 +171,17 @@ const ArcManager = () => {
                 text={`${arc.label}`}
                 fontSize={12}
                 fill="gray"
+                align="center"
+              />
+            )}
+            {/* Binding term label (Algebraic-Int mode) */}
+            {netMode === 'algebraic-int' && arc.binding && (
+              <Text
+                x={midX}
+                y={midY - labelOffset + 14}
+                text={`${arc.binding}`}
+                fontSize={12}
+                fill="#333"
                 align="center"
               />
             )}

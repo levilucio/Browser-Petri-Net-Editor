@@ -7,6 +7,7 @@ const Transition = ({
   x,
   y,
   label,
+  guard,
   isSelected,
   isEnabled,
   onSelect,
@@ -20,8 +21,10 @@ const Transition = ({
     setIsDragging, 
     gridSnappingEnabled, 
     snapToGrid, 
-    setSnapIndicator 
+    setSnapIndicator,
+    simulationSettings
   } = usePetriNet();
+  const netMode = simulationSettings?.netMode || 'pt';
   
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
@@ -108,6 +111,18 @@ const Transition = ({
         align="center"
         listening={false}
       />
+      {netMode === 'algebraic-int' && (
+        <Text
+          text={String(guard || '')}
+          fontSize={10}
+          fill="gray"
+          x={-baseWidth / 2}
+          y={-baseHeight / 2 - 14}
+          width={baseWidth}
+          align="center"
+          listening={false}
+        />
+      )}
     </Group>
   );
 };

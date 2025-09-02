@@ -1,5 +1,6 @@
 import React from 'react';
 import { Line, Text, Group, Circle } from 'react-konva';
+import { usePetriNet } from '../contexts/PetriNetContext';
 
 const Arc = ({ 
   arc, 
@@ -15,6 +16,8 @@ const Arc = ({
   gridSize = 20,
   gridSnappingEnabled = true
 }) => {
+  const { simulationSettings } = usePetriNet();
+  const netMode = simulationSettings?.netMode || 'pt';
   // Normalize arc properties to handle different formats
   const sourceId = arc.sourceId || arc.source;
   const targetId = arc.targetId || arc.target;
@@ -442,6 +445,19 @@ const Arc = ({
           x={midX + nameOffsetX - 15}
           y={midY + nameOffsetY - 5}
           width={30}
+          align="center"
+        />
+      )}
+
+      {/* Additional binding term label in algebraic-int mode */}
+      {netMode === 'algebraic-int' && arc.binding && (
+        <Text
+          text={String(arc.binding)}
+          fontSize={10}
+          fill="#333"
+          x={midX + nameOffsetX - 15}
+          y={midY + nameOffsetY + 9}
+          width={60}
           align="center"
         />
       )}

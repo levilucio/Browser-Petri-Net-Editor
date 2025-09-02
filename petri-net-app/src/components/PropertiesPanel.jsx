@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PetriNetContext } from '../contexts/PetriNetContext';
+import { parseArithmetic } from '../utils/arith-parser';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
   // Read enabled transitions from context (fallback to defaults if no provider in unit tests)
@@ -11,7 +12,12 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   const [formValues, setFormValues] = useState({
     label: '',
     tokens: 0,
-    weight: 1
+    weight: 1,
+    valueTokensInput: '',
+    bindingTerm: '',
+    bindingError: null,
+    guardText: '',
+    guardError: null
   });
 
   // State for markings/enabled panels moved to PetriNetPanel
@@ -19,11 +25,17 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   // Update local state when selected element changes
   useEffect(() => {
     if (selectedElement) {
-      setFormValues({
+      const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
+      const elementType = selectedElement.type || (elementId.split('-')[0]);
+      setFormValues((prev) => ({
+        ...prev,
         label: selectedElement.label || '',
         tokens: selectedElement.tokens || 0,
-        weight: selectedElement.weight !== undefined ? selectedElement.weight : 1
-      });
+        weight: selectedElement.weight !== undefined ? selectedElement.weight : 1,
+        valueTokensInput: Array.isArray(selectedElement.valueTokens) ? selectedElement.valueTokens.join(', ') : '',
+        bindingTerm: elementType === 'arc' ? (selectedElement.binding || '') : '',
+        guardText: elementType === 'transition' ? (selectedElement.guard || '') : ''
+      }));
     }
   }, [selectedElement]);
 
@@ -212,6 +224,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
   // Extract element type from ID (place-123, transition-456, arc-789)
   const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
+  const netMode = simulationSettings?.netMode || 'pt';
   
   // Determine if token count is valid
   const isTokenCountValid = elementType === 'place' && 
@@ -245,7 +258,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         </div>
       )}
 
-      {selectedElement && elementType === 'place' && (
+      {selectedElement && elementType === 'place' && netMode === 'pt' && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Tokens (0-{maxTokens})
@@ -266,7 +279,55 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         </div>
       )}
 
-      {selectedElement && elementType === 'arc' && (
+      {selectedElement && elementType === 'place' && netMode === 'algebraic-int' && (
+        <div className="mb-4 space-y-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Add Integer Token</label>
+            <div className="flex items-center space-x-2">
+              <input
+                type="number"
+                className="w-32 px-3 py-2 border border-gray-300 rounded-md"
+                value={formValues.tokens}
+                onChange={handleTokensChange}
+                onBlur={handleTokensBlur}
+              />
+              <button
+                className="px-3 py-2 bg-blue-600 text-white rounded"
+                onClick={() => {
+                  const n = Number.parseInt(formValues.tokens, 10) || 0;
+                  setElements(prev => ({
+                    ...prev,
+                    places: prev.places.map(p => p.id === elementId ? {
+                      ...p,
+                      valueTokens: Array.isArray(p.valueTokens) ? [...p.valueTokens, n] : [n],
+                      tokens: (Array.isArray(p.valueTokens) ? p.valueTokens.length + 1 : 1)
+                    } : p)
+                  }));
+                }}
+              >Add</button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Current Tokens</label>
+            <input
+              type="text"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+              value={formValues.valueTokensInput}
+              onChange={(e) => setFormValues(prev => ({ ...prev, valueTokensInput: e.target.value }))}
+              onBlur={() => {
+                const parsed = String(formValues.valueTokensInput || '').split(',').map(s => s.trim()).filter(s => s.length>0).map(s => Number.parseInt(s, 10)).filter(n => Number.isFinite(n));
+                setElements(prev => ({
+                  ...prev,
+                  places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
+                }));
+              }}
+              placeholder="e.g., 1, 2, -3"
+            />
+          </div>
+        </div>
+      )}
+
+      {selectedElement && elementType === 'arc' && netMode === 'pt' && (
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Weight (1-{maxTokens})
@@ -283,6 +344,63 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
           {!isWeightValid && (
             <p className="text-red-500 text-xs mt-1">Weight must be between 1 and {maxTokens}</p>
           )}
+        </div>
+      )}
+
+      {selectedElement && elementType === 'arc' && netMode === 'algebraic-int' && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Binding Term (integer term with variables)</label>
+          <input
+            type="text"
+            value={formValues.bindingTerm}
+            onChange={(e) => {
+              const v = e.target.value;
+              let err = null;
+              try { parseArithmetic(v); } catch (ex) { err = String(ex.message || ex); }
+              setFormValues(prev => ({ ...prev, bindingTerm: v, bindingError: err }));
+              setElements(prev => ({
+                ...prev,
+                arcs: prev.arcs.map(a => a.id === elementId ? { ...a, binding: v } : a)
+              }));
+            }}
+            className={`w-full px-3 py-2 border ${formValues.bindingError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm font-mono text-sm`}
+            placeholder="e.g., x + 2*y"
+          />
+          {formValues.bindingError && <p className="text-red-500 text-xs mt-1">{formValues.bindingError}</p>}
+        </div>
+      )}
+
+      {selectedElement && elementType === 'transition' && netMode === 'algebraic-int' && (
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Guard (equality/inequality)</label>
+          <input
+            type="text"
+            value={formValues.guardText}
+            onChange={(e) => {
+              const v = e.target.value;
+              // Basic syntax check: must contain a comparison operator
+              let err = null;
+              const ops = ['==', '!=', '>=', '<=', '>', '<'];
+              if (!ops.some(op => v.includes(op))) {
+                err = 'Guard must include a comparison operator (==, !=, <, <=, >, >=)';
+              } else {
+                try {
+                  const op = ops.find(op => v.includes(op));
+                  const [lhs, rhs] = v.split(op);
+                  parseArithmetic(lhs);
+                  parseArithmetic(rhs);
+                } catch (ex) { err = String(ex.message || ex); }
+              }
+              setFormValues(prev => ({ ...prev, guardText: v, guardError: err }));
+              setElements(prev => ({
+                ...prev,
+                transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: v } : t)
+              }));
+            }}
+            className={`w-full px-3 py-2 border ${formValues.guardError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm font-mono text-sm`}
+            placeholder="e.g., x + y >= 3"
+          />
+          {formValues.guardError && <p className="text-red-500 text-xs mt-1">{formValues.guardError}</p>}
         </div>
       )}
 

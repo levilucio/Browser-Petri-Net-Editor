@@ -8,6 +8,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const [maxTokens, setMaxTokens] = useState(20);
   const [maxIterations, setMaxIterations] = useState(100);
   const [unlimitedIterations, setUnlimitedIterations] = useState(false);
+  const [netMode, setNetMode] = useState('pt');
 
   useEffect(() => {
     if (isOpen) {
@@ -32,6 +33,8 @@ const SettingsDialog = ({ isOpen, onClose }) => {
         setUnlimitedIterations(false);
         setMaxIterations(Number.isFinite(Number(ctxMaxIterations)) ? Number(ctxMaxIterations) : 100);
       }
+      const currentNetMode = simulationSettings?.netMode || 'pt';
+      setNetMode(currentNetMode);
     }
   }, [isOpen, simulatorCore, simulationSettings]);
 
@@ -62,6 +65,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       ...simulationSettings,
       maxTokens: tokens,
       maxIterations: iterations,
+      netMode
     });
     onClose?.();
   };
@@ -154,6 +158,40 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 />
                 <span className="text-sm">
                   <strong>Maximal Concurrent</strong> - Fire all non-conflicting enabled transitions simultaneously
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Net Type
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="netMode"
+                  value="pt"
+                  checked={netMode === 'pt'}
+                  onChange={(e) => setNetMode(e.target.value)}
+                  className="mr-2"
+                />
+                <span className="text-sm">
+                  <strong>P/T Net</strong> - Classic place/transition nets with counts
+                </span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="netMode"
+                  value="algebraic-int"
+                  checked={netMode === 'algebraic-int'}
+                  onChange={(e) => setNetMode(e.target.value)}
+                  className="mr-2"
+                />
+                <span className="text-sm">
+                  <strong>Algebraic (Integer)</strong> - Integer tokens with guard and term labels
                 </span>
               </label>
             </div>

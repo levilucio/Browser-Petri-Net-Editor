@@ -8,6 +8,7 @@ const Place = ({
   y,
   label,
   tokens,
+  valueTokens,
   isSelected,
   onSelect,
   onChange,
@@ -75,6 +76,23 @@ const Place = ({
   };
 
   const renderTokens = () => {
+    // If algebraic tokens provided, render them inside the place if they fit
+    if (Array.isArray(valueTokens) && valueTokens.length > 0) {
+      const text = valueTokens.join(', ');
+      const display = text.length > 10 ? valueTokens.slice(0, 3).join(', ') + (valueTokens.length > 3 ? ', …' : '') : text;
+      return (
+        <Text
+          text={display}
+          fontSize={12}
+          fill="black"
+          x={-radius}
+          y={-7}
+          width={radius * 2}
+          align="center"
+          listening={false}
+        />
+      );
+    }
     if (tokens === 0) {
       return (
         <Text

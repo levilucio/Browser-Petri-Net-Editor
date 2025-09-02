@@ -24,7 +24,8 @@ export const PetriNetProvider = ({ children }) => {
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [simulationSettings, setSimulationSettings] = useState({
     maxIterations: 100,
-    maxTokens: 20
+    maxTokens: 20,
+    netMode: 'pt'
   });
 
   const [stageDimensions, setStageDimensions] = useState({ width: 800, height: 600 });
