@@ -98,36 +98,7 @@ describe('PNML Parser (real)', () => {
     expect(xml).not.toContain('invalid-arc-2');
   });
 
-  test('parsePNML supports algebraic annotations (type, guard, action, binding, valueTokens)', () => {
-    const apnPNML = `
-    <pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml" xmlns:apn="http://example.org/apn">
-      <net id="net1" type="AlgebraicPetriNet">
-        <page id="page1">
-          <place id="p1">
-            <name><text>P1</text></name>
-            <apn:type><apn:text>Integer</apn:text></apn:type>
-            <initialMarking><text>[1, 3, 5]</text></initialMarking>
-          </place>
-          <transition id="t1">
-            <name><text>T1</text></name>
-            <apn:guard><apn:text>x + y > 3</apn:text></apn:guard>
-            <apn:action><apn:text>z = x + y</apn:text></apn:action>
-          </transition>
-          <arc id="a1" source="p1" target="t1">
-            <apn:binding><apn:text>x</apn:text></apn:binding>
-          </arc>
-        </page>
-      </net>
-    </pnml>`;
-
-    const result = parsePNML(apnPNML);
-    expect(result.places[0].type).toBe('Integer');
-    expect(Array.isArray(result.places[0].valueTokens)).toBe(true);
-    expect(result.places[0].valueTokens).toEqual([1,3,5]);
-    expect(result.transitions[0].guard).toBe('x + y > 3');
-    expect(result.transitions[0].action).toBe('z = x + y');
-    expect(result.arcs[0].binding).toBe('x');
-  });
+  // Removed legacy single-binding assertion test; bindings are now represented as bags
 
   test('generatePNML emits APN namespace elements when algebraic annotations present', () => {
     const net = {

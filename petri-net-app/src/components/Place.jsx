@@ -76,13 +76,43 @@ const Place = ({
   };
 
   const renderTokens = () => {
-    // If algebraic tokens provided, render them inside the place if they fit
+    // If algebraic integer tokens provided, render them as scattered integers when they fit
     if (Array.isArray(valueTokens) && valueTokens.length > 0) {
-      const text = valueTokens.join(', ');
-      const display = text.length > 10 ? valueTokens.slice(0, 3).join(', ') + (valueTokens.length > 3 ? ', …' : '') : text;
+      const maxScatter = 6;
+      if (valueTokens.length <= maxScatter) {
+        // Arrange around inner circle at fixed positions for readability
+        const count = valueTokens.length;
+        const innerR = radius - 12;
+        return (
+          <>
+            {valueTokens.map((val, index) => {
+              // Offset start angle so first token sits near top-left, matching screenshot layout better
+              const angle = -Math.PI / 2 + (2 * Math.PI * index) / count;
+              const tx = Math.cos(angle) * innerR;
+              const ty = Math.sin(angle) * innerR;
+              const fontSize = 12;
+              const text = String(val);
+              const estWidth = Math.max(12, text.length * fontSize * 0.6);
+              return (
+                <Text
+                  key={`ival-${index}`}
+                  text={text}
+                  fontSize={fontSize}
+                  fill="black"
+                  x={tx - estWidth / 2}
+                  y={ty - fontSize / 2}
+                  wrap="none"
+                  listening={false}
+                />
+              );
+            })}
+          </>
+        );
+      }
+      // Too many integers to display; show indicator
       return (
         <Text
-          text={display}
+          text={`(${valueTokens.length})`}
           fontSize={12}
           fill="black"
           x={-radius}

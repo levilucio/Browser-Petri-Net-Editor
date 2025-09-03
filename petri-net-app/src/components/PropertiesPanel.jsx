@@ -14,7 +14,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     tokens: 0,
     weight: 1,
     valueTokensInput: '',
-    bindingTerm: '',
+    bindingsInput: '',
     bindingError: null,
     guardText: '',
     guardError: null
@@ -33,7 +33,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         tokens: selectedElement.tokens || 0,
         weight: selectedElement.weight !== undefined ? selectedElement.weight : 1,
         valueTokensInput: Array.isArray(selectedElement.valueTokens) ? selectedElement.valueTokens.join(', ') : '',
-        bindingTerm: elementType === 'arc' ? (selectedElement.binding || '') : '',
+        bindingsInput: elementType === 'arc' && Array.isArray(selectedElement.bindings) ? selectedElement.bindings.join(', ') : '',
         guardText: elementType === 'transition' ? (selectedElement.guard || '') : ''
       }));
     }
@@ -280,50 +280,29 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       )}
 
       {selectedElement && elementType === 'place' && netMode === 'algebraic-int' && (
-        <div className="mb-4 space-y-2">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Add Integer Token</label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="number"
-                className="w-32 px-3 py-2 border border-gray-300 rounded-md"
-                value={formValues.tokens}
-                onChange={handleTokensChange}
-                onBlur={handleTokensBlur}
-              />
-              <button
-                className="px-3 py-2 bg-blue-600 text-white rounded"
-                onClick={() => {
-                  const n = Number.parseInt(formValues.tokens, 10) || 0;
-                  setElements(prev => ({
-                    ...prev,
-                    places: prev.places.map(p => p.id === elementId ? {
-                      ...p,
-                      valueTokens: Array.isArray(p.valueTokens) ? [...p.valueTokens, n] : [n],
-                      tokens: (Array.isArray(p.valueTokens) ? p.valueTokens.length + 1 : 1)
-                    } : p)
-                  }));
-                }}
-              >Add</button>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Current Tokens</label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
-              value={formValues.valueTokensInput}
-              onChange={(e) => setFormValues(prev => ({ ...prev, valueTokensInput: e.target.value }))}
-              onBlur={() => {
-                const parsed = String(formValues.valueTokensInput || '').split(',').map(s => s.trim()).filter(s => s.length>0).map(s => Number.parseInt(s, 10)).filter(n => Number.isFinite(n));
-                setElements(prev => ({
-                  ...prev,
-                  places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
-                }));
-              }}
-              placeholder="e.g., 1, 2, -3"
-            />
-          </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Algebraic Tokens</label>
+          <input
+            type="text"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+            value={formValues.valueTokensInput}
+            onChange={(e) => {
+              const raw = e.target.value;
+              setFormValues(prev => ({ ...prev, valueTokensInput: raw }));
+              // Live-parse integers as user types
+              const parsed = String(raw || '')
+                .split(',')
+                .map(s => s.trim())
+                .filter(s => s.length > 0)
+                .map(s => Number.parseInt(s, 10))
+                .filter(n => Number.isFinite(n));
+              setElements(prev => ({
+                ...prev,
+                places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
+              }));
+            }}
+            placeholder="e.g., 2, 3, 4"
+          />
         </div>
       )}
 
@@ -349,22 +328,27 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
       {selectedElement && elementType === 'arc' && netMode === 'algebraic-int' && (
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Binding Term (integer term with variables)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Bindings</label>
           <input
             type="text"
-            value={formValues.bindingTerm}
+            value={formValues.bindingsInput}
             onChange={(e) => {
-              const v = e.target.value;
+              const raw = e.target.value;
+              const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
               let err = null;
-              try { parseArithmetic(v); } catch (ex) { err = String(ex.message || ex); }
-              setFormValues(prev => ({ ...prev, bindingTerm: v, bindingError: err }));
-              setElements(prev => ({
-                ...prev,
-                arcs: prev.arcs.map(a => a.id === elementId ? { ...a, binding: v } : a)
-              }));
+              for (const p of parts) {
+                try { if (p) parseArithmetic(p); } catch (ex) { err = String(ex.message || ex); break; }
+              }
+              setFormValues(prev => ({ ...prev, bindingsInput: raw, bindingError: err }));
+              if (!err) {
+                setElements(prev => ({
+                  ...prev,
+                  arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings: parts, binding: undefined } : a)
+                }));
+              }
             }}
             className={`w-full px-3 py-2 border ${formValues.bindingError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm font-mono text-sm`}
-            placeholder="e.g., x + 2*y"
+            placeholder="e.g., x, y+2, z-1"
           />
           {formValues.bindingError && <p className="text-red-500 text-xs mt-1">{formValues.bindingError}</p>}
         </div>

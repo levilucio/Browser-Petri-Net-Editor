@@ -1,13 +1,18 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Arc from '../../components/Arc';
+import { PetriNetContext } from '../../contexts/PetriNetContext';
 
 // Mock Konva components since they rely on Canvas which isn't available in Jest
 jest.mock('react-konva', () => {
   return {
     Line: ({ children, ...props }) => {
       // Filter out non-DOM props to avoid warnings
-      const { points, stroke, strokeWidth, closed, tension, hitStrokeWidth, ...domProps } = props;
+      const {
+        points, stroke, strokeWidth, closed, tension, hitStrokeWidth,
+        lineCap, lineJoin, shadowEnabled, shadowColor, shadowBlur, shadowOpacity,
+        ...domProps
+      } = props;
       // Add data attributes for testing
       return <div 
         data-testid="line" 
@@ -74,15 +79,23 @@ describe('Arc Component', () => {
     jest.clearAllMocks();
   });
 
+  const renderWithContext = (ui, ctx = { simulationSettings: { netMode: 'pt' } }) => {
+    return render(
+      <PetriNetContext.Provider value={ctx}>
+        {ui}
+      </PetriNetContext.Provider>
+    );
+  };
+
   test('renders correctly with valid source and target', () => {
-    render(<Arc {...mockProps} />);
+    renderWithContext(<Arc {...mockProps} />);
     const lines = screen.queryAllByTestId('line');
     expect(lines.length).toBeGreaterThan(0);
     expect(lines[0]).toBeInTheDocument();
   });
 
   test('applies selected styling when isSelected is true', () => {
-    render(<Arc {...mockProps} isSelected={true} />);
+    renderWithContext(<Arc {...mockProps} isSelected={true} />);
     const lines = screen.queryAllByTestId('line');
     expect(lines.length).toBeGreaterThan(0);
     // Check if at least one line has the blue stroke
@@ -91,7 +104,7 @@ describe('Arc Component', () => {
   });
 
   test('calls onClick handler when clicked', () => {
-    render(<Arc {...mockProps} />);
+    renderWithContext(<Arc {...mockProps} />);
     const group = screen.getByTestId('group');
     group.click();
     expect(mockProps.onClick).toHaveBeenCalledTimes(1);
@@ -106,7 +119,7 @@ describe('Arc Component', () => {
       }
     };
     
-    const { container } = render(<Arc {...invalidProps} />);
+    const { container } = renderWithContext(<Arc {...invalidProps} />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -119,12 +132,12 @@ describe('Arc Component', () => {
       }
     };
     
-    const { container } = render(<Arc {...invalidProps} />);
+    const { container } = renderWithContext(<Arc {...invalidProps} />);
     expect(container).toBeEmptyDOMElement();
   });
 
   test('renders arrow points for the arc', () => {
-    render(<Arc {...mockProps} />);
+    renderWithContext(<Arc {...mockProps} />);
     const lines = screen.queryAllByTestId('line');
     expect(lines.length).toBeGreaterThan(0);
     // Check if at least one line has points attribute

@@ -365,7 +365,7 @@ const Arc = ({
       <Line
         points={linePoints}
         stroke={isSelected ? '#3498db' : '#000'}
-        strokeWidth={isSelected ? 2 : 1}
+        strokeWidth={isSelected ? 1.25 : 0.7}
         lineCap="round"
         lineJoin="round"
         shadowEnabled={isSelected}
@@ -380,13 +380,13 @@ const Arc = ({
       <Line
         points={[displayEndX, displayEndY, displayArrowPoint1X, displayArrowPoint1Y]}
         stroke={isSelected ? 'blue' : 'black'}
-        strokeWidth={isSelected ? 2 : 1}
+        strokeWidth={isSelected ? 1.25 : 0.7}
         hitStrokeWidth={10} /* Wider hit area for easier selection */
       />
       <Line
         points={[displayEndX, displayEndY, displayArrowPoint2X, displayArrowPoint2Y]}
         stroke={isSelected ? 'blue' : 'black'}
-        strokeWidth={isSelected ? 2 : 1}
+        strokeWidth={isSelected ? 1.25 : 0.7}
         hitStrokeWidth={10} /* Wider hit area for easier selection */
       />
       
@@ -449,15 +449,15 @@ const Arc = ({
         />
       )}
 
-      {/* Additional binding term label in algebraic-int mode */}
-      {netMode === 'algebraic-int' && arc.binding && (
+      {/* Display bindings bag in algebraic-int mode */}
+      {netMode === 'algebraic-int' && Array.isArray(arc.bindings) && arc.bindings.length > 0 && (
         <Text
-          text={String(arc.binding)}
+          text={arc.bindings.join(', ')}
           fontSize={10}
           fill="#333"
           x={midX + nameOffsetX - 15}
           y={midY + nameOffsetY + 9}
-          width={60}
+          width={120}
           align="center"
         />
       )}

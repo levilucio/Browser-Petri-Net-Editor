@@ -144,6 +144,31 @@ export function parsePNML(pnmlString) {
       }
       return '';
     };
+
+    // Split a string on top-level commas (ignore commas inside parentheses)
+    const splitTopLevelCommas = (input) => {
+      const parts = [];
+      let current = '';
+      let depth = 0;
+      for (let i = 0; i < input.length; i++) {
+        const ch = input[i];
+        if (ch === '(') {
+          depth++;
+          current += ch;
+        } else if (ch === ')') {
+          depth = Math.max(0, depth - 1);
+          current += ch;
+        } else if (ch === ',' && depth === 0) {
+          parts.push(current.trim());
+          current = '';
+        } else {
+          current += ch;
+        }
+      }
+      const last = current.trim();
+      if (last.length > 0) parts.push(last);
+      return parts.filter(p => p.length > 0);
+    };
     
     // Helper function to get position coordinates
     const getPosition = (element) => {
@@ -348,6 +373,16 @@ export function parsePNML(pnmlString) {
           }
         }
         const bindingText = getTextContent(arc, 'binding');
+        let bindingsArray = undefined;
+        if (bindingText && bindingText.includes(',')) {
+          try {
+            bindingsArray = splitTopLevelCommas(bindingText);
+          } catch (_) {
+            bindingsArray = bindingText.split(',').map(s => s.trim()).filter(Boolean);
+          }
+        } else if (bindingText) {
+          bindingsArray = [bindingText.trim()];
+        }
         // Algebraic binding parsed; net mode remains a user setting
         
         // Create arc object
@@ -357,7 +392,9 @@ export function parsePNML(pnmlString) {
           target: targetId,
           type: arcType,
           weight: weight,
-          binding: bindingText || undefined,
+          // Keep legacy single binding for backward-compat only if no bag
+          binding: (bindingsArray ? undefined : (bindingText || undefined)),
+          bindings: bindingsArray || undefined,
           sourceDirection: sourceDirection,
           targetDirection: targetDirection
         };
@@ -566,8 +603,8 @@ export function generatePNML(petriNetJson) {
       graphicsElement.appendChild(metadataElement);
       arcElement.appendChild(graphicsElement);
       
-      // Add inscription (weight) if > 1 and no algebraic binding
-      if ((arc.weight > 1) && !arc.binding) {
+      // Add inscription (weight) if > 1 and no algebraic bindings
+      if ((arc.weight > 1) && !(arc.binding || (Array.isArray(arc.bindings) && arc.bindings.length))) {
         const inscriptionElement = xmlDoc.createElement('inscription');
         const textElement = xmlDoc.createElement('text');
         textElement.textContent = arc.weight;
@@ -576,7 +613,13 @@ export function generatePNML(petriNetJson) {
       }
 
       // Add algebraic binding if present (apn:binding)
-      if (arc.binding) {
+      if (Array.isArray(arc.bindings) && arc.bindings.length > 0) {
+        const bindingEl = xmlDoc.createElementNS(APN_NS, 'apn:binding');
+        const textEl = xmlDoc.createElementNS(APN_NS, 'apn:text');
+        textEl.textContent = arc.bindings.join(', ');
+        bindingEl.appendChild(textEl);
+        arcElement.appendChild(bindingEl);
+      } else if (arc.binding) {
         const bindingEl = xmlDoc.createElementNS(APN_NS, 'apn:binding');
         const textEl = xmlDoc.createElementNS(APN_NS, 'apn:text');
         textEl.textContent = String(arc.binding);
