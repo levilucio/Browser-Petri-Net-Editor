@@ -216,6 +216,8 @@ const AppWrapper = () => {
             elements={elements}
             setElements={setElements}
             updateHistory={updateHistory}
+            simulationSettings={simulationSettings}
+            setSimulationSettings={setSimulationSettings}
           />
         </div>
         

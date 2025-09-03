@@ -17,6 +17,8 @@ const Toolbar = ({
   elements, 
   setElements, 
   updateHistory,
+  simulationSettings,
+  setSimulationSettings,
   simulationMode,
   setSimulationMode,
   isSimulating,
@@ -218,6 +220,17 @@ const Toolbar = ({
         
         // Update the Petri net state
         setElements(safeJson);
+
+        // Determine net mode from parsed content
+        const hasAlgebraic = (
+          safeJson.places.some(p => Array.isArray(p.valueTokens) || !!p.type) ||
+          safeJson.transitions.some(t => !!t.guard || !!t.action) ||
+          safeJson.arcs.some(a => !!a.binding)
+        );
+        const importedMode = hasAlgebraic ? 'algebraic-int' : 'pt';
+        try {
+          setSimulationSettings(prev => ({ ...(prev || {}), netMode: importedMode }));
+        } catch (_) {}
         
         // Verify the state was updated by exposing it to the window for debugging
         // State prepared for loading

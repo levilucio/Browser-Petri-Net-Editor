@@ -5,7 +5,7 @@ import { useAdtRegistry } from '../contexts/AdtContext';
 /**
  * Component for importing and exporting Petri nets in PNML format
  */
-function ImportExportPanel({ elements, setElements, updateHistory }) {
+function ImportExportPanel({ elements, setElements, updateHistory, simulationSettings, setSimulationSettings }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -82,6 +82,16 @@ function ImportExportPanel({ elements, setElements, updateHistory }) {
       
       // Update the Petri net state
       setElements(petriNetJson);
+
+      // Set net mode based on parsed content
+      const hasAlgebraic = (
+        (petriNetJson.places || []).some(p => Array.isArray(p.valueTokens) || !!p.type) ||
+        (petriNetJson.transitions || []).some(t => !!t.guard || !!t.action) ||
+        (petriNetJson.arcs || []).some(a => !!a.binding)
+      );
+      try {
+        setSimulationSettings && setSimulationSettings({ ...(simulationSettings || {}), netMode: hasAlgebraic ? 'algebraic-int' : 'pt' });
+      } catch (_) {}
       
       // Add to history
       if (updateHistory) {

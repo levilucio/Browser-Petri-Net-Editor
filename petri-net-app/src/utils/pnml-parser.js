@@ -4,6 +4,9 @@
  * and arc handling problems in the previous version
  */
 
+// Shared APN namespace for algebraic annotations
+const APN_NS = 'http://example.org/apn';
+
 /**
  * Parse PNML string into Petri net JSON representation
  * @param {string} pnmlString - The PNML XML string
@@ -39,7 +42,6 @@ export function parsePNML(pnmlString) {
     
     // Handle namespaces properly
     const PNML_NS = pnmlElement.namespaceURI || "http://www.pnml.org/version-2009/grammar/pnml";
-    const APN_NS = 'http://example.org/apn';
     // Using namespace URI
     
     // First find the page element that contains places, transitions, and arcs
@@ -64,6 +66,7 @@ export function parsePNML(pnmlString) {
       console.error('No net element found in the PNML file');
       return result;
     }
+    // Net type is controlled by user settings; no detection here
     
     // Find the page element inside the net
     let pageElement = null;
@@ -167,19 +170,33 @@ export function parsePNML(pnmlString) {
         // Get position
         const { x, y } = getPosition(place);
         
-        // Get tokens
+        // Get tokens (support integer or list for algebraic nets)
         let tokens = 0;
+        let valueTokens = undefined;
         const markingText = getTextContent(place, 'initialMarking');
         if (markingText) {
-          try {
-            tokens = parseInt(markingText);
-          } catch (e) {
-            console.warn(`Could not parse tokens for ${placeId}:`, e);
+          const trimmed = markingText.trim();
+          // List format like [1, 2, 3]
+          if ((trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+            try {
+              const inner = trimmed.slice(1, -1).trim();
+              valueTokens = inner ? inner.split(',').map(v => parseInt(v.trim(), 10)).filter(v => Number.isFinite(v)) : [];
+              // List form indicates algebraic tokens; leave net mode to settings
+            } catch (e) {
+              console.warn(`Could not parse token list for ${placeId}:`, e);
+            }
+          } else {
+            // Scalar integer for PT nets
+            const n = parseInt(trimmed, 10);
+            if (Number.isFinite(n)) {
+              tokens = n;
+            }
           }
         }
         
         // Read optional type for algebraic nets
         const typeText = getTextContent(place, 'type');
+        // Place type is parsed, but net mode remains a user setting
         // Create place object (standardize on label but keep name for compatibility)
         const placeObj = {
           id: placeId,
@@ -188,6 +205,7 @@ export function parsePNML(pnmlString) {
           x: x,
           y: y,
           tokens: tokens,
+          valueTokens: valueTokens,
           type: typeText || undefined
         };
         
@@ -228,6 +246,7 @@ export function parsePNML(pnmlString) {
         // Read optional guard/action for algebraic nets
         const guardText = getTextContent(transition, 'guard');
         const actionText = getTextContent(transition, 'action');
+        // Algebraic annotations parsed; net mode remains a user setting
         // Create transition object (standardize on label but keep name for compatibility)
         const transitionObj = {
           id: transitionId,
@@ -329,6 +348,7 @@ export function parsePNML(pnmlString) {
           }
         }
         const bindingText = getTextContent(arc, 'binding');
+        // Algebraic binding parsed; net mode remains a user setting
         
         // Create arc object
         const arcObj = {
@@ -378,10 +398,13 @@ export function generatePNML(petriNetJson) {
     );
     
     const pnmlElement = xmlDoc.documentElement;
+    // Ensure APN prefix is declared if algebraic annotations are used
+    pnmlElement.setAttribute('xmlns:apn', APN_NS);
     
     // Create net element
     const netElement = xmlDoc.createElement('net');
     netElement.setAttribute('id', 'net1');
+    // Net type in XML is not authoritative; keep default PT type for compatibility
     netElement.setAttribute('type', 'http://www.pnml.org/version-2009/grammar/ptnet');
     pnmlElement.appendChild(netElement);
     
@@ -427,8 +450,14 @@ export function generatePNML(petriNetJson) {
         placeElement.appendChild(typeEl);
       }
       
-      // Add initial marking (tokens)
-      if (place.tokens > 0) {
+      // Add initial marking (tokens or valueTokens)
+      if (Array.isArray(place.valueTokens)) {
+        const markingElement = xmlDoc.createElement('initialMarking');
+        const markingTextElement = xmlDoc.createElement('text');
+        markingTextElement.textContent = `[${place.valueTokens.join(', ')}]`;
+        markingElement.appendChild(markingTextElement);
+        placeElement.appendChild(markingElement);
+      } else if (place.tokens > 0) {
         const markingElement = xmlDoc.createElement('initialMarking');
         const markingTextElement = xmlDoc.createElement('text');
         markingTextElement.textContent = place.tokens;
@@ -537,8 +566,8 @@ export function generatePNML(petriNetJson) {
       graphicsElement.appendChild(metadataElement);
       arcElement.appendChild(graphicsElement);
       
-      // Add inscription (weight) if > 1
-      if (arc.weight > 1) {
+      // Add inscription (weight) if > 1 and no algebraic binding
+      if ((arc.weight > 1) && !arc.binding) {
         const inscriptionElement = xmlDoc.createElement('inscription');
         const textElement = xmlDoc.createElement('text');
         textElement.textContent = arc.weight;

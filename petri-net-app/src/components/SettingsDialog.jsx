@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
 
 const SettingsDialog = ({ isOpen, onClose }) => {
-  const { simulatorCore, simulationSettings, handleSaveSettings } = usePetriNet();
+  const { simulatorCore, simulationSettings, handleSaveSettings, elements } = usePetriNet();
   const [simulationMode, setSimulationMode] = useState('single');
   const [isLoading, setIsLoading] = useState(false);
   const [maxTokens, setMaxTokens] = useState(20);
   const [maxIterations, setMaxIterations] = useState(100);
   const [unlimitedIterations, setUnlimitedIterations] = useState(false);
   const [netMode, setNetMode] = useState('pt');
+  const [netModeLocked, setNetModeLocked] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -35,6 +36,13 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       }
       const currentNetMode = simulationSettings?.netMode || 'pt';
       setNetMode(currentNetMode);
+      // Lock switching if canvas is not empty
+      try {
+        const hasContent = (elements?.places?.length || 0) > 0 || (elements?.transitions?.length || 0) > 0 || (elements?.arcs?.length || 0) > 0;
+        setNetModeLocked(Boolean(hasContent));
+      } catch (_) {
+        setNetModeLocked(false);
+      }
     }
   }, [isOpen, simulatorCore, simulationSettings]);
 
@@ -175,6 +183,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                   value="pt"
                   checked={netMode === 'pt'}
                   onChange={(e) => setNetMode(e.target.value)}
+                  disabled={netModeLocked}
                   className="mr-2"
                 />
                 <span className="text-sm">
@@ -188,12 +197,18 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                   value="algebraic-int"
                   checked={netMode === 'algebraic-int'}
                   onChange={(e) => setNetMode(e.target.value)}
+                  disabled={netModeLocked}
                   className="mr-2"
                 />
                 <span className="text-sm">
                   <strong>Algebraic (Integer)</strong> - Integer tokens with guard and term labels
                 </span>
               </label>
+              {netModeLocked && (
+                <div className="text-xs text-gray-600">
+                  Net type is locked while the canvas has elements. Clear the canvas to switch.
+                </div>
+              )}
             </div>
           </div>
 
