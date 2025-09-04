@@ -88,6 +88,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            data-testid="settings-close"
           >
             ×
           </button>
@@ -232,12 +233,14 @@ const SettingsDialog = ({ isOpen, onClose }) => {
           <button
             onClick={onClose}
             className="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors mr-2"
+            data-testid="settings-cancel"
           >
             Cancel
           </button>
           <button
             onClick={onSave}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            data-testid="settings-save"
           >
             Save
           </button>

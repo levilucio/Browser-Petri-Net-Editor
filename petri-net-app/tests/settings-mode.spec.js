@@ -8,7 +8,7 @@ async function openSettings(page) {
 }
 
 async function closeSettings(page) {
-  await page.getByRole('button', { name: '×' }).click();
+  await page.getByTestId('settings-close').click();
 }
 
 async function clearCanvas(page) {
@@ -50,7 +50,7 @@ async function setNetModeToAlgebraicWhenEmpty(page) {
   await expect(ptRadio).toBeEnabled();
   await expect(algRadio).toBeEnabled();
   await algRadio.check();
-  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByTestId('settings-save').click();
   // Give time for settings to persist
   await page.waitForTimeout(150);
 }
@@ -78,7 +78,7 @@ test.describe('Settings: net type switching rules', () => {
 
     // Toggle to Algebraic and save
     await algRadio.check();
-    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByTestId('settings-save').click();
     await page.waitForTimeout(150);
 
     // Re-open settings and verify radios still enabled (canvas still empty)
@@ -106,5 +106,6 @@ test.describe('Settings: net type switching rules', () => {
     await expect(algRadio).toBeDisabled();
   });
 });
+
 
 
