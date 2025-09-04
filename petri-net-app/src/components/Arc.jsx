@@ -1,5 +1,5 @@
 import React from 'react';
-import { Line, Text, Group, Circle } from 'react-konva';
+import { Line, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
 
 const Arc = ({ 
@@ -9,12 +9,7 @@ const Arc = ({
   isSelected, 
   onClick, 
   canvasScroll = { x: 0, y: 0 }, 
-  zoomLevel = 1,
-  onAnglePointAdded,
-  onAnglePointDragged,
-  onAnglePointDeleted,
-  gridSize = 20,
-  gridSnappingEnabled = true
+  zoomLevel = 1
 }) => {
   const { simulationSettings } = usePetriNet();
   const netMode = simulationSettings?.netMode || 'pt';
@@ -77,50 +72,12 @@ const Arc = ({
   const endX = target.x;
   const endY = target.y;
 
-  // Get angle points from arc or initialize empty array if none exist
-  const anglePoints = arc.anglePoints || [];
-  
-  // Create adjusted angle points for display
-  // Since we're handling the scroll adjustment in App.jsx for places and transitions,
-  // we need to be consistent and handle angle points the same way
-  const displayAnglePoints = anglePoints.map(point => ({
-    x: point.x - canvasScroll.x / zoomLevel,
-    y: point.y - canvasScroll.y / zoomLevel
-  }));
-  
-  // Calculate start and end angles based on angle points or direct connection
-  let startAngle, endAngle;
-  
-  if (displayAnglePoints.length > 0) {
-    // If angle points exist, calculate angle from source to first angle point
-    const firstPoint = displayAnglePoints[0];
-    const lastPoint = displayAnglePoints[displayAnglePoints.length - 1];
-    
-    const dx1 = firstPoint.x - startX;
-    const dy1 = firstPoint.y - startY;
-    startAngle = Math.atan2(dy1, dx1);
-    
-    const dx2 = endX - lastPoint.x;
-    const dy2 = endY - lastPoint.y;
-    endAngle = Math.atan2(dy2, dx2);
-  } else {
-    // If no angle points, direct line from source to target
-    const dx = endX - startX;
-    const dy = endY - startY;
-    startAngle = Math.atan2(dy, dx);
-    endAngle = startAngle;  // Same angle
-  }
-  
-  // Calculate angle for final segment (for arrow head)
-  let finalSegmentAngle;
-  if (displayAnglePoints.length > 0) {
-    const lastPoint = displayAnglePoints[displayAnglePoints.length - 1];
-    const dxLast = endX - lastPoint.x;
-    const dyLast = endY - lastPoint.y;
-    finalSegmentAngle = Math.atan2(dyLast, dxLast);
-  } else {
-    finalSegmentAngle = startAngle; // Direct line
-  }
+  // Calculate start and end angles for a straight line
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const startAngle = Math.atan2(dy, dx);
+  const endAngle = startAngle;
+  const finalSegmentAngle = startAngle;
   
   // Adjust start and end points based on source and target shapes
   let adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY;
@@ -197,63 +154,10 @@ const Arc = ({
   const displayArrowPoint2X = arrowPoint2X;
   const displayArrowPoint2Y = arrowPoint2Y;
 
-  // Calculate midpoint for labels based on the middle segment of the arc
-  let midX, midY, midSegmentAngle;
-  
-  if (anglePoints.length === 0) {
-    // If no angle points, use the midpoint of the direct line
-    midX = (displayStartX + displayEndX) / 2;
-    midY = (displayStartY + displayEndY) / 2;
-    midSegmentAngle = Math.atan2(displayEndY - displayStartY, displayEndX - displayStartX);
-  } else {
-    // Find the middle segment of the arc using display points that are already adjusted for scroll
-    const allPoints = [
-      { x: displayStartX, y: displayStartY },
-      ...displayAnglePoints,
-      { x: displayEndX, y: displayEndY }
-    ];
-    
-    // Calculate total arc length to find the middle segment
-    let totalLength = 0;
-    const segmentLengths = [];
-    
-    for (let i = 0; i < allPoints.length - 1; i++) {
-      const dx = allPoints[i + 1].x - allPoints[i].x;
-      const dy = allPoints[i + 1].y - allPoints[i].y;
-      const length = Math.sqrt(dx * dx + dy * dy);
-      segmentLengths.push(length);
-      totalLength += length;
-    }
-    
-    // Find the middle segment
-    let accumulatedLength = 0;
-    let middleSegmentIndex = 0;
-    
-    for (let i = 0; i < segmentLengths.length; i++) {
-      if (accumulatedLength + segmentLengths[i] >= totalLength / 2) {
-        middleSegmentIndex = i;
-        break;
-      }
-      accumulatedLength += segmentLengths[i];
-    }
-    
-    // Calculate how far along the middle segment the midpoint should be
-    const remainingLength = totalLength / 2 - accumulatedLength;
-    const segmentRatio = remainingLength / segmentLengths[middleSegmentIndex];
-    
-    // Get the points of the middle segment
-    const p1 = allPoints[middleSegmentIndex];
-    const p2 = allPoints[middleSegmentIndex + 1];
-    
-    // Calculate the midpoint along this segment
-    midX = p1.x + (p2.x - p1.x) * segmentRatio;
-    midY = p1.y + (p2.y - p1.y) * segmentRatio;
-    
-    // Calculate the angle of this segment for the offset
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    midSegmentAngle = Math.atan2(dy, dx);
-  }
+  // Midpoint and segment angle for labels on a straight line
+  const midX = (displayStartX + displayEndX) / 2;
+  const midY = (displayStartY + displayEndY) / 2;
+  const midSegmentAngle = Math.atan2(displayEndY - displayStartY, displayEndX - displayStartX);
   
   // Offset the weight label slightly to not overlap with the line (on one side)
   const weightOffsetX = -10 * Math.sin(midSegmentAngle);
@@ -263,90 +167,8 @@ const Arc = ({
   const nameOffsetX = 10 * Math.sin(midSegmentAngle);
   const nameOffsetY = -10 * Math.cos(midSegmentAngle);
 
-  // Prepare line points for drawing
-  let linePoints = [];
-  
-  // Start with the adjusted start point (adjusted for scroll)
-  linePoints.push(displayStartX, displayStartY);
-  
-  // Add all angle points if they exist
-  if (displayAnglePoints.length > 0) {
-    displayAnglePoints.forEach(point => {
-      linePoints.push(point.x, point.y);
-    });
-  }
-  
-  // End with the adjusted end point (adjusted for scroll)
-  linePoints.push(displayEndX, displayEndY);
-
-  // Handle adding a new angle point when clicking on the arc line
-  const handleLineClick = (e) => {
-    // Only add angle points when the arc is selected
-    if (!isSelected || !onAnglePointAdded) return;
-    
-    // Get the click position relative to the stage
-    const stage = e.target.getStage();
-    const pointerPos = stage.getPointerPosition();
-    
-    // Adjust for canvas scroll and zoom to get the virtual canvas coordinates
-    const virtualX = pointerPos.x / zoomLevel + canvasScroll.x;
-    const virtualY = pointerPos.y / zoomLevel + canvasScroll.y;
-    
-    // Add the new angle point
-    onAnglePointAdded(arc.id, { x: virtualX, y: virtualY });
-    
-    // Stop event propagation to prevent selecting the arc again
-    e.cancelBubble = true;
-  };
-  
-  // Function to snap position to grid (local implementation to match App.jsx)
-  const snapToGrid = (x, y) => {
-    if (gridSnappingEnabled) {
-      return {
-        x: Math.round(x / gridSize) * gridSize,
-        y: Math.round(y / gridSize) * gridSize
-      };
-    }
-    return { x, y };
-  };
-
-  // Handle dragging an angle point
-  const handleAnglePointDrag = (index, e) => {
-    if (!onAnglePointDragged) return;
-    
-    // Get the drag position relative to the stage
-    const stage = e.target.getStage();
-    const pointerPos = stage.getPointerPosition();
-    
-    // Adjust for canvas scroll and zoom to get the virtual canvas coordinates
-    const virtualX = pointerPos.x / zoomLevel + canvasScroll.x;
-    const virtualY = pointerPos.y / zoomLevel + canvasScroll.y;
-    
-    // Apply grid snapping during drag
-    const snappedPos = snapToGrid(virtualX, virtualY);
-    
-    // If this is a drag move (not drag end), update the node position directly for visual feedback
-    if (e.type === 'dragmove') {
-      e.target.position({
-        x: (snappedPos.x - canvasScroll.x) / zoomLevel,
-        y: (snappedPos.y - canvasScroll.y) / zoomLevel
-      });
-    }
-    
-    // Update the angle point position in the data model
-    onAnglePointDragged(arc.id, index, snappedPos);
-  };
-  
-  // Handle double-click to delete an angle point
-  const handleAnglePointDoubleClick = (index, e) => {
-    if (!onAnglePointDeleted) return;
-    
-    // Delete the angle point
-    onAnglePointDeleted(arc.id, index);
-    
-    // Stop event propagation
-    e.cancelBubble = true;
-  };
+  // Prepare line points for drawing (straight line)
+  const linePoints = [displayStartX, displayStartY, displayEndX, displayEndY];
 
   // Return the arc component with polyline, arrow head, angle points, and weight label
   return (
@@ -372,8 +194,8 @@ const Arc = ({
         shadowColor="#3498db"
         shadowBlur={10}
         shadowOpacity={0.5}
-        onClick={handleLineClick}  /* This line handles adding angle points */
-        hitStrokeWidth={10}  /* Increased hit area for the visible line */
+        onClick={onClick}
+        hitStrokeWidth={10}
       />
       
       {/* Arrow head */}
@@ -390,38 +212,7 @@ const Arc = ({
         hitStrokeWidth={10} /* Wider hit area for easier selection */
       />
       
-      {/* Render angle points as blue circles if the arc is selected */}
-      {isSelected && displayAnglePoints && displayAnglePoints.length > 0 && displayAnglePoints.map((point, index) => {
-        return (
-          <Circle
-            key={`angle-point-${index}`}
-            x={point.x}
-            y={point.y}
-            radius={5}
-            fill="#3498db"
-            stroke="#2980b9"
-            strokeWidth={1}
-            draggable={true}
-            onDragMove={(e) => handleAnglePointDrag(index, e)}
-            onDragEnd={(e) => handleAnglePointDrag(index, e)}
-            dragBoundFunc={(pos) => {
-              // Apply grid snapping during drag for visual feedback
-              const virtualX = pos.x * zoomLevel + canvasScroll.x;
-              const virtualY = pos.y * zoomLevel + canvasScroll.y;
-              const snappedPos = snapToGrid(virtualX, virtualY);
-              return {
-                x: (snappedPos.x - canvasScroll.x) / zoomLevel,
-                y: (snappedPos.y - canvasScroll.y) / zoomLevel
-              };
-            }}
-            onDblClick={(e) => handleAnglePointDoubleClick(index, e)}
-            shadowEnabled={true}
-            shadowColor="#2980b9"
-            shadowBlur={5}
-            shadowOpacity={0.5}
-          />
-        );
-      })}
+      {/* Angle points removed */}
       
       {/* Weight label */}
       {arc.weight && parseInt(arc.weight) > 1 && (
