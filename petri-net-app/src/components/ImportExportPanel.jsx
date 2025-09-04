@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { exportToPNML, importFromPNML, importADT, validateADTSpec, exportADT } from '../utils/python/index';
 import { useAdtRegistry } from '../contexts/AdtContext';
+import { detectNetModeFromContent } from '../utils/netMode';
 
 /**
  * Component for importing and exporting Petri nets in PNML format
@@ -83,14 +84,10 @@ function ImportExportPanel({ elements, setElements, updateHistory, simulationSet
       // Update the Petri net state
       setElements(petriNetJson);
 
-      // Set net mode based on parsed content
-      const hasAlgebraic = (
-        (petriNetJson.places || []).some(p => Array.isArray(p.valueTokens) || !!p.type) ||
-        (petriNetJson.transitions || []).some(t => !!t.guard || !!t.action) ||
-        (petriNetJson.arcs || []).some(a => !!a.binding)
-      );
+      // Set net mode based on parsed content (centralized utility)
       try {
-        setSimulationSettings && setSimulationSettings({ ...(simulationSettings || {}), netMode: hasAlgebraic ? 'algebraic-int' : 'pt' });
+        const mode = detectNetModeFromContent(petriNetJson);
+        setSimulationSettings && setSimulationSettings({ ...(simulationSettings || {}), netMode: mode });
       } catch (_) {}
       
       // Add to history

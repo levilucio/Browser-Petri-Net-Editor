@@ -159,6 +159,7 @@ export const PetriNetProvider = ({ children }) => {
       stopAllSimulations,
       isSettingsDialogOpen, setIsSettingsDialogOpen,
       simulationSettings, setSimulationSettings,
+      netMode: (simulationSettings?.netMode || 'pt'),
       stageDimensions, setStageDimensions,
       virtualCanvasDimensions, setVirtualCanvasDimensions,
       canvasScroll, setCanvasScroll,

@@ -3,6 +3,7 @@ import { Layer, Arrow, Line, Circle, Group, Text } from 'react-konva';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import { useElementManager } from '../elements/useElementManager';
 import { useArcManager } from './useArcManager';
+import { getArcSourceType, getArcTargetType } from '../../utils/arcTypes';
 
 const ArcManager = () => {
   const {
@@ -28,20 +29,7 @@ const ArcManager = () => {
     return elements.places.find(p => p.id === id) || elements.transitions.find(t => t.id === id);
   };
 
-  // Helper functions for arc type inference (to handle XML-loaded arcs)
-  const getArcSourceType = (arc) => {
-    if (arc.sourceType) return arc.sourceType;
-    if (arc.type === 'place-to-transition') return 'place';
-    if (arc.type === 'transition-to-place') return 'transition';
-    return 'place'; // fallback
-  };
-
-  const getArcTargetType = (arc) => {
-    if (arc.targetType) return arc.targetType;
-    if (arc.type === 'place-to-transition') return 'transition';
-    if (arc.type === 'transition-to-place') return 'place';
-    return 'transition'; // fallback
-  };
+  // Arc source/target type inference centralized in utils/arcTypes
 
   const getAdjustedPoints = (source, target, anglePoints = []) => {
     const allPoints = [{...source}, ...anglePoints, {...target}];
@@ -113,8 +101,8 @@ const ArcManager = () => {
         if (!source || !target) return null;
 
         const virtualPoints = getAdjustedPoints(
-          {...source, type: getArcSourceType(arc)}, 
-          {...target, type: getArcTargetType(arc)}, 
+          { ...source, type: getArcSourceType(arc) },
+          { ...target, type: getArcTargetType(arc) },
           arc.anglePoints
         );
 
@@ -175,11 +163,11 @@ const ArcManager = () => {
               />
             )}
             {/* Binding term label (Algebraic-Int mode) */}
-            {netMode === 'algebraic-int' && arc.binding && (
+            {netMode === 'algebraic-int' && Array.isArray(arc.bindings) && arc.bindings.length > 0 && (
               <Text
                 x={midX}
                 y={midY - labelOffset + 14}
-                text={`${arc.binding}`}
+                text={`${arc.bindings.join(', ')}`}
                 fontSize={12}
                 fill="#333"
                 align="center"

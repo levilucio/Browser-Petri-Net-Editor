@@ -1,6 +1,7 @@
 import React from 'react';
 import { Line, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
+import { getArcSourceType, getArcTargetType } from '../utils/arcTypes';
 
 const Arc = ({ 
   arc, 
@@ -17,31 +18,9 @@ const Arc = ({
   const sourceId = arc.sourceId || arc.source;
   const targetId = arc.targetId || arc.target;
   
-  // Fix the arc type inference logic to properly handle XML-loaded arcs
-  let arcSourceType, arcTargetType;
-  
-  if (arc.sourceType && arc.targetType) {
-    // If sourceType and targetType are explicitly set, use them
-    arcSourceType = arc.sourceType;
-    arcTargetType = arc.targetType;
-  } else if (arc.type) {
-    // Infer from arc.type property (for XML-loaded arcs)
-    if (arc.type === 'place-to-transition') {
-      arcSourceType = 'place';
-      arcTargetType = 'transition';
-    } else if (arc.type === 'transition-to-place') {
-      arcSourceType = 'transition';
-      arcTargetType = 'place';
-    } else {
-      // Fallback for unknown types
-      arcSourceType = 'place';
-      arcTargetType = 'transition';
-    }
-  } else {
-    // Fallback for arcs without type information
-    arcSourceType = 'place';
-    arcTargetType = 'transition';
-  }
+  // Arc source/target type inference centralized in utils/arcTypes
+  const arcSourceType = getArcSourceType(arc);
+  const arcTargetType = getArcTargetType(arc);
   
   // Find source and target elements
   let source, target;

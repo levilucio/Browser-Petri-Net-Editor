@@ -4,6 +4,7 @@ import { exportToPNML, importFromPNML } from '../utils/python/index';
 import { simulatorCore } from '../features/simulation';
 import { useAdtRegistry } from '../contexts/AdtContext';
 import AdtDialog from './AdtDialog';
+import { detectNetModeFromContent } from '../utils/netMode';
 
 const Toolbar = ({ 
   mode, 
@@ -221,14 +222,9 @@ const Toolbar = ({
         // Update the Petri net state
         setElements(safeJson);
 
-        // Determine net mode from parsed content
-        const hasAlgebraic = (
-          safeJson.places.some(p => Array.isArray(p.valueTokens) || !!p.type) ||
-          safeJson.transitions.some(t => !!t.guard || !!t.action) ||
-          safeJson.arcs.some(a => !!a.binding)
-        );
-        const importedMode = hasAlgebraic ? 'algebraic-int' : 'pt';
+        // Determine and set net mode from parsed content (centralized utility)
         try {
+          const importedMode = detectNetModeFromContent(safeJson);
           setSimulationSettings(prev => ({ ...(prev || {}), netMode: importedMode }));
         } catch (_) {}
         

@@ -224,7 +224,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
   // Extract element type from ID (place-123, transition-456, arc-789)
   const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
-  const netMode = simulationSettings?.netMode || 'pt';
+  const netMode = (context?.netMode) || (simulationSettings?.netMode || 'pt');
   
   // Determine if token count is valid
   const isTokenCountValid = elementType === 'place' && 

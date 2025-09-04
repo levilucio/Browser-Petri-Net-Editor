@@ -22,9 +22,10 @@ const Transition = ({
     gridSnappingEnabled, 
     snapToGrid, 
     setSnapIndicator,
-    simulationSettings
+    simulationSettings,
+    netMode
   } = usePetriNet();
-  const netMode = simulationSettings?.netMode || 'pt';
+  // netMode provided by context
   
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
