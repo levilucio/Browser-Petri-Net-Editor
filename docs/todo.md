@@ -115,9 +115,9 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
 ### Phase 2: Algebraic Petri Net Extension (12 weeks)
 #### Milestone 2.1: Integer-Only Algebraic Petri Nets with Z3 (6 weeks, Weeks 13–18)
 - **Tasks**:
-  - Refactor code base to break down large files into smaller, more manageable components
-  - Integrate Z3 solver through Pyodide for constraint solving and unification using Z3 theories only
-  - Implement integer-only algebraic Petri net editor with:
+
+  - ✅ Integrate Z3 solver through Pyodide for constraint solving and unification using Z3 theories only
+  - ✅ Implement integer-only algebraic Petri net editor with:
     - Integer tokens (simple integers only, no expressions)
     - Basic arithmetic operations using Z3 Int theory (+, -, *, /, etc.)
     - Comparison operators using Z3 Int theory (==, !=, <, >, <=, >=) for guards
@@ -126,7 +126,7 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
       - Term unification (e.g., matching `(x,1)` with token `(2,1)` to bind `x = 2`)
       - Destructuring and value matching
   - Extend XML parser to handle integer algebraic net schema with guards, actions, and bindings
-  - Implement dual-mode simulator supporting both P/T nets and integer algebraic nets
+  - ✅ Implement dual-mode simulator supporting both P/T nets and integer algebraic nets
   - Add simulation settings to switch between P/T mode and algebraic mode
   - Ensure backward compatibility with existing P/T net files
   - Set Z3 solver timeout to 10 seconds for performance

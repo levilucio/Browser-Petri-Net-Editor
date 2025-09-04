@@ -1,10 +1,12 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, getPetriNetState, waitForState, clickStage } from './helpers.js';
 
 test.describe('Petri Net Editor', () => {
   test.beforeEach(async ({ page }) => {
     // Go to the app before each test
     await page.goto('/');
+    await waitForAppReady(page);
   });
 
   test('should add a place to the canvas', async ({ page }) => {
@@ -178,36 +180,31 @@ test.describe('Petri Net Editor', () => {
     const transitionButton = page.locator('[data-testid="toolbar-transition"]');
     await expect(transitionButton).toBeVisible();
     await transitionButton.click();
-    await page.waitForTimeout(300);
+    await waitForState(page, (s) => true); // ensure state is readable
     
     // Click to add a transition at position (300, 200)
-    await page.mouse.click(300, 200);
-    await page.waitForTimeout(300);
+    await clickStage(page, { x: 300, y: 200 });
+    await waitForState(page, (s) => (s.transitions?.length || 0) === 1);
     
     // Step 2: Add first place on the left
     const placeButton = page.locator('[data-testid="toolbar-place"]');
     await expect(placeButton).toBeVisible();
     await placeButton.click();
-    await page.waitForTimeout(300);
+    await waitForState(page, (s) => true);
     
     // Click to add a place at position (200, 150)
-    await page.mouse.click(200, 150);
-    await page.waitForTimeout(300);
+    await clickStage(page, { x: 200, y: 150 });
+    await waitForState(page, (s) => (s.places?.length || 0) >= 1);
     
     // Step 3: Add second place on the right
     // Still in place mode, add another place
-    await page.mouse.click(400, 250);
-    await page.waitForTimeout(300);
+    await clickStage(page, { x: 400, y: 250 });
+    await waitForState(page, (s) => (s.places?.length || 0) === 2);
     
     // Verify we have 2 places and 1 transition
-    const placesCount = await page.evaluate(() => {
-      // @ts-ignore - Custom property added for testing
-      return window.__PETRI_NET_STATE__?.places?.length || 0;
-    });
-    const transitionsCount = await page.evaluate(() => {
-      // @ts-ignore - Custom property added for testing
-      return window.__PETRI_NET_STATE__?.transitions?.length || 0;
-    });
+    const { places: curPlaces, transitions: curTransitions } = await getPetriNetState(page);
+    const placesCount = curPlaces.length || 0;
+    const transitionsCount = curTransitions.length || 0;
     
     expect(placesCount).toBe(2);
     expect(transitionsCount).toBe(1);
@@ -216,77 +213,67 @@ test.describe('Petri Net Editor', () => {
     const arcButton = page.getByTestId('toolbar-arc');
     await expect(arcButton).toBeVisible();
     await arcButton.click();
-    await page.waitForTimeout(300);
+    await waitForState(page, (s) => true);
     
     // Click on the transition to start the arc
-    await page.mouse.click(300, 200);
-    await page.waitForTimeout(300);
+    await clickStage(page, { x: 300, y: 200 });
+    await waitForState(page, (s) => true);
     
     // Click on the first place to complete the arc
-    await page.mouse.click(200, 150);
-    await page.waitForTimeout(500);
+    await clickStage(page, { x: 200, y: 150 });
+    await waitForState(page, (s) => (s.arcs?.length || 0) >= 1);
     
     // Step 5: Create an arc from transition to second place
     // Still in arc mode
     // Click on the transition to start the arc
-    await page.mouse.click(300, 200);
-    await page.waitForTimeout(300);
+    await clickStage(page, { x: 300, y: 200 });
+    await waitForState(page, (s) => true);
     
     // Click on the second place to complete the arc
-    await page.mouse.click(400, 250);
-    await page.waitForTimeout(500);
+    await clickStage(page, { x: 400, y: 250 });
+    await waitForState(page, (s) => (s.arcs?.length || 0) === 2);
     
     // Verify we have 2 arcs
-    const arcsCount = await page.evaluate(() => {
-      // @ts-ignore - Custom property added for testing
-      return window.__PETRI_NET_STATE__?.arcs?.length || 0;
-    });
+    const { arcs } = await getPetriNetState(page);
+    const arcsCount = arcs.length || 0;
     expect(arcsCount).toBe(2);
     
     // Step 6: Select and delete the transition
     const selectButton = page.getByTestId('toolbar-select');
     await expect(selectButton).toBeVisible();
     await selectButton.click();
-    await page.waitForTimeout(300);
+    await waitForState(page, (s) => true);
     
     // Click on the transition to select it
-    await page.mouse.click(300, 200);
-    await page.waitForTimeout(300);
+    await clickStage(page, { x: 300, y: 200 });
+    await waitForState(page, (s) => true);
     
     // Press Delete key to remove the transition
     await page.keyboard.press('Delete');
-    await page.waitForTimeout(500);
+    await waitForState(page, (s) => (s.transitions?.length || 0) === 0 && (s.arcs?.length || 0) === 0);
     
     // Verify transition was deleted
-    const finalTransitionsCount = await page.evaluate(() => {
-      // @ts-ignore - Custom property added for testing
-      return window.__PETRI_NET_STATE__?.transitions?.length || 0;
-    });
+    const { transitions: finalTransitions } = await getPetriNetState(page);
+    const finalTransitionsCount = finalTransitions.length || 0;
     expect(finalTransitionsCount).toBe(0);
     
     // Verify arcs were also deleted
-    const finalArcsCount = await page.evaluate(() => {
-      // @ts-ignore - Custom property added for testing
-      return window.__PETRI_NET_STATE__?.arcs?.length || 0;
-    });
+    const { arcs: finalArcs } = await getPetriNetState(page);
+    const finalArcsCount = finalArcs.length || 0;
     expect(finalArcsCount).toBe(0);
     
     // Remove remaining isolated places to keep the PN fully connected (empty)
     // Delete place at (200, 150)
-    await page.mouse.click(200, 150);
-    await page.waitForTimeout(200);
+    await clickStage(page, { x: 200, y: 150 });
     await page.keyboard.press('Delete');
-    await page.waitForTimeout(300);
+    await waitForState(page, (s) => (s.places?.length || 0) === 1);
     // Delete place at (400, 250)
-    await page.mouse.click(400, 250);
-    await page.waitForTimeout(200);
+    await clickStage(page, { x: 400, y: 250 });
     await page.keyboard.press('Delete');
-    await page.waitForTimeout(300);
+    await waitForState(page, (s) => (s.places?.length || 0) === 0);
 
-    const finalPlacesCount = await page.evaluate(() => {
-      // @ts-ignore - Custom property added for testing
-      return window.__PETRI_NET_STATE__?.places?.length || 0;
-    });
+    const { places: finalPlaces } = await getPetriNetState(page);
+    const finalPlacesCount = finalPlaces.length || 0;
     expect(finalPlacesCount).toBe(0);
   });
 });
