@@ -4,7 +4,8 @@
 Set-Location -Path .\petri-net-app; npm run dev
 
 # Run unit tests
-Set-Location -Path .\petri-net-app; npm test
+
+
 
 # Run specific unit tests
 Set-Location -Path .\petri-net-app; npm test -- path/to/test/file.test.js
