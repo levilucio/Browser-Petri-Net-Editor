@@ -5,6 +5,8 @@
  */
 
 import { PyodideSimulator } from './pyodide-simulator';
+import { AlgebraicSimulator } from './algebraic-simulator';
+import { detectNetModeFromContent } from '../../utils/netMode';
 import { ConflictResolver } from './conflict-resolver';
 
 // Global state management
@@ -88,19 +90,27 @@ export class SimulatorCore {
     
     try {
       currentPetriNet = netData;
-      console.log('Initializing Pyodide simulator with Petri net:', netData.places?.length || 0, 'places,', netData.transitions?.length || 0, 'transitions');
-      
-      // Only use Pyodide simulator
-      const pyodideSim = new PyodideSimulator();
-      await pyodideSim.initialize(netData, options);
-      
-      // Verify the simulator is actually ready before assigning it
-      if (!pyodideSim.isInitialized) {
-        throw new Error('Pyodide simulator initialization completed but isInitialized is false');
+      const mode = (options?.netMode) || (netData?.netMode) || detectNetModeFromContent(netData);
+      const usingAlgebraic = mode === 'algebraic-int';
+      console.log('Initializing simulator (mode:', mode + ') with Petri net:', netData.places?.length || 0, 'places,', netData.transitions?.length || 0, 'transitions');
+
+      if (usingAlgebraic) {
+        const algSim = new AlgebraicSimulator();
+        await algSim.initialize(netData, options);
+        if (!algSim.isInitialized) {
+          throw new Error('Algebraic simulator initialization completed but isInitialized is false');
+        }
+        simulator = algSim;
+        console.log('Algebraic simulator initialized successfully');
+      } else {
+        const pyodideSim = new PyodideSimulator();
+        await pyodideSim.initialize(netData, options);
+        if (!pyodideSim.isInitialized) {
+          throw new Error('Pyodide simulator initialization completed but isInitialized is false');
+        }
+        simulator = pyodideSim;
+        console.log('Pyodide simulator initialized successfully');
       }
-      
-      simulator = pyodideSim;
-      console.log('Pyodide simulator initialized successfully');
 
       // Attach any listeners that were registered before the simulator existed
       if (pendingListeners.size > 0) {
@@ -179,6 +189,21 @@ export class SimulatorCore {
     }
 
     try {
+      // For PT (pyodide) nets, enforce a strict single-step by choosing
+      // exactly one enabled transition and firing it. This guards against
+      // any simulator-side mode drift and guarantees user-visible stepping.
+      const type = this.getSimulatorType();
+      if (type === 'pyodide' && simulator.getEnabledTransitions && simulator.fireTransition) {
+        const enabled = await simulator.getEnabledTransitions();
+        if (!enabled || enabled.length === 0) {
+          return simulator.getCurrentState ? simulator.getCurrentState() : null;
+        }
+        const pick = enabled[Math.floor(Math.random() * enabled.length)];
+        const id = typeof pick === 'string' ? pick : (pick?.id || String(pick));
+        return await simulator.fireTransition(id);
+      }
+
+      // Algebraic nets keep their own step logic
       return await simulator.stepSimulation();
     } catch (error) {
       console.error('Error executing simulation step:', error);
@@ -287,15 +312,15 @@ export class SimulatorCore {
    * Get simulator type
    */
   getSimulatorType() {
-    // Always return 'pyodide' if we have any simulator instance
-    // This prevents the UI from getting stuck waiting for 'none'
     if (simulator) {
-      return 'pyodide';
+      // Infer type by presence of pyodide flag in getStatus
+      try {
+        const st = simulator.getStatus?.();
+        return st?.hasPyodide ? 'pyodide' : 'algebraic';
+      } catch (_) {}
+      return 'unknown';
     }
-    
-    // If no simulator exists yet, return 'pyodide' to indicate it's available
-    // This allows the initialization process to proceed
-    return 'pyodide';
+    return 'unknown';
   }
 
   /**
@@ -329,11 +354,9 @@ export class SimulatorCore {
     
     const status = simulator.getStatus();
     
-    // Simulator is ready if it has basic components
-    // The simulation panel activation is now handled by event listeners
-    return status.isInitialized && 
-           status.hasPyodide &&
-           status.hasSimulator;
+    // Simulator is ready if initialized and has a simulator instance.
+    // Do not require Pyodide when using the algebraic simulator.
+    return Boolean(status?.isInitialized) && Boolean(status?.hasSimulator);
   }
 
   /**

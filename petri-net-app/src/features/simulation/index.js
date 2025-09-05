@@ -9,6 +9,7 @@ export { simulatorCoreInstance as simulatorCore, SimulatorCore };
 
 // Individual simulator (Pyodide only)
 export { PyodideSimulator } from './pyodide-simulator';
+export { AlgebraicSimulator } from './algebraic-simulator';
 
 // Conflict resolution
 export { ConflictResolver } from './conflict-resolver';

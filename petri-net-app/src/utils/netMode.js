@@ -9,9 +9,9 @@ export function detectNetModeFromContent(net) {
   const arcs = Array.isArray(net.arcs) ? net.arcs : [];
 
   const hasAlgebraic = (
-    places.some(p => Array.isArray(p.valueTokens) || !!p.type) ||
+    places.some(p => (Array.isArray(p.valueTokens) && p.valueTokens.length > 0) || !!p.type) ||
     transitions.some(t => !!t.guard || !!t.action) ||
-    arcs.some(a => Array.isArray(a.bindings) ? a.bindings.length > 0 : !!a.binding)
+    arcs.some(a => (Array.isArray(a.bindings) && a.bindings.length > 0) || !!a.binding)
   );
   return hasAlgebraic ? 'algebraic-int' : 'pt';
 }
