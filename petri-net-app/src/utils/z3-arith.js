@@ -180,6 +180,62 @@ export async function solveEquation(lhsAst, rhsAst, maxModels = 5) {
   return { solutions, hasMore };
 }
 
+// Solve inequality lhs OP rhs for Int variables; returns up to maxModels solutions
+export async function solveInequality(lhsAst, rhsAst, op, maxModels = 5) {
+  const { ctx } = await getContext();
+  const { Int, Solver } = ctx;
+
+  const vars = Array.from(collectVariables(lhsAst)).concat(Array.from(collectVariables(rhsAst)));
+  const uniqueVars = Array.from(new Set(vars));
+  const symMap = new Map(uniqueVars.map((v) => [v, Int.const(v)]));
+  const sym = (name) => symMap.get(name);
+
+  const lhs = buildZ3Expr(ctx, lhsAst, sym);
+  const rhs = buildZ3Expr(ctx, rhsAst, sym);
+
+  const s = new Solver();
+  
+  // Add the inequality constraint
+  switch (op) {
+    case '<': s.add(lhs.lt(rhs)); break;
+    case '<=': s.add(lhs.le(rhs)); break;
+    case '>': s.add(lhs.gt(rhs)); break;
+    case '>=': s.add(lhs.ge(rhs)); break;
+    case '!=': s.add(lhs.neq(rhs)); break;
+    default: throw new Error(`Unsupported inequality operator: ${op}`);
+  }
+
+  const solutions = [];
+  for (let k = 0; k < maxModels; k++) {
+    const res = await s.check();
+    if (String(res) !== 'sat') break;
+    const m = s.model();
+    const modelVals = {};
+    const equalities = [];
+    for (const v of uniqueVars) {
+      const valExpr = m.eval(symMap.get(v), true);
+      // Record a readable result
+      if (ctx.isIntVal(valExpr)) {
+        modelVals[v] = Number.parseInt(valExpr.asString(), 10);
+      } else {
+        // Fallback to toString() for non-numeral forms
+        const txt = String(valExpr.toString());
+        const num = Number.parseInt(txt, 10);
+        modelVals[v] = Number.isFinite(num) ? num : 0;
+      }
+      // Build blocking equality against this concrete value
+      equalities.push(symMap.get(v).eq(valExpr));
+    }
+    solutions.push(modelVals);
+    // Block this model to find a different one
+    const notAll = ctx.Not(ctx.And(...equalities));
+    s.add(notAll);
+  }
+
+  const hasMore = (await s.check()) === 'sat';
+  return { solutions, hasMore };
+}
+
 // Parse a simple predicate of the form "lhs OP rhs" where OP in ==, !=, <, <=, >, >=
 // lhs and rhs can be arithmetic expressions parsed by parseArithmetic in arith-parser
 export function parsePredicate(expr, parseArithmetic) {

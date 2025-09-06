@@ -10,6 +10,7 @@ import {
   evaluateArithmeticWithBindings,
   evaluatePredicate,
   solveEquation,
+  solveInequality,
   parsePredicate
 } from '../../utils/z3-arith.js';
 
@@ -293,16 +294,29 @@ export class AlgebraicSimulator {
     if (!result) throw new Error(`Transition ${transitionId} is not enabled`);
     let env = result.env || {};
 
-    // If guard has free variables, try to solve equality to bind them before producing outputs
+    // If guard has free variables, try to solve the guard to bind them before producing outputs
     if (guardAst) {
       const free = getUnboundGuardVars(guardAst, env);
-      if (free.length > 0 && guardAst.op === '==') {
+      if (free.length > 0) {
         try {
           const leftSub = substituteBindings(guardAst.left, env);
           const rightSub = substituteBindings(guardAst.right, env);
-          const { solutions } = await solveEquation(leftSub, rightSub, 1);
-          if (Array.isArray(solutions) && solutions[0]) {
-            env = { ...env, ...solutions[0] };
+          
+          let solutions = [];
+          if (guardAst.op === '==') {
+            // Handle equality
+            const result = await solveEquation(leftSub, rightSub, 5);
+            solutions = result.solutions || [];
+          } else if (['<', '<=', '>', '>=', '!='].includes(guardAst.op)) {
+            // Handle inequalities
+            const result = await solveInequality(leftSub, rightSub, guardAst.op, 5);
+            solutions = result.solutions || [];
+          }
+          
+          // If we found solutions, pick one randomly
+          if (solutions.length > 0) {
+            const randomSolution = solutions[Math.floor(Math.random() * solutions.length)];
+            env = { ...env, ...randomSolution };
           }
         } catch (_) { /* ignore */ }
       }
