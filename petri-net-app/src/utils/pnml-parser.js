@@ -66,6 +66,12 @@ export function parsePNML(pnmlString) {
       console.error('No net element found in the PNML file');
       return result;
     }
+    
+    // Extract netMode from the net element if present
+    const netMode = netElement.getAttribute('netMode');
+    if (netMode) {
+      result.netMode = netMode;
+    }
     // Net type is controlled by user settings; no detection here
     
     // Find the page element inside the net
@@ -444,6 +450,11 @@ export function generatePNML(petriNetJson) {
     // Net type in XML is not authoritative; keep default PT type for compatibility
     netElement.setAttribute('type', 'http://www.pnml.org/version-2009/grammar/ptnet');
     pnmlElement.appendChild(netElement);
+    
+    // Add netMode as a custom attribute to store the Petri net mode
+    if (petriNetJson.netMode) {
+      netElement.setAttribute('netMode', petriNetJson.netMode);
+    }
     
     // Add net name
     const netNameElement = xmlDoc.createElement('name');

@@ -140,6 +140,45 @@ export const PetriNetProvider = ({ children }) => {
     setIsSettingsDialogOpen(false); // Also close the dialog on save
   };
 
+  // Complete reset function for editor and simulator
+  const resetEditor = () => {
+    // Reset elements to empty state
+    const emptyState = {
+      places: [],
+      transitions: [],
+      arcs: []
+    };
+    setElements(emptyState);
+    
+    // Reset selected element
+    setSelectedElement(null);
+    
+    // Reset mode to select
+    setMode('select');
+    
+    // Reset arc creation state
+    setArcStart(null);
+    setTempArcEnd(null);
+    
+    // Reset simulation settings to default
+    setSimulationSettings({
+      maxIterations: 100,
+      maxTokens: 20,
+      netMode: 'pt'
+    });
+    
+    // Reset canvas state
+    setCanvasScroll({ x: 0, y: 0 });
+    setZoomLevel(1.0);
+    
+    // Reset history
+    historyManagerRef.current = new HistoryManager(emptyState);
+    setCanUndo(false);
+    setCanRedo(false);
+    
+    console.log('Editor completely reset');
+  };
+
   return (
     <PetriNetContext.Provider value={{
       elements, setElements,
@@ -183,6 +222,7 @@ export const PetriNetProvider = ({ children }) => {
       setContainerRef: setContainerRefValue, // Expose the setter
       stageRef,
       handleSaveSettings, // Expose settings save handler
+      resetEditor, // Expose complete editor reset function
       MIN_ZOOM, // Expose MIN_ZOOM
       MAX_ZOOM  // Expose MAX_ZOOM
       ,

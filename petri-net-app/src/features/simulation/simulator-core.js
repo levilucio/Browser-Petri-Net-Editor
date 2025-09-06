@@ -90,7 +90,8 @@ export class SimulatorCore {
     
     try {
       currentPetriNet = netData;
-      const mode = (options?.netMode) || (netData?.netMode) || detectNetModeFromContent(netData);
+      // Use stored netMode from file first, then options, then fallback to detection
+      const mode = (netData?.netMode) || (options?.netMode) || detectNetModeFromContent(netData);
       const usingAlgebraic = mode === 'algebraic-int';
       console.log('Initializing simulator (mode:', mode + ') with Petri net:', netData.places?.length || 0, 'places,', netData.transitions?.length || 0, 'transitions');
 

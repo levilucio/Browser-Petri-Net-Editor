@@ -49,6 +49,7 @@ const AppWrapper = () => {
       stageRef,
 
       handleSaveSettings,
+      resetEditor,
       enabledTransitionIds
     } = usePetriNet();
 
@@ -218,6 +219,7 @@ const AppWrapper = () => {
             updateHistory={updateHistory}
             simulationSettings={simulationSettings}
             setSimulationSettings={setSimulationSettings}
+            resetEditor={resetEditor}
           />
         </div>
         

@@ -27,7 +27,8 @@ const Toolbar = ({
   stopSimulation,
   clearCanvas,
   onAutoLayout,
-  onOpenSettings
+  onOpenSettings,
+  resetEditor
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -54,8 +55,14 @@ const Toolbar = ({
       setError(null);
       setSuccess(null);
       
+      // Include the current netMode in the elements when saving
+      const elementsWithMode = {
+        ...elements,
+        netMode: simulationSettings?.netMode || 'pt'
+      };
+      
       // Convert the Petri net to PNML
-      const pnmlString = await exportToPNML(elements);
+      const pnmlString = await exportToPNML(elementsWithMode);
       
       // Create a blob and download link
       const blob = new Blob([pnmlString], { type: 'application/xml' });
@@ -219,14 +226,35 @@ const Toolbar = ({
           console.warn('No arcs found in imported data');
         }
         
+        // Reset simulator and editor state completely before loading new Petri net
+        try {
+          // Stop any running simulations
+          simulatorCore.deactivateSimulation?.();
+          // Reset simulator state
+          simulatorCore.reset?.();
+        } catch (e) {
+          console.warn('Simulator reset on load failed or not available:', e);
+        }
+
+        // Reset editor state completely
+        if (resetEditor) {
+          resetEditor();
+        }
+
         // Update the Petri net state
         setElements(safeJson);
 
-        // Determine and set net mode from parsed content (centralized utility)
-        try {
-          const importedMode = detectNetModeFromContent(safeJson);
-          setSimulationSettings(prev => ({ ...(prev || {}), netMode: importedMode }));
-        } catch (_) {}
+        // Use stored netMode from file instead of detecting from content
+        const storedMode = safeJson.netMode;
+        if (storedMode) {
+          setSimulationSettings(prev => ({ ...(prev || {}), netMode: storedMode }));
+        } else {
+          // Fallback to detection only if no stored mode
+          try {
+            const importedMode = detectNetModeFromContent(safeJson);
+            setSimulationSettings(prev => ({ ...(prev || {}), netMode: importedMode }));
+          } catch (_) {}
+        }
         
         // Verify the state was updated by exposing it to the window for debugging
         // State prepared for loading
@@ -258,25 +286,36 @@ const Toolbar = ({
   
   // Function to clear the canvas
   const handleClear = () => {
-    const emptyState = {
-      places: [],
-      transitions: [],
-      arcs: []
-    };
-    
     try {
-      // Ensure simulator is fully reset so no stale enabled transitions remain
+      // Reset simulator and editor state completely when canvas is empty
       simulatorCore.deactivateSimulation?.();
       simulatorCore.reset?.();
     } catch (e) {
       console.warn('Simulator reset on clear failed or not available:', e);
     }
 
-    setElements(emptyState);
-    
-    // Add to history
-    if (updateHistory) {
-      updateHistory(emptyState);
+    // Use the complete reset function
+    if (resetEditor) {
+      resetEditor();
+    } else {
+      // Fallback to manual reset if resetEditor not available
+      const emptyState = {
+        places: [],
+        transitions: [],
+        arcs: []
+      };
+      setElements(emptyState);
+      
+      // Reset simulation settings to default when canvas is empty
+      setSimulationSettings(prev => ({ 
+        ...(prev || {}), 
+        netMode: 'pt' // Reset to P/T mode when canvas is empty
+      }));
+      
+      // Add to history
+      if (updateHistory) {
+        updateHistory(emptyState);
+      }
     }
     
     // Show success message
