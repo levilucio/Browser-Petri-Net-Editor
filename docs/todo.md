@@ -125,12 +125,12 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
       - Variable binding (e.g., `x` from place P1, `y` from place P2)
       - Term unification (e.g., matching `(x,1)` with token `(2,1)` to bind `x = 2`)
       - Destructuring and value matching
-  - Extend XML parser to handle integer algebraic net schema with guards, actions, and bindings
+  - ✅ Extend XML parser to handle integer algebraic net schema with guards, actions, and bindings
   - ✅ Implement dual-mode simulator supporting both P/T nets and integer algebraic nets
-  - Add simulation settings to switch between P/T mode and algebraic mode
-  - Ensure backward compatibility with existing P/T net files
+  - ✅ Add simulation settings to switch between P/T mode and algebraic mode
+  - ✅ Ensure backward compatibility with existing P/T net files
   - Set Z3 solver timeout to 10 seconds for performance
-  - Write comprehensive tests for integer algebraic net functionality
+  - Write comprehensive tests for integer algebraic net functionality: test mode switching between simulators for ADT and P/T nets
 - **Deliverables**:
   - Integer-only algebraic Petri net editor with Z3 theory integration
   - Dual-mode simulator (P/T and integer algebraic)

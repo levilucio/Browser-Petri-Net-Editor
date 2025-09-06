@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import debounce from 'lodash.debounce';
 import { simulatorCore } from './index';
 import { ConflictResolver } from './conflict-resolver';
+import { getSimulationStats } from './simulation-utils';
 
 const useSimulationManager = (elements, setElements, updateHistory) => {
   // Core simulation state
@@ -41,35 +42,84 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         try {
           await simulatorCore.update(latestElementsRef.current);
           
-                  // After update, check if transitions are enabled and update UI state
-        if (simulatorCore.isReady && await simulatorCore.isReady()) {
-          const enabled = await simulatorCore.getEnabledTransitions();
-          setEnabledTransitionIds(enabled || []);
-          setIsSimulatorReady(enabled && enabled.length > 0);
-        }
-        } catch (error) {
-          console.error('Error updating simulator:', error);
-        }
-      } else {
-        // No valid Petri net yet. If a simulator exists, still inform UI of current enabled set (likely empty) to avoid stale true
-        try {
+          // After update, check if transitions are enabled and update UI state
           if (simulatorCore.isReady && await simulatorCore.isReady()) {
             const enabled = await simulatorCore.getEnabledTransitions();
             setEnabledTransitionIds(enabled || []);
-            setIsSimulatorReady(!!(enabled && enabled.length > 0));
+            setIsSimulatorReady(enabled && enabled.length > 0);
           } else {
-            setIsSimulatorReady(false);
-            setEnabledTransitionIds([]);
+            // Simulator not ready, use fallback JavaScript calculation
+            console.log('Simulator not ready, using fallback enabled transitions calculation');
+            const stats = getSimulationStats(latestElementsRef.current);
+            const enabled = stats?.enabledTransitions || [];
+            setEnabledTransitionIds(enabled);
+            setIsSimulatorReady(enabled.length > 0);
           }
-        } catch {
-          setIsSimulatorReady(false);
+        } catch (error) {
+          console.error('Error updating simulator:', error);
+          // On error, reset state
           setEnabledTransitionIds([]);
+          setIsSimulatorReady(false);
         }
+      } else {
+        // No valid Petri net yet, reset state
+        setIsSimulatorReady(false);
+        setEnabledTransitionIds([]);
       }
     };
 
     manageSimulator();
   }, [elements.places.length, elements.transitions.length, elements.arcs.length]);
+
+  // Additional effect to periodically check simulator state for consistency
+  useEffect(() => {
+    const checkSimulatorState = async () => {
+      if (elements && elements.places && elements.transitions && elements.arcs && 
+          elements.places.length > 0 && elements.transitions.length > 0 && elements.arcs.length > 0) {
+        
+        try {
+          if (simulatorCore.isReady && await simulatorCore.isReady()) {
+            const enabled = await simulatorCore.getEnabledTransitions();
+            const hasEnabled = enabled && enabled.length > 0;
+            
+            // Update state if it's different from current state
+            if (JSON.stringify(enabled) !== JSON.stringify(enabledTransitionIds) || 
+                hasEnabled !== isSimulatorReady) {
+              setEnabledTransitionIds(enabled || []);
+              setIsSimulatorReady(hasEnabled);
+            }
+          } else {
+            // Simulator not ready, use fallback JavaScript calculation
+            const stats = getSimulationStats(elements);
+            const enabled = stats?.enabledTransitions || [];
+            const hasEnabled = enabled.length > 0;
+            
+            // Update state if it's different from current state
+            if (JSON.stringify(enabled) !== JSON.stringify(enabledTransitionIds) || 
+                hasEnabled !== isSimulatorReady) {
+              setEnabledTransitionIds(enabled);
+              setIsSimulatorReady(hasEnabled);
+            }
+          }
+        } catch (error) {
+          console.error('Error checking simulator state:', error);
+          // On error, use fallback
+          const stats = getSimulationStats(elements);
+          const enabled = stats?.enabledTransitions || [];
+          setEnabledTransitionIds(enabled);
+          setIsSimulatorReady(enabled.length > 0);
+        }
+      }
+    };
+
+    // Check immediately
+    checkSimulatorState();
+    
+    // Set up periodic check every 500ms to ensure consistency
+    const interval = setInterval(checkSimulatorState, 500);
+    
+    return () => clearInterval(interval);
+  }, [elements, enabledTransitionIds, isSimulatorReady]);
 
   // Cleanup on unmount
   useEffect(() => {
