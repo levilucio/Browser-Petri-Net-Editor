@@ -1,9 +1,8 @@
 /* @refresh reload */
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { simulatorCore } from '../features/simulation';
+import { simulatorCore, useSimulationManager } from '../features/simulation';
 import debounce from 'lodash/debounce';
 import { HistoryManager } from '../features/history/historyManager';
-import useSimulationManager from '../features/simulation/useSimulationManager';
 
 export const PetriNetContext = createContext();
 

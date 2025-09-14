@@ -1,9 +1,10 @@
 /**
  * Algebraic Petri Net Simulator (integers)
  * Pure JS implementation using Z3 for guards/bindings evaluation.
- * Mirrors the PyodideSimulator interface so the UI/core remain unchanged.
+ * Extends BaseSimulator for consistent interface.
  */
 
+import { BaseSimulator } from './BaseSimulator.js';
 import { parseArithmetic } from '../../utils/arith-parser';
 import {
   evaluateAction,
@@ -14,11 +15,9 @@ import {
   parsePredicate
 } from '../../utils/z3-arith.js';
 
-export class AlgebraicSimulator {
+export class AlgebraicSimulator extends BaseSimulator {
   constructor() {
-    this.petriNet = null;
-    this.isInitialized = false;
-    this.simulationMode = 'single';
+    super();
     this.eventListeners = new Map();
     this.lastEnabledTransitions = [];
     this.cache = {
@@ -27,11 +26,16 @@ export class AlgebraicSimulator {
     };
   }
 
-  async initialize(petriNet, options = {}) {
+  /**
+   * Get simulator type
+   */
+  getType() {
+    return 'algebraic';
+  }
+
+  async initializeSpecific(petriNet, options = {}) {
     this.petriNet = deepCloneNet(petriNet);
-    this.simulationMode = options.simulationMode || 'single';
     await this.buildCaches();
-    this.isInitialized = true;
     await this.checkTransitionStateChanges();
   }
 
@@ -103,19 +107,20 @@ export class AlgebraicSimulator {
     }
   }
 
-  async update(petriNet) {
-    if (!this.isInitialized) return;
+  async updateSpecific(petriNet) {
     // Only rebuild caches if structure changed
     const changed = JSON.stringify(this.petriNet) !== JSON.stringify(petriNet);
     this.petriNet = deepCloneNet(petriNet);
     if (changed) {
       await this.buildCaches();
       await this.checkTransitionStateChanges();
+    } else {
+      // Even if structure didn't change, when reloading a file we need to recalc enabled transitions
+      await this.checkTransitionStateChanges();
     }
   }
 
-  async getEnabledTransitions() {
-    if (!this.isInitialized) return [];
+  async getEnabledTransitionsSpecific() {
     const enabled = [];
     for (const t of (this.petriNet.transitions || [])) {
       const ok = await this.isTransitionEnabled(t.id);
@@ -210,14 +215,14 @@ export class AlgebraicSimulator {
     return !!sat;
   }
 
-  async stepSimulation() {
-    const enabled = await this.getEnabledTransitions();
+  async stepSimulationSpecific() {
+    const enabled = await this.getEnabledTransitionsSpecific();
     if (!enabled || enabled.length === 0) return this.getCurrentState();
     const pick = enabled[Math.floor(Math.random() * enabled.length)];
-    return this.fireTransition(pick);
+    return this.fireTransitionSpecific(pick);
   }
 
-  async fireTransition(transitionId) {
+  async fireTransitionSpecific(transitionId) {
     // A simple re-evaluation: find one satisfying assignment and apply
     const t = (this.petriNet.transitions || []).find(x => x.id === transitionId);
     if (!t) return this.getCurrentState();
@@ -438,7 +443,7 @@ export class AlgebraicSimulator {
   async checkTransitionStateChanges() {
     if (!this.isInitialized) return;
     try {
-      const currentEnabled = await this.getEnabledTransitions();
+      const currentEnabled = await this.getEnabledTransitionsSpecific();
       const changed = JSON.stringify([...currentEnabled].sort()) !== JSON.stringify([...this.lastEnabledTransitions].sort());
       if (changed) {
         const prev = [...this.lastEnabledTransitions];
@@ -450,6 +455,16 @@ export class AlgebraicSimulator {
         });
       }
     } catch (_) { /* ignore */ }
+  }
+
+  /**
+   * Reset simulator-specific state
+   */
+  resetSpecific() {
+    this.eventListeners.clear();
+    this.lastEnabledTransitions = [];
+    this.cache.guardAstByTransition.clear();
+    this.cache.bindingAstsByArc.clear();
   }
 }
 
