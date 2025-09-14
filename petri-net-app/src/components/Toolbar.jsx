@@ -95,6 +95,11 @@ const Toolbar = ({
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = '.pnml,.xml';
+    // Append to DOM so E2E tests can target it reliably
+    try {
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+    } catch (_) {}
     
     // Handle file selection
     fileInput.onchange = async (event) => {
@@ -277,6 +282,8 @@ const Toolbar = ({
         // by keeping the current state if there's an error
       } finally {
         setIsLoading(false);
+        // Cleanup the temporary input
+        try { if (fileInput && fileInput.parentNode) { fileInput.parentNode.removeChild(fileInput); } } catch (_) {}
       }
     };
     

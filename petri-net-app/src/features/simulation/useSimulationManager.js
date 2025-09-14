@@ -75,9 +75,11 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
     const handleTransitionsChanged = (eventData) => {
       setEnabledTransitionIds(eventData.enabled || []);
       setIsSimulatorReady(eventData.hasEnabled);
+      try { if (typeof window !== 'undefined') { window.__ENABLED_TRANSITIONS__ = Array.isArray(eventData.enabled) ? eventData.enabled : []; } } catch (_) {}
     };
 
     const handleTransitionFired = (eventData) => {
+      try { if (typeof window !== 'undefined') { window.__LAST_FIRED_TRANSITION_ID__ = eventData.transitionId || null; } } catch (_) {}
       if (eventData.newPetriNet) {
         setElements(eventData.newPetriNet);
         latestElementsRef.current = eventData.newPetriNet;

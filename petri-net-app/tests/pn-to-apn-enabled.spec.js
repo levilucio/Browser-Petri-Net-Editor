@@ -3,13 +3,11 @@ import { test, expect } from '@playwright/test';
 import { waitForAppReady } from './helpers.js';
 
 async function triggerLoadWithFile(page, absolutePath) {
-  // Click the Load button which opens a hidden <input type="file"> programmatically
-  // Then set the file on the newly created input element
-  const [fileChooser] = await Promise.all([
-    page.waitForEvent('filechooser'),
-    page.getByRole('button', { name: 'Load' }).click(),
-  ]);
-  await fileChooser.setFiles(absolutePath);
+  // Click the Load button and then wait for the input[type=file] to appear
+  await page.getByRole('button', { name: 'Load' }).click();
+  const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+  await input.waitFor({ state: 'attached', timeout: 10000 });
+  await input.setInputFiles(absolutePath);
 }
 
 test.describe('PN -> APN switching preserves enabled transitions UI', () => {
