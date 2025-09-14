@@ -10,7 +10,6 @@ This guide helps developers understand the structure, key patterns, and testing 
   - `PTSimulator` for classic P/T nets (integer tokens)
   - `AlgebraicSimulator` for algebraic nets (guards/terms solved with Z3)
   - Both implement a common `BaseSimulator` interface and are created via `SimulatorFactory`.
-  - The legacy Pyodide-based simulator has been removed.
 
 ### Core React Patterns Used
 
@@ -35,7 +34,7 @@ This guide helps developers understand the structure, key patterns, and testing 
 - Pointer-to-virtual coordinate transforms enable zooming and panning without breaking creation coordinates.
 - Grid snapping is optional, controlled by the toolbar toggle (`data-testid="grid-snap-toggle"`). A `SnapIndicator` shows the snap target.
 
-### Simulation Implementation (New Architecture)
+### Simulation Implementation
 
 - Entry points:
   - `src/features/simulation/index.js` – re-exports the core, hook, simulators, factory, event bus, and utilities.
