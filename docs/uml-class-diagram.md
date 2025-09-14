@@ -95,6 +95,12 @@ classDiagram
   class CanvasManager
   class ElementManager
   class ArcManager
+  class UseArcManager {
+    +handleCompleteArc()
+    +handleAddAnglePoint()
+    +handleDragAnglePoint()
+    +handleDeleteAnglePoint()
+  }
   class PropertiesPanel
   class PetriNetPanel
 
@@ -136,6 +142,7 @@ classDiagram
 
   PetriNetProvider ..> HistoryManager
   PetriNetProvider ..> UseSimulationManager
+  PetriNetProvider ..> UseArcManager
 
   App *-- PetriNetProvider
   App *-- Toolbar
@@ -146,6 +153,8 @@ classDiagram
 
   CanvasManager ..> ElementManager
   CanvasManager ..> ArcManager
+
+  ArcManager ..> UseArcManager
 
   Toolbar ..> SimulatorCore : reset()/deactivate()
   Toolbar ..> PetriNetProvider : setElements()/updateHistory()
