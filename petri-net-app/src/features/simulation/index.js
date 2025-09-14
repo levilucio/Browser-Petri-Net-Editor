@@ -3,9 +3,9 @@
  * Exports all simulation-related functionality
  */
 
-// NEW ARCHITECTURE - Primary exports
-export { newSimulatorCore as simulatorCore } from './NewSimulatorCore.js';
-export { default as useSimulationManager } from './NewSimulationManager.js';
+// Primary exports (new core under legacy names)
+export { default as simulatorCore } from './simulator-core.js';
+export { default as useSimulationManager } from './useSimulationManager.js';
 export { simulationEventBus } from './SimulationEventBus.js';
 export { SimulatorFactory } from './SimulatorFactory.js';
 export { BaseSimulator } from './BaseSimulator.js';
@@ -27,8 +27,4 @@ export {
   getSimulationStats
 } from './simulation-utils';
 
-// Legacy exports for backward compatibility
-import simulatorCoreInstance, { SimulatorCore } from './simulator-core';
-export { simulatorCoreInstance as legacySimulatorCore, SimulatorCore as LegacySimulatorCore };
-export { default as legacySimulatorCoreDefault } from './simulator-core';
-export { PyodideSimulator } from './pyodide-simulator';
+// Legacy exports no longer needed; Pyodide removed
