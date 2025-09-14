@@ -123,10 +123,14 @@ classDiagram
   SimulatorCore *-- BaseSimulator : currentSimulator
   SimulatorCore o-- SimulationEventBus : eventBus
   BaseSimulator ..> PetriNet
+  PetriNet *-- Place
+  PetriNet *-- Transition
+  PetriNet *-- Arc
 
   UseSimulationManager ..> SimulatorCore
   UseSimulationManager ..> ConflictResolver
   UseSimulationManager ..> SimulationEventBus
+  UseSimulationManager ..> SimulationUtils
 
   SimulationManager ..> UseSimulationManager
 
@@ -150,6 +154,8 @@ classDiagram
 
   PTSimulator ..> SimulationEventBus : transitionsChanged/transitionFired
   AlgebraicSimulator ..> SimulationEventBus : transitionsChanged/transitionFired
+  PTSimulator ..> SimulationUtils
+  AlgebraicSimulator ..> SimulationUtils
 ```
 
 
