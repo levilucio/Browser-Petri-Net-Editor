@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import debounce from 'lodash.debounce';
 import simulatorCore from './simulator-core.js';
-import { simulationEventBus } from './SimulationEventBus.js';
+import { simulationEventBus, SimulationEvents } from './SimulationEventBus.js';
 import { ConflictResolver } from './conflict-resolver.js';
 import { getSimulationStats } from './simulation-utils.js';
 
@@ -87,12 +87,12 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       }
     };
 
-    simulationEventBus.on('transitionsChanged', handleTransitionsChanged);
-    simulationEventBus.on('transitionFired', handleTransitionFired);
+    simulationEventBus.on(SimulationEvents.transitionsChanged, handleTransitionsChanged);
+    simulationEventBus.on(SimulationEvents.transitionFired, handleTransitionFired);
 
     return () => {
-      simulationEventBus.off('transitionsChanged', handleTransitionsChanged);
-      simulationEventBus.off('transitionFired', handleTransitionFired);
+      simulationEventBus.off(SimulationEvents.transitionsChanged, handleTransitionsChanged);
+      simulationEventBus.off(SimulationEvents.transitionFired, handleTransitionFired);
     };
   }, [setElements, updateHistory]);
 

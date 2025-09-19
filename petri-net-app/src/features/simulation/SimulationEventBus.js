@@ -50,7 +50,6 @@ export class SimulationEventBus {
       }
     }
   }
-
   /**
    * Remove all listeners for an event
    * @param {string} event - Event name
@@ -72,6 +71,11 @@ export class SimulationEventBus {
     return this.listeners.has(event) ? this.listeners.get(event).length : 0;
   }
 }
+
+export const SimulationEvents = {
+  transitionsChanged: 'transitionsChanged',
+  transitionFired: 'transitionFired',
+};
 
 // Export singleton instance
 export const simulationEventBus = new SimulationEventBus();

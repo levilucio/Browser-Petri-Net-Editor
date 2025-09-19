@@ -2,6 +2,8 @@
  * Base class for all Petri net simulators
  * Provides a common interface and shared functionality
  */
+import { SimulationEvents } from './SimulationEventBus.js';
+
 export class BaseSimulator {
   constructor() {
     this.isInitialized = false;
@@ -163,7 +165,7 @@ export class BaseSimulator {
     const enabled = Array.isArray(payload.enabled) ? payload.enabled : [];
     const previouslyEnabled = Array.isArray(payload.previouslyEnabled) ? payload.previouslyEnabled : [];
     const hasEnabled = typeof payload.hasEnabled === 'boolean' ? payload.hasEnabled : enabled.length > 0;
-    this.eventBus.emit('transitionsChanged', { enabled, previouslyEnabled, hasEnabled });
+    this.eventBus.emit(SimulationEvents.transitionsChanged, { enabled, previouslyEnabled, hasEnabled });
   }
 
   /**
@@ -174,7 +176,7 @@ export class BaseSimulator {
     if (!this.eventBus) return;
     const { transitionId, newPetriNet } = payload || {};
     if (!transitionId) return;
-    this.eventBus.emit('transitionFired', { transitionId, newPetriNet });
+    this.eventBus.emit(SimulationEvents.transitionFired, { transitionId, newPetriNet });
   }
 
   /**
