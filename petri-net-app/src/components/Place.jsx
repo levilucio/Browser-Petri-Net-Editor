@@ -79,9 +79,25 @@ const Place = ({
     // If algebraic integer tokens provided, render them as scattered integers when they fit
     if (Array.isArray(valueTokens) && valueTokens.length > 0) {
       const maxScatter = 6;
-      if (valueTokens.length <= maxScatter) {
+      const count = valueTokens.length;
+      // Single algebraic integer: center it
+      if (count === 1) {
+        const text = String(valueTokens[0]);
+        return (
+          <Text
+            text={text}
+            fontSize={14}
+            fill="black"
+            x={-radius}
+            y={-7}
+            width={radius * 2}
+            align="center"
+            listening={false}
+          />
+        );
+      }
+      if (count <= maxScatter) {
         // Arrange around inner circle at fixed positions for readability
-        const count = valueTokens.length;
         const innerR = radius - 12;
         return (
           <>

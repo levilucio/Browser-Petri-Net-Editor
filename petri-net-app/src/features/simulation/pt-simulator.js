@@ -93,6 +93,8 @@ export class PTSimulator extends BaseSimulator {
    */
   async fireTransitionSpecific(transitionId) {
     const { places, transitions, arcs } = this.petriNet;
+    // Capture previous enabled transitions for parity event emission
+    const previouslyEnabled = await this.getEnabledTransitionsSpecific();
     const transition = transitions.find(t => t.id === transitionId);
     
     if (!transition) {
@@ -134,6 +136,10 @@ export class PTSimulator extends BaseSimulator {
     
     // Emit transition fired event using base helper
     this.emitTransitionFired({ transitionId, newPetriNet });
+
+    // Emit transitionsChanged with parity payload
+    const enabledAfter = await this.getEnabledTransitionsSpecific();
+    this.emitTransitionsChanged({ enabled: enabledAfter, previouslyEnabled });
     
     return newPetriNet;
   }
