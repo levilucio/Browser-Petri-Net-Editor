@@ -117,7 +117,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     if (!t) return false;
 
     // Gather input arcs (place -> transition)
-    const inputArcs = (this.petriNet.arcs || []).filter(a => (a.targetId || a.target) === transitionId && (a.sourceType === 'place' || !a.sourceType));
+    const inputArcs = (this.petriNet.arcs || []).filter(a => a.targetId === transitionId && (a.sourceType === 'place' || !a.sourceType));
     if (inputArcs.length === 0) return true; // degenerate: no inputs
 
     // Pre-parse guard
@@ -208,8 +208,8 @@ export class AlgebraicSimulator extends BaseSimulator {
     // A simple re-evaluation: find one satisfying assignment and apply
     const t = (this.petriNet.transitions || []).find(x => x.id === transitionId);
     if (!t) return this.getCurrentState();
-    const inputArcs = (this.petriNet.arcs || []).filter(a => (a.targetId || a.target) === transitionId && (a.sourceType === 'place' || !a.sourceType));
-    const outputArcs = (this.petriNet.arcs || []).filter(a => (a.sourceId || a.source) === transitionId && (a.targetType === 'place' || !a.targetType));
+    const inputArcs = (this.petriNet.arcs || []).filter(a => a.targetId === transitionId && (a.sourceType === 'place' || !a.sourceType));
+    const outputArcs = (this.petriNet.arcs || []).filter(a => a.sourceId === transitionId && (a.targetType === 'place' || !a.targetType));
     const placesById = Object.fromEntries((this.petriNet.places || []).map(p => [p.id, p]));
     const guardAst = this.cache.guardAstByTransition.get(transitionId);
 
@@ -230,7 +230,7 @@ export class AlgebraicSimulator extends BaseSimulator {
       }
       const arc = inputArcs[arcIndex];
       const arcId = arc.id;
-      const srcId = arc.sourceId || arc.source;
+      const srcId = arc.sourceId;
       const place = placesById[srcId];
       const tokens = getTokensForPlace(place, MAX_TOKENS_PER_PLACE);
       const bindingAsts = this.cache.bindingAstsByArc.get(arcId) || [];
@@ -324,7 +324,7 @@ export class AlgebraicSimulator extends BaseSimulator {
 
     // Produce tokens on outputs
     for (const arc of outputArcs) {
-      const tgtId = arc.targetId || arc.target;
+      const tgtId = arc.targetId;
       const place = placesById[tgtId];
       if (!place) continue;
       if (!Array.isArray(place.valueTokens)) place.valueTokens = [];

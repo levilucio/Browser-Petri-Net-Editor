@@ -441,8 +441,8 @@ export function generatePNML(petriNetJson) {
     );
     
     const pnmlElement = xmlDoc.documentElement;
-    // Ensure APN prefix is declared if algebraic annotations are used
-    pnmlElement.setAttribute('xmlns:apn', APN_NS);
+    // Track whether any APN elements are written; add xmlns:apn only if needed
+    let apnUsed = false;
     
     // Create net element
     const netElement = xmlDoc.createElement('net');
@@ -496,6 +496,7 @@ export function generatePNML(petriNetJson) {
         textEl.textContent = String(place.type);
         typeEl.appendChild(textEl);
         placeElement.appendChild(typeEl);
+        apnUsed = true;
       }
       
       // Add initial marking (tokens or valueTokens)
@@ -544,6 +545,7 @@ export function generatePNML(petriNetJson) {
         textEl.textContent = String(transition.guard);
         guardEl.appendChild(textEl);
         transitionElement.appendChild(guardEl);
+        apnUsed = true;
       }
       if (transition.action) {
         const actionEl = xmlDoc.createElementNS(APN_NS, 'apn:action');
@@ -551,6 +553,7 @@ export function generatePNML(petriNetJson) {
         textEl.textContent = String(transition.action);
         actionEl.appendChild(textEl);
         transitionElement.appendChild(actionEl);
+        apnUsed = true;
       }
       
       pageElement.appendChild(transitionElement);
@@ -630,17 +633,24 @@ export function generatePNML(petriNetJson) {
         textEl.textContent = arc.bindings.join(', ');
         bindingEl.appendChild(textEl);
         arcElement.appendChild(bindingEl);
+        apnUsed = true;
       } else if (arc.binding) {
         const bindingEl = xmlDoc.createElementNS(APN_NS, 'apn:binding');
         const textEl = xmlDoc.createElementNS(APN_NS, 'apn:text');
         textEl.textContent = String(arc.binding);
         bindingEl.appendChild(textEl);
         arcElement.appendChild(bindingEl);
+        apnUsed = true;
       }
       
       pageElement.appendChild(arcElement);
     });
     
+    // Ensure APN prefix is declared only if used
+    if (apnUsed) {
+      pnmlElement.setAttribute('xmlns:apn', APN_NS);
+    }
+
     // Serialize to string
     const serializer = new XMLSerializer();
     const xmlString = serializer.serializeToString(xmlDoc);
