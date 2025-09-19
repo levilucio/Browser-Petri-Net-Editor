@@ -18,7 +18,6 @@ import {
 export class AlgebraicSimulator extends BaseSimulator {
   constructor() {
     super();
-    this.eventListeners = new Map();
     this.lastEnabledTransitions = [];
     this.cache = {
       guardAstByTransition: new Map(),
@@ -65,24 +64,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     }
   }
 
-  addEventListener(eventType, callback) {
-    if (!this.eventListeners.has(eventType)) this.eventListeners.set(eventType, []);
-    this.eventListeners.get(eventType).push(callback);
-  }
-
-  removeEventListener(eventType, callback) {
-    if (!this.eventListeners.has(eventType)) return;
-    const arr = this.eventListeners.get(eventType);
-    const idx = arr.indexOf(callback);
-    if (idx >= 0) arr.splice(idx, 1);
-  }
-
-  emitEvent(eventType, data) {
-    const arr = this.eventListeners.get(eventType) || [];
-    for (const cb of arr) {
-      try { cb(data); } catch (e) { /* swallow */ }
-    }
-  }
+  // Eventing is now handled via BaseSimulator helpers and shared SimulationEventBus
 
   getStatus() {
     return {
@@ -391,7 +373,10 @@ export class AlgebraicSimulator extends BaseSimulator {
     }
 
     await this.checkTransitionStateChanges();
-    return this.getCurrentState();
+    const newState = this.getCurrentState();
+    // Emit transitionFired via shared event bus
+    this.emitTransitionFired({ transitionId, newPetriNet: newState });
+    return newState;
   }
 
   getCurrentState() {
@@ -448,10 +433,9 @@ export class AlgebraicSimulator extends BaseSimulator {
       if (changed) {
         const prev = [...this.lastEnabledTransitions];
         this.lastEnabledTransitions = [...currentEnabled];
-        this.emitEvent('transitionsChanged', {
+        this.emitTransitionsChanged({
           enabled: currentEnabled,
           previouslyEnabled: prev,
-          hasEnabled: currentEnabled.length > 0,
         });
       }
     } catch (_) { /* ignore */ }
@@ -461,7 +445,6 @@ export class AlgebraicSimulator extends BaseSimulator {
    * Reset simulator-specific state
    */
   resetSpecific() {
-    this.eventListeners.clear();
     this.lastEnabledTransitions = [];
     this.cache.guardAstByTransition.clear();
     this.cache.bindingAstsByArc.clear();

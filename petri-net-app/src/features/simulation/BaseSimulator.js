@@ -155,6 +155,29 @@ export class BaseSimulator {
   }
 
   /**
+   * Emit transitionsChanged in a consistent shape via the shared event bus
+   * @param {{enabled: string[], previouslyEnabled?: string[], hasEnabled?: boolean}} payload
+   */
+  emitTransitionsChanged(payload = {}) {
+    if (!this.eventBus) return;
+    const enabled = Array.isArray(payload.enabled) ? payload.enabled : [];
+    const previouslyEnabled = Array.isArray(payload.previouslyEnabled) ? payload.previouslyEnabled : [];
+    const hasEnabled = typeof payload.hasEnabled === 'boolean' ? payload.hasEnabled : enabled.length > 0;
+    this.eventBus.emit('transitionsChanged', { enabled, previouslyEnabled, hasEnabled });
+  }
+
+  /**
+   * Emit transitionFired in a consistent shape via the shared event bus
+   * @param {{transitionId: string, newPetriNet?: object}} payload
+   */
+  emitTransitionFired(payload = {}) {
+    if (!this.eventBus) return;
+    const { transitionId, newPetriNet } = payload || {};
+    if (!transitionId) return;
+    this.eventBus.emit('transitionFired', { transitionId, newPetriNet });
+  }
+
+  /**
    * Get simulator type
    * @returns {string} Simulator type identifier
    */

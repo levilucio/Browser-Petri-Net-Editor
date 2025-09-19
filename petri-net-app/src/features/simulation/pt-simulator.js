@@ -40,14 +40,9 @@ export class PTSimulator extends BaseSimulator {
     // Ensure tokens are properly initialized
     this.initializeTokens(petriNet);
     
-    // Emit transition state change event if event bus is available
-    if (this.eventBus) {
-      const enabled = await this.getEnabledTransitionsSpecific();
-      this.eventBus.emit('transitionsChanged', {
-        enabled,
-        hasEnabled: enabled.length > 0
-      });
-    }
+    // Emit transition state change event using base helper
+    const enabled = await this.getEnabledTransitionsSpecific();
+    this.emitTransitionsChanged({ enabled });
   }
 
   /**
@@ -137,13 +132,8 @@ export class PTSimulator extends BaseSimulator {
     // Update the Petri net
     this.petriNet = newPetriNet;
     
-    // Emit transition fired event
-    if (this.eventBus) {
-      this.eventBus.emit('transitionFired', {
-        transitionId,
-        newPetriNet
-      });
-    }
+    // Emit transition fired event using base helper
+    this.emitTransitionFired({ transitionId, newPetriNet });
     
     return newPetriNet;
   }
