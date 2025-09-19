@@ -22,12 +22,12 @@ export class BaseSimulator {
       throw new Error('Invalid Petri net structure');
     }
     
-    this.petriNet = petriNet;
+    this.petriNet = this.normalizeNet(petriNet);
     this.isInitialized = true;
     this.simulationMode = options.simulationMode || 'single';
     
     // Initialize simulator-specific logic
-    await this.initializeSpecific(petriNet, options);
+    await this.initializeSpecific(this.petriNet, options);
   }
 
   /**
@@ -51,8 +51,8 @@ export class BaseSimulator {
       throw new Error('Invalid Petri net structure');
     }
     
-    this.petriNet = petriNet;
-    await this.updateSpecific(petriNet);
+    this.petriNet = this.normalizeNet(petriNet);
+    await this.updateSpecific(this.petriNet);
   }
 
   /**
@@ -205,6 +205,80 @@ export class BaseSimulator {
     
     // Basic validation - can be extended by subclasses
     return true;
+  }
+
+  /**
+   * Normalize Petri net structure for internal use.
+   * - Ensure arcs have sourceId/targetId and bindings array
+   * - Ensure weights and tokens defaults
+   * - Keep legacy fields (source/target, binding) for compatibility
+   * @param {Object} petriNet
+   * @returns {Object} normalized net (deep-cloned)
+   */
+  normalizeNet(petriNet) {
+    const net = JSON.parse(JSON.stringify(petriNet || { places: [], transitions: [], arcs: [] }));
+
+    const places = Array.isArray(net.places) ? net.places : [];
+    const transitions = Array.isArray(net.transitions) ? net.transitions : [];
+    const arcs = Array.isArray(net.arcs) ? net.arcs : [];
+
+    const placeIdSet = new Set(places.map((p) => String(p.id)));
+    const transitionIdSet = new Set(transitions.map((t) => String(t.id)));
+
+    // Normalize places
+    for (const place of places) {
+      place.id = String(place.id);
+      // Ensure tokens reflect valueTokens if present; otherwise default to 0
+      if (Array.isArray(place.valueTokens)) {
+        const count = place.valueTokens.length;
+        if (!Number.isFinite(place.tokens) || place.tokens !== count) {
+          place.tokens = count;
+        }
+      } else if (!Number.isFinite(place.tokens)) {
+        place.tokens = 0;
+      }
+      // Ensure label/name fallbacks
+      if (!place.label && place.name) place.label = place.name;
+      if (!place.name && place.label) place.name = place.label;
+    }
+
+    // Normalize arcs
+    for (const arc of arcs) {
+      if (arc.id !== undefined) arc.id = String(arc.id);
+      const src = arc.sourceId || arc.source;
+      const tgt = arc.targetId || arc.target;
+      arc.sourceId = String(src);
+      arc.targetId = String(tgt);
+      // Keep legacy fields populated for compatibility
+      if (arc.source === undefined) arc.source = arc.sourceId;
+      if (arc.target === undefined) arc.target = arc.targetId;
+
+      // Weight default
+      const w = Number(arc.weight);
+      arc.weight = Number.isFinite(w) && w > 0 ? w : 1;
+
+      // Bindings array
+      if (Array.isArray(arc.bindings)) {
+        // no-op
+      } else if (arc.binding) {
+        arc.bindings = [String(arc.binding)];
+      } else {
+        arc.bindings = [];
+      }
+
+      // Infer types if missing
+      if (!arc.sourceType) {
+        arc.sourceType = placeIdSet.has(arc.sourceId) ? 'place' : (transitionIdSet.has(arc.sourceId) ? 'transition' : arc.sourceType);
+      }
+      if (!arc.targetType) {
+        arc.targetType = placeIdSet.has(arc.targetId) ? 'place' : (transitionIdSet.has(arc.targetId) ? 'transition' : arc.targetType);
+      }
+    }
+
+    net.places = places;
+    net.transitions = transitions;
+    net.arcs = arcs;
+    return net;
   }
 
   /**
