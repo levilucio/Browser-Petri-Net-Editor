@@ -26,7 +26,6 @@ const Toolbar = ({
   startSimulation,
   stopSimulation,
   clearCanvas,
-  onAutoLayout,
   onOpenSettings,
   resetEditor
 }) => {
@@ -544,20 +543,12 @@ const Toolbar = ({
               >
                 Arc
               </button>
-              <button 
-                style={{ ...buttonStyle(false), opacity: 0.5 }}
-                data-testid="toolbar-auto-layout"
-                onClick={onAutoLayout}
-                title="Auto-arrange elements for better visualization"
-                disabled={true}
-              >
-                Auto
-              </button>
+              
             </div>
           </div>
         </div>
         
-        {/* Visual separator before history tools */}
+        {/* Visual separator between Editing and ADT Manager */}
         <div className="h-full" style={{ 
           borderRight: '1px solid rgba(180, 180, 190, 0.9)',
           borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
@@ -566,8 +557,8 @@ const Toolbar = ({
           alignSelf: 'center',
           opacity: 0.85
         }}></div>
-
-        {/* Insert ADT Manager button between Editing and History */}
+        
+        {/* ADT Manager Group */}
         <div className="adt-tools p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">ADT Manager</h3>
           <div className="flex justify-between">
@@ -581,6 +572,16 @@ const Toolbar = ({
             </button>
           </div>
         </div>
+
+        {/* Visual separator between ADT Manager and History */}
+        <div className="h-full" style={{ 
+          borderRight: '1px solid rgba(180, 180, 190, 0.9)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
+          margin: '0 12px',
+          height: '50px',
+          alignSelf: 'center',
+          opacity: 0.85
+        }}></div>
 
         {/* History Group */}
         <div className="history-tools p-2">

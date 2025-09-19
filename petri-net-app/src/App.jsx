@@ -7,7 +7,7 @@ import SettingsDialog from './components/SettingsDialog';
 import CanvasManager from './features/canvas/CanvasManager';
 import { useElementManager } from './features/elements/useElementManager';
 
-import { applyAutoLayout } from './utils/autoLayout';
+// Auto layout removed
 
 import { PetriNetProvider, usePetriNet } from './contexts/PetriNetContext';
 import { AdtProvider } from './contexts/AdtContext';
@@ -58,29 +58,7 @@ const AppWrapper = () => {
     // Get simulator core for testing
     const simulatorCore = window.__PETRI_NET_SIM_CORE__;
 
-    const handleAutoLayout = () => {
-      if (!elements || (!elements.places.length && !elements.transitions.length)) {
-        return;
-      }
-      if (!virtualCanvasDimensions || !virtualCanvasDimensions.width || !virtualCanvasDimensions.height) {
-        console.error("Auto-layout skipped: Virtual canvas dimensions are not available.");
-        return;
-      }
-      const layoutDimensions = {
-        width: virtualCanvasDimensions.width,
-        height: virtualCanvasDimensions.height,
-      };
-      try {
-        const newElementsState = applyAutoLayout(
-          JSON.parse(JSON.stringify(elements)), 
-          layoutDimensions
-        );
-        setElements(newElementsState);
-        updateHistory(newElementsState);
-      } catch (error) {
-        console.error("Error during auto-layout:", error);
-      }
-    };
+    // handleAutoLayout removed
 
     useEffect(() => {
       window.__PETRI_NET_STATE__ = {
@@ -210,7 +188,7 @@ const AppWrapper = () => {
             canUndo={canUndo}   
             onRedo={handleRedo} 
             canRedo={canRedo}   
-            onAutoLayout={handleAutoLayout}
+            
             gridSnappingEnabled={gridSnappingEnabled} 
             onToggleGridSnapping={toggleGridSnapping} 
             onOpenSettings={() => setIsSettingsDialogOpen(true)} 
