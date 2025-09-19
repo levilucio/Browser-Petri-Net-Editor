@@ -198,10 +198,8 @@ export class AlgebraicSimulator extends BaseSimulator {
   }
 
   async stepSimulationSpecific() {
-    const enabled = await this.getEnabledTransitionsSpecific();
-    if (!enabled || enabled.length === 0) return this.getCurrentState();
-    const pick = enabled[Math.floor(Math.random() * enabled.length)];
-    return this.fireTransitionSpecific(pick);
+    // Step semantics are centralized in useSimulationManager / simulator-core.
+    return this.getCurrentState();
   }
 
   async fireTransitionSpecific(transitionId) {

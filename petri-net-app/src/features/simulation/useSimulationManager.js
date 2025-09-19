@@ -242,16 +242,16 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
         return;
       }
 
-      await simulatorCore.activateSimulation(false);
-      const newElements = await simulatorCore.stepSimulation();
-      if (newElements) {
-        const elementsCopy = JSON.parse(JSON.stringify(newElements));
-        setElements(elementsCopy);
-        latestElementsRef.current = elementsCopy;
-        if (updateHistory) updateHistory(elementsCopy, true);
-        clearError();
-        await refreshEnabledTransitions();
-      }
+      // Single-step semantics handled here: choose one enabled transition and fire it
+      const enabled = await simulatorCore.getEnabledTransitions();
+      if (!enabled || enabled.length === 0) return;
+      const enabledIds = (enabled || []).map((t) => {
+        if (typeof t === 'string') return t;
+        if (t && typeof t === 'object') { return t.id ?? (t.get ? t.get('id') : undefined); }
+        return String(t);
+      }).filter(Boolean);
+      const pick = enabledIds[Math.floor(Math.random() * enabledIds.length)];
+      await handleFireTransition(pick);
     } catch (error) {
       console.error('Error in step simulation:', error);
       setSimulationError('Error during simulation step: ' + (error.message || 'Unknown error'));

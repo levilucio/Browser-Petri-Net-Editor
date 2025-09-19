@@ -148,27 +148,7 @@ export class PTSimulator extends BaseSimulator {
    * Execute one simulation step
    */
   async stepSimulationSpecific() {
-    const enabled = await this.getEnabledTransitionsSpecific();
-    
-    if (enabled.length === 0) {
-      return this.petriNet;
-    }
-    
-    // In single mode, fire a random enabled transition
-    if (this.simulationMode === 'single') {
-      const randomIndex = Math.floor(Math.random() * enabled.length);
-      const transitionId = enabled[randomIndex];
-      return await this.fireTransitionSpecific(transitionId);
-    }
-    
-    // In maximal mode, fire all enabled transitions (they should be non-conflicting)
-    if (this.simulationMode === 'maximal') {
-      for (const transitionId of enabled) {
-        await this.fireTransitionSpecific(transitionId);
-      }
-      return this.petriNet;
-    }
-    
+    // Step semantics are centralized in useSimulationManager.
     return this.petriNet;
   }
 

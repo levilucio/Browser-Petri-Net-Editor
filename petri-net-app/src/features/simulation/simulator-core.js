@@ -62,8 +62,20 @@ export class SimulatorCore {
 
   async stepSimulation() {
     if (!this.currentSimulator) throw new Error('Simulator not initialized');
-    try { return await this.currentSimulator.stepSimulation(); }
-    catch (error) { console.error('Failed to step simulation:', error); throw error; }
+    try {
+      // Centralized single-step semantics: choose one enabled transition and fire it
+      const enabled = await this.currentSimulator.getEnabledTransitions();
+      if (!enabled || enabled.length === 0) {
+        // No-op: return current state if available
+        return this.currentSimulator.petriNet || null;
+      }
+      const pick = enabled[Math.floor(Math.random() * enabled.length)];
+      const transitionId = (typeof pick === 'string') ? pick : (pick && pick.id) ? pick.id : String(pick);
+      return await this.currentSimulator.fireTransition(transitionId);
+    } catch (error) {
+      console.error('Failed to step simulation:', error);
+      throw error;
+    }
   }
 
   reset() {
