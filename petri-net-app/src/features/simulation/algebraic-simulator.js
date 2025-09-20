@@ -23,6 +23,7 @@ export class AlgebraicSimulator extends BaseSimulator {
       guardAstByTransition: new Map(),
       bindingAstsByArc: new Map(),
     };
+    this._cacheSignature = null;
   }
 
   /**
@@ -62,6 +63,9 @@ export class AlgebraicSimulator extends BaseSimulator {
       }
       if (asts.length) this.cache.bindingAstsByArc.set(key, asts);
     }
+
+    // Update cache signature to reflect current guards/bindings
+    this._cacheSignature = computeCacheSignature(this.petriNet);
   }
 
   // Eventing is now handled via BaseSimulator helpers and shared SimulationEventBus
@@ -90,16 +94,14 @@ export class AlgebraicSimulator extends BaseSimulator {
   }
 
   async updateSpecific(petriNet) {
-    // Only rebuild caches if structure changed
-    const changed = JSON.stringify(this.petriNet) !== JSON.stringify(petriNet);
+    // Rebuild caches if guards or bindings changed
+    const incomingSignature = computeCacheSignature(petriNet);
+    const shouldRebuildCaches = incomingSignature !== this._cacheSignature;
     this.petriNet = deepCloneNet(petriNet);
-    if (changed) {
+    if (shouldRebuildCaches) {
       await this.buildCaches();
-      await this.checkTransitionStateChanges();
-    } else {
-      // Even if structure didn't change, when reloading a file we need to recalc enabled transitions
-      await this.checkTransitionStateChanges();
     }
+    await this.checkTransitionStateChanges();
   }
 
   async getEnabledTransitionsSpecific() {
@@ -451,6 +453,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     this.lastEnabledTransitions = [];
     this.cache.guardAstByTransition.clear();
     this.cache.bindingAstsByArc.clear();
+    this._cacheSignature = null;
   }
 }
 
@@ -519,6 +522,21 @@ function getTokensForPlace(place, cap = 20) {
     return Array.from({ length: Math.min(n, cap) }, () => 1);
   }
   return [];
+}
+
+// Build a lightweight signature over guards/bindings (and actions) to detect semantic changes
+function computeCacheSignature(net) {
+  try {
+    const transitions = Array.isArray(net?.transitions) ? net.transitions.slice() : [];
+    const arcs = Array.isArray(net?.arcs) ? net.arcs.slice() : [];
+    transitions.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+    arcs.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+    const tSig = transitions.map(t => `${t.id}|g:${String(t.guard || '')}|a:${String(t.action || '')}`).join(';');
+    const aSig = arcs.map(a => `${a.id}|b:${Array.isArray(a.bindings) ? a.bindings.join(',') : (a.binding ? String(a.binding) : '')}`).join(';');
+    return `${tSig}||${aSig}`;
+  } catch (_) {
+    return String(Math.random());
+  }
 }
 
 
