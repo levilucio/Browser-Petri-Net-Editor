@@ -376,4 +376,257 @@ export async function evaluateTermWithBindings(ast, bindings) {
   return Number.parseInt(String(v), 10);
 }
 
+// ===================== Boolean support (tokens and guards) =====================
+
+// Parse boolean expressions with operators: not, and, or, parentheses, literals true/false,
+// boolean variables, and arithmetic comparisons (==, !=, <, <=, >, >=)
+export function parseBooleanExpr(input, parseArithmetic) {
+  if (typeof input !== 'string') throw new Error('Boolean expression must be a string');
+  const src = input.trim();
+  let i = 0;
+
+  function skipWs() { while (i < src.length && /\s/.test(src[i])) i++; }
+  function startsWithWord(word) {
+    skipWs();
+    return src.slice(i, i + word.length).toLowerCase() === word &&
+      (i + word.length === src.length || /[^A-Za-z0-9_]/.test(src[i + word.length] || ''));
+  }
+  function parseIdentWithOptionalType() {
+    skipWs();
+    const start = i;
+    if (!/[A-Za-z_]/.test(src[i] || '')) throw new Error(`Expected identifier at position ${i}`);
+    i++;
+    while (i < src.length && /[A-Za-z0-9_]/.test(src[i])) i++;
+    const name = src.slice(start, i);
+    const save = i;
+    skipWs();
+    if (src[i] === ':') {
+      i++;
+      skipWs();
+      const tStart = i;
+      while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
+      const tWord = src.slice(tStart, i).toLowerCase();
+      if (tWord === 'integer' || tWord === 'boolean') {
+        return { name, varType: tWord };
+      }
+      // rollback if not recognized
+      i = save;
+      return { name };
+    }
+    return { name };
+  }
+
+  function parseBoolPrimary() {
+    skipWs();
+    if (i >= src.length) throw new Error('Unexpected end of input in boolean expression');
+    if (src[i] === '(') {
+      i++;
+      const node = parseOr();
+      skipWs();
+      if (src[i] !== ')') throw new Error(`Expected ')' at position ${i}`);
+      i++;
+      return node;
+    }
+    // Literal true/false
+    if (startsWithWord('true')) { i += 4; return { type: 'boolLit', value: true }; }
+    if (startsWithWord('false')) { i += 5; return { type: 'boolLit', value: false }; }
+    // Single-letter boolean literals T / F (uppercase) with word boundary
+    if (src[i] === 'T') {
+      const next = src[i + 1] || '';
+      if (!/[A-Za-z0-9_]/.test(next)) { i += 1; return { type: 'boolLit', value: true }; }
+    }
+    if (src[i] === 'F') {
+      const next = src[i + 1] || '';
+      if (!/[A-Za-z0-9_]/.test(next)) { i += 1; return { type: 'boolLit', value: false }; }
+    }
+
+    // Try to parse a comparison predicate lhs OP rhs using existing predicate parser
+    // Look ahead for comparison operators at top level
+    const ops = ['>=', '<=', '==', '!=', '>', '<'];
+    // Scan ahead to find first top-level comparison operator
+    let depth = 0;
+    let opIndex = -1; let foundOp = null;
+    for (let j = i; j < src.length; j++) {
+      const ch = src[j];
+      if (ch === '(') depth++;
+      else if (ch === ')') depth = Math.max(0, depth - 1);
+      if (depth !== 0) continue;
+      const two = src.slice(j, j + 2);
+      if (ops.includes(two)) { foundOp = two; opIndex = j; break; }
+      if (ops.includes(ch)) { foundOp = ch; opIndex = j; break; }
+    }
+    if (foundOp && opIndex >= 0) {
+      const leftStr = src.slice(i, opIndex).trim();
+      const rightStr = src.slice(opIndex + foundOp.length).trim();
+      const leftAst = parseArithmetic(leftStr);
+      const rightAst = parseArithmetic(rightStr);
+      // Advance parser to end since we consumed entire remaining expression
+      i = src.length;
+      return { type: 'cmp', op: foundOp, left: leftAst, right: rightAst };
+    }
+
+    // Otherwise treat as boolean variable identifier (optional : type)
+    const { name, varType } = parseIdentWithOptionalType();
+    return varType ? { type: 'boolVar', name, varType } : { type: 'boolVar', name };
+  }
+
+  function parseNot() {
+    skipWs();
+    if (startsWithWord('not')) { i += 3; const expr = parseNot(); return { type: 'not', expr }; }
+    return parseBoolPrimary();
+  }
+
+  function parseAnd() {
+    let node = parseNot();
+    while (true) {
+      skipWs();
+      if (startsWithWord('and')) { i += 3; const right = parseNot(); node = { type: 'and', left: node, right }; }
+      else break;
+    }
+    return node;
+  }
+
+  function parseOr() {
+    let node = parseAnd();
+    while (true) {
+      skipWs();
+      if (startsWithWord('or')) { i += 2; const right = parseAnd(); node = { type: 'or', left: node, right }; }
+      else break;
+    }
+    return node;
+  }
+
+  const ast = parseOr();
+  skipWs();
+  if (i !== src.length) throw new Error(`Unexpected token '${src[i]}' at position ${i}`);
+  return ast;
+}
+
+// Pure JS boolean evaluation with mixed env (booleans and integers)
+export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
+  function toBool(v) {
+    if (typeof v === 'boolean') return v;
+    if (typeof v === 'number') return v !== 0;
+    throw new Error('Non-boolean binding in boolean expression');
+  }
+  function evalBool(node) {
+    switch (node.type) {
+      case 'boolLit': return !!node.value;
+      case 'boolVar': return toBool(bindings?.[node.name]);
+      case 'not': return !evalBool(node.expr);
+      case 'and': return evalBool(node.left) && evalBool(node.right);
+      case 'or': return evalBool(node.left) || evalBool(node.right);
+      case 'cmp': {
+        const l = evaluateArithmeticWithBindings(node.left, bindings);
+        const r = evaluateArithmeticWithBindings(node.right, bindings);
+        switch (node.op) {
+          case '==': return l === r;
+          case '!=': return l !== r;
+          case '<': return l < r;
+          case '<=': return l <= r;
+          case '>': return l > r;
+          case '>=': return l >= r;
+          default: return false;
+        }
+      }
+      default:
+        throw new Error(`Unknown boolean AST node '${node.type}'`);
+    }
+  }
+  return evalBool(ast);
+}
+
+// SAT check for boolean expression with Z3 given optional concrete bindings
+export async function evaluateBooleanPredicate(booleanAstOrString, bindings, parseArithmetic) {
+  const { ctx } = await getContext();
+  const { Int, Bool, Solver, And, Not, Or } = ctx;
+
+  const ast = typeof booleanAstOrString === 'string'
+    ? parseBooleanExpr(booleanAstOrString, parseArithmetic)
+    : booleanAstOrString;
+
+  const intVars = new Set();
+  const boolVars = new Set();
+
+  function collect(node) {
+    if (!node) return;
+    switch (node.type) {
+      case 'boolVar': boolVars.add(node.name); break;
+      case 'and': case 'or': collect(node.left); collect(node.right); break;
+      case 'not': collect(node.expr); break;
+      case 'cmp': {
+        const addArith = (t) => {
+          if (!t) return;
+          if (t.type === 'var') intVars.add(t.name);
+          if (t.type === 'bin') { addArith(t.left); addArith(t.right); }
+        };
+        addArith(node.left); addArith(node.right);
+        break;
+      }
+      default: break;
+    }
+  }
+  collect(ast);
+
+  const intSym = new Map(Array.from(intVars).map(v => [v, Int.const(v)]));
+  const boolSym = new Map(Array.from(boolVars).map(v => [v, Bool.const(v)]));
+
+  function buildBool(node) {
+    switch (node.type) {
+      case 'boolLit': return node.value ? Bool.val(true) : Bool.val(false);
+      case 'boolVar': return boolSym.get(node.name);
+      case 'not': return Not(buildBool(node.expr));
+      case 'and': return And(buildBool(node.left), buildBool(node.right));
+      case 'or': return Or(buildBool(node.left), buildBool(node.right));
+      case 'cmp': {
+        const buildArith = (t) => {
+          if (t.type === 'int') return Int.val(t.value);
+          if (t.type === 'var') return intSym.get(t.name);
+          if (t.type === 'bin') {
+            const l = buildArith(t.left); const r = buildArith(t.right);
+            switch (t.op) {
+              case '+': return l.add(r);
+              case '-': return l.sub(r);
+              case '*': return l.mul(r);
+              case '/': return l.div(r);
+            }
+          }
+          throw new Error('Unknown arithmetic AST in boolean comparison');
+        };
+        const l = buildArith(node.left); const r = buildArith(node.right);
+        switch (node.op) {
+          case '==': return l.eq(r);
+          case '!=': return Not(l.eq(r));
+          case '<': return l.lt(r);
+          case '<=': return l.le(r);
+          case '>': return l.gt(r);
+          case '>=': return l.ge(r);
+          default: throw new Error(`Unsupported predicate operator '${node.op}'`);
+        }
+      }
+      default: throw new Error(`Unknown boolean AST node '${node.type}'`);
+    }
+  }
+
+  const s = new Solver();
+  try { s.set('timeout', 10000); } catch (_) {}
+
+  // Bind provided env values
+  if (bindings && typeof bindings === 'object') {
+    const eqs = [];
+    for (const [name, value] of Object.entries(bindings)) {
+      if (intSym.has(name) && typeof value === 'number') {
+        eqs.push(intSym.get(name).eq(Int.val(value|0)));
+      } else if (boolSym.has(name) && typeof value === 'boolean') {
+        eqs.push(boolSym.get(name).eq(value ? Bool.val(true) : Bool.val(false)));
+      }
+    }
+    if (eqs.length) s.add(And(...eqs));
+  }
+
+  s.add(buildBool(ast));
+  const res = await s.check();
+  return String(res) === 'sat';
+}
+
 

@@ -31,6 +31,23 @@ export function parseArithmetic(input) {
     i++;
     while (i < src.length && isIdentPart(src[i])) i++;
     const name = src.slice(start, i);
+    // Optional type annotation: ": integer" or ": boolean" (case-insensitive)
+    const save = i;
+    skipWs();
+    if (src[i] === ':') {
+      i++;
+      skipWs();
+      const tStart = i;
+      while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
+      const tWord = src.slice(tStart, i).toLowerCase();
+      if (tWord === 'integer' || tWord === 'boolean') {
+        return { type: 'var', name, varType: tWord };
+      } else {
+        // Not a recognized type; rollback to previous position
+        i = save;
+        return { type: 'var', name };
+      }
+    }
     return { type: 'var', name };
   }
 

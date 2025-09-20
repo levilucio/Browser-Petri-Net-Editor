@@ -201,17 +201,24 @@ export function parsePNML(pnmlString) {
         // Get position
         const { x, y } = getPosition(place);
         
-        // Get tokens (support integer or list for algebraic nets)
+        // Get tokens (support integer or algebraic multiset with integers and booleans)
         let tokens = 0;
         let valueTokens = undefined;
         const markingText = getTextContent(place, 'initialMarking');
         if (markingText) {
           const trimmed = markingText.trim();
-          // List format like [1, 2, 3]
+          // List format like [1, 2, T, F]
           if ((trimmed.startsWith('[') && trimmed.endsWith(']'))) {
             try {
               const inner = trimmed.slice(1, -1).trim();
-              valueTokens = inner ? inner.split(',').map(v => parseInt(v.trim(), 10)).filter(v => Number.isFinite(v)) : [];
+              const parts = inner.length ? inner.split(',').map(s => s.trim()).filter(Boolean) : [];
+              valueTokens = parts.map(p => {
+                const low = p.toLowerCase();
+                if (p === 'T' || low === 'true') return true;
+                if (p === 'F' || low === 'false') return false;
+                if (/^[+-]?\d+$/.test(p)) return parseInt(p, 10);
+                return null;
+              }).filter(v => v !== null);
               // List form indicates algebraic tokens; leave net mode to settings
             } catch (e) {
               console.warn(`Could not parse token list for ${placeId}:`, e);
@@ -499,11 +506,12 @@ export function generatePNML(petriNetJson) {
         apnUsed = true;
       }
       
-      // Add initial marking (tokens or valueTokens)
+      // Add initial marking (tokens or valueTokens). Use T/F for boolean tokens.
       if (Array.isArray(place.valueTokens)) {
         const markingElement = xmlDoc.createElement('initialMarking');
         const markingTextElement = xmlDoc.createElement('text');
-        markingTextElement.textContent = `[${place.valueTokens.join(', ')}]`;
+        const parts = place.valueTokens.map(v => (typeof v === 'boolean') ? (v ? 'T' : 'F') : String(v));
+        markingTextElement.textContent = `[${parts.join(', ')}]`;
         markingElement.appendChild(markingTextElement);
         placeElement.appendChild(markingElement);
       } else if (place.tokens > 0) {

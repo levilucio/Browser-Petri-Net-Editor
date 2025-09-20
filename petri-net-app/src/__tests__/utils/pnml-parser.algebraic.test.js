@@ -43,6 +43,19 @@ describe('PNML (algebraic annotations)', () => {
     expect(out).toContain('<apn:binding');
     expect(out).not.toContain('<inscription>');
   });
+
+  test('algebraic tokens: booleans T/F round-trip in PNML', () => {
+    const net = {
+      places: [{ id: 'p1', name: 'P1', x: 0, y: 0, valueTokens: [2, 11, 6, true, false] }],
+      transitions: [],
+      arcs: [],
+      netMode: 'algebraic'
+    };
+    const xml = generatePNML(net);
+    expect(xml).toContain('[2, 11, 6, T, F]');
+    const parsed = parsePNML(xml);
+    expect(parsed.places[0].valueTokens).toEqual([2, 11, 6, true, false]);
+  });
 });
 
 

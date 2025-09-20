@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PetriNetContext } from '../contexts/PetriNetContext';
 import { parseArithmetic } from '../utils/arith-parser';
+import { parseBooleanExpr } from '../utils/z3-arith';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
   // Read enabled transitions from context (fallback to defaults if no provider in unit tests)
@@ -289,13 +290,19 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             onChange={(e) => {
               const raw = e.target.value;
               setFormValues(prev => ({ ...prev, valueTokensInput: raw }));
-              // Live-parse integers as user types
+              // Live-parse integers and booleans as user types (accept T/F aliases)
               const parsed = String(raw || '')
                 .split(',')
                 .map(s => s.trim())
                 .filter(s => s.length > 0)
-                .map(s => Number.parseInt(s, 10))
-                .filter(n => Number.isFinite(n));
+                .map(s => {
+                  const lower = s.toLowerCase();
+                  if (lower === 'true' || s === 'T') return true;
+                  if (lower === 'false' || s === 'F') return false;
+                  if (/^[+-]?\d+$/.test(s)) return Number.parseInt(s, 10);
+                  return null;
+                })
+                .filter(v => v !== null);
               setElements(prev => ({
                 ...prev,
                 places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
@@ -337,13 +344,17 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
               const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
               let err = null;
               for (const p of parts) {
-                try { if (p) parseArithmetic(p); } catch (ex) { err = String(ex.message || ex); break; }
+                try {
+                  if (p === 'T' || p === 'F') continue; // literals are allowed
+                  if (p) parseArithmetic(p);
+                } catch (ex) { err = String(ex.message || ex); break; }
               }
               setFormValues(prev => ({ ...prev, bindingsInput: raw, bindingError: err }));
               if (!err) {
+                const normalizedParts = parts; // keep T/F as entered
                 setElements(prev => ({
                   ...prev,
-                  arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings: parts, binding: undefined } : a)
+                  arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings: normalizedParts, binding: undefined } : a)
                 }));
               }
             }}
@@ -356,25 +367,17 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
       {selectedElement && elementType === 'transition' && netMode === 'algebraic-int' && (
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Guard (equality/inequality)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Guard (use arithmetic comparisons and boolean operators; T/F)</label>
           <input
             type="text"
             value={formValues.guardText}
             onChange={(e) => {
               const v = e.target.value;
-              // Basic syntax check: must contain a comparison operator
+              // Accept boolean expressions with T/F and arithmetic comparisons
               let err = null;
-              const ops = ['==', '!=', '>=', '<=', '>', '<'];
-              if (!ops.some(op => v.includes(op))) {
-                err = 'Guard must include a comparison operator (==, !=, <, <=, >, >=)';
-              } else {
-                try {
-                  const op = ops.find(op => v.includes(op));
-                  const [lhs, rhs] = v.split(op);
-                  parseArithmetic(lhs);
-                  parseArithmetic(rhs);
-                } catch (ex) { err = String(ex.message || ex); }
-              }
+              try {
+                parseBooleanExpr(v, parseArithmetic);
+              } catch (ex) { err = String(ex.message || ex); }
               setFormValues(prev => ({ ...prev, guardText: v, guardError: err }));
               setElements(prev => ({
                 ...prev,

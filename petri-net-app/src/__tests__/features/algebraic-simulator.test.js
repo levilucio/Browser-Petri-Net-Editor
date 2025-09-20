@@ -32,6 +32,120 @@ describe('AlgebraicSimulator (smoke)', () => {
     expect([2,5]).toContain(p2.valueTokens[0]);
   }, 15000);
 
+  test('boolean guard with boolean tokens enables and fires', async () => {
+    const net = {
+      places: [
+        { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [true] },
+        { id: 'p2', label: 'P2', x: 0, y: 0, valueTokens: [] },
+      ],
+      transitions: [
+        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'b:boolean and true' },
+      ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['b:boolean'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['b:boolean'] },
+      ],
+      netMode: 'algebraic-int'
+    };
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'single' });
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).toContain('t1');
+    const after = await sim.fireTransition('t1');
+    const p2 = after.places.find(p => p.id === 'p2');
+    expect(p2.valueTokens).toEqual([true]);
+  }, 15000);
+
+  test('typed bindings x:integer, y:boolean consume tokens on step', async () => {
+    const net = {
+      places: [
+        { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [2, true, 1, false] },
+      ],
+      transitions: [
+        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'T' },
+      ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer', 'y:boolean'] },
+      ],
+      netMode: 'algebraic'
+    };
+
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'single' });
+
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).toContain('t1');
+
+    const before = sim.getCurrentState();
+    const p1Before = before.places.find(p => p.id === 'p1');
+    expect(p1Before.valueTokens.length).toBe(4);
+
+    const after = await sim.fireTransition('t1');
+    const p1After = after.places.find(p => p.id === 'p1');
+    expect(p1After.valueTokens.length).toBe(2);
+  }, 15000);
+
+  test('typed bindings produce x to P2 and y to P3 with correct booleans', async () => {
+    const net = {
+      places: [
+        { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [false, 2, 11, true, 6] },
+        { id: 'p2', label: 'P2', x: 300, y: 0, valueTokens: [] },
+        { id: 'p3', label: 'P3', x: 300, y: 100, valueTokens: [] },
+      ],
+      transitions: [
+        { id: 't1', label: 'T1', x: 150, y: 0, guard: 'x < 10' },
+      ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer', 'y:boolean'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x'] },
+        { id: 'a3', sourceId: 't1', targetId: 'p3', sourceType: 'transition', targetType: 'place', bindings: ['y'] },
+      ],
+      netMode: 'algebraic'
+    };
+
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'single' });
+
+    // Fire twice
+    await sim.fireTransition('t1');
+    await sim.fireTransition('t1');
+
+    const after = sim.getCurrentState();
+    const p1 = after.places.find(p => p.id === 'p1');
+    const p2 = after.places.find(p => p.id === 'p2');
+    const p3 = after.places.find(p => p.id === 'p3');
+    expect(p2.valueTokens).toEqual([2, 6]);
+    expect(p3.valueTokens).toEqual([false, true]);
+    expect(p1.valueTokens).toEqual([11]);
+  }, 20000);
+
+  test('mixed multiset place supports integers and booleans; boolean binding matches on booleans only', async () => {
+    const net = {
+      places: [
+        { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [1, false, 3, true] },
+        { id: 'p2', label: 'P2', x: 0, y: 0, valueTokens: [] },
+      ],
+      transitions: [
+        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'b:boolean' },
+      ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['b:boolean'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['b:boolean'] },
+      ],
+      netMode: 'algebraic-int'
+    };
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'single' });
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).toContain('t1');
+    const after = await sim.fireTransition('t1');
+    const p1 = after.places.find(p => p.id === 'p1');
+    const p2 = after.places.find(p => p.id === 'p2');
+    // Should have consumed a boolean from p1 and produced same boolean to p2
+    expect(p2.valueTokens.some(v => typeof v === 'boolean')).toBe(true);
+    expect(p1.valueTokens.length + p2.valueTokens.length).toBe(4);
+  }, 15000);
+
   test('updates enabled transitions when guard changes without re-initialize', async () => {
     const net = {
       places: [

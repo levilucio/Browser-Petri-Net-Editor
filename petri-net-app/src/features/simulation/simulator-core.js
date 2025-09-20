@@ -106,8 +106,24 @@ export class SimulatorCore {
   __queueListener(event, callback) { if (!this.pendingListeners.has(event)) this.pendingListeners.set(event, []); this.pendingListeners.get(event).push(callback); }
   setupPendingListeners() { if (!this.currentSimulator || !this.eventBus) return; for (const [event, cbs] of this.pendingListeners) { for (const cb of cbs) this.eventBus.on(event, cb); } this.pendingListeners.clear(); }
 
-  determineNetMode(petriNet, options) { if (options?.netMode) return options.netMode; if (petriNet?.netMode) return petriNet.netMode; return this.detectNetModeFromContent(petriNet); }
-  detectNetModeFromContent(petriNet) { const { transitions = [] } = petriNet || {}; for (const t of transitions) { if (t.guard && typeof t.guard === 'string' && (t.guard.includes('+') || t.guard.includes('-') || t.guard.includes('*') || t.guard.includes('/') || t.guard.includes('=') || t.guard.includes('<') || t.guard.includes('>') || t.guard.includes('!='))) return 'algebraic'; if (t.action && typeof t.action === 'string' && (t.action.includes('+') || t.action.includes('-') || t.action.includes('*') || t.action.includes('/') || t.action.includes('='))) return 'algebraic'; } return 'pt'; }
+  determineNetMode(petriNet, options) { const m = options?.netMode || petriNet?.netMode; if (m) return (m === 'algebraic-int') ? 'algebraic' : m; return this.detectNetModeFromContent(petriNet); }
+  detectNetModeFromContent(petriNet) {
+    const net = petriNet || {};
+    const transitions = Array.isArray(net.transitions) ? net.transitions : [];
+    const arcs = Array.isArray(net.arcs) ? net.arcs : [];
+    const places = Array.isArray(net.places) ? net.places : [];
+    // Heuristics: any guard/action with arithmetic or boolean operators, or any typed binding, or any place valueTokens
+    for (const t of transitions) {
+      if (typeof t.guard === 'string' && t.guard.trim().length > 0) return 'algebraic';
+      if (typeof t.action === 'string' && t.action.trim().length > 0) return 'algebraic';
+    }
+    for (const a of arcs) {
+      const bs = Array.isArray(a.bindings) ? a.bindings : (a.binding ? [a.binding] : []);
+      if (bs.some(b => typeof b === 'string' && (/:[ ]*(integer|boolean)/i.test(b) || b === 'T' || b === 'F' || /[+\-*/()]/.test(b)))) return 'algebraic';
+    }
+    if (places.some(p => Array.isArray(p.valueTokens) && p.valueTokens.length > 0)) return 'algebraic';
+    return 'pt';
+  }
 }
 
 export const simulatorCore = new SimulatorCore();

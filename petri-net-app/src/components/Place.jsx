@@ -107,7 +107,7 @@ const Place = ({
               const tx = Math.cos(angle) * innerR;
               const ty = Math.sin(angle) * innerR;
               const fontSize = 12;
-              const text = String(val);
+              const text = (typeof val === 'boolean') ? (val ? 'T' : 'F') : String(val);
               const estWidth = Math.max(12, text.length * fontSize * 0.6);
               return (
                 <Text

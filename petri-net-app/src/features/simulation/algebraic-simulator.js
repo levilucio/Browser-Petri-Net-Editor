@@ -12,7 +12,11 @@ import {
   evaluatePredicate,
   solveEquation,
   solveInequality,
-  parsePredicate
+  parsePredicate,
+  // Boolean support
+  parseBooleanExpr,
+  evaluateBooleanWithBindings,
+  evaluateBooleanPredicate,
 } from '../../utils/z3-arith.js';
 
 export class AlgebraicSimulator extends BaseSimulator {
@@ -46,10 +50,17 @@ export class AlgebraicSimulator extends BaseSimulator {
     for (const t of (this.petriNet.transitions || [])) {
       if (t.guard && typeof t.guard === 'string') {
         try {
-          const ast = parsePredicate(String(t.guard), parseArithmetic);
+          // Prefer full boolean parser (supports and/or/not, literals and comparisons)
+          const ast = parseBooleanExpr(String(t.guard), parseArithmetic);
           this.cache.guardAstByTransition.set(t.id, ast);
         } catch (_) {
-          // ignore parse errors here; guard will simply be false if unparsable
+          try {
+            // Fallback to legacy comparison-only predicate
+            const ast = parsePredicate(String(t.guard), parseArithmetic);
+            this.cache.guardAstByTransition.set(t.id, ast);
+          } catch (_) {
+            // ignore parse errors here; guard will simply be false if unparsable
+          }
         }
       }
     }
@@ -59,7 +70,23 @@ export class AlgebraicSimulator extends BaseSimulator {
       const bindings = Array.isArray(a.bindings) ? a.bindings : (a.binding ? [a.binding] : []);
       const asts = [];
       for (const b of bindings) {
-        try { asts.push(parseArithmetic(String(b))); } catch (_) { /* skip invalid */ }
+        const text = String(b);
+        // Prefer arithmetic, but if variable annotated as boolean, store as boolean kind
+        let parsed = null;
+        const tf = (text === 'T') ? true : (text === 'F') ? false : null;
+        try { parsed = parseArithmetic(text); } catch (_) { parsed = null; }
+        if (parsed) {
+          if (parsed.type === 'var' && parsed.varType === 'boolean') {
+            // Represent as boolean variable for uniformity
+            asts.push({ kind: 'bool', ast: { type: 'boolVar', name: parsed.name, varType: 'boolean' } });
+          } else {
+            asts.push({ kind: 'arith', ast: parsed });
+          }
+          continue;
+        }
+        if (tf !== null) { asts.push({ kind: 'bool', ast: { type: 'boolLit', value: tf } }); continue; }
+        try { asts.push({ kind: 'bool', ast: parseBooleanExpr(text, parseArithmetic) }); continue; } catch (_) {}
+        // Skip invalid
       }
       if (asts.length) this.cache.bindingAstsByArc.set(key, asts);
     }
@@ -136,11 +163,11 @@ export class AlgebraicSimulator extends BaseSimulator {
       if (arcIndex >= inputArcs.length) {
         // Check guard
         if (!guardAst) return true;
-        const free = getUnboundGuardVars(guardAst, env);
+        const free = getUnboundBooleanGuardVars(guardAst, env);
         if (free.length > 0) {
-          return evaluatePredicate(guardAst, env, parseArithmetic);
+          return evaluateBooleanPredicate(guardAst, env, parseArithmetic);
         }
-        return evalGuardPure(guardAst, env);
+        return evalBooleanGuardPure(guardAst, env);
       }
       const arc = inputArcs[arcIndex];
       const arcId = arc.id;
@@ -163,22 +190,28 @@ export class AlgebraicSimulator extends BaseSimulator {
           const tok = tokens[i];
           let ok = true;
           let nextEnv = localEnv;
-          const ast = bindingAsts[k];
-          if (ast) {
-            if (ast.type === 'var') {
-              if (nextEnv && nextEnv.hasOwnProperty(ast.name) && (nextEnv[ast.name] | 0) !== (tok | 0)) {
+          const astObj = bindingAsts[k];
+          if (astObj) {
+            const { kind, ast } = astObj;
+            if (ast.type === 'var' || ast.type === 'boolVar') {
+              if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, ast.name) && nextEnv[ast.name] !== tok) {
                 ok = false;
               } else {
-                nextEnv = { ...(nextEnv || {}), [ast.name]: tok | 0 };
+                // Respect optional type annotation
+                if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'boolean') ok = false;
+                if (typeof tok === 'number' && ast.varType && ast.varType !== 'integer') ok = false;
+                if (ok) nextEnv = { ...(nextEnv || {}), [ast.name]: tok };
               }
-            } else {
-              // If we can evaluate purely with current bindings, require equality; otherwise skip this token
+            } else if (kind === 'arith') {
               try {
                 const val = evaluateArithmeticWithBindings(ast, localEnv || {});
-                if ((val | 0) !== (tok | 0)) ok = false;
-              } catch (_) {
-                ok = false;
-              }
+                if (typeof tok !== 'number' || val !== (tok | 0)) ok = false;
+              } catch (_) { ok = false; }
+            } else if (kind === 'bool') {
+              try {
+                const val = evaluateBooleanWithBindings(ast, localEnv || {}, parseArithmetic);
+                if (typeof tok !== 'boolean' || val !== tok) ok = false;
+              } catch (_) { ok = false; }
             }
           }
           if (ok) {
@@ -222,12 +255,12 @@ export class AlgebraicSimulator extends BaseSimulator {
     const tryArc = async (arcIndex, env) => {
       if (arcIndex >= inputArcs.length) {
         if (!guardAst) return { env, picks };
-        const free = getUnboundGuardVars(guardAst, env);
+        const free = getUnboundBooleanGuardVars(guardAst, env);
         if (free.length > 0) {
-          const ok = await evaluatePredicate(guardAst, env, parseArithmetic);
+          const ok = await evaluateBooleanPredicate(guardAst, env, parseArithmetic);
           return ok ? { env, picks } : null;
         }
-        const ok = await evalGuardPure(guardAst, env);
+        const ok = await evalBooleanGuardPure(guardAst, env);
         return ok ? { env, picks } : null;
       }
       const arc = inputArcs[arcIndex];
@@ -250,18 +283,26 @@ export class AlgebraicSimulator extends BaseSimulator {
           const tok = tokens[i];
           let ok = true;
           let nextEnv = localEnv;
-          const ast = bindingAsts[k];
-          if (ast) {
-            if (ast.type === 'var') {
-              if (nextEnv && nextEnv.hasOwnProperty(ast.name) && (nextEnv[ast.name] | 0) !== (tok | 0)) {
+          const astObj = bindingAsts[k];
+          if (astObj) {
+            const { kind, ast } = astObj;
+            if (ast.type === 'var' || ast.type === 'boolVar') {
+              if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, ast.name) && nextEnv[ast.name] !== tok) {
                 ok = false;
               } else {
-                nextEnv = { ...(nextEnv || {}), [ast.name]: tok | 0 };
+                if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'boolean') ok = false;
+                if (typeof tok === 'number' && ast.varType && ast.varType !== 'integer') ok = false;
+                if (ok) nextEnv = { ...(nextEnv || {}), [ast.name]: tok };
               }
-            } else {
+            } else if (kind === 'arith') {
               try {
                 const val = evaluateArithmeticWithBindings(ast, localEnv || {});
-                if ((val | 0) !== (tok | 0)) ok = false;
+                if (typeof tok !== 'number' || val !== (tok | 0)) ok = false;
+              } catch (_) { ok = false; }
+            } else if (kind === 'bool') {
+              try {
+                const val = evaluateBooleanWithBindings(ast, localEnv || {}, parseArithmetic);
+                if (typeof tok !== 'boolean' || val !== tok) ok = false;
               } catch (_) { ok = false; }
             }
           }
@@ -285,42 +326,43 @@ export class AlgebraicSimulator extends BaseSimulator {
 
     // If guard has free variables, try to solve the guard to bind them before producing outputs
     if (guardAst) {
-      const free = getUnboundGuardVars(guardAst, env);
+      const free = getUnboundBooleanGuardVars(guardAst, env);
       if (free.length > 0) {
         try {
-          const leftSub = substituteBindings(guardAst.left, env);
-          const rightSub = substituteBindings(guardAst.right, env);
-          
-          let solutions = [];
-          if (guardAst.op === '==') {
-            // Handle equality
-            const result = await solveEquation(leftSub, rightSub, 5);
-            solutions = result.solutions || [];
-          } else if (['<', '<=', '>', '>=', '!='].includes(guardAst.op)) {
-            // Handle inequalities
-            const result = await solveInequality(leftSub, rightSub, guardAst.op, 5);
-            solutions = result.solutions || [];
-          }
-          
-          // If we found solutions, pick one randomly
-          if (solutions.length > 0) {
-            const randomSolution = solutions[Math.floor(Math.random() * solutions.length)];
-            env = { ...env, ...randomSolution };
-          }
+          // Use SAT check to see if any assignment exists; if so, keep env as-is
+          const ok = await evaluateBooleanPredicate(guardAst, env, parseArithmetic);
+          if (!ok) throw new Error('Guard unsatisfied under any extension');
         } catch (_) { /* ignore */ }
       }
     }
 
     // Consume tokens
-    for (const pick of picks) {
-      const place = placesById[pick.srcId];
-      if (pick.countFallback) {
+    // When multiple tokens from the same place are consumed, remove by descending
+    // indices to avoid index-shift bugs.
+    const picksByPlace = new Map();
+    for (const p of picks) {
+      if (!p.srcId) continue;
+      if (!picksByPlace.has(p.srcId)) picksByPlace.set(p.srcId, []);
+      picksByPlace.get(p.srcId).push(p);
+    }
+    for (const [srcId, arr] of picksByPlace.entries()) {
+      const place = placesById[srcId];
+      if (!place) continue;
+      const fallbackCount = arr.filter(p => p.countFallback).length;
+      if (fallbackCount > 0) {
         const current = Number(place.tokens || 0);
-        place.tokens = Math.max(0, current - 1);
-      } else {
-        if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
-        place.valueTokens.splice(pick.tokenIndex, 1);
-        place.tokens = (place.valueTokens || []).length;
+        place.tokens = Math.max(0, current - fallbackCount);
+      }
+      const indexed = arr.filter(p => !p.countFallback);
+      if (Array.isArray(place.valueTokens) && indexed.length > 0) {
+        // Sort by descending index so earlier removals do not shift later ones
+        indexed.sort((a, b) => b.tokenIndex - a.tokenIndex);
+        for (const p of indexed) {
+          if (p.tokenIndex >= 0 && p.tokenIndex < place.valueTokens.length) {
+            place.valueTokens.splice(p.tokenIndex, 1);
+          }
+        }
+        place.tokens = place.valueTokens.length;
       }
     }
 
@@ -333,11 +375,20 @@ export class AlgebraicSimulator extends BaseSimulator {
       const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
       if (bindingAsts.length > 0) {
         // Push one token per binding evaluation
-        for (const ast of bindingAsts) {
+        for (const astObj of bindingAsts) {
           try {
-            const v = evaluateArithmeticWithBindings(ast, env);
+            let v;
+            const { kind, ast } = astObj;
+            if (ast && (ast.type === 'var' || ast.type === 'boolVar')) {
+              v = (env || {})[ast.name];
+            } else if (kind === 'arith') {
+              v = evaluateArithmeticWithBindings(ast, env);
+            } else if (kind === 'bool') {
+              v = evaluateBooleanWithBindings(ast, env, parseArithmetic);
+            }
             if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
-            place.valueTokens.push(v | 0);
+            if (typeof v === 'number') place.valueTokens.push(v | 0);
+            else if (typeof v === 'boolean') place.valueTokens.push(v);
           } catch (_) { /* skip */ }
         }
       } else if (arc.weight && (arc.weight | 0) > 0) {
@@ -347,7 +398,8 @@ export class AlgebraicSimulator extends BaseSimulator {
           // Prefer a bound variable value if exactly one variable exists in env
           const vals = Object.values(env || {});
           if (Array.isArray(place.valueTokens)) {
-            place.valueTokens.push(Number.isFinite(vals[0]) ? (vals[0] | 0) : 1);
+            const first = vals[0];
+            place.valueTokens.push(typeof first === 'boolean' ? !!first : (Number.isFinite(first) ? (first | 0) : 1));
           } else {
             place.tokens = (Number(place.tokens || 0) + 1) | 0;
           }
@@ -461,38 +513,32 @@ function deepCloneNet(net) {
   return JSON.parse(JSON.stringify(net || { places: [], transitions: [], arcs: [] }));
 }
 
-function evalGuardPure(guardAst, env) {
+function evalBooleanGuardPure(guardAst, env) {
   try {
-    // Simple pure evaluation: rewrite to arithmetic with boolean compare
-    // Reconstruct l op r using evaluateArithmeticWithBindings
-    const l = evaluateArithmeticWithBindings(guardAst.left, env || {});
-    const r = evaluateArithmeticWithBindings(guardAst.right, env || {});
-    switch (guardAst.op) {
-      case '==': return (l | 0) === (r | 0);
-      case '!=': return (l | 0) !== (r | 0);
-      case '<': return (l | 0) < (r | 0);
-      case '<=': return (l | 0) <= (r | 0);
-      case '>': return (l | 0) > (r | 0);
-      case '>=': return (l | 0) >= (r | 0);
-      default: return false;
-    }
-  } catch (_) {
-    return false;
-  }
+    return evaluateBooleanWithBindings(guardAst, env || {}, parseArithmetic);
+  } catch (_) { return false; }
 }
 
-function getUnboundGuardVars(guardAst, env) {
+function getUnboundBooleanGuardVars(ast, env) {
   const names = new Set();
-  collectVars(guardAst.left, names);
-  collectVars(guardAst.right, names);
+  function collect(node) {
+    if (!node) return;
+    switch (node.type) {
+      case 'boolVar': names.add(node.name); break;
+      case 'and': case 'or': collect(node.left); collect(node.right); break;
+      case 'not': collect(node.expr); break;
+      case 'cmp': collectArith(node.left); collectArith(node.right); break;
+      default: break;
+    }
+  }
+  function collectArith(ast) {
+    if (!ast) return;
+    if (ast.type === 'var') names.add(ast.name);
+    else if (ast.type === 'bin') { collectArith(ast.left); collectArith(ast.right); }
+  }
+  collect(ast);
   const bound = new Set(Object.keys(env || {}));
   return Array.from(names).filter(n => !bound.has(n));
-}
-
-function collectVars(ast, acc) {
-  if (!ast) return;
-  if (ast.type === 'var') { acc.add(ast.name); return; }
-  if (ast.type === 'bin') { collectVars(ast.left, acc); collectVars(ast.right, acc); }
 }
 
 function substituteBindings(ast, env) {
