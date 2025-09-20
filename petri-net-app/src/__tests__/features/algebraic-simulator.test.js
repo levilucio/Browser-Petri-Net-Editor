@@ -119,6 +119,48 @@ describe('AlgebraicSimulator (smoke)', () => {
     expect(p1.valueTokens).toEqual([11]);
   }, 20000);
 
+  test('maximal mode fires non-conflicting int/boolean transitions concurrently', async () => {
+    const net = {
+      places: [
+        { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [false, 11, true, 6] },
+        { id: 'p2', label: 'P2', x: 300, y: 0, valueTokens: [] },
+        { id: 'p3', label: 'P3', x: 300, y: 120, valueTokens: [] },
+      ],
+      transitions: [
+        { id: 't1', label: 'T1', x: 150, y: 0, guard: 'x < 10' },
+        { id: 't2', label: 'T2', x: 150, y: 120, guard: 'T' },
+      ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x'] },
+        { id: 'a3', sourceId: 'p1', targetId: 't2', sourceType: 'place', targetType: 'transition', bindings: ['y:boolean'] },
+        { id: 'a4', sourceId: 't2', targetId: 'p3', sourceType: 'transition', targetType: 'place', bindings: ['y'] },
+      ],
+      netMode: 'algebraic'
+    };
+
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'maximal' });
+
+    // Compute enabled then simulate maximal step by calling both in arbitrary order
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).toEqual(expect.arrayContaining(['t1','t2']));
+    // Fire both (simulator core would coordinate this; here just sequentially emulate a batch)
+    await sim.fireTransition('t1');
+    await sim.fireTransition('t2');
+
+    const after = sim.getCurrentState();
+    const p1 = after.places.find(p => p.id === 'p1');
+    const p2 = after.places.find(p => p.id === 'p2');
+    const p3 = after.places.find(p => p.id === 'p3');
+    // One int (<10) to P2 and one boolean to P3, both consumed
+    expect(p2.valueTokens.length).toBe(1);
+    expect(typeof p2.valueTokens[0]).toBe('number');
+    expect(p3.valueTokens.length).toBe(1);
+    expect(typeof p3.valueTokens[0]).toBe('boolean');
+    expect(p1.valueTokens.length).toBe(2);
+  }, 20000);
+
   test('mixed multiset place supports integers and booleans; boolean binding matches on booleans only', async () => {
     const net = {
       places: [

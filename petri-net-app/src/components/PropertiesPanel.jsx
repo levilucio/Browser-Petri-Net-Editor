@@ -28,14 +28,22 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     if (selectedElement) {
       const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
       const elementType = selectedElement.type || (elementId.split('-')[0]);
+      const toTF = (s) => (typeof s === 'boolean') ? (s ? 'T' : 'F') : String(s);
+      const tokensToString = (arr) => Array.isArray(arr) ? arr.map(toTF).join(', ') : '';
+      const bindingsToString = (arr) => Array.isArray(arr) ? arr.map(b => {
+        const t = String(b || '');
+        if (/^true$/i.test(t)) return 'T';
+        if (/^false$/i.test(t)) return 'F';
+        return t;
+      }).join(', ') : '';
       setFormValues((prev) => ({
         ...prev,
         label: selectedElement.label || '',
         tokens: selectedElement.tokens || 0,
         weight: selectedElement.weight !== undefined ? selectedElement.weight : 1,
-        valueTokensInput: Array.isArray(selectedElement.valueTokens) ? selectedElement.valueTokens.join(', ') : '',
-        bindingsInput: elementType === 'arc' && Array.isArray(selectedElement.bindings) ? selectedElement.bindings.join(', ') : '',
-        guardText: elementType === 'transition' ? (selectedElement.guard || '') : ''
+        valueTokensInput: tokensToString(selectedElement.valueTokens),
+        bindingsInput: elementType === 'arc' ? bindingsToString(selectedElement.bindings) : '',
+        guardText: elementType === 'transition' ? String(selectedElement.guard || '').replace(/\btrue\b/gi, 'T').replace(/\bfalse\b/gi, 'F') : ''
       }));
     }
   }, [selectedElement]);
@@ -289,8 +297,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             value={formValues.valueTokensInput}
             onChange={(e) => {
               const raw = e.target.value;
-              setFormValues(prev => ({ ...prev, valueTokensInput: raw }));
-              // Live-parse integers and booleans as user types (accept T/F aliases)
+              // Parse and normalize to T/F in the input field
               const parsed = String(raw || '')
                 .split(',')
                 .map(s => s.trim())
@@ -303,6 +310,8 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                   return null;
                 })
                 .filter(v => v !== null);
+              const normalized = parsed.map(v => (typeof v === 'boolean') ? (v ? 'T' : 'F') : String(v)).join(', ');
+              setFormValues(prev => ({ ...prev, valueTokensInput: normalized }));
               setElements(prev => ({
                 ...prev,
                 places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
@@ -345,13 +354,14 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
               let err = null;
               for (const p of parts) {
                 try {
-                  if (p === 'T' || p === 'F') continue; // literals are allowed
-                  if (p) parseArithmetic(p);
+                  const normalized = /^true$/i.test(p) ? 'T' : /^false$/i.test(p) ? 'F' : p;
+                  if (normalized === 'T' || normalized === 'F') continue; // literals are allowed
+                  if (normalized) parseArithmetic(normalized);
                 } catch (ex) { err = String(ex.message || ex); break; }
               }
-              setFormValues(prev => ({ ...prev, bindingsInput: raw, bindingError: err }));
+              const normalizedParts = parts.map(p => /^true$/i.test(p) ? 'T' : /^false$/i.test(p) ? 'F' : p);
+              setFormValues(prev => ({ ...prev, bindingsInput: normalizedParts.join(', '), bindingError: err }));
               if (!err) {
-                const normalizedParts = parts; // keep T/F as entered
                 setElements(prev => ({
                   ...prev,
                   arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings: normalizedParts, binding: undefined } : a)
@@ -376,7 +386,14 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
               // Accept boolean expressions with T/F and arithmetic comparisons
               let err = null;
               try {
-                parseBooleanExpr(v, parseArithmetic);
+                const normalized = v.replace(/\btrue\b/gi, 'T').replace(/\bfalse\b/gi, 'F');
+                parseBooleanExpr(normalized, parseArithmetic);
+                setFormValues(prev => ({ ...prev, guardText: normalized, guardError: err }));
+                setElements(prev => ({
+                  ...prev,
+                  transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: normalized } : t)
+                }));
+                return;
               } catch (ex) { err = String(ex.message || ex); }
               setFormValues(prev => ({ ...prev, guardText: v, guardError: err }));
               setElements(prev => ({

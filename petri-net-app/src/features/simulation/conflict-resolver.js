@@ -23,22 +23,45 @@ export class ConflictResolver {
       return this.conflictCache.get(reverseKey);
     }
 
-    // Get input places for both transitions
-    const inputPlaces1 = this.getInputPlaces(transition1Id, places, arcs);
-    const inputPlaces2 = this.getInputPlaces(transition2Id, places, arcs);
+    // Determine required token categories from input bindings per transition
+    const needs1 = this._requiredCategories(transition1Id, arcs);
+    const needs2 = this._requiredCategories(transition2Id, arcs);
 
-    // Check for shared input places
-    const sharedPlaces = inputPlaces1.filter(place1 => 
-      inputPlaces2.some(place2 => place1.id === place2.id)
-    );
-
-    // Transitions are in conflict if they share input places
-    const inConflict = sharedPlaces.length > 0;
+    // If they do not compete for the same place-category, they are not in conflict
+    let inConflict = false;
+    for (const [placeId, cats1] of needs1.entries()) {
+      const cats2 = needs2.get(placeId);
+      if (!cats2) continue;
+      // If both need integers from the same place, or both need booleans from the same place, they conflict
+      if ((cats1.has('int') && cats2.has('int')) || (cats1.has('bool') && cats2.has('bool'))) {
+        inConflict = true; break;
+      }
+    }
     
     // Cache the result
     this.conflictCache.set(cacheKey, inConflict);
     
     return inConflict;
+  }
+
+  // Build a map placeId -> {int?, bool?} of required token categories for a transition
+  _requiredCategories(transitionId, arcs) {
+    const need = new Map();
+    for (const arc of arcs) {
+      const srcId = arc.sourceId || arc.source;
+      const tgtId = arc.targetId || arc.target;
+      if (!(tgtId === transitionId && (arc.sourceType === 'place' || arc.type === 'place-to-transition'))) continue;
+      const list = Array.isArray(arc.bindings) ? arc.bindings : (arc.binding ? [arc.binding] : []);
+      if (!need.has(srcId)) need.set(srcId, new Set());
+      const cat = need.get(srcId);
+      for (const b of list) {
+        const text = String(b || '');
+        if (/:[ ]*boolean/i.test(text) || text === 'T' || text === 'F') cat.add('bool');
+        else cat.add('int');
+      }
+      if (list.length === 0) { cat.add('int'); }
+    }
+    return need;
   }
 
   /**

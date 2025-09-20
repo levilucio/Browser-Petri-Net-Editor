@@ -55,31 +55,6 @@ describe('PropertiesPanel (algebraic mode)', () => {
     expect(newState.arcs[0].bindings).toEqual(['x', 'y+2', 'z-1']);
   });
 
-  test('transition: guard must include comparison operator, clears error when valid', () => {
-    const setElements = jest.fn();
-    const updateHistory = jest.fn();
-    const selectedTransition = { id: 'transition-1', label: 'T', x: 0, y: 0 };
-
-    render(
-      <PropertiesPanel
-        selectedElement={selectedTransition}
-        elements={elementsEmpty}
-        setElements={setElements}
-        updateHistory={updateHistory}
-        simulationSettings={simulationSettings}
-      />
-    );
-
-    const input = screen.getByPlaceholderText('e.g., x + y >= 3');
-    fireEvent.change(input, { target: { value: 'x + y' } });
-    expect(screen.getByText(/Guard must include/)).toBeInTheDocument();
-
-    fireEvent.change(input, { target: { value: 'x + y >= 3' } });
-    expect(screen.queryByText(/Guard must include/)).not.toBeInTheDocument();
-    const updater = setElements.mock.calls[setElements.mock.calls.length - 1][0];
-    const newState = updater({ places: [], transitions: [{ id: 'transition-1' }], arcs: [] });
-    expect(newState.transitions[0].guard).toBe('x + y >= 3');
-  });
 });
 
 

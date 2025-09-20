@@ -222,7 +222,12 @@ const Arc = ({
       {/* Display bindings bag in algebraic-int mode */}
       {netMode === 'algebraic-int' && Array.isArray(arc.bindings) && arc.bindings.length > 0 && (
         <Text
-          text={arc.bindings.join(', ')}
+          text={arc.bindings.map(b => {
+            const t = String(b || '');
+            if (/^true$/i.test(t)) return 'T';
+            if (/^false$/i.test(t)) return 'F';
+            return t;
+          }).join(', ')}
           fontSize={10}
           fill="#333"
           x={midX + nameOffsetX - 15}

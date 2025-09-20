@@ -20,7 +20,8 @@ const Place = ({
     setIsDragging, 
     gridSnappingEnabled, 
     snapToGrid, 
-    setSnapIndicator 
+    setSnapIndicator,
+    netMode,
   } = usePetriNet();
   
   const handleDragStart = () => {
@@ -82,7 +83,7 @@ const Place = ({
       const count = valueTokens.length;
       // Single algebraic integer: center it
       if (count === 1) {
-        const text = String(valueTokens[0]);
+        const text = (typeof valueTokens[0] === 'boolean') ? (valueTokens[0] ? 'T' : 'F') : String(valueTokens[0]);
         return (
           <Text
             text={text}
@@ -140,6 +141,8 @@ const Place = ({
       );
     }
     if (tokens === 0) {
+      // For algebraic nets, show nothing when empty regardless of whether valueTokens is defined
+      if (netMode === 'algebraic-int' || Array.isArray(valueTokens)) return null;
       return (
         <Text
           text="0"
