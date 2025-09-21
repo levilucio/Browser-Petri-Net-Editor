@@ -129,17 +129,16 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
   - ✅ Implement dual-mode simulator supporting both P/T nets and integer algebraic nets
   - ✅ Add simulation settings to switch between P/T mode and algebraic mode
   - ✅ Ensure backward compatibility with existing P/T net files
-  - Set Z3 solver timeout to 10 seconds for performance
-  - Write comprehensive tests for integer algebraic net functionality: test mode switching between simulators for ADT and P/T nets
+  - ✅ Write comprehensive tests for integer algebraic net functionality: test mode switching between simulators for ADT and P/T nets
 - **Deliverables**:
-  - Integer-only algebraic Petri net editor with Z3 theory integration
-  - Dual-mode simulator (P/T and integer algebraic)
-  - Extended XML parser for integer algebraic nets
-  - Unit tests for Z3 integration and integer algebraic functionality
+  - ✅ Integer-only algebraic Petri net editor with Z3 theory integration
+  - ✅ Dual-mode simulator (P/T and integer algebraic)
+  - ✅ Extended XML parser for integer algebraic nets
+  - ✅ Unit tests for Z3 integration and integer algebraic functionality
 - **Success Criteria**:
-  - Create and simulate integer algebraic nets with Z3 theory-based guard evaluation
-  - Support pattern matching and term unification on input arcs using Z3
-  - Maintain compatibility with existing P/T net files
+  - ✅ Create and simulate integer algebraic nets with Z3 theory-based guard evaluation
+  - ✅ Support pattern matching and term unification on input arcs using Z3
+  - ✅ Maintain compatibility with existing P/T net files
   - Performance within Z3 timeout constraints (10 seconds)
 
 #### Milestone 2.2: Full Type System with Multisets (6 weeks, Weeks 19–24)

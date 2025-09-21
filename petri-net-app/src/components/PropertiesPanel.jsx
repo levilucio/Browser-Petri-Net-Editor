@@ -297,7 +297,11 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             value={formValues.valueTokensInput}
             onChange={(e) => {
               const raw = e.target.value;
-              // Parse and normalize to T/F in the input field
+              // Allow free typing including trailing commas; commit on blur
+              setFormValues(prev => ({ ...prev, valueTokensInput: raw }));
+            }}
+            onBlur={() => {
+              const raw = formValues.valueTokensInput;
               const parsed = String(raw || '')
                 .split(',')
                 .map(s => s.trim())
@@ -350,16 +354,21 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             value={formValues.bindingsInput}
             onChange={(e) => {
               const raw = e.target.value;
+              // Allow free typing; validate and commit on blur
+              setFormValues(prev => ({ ...prev, bindingsInput: raw }));
+            }}
+            onBlur={() => {
+              const raw = formValues.bindingsInput;
               const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
               let err = null;
+              const normalizedParts = [];
               for (const p of parts) {
                 try {
                   const normalized = /^true$/i.test(p) ? 'T' : /^false$/i.test(p) ? 'F' : p;
-                  if (normalized === 'T' || normalized === 'F') continue; // literals are allowed
-                  if (normalized) parseArithmetic(normalized);
+                  if (normalized === 'T' || normalized === 'F') { normalizedParts.push(normalized); continue; }
+                  if (normalized) { parseArithmetic(normalized); normalizedParts.push(normalized); }
                 } catch (ex) { err = String(ex.message || ex); break; }
               }
-              const normalizedParts = parts.map(p => /^true$/i.test(p) ? 'T' : /^false$/i.test(p) ? 'F' : p);
               setFormValues(prev => ({ ...prev, bindingsInput: normalizedParts.join(', '), bindingError: err }));
               if (!err) {
                 setElements(prev => ({

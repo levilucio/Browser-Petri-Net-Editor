@@ -159,6 +159,33 @@ test.describe('APN (int+boolean) basics', () => {
     expect(sortedBools).toEqual([false, true]);
     expect(finalInfo.count).toBe(2);
   });
+
+  test('PN8: Run to completion => P3 contains two integer 2 tokens (AND guard)', async ({ page }) => {
+    await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net8.pnml');
+
+    await waitSimulatorReady(page, 60000);
+
+    const runBtn = page.getByTestId('sim-run');
+    await expect(runBtn).toBeEnabled({ timeout: 60000 });
+    await runBtn.click();
+
+    // Wait until no more transitions are enabled
+    await page.waitForFunction(() => {
+      const en = (window.__ENABLED_TRANSITIONS__ || []);
+      return Array.isArray(en) && en.length === 0;
+    }, { timeout: 60000 });
+
+    const finalInfo = await page.evaluate(() => {
+      const s = window.__PETRI_NET_STATE__;
+      const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
+      const p3 = byLabel('P3');
+      const vt3 = Array.isArray(p3?.valueTokens) ? p3.valueTokens.slice() : [];
+      return { vt3 };
+    });
+
+    const sortedInts = [...finalInfo.vt3].sort((a, b) => Number(a) - Number(b));
+    expect(sortedInts).toEqual([2, 2]);
+  });
 });
 
 

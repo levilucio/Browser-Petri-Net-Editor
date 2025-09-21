@@ -23,6 +23,7 @@ describe('PropertiesPanel (algebraic mode)', () => {
 
     const input = screen.getByPlaceholderText('e.g., 2, 3, 4');
     fireEvent.change(input, { target: { value: '2, 3, 5' } });
+    fireEvent.blur(input);
 
     expect(setElements).toHaveBeenCalled();
     const updater = setElements.mock.calls[0][0];
@@ -48,6 +49,7 @@ describe('PropertiesPanel (algebraic mode)', () => {
 
     const input = screen.getByPlaceholderText('e.g., x, y+2, z-1');
     fireEvent.change(input, { target: { value: 'x, y+2, z-1' } });
+    fireEvent.blur(input);
 
     expect(setElements).toHaveBeenCalled();
     const updater = setElements.mock.calls[0][0];
