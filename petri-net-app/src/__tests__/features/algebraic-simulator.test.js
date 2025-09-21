@@ -254,3 +254,36 @@ describe('AlgebraicSimulator (smoke)', () => {
 });
 
 
+describe('Pairs support', () => {
+  test('supports pair tokens and pair equality in guards', async () => {
+    const sim = new AlgebraicSimulator();
+    const pPair = { __pair__: true, fst: false, snd: 1 };
+    const net = {
+      places: [
+        { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [pPair] },
+        { id: 'p2', label: 'P2', x: 0, y: 0, valueTokens: [] },
+      ],
+      transitions: [
+        { id: 't1', label: 'T1', x: 100, y: 0, guard: 'x:pair == (F, 1)' },
+      ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:pair'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x:pair'] },
+      ],
+      netMode: 'algebraic-int'
+    };
+    await sim.initialize(net, { simulationMode: 'single' });
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).toContain('t1');
+    const after = await sim.fireTransition('t1');
+    const p2 = after.places.find(p => p.id === 'p2');
+    expect(Array.isArray(p2.valueTokens)).toBe(true);
+    expect(p2.valueTokens.length).toBe(1);
+    const out = p2.valueTokens[0];
+    expect(out && out.__pair__).toBe(true);
+    expect(out.fst).toBe(false);
+    expect(out.snd).toBe(1);
+  }, 20000);
+});
+
+

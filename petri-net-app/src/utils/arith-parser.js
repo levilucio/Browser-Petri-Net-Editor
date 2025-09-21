@@ -30,8 +30,14 @@ export function parseArithmetic(input) {
     if (!isIdentStart(src[i])) throw new Error(`Expected identifier at position ${i}`);
     i++;
     while (i < src.length && isIdentPart(src[i])) i++;
-    const name = src.slice(start, i);
-    // Optional type annotation: ": integer" or ": boolean" (case-insensitive)
+  const name = src.slice(start, i);
+  
+  // Validate variable names start with lowercase to avoid T/F ambiguity
+  if (name && /^[A-Z]/.test(name)) {
+    throw new Error(`Variable names must start with lowercase letter, got '${name}' (use 't' instead of 'T', 'f' instead of 'F')`);
+  }
+  
+  // Optional type annotation: ": integer" or ": boolean" (case-insensitive)
     const save = i;
     skipWs();
     if (src[i] === ':') {
@@ -40,7 +46,7 @@ export function parseArithmetic(input) {
       const tStart = i;
       while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
       const tWord = src.slice(tStart, i).toLowerCase();
-      if (tWord === 'integer' || tWord === 'boolean') {
+      if (tWord === 'integer' || tWord === 'boolean' || tWord === 'pair') {
         return { type: 'var', name, varType: tWord };
       } else {
         // Not a recognized type; rollback to previous position

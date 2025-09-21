@@ -398,6 +398,12 @@ export function parseBooleanExpr(input, parseArithmetic) {
     i++;
     while (i < src.length && /[A-Za-z0-9_]/.test(src[i])) i++;
     const name = src.slice(start, i);
+    
+    // Validate variable names start with lowercase to avoid T/F ambiguity
+    if (name && /^[A-Z]/.test(name)) {
+      throw new Error(`Variable names must start with lowercase letter, got '${name}' (use 't' instead of 'T', 'f' instead of 'F')`);
+    }
+    
     const save = i;
     skipWs();
     if (src[i] === ':') {
@@ -406,7 +412,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
       const tStart = i;
       while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
       const tWord = src.slice(tStart, i).toLowerCase();
-      if (tWord === 'integer' || tWord === 'boolean') {
+      if (tWord === 'integer' || tWord === 'boolean' || tWord === 'pair') {
         return { name, varType: tWord };
       }
       // rollback if not recognized
@@ -414,6 +420,40 @@ export function parseBooleanExpr(input, parseArithmetic) {
       return { name };
     }
     return { name };
+  }
+
+  function parseAnyTermString(s) {
+    const srcTerm = String(s || '').trim();
+    // Check booleans first to avoid treating T/F as variables
+    if (/^true$/i.test(srcTerm) || srcTerm === 'T') return { type: 'boolLit', value: true };
+    if (/^false$/i.test(srcTerm) || srcTerm === 'F') return { type: 'boolLit', value: false };
+    // Try arithmetic
+    try { return parseArithmetic(srcTerm); } catch (_) {}
+    // Pair literal (top-level comma inside parens)
+    if (srcTerm.startsWith('(') && srcTerm.endsWith(')')) {
+      const inner = srcTerm.slice(1, -1).trim();
+      let depth = 0, idx = -1;
+      for (let j = 0; j < inner.length; j++) {
+        const ch = inner[j];
+        if (ch === '(') depth++;
+        else if (ch === ')') depth = Math.max(0, depth - 1);
+        else if (ch === ',' && depth === 0) { idx = j; break; }
+      }
+      if (idx >= 0) {
+        const leftStr = inner.slice(0, idx).trim();
+        const rightStr = inner.slice(idx + 1).trim();
+        return { type: 'pairLit', fst: parseAnyTermString(leftStr), snd: parseAnyTermString(rightStr) };
+      }
+    }
+    // Identifier (possibly annotated)
+    try {
+      const { name, varType } = parseIdentWithOptionalType();
+      if (varType === 'boolean') return { type: 'boolVar', name, varType };
+      if (varType === 'pair') return { type: 'pairVar', name, varType };
+      return { type: 'var', name };
+    } catch (_) {
+      throw new Error(`Unrecognized term '${srcTerm}'`);
+    }
   }
 
   function parseBoolPrimary() {
@@ -440,7 +480,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
       if (!/[A-Za-z0-9_]/.test(next)) { i += 1; return { type: 'boolLit', value: false }; }
     }
 
-    // Try to parse a comparison predicate lhs OP rhs using existing predicate parser
+    // Try to parse a comparison predicate lhs OP rhs (supports arithmetic and pairs)
     // Look ahead for comparison operators at top level
     const ops = ['>=', '<=', '==', '!=', '>', '<'];
     // Scan ahead to find first top-level comparison operator
@@ -458,8 +498,8 @@ export function parseBooleanExpr(input, parseArithmetic) {
     if (foundOp && opIndex >= 0) {
       const leftStr = src.slice(i, opIndex).trim();
       const rightStr = src.slice(opIndex + foundOp.length).trim();
-      const leftAst = parseArithmetic(leftStr);
-      const rightAst = parseArithmetic(rightStr);
+      const leftAst = parseAnyTermString(leftStr);
+      const rightAst = parseAnyTermString(rightStr);
       // Advance parser to end since we consumed entire remaining expression
       i = src.length;
       return { type: 'cmp', op: foundOp, left: leftAst, right: rightAst };
@@ -507,6 +547,10 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
   function toBool(v) {
     if (typeof v === 'boolean') return v;
     if (typeof v === 'number') return v !== 0;
+    if (v && typeof v === 'object' && v.__pair__) {
+      // For now, pairs are truthy only via non-null check when used as bool
+      return true;
+    }
     throw new Error('Non-boolean binding in boolean expression');
   }
   function evalBool(node) {
@@ -517,11 +561,17 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
       case 'and': return evalBool(node.left) && evalBool(node.right);
       case 'or': return evalBool(node.left) || evalBool(node.right);
       case 'cmp': {
-        const l = evaluateArithmeticWithBindings(node.left, bindings);
-        const r = evaluateArithmeticWithBindings(node.right, bindings);
+        const l = tryEvalAnyTerm(node.left, bindings, parseArithmetic);
+        const r = tryEvalAnyTerm(node.right, bindings, parseArithmetic);
+        const eq = (a, b) => {
+          if (a && typeof a === 'object' && a.__pair__ && b && typeof b === 'object' && b.__pair__) {
+            return eq(a.fst, b.fst) && eq(a.snd, b.snd);
+          }
+          return a === b;
+        };
         switch (node.op) {
-          case '==': return l === r;
-          case '!=': return l !== r;
+          case '==': return eq(l, r);
+          case '!=': return !eq(l, r);
           case '<': return l < r;
           case '<=': return l <= r;
           case '>': return l > r;
@@ -536,6 +586,28 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
   return evalBool(ast);
 }
 
+// Try to evaluate a term that may be arithmetic, boolean, or pair-construction
+function tryEvalAnyTerm(ast, bindings, parseArithmetic) {
+  // For now, we reuse arithmetic parser AST shape; extend with simple pair literal detection in bindings/guards via variable lookup
+  if (!ast) throw new Error('Invalid term');
+  if (ast.type === 'int' || ast.type === 'bin' || ast.type === 'var') {
+    try { return evaluateArithmeticWithBindings(ast, bindings); } catch (_) {}
+    // If not arith, maybe a boolean variable
+    if (ast.type === 'var' && typeof bindings?.[ast.name] !== 'undefined') {
+      return bindings[ast.name];
+    }
+  }
+  if (ast.type === 'boolLit') return !!ast.value;
+  if (ast.type === 'boolVar') return !!(bindings?.[ast.name]);
+  if (ast.type === 'pairVar') return bindings?.[ast.name];
+  if (ast.type === 'pairLit') {
+    const left = tryEvalAnyTerm(ast.fst, bindings, parseArithmetic);
+    const right = tryEvalAnyTerm(ast.snd, bindings, parseArithmetic);
+    return { __pair__: true, fst: left, snd: right };
+  }
+  return evaluateArithmeticWithBindings(ast, bindings);
+}
+
 // SAT check for boolean expression with Z3 given optional concrete bindings
 export async function evaluateBooleanPredicate(booleanAstOrString, bindings, parseArithmetic) {
   const { ctx } = await getContext();
@@ -547,6 +619,7 @@ export async function evaluateBooleanPredicate(booleanAstOrString, bindings, par
 
   const intVars = new Set();
   const boolVars = new Set();
+  const pairVars = new Set();
 
   function collect(node) {
     if (!node) return;
@@ -579,30 +652,38 @@ export async function evaluateBooleanPredicate(booleanAstOrString, bindings, par
       case 'and': return And(buildBool(node.left), buildBool(node.right));
       case 'or': return Or(buildBool(node.left), buildBool(node.right));
       case 'cmp': {
-        const buildArith = (t) => {
-          if (t.type === 'int') return Int.val(t.value);
-          if (t.type === 'var') return intSym.get(t.name);
-          if (t.type === 'bin') {
-            const l = buildArith(t.left); const r = buildArith(t.right);
-            switch (t.op) {
-              case '+': return l.add(r);
-              case '-': return l.sub(r);
-              case '*': return l.mul(r);
-              case '/': return l.div(r);
+        // Support only Int comparisons in Z3; for pairs we will fall back to pure evaluation
+        const canBuildIntTerm = (t) => t && (t.type === 'int' || t.type === 'var' || t.type === 'bin');
+        if (canBuildIntTerm(node.left) && canBuildIntTerm(node.right)) {
+          const buildArith = (t) => {
+            if (t.type === 'int') return Int.val(t.value);
+            if (t.type === 'var') return intSym.get(t.name);
+            if (t.type === 'bin') {
+              const l = buildArith(t.left); const r = buildArith(t.right);
+              switch (t.op) {
+                case '+': return l.add(r);
+                case '-': return l.sub(r);
+                case '*': return l.mul(r);
+                case '/': return l.div(r);
+                default: throw new Error('Unknown arithmetic operator');
+              }
             }
+            throw new Error('Unknown arithmetic AST in boolean comparison');
+          };
+          const l = buildArith(node.left); const r = buildArith(node.right);
+          switch (node.op) {
+            case '==': return l.eq(r);
+            case '!=': return Not(l.eq(r));
+            case '<': return l.lt(r);
+            case '<=': return l.le(r);
+            case '>': return l.gt(r);
+            case '>=': return l.ge(r);
+            default: throw new Error(`Unsupported predicate operator '${node.op}'`);
           }
-          throw new Error('Unknown arithmetic AST in boolean comparison');
-        };
-        const l = buildArith(node.left); const r = buildArith(node.right);
-        switch (node.op) {
-          case '==': return l.eq(r);
-          case '!=': return Not(l.eq(r));
-          case '<': return l.lt(r);
-          case '<=': return l.le(r);
-          case '>': return l.gt(r);
-          case '>=': return l.ge(r);
-          default: throw new Error(`Unsupported predicate operator '${node.op}'`);
         }
+        // Fallback: evaluate outside Z3 during SAT check by constraining a fresh Bool to the pure result
+        const pure = evaluateBooleanWithBindings({ type: 'cmp', op: node.op, left: node.left, right: node.right }, bindings || {}, parseArithmetic);
+        return pure ? Bool.val(true) : Bool.val(false);
       }
       default: throw new Error(`Unknown boolean AST node '${node.type}'`);
     }
@@ -619,6 +700,8 @@ export async function evaluateBooleanPredicate(booleanAstOrString, bindings, par
         eqs.push(intSym.get(name).eq(Int.val(value|0)));
       } else if (boolSym.has(name) && typeof value === 'boolean') {
         eqs.push(boolSym.get(name).eq(value ? Bool.val(true) : Bool.val(false)));
+      } else if (value && typeof value === 'object' && value.__pair__ && value.hasOwnProperty('fst') && value.hasOwnProperty('snd')) {
+        // We don't introduce a Pair sort in this simplified infra; for equality between pairs we directly compare concrete JS values elsewhere.
       }
     }
     if (eqs.length) s.add(And(...eqs));

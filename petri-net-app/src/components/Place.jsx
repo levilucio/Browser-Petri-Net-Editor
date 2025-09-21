@@ -81,9 +81,10 @@ const Place = ({
     if (Array.isArray(valueTokens) && valueTokens.length > 0) {
       const maxScatter = 6;
       const count = valueTokens.length;
+      const formatToken = (v) => (typeof v === 'boolean') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${formatToken(v.fst)}, ${formatToken(v.snd)})` : String(v));
       // Single algebraic integer: center it
       if (count === 1) {
-        const text = (typeof valueTokens[0] === 'boolean') ? (valueTokens[0] ? 'T' : 'F') : String(valueTokens[0]);
+        const text = formatToken(valueTokens[0]);
         return (
           <Text
             text={text}
@@ -108,7 +109,7 @@ const Place = ({
               const tx = Math.cos(angle) * innerR;
               const ty = Math.sin(angle) * innerR;
               const fontSize = 12;
-              const text = (typeof val === 'boolean') ? (val ? 'T' : 'F') : String(val);
+              const text = formatToken(val);
               const estWidth = Math.max(12, text.length * fontSize * 0.6);
               return (
                 <Text

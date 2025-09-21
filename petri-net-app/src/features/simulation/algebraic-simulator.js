@@ -79,6 +79,9 @@ export class AlgebraicSimulator extends BaseSimulator {
           if (parsed.type === 'var' && parsed.varType === 'boolean') {
             // Represent as boolean variable for uniformity
             asts.push({ kind: 'bool', ast: { type: 'boolVar', name: parsed.name, varType: 'boolean' } });
+          } else if (parsed.type === 'var' && parsed.varType === 'pair') {
+            // Pair-typed variable binding
+            asts.push({ kind: 'pair', ast: { type: 'pairVar', name: parsed.name, varType: 'pair' } });
           } else {
             asts.push({ kind: 'arith', ast: parsed });
           }
@@ -161,7 +164,7 @@ export class AlgebraicSimulator extends BaseSimulator {
 
     const tryArc = async (arcIndex, bindings, env) => {
       if (arcIndex >= inputArcs.length) {
-        // Check guard
+        // Check guard: prefer pure evaluation when all variables are bound; use Z3 only if free vars remain
         if (!guardAst) return true;
         const free = getUnboundBooleanGuardVars(guardAst, env);
         if (free.length > 0) {
@@ -193,13 +196,14 @@ export class AlgebraicSimulator extends BaseSimulator {
           const astObj = bindingAsts[k];
           if (astObj) {
             const { kind, ast } = astObj;
-            if (ast.type === 'var' || ast.type === 'boolVar') {
+            if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
               if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, ast.name) && nextEnv[ast.name] !== tok) {
                 ok = false;
               } else {
                 // Respect optional type annotation
                 if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'boolean') ok = false;
                 if (typeof tok === 'number' && ast.varType && ast.varType !== 'integer') ok = false;
+                if (isPair(tok) && ast.varType && ast.varType !== 'pair') ok = false;
                 if (ok) nextEnv = { ...(nextEnv || {}), [ast.name]: tok };
               }
             } else if (kind === 'arith') {
@@ -211,6 +215,21 @@ export class AlgebraicSimulator extends BaseSimulator {
               try {
                 const val = evaluateBooleanWithBindings(ast, localEnv || {}, parseArithmetic);
                 if (typeof tok !== 'boolean' || val !== tok) ok = false;
+              } catch (_) { ok = false; }
+            } else if (kind === 'pair') {
+              try {
+                // Simple pair literal evaluation
+                if (ast.type === 'pairLit') {
+                  const litEval = (node) => {
+                    if (node.type === 'pairLit') return { __pair__: true, fst: litEval(node.fst), snd: litEval(node.snd) };
+                    if (node.type === 'boolLit') return !!node.value;
+                    if (node.type === 'int') return node.value | 0;
+                    if (node.type === 'boolVar' || node.type === 'var') return (localEnv || {})[node.name];
+                    return null;
+                  };
+                  const v = litEval(ast);
+                  if (!isPair(tok) || JSON.stringify(v) !== JSON.stringify(tok)) ok = false;
+                }
               } catch (_) { ok = false; }
             }
           }
@@ -286,12 +305,13 @@ export class AlgebraicSimulator extends BaseSimulator {
           const astObj = bindingAsts[k];
           if (astObj) {
             const { kind, ast } = astObj;
-            if (ast.type === 'var' || ast.type === 'boolVar') {
+            if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
               if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, ast.name) && nextEnv[ast.name] !== tok) {
                 ok = false;
               } else {
                 if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'boolean') ok = false;
                 if (typeof tok === 'number' && ast.varType && ast.varType !== 'integer') ok = false;
+                if (isPair(tok) && ast.varType && ast.varType !== 'pair') ok = false;
                 if (ok) nextEnv = { ...(nextEnv || {}), [ast.name]: tok };
               }
             } else if (kind === 'arith') {
@@ -303,6 +323,21 @@ export class AlgebraicSimulator extends BaseSimulator {
               try {
                 const val = evaluateBooleanWithBindings(ast, localEnv || {}, parseArithmetic);
                 if (typeof tok !== 'boolean' || val !== tok) ok = false;
+              } catch (_) { ok = false; }
+            } else if (kind === 'pair') {
+              try {
+                // Simple pair literal evaluation
+                if (ast.type === 'pairLit') {
+                  const litEval = (node) => {
+                    if (node.type === 'pairLit') return { __pair__: true, fst: litEval(node.fst), snd: litEval(node.snd) };
+                    if (node.type === 'boolLit') return !!node.value;
+                    if (node.type === 'int') return node.value | 0;
+                    if (node.type === 'boolVar' || node.type === 'var') return (localEnv || {})[node.name];
+                    return null;
+                  };
+                  const v = litEval(ast);
+                  if (!isPair(tok) || JSON.stringify(v) !== JSON.stringify(tok)) ok = false;
+                }
               } catch (_) { ok = false; }
             }
           }
@@ -379,16 +414,29 @@ export class AlgebraicSimulator extends BaseSimulator {
           try {
             let v;
             const { kind, ast } = astObj;
-            if (ast && (ast.type === 'var' || ast.type === 'boolVar')) {
+            if (ast && (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar')) {
               v = (env || {})[ast.name];
             } else if (kind === 'arith') {
               v = evaluateArithmeticWithBindings(ast, env);
             } else if (kind === 'bool') {
               v = evaluateBooleanWithBindings(ast, env, parseArithmetic);
+            } else if (kind === 'pair') {
+              // Evaluate pair literal
+              if (ast.type === 'pairLit') {
+                const litEval = (node) => {
+                  if (node.type === 'pairLit') return { __pair__: true, fst: litEval(node.fst), snd: litEval(node.snd) };
+                  if (node.type === 'boolLit') return !!node.value;
+                  if (node.type === 'int') return node.value | 0;
+                  if (node.type === 'boolVar' || node.type === 'var') return (env || {})[node.name];
+                  return null;
+                };
+                v = litEval(ast);
+              }
             }
             if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
             if (typeof v === 'number') place.valueTokens.push(v | 0);
             else if (typeof v === 'boolean') place.valueTokens.push(v);
+            else if (isPair(v)) place.valueTokens.push(v);
           } catch (_) { /* skip */ }
         }
       } else if (arc.weight && (arc.weight | 0) > 0) {
@@ -525,6 +573,7 @@ function getUnboundBooleanGuardVars(ast, env) {
     if (!node) return;
     switch (node.type) {
       case 'boolVar': names.add(node.name); break;
+      case 'pairVar': names.add(node.name); break;
       case 'and': case 'or': collect(node.left); collect(node.right); break;
       case 'not': collect(node.expr); break;
       case 'cmp': collectArith(node.left); collectArith(node.right); break;
@@ -534,7 +583,10 @@ function getUnboundBooleanGuardVars(ast, env) {
   function collectArith(ast) {
     if (!ast) return;
     if (ast.type === 'var') names.add(ast.name);
+    if (ast.type === 'boolVar') names.add(ast.name);
+    if (ast.type === 'pairVar') names.add(ast.name);
     else if (ast.type === 'bin') { collectArith(ast.left); collectArith(ast.right); }
+    else if (ast.type === 'pairLit') { collectArith(ast.fst); collectArith(ast.snd); }
   }
   collect(ast);
   const bound = new Set(Object.keys(env || {}));
@@ -568,6 +620,10 @@ function getTokensForPlace(place, cap = 20) {
     return Array.from({ length: Math.min(n, cap) }, () => 1);
   }
   return [];
+}
+
+function isPair(v) {
+  return !!(v && typeof v === 'object' && v.__pair__ === true && 'fst' in v && 'snd' in v);
 }
 
 // Build a lightweight signature over guards/bindings (and actions) to detect semantic changes

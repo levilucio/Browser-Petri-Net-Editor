@@ -29,7 +29,8 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
       const elementType = selectedElement.type || (elementId.split('-')[0]);
       const toTF = (s) => (typeof s === 'boolean') ? (s ? 'T' : 'F') : String(s);
-      const tokensToString = (arr) => Array.isArray(arr) ? arr.map(toTF).join(', ') : '';
+      const fmt = (v) => (typeof v === 'boolean') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${fmt(v.fst)}, ${fmt(v.snd)})` : String(v));
+      const tokensToString = (arr) => Array.isArray(arr) ? arr.map(fmt).join(', ') : '';
       const bindingsToString = (arr) => Array.isArray(arr) ? arr.map(b => {
         const t = String(b || '');
         if (/^true$/i.test(t)) return 'T';
@@ -302,19 +303,36 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             }}
             onBlur={() => {
               const raw = formValues.valueTokensInput;
-              const parsed = String(raw || '')
-                .split(',')
-                .map(s => s.trim())
-                .filter(s => s.length > 0)
-                .map(s => {
-                  const lower = s.toLowerCase();
-                  if (lower === 'true' || s === 'T') return true;
-                  if (lower === 'false' || s === 'F') return false;
-                  if (/^[+-]?\d+$/.test(s)) return Number.parseInt(s, 10);
-                  return null;
-                })
-                .filter(v => v !== null);
-              const normalized = parsed.map(v => (typeof v === 'boolean') ? (v ? 'T' : 'F') : String(v)).join(', ');
+              // Support pairs using top-level comma split and recursive parse
+              const splitTop = (input) => {
+                const res = [];
+                let depth = 0, cur = '';
+                for (let i = 0; i < input.length; i++) {
+                  const ch = input[i];
+                  if (ch === '(') { depth++; cur += ch; }
+                  else if (ch === ')') { depth = Math.max(0, depth - 1); cur += ch; }
+                  else if (ch === ',' && depth === 0) { res.push(cur.trim()); cur = ''; }
+                  else { cur += ch; }
+                }
+                if (cur.trim().length) res.push(cur.trim());
+                return res.filter(Boolean);
+              };
+              const parseTok = (s) => {
+                const lower = s.toLowerCase();
+                if (lower === 'true' || s === 'T') return true;
+                if (lower === 'false' || s === 'F') return false;
+                if (/^[+-]?\d+$/.test(s)) return Number.parseInt(s, 10);
+                if (s.startsWith('(') && s.endsWith(')')) {
+                  const inner = s.slice(1, -1).trim();
+                  const parts = splitTop(inner);
+                  if (parts.length === 2) return { __pair__: true, fst: parseTok(parts[0]), snd: parseTok(parts[1]) };
+                }
+                return null;
+              };
+              const fmtLocal = (v) => (typeof v === 'boolean') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${fmtLocal(v.fst)}, ${fmtLocal(v.snd)})` : String(v));
+              const parts = splitTop(String(raw || ''));
+              const parsed = parts.map(parseTok).filter(v => v !== null);
+              const normalized = parsed.map(fmtLocal).join(', ');
               setFormValues(prev => ({ ...prev, valueTokensInput: normalized }));
               setElements(prev => ({
                 ...prev,
@@ -359,14 +377,43 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             }}
             onBlur={() => {
               const raw = formValues.bindingsInput;
-              const parts = raw.split(',').map(s => s.trim()).filter(Boolean);
+              const splitTop = (input) => {
+                const res = [];
+                let depth = 0, cur = '';
+                for (let i = 0; i < input.length; i++) {
+                  const ch = input[i];
+                  if (ch === '(') { depth++; cur += ch; }
+                  else if (ch === ')') { depth = Math.max(0, depth - 1); cur += ch; }
+                  else if (ch === ',' && depth === 0) { res.push(cur.trim()); cur = ''; }
+                  else { cur += ch; }
+                }
+                if (cur.trim().length) res.push(cur.trim());
+                return res.filter(Boolean);
+              };
+              const parts = splitTop(raw);
               let err = null;
               const normalizedParts = [];
               for (const p of parts) {
                 try {
                   const normalized = /^true$/i.test(p) ? 'T' : /^false$/i.test(p) ? 'F' : p;
                   if (normalized === 'T' || normalized === 'F') { normalizedParts.push(normalized); continue; }
-                  if (normalized) { parseArithmetic(normalized); normalizedParts.push(normalized); }
+                  if (normalized) {
+                    // accept pair literal syntactically: (a,b) possibly nested; otherwise arithmetic var/expr
+                    const s = normalized.trim();
+                    if (s.startsWith('(') && s.endsWith(')')) {
+                      // simple validation of balanced parentheses
+                      let depth = 0; let ok = true;
+                      for (let i = 0; i < s.length; i++) {
+                        const ch = s[i];
+                        if (ch === '(') depth++; else if (ch === ')') depth--; if (depth < 0) { ok = false; break; }
+                      }
+                      if (!ok || depth !== 0) throw new Error('Unbalanced pair parentheses');
+                      normalizedParts.push(s);
+                    } else {
+                      parseArithmetic(s);
+                      normalizedParts.push(s);
+                    }
+                  }
                 } catch (ex) { err = String(ex.message || ex); break; }
               }
               setFormValues(prev => ({ ...prev, bindingsInput: normalizedParts.join(', '), bindingError: err }));

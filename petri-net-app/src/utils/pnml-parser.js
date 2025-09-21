@@ -176,6 +176,32 @@ export function parsePNML(pnmlString) {
       return parts.filter(p => p.length > 0);
     };
     
+    // Helper: recursively parse algebraic token, supporting booleans, integers, and pairs
+    const parseAlgebraicToken = (text) => {
+      const p = String(text || '').trim();
+      const low = p.toLowerCase();
+      if (p === 'T' || low === 'true') return true;
+      if (p === 'F' || low === 'false') return false;
+      if (/^[+-]?\d+$/.test(p)) return parseInt(p, 10);
+      if (p.startsWith('(') && p.endsWith(')')) {
+        const inner = p.slice(1, -1).trim();
+        // Find top-level comma
+        let depth = 0, idx = -1;
+        for (let i = 0; i < inner.length; i++) {
+          const ch = inner[i];
+          if (ch === '(') depth++;
+          else if (ch === ')') depth = Math.max(0, depth - 1);
+          else if (ch === ',' && depth === 0) { idx = i; break; }
+        }
+        if (idx >= 0) {
+          const left = inner.slice(0, idx).trim();
+          const right = inner.slice(idx + 1).trim();
+          return { __pair__: true, fst: parseAlgebraicToken(left), snd: parseAlgebraicToken(right) };
+        }
+      }
+      return null;
+    };
+
     // Helper function to get position coordinates
     const getPosition = (element) => {
       const graphicsElements = findChildElements(element, 'graphics');
@@ -207,18 +233,13 @@ export function parsePNML(pnmlString) {
         const markingText = getTextContent(place, 'initialMarking');
         if (markingText) {
           const trimmed = markingText.trim();
-          // List format like [1, 2, T, F]
+          // List format like [1, 2, T, F, (2, F), ((1,2),3)]
           if ((trimmed.startsWith('[') && trimmed.endsWith(']'))) {
             try {
               const inner = trimmed.slice(1, -1).trim();
-              const parts = inner.length ? inner.split(',').map(s => s.trim()).filter(Boolean) : [];
-              valueTokens = parts.map(p => {
-                const low = p.toLowerCase();
-                if (p === 'T' || low === 'true') return true;
-                if (p === 'F' || low === 'false') return false;
-                if (/^[+-]?\d+$/.test(p)) return parseInt(p, 10);
-                return null;
-              }).filter(v => v !== null);
+              // Split by top-level commas to preserve nested pairs
+              const parts = inner.length ? splitTopLevelCommas(inner) : [];
+              valueTokens = parts.map(parseAlgebraicToken).filter(v => v !== null);
               // List form indicates algebraic tokens; leave net mode to settings
             } catch (e) {
               console.warn(`Could not parse token list for ${placeId}:`, e);
@@ -510,7 +531,14 @@ export function generatePNML(petriNetJson) {
       if (Array.isArray(place.valueTokens)) {
         const markingElement = xmlDoc.createElement('initialMarking');
         const markingTextElement = xmlDoc.createElement('text');
-        const parts = place.valueTokens.map(v => (typeof v === 'boolean') ? (v ? 'T' : 'F') : String(v));
+        const formatToken = (v) => {
+          if (typeof v === 'boolean') return v ? 'T' : 'F';
+          if (v && typeof v === 'object' && v.__pair__) {
+            return `(${formatToken(v.fst)}, ${formatToken(v.snd)})`;
+          }
+          return String(v);
+        };
+        const parts = place.valueTokens.map(formatToken);
         markingTextElement.textContent = `[${parts.join(', ')}]`;
         markingElement.appendChild(markingTextElement);
         placeElement.appendChild(markingElement);
