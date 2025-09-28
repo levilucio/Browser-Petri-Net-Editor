@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PetriNetContext } from '../contexts/PetriNetContext';
-import { parseArithmetic } from '../utils/arith-parser';
+import { parseArithmetic, parsePattern, validatePatternTyping, addTypeAnnotations, stringifyPattern } from '../utils/arith-parser';
 import { parseBooleanExpr } from '../utils/z3-arith';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
@@ -398,20 +398,36 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                   const normalized = /^true$/i.test(p) ? 'T' : /^false$/i.test(p) ? 'F' : p;
                   if (normalized === 'T' || normalized === 'F') { normalizedParts.push(normalized); continue; }
                   if (normalized) {
-                    // accept pair literal syntactically: (a,b) possibly nested; otherwise arithmetic var/expr
                     const s = normalized.trim();
-                    if (s.startsWith('(') && s.endsWith(')')) {
-                      // simple validation of balanced parentheses
-                      let depth = 0; let ok = true;
-                      for (let i = 0; i < s.length; i++) {
-                        const ch = s[i];
-                        if (ch === '(') depth++; else if (ch === ')') depth--; if (depth < 0) { ok = false; break; }
+                    // Try parsing as pattern first (for deconstruction like (F,x))
+                    try {
+                      const pattern = parsePattern(s);
+                      const typingError = validatePatternTyping(pattern);
+                      if (typingError) {
+                        err = typingError;
+                        break;
                       }
-                      if (!ok || depth !== 0) throw new Error('Unbalanced pair parentheses');
-                      normalizedParts.push(s);
-                    } else {
-                      parseArithmetic(s);
-                      normalizedParts.push(s);
+                      // Convert pattern back to string with proper typing
+                      const patternWithTypes = addTypeAnnotations(pattern);
+                      normalizedParts.push(stringifyPattern(patternWithTypes));
+                      continue;
+                    } catch (_) {
+                      // Not a pattern, try arithmetic
+                      try {
+                        parseArithmetic(s);
+                        normalizedParts.push(s);
+                        continue;
+                      } catch (_) {
+                        // Try boolean expression
+                        try {
+                          parseBooleanExpr(s, parseArithmetic);
+                          normalizedParts.push(s);
+                          continue;
+                        } catch (_) {
+                          // If all parsing fails, treat as literal string
+                          normalizedParts.push(s);
+                        }
+                      }
                     }
                   }
                 } catch (ex) { err = String(ex.message || ex); break; }
@@ -425,7 +441,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
               }
             }}
             className={`w-full px-3 py-2 border ${formValues.bindingError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm font-mono text-sm`}
-            placeholder="e.g., x, y+2, z-1"
+            placeholder="e.g., x:integer, (F,x:integer), y+2, z-1"
           />
           {formValues.bindingError && <p className="text-red-500 text-xs mt-1">{formValues.bindingError}</p>}
         </div>

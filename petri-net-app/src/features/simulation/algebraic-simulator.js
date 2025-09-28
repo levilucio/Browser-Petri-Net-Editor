@@ -5,7 +5,7 @@
  */
 
 import { BaseSimulator } from './BaseSimulator.js';
-import { parseArithmetic } from '../../utils/arith-parser';
+import { parseArithmetic, parsePattern, matchPattern } from '../../utils/arith-parser';
 import {
   evaluateAction,
   evaluateArithmeticWithBindings,
@@ -71,6 +71,16 @@ export class AlgebraicSimulator extends BaseSimulator {
       const asts = [];
       for (const b of bindings) {
         const text = String(b);
+        
+        // First try pattern matching (for deconstruction like (F, x))
+        try {
+          const pattern = parsePattern(text);
+          asts.push({ kind: 'pattern', ast: pattern });
+          continue;
+        } catch (_) {
+          // Not a pattern, continue with other parsing methods
+        }
+        
         // Prefer arithmetic, but if variable annotated as boolean, store as boolean kind
         let parsed = null;
         const tf = (text === 'T') ? true : (text === 'F') ? false : null;
@@ -196,7 +206,24 @@ export class AlgebraicSimulator extends BaseSimulator {
           const astObj = bindingAsts[k];
           if (astObj) {
             const { kind, ast } = astObj;
-            if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
+            if (kind === 'pattern') {
+              // Pattern matching for deconstruction
+              const bindings = matchPattern(ast, tok);
+              if (bindings === null) {
+                ok = false;
+              } else {
+                // Check for conflicts with existing bindings
+                for (const [varName, varValue] of Object.entries(bindings)) {
+                  if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, varName) && nextEnv[varName] !== varValue) {
+                    ok = false;
+                    break;
+                  }
+                }
+                if (ok) {
+                  nextEnv = { ...(nextEnv || {}), ...bindings };
+                }
+              }
+            } else if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
               if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, ast.name) && nextEnv[ast.name] !== tok) {
                 ok = false;
               } else {
@@ -305,7 +332,24 @@ export class AlgebraicSimulator extends BaseSimulator {
           const astObj = bindingAsts[k];
           if (astObj) {
             const { kind, ast } = astObj;
-            if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
+            if (kind === 'pattern') {
+              // Pattern matching for deconstruction
+              const bindings = matchPattern(ast, tok);
+              if (bindings === null) {
+                ok = false;
+              } else {
+                // Check for conflicts with existing bindings
+                for (const [varName, varValue] of Object.entries(bindings)) {
+                  if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, varName) && nextEnv[varName] !== varValue) {
+                    ok = false;
+                    break;
+                  }
+                }
+                if (ok) {
+                  nextEnv = { ...(nextEnv || {}), ...bindings };
+                }
+              }
+            } else if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
               if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, ast.name) && nextEnv[ast.name] !== tok) {
                 ok = false;
               } else {
@@ -420,6 +464,36 @@ export class AlgebraicSimulator extends BaseSimulator {
               v = evaluateArithmeticWithBindings(ast, env);
             } else if (kind === 'bool') {
               v = evaluateBooleanWithBindings(ast, env, parseArithmetic);
+            } else if (kind === 'pattern') {
+              // Evaluate pattern literal (like (T,2)) or simple literals
+              if (ast.type === 'pairPattern') {
+                const litEval = (node) => {
+                  if (node.type === 'pairPattern') return { __pair__: true, fst: litEval(node.fst), snd: litEval(node.snd) };
+                  if (node.type === 'boolLit') return !!node.value;
+                  if (node.type === 'int') return node.value | 0;
+                  if (node.type === 'var') return (env || {})[node.name];
+                  return null;
+                };
+                v = litEval(ast);
+              } else if (ast.type === 'tuplePattern') {
+                // Future: handle tuple patterns
+                const components = ast.components.map(comp => {
+                  if (comp.type === 'boolLit') return !!comp.value;
+                  if (comp.type === 'int') return comp.value | 0;
+                  if (comp.type === 'var') return (env || {})[comp.name];
+                  return null;
+                });
+                v = components;
+              } else if (ast.type === 'int') {
+                // Simple integer literal
+                v = ast.value | 0;
+              } else if (ast.type === 'boolLit') {
+                // Simple boolean literal
+                v = !!ast.value;
+              } else if (ast.type === 'var') {
+                // Simple variable
+                v = (env || {})[ast.name];
+              }
             } else if (kind === 'pair') {
               // Evaluate pair literal
               if (ast.type === 'pairLit') {
@@ -437,6 +511,7 @@ export class AlgebraicSimulator extends BaseSimulator {
             if (typeof v === 'number') place.valueTokens.push(v | 0);
             else if (typeof v === 'boolean') place.valueTokens.push(v);
             else if (isPair(v)) place.valueTokens.push(v);
+            else if (Array.isArray(v)) place.valueTokens.push(...v);
           } catch (_) { /* skip */ }
         }
       } else if (arc.weight && (arc.weight | 0) > 0) {
