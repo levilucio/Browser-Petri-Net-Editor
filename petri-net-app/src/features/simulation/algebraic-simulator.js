@@ -157,13 +157,14 @@ export class AlgebraicSimulator extends BaseSimulator {
     // Get all variables that can be bound from input arcs
     const boundVariables = new Set();
     
-    // Collect variables from input arc bindings
+    // Collect variables from input arc bindings (including nested variables in patterns)
     for (const arc of inputArcs) {
       const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
       for (const astObj of bindingAsts) {
         const { kind, ast } = astObj;
-        if (kind === 'pattern' && ast.type === 'var') {
-          boundVariables.add(ast.name);
+        if (kind === 'pattern') {
+          const variables = this.extractVariablesFromPattern(ast);
+          variables.forEach(varName => boundVariables.add(varName));
         }
       }
     }
@@ -180,30 +181,57 @@ export class AlgebraicSimulator extends BaseSimulator {
       }
     }
 
-    // Check output arcs for unbound variables
+    // Check output arcs for unbound variables and empty bindings
     const outputArcs = (this.petriNet.arcs || []).filter(a => a.sourceId === transitionId && (a.targetType === 'place' || !a.targetType));
-    let hasBoundVariablesInOutput = false;
+    
     for (const arc of outputArcs) {
       const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
+      
+      // If output arc has no bindings at all, disable transition (no token can be produced)
+      if (bindingAsts.length === 0) {
+        console.log('Output arc has no bindings, disabling transition');
+        return true; // Disable transition
+      }
+      
       for (const astObj of bindingAsts) {
         const { kind, ast } = astObj;
         if (kind === 'pattern' && ast.type === 'var') {
+          // Only check variables - literals like 'int', 'boolLit', 'pairPattern' are always valid
           if (!boundVariables.has(ast.name)) {
             console.log('Unbound variable in output arc:', ast.name);
             return true; // Has unbound variables
           }
-          hasBoundVariablesInOutput = true;
         }
       }
     }
 
-    // Additional requirement: disable transitions if no bound variables appear in output arcs
-    if (outputArcs.length > 0 && !hasBoundVariablesInOutput) {
-      console.log('No bound variables in output arcs, disabling transition');
-      return true; // Disable transition
-    }
+    return false; // No unbound variables and all output arcs have bindings
+  }
 
-    return false; // No unbound variables
+  extractVariablesFromPattern(ast) {
+    const variables = new Set();
+    
+    function traverse(node) {
+      if (!node) return;
+      
+      switch (node.type) {
+        case 'var':
+          variables.add(node.name);
+          break;
+        case 'pairPattern':
+          traverse(node.fst);
+          traverse(node.snd);
+          break;
+        case 'tuplePattern':
+          if (node.elements) {
+            node.elements.forEach(traverse);
+          }
+          break;
+      }
+    }
+    
+    traverse(ast);
+    return Array.from(variables);
   }
 
   extractVariablesFromExpression(ast) {
@@ -313,12 +341,10 @@ export class AlgebraicSimulator extends BaseSimulator {
             const { kind, ast } = astObj;
             if (kind === 'pattern') {
               // Pattern matching for deconstruction
-              const bindingsMap = matchPattern(ast, tok);
-              if (bindingsMap === null) {
+              const bindings = matchPattern(ast, tok);
+              if (bindings === null) {
                 ok = false;
               } else {
-                // Convert Map to plain object
-                const bindings = Object.fromEntries(bindingsMap);
                 // Check for conflicts with existing bindings
                 for (const [varName, varValue] of Object.entries(bindings)) {
                   if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, varName) && nextEnv[varName] !== varValue) {
@@ -441,12 +467,10 @@ export class AlgebraicSimulator extends BaseSimulator {
             const { kind, ast } = astObj;
             if (kind === 'pattern') {
               // Pattern matching for deconstruction
-              const bindingsMap = matchPattern(ast, tok);
-              if (bindingsMap === null) {
+              const bindings = matchPattern(ast, tok);
+              if (bindings === null) {
                 ok = false;
               } else {
-                // Convert Map to plain object
-                const bindings = Object.fromEntries(bindingsMap);
                 // Check for conflicts with existing bindings
                 for (const [varName, varValue] of Object.entries(bindings)) {
                   if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, varName) && nextEnv[varName] !== varValue) {
@@ -834,5 +858,6 @@ function computeCacheSignature(net) {
     return String(Math.random());
   }
 }
+
 
 

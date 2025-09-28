@@ -47,14 +47,14 @@ describe('PropertiesPanel (algebraic mode)', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText('e.g., x, y+2, z-1');
-    fireEvent.change(input, { target: { value: 'x, y+2, z-1' } });
+    const input = screen.getByPlaceholderText('e.g., x:Int, (F,x:Int), y+2, z-1');
+    fireEvent.change(input, { target: { value: 'x:Int, y+2, z-1' } });
     fireEvent.blur(input);
 
     expect(setElements).toHaveBeenCalled();
     const updater = setElements.mock.calls[0][0];
     const newState = updater({ places: [], transitions: [], arcs: [{ id: 'arc-1', bindings: [] }] });
-    expect(newState.arcs[0].bindings).toEqual(['x', 'y+2', 'z-1']);
+    expect(newState.arcs[0].bindings).toEqual(['x:Int', 'y+2', 'z-1']);
   });
 
 });

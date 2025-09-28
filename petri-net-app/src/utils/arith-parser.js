@@ -150,6 +150,16 @@ export function parsePattern(input) {
       return { type: 'boolLit', value: false };
     }
     
+    // Check for full boolean literals
+    if (src.slice(i, i + 4) === 'true') {
+      i += 4;
+      return { type: 'boolLit', value: true };
+    }
+    if (src.slice(i, i + 5) === 'false') {
+      i += 5;
+      return { type: 'boolLit', value: false };
+    }
+    
     // Check for integers
     if (/[0-9]/.test(src[i])) {
       let start = i;
@@ -228,21 +238,35 @@ export function matchPattern(pattern, value) {
     switch (pat.type) {
       case 'int':
         if (typeof val !== 'number' || val !== pat.value) {
-          throw new Error(`Expected integer ${pat.value}, got ${val}`);
+          return false; // Pattern matching failed
         }
         return true;
         
       case 'boolLit':
         if (typeof val !== 'boolean' || val !== pat.value) {
-          throw new Error(`Expected boolean ${pat.value}, got ${val}`);
+          return false; // Pattern matching failed
         }
         return true;
         
       case 'var':
+        // Check type annotation if present
+        if (pat.varType) {
+          const expectedType = pat.varType;
+          if (expectedType === 'int' && typeof val !== 'number') {
+            return false; // Type mismatch: expected int, got something else
+          }
+          if (expectedType === 'bool' && typeof val !== 'boolean') {
+            return false; // Type mismatch: expected bool, got something else
+          }
+          if (expectedType === 'pair' && (!val || typeof val !== 'object' || !val.__pair__)) {
+            return false; // Type mismatch: expected pair, got something else
+          }
+        }
+        
         if (bindings.has(pat.name)) {
           const boundValue = bindings.get(pat.name);
           if (boundValue !== val) {
-            throw new Error(`Variable ${pat.name} already bound to ${boundValue}, cannot bind to ${val}`);
+            return false; // Variable already bound to different value
           }
         } else {
           bindings.set(pat.name, val);
@@ -251,28 +275,31 @@ export function matchPattern(pattern, value) {
         
       case 'pairPattern':
         if (!val || typeof val !== 'object' || !val.__pair__) {
-          throw new Error(`Expected pair, got ${val}`);
+          return false; // Expected pair but got something else
         }
-        matchElement(pat.fst, val.fst);
-        matchElement(pat.snd, val.snd);
+        if (!matchElement(pat.fst, val.fst) || !matchElement(pat.snd, val.snd)) {
+          return false; // Sub-pattern matching failed
+        }
         return true;
         
       case 'tuplePattern':
         if (!Array.isArray(val) || val.length !== pat.elements.length) {
-          throw new Error(`Expected tuple of length ${pat.elements.length}, got ${val}`);
+          return false; // Wrong tuple length
         }
-        pat.elements.forEach((subPat, index) => {
-          matchElement(subPat, val[index]);
-        });
+        for (let index = 0; index < pat.elements.length; index++) {
+          if (!matchElement(pat.elements[index], val[index])) {
+            return false; // Sub-pattern matching failed
+          }
+        }
         return true;
         
       default:
-        throw new Error(`Unknown pattern type: ${pat.type}`);
+        return false; // Unknown pattern type
     }
   }
   
-  matchElement(pattern, value);
-  return bindings;
+  const success = matchElement(pattern, value);
+  return success ? Object.fromEntries(bindings) : null;
 }
 
 /**
