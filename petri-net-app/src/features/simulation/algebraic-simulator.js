@@ -153,6 +153,104 @@ export class AlgebraicSimulator extends BaseSimulator {
     return enabled;
   }
 
+  async checkForUnboundVariables(transitionId, inputArcs) {
+    // Get all variables that can be bound from input arcs
+    const boundVariables = new Set();
+    
+    // Collect variables from input arc bindings
+    for (const arc of inputArcs) {
+      const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
+      for (const astObj of bindingAsts) {
+        const { kind, ast } = astObj;
+        if (kind === 'pattern' && ast.type === 'var') {
+          boundVariables.add(ast.name);
+        }
+      }
+    }
+
+    // Check guard for unbound variables
+    const guardAst = this.cache.guardAstByTransition.get(transitionId);
+    if (guardAst) {
+      const guardVars = this.extractVariablesFromExpression(guardAst);
+      for (const varName of guardVars) {
+        if (!boundVariables.has(varName)) {
+          console.log('Unbound variable in guard:', varName);
+          return true; // Has unbound variables
+        }
+      }
+    }
+
+    // Check output arcs for unbound variables
+    const outputArcs = (this.petriNet.arcs || []).filter(a => a.sourceId === transitionId && (a.targetType === 'place' || !a.targetType));
+    let hasBoundVariablesInOutput = false;
+    for (const arc of outputArcs) {
+      const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
+      for (const astObj of bindingAsts) {
+        const { kind, ast } = astObj;
+        if (kind === 'pattern' && ast.type === 'var') {
+          if (!boundVariables.has(ast.name)) {
+            console.log('Unbound variable in output arc:', ast.name);
+            return true; // Has unbound variables
+          }
+          hasBoundVariablesInOutput = true;
+        }
+      }
+    }
+
+    // Additional requirement: disable transitions if no bound variables appear in output arcs
+    if (outputArcs.length > 0 && !hasBoundVariablesInOutput) {
+      console.log('No bound variables in output arcs, disabling transition');
+      return true; // Disable transition
+    }
+
+    return false; // No unbound variables
+  }
+
+  extractVariablesFromExpression(ast) {
+    const variables = new Set();
+    
+    function traverse(node) {
+      if (!node) return;
+      
+      switch (node.type) {
+        case 'var':
+        case 'boolVar':
+        case 'pairVar':
+          variables.add(node.name);
+          break;
+        case 'binop':
+        case 'cmp':
+          traverse(node.left);
+          traverse(node.right);
+          break;
+        case 'unop':
+          traverse(node.operand);
+          break;
+        case 'call':
+          if (node.args) {
+            node.args.forEach(traverse);
+          }
+          break;
+        case 'pairPattern':
+          traverse(node.fst);
+          traverse(node.snd);
+          break;
+        case 'tuplePattern':
+          if (node.elements) {
+            node.elements.forEach(traverse);
+          }
+          break;
+        case 'pairLit':
+          traverse(node.fst);
+          traverse(node.snd);
+          break;
+      }
+    }
+    
+    traverse(ast);
+    return Array.from(variables);
+  }
+
   async isTransitionEnabled(transitionId) {
     if (!this.isInitialized) return false;
     const t = (this.petriNet.transitions || []).find(x => x.id === transitionId);
@@ -161,6 +259,13 @@ export class AlgebraicSimulator extends BaseSimulator {
     // Gather input arcs (place -> transition)
     const inputArcs = (this.petriNet.arcs || []).filter(a => a.targetId === transitionId && (a.sourceType === 'place' || !a.sourceType));
     if (inputArcs.length === 0) return true; // degenerate: no inputs
+
+    // Check for unbound variables in guard and output arcs
+    const hasUnboundVariables = await this.checkForUnboundVariables(transitionId, inputArcs);
+    if (hasUnboundVariables) {
+      console.log('Transition disabled due to unbound variables:', transitionId);
+      return false;
+    }
 
     // Pre-parse guard
     const guardAst = this.cache.guardAstByTransition.get(transitionId);
@@ -197,7 +302,6 @@ export class AlgebraicSimulator extends BaseSimulator {
 
       const tryBind = async (k, localEnv) => {
         if (k >= needed) return tryArc(arcIndex + 1, bindings, localEnv);
-        console.log('Input consumption - tryBind:', { k, localEnv, tokens: tokens.slice(0, 5) });
         for (let i = 0; i < tokens.length; i++) {
           if (used[i]) continue;
           used[i] = true;
@@ -207,17 +311,14 @@ export class AlgebraicSimulator extends BaseSimulator {
           const astObj = bindingAsts[k];
           if (astObj) {
             const { kind, ast } = astObj;
-            console.log('Input consumption - processing binding:', { kind, ast, token: tok });
             if (kind === 'pattern') {
               // Pattern matching for deconstruction
               const bindingsMap = matchPattern(ast, tok);
-              console.log('Pattern matching result:', bindingsMap);
               if (bindingsMap === null) {
                 ok = false;
               } else {
                 // Convert Map to plain object
                 const bindings = Object.fromEntries(bindingsMap);
-                console.log('Converted bindings:', bindings);
                 // Check for conflicts with existing bindings
                 for (const [varName, varValue] of Object.entries(bindings)) {
                   if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, varName) && nextEnv[varName] !== varValue) {
@@ -227,7 +328,6 @@ export class AlgebraicSimulator extends BaseSimulator {
                 }
                 if (ok) {
                   nextEnv = { ...(nextEnv || {}), ...bindings };
-                  console.log('Updated environment:', nextEnv);
                 }
               }
             } else if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
@@ -342,13 +442,11 @@ export class AlgebraicSimulator extends BaseSimulator {
             if (kind === 'pattern') {
               // Pattern matching for deconstruction
               const bindingsMap = matchPattern(ast, tok);
-              console.log('Pattern matching result:', bindingsMap);
               if (bindingsMap === null) {
                 ok = false;
               } else {
                 // Convert Map to plain object
                 const bindings = Object.fromEntries(bindingsMap);
-                console.log('Converted bindings:', bindings);
                 // Check for conflicts with existing bindings
                 for (const [varName, varValue] of Object.entries(bindings)) {
                   if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, varName) && nextEnv[varName] !== varValue) {
@@ -358,7 +456,6 @@ export class AlgebraicSimulator extends BaseSimulator {
                 }
                 if (ok) {
                   nextEnv = { ...(nextEnv || {}), ...bindings };
-                  console.log('Updated environment:', nextEnv);
                 }
               }
             } else if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
@@ -458,34 +555,25 @@ export class AlgebraicSimulator extends BaseSimulator {
     }
 
     // Produce tokens on outputs
-    console.log('Output production - outputArcs:', outputArcs);
-    console.log('Output production - env:', env);
     for (const arc of outputArcs) {
       const tgtId = arc.targetId;
       const place = placesById[tgtId];
-      console.log('Processing output arc:', arc.id, 'target place:', place?.id, place?.label);
       if (!place) continue;
       if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
       const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
-      console.log('Output arc bindings:', bindingAsts);
       if (bindingAsts.length > 0) {
         // Push one token per binding evaluation
         for (const astObj of bindingAsts) {
           try {
             let v;
             const { kind, ast } = astObj;
-            console.log('Evaluating binding:', { kind, ast, env });
             if (ast && (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar')) {
               v = (env || {})[ast.name];
-              console.log('Variable evaluation:', ast.name, '->', v);
             } else if (kind === 'arith') {
               v = evaluateArithmeticWithBindings(ast, env);
-              console.log('Arithmetic evaluation:', ast, '->', v);
             } else if (kind === 'bool') {
               v = evaluateBooleanWithBindings(ast, env, parseArithmetic);
-              console.log('Boolean evaluation:', ast, '->', v);
             } else if (kind === 'pattern') {
-              console.log('Pattern evaluation:', ast);
               // Evaluate pattern literal (like (T,2)) or simple literals
               if (ast.type === 'pairPattern') {
                 const litEval = (node) => {
@@ -528,29 +616,21 @@ export class AlgebraicSimulator extends BaseSimulator {
                 v = litEval(ast);
               }
             }
-            console.log('Computed token value v:', v, 'type:', typeof v);
             if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
             if (typeof v === 'number') {
               place.valueTokens.push(v | 0);
-              console.log('Pushed number token:', v | 0, 'to place:', place.label);
             }
             else if (typeof v === 'boolean') {
               place.valueTokens.push(v);
-              console.log('Pushed boolean token:', v, 'to place:', place.label);
             }
             else if (isPair(v)) {
               place.valueTokens.push(v);
-              console.log('Pushed pair token:', v, 'to place:', place.label);
             }
             else if (Array.isArray(v)) {
               place.valueTokens.push(...v);
-              console.log('Pushed array tokens:', v, 'to place:', place.label);
-            }
-            else {
-              console.log('Unknown token type, not pushing:', v, typeof v);
             }
           } catch (e) { 
-            console.log('Error in output production:', e);
+            // Skip invalid bindings
           }
         }
       } else if (arc.weight && (arc.weight | 0) > 0) {
@@ -576,7 +656,6 @@ export class AlgebraicSimulator extends BaseSimulator {
       }
       if (Array.isArray(place.valueTokens)) {
         place.tokens = place.valueTokens.length;
-        console.log('Final place state:', place.label, 'valueTokens:', place.valueTokens, 'tokens count:', place.tokens);
       }
     }
 
