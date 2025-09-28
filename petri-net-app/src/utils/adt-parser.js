@@ -29,11 +29,19 @@ export function parseADT(xmlString) {
     for (const typeEl of typeEls) {
       const name = typeEl.getAttribute('name') || '';
       const opEls = Array.from(typeEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'operation');
-      const ops = opEls.map((opEl) => ({
-        name: opEl.getAttribute('name') || '',
-        arity: Number(opEl.getAttribute('arity') || '0'),
-        result: opEl.getAttribute('result') || ''
-      }));
+      const ops = opEls.map((opEl) => {
+        const paramEls = Array.from(opEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'param');
+        const params = paramEls.map((paramEl) => ({
+          index: Number(paramEl.getAttribute('index') || '0'),
+          type: paramEl.getAttribute('type') || ''
+        }));
+        return {
+          name: opEl.getAttribute('name') || '',
+          arity: Number(opEl.getAttribute('arity') || '0'),
+          result: opEl.getAttribute('result') || '',
+          params: params
+        };
+      });
       const axiomsRoot = Array.from(typeEl.childNodes).find((n) => n.nodeType === 1 && n.localName === 'axioms');
       const axEls = axiomsRoot
         ? Array.from(axiomsRoot.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'axiom')
@@ -92,6 +100,17 @@ export function generateADT(adt) {
       opEl.setAttribute('name', op.name || '');
       opEl.setAttribute('arity', String(op.arity ?? 0));
       opEl.setAttribute('result', op.result || '');
+      
+      // Add parameter elements
+      if (op.params && op.params.length > 0) {
+        for (const param of op.params) {
+          const paramEl = doc.createElement('param');
+          paramEl.setAttribute('index', String(param.index ?? 0));
+          paramEl.setAttribute('type', param.type || '');
+          opEl.appendChild(paramEl);
+        }
+      }
+      
       typeEl.appendChild(opEl);
     }
     if (t.axioms && t.axioms.length) {

@@ -4,29 +4,100 @@ import { parseADT, validateADT, generateADT } from '../utils/adt-parser';
 const BASE_ADT_XML = `<?xml version="1.0"?>
 <algebraicDataTypes xmlns="http://example.org/apn-adt">
   <type name="Integer">
-    <operation name="+" arity="2" result="Integer"/>
-    <operation name="-" arity="2" result="Integer"/>
-    <operation name="*" arity="2" result="Integer"/>
-    <operation name=":" arity="2" result="Boolean"/>
+    <operation name="+" arity="2" result="Integer">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
+    <operation name="-" arity="2" result="Integer">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
+    <operation name="*" arity="2" result="Integer">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
+    <operation name="==" arity="2" result="Boolean">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
+    <operation name="!=" arity="2" result="Boolean">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
+    <operation name="&lt;" arity="2" result="Boolean">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
+    <operation name="&lt;=" arity="2" result="Boolean">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
+    <operation name="&gt;" arity="2" result="Boolean">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
+    <operation name="&gt;=" arity="2" result="Boolean">
+      <param index="0" type="Integer"/>
+      <param index="1" type="Integer"/>
+    </operation>
     <axioms>
       <axiom name="commutativity">x + y = y + x</axiom>
+      <axiom name="associativity">(x + y) + z = x + (y + z)</axiom>
+      <axiom name="multiplication_commutativity">x * y = y * x</axiom>
+      <axiom name="multiplication_associativity">(x * y) * z = x * (y * z)</axiom>
+      <axiom name="distributivity">x * (y + z) = (x * y) + (x * z)</axiom>
     </axioms>
   </type>
   <type name="Boolean">
-    <operation name="and" arity="2" result="Boolean"/>
-    <operation name="or" arity="2" result="Boolean"/>
-    <operation name="not" arity="1" result="Boolean"/>
+    <operation name="and" arity="2" result="Boolean">
+      <param index="0" type="Boolean"/>
+      <param index="1" type="Boolean"/>
+    </operation>
+    <operation name="or" arity="2" result="Boolean">
+      <param index="0" type="Boolean"/>
+      <param index="1" type="Boolean"/>
+    </operation>
+    <operation name="not" arity="1" result="Boolean">
+      <param index="0" type="Boolean"/>
+    </operation>
+    <operation name="==" arity="2" result="Boolean">
+      <param index="0" type="Boolean"/>
+      <param index="1" type="Boolean"/>
+    </operation>
+    <operation name="!=" arity="2" result="Boolean">
+      <param index="0" type="Boolean"/>
+      <param index="1" type="Boolean"/>
+    </operation>
+    <axioms>
+      <axiom name="and_commutativity">x and y = y and x</axiom>
+      <axiom name="and_associativity">(x and y) and z = x and (y and z)</axiom>
+      <axiom name="or_commutativity">x or y = y or x</axiom>
+      <axiom name="or_associativity">(x or y) or z = x or (y or z)</axiom>
+      <axiom name="de_morgan_and">not (x and y) = (not x) or (not y)</axiom>
+      <axiom name="de_morgan_or">not (x or y) = (not x) and (not y)</axiom>
+      <axiom name="double_negation">not (not x) = x</axiom>
+    </axioms>
   </type>
-  <type name="List">
-    <operation name="append" arity="2" result="List"/>
-    <operation name="len" arity="1" result="Integer"/>
-  </type>
-  <type name="Character">
-    <operation name="==" arity="2" result="Boolean"/>
-  </type>
-  <type name="String">
-    <operation name="+" arity="2" result="String"/>
-    <operation name="len" arity="1" result="Integer"/>
+  <type name="Pair">
+    <operation name="fst" arity="1" result="Any">
+      <param index="0" type="Pair"/>
+    </operation>
+    <operation name="snd" arity="1" result="Any">
+      <param index="0" type="Pair"/>
+    </operation>
+    <operation name="==" arity="2" result="Boolean">
+      <param index="0" type="Pair"/>
+      <param index="1" type="Pair"/>
+    </operation>
+    <operation name="!=" arity="2" result="Boolean">
+      <param index="0" type="Pair"/>
+      <param index="1" type="Pair"/>
+    </operation>
+    <axioms>
+      <axiom name="pair_equality">(x, y) == (a, b) = (x == a) and (y == b)</axiom>
+      <axiom name="fst_projection">fst((x, y)) = x</axiom>
+      <axiom name="snd_projection">snd((x, y)) = y</axiom>
+    </axioms>
   </type>
 </algebraicDataTypes>`;
 

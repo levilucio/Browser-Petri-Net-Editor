@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { useAdtRegistry } from '../contexts/AdtContext';
-import { generateADT, parseADT, validateADT } from '../utils/adt-parser';
 import { parseArithmetic } from '../utils/arith-parser';
 import { evaluateTermWithBindings, solveEquation } from '../utils/z3-arith';
 
@@ -9,9 +8,6 @@ const sectionTitle = 'text-xs font-semibold text-gray-600 uppercase tracking-wid
 export default function AdtDialog({ isOpen, onClose }) {
   const reg = useAdtRegistry();
   const types = reg.listTypes();
-  const [editorXml, setEditorXml] = useState('');
-  const [editorError, setEditorError] = useState(null);
-  const [editorSuccess, setEditorSuccess] = useState(null);
   // Term/equation evaluator state
   const [termInput, setTermInput] = useState('x + 2 * y');
   const [bindingsInput, setBindingsInput] = useState('x=3, y=4');
@@ -27,29 +23,6 @@ export default function AdtDialog({ isOpen, onClose }) {
   }, [types, reg]);
 
   if (!isOpen) return null;
-
-  const handleAdd = () => {
-    setEditorError(null);
-    setEditorSuccess(null);
-    try {
-      const parsed = parseADT(editorXml);
-      const res = validateADT(parsed);
-      if (!res.valid) {
-        setEditorError(res.errors.join('\n'));
-        return;
-      }
-      const xml = generateADT(parsed); // normalize
-      const r = reg.addOrReplaceCustomADT(xml);
-      if (!r.ok) {
-        setEditorError((r.errors || []).join('\n'));
-        return;
-      }
-      setEditorSuccess('Custom ADT added successfully');
-      setEditorXml('');
-    } catch (e) {
-      setEditorError(String(e.message || e));
-    }
-  };
 
   function parseBindings(text) {
     const src = String(text || '').trim();
@@ -103,126 +76,143 @@ export default function AdtDialog({ isOpen, onClose }) {
     }
   };
 
+  // Helper function to format operation signature
+  const formatOperationSignature = (op) => {
+    if (!op.params || op.params.length === 0) {
+      return `${op.name}() : ${op.result}`;
+    }
+    const paramTypes = op.params.map(p => p.type).join(', ');
+    return `${op.name}(${paramTypes}) : ${op.result}`;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-      <div className="bg-white rounded shadow-lg w-[900px] max-h-[80vh] overflow-y-auto p-4">
+      <div className="bg-white rounded shadow-lg w-[1000px] max-h-[85vh] overflow-y-auto p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">ADT Manager</h3>
+          <h3 className="text-lg font-semibold">ADT Manager - Available Types and Operations</h3>
           <button className="px-2 py-1 bg-gray-200 rounded" onClick={onClose}>Close</button>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-6">
           <div>
-            <div className={sectionTitle}>Definitions</div>
+            <div className={sectionTitle}>Available Data Types</div>
             {preview.map((t) => (
-              <div key={t.name} className="mt-3 p-2 border rounded">
-                <div className="flex items-center justify-between">
-                  <div className="font-semibold">{t.name}</div>
-                  {t.__readonly && <span className="text-xs px-2 py-0.5 bg-gray-200 rounded">read-only</span>}
+              <div key={t.name} className="mt-3 p-3 border rounded bg-gray-50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="font-semibold text-lg">{t.name}</div>
+                  {t.__readonly && <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">Built-in</span>}
                 </div>
-                <div className="mt-2">
-                  <div className="text-xs font-semibold">Operations</div>
-                  <div className="mt-1">
+                
+                <div className="mb-3">
+                  <div className="text-sm font-semibold mb-2 text-gray-700">Operations</div>
+                  <div className="space-y-1">
                     {(t.operations || []).map((op, idx) => (
-                      <div key={idx} className="text-xs font-mono pl-3">- {op.name} / {op.arity} : {op.result}</div>
+                      <div key={idx} className="text-sm font-mono bg-white p-2 rounded border">
+                        <span className="text-blue-600 font-semibold">{op.name}</span>
+                        <span className="text-gray-600">({op.params ? op.params.map((p, i) => `${p.type} ${String.fromCharCode(97 + i)}`).join(', ') : 'no params'})</span>
+                        <span className="text-gray-500"> → </span>
+                        <span className="text-green-600 font-semibold">{op.result}</span>
+                      </div>
                     ))}
                     {(!t.operations || t.operations.length === 0) && (
-                      <div className="text-xs text-gray-500 pl-3">(none)</div>
+                      <div className="text-sm text-gray-500 italic">(no operations)</div>
                     )}
                   </div>
                 </div>
-                <div className="mt-2">
-                  <div className="text-xs font-semibold">Axioms</div>
-                  <div className="mt-1">
+                
+                <div>
+                  <div className="text-sm font-semibold mb-2 text-gray-700">Axioms</div>
+                  <div className="space-y-1">
                     {(t.axioms || []).map((ax, idx) => (
-                      <div key={idx} className="text-xs font-mono pl-3">- {(ax.name ? ax.name + ': ' : '')}{ax.equation}</div>
+                      <div key={idx} className="text-sm font-mono bg-white p-2 rounded border">
+                        <span className="text-purple-600 font-semibold">{ax.name ? ax.name + ': ' : ''}</span>
+                        <span className="text-gray-800">{ax.equation}</span>
+                      </div>
                     ))}
                     {(!t.axioms || t.axioms.length === 0) && (
-                      <div className="text-xs text-gray-500 pl-3">(none)</div>
+                      <div className="text-sm text-gray-500 italic">(no axioms)</div>
                     )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
+          
           <div>
-            <div className={sectionTitle}>Add/Edit Custom ADT (XML)</div>
-            <textarea
-              className="w-full h-64 border rounded p-2 font-mono text-xs"
-              placeholder="Paste ADT XML here (custom types only). Base types are read-only."
-              value={editorXml}
-              onChange={(e) => { setEditorXml(e.target.value); setEditorError(null); setEditorSuccess(null); }}
-            />
-            <div className="mt-2 flex items-center space-x-2">
-              <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={handleAdd}>Add / Update</button>
-              <button className="px-3 py-1 bg-gray-200 rounded" onClick={() => setEditorXml('')}>Clear</button>
-            </div>
-            {editorError && <div className="mt-2 p-2 text-red-700 bg-red-100 border border-red-200 rounded text-xs whitespace-pre-wrap">{editorError}</div>}
-            {editorSuccess && <div className="mt-2 p-2 text-green-700 bg-green-100 border border-green-200 rounded text-xs">{editorSuccess}</div>}
-            <div className="mt-3 text-xs text-gray-600">
-              Each operation and axiom is shown on its own line in the preview. Types are grouped into separate boxes.
-            </div>
-
-            <div className="mt-5 border-t pt-4">
-              <div className={sectionTitle}>Term Evaluator (Integers)</div>
-              <div className="mt-2 space-y-2">
+            <div className={sectionTitle}>Interactive Tools</div>
+            
+            <div className="mt-3 p-3 border rounded bg-gray-50">
+              <div className="text-sm font-semibold mb-3 text-gray-700">Term Evaluator</div>
+              <div className="space-y-3">
                 <div>
-                  <label className="block text-xs text-gray-700 mb-1">Term</label>
+                  <label className="block text-xs text-gray-700 mb-1">Arithmetic Expression</label>
                   <input
-                    className="w-full border rounded p-2 text-xs font-mono"
-                    placeholder="e.g., x + 2 * y"
+                    className="w-full border rounded p-2 text-sm font-mono"
+                    placeholder="e.g., x + 2 * y, (a, b) == (c, d)"
                     value={termInput}
                     onChange={(e) => setTermInput(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-700 mb-1">Bindings (JSON or x=1, y=2)</label>
+                  <label className="block text-xs text-gray-700 mb-1">Variable Bindings</label>
                   <input
-                    className="w-full border rounded p-2 text-xs font-mono"
+                    className="w-full border rounded p-2 text-sm font-mono"
                     placeholder='{"x":3, "y":4} or x=3, y=4'
                     value={bindingsInput}
                     onChange={(e) => setBindingsInput(e.target.value)}
                   />
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={handleEvaluateTerm}>Evaluate</button>
+                  <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm" onClick={handleEvaluateTerm}>Evaluate</button>
                   {termResult !== null && (
-                    <span className="text-xs">Result: <span className="font-mono">{String(termResult)}</span></span>
+                    <span className="text-sm">Result: <span className="font-mono bg-green-100 px-2 py-1 rounded">{String(termResult)}</span></span>
                   )}
                 </div>
                 {termError && (
-                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-xs whitespace-pre-wrap">{termError}</div>
+                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-sm whitespace-pre-wrap">{termError}</div>
                 )}
               </div>
             </div>
 
-            <div className="mt-5">
-              <div className={sectionTitle}>Equation Solver (Integers)</div>
-              <div className="mt-2 space-y-2">
+            <div className="mt-4 p-3 border rounded bg-gray-50">
+              <div className="text-sm font-semibold mb-3 text-gray-700">Equation Solver</div>
+              <div className="space-y-3">
                 <div>
                   <label className="block text-xs text-gray-700 mb-1">Equation</label>
                   <input
-                    className="w-full border rounded p-2 text-xs font-mono"
-                    placeholder="e.g., x + y = 7"
+                    className="w-full border rounded p-2 text-sm font-mono"
+                    placeholder="e.g., x + y = 7, x * 2 = 10"
                     value={equationInput}
                     onChange={(e) => setEquationInput(e.target.value)}
                   />
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded" onClick={handleSolveEquation}>Solve</button>
+                  <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm" onClick={handleSolveEquation}>Solve</button>
                 </div>
                 {equationError && (
-                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-xs whitespace-pre-wrap">{equationError}</div>
+                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-sm whitespace-pre-wrap">{equationError}</div>
                 )}
                 {solutions && solutions.length > 0 && (
-                  <div className="text-xs">
-                    <div className="font-semibold mb-1">Solutions (up to 5):</div>
-                    <ul className="list-disc ml-5 space-y-1">
+                  <div className="text-sm">
+                    <div className="font-semibold mb-2 text-gray-700">Solutions (up to 5):</div>
+                    <div className="space-y-1">
                       {solutions.map((s, idx) => (
-                        <li key={idx} className="font-mono">{JSON.stringify(s)}</li>
+                        <div key={idx} className="font-mono bg-white p-2 rounded border">{JSON.stringify(s)}</div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 border rounded bg-blue-50">
+              <div className="text-sm font-semibold mb-2 text-blue-800">Usage Notes</div>
+              <div className="text-xs text-blue-700 space-y-1">
+                <div>• Integer operations: +(Integer a, Integer b), *(Integer a, Integer b), ==(Integer a, Integer b), etc.</div>
+                <div>• Boolean operations: and(Boolean a, Boolean b), or(Boolean a, Boolean b), not(Boolean a)</div>
+                <div>• Pair operations: fst(Pair p), snd(Pair p), ==(Pair a, Pair b)</div>
+                <div>• Pair literals: (value1, value2)</div>
+                <div>• All operations support pattern matching and deconstruction</div>
+                <div>• Parameter names (a, b, c, ...) are automatically assigned for display</div>
               </div>
             </div>
           </div>

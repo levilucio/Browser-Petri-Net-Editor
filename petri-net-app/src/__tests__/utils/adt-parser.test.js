@@ -15,7 +15,7 @@ describe('ADT parser and validator', () => {
     const adt = parseADT(sample);
     expect(adt.types.length).toBe(1);
     expect(adt.types[0].name).toBe('Integer');
-    expect(adt.types[0].operations[0]).toEqual({ name: '+', arity: 2, result: 'Integer' });
+    expect(adt.types[0].operations[0]).toEqual({ name: '+', arity: 2, result: 'Integer', params: [] });
     expect(adt.types[0].axioms[0].equation).toContain('=');
   });
 
@@ -27,7 +27,7 @@ describe('ADT parser and validator', () => {
   });
 
   test('generates ADT XML', () => {
-    const xml = generateADT({ types: [{ name: 'Boolean', operations: [{ name: 'and', arity: 2, result: 'Boolean' }], axioms: [] }] });
+    const xml = generateADT({ types: [{ name: 'Boolean', operations: [{ name: 'and', arity: 2, result: 'Boolean', params: [] }], axioms: [] }] });
     expect(xml).toContain('<algebraicDataTypes>');
     expect(xml).toContain('<type name="Boolean">');
     expect(xml).toContain('operation');
