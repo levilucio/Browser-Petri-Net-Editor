@@ -1,5 +1,5 @@
 /**
- * Algebraic Petri Net Simulator (integers)
+ * Algebraic Petri Net Simulator (ints)
  * Pure JS implementation using Z3 for guards/bindings evaluation.
  * Extends BaseSimulator for consistent interface.
  */
@@ -50,7 +50,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     for (const t of (this.petriNet.transitions || [])) {
       if (t.guard && typeof t.guard === 'string') {
         try {
-          // Prefer full boolean parser (supports and/or/not, literals and comparisons)
+          // Prefer full bool parser (supports and/or/not, literals and comparisons)
           const ast = parseBooleanExpr(String(t.guard), parseArithmetic);
           this.cache.guardAstByTransition.set(t.id, ast);
         } catch (_) {
@@ -81,14 +81,14 @@ export class AlgebraicSimulator extends BaseSimulator {
           // Not a pattern, continue with other parsing methods
         }
         
-        // Prefer arithmetic, but if variable annotated as boolean, store as boolean kind
+        // Prefer arithmetic, but if variable annotated as bool, store as bool kind
         let parsed = null;
         const tf = (text === 'T') ? true : (text === 'F') ? false : null;
         try { parsed = parseArithmetic(text); } catch (_) { parsed = null; }
         if (parsed) {
-          if (parsed.type === 'var' && parsed.varType === 'boolean') {
-            // Represent as boolean variable for uniformity
-            asts.push({ kind: 'bool', ast: { type: 'boolVar', name: parsed.name, varType: 'boolean' } });
+          if (parsed.type === 'var' && parsed.varType === 'bool') {
+            // Represent as bool variable for uniformity
+            asts.push({ kind: 'bool', ast: { type: 'boolVar', name: parsed.name, varType: 'bool' } });
           } else if (parsed.type === 'var' && parsed.varType === 'pair') {
             // Pair-typed variable binding
             asts.push({ kind: 'pair', ast: { type: 'pairVar', name: parsed.name, varType: 'pair' } });
@@ -197,6 +197,7 @@ export class AlgebraicSimulator extends BaseSimulator {
 
       const tryBind = async (k, localEnv) => {
         if (k >= needed) return tryArc(arcIndex + 1, bindings, localEnv);
+        console.log('Input consumption - tryBind:', { k, localEnv, tokens: tokens.slice(0, 5) });
         for (let i = 0; i < tokens.length; i++) {
           if (used[i]) continue;
           used[i] = true;
@@ -206,12 +207,17 @@ export class AlgebraicSimulator extends BaseSimulator {
           const astObj = bindingAsts[k];
           if (astObj) {
             const { kind, ast } = astObj;
+            console.log('Input consumption - processing binding:', { kind, ast, token: tok });
             if (kind === 'pattern') {
               // Pattern matching for deconstruction
-              const bindings = matchPattern(ast, tok);
-              if (bindings === null) {
+              const bindingsMap = matchPattern(ast, tok);
+              console.log('Pattern matching result:', bindingsMap);
+              if (bindingsMap === null) {
                 ok = false;
               } else {
+                // Convert Map to plain object
+                const bindings = Object.fromEntries(bindingsMap);
+                console.log('Converted bindings:', bindings);
                 // Check for conflicts with existing bindings
                 for (const [varName, varValue] of Object.entries(bindings)) {
                   if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, varName) && nextEnv[varName] !== varValue) {
@@ -221,6 +227,7 @@ export class AlgebraicSimulator extends BaseSimulator {
                 }
                 if (ok) {
                   nextEnv = { ...(nextEnv || {}), ...bindings };
+                  console.log('Updated environment:', nextEnv);
                 }
               }
             } else if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
@@ -228,8 +235,8 @@ export class AlgebraicSimulator extends BaseSimulator {
                 ok = false;
               } else {
                 // Respect optional type annotation
-                if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'boolean') ok = false;
-                if (typeof tok === 'number' && ast.varType && ast.varType !== 'integer') ok = false;
+                if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'bool') ok = false;
+                if (typeof tok === 'number' && ast.varType && ast.varType !== 'int') ok = false;
                 if (isPair(tok) && ast.varType && ast.varType !== 'pair') ok = false;
                 if (ok) nextEnv = { ...(nextEnv || {}), [ast.name]: tok };
               }
@@ -241,7 +248,7 @@ export class AlgebraicSimulator extends BaseSimulator {
             } else if (kind === 'bool') {
               try {
                 const val = evaluateBooleanWithBindings(ast, localEnv || {}, parseArithmetic);
-                if (typeof tok !== 'boolean' || val !== tok) ok = false;
+                if (typeof tok !== 'bool' || val !== tok) ok = false;
               } catch (_) { ok = false; }
             } else if (kind === 'pair') {
               try {
@@ -334,10 +341,14 @@ export class AlgebraicSimulator extends BaseSimulator {
             const { kind, ast } = astObj;
             if (kind === 'pattern') {
               // Pattern matching for deconstruction
-              const bindings = matchPattern(ast, tok);
-              if (bindings === null) {
+              const bindingsMap = matchPattern(ast, tok);
+              console.log('Pattern matching result:', bindingsMap);
+              if (bindingsMap === null) {
                 ok = false;
               } else {
+                // Convert Map to plain object
+                const bindings = Object.fromEntries(bindingsMap);
+                console.log('Converted bindings:', bindings);
                 // Check for conflicts with existing bindings
                 for (const [varName, varValue] of Object.entries(bindings)) {
                   if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, varName) && nextEnv[varName] !== varValue) {
@@ -347,14 +358,15 @@ export class AlgebraicSimulator extends BaseSimulator {
                 }
                 if (ok) {
                   nextEnv = { ...(nextEnv || {}), ...bindings };
+                  console.log('Updated environment:', nextEnv);
                 }
               }
             } else if (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar') {
               if (nextEnv && Object.prototype.hasOwnProperty.call(nextEnv, ast.name) && nextEnv[ast.name] !== tok) {
                 ok = false;
               } else {
-                if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'boolean') ok = false;
-                if (typeof tok === 'number' && ast.varType && ast.varType !== 'integer') ok = false;
+                if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'bool') ok = false;
+                if (typeof tok === 'number' && ast.varType && ast.varType !== 'int') ok = false;
                 if (isPair(tok) && ast.varType && ast.varType !== 'pair') ok = false;
                 if (ok) nextEnv = { ...(nextEnv || {}), [ast.name]: tok };
               }
@@ -366,7 +378,7 @@ export class AlgebraicSimulator extends BaseSimulator {
             } else if (kind === 'bool') {
               try {
                 const val = evaluateBooleanWithBindings(ast, localEnv || {}, parseArithmetic);
-                if (typeof tok !== 'boolean' || val !== tok) ok = false;
+                if (typeof tok !== 'bool' || val !== tok) ok = false;
               } catch (_) { ok = false; }
             } else if (kind === 'pair') {
               try {
@@ -446,25 +458,34 @@ export class AlgebraicSimulator extends BaseSimulator {
     }
 
     // Produce tokens on outputs
+    console.log('Output production - outputArcs:', outputArcs);
+    console.log('Output production - env:', env);
     for (const arc of outputArcs) {
       const tgtId = arc.targetId;
       const place = placesById[tgtId];
+      console.log('Processing output arc:', arc.id, 'target place:', place?.id, place?.label);
       if (!place) continue;
       if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
       const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
+      console.log('Output arc bindings:', bindingAsts);
       if (bindingAsts.length > 0) {
         // Push one token per binding evaluation
         for (const astObj of bindingAsts) {
           try {
             let v;
             const { kind, ast } = astObj;
+            console.log('Evaluating binding:', { kind, ast, env });
             if (ast && (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar')) {
               v = (env || {})[ast.name];
+              console.log('Variable evaluation:', ast.name, '->', v);
             } else if (kind === 'arith') {
               v = evaluateArithmeticWithBindings(ast, env);
+              console.log('Arithmetic evaluation:', ast, '->', v);
             } else if (kind === 'bool') {
               v = evaluateBooleanWithBindings(ast, env, parseArithmetic);
+              console.log('Boolean evaluation:', ast, '->', v);
             } else if (kind === 'pattern') {
+              console.log('Pattern evaluation:', ast);
               // Evaluate pattern literal (like (T,2)) or simple literals
               if (ast.type === 'pairPattern') {
                 const litEval = (node) => {
@@ -485,10 +506,10 @@ export class AlgebraicSimulator extends BaseSimulator {
                 });
                 v = components;
               } else if (ast.type === 'int') {
-                // Simple integer literal
+                // Simple int literal
                 v = ast.value | 0;
               } else if (ast.type === 'boolLit') {
-                // Simple boolean literal
+                // Simple bool literal
                 v = !!ast.value;
               } else if (ast.type === 'var') {
                 // Simple variable
@@ -507,12 +528,30 @@ export class AlgebraicSimulator extends BaseSimulator {
                 v = litEval(ast);
               }
             }
+            console.log('Computed token value v:', v, 'type:', typeof v);
             if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
-            if (typeof v === 'number') place.valueTokens.push(v | 0);
-            else if (typeof v === 'boolean') place.valueTokens.push(v);
-            else if (isPair(v)) place.valueTokens.push(v);
-            else if (Array.isArray(v)) place.valueTokens.push(...v);
-          } catch (_) { /* skip */ }
+            if (typeof v === 'number') {
+              place.valueTokens.push(v | 0);
+              console.log('Pushed number token:', v | 0, 'to place:', place.label);
+            }
+            else if (typeof v === 'boolean') {
+              place.valueTokens.push(v);
+              console.log('Pushed boolean token:', v, 'to place:', place.label);
+            }
+            else if (isPair(v)) {
+              place.valueTokens.push(v);
+              console.log('Pushed pair token:', v, 'to place:', place.label);
+            }
+            else if (Array.isArray(v)) {
+              place.valueTokens.push(...v);
+              console.log('Pushed array tokens:', v, 'to place:', place.label);
+            }
+            else {
+              console.log('Unknown token type, not pushing:', v, typeof v);
+            }
+          } catch (e) { 
+            console.log('Error in output production:', e);
+          }
         }
       } else if (arc.weight && (arc.weight | 0) > 0) {
         // If no bindings, push 'weight' copies of a default variable if any env var exists; otherwise 1s
@@ -537,6 +576,7 @@ export class AlgebraicSimulator extends BaseSimulator {
       }
       if (Array.isArray(place.valueTokens)) {
         place.tokens = place.valueTokens.length;
+        console.log('Final place state:', place.label, 'valueTokens:', place.valueTokens, 'tokens count:', place.tokens);
       }
     }
 
@@ -683,9 +723,9 @@ function substituteBindings(ast, env) {
 }
 
 // Utility: obtain tokens for a place in algebraic mode.
-// If explicit integer tokens are not provided (valueTokens), fall back to PT count by
+// If explicit int tokens are not provided (valueTokens), fall back to PT count by
 // materializing that many tokens with value 1. This keeps APNs usable when only counts are set.
-function getTokensForPlace(place, cap = 20) {
+export function getTokensForPlace(place, cap = 20) {
   if (!place) return [];
   if (Array.isArray(place.valueTokens)) {
     return place.valueTokens.slice(0, cap);

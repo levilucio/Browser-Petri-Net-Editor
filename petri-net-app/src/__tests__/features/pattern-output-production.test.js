@@ -11,7 +11,7 @@ describe('Pattern Output Production', () => {
         { id: 't1', label: 'T1', x: 0, y: 0, guard: 'T' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p2', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer'] },
+        { id: 'a1', sourceId: 'p2', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:int'] },
         { id: 'a2', sourceId: 't1', targetId: 'p1', sourceType: 'transition', targetType: 'place', bindings: ['(T,2)'] },
       ],
       netMode: 'algebraic-int'
@@ -42,7 +42,7 @@ describe('Pattern Output Production', () => {
         { id: 't1', label: 'T1', x: 0, y: 0, guard: 'T' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p2', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer'] },
+        { id: 'a1', sourceId: 'p2', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:int'] },
         { id: 'a2', sourceId: 't1', targetId: 'p1', sourceType: 'transition', targetType: 'place', bindings: ['(F,1)'] },
       ],
       netMode: 'algebraic-int'
@@ -69,7 +69,7 @@ describe('Pattern Output Production', () => {
         { id: 't1', label: 'T1', x: 0, y: 0, guard: 'T' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p3', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer'] },
+        { id: 'a1', sourceId: 'p3', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:int'] },
         { id: 'a2', sourceId: 't1', targetId: 'p1', sourceType: 'transition', targetType: 'place', bindings: ['(T,2)'] },
         { id: 'a3', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['(F,x)'] },
       ],

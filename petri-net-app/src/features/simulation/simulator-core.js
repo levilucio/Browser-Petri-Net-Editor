@@ -16,6 +16,7 @@ export class SimulatorCore {
 
   async initialize(petriNet, options = {}) {
     try {
+      console.log('SimulatorCore.initialize called with:', { petriNet, options });
       const netMode = this.determineNetMode(petriNet, options);
       const currentType = this.currentSimulator?.getType?.() || null;
       const expectedType = netMode === 'algebraic' ? 'algebraic' : 'pt';
@@ -106,22 +107,50 @@ export class SimulatorCore {
   __queueListener(event, callback) { if (!this.pendingListeners.has(event)) this.pendingListeners.set(event, []); this.pendingListeners.get(event).push(callback); }
   setupPendingListeners() { if (!this.currentSimulator || !this.eventBus) return; for (const [event, cbs] of this.pendingListeners) { for (const cb of cbs) this.eventBus.on(event, cb); } this.pendingListeners.clear(); }
 
-  determineNetMode(petriNet, options) { const m = options?.netMode || petriNet?.netMode; if (m) return (m === 'algebraic-int') ? 'algebraic' : m; return this.detectNetModeFromContent(petriNet); }
+  determineNetMode(petriNet, options) { 
+    console.log('determineNetMode called with:', { petriNet, options });
+    const m = options?.netMode || petriNet?.netMode; 
+    console.log('Found netMode from options/petriNet:', m);
+    if (m) {
+      const result = (m === 'algebraic-int') ? 'algebraic' : m;
+      console.log('Using configured netMode:', result);
+      return result;
+    }
+    console.log('No configured netMode, detecting from content');
+    return this.detectNetModeFromContent(petriNet); 
+  }
   detectNetModeFromContent(petriNet) {
     const net = petriNet || {};
     const transitions = Array.isArray(net.transitions) ? net.transitions : [];
     const arcs = Array.isArray(net.arcs) ? net.arcs : [];
     const places = Array.isArray(net.places) ? net.places : [];
+    
+    console.log('Net mode detection:', { places, transitions, arcs });
+    
     // Heuristics: any guard/action with arithmetic or boolean operators, or any typed binding, or any place valueTokens
     for (const t of transitions) {
-      if (typeof t.guard === 'string' && t.guard.trim().length > 0) return 'algebraic';
-      if (typeof t.action === 'string' && t.action.trim().length > 0) return 'algebraic';
+      if (typeof t.guard === 'string' && t.guard.trim().length > 0) {
+        console.log('Found guard, using algebraic mode');
+        return 'algebraic';
+      }
+      if (typeof t.action === 'string' && t.action.trim().length > 0) {
+        console.log('Found action, using algebraic mode');
+        return 'algebraic';
+      }
     }
     for (const a of arcs) {
       const bs = Array.isArray(a.bindings) ? a.bindings : (a.binding ? [a.binding] : []);
-      if (bs.some(b => typeof b === 'string' && (/:[ ]*(integer|boolean)/i.test(b) || b === 'T' || b === 'F' || /[+\-*/()]/.test(b)))) return 'algebraic';
+      console.log('Checking arc bindings:', bs);
+      if (bs.some(b => typeof b === 'string' && (/:[ ]*(integer|boolean)/i.test(b) || b === 'T' || b === 'F' || /[+\-*/()]/.test(b)))) {
+        console.log('Found algebraic binding, using algebraic mode');
+        return 'algebraic';
+      }
     }
-    if (places.some(p => Array.isArray(p.valueTokens) && p.valueTokens.length > 0)) return 'algebraic';
+    if (places.some(p => Array.isArray(p.valueTokens) && p.valueTokens.length > 0)) {
+      console.log('Found valueTokens, using algebraic mode');
+      return 'algebraic';
+    }
+    console.log('Using P/T mode');
     return 'pt';
   }
 }

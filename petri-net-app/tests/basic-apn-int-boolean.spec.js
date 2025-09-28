@@ -24,7 +24,7 @@ async function waitSimulatorReady(page, timeout = 60000) {
   }, { timeout });
 }
 
-test.describe('APN (int+boolean) basics', () => {
+test.describe('APN (int+bool) basics', () => {
   test('PN6: Single-transition mode run => P2 {2,6}, P3 {T,F}, 4 transition firings', async ({ page }) => {
     await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net6.pnml');
 
@@ -160,7 +160,7 @@ test.describe('APN (int+boolean) basics', () => {
     expect(finalInfo.count).toBe(2);
   });
 
-  test('PN8: Run to completion => P3 contains two integer 2 tokens (AND guard)', async ({ page }) => {
+  test('PN8: Run to completion => P3 contains two int 2 tokens (AND guard)', async ({ page }) => {
     await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net8.pnml');
 
     await waitSimulatorReady(page, 60000);

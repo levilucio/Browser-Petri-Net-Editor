@@ -5,7 +5,7 @@ import { simulationEventBus, SimulationEvents } from './SimulationEventBus.js';
 import { ConflictResolver } from './conflict-resolver.js';
 import { getSimulationStats } from './simulation-utils.js';
 
-const useSimulationManager = (elements, setElements, updateHistory) => {
+const useSimulationManager = (elements, setElements, updateHistory, netMode) => {
   // Core simulation state
   const [isContinuousSimulating, setIsContinuousSimulating] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -35,7 +35,10 @@ const useSimulationManager = (elements, setElements, updateHistory) => {
       ) {
         if (!simulatorCore.isReady || !(await simulatorCore.isReady())) {
           try {
-            await simulatorCore.initialize(elements, { maxTokens: 20, netMode: elements.netMode });
+            console.log('Initializing simulator with:');
+            console.log('- elements:', elements);
+            console.log('- netMode parameter:', netMode);
+            await simulatorCore.initialize(elements, { maxTokens: 20, netMode: netMode });
           } catch (error) {
             console.error('Failed to initialize simulator:', error);
           }

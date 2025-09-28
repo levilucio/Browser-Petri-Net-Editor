@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PetriNetContext } from '../contexts/PetriNetContext';
-import { parseArithmetic, parsePattern, validatePatternTyping, addTypeAnnotations, stringifyPattern } from '../utils/arith-parser';
+import { parseArithmetic, parsePattern, validatePatternTyping, addTypeAnnotations, stringifyPattern, capitalizeTypeNames, inferVariableTypes, autoAnnotateTypes, inferTokenType } from '../utils/arith-parser';
+import { getTokensForPlace } from '../features/simulation/algebraic-simulator';
 import { parseBooleanExpr } from '../utils/z3-arith';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
@@ -28,14 +29,14 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     if (selectedElement) {
       const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
       const elementType = selectedElement.type || (elementId.split('-')[0]);
-      const toTF = (s) => (typeof s === 'boolean') ? (s ? 'T' : 'F') : String(s);
-      const fmt = (v) => (typeof v === 'boolean') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${fmt(v.fst)}, ${fmt(v.snd)})` : String(v));
+      const toTF = (s) => (typeof s === 'bool') ? (s ? 'T' : 'F') : String(s);
+      const fmt = (v) => (typeof v === 'bool') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${fmt(v.fst)}, ${fmt(v.snd)})` : String(v));
       const tokensToString = (arr) => Array.isArray(arr) ? arr.map(fmt).join(', ') : '';
       const bindingsToString = (arr) => Array.isArray(arr) ? arr.map(b => {
         const t = String(b || '');
         if (/^true$/i.test(t)) return 'T';
         if (/^false$/i.test(t)) return 'F';
-        return t;
+        return capitalizeTypeNames(t);
       }).join(', ') : '';
       setFormValues((prev) => ({
         ...prev,
@@ -101,7 +102,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       return;
     }
     
-    // Only allow integer values
+    // Only allow int values
     const value = inputValue.replace(/[^0-9]/g, '');
     
     // Allow the user to type any number, but don't update the model until it's valid
@@ -165,7 +166,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       return;
     }
     
-    // Only allow integer values
+    // Only allow int values
     const value = inputValue.replace(/[^0-9]/g, '');
     
     // Allow the user to type any number, but don't update the model until it's valid
@@ -329,7 +330,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                 }
                 return null;
               };
-              const fmtLocal = (v) => (typeof v === 'boolean') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${fmtLocal(v.fst)}, ${fmtLocal(v.snd)})` : String(v));
+              const fmtLocal = (v) => (typeof v === 'bool') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${fmtLocal(v.fst)}, ${fmtLocal(v.snd)})` : String(v));
               const parts = splitTop(String(raw || ''));
               const parsed = parts.map(parseTok).filter(v => v !== null);
               const normalized = parsed.map(fmtLocal).join(', ');
@@ -390,6 +391,23 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                 if (cur.trim().length) res.push(cur.trim());
                 return res.filter(Boolean);
               };
+              // Infer variable types from context
+              const elementId = selectedElement.id || selectedElement.element && selectedElement.element.id || '';
+              const elementType = selectedElement.type || elementId.split('-')[0];
+              const typeMap = inferVariableTypes(elementType, selectedElement, elements);
+              
+              // Get default type from source place for new variables
+              let defaultType = null;
+              if (elementType === 'arc') {
+                const sourcePlace = elements.places.find(p => p.id === selectedElement.source);
+                if (sourcePlace) {
+                  const tokens = getTokensForPlace(sourcePlace);
+                  if (tokens.length > 0) {
+                    defaultType = inferTokenType(tokens[0]);
+                  }
+                }
+              }
+              
               const parts = splitTop(raw);
               let err = null;
               const normalizedParts = [];
@@ -398,7 +416,11 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                   const normalized = /^true$/i.test(p) ? 'T' : /^false$/i.test(p) ? 'F' : p;
                   if (normalized === 'T' || normalized === 'F') { normalizedParts.push(normalized); continue; }
                   if (normalized) {
-                    const s = normalized.trim();
+                    let s = normalized.trim();
+                    
+                    // Auto-annotate with inferred types if available, using defaultType for new variables
+                    s = autoAnnotateTypes(s, typeMap, defaultType);
+                    
                     // Try parsing as pattern first (for deconstruction like (F,x))
                     try {
                       const pattern = parsePattern(s);
@@ -418,7 +440,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                         normalizedParts.push(s);
                         continue;
                       } catch (_) {
-                        // Try boolean expression
+                        // Try Bool expression
                         try {
                           parseBooleanExpr(s, parseArithmetic);
                           normalizedParts.push(s);
@@ -438,10 +460,11 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                   ...prev,
                   arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings: normalizedParts, binding: undefined } : a)
                 }));
+                updateHistory && updateHistory();
               }
             }}
             className={`w-full px-3 py-2 border ${formValues.bindingError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm font-mono text-sm`}
-            placeholder="e.g., x:integer, (F,x:integer), y+2, z-1"
+            placeholder="e.g., x:Int, (F,x:Int), y+2, z-1"
           />
           {formValues.bindingError && <p className="text-red-500 text-xs mt-1">{formValues.bindingError}</p>}
         </div>
@@ -449,13 +472,13 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
       {selectedElement && elementType === 'transition' && netMode === 'algebraic-int' && (
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Guard (use arithmetic comparisons and boolean operators; T/F)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Guard (use arithmetic comparisons and Bool operators; T/F)</label>
           <input
             type="text"
             value={formValues.guardText}
             onChange={(e) => {
               const v = e.target.value;
-              // Accept boolean expressions with T/F and arithmetic comparisons
+              // Accept bool expressions with T/F and arithmetic comparisons
               let err = null;
               try {
                 const normalized = v.replace(/\btrue\b/gi, 'T').replace(/\bfalse\b/gi, 'F');
@@ -472,6 +495,37 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                 ...prev,
                 transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: v } : t)
               }));
+            }}
+            onBlur={() => {
+              const raw = formValues.guardText;
+              if (!raw || !raw.trim()) return;
+              
+              // Infer variable types from context (input arcs)
+              const elementId = selectedElement.id || selectedElement.element && selectedElement.element.id || '';
+              const elementType = selectedElement.type || elementId.split('-')[0];
+              const typeMap = inferVariableTypes(elementType, selectedElement, elements);
+              
+              // Auto-annotate with inferred types if available
+              const annotatedGuard = autoAnnotateTypes(raw, typeMap);
+              
+              if (annotatedGuard !== raw) {
+                // Update the guard with type annotations
+                let err = null;
+                try {
+                  const normalized = annotatedGuard.replace(/\btrue\b/gi, 'T').replace(/\bfalse\b/gi, 'F');
+                  parseBooleanExpr(normalized, parseArithmetic);
+                  setFormValues(prev => ({ ...prev, guardText: normalized, guardError: err }));
+                  setElements(prev => ({
+                    ...prev,
+                    transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: normalized } : t)
+                  }));
+                  updateHistory && updateHistory();
+                } catch (ex) {
+                  // If annotation causes parsing error, keep original
+                  err = String(ex.message || ex);
+                  setFormValues(prev => ({ ...prev, guardError: err }));
+                }
+              }
             }}
             className={`w-full px-3 py-2 border ${formValues.guardError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm font-mono text-sm`}
             placeholder="e.g., x + y >= 3"

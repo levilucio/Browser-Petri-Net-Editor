@@ -32,18 +32,18 @@ describe('AlgebraicSimulator (smoke)', () => {
     expect([2,5]).toContain(p2.valueTokens[0]);
   }, 15000);
 
-  test('boolean guard with boolean tokens enables and fires', async () => {
+  test('bool guard with bool tokens enables and fires', async () => {
     const net = {
       places: [
         { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [true] },
         { id: 'p2', label: 'P2', x: 0, y: 0, valueTokens: [] },
       ],
       transitions: [
-        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'b:boolean and true' },
+        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'b and true' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['b:boolean'] },
-        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['b:boolean'] },
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['b:bool'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['b:bool'] },
       ],
       netMode: 'algebraic-int'
     };
@@ -56,7 +56,7 @@ describe('AlgebraicSimulator (smoke)', () => {
     expect(p2.valueTokens).toEqual([true]);
   }, 15000);
 
-  test('typed bindings x:integer, y:boolean consume tokens on step', async () => {
+  test('typed bindings x:int, y:bool consume tokens on step', async () => {
     const net = {
       places: [
         { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [2, true, 1, false] },
@@ -65,7 +65,7 @@ describe('AlgebraicSimulator (smoke)', () => {
         { id: 't1', label: 'T1', x: 0, y: 0, guard: 'T' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer', 'y:boolean'] },
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:int', 'y:bool'] },
       ],
       netMode: 'algebraic'
     };
@@ -85,7 +85,7 @@ describe('AlgebraicSimulator (smoke)', () => {
     expect(p1After.valueTokens.length).toBe(2);
   }, 15000);
 
-  test('typed bindings produce x to P2 and y to P3 with correct booleans', async () => {
+  test('typed bindings produce x to P2 and y to P3 with correct bools', async () => {
     const net = {
       places: [
         { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [false, 2, 11, true, 6] },
@@ -96,7 +96,7 @@ describe('AlgebraicSimulator (smoke)', () => {
         { id: 't1', label: 'T1', x: 150, y: 0, guard: 'x < 10' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer', 'y:boolean'] },
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:int', 'y:bool'] },
         { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x'] },
         { id: 'a3', sourceId: 't1', targetId: 'p3', sourceType: 'transition', targetType: 'place', bindings: ['y'] },
       ],
@@ -119,7 +119,7 @@ describe('AlgebraicSimulator (smoke)', () => {
     expect(p1.valueTokens).toEqual([11]);
   }, 20000);
 
-  test('maximal mode fires non-conflicting int/boolean transitions concurrently', async () => {
+  test('maximal mode fires non-conflicting int/bool transitions concurrently', async () => {
     const net = {
       places: [
         { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [false, 11, true, 6] },
@@ -131,9 +131,9 @@ describe('AlgebraicSimulator (smoke)', () => {
         { id: 't2', label: 'T2', x: 150, y: 120, guard: 'T' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:integer'] },
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['x:int'] },
         { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x'] },
-        { id: 'a3', sourceId: 'p1', targetId: 't2', sourceType: 'place', targetType: 'transition', bindings: ['y:boolean'] },
+        { id: 'a3', sourceId: 'p1', targetId: 't2', sourceType: 'place', targetType: 'transition', bindings: ['y:bool'] },
         { id: 'a4', sourceId: 't2', targetId: 'p3', sourceType: 'transition', targetType: 'place', bindings: ['y'] },
       ],
       netMode: 'algebraic'
@@ -153,7 +153,7 @@ describe('AlgebraicSimulator (smoke)', () => {
     const p1 = after.places.find(p => p.id === 'p1');
     const p2 = after.places.find(p => p.id === 'p2');
     const p3 = after.places.find(p => p.id === 'p3');
-    // One int (<10) to P2 and one boolean to P3, both consumed
+    // One int (<10) to P2 and one bool to P3, both consumed
     expect(p2.valueTokens.length).toBe(1);
     expect(typeof p2.valueTokens[0]).toBe('number');
     expect(p3.valueTokens.length).toBe(1);
@@ -161,18 +161,18 @@ describe('AlgebraicSimulator (smoke)', () => {
     expect(p1.valueTokens.length).toBe(2);
   }, 20000);
 
-  test('mixed multiset place supports integers and booleans; boolean binding matches on booleans only', async () => {
+  test('mixed multiset place supports ints and bools; bool binding matches on bools only', async () => {
     const net = {
       places: [
         { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [1, false, 3, true] },
         { id: 'p2', label: 'P2', x: 0, y: 0, valueTokens: [] },
       ],
       transitions: [
-        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'b:boolean' },
+        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'b' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['b:boolean'] },
-        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['b:boolean'] },
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['b:bool'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['b:bool'] },
       ],
       netMode: 'algebraic-int'
     };
@@ -183,7 +183,7 @@ describe('AlgebraicSimulator (smoke)', () => {
     const after = await sim.fireTransition('t1');
     const p1 = after.places.find(p => p.id === 'p1');
     const p2 = after.places.find(p => p.id === 'p2');
-    // Should have consumed a boolean from p1 and produced same boolean to p2
+    // Should have consumed a bool from p1 and produced same bool to p2
     expect(p2.valueTokens.some(v => typeof v === 'boolean')).toBe(true);
     expect(p1.valueTokens.length + p2.valueTokens.length).toBe(4);
   }, 15000);

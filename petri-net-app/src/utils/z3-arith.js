@@ -1,4 +1,4 @@
-// Lightweight Z3 wrapper to evaluate integer arithmetic AST using z3-solver WASM in browser
+// Lightweight Z3 wrapper to evaluate int arithmetic AST using z3-solver WASM in browser
 // We avoid introducing new architecture; this is a small utility.
 
 let z3InitPromise = null;
@@ -268,7 +268,7 @@ export function parsePredicate(expr, parseArithmetic) {
   return { type: 'cmp', op: foundOp, left: leftAst, right: rightAst };
 }
 
-// Evaluate guard predicate with optional variable bindings; returns boolean
+// Evaluate guard predicate with optional variable bindings; returns bool
 export async function evaluatePredicate(predicate, bindings, parseArithmetic) {
   const { ctx } = await getContext();
   const { Int, Solver, And, Not } = ctx;
@@ -345,7 +345,7 @@ export function evaluateAction(actionString, bindings, parseArithmetic) {
   return result;
 }
 
-// Evaluate arithmetic AST with Z3 under concrete integer bindings for variables
+// Evaluate arithmetic AST with Z3 under concrete int bindings for variables
 export async function evaluateTermWithBindings(ast, bindings) {
   const { ctx } = await getContext();
   const { Int, Solver, And } = ctx;
@@ -359,7 +359,7 @@ export async function evaluateTermWithBindings(ast, bindings) {
   const s = new Solver();
   try { s.set('timeout', 10000); } catch (_) {}
   s.add(res.eq(expr));
-  // Bind variables to provided concrete integers
+  // Bind variables to provided concrete ints
   if (bindings && typeof bindings === 'object') {
     const eqs = [];
     for (const [name, value] of Object.entries(bindings)) {
@@ -378,8 +378,8 @@ export async function evaluateTermWithBindings(ast, bindings) {
 
 // ===================== Boolean support (tokens and guards) =====================
 
-// Parse boolean expressions with operators: not, and, or, parentheses, literals true/false,
-// boolean variables, and arithmetic comparisons (==, !=, <, <=, >, >=)
+// Parse bool expressions with operators: not, and, or, parentheses, literals true/false,
+// bool variables, and arithmetic comparisons (==, !=, <, <=, >, >=)
 export function parseBooleanExpr(input, parseArithmetic) {
   if (typeof input !== 'string') throw new Error('Boolean expression must be a string');
   const src = input.trim();
@@ -412,7 +412,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
       const tStart = i;
       while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
       const tWord = src.slice(tStart, i).toLowerCase();
-      if (tWord === 'integer' || tWord === 'boolean' || tWord === 'pair') {
+      if (tWord === 'int' || tWord === 'bool' || tWord === 'pair') {
         return { name, varType: tWord };
       }
       // rollback if not recognized
@@ -424,7 +424,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
 
   function parseAnyTermString(s) {
     const srcTerm = String(s || '').trim();
-    // Check booleans first to avoid treating T/F as variables
+    // Check bools first to avoid treating T/F as variables
     if (/^true$/i.test(srcTerm) || srcTerm === 'T') return { type: 'boolLit', value: true };
     if (/^false$/i.test(srcTerm) || srcTerm === 'F') return { type: 'boolLit', value: false };
     // Try arithmetic
@@ -448,7 +448,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
     // Identifier (possibly annotated)
     try {
       const { name, varType } = parseIdentWithOptionalType();
-      if (varType === 'boolean') return { type: 'boolVar', name, varType };
+      if (varType === 'bool') return { type: 'boolVar', name, varType };
       if (varType === 'pair') return { type: 'pairVar', name, varType };
       return { type: 'var', name };
     } catch (_) {
@@ -458,7 +458,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
 
   function parseBoolPrimary() {
     skipWs();
-    if (i >= src.length) throw new Error('Unexpected end of input in boolean expression');
+    if (i >= src.length) throw new Error('Unexpected end of input in bool expression');
     if (src[i] === '(') {
       i++;
       const node = parseOr();
@@ -470,7 +470,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
     // Literal true/false
     if (startsWithWord('true')) { i += 4; return { type: 'boolLit', value: true }; }
     if (startsWithWord('false')) { i += 5; return { type: 'boolLit', value: false }; }
-    // Single-letter boolean literals T / F (uppercase) with word boundary
+    // Single-letter bool literals T / F (uppercase) with word boundary
     if (src[i] === 'T') {
       const next = src[i + 1] || '';
       if (!/[A-Za-z0-9_]/.test(next)) { i += 1; return { type: 'boolLit', value: true }; }
@@ -505,7 +505,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
       return { type: 'cmp', op: foundOp, left: leftAst, right: rightAst };
     }
 
-    // Otherwise treat as boolean variable identifier (optional : type)
+    // Otherwise treat as bool variable identifier (optional : type)
     const { name, varType } = parseIdentWithOptionalType();
     return varType ? { type: 'boolVar', name, varType } : { type: 'boolVar', name };
   }
@@ -542,7 +542,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
   return ast;
 }
 
-// Pure JS boolean evaluation with mixed env (booleans and integers)
+// Pure JS bool evaluation with mixed env (bools and ints)
 export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
   function toBool(v) {
     if (typeof v === 'boolean') return v;
@@ -551,7 +551,7 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
       // For now, pairs are truthy only via non-null check when used as bool
       return true;
     }
-    throw new Error('Non-boolean binding in boolean expression');
+    throw new Error('Non-bool binding in bool expression');
   }
   function evalBool(node) {
     switch (node.type) {
@@ -580,19 +580,19 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
         }
       }
       default:
-        throw new Error(`Unknown boolean AST node '${node.type}'`);
+        throw new Error(`Unknown bool AST node '${node.type}'`);
     }
   }
   return evalBool(ast);
 }
 
-// Try to evaluate a term that may be arithmetic, boolean, or pair-construction
+// Try to evaluate a term that may be arithmetic, bool, or pair-construction
 function tryEvalAnyTerm(ast, bindings, parseArithmetic) {
   // For now, we reuse arithmetic parser AST shape; extend with simple pair literal detection in bindings/guards via variable lookup
   if (!ast) throw new Error('Invalid term');
   if (ast.type === 'int' || ast.type === 'bin' || ast.type === 'var') {
     try { return evaluateArithmeticWithBindings(ast, bindings); } catch (_) {}
-    // If not arith, maybe a boolean variable
+    // If not arith, maybe a bool variable
     if (ast.type === 'var' && typeof bindings?.[ast.name] !== 'undefined') {
       return bindings[ast.name];
     }
@@ -608,14 +608,14 @@ function tryEvalAnyTerm(ast, bindings, parseArithmetic) {
   return evaluateArithmeticWithBindings(ast, bindings);
 }
 
-// SAT check for boolean expression with Z3 given optional concrete bindings
-export async function evaluateBooleanPredicate(booleanAstOrString, bindings, parseArithmetic) {
+// SAT check for bool expression with Z3 given optional concrete bindings
+export async function evaluateBooleanPredicate(boolAstOrString, bindings, parseArithmetic) {
   const { ctx } = await getContext();
   const { Int, Bool, Solver, And, Not, Or } = ctx;
 
-  const ast = typeof booleanAstOrString === 'string'
-    ? parseBooleanExpr(booleanAstOrString, parseArithmetic)
-    : booleanAstOrString;
+  const ast = typeof boolAstOrString === 'string'
+    ? parseBooleanExpr(boolAstOrString, parseArithmetic)
+    : boolAstOrString;
 
   const intVars = new Set();
   const boolVars = new Set();
@@ -668,7 +668,7 @@ export async function evaluateBooleanPredicate(booleanAstOrString, bindings, par
                 default: throw new Error('Unknown arithmetic operator');
               }
             }
-            throw new Error('Unknown arithmetic AST in boolean comparison');
+            throw new Error('Unknown arithmetic AST in bool comparison');
           };
           const l = buildArith(node.left); const r = buildArith(node.right);
           switch (node.op) {
@@ -685,7 +685,7 @@ export async function evaluateBooleanPredicate(booleanAstOrString, bindings, par
         const pure = evaluateBooleanWithBindings({ type: 'cmp', op: node.op, left: node.left, right: node.right }, bindings || {}, parseArithmetic);
         return pure ? Bool.val(true) : Bool.val(false);
       }
-      default: throw new Error(`Unknown boolean AST node '${node.type}'`);
+      default: throw new Error(`Unknown bool AST node '${node.type}'`);
     }
   }
 

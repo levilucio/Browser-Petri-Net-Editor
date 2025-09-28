@@ -79,7 +79,7 @@ export const PetriNetProvider = ({ children }) => {
     startContinuousSimulation,
     startRunSimulation,
     stopAllSimulations,
-  } = useSimulationManager(elements, setElements, updateHistory);
+  } = useSimulationManager(elements, setElements, updateHistory, simulationSettings?.netMode || 'pt');
   
   // Only update history when not dragging and not just changing modes
   useEffect(() => {

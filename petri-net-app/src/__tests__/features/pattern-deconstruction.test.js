@@ -3,31 +3,31 @@ import { parsePattern, matchPattern, validatePatternTyping, addTypeAnnotations, 
 
 describe('Pattern Deconstruction', () => {
   test('pattern parsing and matching works for (F,x) pattern', () => {
-    const pattern = parsePattern('(F,x:integer)');
+    const pattern = parsePattern('(F,x:int)');
     expect(pattern.type).toBe('pairPattern');
     expect(pattern.fst.type).toBe('boolLit');
     expect(pattern.fst.value).toBe(false);
     expect(pattern.snd.type).toBe('var');
     expect(pattern.snd.name).toBe('x');
-    expect(pattern.snd.varType).toBe('integer');
+    expect(pattern.snd.varType).toBe('int');
   });
 
   test('pattern matching extracts correct bindings', () => {
-    const pattern = parsePattern('(F,x:integer)');
+    const pattern = parsePattern('(F,x:int)');
     const token = { __pair__: true, fst: false, snd: 1 };
     const bindings = matchPattern(pattern, token);
     expect(bindings).toEqual({ x: 1 });
   });
 
   test('pattern matching fails for wrong types', () => {
-    const pattern = parsePattern('(F,x:integer)');
-    const token = { __pair__: true, fst: false, snd: true }; // snd is boolean, not integer
+    const pattern = parsePattern('(F,x:int)');
+    const token = { __pair__: true, fst: false, snd: true }; // snd is bool, not int
     const bindings = matchPattern(pattern, token);
     expect(bindings).toBeNull();
   });
 
   test('pattern matching fails for wrong structure', () => {
-    const pattern = parsePattern('(F,x:integer)');
+    const pattern = parsePattern('(F,x:int)');
     const token = { __pair__: true, fst: true, snd: 1 }; // fst is true, not false
     const bindings = matchPattern(pattern, token);
     expect(bindings).toBeNull();
@@ -41,14 +41,14 @@ describe('Pattern Deconstruction', () => {
 
   test('auto-type annotation adds default types', () => {
     const pattern = parsePattern('(F,x)');
-    const typedPattern = addTypeAnnotations(pattern, 'integer');
-    expect(typedPattern.snd.varType).toBe('integer');
+    const typedPattern = addTypeAnnotations(pattern, 'int');
+    expect(typedPattern.snd.varType).toBe('int');
   });
 
   test('stringify pattern preserves type annotations', () => {
-    const pattern = parsePattern('(F,x:integer)');
+    const pattern = parsePattern('(F,x:int)');
     const str = stringifyPattern(pattern);
-    expect(str).toBe('(F, x:integer)');
+    expect(str).toBe('(F, x:Int)');
   });
 
   test('algebraic simulator enables transition with pattern deconstruction', async () => {
@@ -61,7 +61,7 @@ describe('Pattern Deconstruction', () => {
         { id: 't1', label: 'T1', x: 0, y: 0, guard: 'x >= 1' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['(F,x:integer)'] },
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['(F,x:int)'] },
         { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x+2'] },
       ],
       netMode: 'algebraic-int'
@@ -93,7 +93,7 @@ describe('Pattern Deconstruction', () => {
         { id: 't1', label: 'T1', x: 0, y: 0, guard: 'T' },
       ],
       arcs: [
-        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['(F,x:integer)', '(T,y:integer)'] },
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['(F,x:int)', '(T,y:int)'] },
         { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x+y'] },
       ],
       netMode: 'algebraic-int'

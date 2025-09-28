@@ -3,42 +3,42 @@ import { parseADT, validateADT, generateADT } from '../utils/adt-parser';
 
 const BASE_ADT_XML = `<?xml version="1.0"?>
 <algebraicDataTypes xmlns="http://example.org/apn-adt">
-  <type name="Integer">
-    <operation name="+" arity="2" result="Integer">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+  <type name="Int">
+    <operation name="+" arity="2" result="Int">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
-    <operation name="-" arity="2" result="Integer">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+    <operation name="-" arity="2" result="Int">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
-    <operation name="*" arity="2" result="Integer">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+    <operation name="*" arity="2" result="Int">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
-    <operation name="==" arity="2" result="Boolean">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+    <operation name="==" arity="2" result="Bool">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
-    <operation name="!=" arity="2" result="Boolean">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+    <operation name="!=" arity="2" result="Bool">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
-    <operation name="&lt;" arity="2" result="Boolean">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+    <operation name="&lt;" arity="2" result="Bool">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
-    <operation name="&lt;=" arity="2" result="Boolean">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+    <operation name="&lt;=" arity="2" result="Bool">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
-    <operation name="&gt;" arity="2" result="Boolean">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+    <operation name="&gt;" arity="2" result="Bool">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
-    <operation name="&gt;=" arity="2" result="Boolean">
-      <param index="0" type="Integer"/>
-      <param index="1" type="Integer"/>
+    <operation name="&gt;=" arity="2" result="Bool">
+      <param index="0" type="Int"/>
+      <param index="1" type="Int"/>
     </operation>
     <axioms>
       <axiom name="commutativity">x + y = y + x</axiom>
@@ -48,25 +48,25 @@ const BASE_ADT_XML = `<?xml version="1.0"?>
       <axiom name="distributivity">x * (y + z) = (x * y) + (x * z)</axiom>
     </axioms>
   </type>
-  <type name="Boolean">
-    <operation name="and" arity="2" result="Boolean">
-      <param index="0" type="Boolean"/>
-      <param index="1" type="Boolean"/>
+  <type name="Bool">
+    <operation name="and" arity="2" result="Bool">
+      <param index="0" type="Bool"/>
+      <param index="1" type="Bool"/>
     </operation>
-    <operation name="or" arity="2" result="Boolean">
-      <param index="0" type="Boolean"/>
-      <param index="1" type="Boolean"/>
+    <operation name="or" arity="2" result="Bool">
+      <param index="0" type="Bool"/>
+      <param index="1" type="Bool"/>
     </operation>
-    <operation name="not" arity="1" result="Boolean">
-      <param index="0" type="Boolean"/>
+    <operation name="not" arity="1" result="Bool">
+      <param index="0" type="Bool"/>
     </operation>
-    <operation name="==" arity="2" result="Boolean">
-      <param index="0" type="Boolean"/>
-      <param index="1" type="Boolean"/>
+    <operation name="==" arity="2" result="Bool">
+      <param index="0" type="Bool"/>
+      <param index="1" type="Bool"/>
     </operation>
-    <operation name="!=" arity="2" result="Boolean">
-      <param index="0" type="Boolean"/>
-      <param index="1" type="Boolean"/>
+    <operation name="!=" arity="2" result="Bool">
+      <param index="0" type="Bool"/>
+      <param index="1" type="Bool"/>
     </operation>
     <axioms>
       <axiom name="and_commutativity">x and y = y and x</axiom>
@@ -85,11 +85,11 @@ const BASE_ADT_XML = `<?xml version="1.0"?>
     <operation name="snd" arity="1" result="Any">
       <param index="0" type="Pair"/>
     </operation>
-    <operation name="==" arity="2" result="Boolean">
+    <operation name="==" arity="2" result="Bool">
       <param index="0" type="Pair"/>
       <param index="1" type="Pair"/>
     </operation>
-    <operation name="!=" arity="2" result="Boolean">
+    <operation name="!=" arity="2" result="Bool">
       <param index="0" type="Pair"/>
       <param index="1" type="Pair"/>
     </operation>

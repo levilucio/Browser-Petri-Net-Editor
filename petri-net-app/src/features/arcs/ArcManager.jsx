@@ -4,6 +4,7 @@ import { usePetriNet } from '../../contexts/PetriNetContext';
 import { useElementManager } from '../elements/useElementManager';
 import { useArcManager } from './useArcManager';
 import { getArcSourceType, getArcTargetType } from '../../utils/arcTypes';
+import { capitalizeTypeNames } from '../../utils/arith-parser';
 
 const ArcManager = () => {
   const {
@@ -167,7 +168,7 @@ const ArcManager = () => {
               <Text
                 x={midX}
                 y={midY - labelOffset + 14}
-                text={`${arc.bindings.join(', ')}`}
+                text={`${arc.bindings.map(capitalizeTypeNames).join(', ')}`}
                 fontSize={12}
                 fill="#333"
                 align="center"

@@ -207,8 +207,8 @@ export default function AdtDialog({ isOpen, onClose }) {
             <div className="mt-4 p-3 border rounded bg-blue-50">
               <div className="text-sm font-semibold mb-2 text-blue-800">Usage Notes</div>
               <div className="text-xs text-blue-700 space-y-1">
-                <div>• Integer operations: +(Integer a, Integer b), *(Integer a, Integer b), ==(Integer a, Integer b), etc.</div>
-                <div>• Boolean operations: and(Boolean a, Boolean b), or(Boolean a, Boolean b), not(Boolean a)</div>
+                <div>• Int operations: +(Int a, Int b), *(Int a, Int b), ==(Int a, Int b), etc.</div>
+                <div>• Bool operations: and(Bool a, Bool b), or(Bool a, Bool b), not(Bool a)</div>
                 <div>• Pair operations: fst(Pair p), snd(Pair p), ==(Pair a, Pair b)</div>
                 <div>• Pair literals: (value1, value2)</div>
                 <div>• All operations support pattern matching and deconstruction</div>

@@ -1,8 +1,11 @@
-// Tiny arithmetic parser for integers with + - * / and parentheses
+// Tiny arithmetic parser for ints with + - * / and parentheses
 // Grammar (LL(1) style):
 //   Expr   -> Term ((+|-) Term)*
 //   Term   -> Factor ((*|/) Factor)*
 //   Factor -> INT | '(' Expr ')'
+
+// Import getTokensForPlace from algebraic-simulator
+import { getTokensForPlace } from '../features/simulation/algebraic-simulator.js';
 
 export function parseArithmetic(input) {
   if (typeof input !== 'string') throw new Error('Expression must be a string');
@@ -16,7 +19,7 @@ export function parseArithmetic(input) {
     skipWs();
     let start = i;
     while (i < src.length && isDigit(src[i])) i++;
-    if (start === i) throw new Error(`Expected integer at position ${i}`);
+    if (start === i) throw new Error(`Expected int at position ${i}`);
     const text = src.slice(start, i);
     return { type: 'int', value: parseInt(text, 10) };
   }
@@ -37,7 +40,7 @@ export function parseArithmetic(input) {
     throw new Error(`Variable names must start with lowercase letter, got '${name}' (use 't' instead of 'T', 'f' instead of 'F')`);
   }
   
-  // Optional type annotation: ": integer" or ": boolean" or ": pair" (case-insensitive)
+  // Optional type annotation: ": int" or ": bool" or ": pair" (case-insensitive)
     const save = i;
     skipWs();
     if (src[i] === ':') {
@@ -46,7 +49,7 @@ export function parseArithmetic(input) {
       const tStart = i;
       while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
       const tWord = src.slice(tStart, i).toLowerCase();
-      if (tWord === 'integer' || tWord === 'boolean' || tWord === 'pair') {
+      if (tWord === 'int' || tWord === 'bool' || tWord === 'pair') {
         return { type: 'var', name, varType: tWord };
       } else {
         // Not a recognized type; rollback to previous position
@@ -59,275 +62,221 @@ export function parseArithmetic(input) {
 
   function parseFactor() {
     skipWs();
-    if (i >= src.length) throw new Error('Unexpected end of input in factor');
-    const ch = src[i];
-    if (ch === '(') {
-      i++;
-      const node = parseExpr();
+    if (i >= src.length) throw new Error(`Unexpected end of input at position ${i}`);
+    
+    if (src[i] === '(') {
+      i++; // consume '('
+      const expr = parseExpr();
       skipWs();
-      if (src[i] !== ')') throw new Error(`Expected ')' at position ${i}`);
-      i++;
-      return node;
+      if (i >= src.length || src[i] !== ')') throw new Error(`Expected ')' at position ${i}`);
+      i++; // consume ')'
+      return expr;
     }
-    if (isIdentStart(ch)) {
-      return parseIdent();
-    }
-    return parseIntLiteral();
+    
+    if (isDigit(src[i])) return parseIntLiteral();
+    if (isIdentStart(src[i])) return parseIdent();
+    
+    throw new Error(`Unexpected character '${src[i]}' at position ${i}`);
   }
 
   function parseTerm() {
-    let node = parseFactor();
-    while (true) {
+    let left = parseFactor();
+    skipWs();
+    while (i < src.length && (src[i] === '*' || src[i] === '/')) {
+      const op = src[i++];
+      const right = parseFactor();
+      left = { type: 'binop', op, left, right };
       skipWs();
-      const ch = src[i];
-      if (ch === '*' || ch === '/') {
-        i++;
-        const right = parseFactor();
-        node = { type: 'bin', op: ch, left: node, right };
-      } else {
-        break;
-      }
     }
-    return node;
+    return left;
   }
 
   function parseExpr() {
-    let node = parseTerm();
-    while (true) {
+    let left = parseTerm();
+    skipWs();
+    while (i < src.length && (src[i] === '+' || src[i] === '-')) {
+      const op = src[i++];
+      const right = parseTerm();
+      left = { type: 'binop', op, left, right };
       skipWs();
-      const ch = src[i];
-      if (ch === '+' || ch === '-') {
-        i++;
-        const right = parseTerm();
-        node = { type: 'bin', op: ch, left: node, right };
-      } else {
-        break;
-      }
     }
-    return node;
+    return left;
   }
 
-  const ast = parseExpr();
+  const result = parseExpr();
   skipWs();
-  if (i !== src.length) {
-    throw new Error(`Unexpected token '${src[i]}' at position ${i}`);
-  }
-  return ast;
+  if (i < src.length) throw new Error(`Unexpected character '${src[i]}' at position ${i}`);
+  return result;
 }
 
-export function stringifyAst(node) {
-  if (!node) return '';
-  if (node.type === 'int') return String(node.value);
-  if (node.type === 'var') return node.name;
-  return `(${stringifyAst(node.left)} ${node.op} ${stringifyAst(node.right)})`;
-}
-
-/**
- * Convert a pattern AST back to a string representation
- */
-export function stringifyPattern(pattern) {
-  if (!pattern) return '';
+export function stringifyArithmetic(ast) {
+  if (!ast) return '';
   
-  switch (pattern.type) {
+  switch (ast.type) {
     case 'int':
-      return String(pattern.value);
-    
-    case 'boolLit':
-      return pattern.value ? 'T' : 'F';
-    
+      return String(ast.value);
     case 'var':
-      return pattern.varType ? `${pattern.name}:${pattern.varType}` : pattern.name;
-    
-    case 'pairPattern':
-      return `(${stringifyPattern(pattern.fst)}, ${stringifyPattern(pattern.snd)})`;
-    
-    case 'tuplePattern':
-      return `(${pattern.components.map(stringifyPattern).join(', ')})`;
-    
+      return ast.varType ? `${ast.name}:${ast.varType}` : ast.name;
+    case 'binop':
+      const left = stringifyArithmetic(ast.left);
+      const right = stringifyArithmetic(ast.right);
+      return `(${left} ${ast.op} ${right})`;
     default:
-      throw new Error(`Unknown pattern type: ${pattern.type}`);
+      return '';
   }
 }
 
 /**
- * Parse pattern expressions for pattern matching and deconstruction
- * Supports patterns like (F, x), (x, y:integer), etc.
- * Generic enough to support future data types like lists, strings, etc.
+ * Parse a pattern like "(F, x:Int)" or "x:Bool"
  */
 export function parsePattern(input) {
   if (typeof input !== 'string') throw new Error('Pattern must be a string');
   const src = input.trim();
   let i = 0;
 
-  function isDigit(ch) { return ch >= '0' && ch <= '9'; }
   function skipWs() { while (i < src.length && /\s/.test(src[i])) i++; }
-  function isIdentStart(ch) { return /[A-Za-z_]/.test(ch); }
-  function isIdentPart(ch) { return /[A-Za-z0-9_]/.test(ch); }
 
-  function parseIdent() {
+  function parsePatternElement() {
     skipWs();
-    let start = i;
-    if (!isIdentStart(src[i])) throw new Error(`Expected identifier at position ${i}`);
-    i++;
-    while (i < src.length && isIdentPart(src[i])) i++;
-    const name = src.slice(start, i);
-    
-    // Validate variable names start with lowercase to avoid T/F ambiguity
-    if (name && /^[A-Z]/.test(name)) {
-      throw new Error(`Variable names must start with lowercase letter, got '${name}' (use 't' instead of 'T', 'f' instead of 'F')`);
-    }
-    
-    // Optional type annotation: ": integer" or ": boolean" or ": pair" (case-insensitive)
-    const save = i;
-    skipWs();
-    if (src[i] === ':') {
-      i++;
-      skipWs();
-      const tStart = i;
-      while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
-      const tWord = src.slice(tStart, i).toLowerCase();
-      if (tWord === 'integer' || tWord === 'boolean' || tWord === 'pair') {
-        return { type: 'var', name, varType: tWord };
-      } else {
-        // Not a recognized type; rollback to previous position
-        i = save;
-        return { type: 'var', name };
-      }
-    }
-    return { type: 'var', name };
-  }
-
-  function parseLiteral() {
-    skipWs();
-    if (i >= src.length) throw new Error('Unexpected end of input in literal');
+    if (i >= src.length) throw new Error(`Unexpected end of input at position ${i}`);
     
     // Check for boolean literals first
-    if (src[i] === 'T') {
-      const next = src[i + 1] || '';
-      if (!/[A-Za-z0-9_]/.test(next)) { i += 1; return { type: 'boolLit', value: true }; }
-    }
-    if (src[i] === 'F') {
-      const next = src[i + 1] || '';
-      if (!/[A-Za-z0-9_]/.test(next)) { i += 1; return { type: 'boolLit', value: false }; }
-    }
-    
-    // Check for integer literals
-    if (isDigit(src[i]) || (src[i] === '-' && i + 1 < src.length && isDigit(src[i + 1]))) {
-      let start = i;
-      if (src[i] === '-') i++;
-      while (i < src.length && isDigit(src[i])) i++;
-      const text = src.slice(start, i);
-      return { type: 'int', value: parseInt(text, 10) };
-    }
-    
-    // Check for structured patterns (pairs, lists, etc.)
-    if (src[i] === '(') {
+    if (src.slice(i, i + 1) === 'T') {
       i++;
-      skipWs();
-      const components = [];
+      return { type: 'boolLit', value: true };
+    }
+    if (src.slice(i, i + 1) === 'F') {
+      i++;
+      return { type: 'boolLit', value: false };
+    }
+    
+    // Check for integers
+    if (/[0-9]/.test(src[i])) {
+      let start = i;
+      while (i < src.length && /[0-9]/.test(src[i])) i++;
+      const value = parseInt(src.slice(start, i), 10);
+      return { type: 'int', value };
+    }
+    
+    // Check for variables
+    if (/[a-zA-Z_]/.test(src[i])) {
+      let start = i;
+      while (i < src.length && /[a-zA-Z0-9_]/.test(src[i])) i++;
+      const name = src.slice(start, i);
       
-      if (src[i] !== ')') {
-        while (true) {
-          components.push(parsePatternComponent());
-          skipWs();
-          if (src[i] === ')') break;
-          if (src[i] === ',') {
-            i++;
-            skipWs();
-          } else {
-            throw new Error(`Expected ',' or ')' at position ${i}`);
-          }
+      // Check for type annotation
+      skipWs();
+      if (src[i] === ':') {
+        i++;
+        skipWs();
+        let tStart = i;
+        while (i < src.length && /[a-zA-Z]/.test(src[i])) i++;
+        const varType = src.slice(tStart, i).toLowerCase();
+        if (varType === 'int' || varType === 'bool' || varType === 'pair') {
+          return { type: 'var', name, varType };
+        } else {
+          throw new Error(`Unknown type '${varType}' at position ${tStart}`);
         }
+      }
+      
+      return { type: 'var', name };
+    }
+    
+    // Check for pair pattern
+    if (src[i] === '(') {
+      i++; // consume '('
+      skipWs();
+      
+      const elements = [];
+      while (i < src.length && src[i] !== ')') {
+        elements.push(parsePatternElement());
+        skipWs();
+        if (i < src.length && src[i] === ',') {
+          i++; // consume ','
+          skipWs();
+        }
+      }
+      
+      if (i >= src.length || src[i] !== ')') {
+        throw new Error(`Expected ')' at position ${i}`);
       }
       i++; // consume ')'
       
-      // Determine pattern type based on structure
-      if (components.length === 2) {
-        return { type: 'pairPattern', fst: components[0], snd: components[1] };
-      } else if (components.length > 2) {
-        // Future: could be list pattern, tuple pattern, etc.
-        return { type: 'tuplePattern', components };
+      if (elements.length === 2) {
+        return { type: 'pairPattern', fst: elements[0], snd: elements[1] };
       } else {
-        throw new Error('Pattern must have at least 2 components');
+        return { type: 'tuplePattern', elements };
       }
     }
     
-    // Otherwise treat as identifier
-    return parseIdent();
+    throw new Error(`Unexpected character '${src[i]}' at position ${i}`);
   }
 
-  function parsePatternComponent() {
-    skipWs();
-    if (i >= src.length) throw new Error('Unexpected end of input in pattern component');
-    
-    // Check for nested structured patterns
-    if (src[i] === '(') {
-      return parseLiteral(); // This will handle nested patterns
-    }
-    
-    // Check for literals or variables
-    return parseLiteral();
-  }
-
-  const ast = parsePatternComponent();
+  const result = parsePatternElement();
   skipWs();
-  if (i !== src.length) {
-    throw new Error(`Unexpected token '${src[i]}' at position ${i}`);
-  }
-  return ast;
+  if (i < src.length) throw new Error(`Unexpected character '${src[i]}' at position ${i}`);
+  return result;
 }
 
 /**
  * Match a pattern against a value and extract bindings
- * Returns null if no match, or an object with variable bindings if match succeeds
  */
 export function matchPattern(pattern, value) {
-  function matchComponent(pat, val) {
+  const bindings = new Map();
+  
+  function matchElement(pat, val) {
     switch (pat.type) {
       case 'int':
-        return typeof val === 'number' && val === pat.value ? {} : null;
-      
+        if (typeof val !== 'number' || val !== pat.value) {
+          throw new Error(`Expected integer ${pat.value}, got ${val}`);
+        }
+        return true;
+        
       case 'boolLit':
-        return typeof val === 'boolean' && val === pat.value ? {} : null;
-      
+        if (typeof val !== 'boolean' || val !== pat.value) {
+          throw new Error(`Expected boolean ${pat.value}, got ${val}`);
+        }
+        return true;
+        
       case 'var':
-        // Variable binding with type checking
-        if (pat.varType) {
-          if (pat.varType === 'integer' && typeof val !== 'number') return null;
-          if (pat.varType === 'boolean' && typeof val !== 'boolean') return null;
-          if (pat.varType === 'pair' && (!val || typeof val !== 'object' || !val.__pair__)) return null;
+        if (bindings.has(pat.name)) {
+          const boundValue = bindings.get(pat.name);
+          if (boundValue !== val) {
+            throw new Error(`Variable ${pat.name} already bound to ${boundValue}, cannot bind to ${val}`);
+          }
+        } else {
+          bindings.set(pat.name, val);
         }
-        return { [pat.name]: val };
-      
+        return true;
+        
       case 'pairPattern':
-        if (!val || typeof val !== 'object' || !val.__pair__) return null;
-        const fstMatch = matchComponent(pat.fst, val.fst);
-        const sndMatch = matchComponent(pat.snd, val.snd);
-        if (fstMatch === null || sndMatch === null) return null;
-        return { ...fstMatch, ...sndMatch };
-      
-      case 'tuplePattern':
-        // Future: handle lists, tuples, etc.
-        if (!Array.isArray(val) || val.length !== pat.components.length) return null;
-        let bindings = {};
-        for (let i = 0; i < pat.components.length; i++) {
-          const compMatch = matchComponent(pat.components[i], val[i]);
-          if (compMatch === null) return null;
-          bindings = { ...bindings, ...compMatch };
+        if (!val || typeof val !== 'object' || !val.__pair__) {
+          throw new Error(`Expected pair, got ${val}`);
         }
-        return bindings;
-      
+        matchElement(pat.fst, val.fst);
+        matchElement(pat.snd, val.snd);
+        return true;
+        
+      case 'tuplePattern':
+        if (!Array.isArray(val) || val.length !== pat.elements.length) {
+          throw new Error(`Expected tuple of length ${pat.elements.length}, got ${val}`);
+        }
+        pat.elements.forEach((subPat, index) => {
+          matchElement(subPat, val[index]);
+        });
+        return true;
+        
       default:
         throw new Error(`Unknown pattern type: ${pat.type}`);
     }
   }
   
-  return matchComponent(pattern, value);
+  matchElement(pattern, value);
+  return bindings;
 }
 
 /**
- * Validate that all variables in a pattern are properly typed
- * Returns an error message if validation fails, null if successful
+ * Validate that all variables in a pattern have explicit type annotations
  */
 export function validatePatternTyping(pattern) {
   function validateComponent(pat) {
@@ -335,26 +284,17 @@ export function validatePatternTyping(pattern) {
       case 'var':
         // Variables must be typed when used in patterns
         if (!pat.varType) {
-          return `Variable '${pat.name}' must be typed (e.g., ${pat.name}:integer, ${pat.name}:boolean, ${pat.name}:pair)`;
+          return `Variable '${pat.name}' must be typed (e.g., ${pat.name}:int, ${pat.name}:bool, ${pat.name}:pair)`;
         }
         return null;
-      
       case 'pairPattern':
-        const fstError = validateComponent(pat.fst);
-        if (fstError) return fstError;
-        return validateComponent(pat.snd);
-      
       case 'tuplePattern':
-        for (const comp of pat.components) {
-          const error = validateComponent(comp);
+        const elements = pat.type === 'pairPattern' ? [pat.fst, pat.snd] : pat.elements;
+        for (const elem of elements) {
+          const error = validateComponent(elem);
           if (error) return error;
         }
         return null;
-      
-      case 'int':
-      case 'boolLit':
-        return null; // Literals don't need typing
-      
       default:
         return null;
     }
@@ -364,31 +304,27 @@ export function validatePatternTyping(pattern) {
 }
 
 /**
- * Auto-add type annotations to untyped variables in patterns
- * Returns the pattern with type annotations added
+ * Add default type annotations to untyped variables in a pattern
  */
-export function addTypeAnnotations(pattern, defaultType = 'integer') {
+export function addTypeAnnotations(pattern, defaultType = 'Int') {
   function addTypes(pat) {
     switch (pat.type) {
       case 'var':
         if (!pat.varType) {
-          return { ...pat, varType: defaultType };
+          return { ...pat, varType: defaultType.toLowerCase() };
         }
         return pat;
-      
       case 'pairPattern':
         return {
           ...pat,
           fst: addTypes(pat.fst),
           snd: addTypes(pat.snd)
         };
-      
       case 'tuplePattern':
         return {
           ...pat,
-          components: pat.components.map(addTypes)
+          elements: pat.elements.map(addTypes)
         };
-      
       default:
         return pat;
     }
@@ -397,4 +333,326 @@ export function addTypeAnnotations(pattern, defaultType = 'integer') {
   return addTypes(pattern);
 }
 
+/**
+ * Convert a pattern AST back to a string
+ */
+export function stringifyPattern(pattern) {
+  function stringifyElement(elem) {
+    switch (elem.type) {
+      case 'int':
+        return String(elem.value);
+      case 'boolLit':
+        return elem.value ? 'T' : 'F';
+      case 'var':
+        return elem.varType ? `${elem.name}:${elem.varType.charAt(0).toUpperCase() + elem.varType.slice(1)}` : elem.name;
+      case 'pairPattern':
+        return `(${stringifyElement(elem.fst)}, ${stringifyElement(elem.snd)})`;
+      case 'tuplePattern':
+        return `(${elem.elements.map(stringifyElement).join(', ')})`;
+      default:
+        return '';
+    }
+  }
+  
+  return stringifyElement(pattern);
+}
+
+/**
+ * Capitalize type names in a binding string for display
+ */
+export function capitalizeTypeNames(bindingString) {
+  return bindingString
+    .replace(/:int\b/g, ':Int')
+    .replace(/:bool\b/g, ':Bool')
+    .replace(/:pair\b/g, ':Pair');
+}
+
+/**
+ * Infer the type of a token value
+ */
+export function inferTokenType(token) {
+  if (typeof token === 'number') return 'Int';
+  if (typeof token === 'boolean') return 'Bool';
+  if (token && typeof token === 'object' && token.__pair__) return 'Pair';
+  return 'Int'; // Default fallback
+}
+
+/**
+ * Infer types for variables based on the context of an arc or transition
+ * This function analyzes the entire variable flow chain: input bindings → guard → output bindings
+ */
+export function inferVariableTypes(elementType, selectedElement, elements) {
+  const typeMap = new Map();
+  
+  if (!selectedElement || !elements) {
+    return typeMap;
+  }
+  
+  if (elementType === 'arc') {
+    // For arcs, we need to analyze the entire transition chain
+    const transition = elements.transitions.find(t => 
+      elements.arcs.some(arc => arc.id === selectedElement.id && 
+        (arc.source === t.id || arc.target === t.id))
+    );
+    
+    if (transition) {
+      // Get all types from the entire transition chain
+      const chainTypeMap = analyzeTransitionChain(transition, elements);
+      chainTypeMap.forEach((type, varName) => {
+        typeMap.set(varName, type);
+      });
+    }
+    
+    // Fallback: infer from source place tokens if no chain analysis available
+    if (typeMap.size === 0) {
+      const sourcePlace = elements.places.find(p => p.id === selectedElement.source);
+      let tokenType = 'Int'; // Default fallback type
+      
+      if (sourcePlace) {
+        // Use getTokensForPlace to handle both valueTokens and tokens count
+        const tokens = getTokensForPlace(sourcePlace);
+        if (tokens.length > 0) {
+          tokenType = inferTokenType(tokens[0]);
+        }
+      }
+      
+      // Process bindings with fallback type
+      if (selectedElement.bindings && selectedElement.bindings.length > 0) {
+        selectedElement.bindings.forEach(binding => {
+          extractVariablesFromBinding(binding, tokenType, typeMap);
+        });
+      }
+    }
+  } else if (elementType === 'transition') {
+    // For transitions, analyze the entire chain
+    const chainTypeMap = analyzeTransitionChain(selectedElement, elements);
+    chainTypeMap.forEach((type, varName) => {
+      typeMap.set(varName, type);
+    });
+  }
+  
+  return typeMap;
+}
+
+/**
+ * Analyze the entire transition chain to infer variable types
+ * Chain: input arcs → guard → output arcs
+ */
+function analyzeTransitionChain(transition, elements) {
+  const typeMap = new Map();
+  
+  // Step 1: Collect types from input arcs (from tokens)
+  const inputArcs = elements.arcs.filter(arc => arc.target === transition.id);
+  inputArcs.forEach(arc => {
+    const sourcePlace = elements.places.find(p => p.id === arc.source);
+    if (sourcePlace) {
+      // Use getTokensForPlace to handle both valueTokens and tokens count
+      const tokens = getTokensForPlace(sourcePlace);
+      if (tokens.length > 0) {
+        const tokenType = inferTokenType(tokens[0]);
+        
+        if (arc.bindings && arc.bindings.length > 0) {
+          arc.bindings.forEach(binding => {
+            extractVariablesFromBinding(binding, tokenType, typeMap);
+          });
+        }
+      }
+    }
+  });
+  
+  // Step 2: Extract types from guard (from already typed variables)
+  if (transition.guard) {
+    extractTypesFromExpression(transition.guard, typeMap);
+  }
+  
+  // Step 3: Extract types from output arcs (from already typed variables)
+  const outputArcs = elements.arcs.filter(arc => arc.source === transition.id);
+  outputArcs.forEach(arc => {
+    if (arc.bindings && arc.bindings.length > 0) {
+      arc.bindings.forEach(binding => {
+        extractTypesFromExpression(binding, typeMap);
+      });
+    }
+  });
+  
+  // Step 4: Propagate types from input arcs to output arcs
+  // This ensures that variables used in output arcs can inherit types from input arcs
+  propagateTypesThroughChain(inputArcs, outputArcs, transition, typeMap, elements);
+  
+  return typeMap;
+}
+
+/**
+ * Extract variables from a binding and assign them a type
+ */
+function extractVariablesFromBinding(binding, defaultType, typeMap) {
+  try {
+    const pattern = parsePattern(binding);
+    extractVariablesFromPattern(pattern).forEach(varName => {
+      if (!typeMap.has(varName)) {
+        typeMap.set(varName, defaultType);
+      }
+    });
+  } catch (e) {
+    // If parsing fails, try to extract variables from plain text
+    const varMatches = binding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+    if (varMatches) {
+      varMatches.forEach(varName => {
+        if (varName !== 'true' && varName !== 'false' && !typeMap.has(varName)) {
+          typeMap.set(varName, defaultType);
+        }
+      });
+    }
+  }
+}
+
+/**
+ * Extract types from expressions (guards, bindings) that may already have typed variables
+ */
+function extractTypesFromExpression(expression, typeMap) {
+  // Look for patterns like "x:Int", "y:Bool", etc.
+  const typedVarMatches = expression.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair)\b/g);
+  if (typedVarMatches) {
+    typedVarMatches.forEach(match => {
+      const [, varName, varType] = match.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair)\b/);
+      if (!typeMap.has(varName)) {
+        typeMap.set(varName, varType);
+      }
+    });
+  }
+}
+
+/**
+ * Propagate types through the transition chain
+ * This ensures that if a variable is typed in one part, it's available in other parts
+ */
+function propagateTypesThroughChain(inputArcs, outputArcs, transition, typeMap, elements) {
+  // Extract all variable names that appear in output arcs
+  const outputVariables = new Set();
+  outputArcs.forEach(arc => {
+    if (arc.bindings && arc.bindings.length > 0) {
+      arc.bindings.forEach(binding => {
+        try {
+          const pattern = parsePattern(binding);
+          extractVariablesFromPattern(pattern).forEach(varName => {
+            outputVariables.add(varName);
+          });
+        } catch (e) {
+          // If parsing fails, try to extract variables from plain text
+          const varMatches = binding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+          if (varMatches) {
+            varMatches.forEach(varName => {
+              if (varName !== 'true' && varName !== 'false') {
+                outputVariables.add(varName);
+              }
+            });
+          }
+        }
+      });
+    }
+  });
+  
+  // For each variable in output arcs, if it's not already typed,
+  // try to infer its type from the input arcs
+  outputVariables.forEach(varName => {
+    if (!typeMap.has(varName)) {
+      // Look for this variable in input arcs
+      inputArcs.forEach(arc => {
+        const sourcePlace = elements.places.find(p => p.id === arc.source);
+        if (sourcePlace) {
+          // Use getTokensForPlace to handle both valueTokens and tokens count
+          const tokens = getTokensForPlace(sourcePlace);
+          if (tokens.length > 0) {
+            const tokenType = inferTokenType(tokens[0]);
+            
+            if (arc.bindings && arc.bindings.length > 0) {
+              arc.bindings.forEach(binding => {
+                try {
+                  const pattern = parsePattern(binding);
+                  extractVariablesFromPattern(pattern).forEach(inputVarName => {
+                    if (inputVarName === varName && !typeMap.has(varName)) {
+                      typeMap.set(varName, tokenType);
+                    }
+                  });
+                } catch (e) {
+                  // If parsing fails, try to extract variables from plain text
+                  const varMatches = binding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+                  if (varMatches) {
+                    varMatches.forEach(inputVarName => {
+                      if (inputVarName === varName && inputVarName !== 'true' && inputVarName !== 'false' && !typeMap.has(varName)) {
+                        typeMap.set(varName, tokenType);
+                      }
+                    });
+                  }
+                }
+              });
+            }
+          }
+        }
+      });
+    }
+  });
+}
+
+/**
+ * Extract variable names from a pattern AST
+ */
+function extractVariablesFromPattern(pattern) {
+  const variables = [];
+  
+  function traverse(node) {
+    if (!node) return;
+    
+    switch (node.type) {
+      case 'var':
+        variables.push(node.name);
+        break;
+      case 'pairPattern':
+        if (node.fst) traverse(node.fst);
+        if (node.snd) traverse(node.snd);
+        break;
+      case 'tuplePattern':
+        if (node.elements) {
+          node.elements.forEach(traverse);
+        }
+        break;
+      // Add more cases as needed for other pattern types
+    }
+  }
+  
+  traverse(pattern);
+  return variables;
+}
+
+/**
+ * Auto-annotate variables in a pattern or expression with inferred types
+ */
+export function autoAnnotateTypes(input, typeMap, defaultType = null) {
+  if (!input) return input;
+  
+  // If no typeMap provided and no defaultType, don't annotate anything
+  if ((!typeMap || typeMap.size === 0) && !defaultType) return input;
+  
+  // Simple regex-based approach for now
+  let result = input;
+  
+  // Extract all variables from the input
+  const varMatches = input.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+  if (varMatches) {
+    varMatches.forEach(varName => {
+      // Skip boolean literals, operators, and variables that already have types
+      if (varName !== 'true' && varName !== 'false' && 
+          varName !== 'and' && varName !== 'or' && varName !== 'not' &&
+          !input.includes(`${varName}:`)) {
+        const varType = typeMap.get(varName) || defaultType;
+        if (varType) {
+          const pattern = new RegExp(`\\b${varName}(?!:)\\b`, 'g');
+          result = result.replace(pattern, `${varName}:${varType}`);
+        }
+      }
+    });
+  }
+  
+  return result;
+}
 
