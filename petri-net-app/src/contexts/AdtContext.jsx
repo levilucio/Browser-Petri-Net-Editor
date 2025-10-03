@@ -99,6 +99,35 @@ const BASE_ADT_XML = `<?xml version="1.0"?>
       <axiom name="snd_projection">snd((x, y)) = y</axiom>
     </axioms>
   </type>
+  <type name="String">
+    <operation name="concat" arity="2" result="String">
+      <param index="0" type="String"/>
+      <param index="1" type="String"/>
+    </operation>
+    <operation name="substring" arity="3" result="String">
+      <param index="0" type="String"/>
+      <param index="1" type="Int"/>
+      <param index="2" type="Int"/>
+    </operation>
+    <operation name="length" arity="1" result="Int">
+      <param index="0" type="String"/>
+    </operation>
+    <operation name="==" arity="2" result="Bool">
+      <param index="0" type="String"/>
+      <param index="1" type="String"/>
+    </operation>
+    <operation name="!=" arity="2" result="Bool">
+      <param index="0" type="String"/>
+      <param index="1" type="String"/>
+    </operation>
+    <axioms>
+      <axiom name="concat_associativity">concat(concat(x, y), z) = concat(x, concat(y, z))</axiom>
+      <axiom name="concat_empty_left">concat('', x) = x</axiom>
+      <axiom name="concat_empty_right">concat(x, '') = x</axiom>
+      <axiom name="substring_bounds">substring(x, 0, length(x)) = x</axiom>
+      <axiom name="length_concat">length(concat(x, y)) = length(x) + length(y)</axiom>
+    </axioms>
+  </type>
 </algebraicDataTypes>`;
 
 const AdtContext = createContext(null);

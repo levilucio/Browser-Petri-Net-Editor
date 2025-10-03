@@ -363,6 +363,7 @@ export class AlgebraicSimulator extends BaseSimulator {
                 // Respect optional type annotation
                 if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'bool') ok = false;
                 if (typeof tok === 'number' && ast.varType && ast.varType !== 'int') ok = false;
+                if (typeof tok === 'string' && ast.varType && ast.varType !== 'string') ok = false;
                 if (isPair(tok) && ast.varType && ast.varType !== 'pair') ok = false;
                 if (ok) nextEnv = { ...(nextEnv || {}), [ast.name]: tok };
               }
@@ -645,6 +646,9 @@ export class AlgebraicSimulator extends BaseSimulator {
               place.valueTokens.push(v | 0);
             }
             else if (typeof v === 'boolean') {
+              place.valueTokens.push(v);
+            }
+            else if (typeof v === 'string') {
               place.valueTokens.push(v);
             }
             else if (isPair(v)) {

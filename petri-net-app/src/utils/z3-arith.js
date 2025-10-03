@@ -102,22 +102,45 @@ export async function evaluateArithmetic(ast) {
 function collectVariables(ast, acc = new Set()) {
   if (!ast) return acc;
   if (ast.type === 'var') acc.add(ast.name);
-  if (ast.type === 'bin') {
+  if (ast.type === 'binop') {
     collectVariables(ast.left, acc);
     collectVariables(ast.right, acc);
+  }
+  if (ast.type === 'funcall' && ast.args) {
+    ast.args.forEach(arg => collectVariables(arg, acc));
   }
   return acc;
 }
 
 // Build Z3 expression from AST given symbol map
 function buildZ3Expr(ctx, ast, sym) {
-  const { Int } = ctx;
+  const { Int, String: Z3String } = ctx;
   switch (ast.type) {
     case 'int':
       return Int.val(ast.value);
+    case 'string':
+      return Z3String.val(ast.value);
     case 'var':
       return sym(ast.name);
-    case 'bin': {
+    case 'funcall':
+      // Handle string functions: concat, substring, length
+      if (ast.name === 'concat' && ast.args && ast.args.length === 2) {
+        const arg1 = buildZ3Expr(ctx, ast.args[0], sym);
+        const arg2 = buildZ3Expr(ctx, ast.args[1], sym);
+        return arg1.concat(arg2);
+      }
+      if (ast.name === 'substring' && ast.args && ast.args.length === 3) {
+        const str = buildZ3Expr(ctx, ast.args[0], sym);
+        const start = buildZ3Expr(ctx, ast.args[1], sym);
+        const len = buildZ3Expr(ctx, ast.args[2], sym);
+        return str.substr(start, len);
+      }
+      if (ast.name === 'length' && ast.args && ast.args.length === 1) {
+        const str = buildZ3Expr(ctx, ast.args[0], sym);
+        return str.length();
+      }
+      throw new Error(`Unknown function '${ast.name}'`);
+    case 'binop': {
       const l = buildZ3Expr(ctx, ast.left, sym);
       const r = buildZ3Expr(ctx, ast.right, sym);
       switch (ast.op) {
@@ -307,23 +330,59 @@ export async function evaluatePredicate(predicate, bindings, parseArithmetic) {
 export function evaluateArithmeticWithBindings(ast, bindings) {
   function evalNode(node) {
     if (node.type === 'int') return node.value | 0;
+    if (node.type === 'string') return node.value;
     if (node.type === 'var') {
       const v = bindings?.[node.name];
-      if (typeof v !== 'number') throw new Error(`Unbound variable '${node.name}'`);
-      return v | 0;
+      if (v === undefined) throw new Error(`Unbound variable '${node.name}'`);
+      return v;
     }
-    const a = evalNode(node.left);
-    const b = evalNode(node.right);
-    switch (node.op) {
-      case '+': return (a + b) | 0;
-      case '-': return (a - b) | 0;
-      case '*': return (a * b) | 0;
-      case '/': {
-        if (b === 0) throw new Error('Division by zero');
-        return Math.trunc(a / b) | 0;
+    if (node.type === 'funcall') {
+      // Handle string functions
+      if (node.name === 'concat' && node.args && node.args.length === 2) {
+        const arg1 = evalNode(node.args[0]);
+        const arg2 = evalNode(node.args[1]);
+        if (typeof arg1 !== 'string' || typeof arg2 !== 'string') {
+          throw new Error('concat requires string arguments');
+        }
+        return arg1 + arg2;
       }
-      default: throw new Error(`Unknown operator '${node.op}'`);
+      if (node.name === 'substring' && node.args && node.args.length === 3) {
+        const str = evalNode(node.args[0]);
+        const start = evalNode(node.args[1]);
+        const len = evalNode(node.args[2]);
+        if (typeof str !== 'string' || typeof start !== 'number' || typeof len !== 'number') {
+          throw new Error('substring requires string, int, int arguments');
+        }
+        return str.substr(start, len);
+      }
+      if (node.name === 'length' && node.args && node.args.length === 1) {
+        const str = evalNode(node.args[0]);
+        if (typeof str !== 'string') {
+          throw new Error('length requires string argument');
+        }
+        return str.length;
+      }
+      throw new Error(`Unknown function '${node.name}'`);
     }
+    if (node.type === 'binop') {
+      const a = evalNode(node.left);
+      const b = evalNode(node.right);
+      // Type check for numeric operations
+      if (typeof a !== 'number' || typeof b !== 'number') {
+        throw new Error(`Arithmetic operators require numeric operands`);
+      }
+      switch (node.op) {
+        case '+': return (a + b) | 0;
+        case '-': return (a - b) | 0;
+        case '*': return (a * b) | 0;
+        case '/': {
+          if (b === 0) throw new Error('Division by zero');
+          return Math.trunc(a / b) | 0;
+        }
+        default: throw new Error(`Unknown operator '${node.op}'`);
+      }
+    }
+    throw new Error(`Unknown node type '${node.type}'`);
   }
   return evalNode(ast);
 }

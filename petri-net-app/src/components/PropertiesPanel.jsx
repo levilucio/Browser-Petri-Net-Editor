@@ -304,33 +304,62 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             }}
             onBlur={() => {
               const raw = formValues.valueTokensInput;
-              // Support pairs using top-level comma split and recursive parse
+              // Support pairs and strings using top-level comma split with quote awareness
               const splitTop = (input) => {
                 const res = [];
-                let depth = 0, cur = '';
+                let depth = 0, inString = false, cur = '';
                 for (let i = 0; i < input.length; i++) {
                   const ch = input[i];
-                  if (ch === '(') { depth++; cur += ch; }
-                  else if (ch === ')') { depth = Math.max(0, depth - 1); cur += ch; }
-                  else if (ch === ',' && depth === 0) { res.push(cur.trim()); cur = ''; }
-                  else { cur += ch; }
+                  const prevCh = i > 0 ? input[i - 1] : '';
+                  
+                  // Handle string literals with single quotes
+                  if (ch === "'" && prevCh !== '\\') {
+                    inString = !inString;
+                    cur += ch;
+                  }
+                  else if (!inString) {
+                    if (ch === '(') { depth++; cur += ch; }
+                    else if (ch === ')') { depth = Math.max(0, depth - 1); cur += ch; }
+                    else if (ch === ',' && depth === 0) { res.push(cur.trim()); cur = ''; }
+                    else { cur += ch; }
+                  }
+                  else {
+                    cur += ch;
+                  }
                 }
                 if (cur.trim().length) res.push(cur.trim());
                 return res.filter(Boolean);
               };
               const parseTok = (s) => {
-                const lower = s.toLowerCase();
-                if (lower === 'true' || s === 'T') return true;
-                if (lower === 'false' || s === 'F') return false;
-                if (/^[+-]?\d+$/.test(s)) return Number.parseInt(s, 10);
-                if (s.startsWith('(') && s.endsWith(')')) {
-                  const inner = s.slice(1, -1).trim();
+                const trimmed = s.trim();
+                const lower = trimmed.toLowerCase();
+                // Check for string literals with single quotes
+                if (trimmed.startsWith("'") && trimmed.endsWith("'")) {
+                  // Parse string literal and handle escape sequences
+                  let value = trimmed.slice(1, -1); // Remove quotes
+                  value = value.replace(/\\'/g, "'")
+                               .replace(/\\n/g, '\n')
+                               .replace(/\\t/g, '\t')
+                               .replace(/\\r/g, '\r')
+                               .replace(/\\\\/g, '\\');
+                  return value;
+                }
+                if (lower === 'true' || trimmed === 'T') return true;
+                if (lower === 'false' || trimmed === 'F') return false;
+                if (/^[+-]?\d+$/.test(trimmed)) return Number.parseInt(trimmed, 10);
+                if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+                  const inner = trimmed.slice(1, -1).trim();
                   const parts = splitTop(inner);
                   if (parts.length === 2) return { __pair__: true, fst: parseTok(parts[0]), snd: parseTok(parts[1]) };
                 }
                 return null;
               };
-              const fmtLocal = (v) => (typeof v === 'bool') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${fmtLocal(v.fst)}, ${fmtLocal(v.snd)})` : String(v));
+              const fmtLocal = (v) => {
+                if (typeof v === 'boolean') return v ? 'T' : 'F';
+                if (typeof v === 'string') return `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+                if (v && typeof v === 'object' && v.__pair__) return `(${fmtLocal(v.fst)}, ${fmtLocal(v.snd)})`;
+                return String(v);
+              };
               const parts = splitTop(String(raw || ''));
               const parsed = parts.map(parseTok).filter(v => v !== null);
               const normalized = parsed.map(fmtLocal).join(', ');
@@ -340,7 +369,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                 places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
               }));
             }}
-            placeholder="e.g., 2, 3, 4"
+            placeholder="e.g., 2, 3, 'hello', T, F, (1, 2)"
           />
         </div>
       )}

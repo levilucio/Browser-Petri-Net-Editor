@@ -18,8 +18,13 @@ describe('Type Inference', () => {
       expect(inferTokenType(pair)).toBe('Pair');
     });
 
+    it('should infer String for strings', () => {
+      expect(inferTokenType('hello')).toBe('String');
+      expect(inferTokenType('world')).toBe('String');
+      expect(inferTokenType('')).toBe('String');
+    });
+
     it('should default to Int for unknown types', () => {
-      expect(inferTokenType('string')).toBe('Int');
       expect(inferTokenType(null)).toBe('Int');
       expect(inferTokenType(undefined)).toBe('Int');
     });

@@ -27,6 +27,31 @@ export function parseArithmetic(input) {
   function isIdentStart(ch) { return /[A-Za-z_]/.test(ch); }
   function isIdentPart(ch) { return /[A-Za-z0-9_]/.test(ch); }
 
+  function parseStringLiteral() {
+    skipWs();
+    if (src[i] !== "'") throw new Error(`Expected string literal at position ${i}`);
+    i++; // skip opening quote
+    let value = '';
+    while (i < src.length && src[i] !== "'") {
+      if (src[i] === '\\' && i + 1 < src.length) {
+        i++; // skip backslash
+        const next = src[i];
+        if (next === 'n') value += '\n';
+        else if (next === 't') value += '\t';
+        else if (next === 'r') value += '\r';
+        else if (next === '\\') value += '\\';
+        else if (next === "'") value += "'";
+        else value += next;
+      } else {
+        value += src[i];
+      }
+      i++;
+    }
+    if (i >= src.length) throw new Error(`Unterminated string literal`);
+    i++; // skip closing quote
+    return { type: 'string', value };
+  }
+
   function parseIdent() {
     skipWs();
     let start = i;
@@ -40,7 +65,32 @@ export function parseArithmetic(input) {
     throw new Error(`Variable names must start with lowercase letter, got '${name}' (use 't' instead of 'T', 'f' instead of 'F')`);
   }
   
-  // Optional type annotation: ": int" or ": bool" or ": pair" (case-insensitive)
+  // Check for function call: name(args)
+    skipWs();
+    if (src[i] === '(') {
+      i++; // consume '('
+      const args = [];
+      skipWs();
+      if (src[i] !== ')') {
+        // Parse comma-separated arguments
+        do {
+          skipWs();
+          args.push(parseExpr());
+          skipWs();
+          if (src[i] === ',') {
+            i++; // consume comma
+          } else {
+            break;
+          }
+        } while (i < src.length);
+      }
+      skipWs();
+      if (src[i] !== ')') throw new Error(`Expected ')' after function arguments at position ${i}`);
+      i++; // consume ')'
+      return { type: 'funcall', name, args };
+    }
+  
+  // Optional type annotation: ": int" or ": bool" or ": pair" or ": string" (case-insensitive)
     const save = i;
     skipWs();
     if (src[i] === ':') {
@@ -49,7 +99,7 @@ export function parseArithmetic(input) {
       const tStart = i;
       while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
       const tWord = src.slice(tStart, i).toLowerCase();
-      if (tWord === 'int' || tWord === 'bool' || tWord === 'pair') {
+      if (tWord === 'int' || tWord === 'bool' || tWord === 'pair' || tWord === 'string') {
         return { type: 'var', name, varType: tWord };
       } else {
         // Not a recognized type; rollback to previous position
@@ -73,6 +123,7 @@ export function parseArithmetic(input) {
       return expr;
     }
     
+    if (src[i] === "'") return parseStringLiteral();
     if (isDigit(src[i])) return parseIntLiteral();
     if (isIdentStart(src[i])) return parseIdent();
     
@@ -115,12 +166,17 @@ export function stringifyArithmetic(ast) {
   switch (ast.type) {
     case 'int':
       return String(ast.value);
+    case 'string':
+      return `'${ast.value.replace(/'/g, "\\'")}'`;
     case 'var':
       return ast.varType ? `${ast.name}:${ast.varType}` : ast.name;
     case 'binop':
       const left = stringifyArithmetic(ast.left);
       const right = stringifyArithmetic(ast.right);
       return `(${left} ${ast.op} ${right})`;
+    case 'funcall':
+      const args = (ast.args || []).map(stringifyArithmetic).join(', ');
+      return `${ast.name}(${args})`;
     default:
       return '';
   }
@@ -257,6 +313,9 @@ export function matchPattern(pattern, value) {
           }
           if (expectedType === 'bool' && typeof val !== 'boolean') {
             return false; // Type mismatch: expected bool, got something else
+          }
+          if (expectedType === 'string' && typeof val !== 'string') {
+            return false; // Type mismatch: expected string, got something else
           }
           if (expectedType === 'pair' && (!val || typeof val !== 'object' || !val.__pair__)) {
             return false; // Type mismatch: expected pair, got something else
@@ -400,6 +459,7 @@ export function capitalizeTypeNames(bindingString) {
 export function inferTokenType(token) {
   if (typeof token === 'number') return 'Int';
   if (typeof token === 'boolean') return 'Bool';
+  if (typeof token === 'string') return 'String';
   if (token && typeof token === 'object' && token.__pair__) return 'Pair';
   return 'Int'; // Default fallback
 }

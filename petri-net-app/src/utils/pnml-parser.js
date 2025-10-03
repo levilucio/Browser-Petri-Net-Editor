@@ -183,6 +183,19 @@ export function parsePNML(pnmlString) {
       if (p === 'T' || low === 'true') return true;
       if (p === 'F' || low === 'false') return false;
       if (/^[+-]?\d+$/.test(p)) return parseInt(p, 10);
+      // Handle string literals enclosed in single quotes
+      if (p.startsWith("'") && p.endsWith("'") && p.length >= 2) {
+        // Remove quotes and handle escape sequences
+        const inner = p.slice(1, -1);
+        return inner.replace(/\\(.)/g, (match, char) => {
+          if (char === 'n') return '\n';
+          if (char === 't') return '\t';
+          if (char === 'r') return '\r';
+          if (char === '\\') return '\\';
+          if (char === "'") return "'";
+          return char;
+        });
+      }
       if (p.startsWith('(') && p.endsWith(')')) {
         const inner = p.slice(1, -1).trim();
         // Find top-level comma
@@ -533,6 +546,11 @@ export function generatePNML(petriNetJson) {
         const markingTextElement = xmlDoc.createElement('text');
         const formatToken = (v) => {
           if (typeof v === 'boolean') return v ? 'T' : 'F';
+          if (typeof v === 'string') {
+            // Escape special characters and wrap in single quotes
+            const escaped = v.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r');
+            return `'${escaped}'`;
+          }
           if (v && typeof v === 'object' && v.__pair__) {
             return `(${formatToken(v.fst)}, ${formatToken(v.snd)})`;
           }
