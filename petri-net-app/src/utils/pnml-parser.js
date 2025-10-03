@@ -196,6 +196,14 @@ export function parsePNML(pnmlString) {
           return char;
         });
       }
+      // Handle list literals enclosed in square brackets
+      if (p.startsWith('[') && p.endsWith(']')) {
+        const inner = p.slice(1, -1).trim();
+        if (inner.length === 0) return []; // Empty list
+        // Split by top-level commas to handle nested structures
+        const elements = splitTopLevelCommas(inner);
+        return elements.map(el => parseAlgebraicToken(el));
+      }
       if (p.startsWith('(') && p.endsWith(')')) {
         const inner = p.slice(1, -1).trim();
         // Find top-level comma
@@ -550,6 +558,11 @@ export function generatePNML(petriNetJson) {
             // Escape special characters and wrap in single quotes
             const escaped = v.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r');
             return `'${escaped}'`;
+          }
+          if (Array.isArray(v)) {
+            // Format list token
+            const elements = v.map(formatToken);
+            return `[${elements.join(', ')}]`;
           }
           if (v && typeof v === 'object' && v.__pair__) {
             return `(${formatToken(v.fst)}, ${formatToken(v.snd)})`;

@@ -90,7 +90,7 @@ export function parseArithmetic(input) {
       return { type: 'funcall', name, args };
     }
   
-  // Optional type annotation: ": int" or ": bool" or ": pair" or ": string" (case-insensitive)
+  // Optional type annotation: ": int" or ": bool" or ": pair" or ": string" or ": list" (case-insensitive)
     const save = i;
     skipWs();
     if (src[i] === ':') {
@@ -99,7 +99,7 @@ export function parseArithmetic(input) {
       const tStart = i;
       while (i < src.length && /[A-Za-z]/.test(src[i])) i++;
       const tWord = src.slice(tStart, i).toLowerCase();
-      if (tWord === 'int' || tWord === 'bool' || tWord === 'pair' || tWord === 'string') {
+      if (tWord === 'int' || tWord === 'bool' || tWord === 'pair' || tWord === 'string' || tWord === 'list') {
         return { type: 'var', name, varType: tWord };
       } else {
         // Not a recognized type; rollback to previous position
@@ -108,6 +108,40 @@ export function parseArithmetic(input) {
       }
     }
     return { type: 'var', name };
+  }
+
+  function parseListLiteral() {
+    skipWs();
+    if (src[i] !== '[') throw new Error(`Expected '[' at position ${i}`);
+    i++; // skip opening bracket
+    const elements = [];
+    skipWs();
+    
+    if (src[i] === ']') {
+      i++; // empty list
+      return { type: 'list', elements: [] };
+    }
+    
+    // Parse comma-separated elements
+    while (i < src.length) {
+      skipWs();
+      elements.push(parseExpr());
+      skipWs();
+      
+      if (src[i] === ']') {
+        i++; // closing bracket
+        return { type: 'list', elements };
+      }
+      
+      if (src[i] === ',') {
+        i++; // consume comma
+        continue;
+      }
+      
+      throw new Error(`Expected ',' or ']' at position ${i}`);
+    }
+    
+    throw new Error(`Unterminated list literal`);
   }
 
   function parseFactor() {
@@ -123,6 +157,7 @@ export function parseArithmetic(input) {
       return expr;
     }
     
+    if (src[i] === '[') return parseListLiteral();
     if (src[i] === "'") return parseStringLiteral();
     if (isDigit(src[i])) return parseIntLiteral();
     if (isIdentStart(src[i])) return parseIdent();
@@ -168,6 +203,9 @@ export function stringifyArithmetic(ast) {
       return String(ast.value);
     case 'string':
       return `'${ast.value.replace(/'/g, "\\'")}'`;
+    case 'list':
+      const elements = (ast.elements || []).map(stringifyArithmetic).join(', ');
+      return `[${elements}]`;
     case 'var':
       return ast.varType ? `${ast.name}:${ast.varType}` : ast.name;
     case 'binop':
@@ -317,6 +355,9 @@ export function matchPattern(pattern, value) {
           if (expectedType === 'string' && typeof val !== 'string') {
             return false; // Type mismatch: expected string, got something else
           }
+          if (expectedType === 'list' && !Array.isArray(val)) {
+            return false; // Type mismatch: expected list, got something else
+          }
           if (expectedType === 'pair' && (!val || typeof val !== 'object' || !val.__pair__)) {
             return false; // Type mismatch: expected pair, got something else
           }
@@ -460,6 +501,7 @@ export function inferTokenType(token) {
   if (typeof token === 'number') return 'Int';
   if (typeof token === 'boolean') return 'Bool';
   if (typeof token === 'string') return 'String';
+  if (Array.isArray(token)) return 'List';
   if (token && typeof token === 'object' && token.__pair__) return 'Pair';
   return 'Int'; // Default fallback
 }
@@ -598,10 +640,10 @@ function extractVariablesFromBinding(binding, defaultType, typeMap) {
  */
 function extractTypesFromExpression(expression, typeMap) {
   // Look for patterns like "x:Int", "y:Bool", etc.
-  const typedVarMatches = expression.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair)\b/g);
+  const typedVarMatches = expression.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair|String|List)\b/g);
   if (typedVarMatches) {
     typedVarMatches.forEach(match => {
-      const [, varName, varType] = match.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair)\b/);
+      const [, varName, varType] = match.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair|String|List)\b/);
       if (!typeMap.has(varName)) {
         typeMap.set(varName, varType);
       }

@@ -331,6 +331,10 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
   function evalNode(node) {
     if (node.type === 'int') return node.value | 0;
     if (node.type === 'string') return node.value;
+    if (node.type === 'list') {
+      // Evaluate list literal - recursively evaluate each element
+      return (node.elements || []).map(el => evalNode(el));
+    }
     if (node.type === 'var') {
       const v = bindings?.[node.name];
       if (v === undefined) throw new Error(`Unbound variable '${node.name}'`);
@@ -341,10 +345,14 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
       if (node.name === 'concat' && node.args && node.args.length === 2) {
         const arg1 = evalNode(node.args[0]);
         const arg2 = evalNode(node.args[1]);
-        if (typeof arg1 !== 'string' || typeof arg2 !== 'string') {
-          throw new Error('concat requires string arguments');
+        // Support both string concat and list concat
+        if (typeof arg1 === 'string' && typeof arg2 === 'string') {
+          return arg1 + arg2;
         }
-        return arg1 + arg2;
+        if (Array.isArray(arg1) && Array.isArray(arg2)) {
+          return [...arg1, ...arg2];
+        }
+        throw new Error('concat requires two strings or two lists');
       }
       if (node.name === 'substring' && node.args && node.args.length === 3) {
         const str = evalNode(node.args[0]);
@@ -356,11 +364,72 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
         return str.substr(start, len);
       }
       if (node.name === 'length' && node.args && node.args.length === 1) {
-        const str = evalNode(node.args[0]);
-        if (typeof str !== 'string') {
-          throw new Error('length requires string argument');
+        const arg = evalNode(node.args[0]);
+        if (typeof arg === 'string') {
+          return arg.length;
         }
-        return str.length;
+        if (Array.isArray(arg)) {
+          return arg.length;
+        }
+        throw new Error('length requires string or list argument');
+      }
+      if (node.name === 'head' && node.args && node.args.length === 1) {
+        const list = evalNode(node.args[0]);
+        if (!Array.isArray(list)) {
+          throw new Error('head requires list argument');
+        }
+        if (list.length === 0) {
+          throw new Error('head of empty list');
+        }
+        return list[0];
+      }
+      if (node.name === 'tail' && node.args && node.args.length === 1) {
+        const list = evalNode(node.args[0]);
+        if (!Array.isArray(list)) {
+          throw new Error('tail requires list argument');
+        }
+        if (list.length === 0) {
+          return []; // tail of empty list is empty list
+        }
+        return list.slice(1);
+      }
+      if (node.name === 'append' && node.args && node.args.length === 2) {
+        const list = evalNode(node.args[0]);
+        const element = evalNode(node.args[1]);
+        if (!Array.isArray(list)) {
+          throw new Error('append requires list as first argument');
+        }
+        return [...list, element];
+      }
+      if (node.name === 'sublist' && node.args && node.args.length === 3) {
+        const list = evalNode(node.args[0]);
+        const start = evalNode(node.args[1]);
+        const len = evalNode(node.args[2]);
+        if (!Array.isArray(list) || typeof start !== 'number' || typeof len !== 'number') {
+          throw new Error('sublist requires list, int, int arguments');
+        }
+        return list.slice(start, start + len);
+      }
+      if (node.name === 'isSublistOf' && node.args && node.args.length === 2) {
+        const sublist = evalNode(node.args[0]);
+        const list = evalNode(node.args[1]);
+        if (!Array.isArray(sublist) || !Array.isArray(list)) {
+          throw new Error('isSublistOf requires two list arguments');
+        }
+        // Check if sublist appears contiguously in list
+        const subLen = sublist.length;
+        if (subLen === 0) return true; // empty list is sublist of any list
+        for (let i = 0; i <= list.length - subLen; i++) {
+          let match = true;
+          for (let j = 0; j < subLen; j++) {
+            if (list[i + j] !== sublist[j]) {
+              match = false;
+              break;
+            }
+          }
+          if (match) return true;
+        }
+        return false;
       }
       throw new Error(`Unknown function '${node.name}'`);
     }

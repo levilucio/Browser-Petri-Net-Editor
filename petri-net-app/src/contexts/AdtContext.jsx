@@ -128,6 +128,50 @@ const BASE_ADT_XML = `<?xml version="1.0"?>
       <axiom name="length_concat">length(concat(x, y)) = length(x) + length(y)</axiom>
     </axioms>
   </type>
+  <type name="List">
+    <operation name="length" arity="1" result="Int">
+      <param index="0" type="List"/>
+    </operation>
+    <operation name="concat" arity="2" result="List">
+      <param index="0" type="List"/>
+      <param index="1" type="List"/>
+    </operation>
+    <operation name="head" arity="1" result="Any">
+      <param index="0" type="List"/>
+    </operation>
+    <operation name="tail" arity="1" result="List">
+      <param index="0" type="List"/>
+    </operation>
+    <operation name="append" arity="2" result="List">
+      <param index="0" type="List"/>
+      <param index="1" type="Any"/>
+    </operation>
+    <operation name="sublist" arity="3" result="List">
+      <param index="0" type="List"/>
+      <param index="1" type="Int"/>
+      <param index="2" type="Int"/>
+    </operation>
+    <operation name="isSublistOf" arity="2" result="Bool">
+      <param index="0" type="List"/>
+      <param index="1" type="List"/>
+    </operation>
+    <operation name="==" arity="2" result="Bool">
+      <param index="0" type="List"/>
+      <param index="1" type="List"/>
+    </operation>
+    <operation name="!=" arity="2" result="Bool">
+      <param index="0" type="List"/>
+      <param index="1" type="List"/>
+    </operation>
+    <axioms>
+      <axiom name="length_empty">length([]) = 0</axiom>
+      <axiom name="concat_empty_left">concat([], x) = x</axiom>
+      <axiom name="concat_empty_right">concat(x, []) = x</axiom>
+      <axiom name="head_cons">head([h | t]) = h</axiom>
+      <axiom name="tail_cons">tail([h | t]) = t</axiom>
+      <axiom name="length_concat">length(concat(x, y)) = length(x) + length(y)</axiom>
+    </axioms>
+  </type>
 </algebraicDataTypes>`;
 
 const AdtContext = createContext(null);

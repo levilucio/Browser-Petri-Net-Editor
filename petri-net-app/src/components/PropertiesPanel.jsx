@@ -29,8 +29,14 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     if (selectedElement) {
       const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
       const elementType = selectedElement.type || (elementId.split('-')[0]);
-      const toTF = (s) => (typeof s === 'bool') ? (s ? 'T' : 'F') : String(s);
-      const fmt = (v) => (typeof v === 'bool') ? (v ? 'T' : 'F') : (v && typeof v === 'object' && v.__pair__ ? `(${fmt(v.fst)}, ${fmt(v.snd)})` : String(v));
+      const toTF = (s) => (typeof s === 'boolean') ? (s ? 'T' : 'F') : String(s);
+      const fmt = (v) => {
+        if (typeof v === 'boolean') return v ? 'T' : 'F';
+        if (typeof v === 'string') return `'${v}'`;
+        if (Array.isArray(v)) return `[${v.map(fmt).join(', ')}]`;
+        if (v && typeof v === 'object' && v.__pair__) return `(${fmt(v.fst)}, ${fmt(v.snd)})`;
+        return String(v);
+      };
       const tokensToString = (arr) => Array.isArray(arr) ? arr.map(fmt).join(', ') : '';
       const bindingsToString = (arr) => Array.isArray(arr) ? arr.map(b => {
         const t = String(b || '');
@@ -58,235 +64,340 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     setFormValues(prev => ({ ...prev, label: newLabel }));
     
     // Get the actual element ID, handling both direct and nested structures
-    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
-    const elementType = selectedElement.type || (elementId.split('-')[0]);
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
+    const elementType = selectedElement.type || (elementId && elementId.split('-')[0]);
     
-    // Update the global state
     if (elementType === 'place') {
       setElements(prev => ({
         ...prev,
-        places: prev.places.map(place => 
-          place.id === elementId ? { ...place, label: newLabel } : place
-        )
+        places: prev.places.map(p => p.id === elementId ? { ...p, label: newLabel } : p)
       }));
     } else if (elementType === 'transition') {
       setElements(prev => ({
         ...prev,
-        transitions: prev.transitions.map(transition => 
-          transition.id === elementId ? { ...transition, label: newLabel } : transition
-        )
+        transitions: prev.transitions.map(t => t.id === elementId ? { ...t, label: newLabel } : t)
       }));
     } else if (elementType === 'arc') {
       setElements(prev => ({
         ...prev,
-        arcs: prev.arcs.map(arc => 
-          arc.id === elementId ? { ...arc, label: newLabel } : arc
-        )
+        arcs: prev.arcs.map(a => a.id === elementId ? { ...a, label: newLabel } : a)
       }));
     }
+    updateHistory();
   };
 
   const handleTokensChange = (e) => {
-    // Get the actual element ID and type
-    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
-    const elementType = selectedElement.type || (elementId.split('-')[0]);
+    const newTokens = parseInt(e.target.value, 10) || 0;
+    setFormValues(prev => ({ ...prev, tokens: newTokens }));
     
-    if (elementType !== 'place') return;
-    
-    // Get the raw input value
-    const inputValue = e.target.value;
-    
-    // Handle empty input
-    if (inputValue === '') {
-      setFormValues(prev => ({ ...prev, tokens: '' }));
-      return;
-    }
-    
-    // Only allow int values
-    const value = inputValue.replace(/[^0-9]/g, '');
-    
-    // Allow the user to type any number, but don't update the model until it's valid
-    setFormValues(prev => ({ ...prev, tokens: value }));
-    
-    // If the value is valid, update the model
-    if (value !== '') {
-      const tokens = parseInt(value, 10);
-      
-      // Get max tokens from simulation settings or use default 20
-      const maxTokens = simulationSettings?.maxTokens || 20;
-      
-      // Validate token count (0-maxTokens)
-      const validTokens = Math.min(Math.max(tokens, 0), maxTokens);
-      
-      // Update the global state
-      setElements(prev => ({
-        ...prev,
-        places: prev.places.map(place => 
-          place.id === elementId ? { ...place, tokens: validTokens } : place
-        )
-      }));
-    }
-  };
-  
-  // Handle blur event for token input to ensure a valid value is set
-  const handleTokensBlur = () => {
-    // Get the actual element ID and type
-    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
-    const elementType = selectedElement.type || (elementId.split('-')[0]);
-    
-    // If the field is empty or invalid when focus is lost, set to 0
-    if (formValues.tokens === '') {
-      setFormValues(prev => ({ ...prev, tokens: 0 }));
-      
-      if (elementType === 'place') {
-        setElements(prev => ({
-          ...prev,
-          places: prev.places.map(place => 
-            place.id === elementId ? { ...place, tokens: 0 } : place
-          )
-        }));
-      }
-    }
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
+    setElements(prev => ({
+      ...prev,
+      places: prev.places.map(p => p.id === elementId ? { ...p, tokens: newTokens } : p)
+    }));
+    updateHistory();
   };
 
   const handleWeightChange = (e) => {
-    // Get the actual element ID and type (support both direct and nested structures)
-    const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
-    const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
+    const newWeight = parseInt(e.target.value, 10) || 1;
+    setFormValues(prev => ({ ...prev, weight: newWeight }));
     
-    // Only handle weight changes for arcs
-    if (!elementId || elementType !== 'arc') return;
-    
-    // Get the raw input value
-    const inputValue = e.target.value;
-    
-    // Handle empty input as 1 (minimum valid weight)
-    if (inputValue === '') {
-      setFormValues(prev => ({ ...prev, weight: '' }));
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
+    setElements(prev => ({
+      ...prev,
+      arcs: prev.arcs.map(a => a.id === elementId ? { ...a, weight: newWeight } : a)
+    }));
+    updateHistory();
+  };
+
+  const handleValueTokensBlur = () => {
+    const input = formValues.valueTokensInput.trim();
+    if (!input) {
+      // Empty input: clear valueTokens but keep at least tokens=0
+      const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
+      setElements(prev => ({
+        ...prev,
+        places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: [], tokens: 0 } : p)
+      }));
+      updateHistory();
       return;
     }
     
-    // Only allow int values
-    const value = inputValue.replace(/[^0-9]/g, '');
+    // Parse comma-separated tokens
+    const parsePart = (part) => {
+      const p = part.trim();
+      const low = p.toLowerCase();
+      if (p === 'T' || low === 'true') return true;
+      if (p === 'F' || low === 'false') return false;
+      if (/^[+-]?\d+$/.test(p)) return parseInt(p, 10);
+      // Handle string literals
+      if (p.startsWith("'") && p.endsWith("'") && p.length >= 2) {
+        return p.slice(1, -1);
+      }
+      // Handle pair literals: (x, y)
+      if (p.startsWith('(') && p.endsWith(')')) {
+        const inner = p.slice(1, -1);
+        const parts = inner.split(',').map(x => x.trim());
+        if (parts.length === 2) {
+          return { __pair__: true, fst: parsePart(parts[0]), snd: parsePart(parts[1]) };
+        }
+      }
+      // Handle list literals: [x, y, z]
+      if (p.startsWith('[') && p.endsWith(']')) {
+        const inner = p.slice(1, -1).trim();
+        if (inner.length === 0) return [];
+        // Split by commas, respecting nesting
+        const elements = [];
+        let current = '';
+        let depth = 0;
+        for (let i = 0; i < inner.length; i++) {
+          const ch = inner[i];
+          if (ch === '[' || ch === '(') depth++;
+          else if (ch === ']' || ch === ')') depth--;
+          else if (ch === ',' && depth === 0) {
+            elements.push(parsePart(current));
+            current = '';
+            continue;
+          }
+          current += ch;
+        }
+        if (current.trim()) elements.push(parsePart(current));
+        return elements;
+      }
+      return null;
+    };
+
+    // Split by commas at the top level only
+    const splitTopLevel = (str) => {
+      const parts = [];
+      let current = '';
+      let depth = 0;
+      for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (ch === '(' || ch === '[') depth++;
+        else if (ch === ')' || ch === ']') depth--;
+        else if (ch === ',' && depth === 0) {
+          parts.push(current);
+          current = '';
+          continue;
+        }
+        current += ch;
+      }
+      if (current.trim()) parts.push(current);
+      return parts;
+    };
+
+    const parts = splitTopLevel(input);
+    const parsed = parts.map(parsePart).filter(v => v !== null);
+
+    // DEBUG LOGGING
+    console.log('=== DEBUG handleValueTokensBlur ===');
+    console.log('1. Input string:', input);
+    console.log('2. After splitTopLevel:', parts);
+    console.log('3. After parsing each part:', parsed);
+    console.log('4. Parsed length:', parsed.length);
+    console.log('5. First element type:', Array.isArray(parsed[0]) ? 'Array' : typeof parsed[0]);
+    console.log('6. First element value:', parsed[0]);
+    console.log('===================================');
+
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
+    setElements(prev => ({
+      ...prev,
+      places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
+    }));
+    updateHistory();
     
-    // Allow the user to type any number, but don't update the model until it's valid
-    setFormValues(prev => ({ ...prev, weight: value }));
+    // Trigger type inference for connected arcs after a short delay to ensure state is updated
+    setTimeout(() => {
+      inferTypesForPlace(elementId);
+    }, 100);
+  };
+
+  const handleBindingsBlur = () => {
+    const input = formValues.bindingsInput.trim();
+    setFormValues(prev => ({ ...prev, bindingError: null }));
     
-    // If the value is valid, update the model
-    if (value !== '') {
-      const weight = parseInt(value, 10);
-      
-      // Get max tokens from simulation settings or use default 20
-      const maxTokens = simulationSettings?.maxTokens || 20;
-      
-      // Validate weight (1-maxTokens)
-      const validWeight = Math.min(Math.max(weight, 1), maxTokens);
-      
-      // Update the global state
-      setElements(prev => {
-        const newState = {
-          ...prev,
-          arcs: prev.arcs.map(arc => 
-            arc.id === elementId ? { ...arc, weight: validWeight } : arc
-          )
-        };
-        
-        // Add to history
-        updateHistory(newState);
-        
-        return newState;
-      });
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
+    
+    if (!input) {
+      setElements(prev => ({
+        ...prev,
+        arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings: [] } : a)
+      }));
+      updateHistory();
+      return;
+    }
+
+    // Split by commas, being careful with nested structures
+    const parts = [];
+    let current = '';
+    let depth = 0;
+    for (let i = 0; i < input.length; i++) {
+      const ch = input[i];
+      if (ch === '(' || ch === '[') depth++;
+      else if (ch === ')' || ch === ']') depth--;
+      else if (ch === ',' && depth === 0) {
+        parts.push(current.trim());
+        current = '';
+        continue;
+      }
+      current += ch;
+    }
+    if (current.trim()) parts.push(current.trim());
+
+    const bindings = parts.filter(b => b.length > 0);
+
+    // Validate bindings by trying to parse them
+    let allValid = true;
+    for (const binding of bindings) {
+      try {
+        // Try to parse as pattern first
+        parsePattern(binding);
+      } catch (e1) {
+        try {
+          // If pattern fails, try arithmetic expression
+          parseArithmetic(binding);
+        } catch (e2) {
+          try {
+            // Finally try boolean expression
+            parseBooleanExpr(binding, parseArithmetic);
+          } catch (e3) {
+            // If all fail, it's invalid
+            allValid = false;
+            setFormValues(prev => ({ ...prev, bindingError: `Invalid binding: ${binding}` }));
+            break;
+          }
+        }
+      }
+    }
+
+    if (allValid) {
+      setElements(prev => ({
+        ...prev,
+        arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings } : a)
+      }));
+      updateHistory();
     }
   };
-  
-  // Handle blur event for weight input to ensure a valid value is set
-  const handleWeightBlur = () => {
-    // Get the actual element ID and type (support both direct and nested structures)
-    const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
-    const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
+
+  const handleGuardBlur = () => {
+    const guardInput = formValues.guardText.trim();
+    setFormValues(prev => ({ ...prev, guardError: null }));
     
-    // Only handle for arcs
-    if (!elementId || elementType !== 'arc') return;
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
     
-    // If the field is empty or invalid when focus is lost, set to minimum valid value (1)
-    if (formValues.weight === '' || parseInt(formValues.weight, 10) < 1) {
-      setFormValues(prev => ({ ...prev, weight: 1 }));
-      
-      setElements(prev => {
-        const newState = {
+    if (!guardInput) {
+      setElements(prev => ({
+        ...prev,
+        transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: '' } : t)
+      }));
+      updateHistory();
+      return;
+    }
+    
+    // Validate guard
+    try {
+      parseBooleanExpr(guardInput, parseArithmetic);
+      setElements(prev => ({
           ...prev,
-          arcs: prev.arcs.map(arc => 
-            arc.id === elementId ? { ...arc, weight: 1 } : arc
-          )
-        };
-        
-        // Add to history
-        updateHistory(newState);
-        
-        return newState;
-      });
+        transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: guardInput } : t)
+      }));
+      updateHistory();
+    } catch (e) {
+      setFormValues(prev => ({ ...prev, guardError: `Invalid guard: ${e.message}` }));
     }
   };
 
-  // Get max tokens from simulation settings or use default 20
-  const maxTokens = simulationSettings?.maxTokens || 20;
+  if (!selectedElement) return null;
 
-  // Get the actual element ID, handling both direct and nested structures
-  const elementId = selectedElement ? (selectedElement.id || (selectedElement.element && selectedElement.element.id) || '') : '';
-  // Extract element type from ID (place-123, transition-456, arc-789)
-  const elementType = selectedElement ? (selectedElement.type || (elementId && elementId.split('-')[0])) : '';
-  const netMode = (context?.netMode) || (simulationSettings?.netMode || 'pt');
-  
-  // Determine if token count is valid
-  const isTokenCountValid = elementType === 'place' && 
-    (formValues.tokens === '' || (parseInt(formValues.tokens, 10) >= 0 && parseInt(formValues.tokens, 10) <= maxTokens));
+  const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
+  const elementType = selectedElement.type || (elementId.split('-')[0]);
+  const netMode = simulationSettings?.netMode || 'pt';
 
-  // Determine if weight is valid
-  const isWeightValid = elementType === 'arc' && 
-    (formValues.weight === '' || (parseInt(formValues.weight, 10) >= 1 && parseInt(formValues.weight, 10) <= maxTokens));
+  // Function to infer types for arcs connected to a specific place
+  const inferTypesForPlace = (placeId) => {
+    if (netMode !== 'algebraic-int' || !elements.places || !elements.arcs) return;
+    
+    const place = elements.places.find(p => p.id === placeId);
+    if (!place || !place.valueTokens || place.valueTokens.length === 0) return;
+    
+    // Get the type of the first token
+    const tokenType = inferTokenType(place.valueTokens[0]);
+    
+    // Find arcs that connect from this place
+    const connectedArcs = elements.arcs.filter(arc => arc.source === placeId);
+    
+    const arcsToUpdate = [];
+    connectedArcs.forEach(arc => {
+      if (arc.bindings && arc.bindings.length > 0) {
+        const currentBinding = arc.bindings[0];
+        // Only update if the binding doesn't already have a type annotation
+        if (currentBinding && !currentBinding.includes(':')) {
+          const typeMap = new Map();
+          // Extract variable names from the binding
+          const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+          if (varMatches) {
+            varMatches.forEach(varName => {
+              if (varName !== 'true' && varName !== 'false' && 
+                  varName !== 'and' && varName !== 'or' && varName !== 'not') {
+                typeMap.set(varName, tokenType);
+              }
+            });
+          }
+          
+          if (typeMap.size > 0) {
+            const annotatedBinding = autoAnnotateTypes(currentBinding, typeMap);
+            if (annotatedBinding !== currentBinding) {
+              arcsToUpdate.push({ arcId: arc.id, newBinding: annotatedBinding });
+            }
+          }
+        }
+      }
+    });
+    
+    // Update arcs if any need type annotation
+    if (arcsToUpdate.length > 0) {
+      setElements(prev => ({
+        ...prev,
+        arcs: prev.arcs.map(arc => {
+          const update = arcsToUpdate.find(u => u.arcId === arc.id);
+          if (update) {
+            return { ...arc, bindings: [update.newBinding] };
+          }
+          return arc;
+        })
+      }));
+      updateHistory();
+    }
+  };
 
   return (
     <div className="properties-panel w-full px-4 py-2 overflow-y-auto mx-0">
       <h2 className="text-lg font-semibold mb-4">Properties</h2>
 
-      {!selectedElement && (
-        <p className="text-gray-500 mb-4">Select an element to edit its properties</p>
-      )}
-
-      {selectedElement && (
+      {/* Label */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Label
-          </label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Label</label>
           <input
             type="text"
             value={formValues.label}
             onChange={handleLabelChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            placeholder={elementType === 'place' ? 'P1, P2, etc.' : 
-                        elementType === 'transition' ? 'T1, T2, etc.' : 'Arc label'}
+          placeholder="P1, P2, etc."
           />
         </div>
-      )}
 
+      {/* Place-specific properties */}
       {selectedElement && elementType === 'place' && netMode === 'pt' && (
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Tokens (0-{maxTokens})
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Tokens (PT mode)</label>
           <input
             type="number"
             min="0"
-            max={maxTokens}
             value={formValues.tokens}
             onChange={handleTokensChange}
-            onBlur={handleTokensBlur}
-            data-testid="tokens-input"
-            className={`w-full px-3 py-2 border ${isTokenCountValid ? 'border-gray-300' : 'border-red-500'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
-          {!isTokenCountValid && (
-            <p className="text-red-500 text-xs mt-1">Token count must be between 0 and {maxTokens}</p>
-          )}
         </div>
       )}
 
@@ -295,102 +406,25 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
           <label className="block text-sm font-medium text-gray-700 mb-1">Algebraic Tokens</label>
           <input
             type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
             value={formValues.valueTokensInput}
-            onChange={(e) => {
-              const raw = e.target.value;
-              // Allow free typing including trailing commas; commit on blur
-              setFormValues(prev => ({ ...prev, valueTokensInput: raw }));
-            }}
-            onBlur={() => {
-              const raw = formValues.valueTokensInput;
-              // Support pairs and strings using top-level comma split with quote awareness
-              const splitTop = (input) => {
-                const res = [];
-                let depth = 0, inString = false, cur = '';
-                for (let i = 0; i < input.length; i++) {
-                  const ch = input[i];
-                  const prevCh = i > 0 ? input[i - 1] : '';
-                  
-                  // Handle string literals with single quotes
-                  if (ch === "'" && prevCh !== '\\') {
-                    inString = !inString;
-                    cur += ch;
-                  }
-                  else if (!inString) {
-                    if (ch === '(') { depth++; cur += ch; }
-                    else if (ch === ')') { depth = Math.max(0, depth - 1); cur += ch; }
-                    else if (ch === ',' && depth === 0) { res.push(cur.trim()); cur = ''; }
-                    else { cur += ch; }
-                  }
-                  else {
-                    cur += ch;
-                  }
-                }
-                if (cur.trim().length) res.push(cur.trim());
-                return res.filter(Boolean);
-              };
-              const parseTok = (s) => {
-                const trimmed = s.trim();
-                const lower = trimmed.toLowerCase();
-                // Check for string literals with single quotes
-                if (trimmed.startsWith("'") && trimmed.endsWith("'")) {
-                  // Parse string literal and handle escape sequences
-                  let value = trimmed.slice(1, -1); // Remove quotes
-                  value = value.replace(/\\'/g, "'")
-                               .replace(/\\n/g, '\n')
-                               .replace(/\\t/g, '\t')
-                               .replace(/\\r/g, '\r')
-                               .replace(/\\\\/g, '\\');
-                  return value;
-                }
-                if (lower === 'true' || trimmed === 'T') return true;
-                if (lower === 'false' || trimmed === 'F') return false;
-                if (/^[+-]?\d+$/.test(trimmed)) return Number.parseInt(trimmed, 10);
-                if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
-                  const inner = trimmed.slice(1, -1).trim();
-                  const parts = splitTop(inner);
-                  if (parts.length === 2) return { __pair__: true, fst: parseTok(parts[0]), snd: parseTok(parts[1]) };
-                }
-                return null;
-              };
-              const fmtLocal = (v) => {
-                if (typeof v === 'boolean') return v ? 'T' : 'F';
-                if (typeof v === 'string') return `'${v.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
-                if (v && typeof v === 'object' && v.__pair__) return `(${fmtLocal(v.fst)}, ${fmtLocal(v.snd)})`;
-                return String(v);
-              };
-              const parts = splitTop(String(raw || ''));
-              const parsed = parts.map(parseTok).filter(v => v !== null);
-              const normalized = parsed.map(fmtLocal).join(', ');
-              setFormValues(prev => ({ ...prev, valueTokensInput: normalized }));
-              setElements(prev => ({
-                ...prev,
-                places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
-              }));
-            }}
-            placeholder="e.g., 2, 3, 'hello', T, F, (1, 2)"
+            onChange={(e) => setFormValues(prev => ({ ...prev, valueTokensInput: e.target.value }))}
+            onBlur={handleValueTokensBlur}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+            placeholder="e.g., 2, 3, 'hello', T, F, (1, 2), [1, 2, 3]"
           />
         </div>
       )}
 
       {selectedElement && elementType === 'arc' && netMode === 'pt' && (
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Weight (1-{maxTokens})
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Weight</label>
           <input
             type="number"
             min="1"
-            max={maxTokens}
             value={formValues.weight}
             onChange={handleWeightChange}
-            onBlur={handleWeightBlur}
-            className={`w-full px-3 py-2 border ${isWeightValid ? 'border-gray-300' : 'border-red-500'} rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500`}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
-          {!isWeightValid && (
-            <p className="text-red-500 text-xs mt-1">Weight must be between 1 and {maxTokens}</p>
-          )}
         </div>
       )}
 
@@ -400,170 +434,37 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
           <input
             type="text"
             value={formValues.bindingsInput}
-            onChange={(e) => {
-              const raw = e.target.value;
-              // Allow free typing; validate and commit on blur
-              setFormValues(prev => ({ ...prev, bindingsInput: raw }));
-            }}
-            onBlur={() => {
-              const raw = formValues.bindingsInput;
-              const splitTop = (input) => {
-                const res = [];
-                let depth = 0, cur = '';
-                for (let i = 0; i < input.length; i++) {
-                  const ch = input[i];
-                  if (ch === '(') { depth++; cur += ch; }
-                  else if (ch === ')') { depth = Math.max(0, depth - 1); cur += ch; }
-                  else if (ch === ',' && depth === 0) { res.push(cur.trim()); cur = ''; }
-                  else { cur += ch; }
-                }
-                if (cur.trim().length) res.push(cur.trim());
-                return res.filter(Boolean);
-              };
-              // Infer variable types from context
-              const elementId = selectedElement.id || selectedElement.element && selectedElement.element.id || '';
-              const elementType = selectedElement.type || elementId.split('-')[0];
-              const typeMap = inferVariableTypes(elementType, selectedElement, elements);
-              
-              // Get default type from source place for new variables
-              let defaultType = null;
-              if (elementType === 'arc') {
-                const sourcePlace = elements.places.find(p => p.id === selectedElement.source);
-                if (sourcePlace) {
-                  const tokens = getTokensForPlace(sourcePlace);
-                  if (tokens.length > 0) {
-                    defaultType = inferTokenType(tokens[0]);
-                  }
-                }
-              }
-              
-              const parts = splitTop(raw);
-              let err = null;
-              const normalizedParts = [];
-              for (const p of parts) {
-                try {
-                  const normalized = /^true$/i.test(p) ? 'T' : /^false$/i.test(p) ? 'F' : p;
-                  if (normalized === 'T' || normalized === 'F') { normalizedParts.push(normalized); continue; }
-                  if (normalized) {
-                    let s = normalized.trim();
-                    
-                    // Auto-annotate with inferred types if available, using defaultType for new variables
-                    s = autoAnnotateTypes(s, typeMap, defaultType);
-                    
-                    // Try parsing as pattern first (for deconstruction like (F,x))
-                    try {
-                      const pattern = parsePattern(s);
-                      const typingError = validatePatternTyping(pattern);
-                      if (typingError) {
-                        err = typingError;
-                        break;
-                      }
-                      // Convert pattern back to string with proper typing
-                      const patternWithTypes = addTypeAnnotations(pattern);
-                      normalizedParts.push(stringifyPattern(patternWithTypes));
-                      continue;
-                    } catch (_) {
-                      // Not a pattern, try arithmetic
-                      try {
-                        parseArithmetic(s);
-                        normalizedParts.push(s);
-                        continue;
-                      } catch (_) {
-                        // Try Bool expression
-                        try {
-                          parseBooleanExpr(s, parseArithmetic);
-                          normalizedParts.push(s);
-                          continue;
-                        } catch (_) {
-                          // If all parsing fails, treat as literal string
-                          normalizedParts.push(s);
-                        }
-                      }
-                    }
-                  }
-                } catch (ex) { err = String(ex.message || ex); break; }
-              }
-              setFormValues(prev => ({ ...prev, bindingsInput: normalizedParts.join(', '), bindingError: err }));
-              if (!err) {
-                setElements(prev => ({
-                  ...prev,
-                  arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings: normalizedParts, binding: undefined } : a)
-                }));
-                updateHistory && updateHistory();
-              }
-            }}
-            className={`w-full px-3 py-2 border ${formValues.bindingError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm font-mono text-sm`}
-            placeholder="e.g., x:Int, (F,x:Int), y+2, z-1"
+            onChange={(e) => setFormValues(prev => ({ ...prev, bindingsInput: e.target.value }))}
+            onBlur={handleBindingsBlur}
+            className={`w-full px-3 py-2 border rounded-md font-mono text-sm ${
+              formValues.bindingError ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="e.g., x, y, (a, b)"
           />
-          {formValues.bindingError && <p className="text-red-500 text-xs mt-1">{formValues.bindingError}</p>}
+          {formValues.bindingError && (
+            <p className="text-red-600 text-xs mt-1">{formValues.bindingError}</p>
+          )}
         </div>
       )}
 
       {selectedElement && elementType === 'transition' && netMode === 'algebraic-int' && (
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Guard (use arithmetic comparisons and Bool operators; T/F)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Guard</label>
           <input
             type="text"
             value={formValues.guardText}
-            onChange={(e) => {
-              const v = e.target.value;
-              // Accept bool expressions with T/F and arithmetic comparisons
-              let err = null;
-              try {
-                const normalized = v.replace(/\btrue\b/gi, 'T').replace(/\bfalse\b/gi, 'F');
-                parseBooleanExpr(normalized, parseArithmetic);
-                setFormValues(prev => ({ ...prev, guardText: normalized, guardError: err }));
-                setElements(prev => ({
-                  ...prev,
-                  transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: normalized } : t)
-                }));
-                return;
-              } catch (ex) { err = String(ex.message || ex); }
-              setFormValues(prev => ({ ...prev, guardText: v, guardError: err }));
-              setElements(prev => ({
-                ...prev,
-                transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: v } : t)
-              }));
-            }}
-            onBlur={() => {
-              const raw = formValues.guardText;
-              if (!raw || !raw.trim()) return;
-              
-              // Infer variable types from context (input arcs)
-              const elementId = selectedElement.id || selectedElement.element && selectedElement.element.id || '';
-              const elementType = selectedElement.type || elementId.split('-')[0];
-              const typeMap = inferVariableTypes(elementType, selectedElement, elements);
-              
-              // Auto-annotate with inferred types if available
-              const annotatedGuard = autoAnnotateTypes(raw, typeMap);
-              
-              if (annotatedGuard !== raw) {
-                // Update the guard with type annotations
-                let err = null;
-                try {
-                  const normalized = annotatedGuard.replace(/\btrue\b/gi, 'T').replace(/\bfalse\b/gi, 'F');
-                  parseBooleanExpr(normalized, parseArithmetic);
-                  setFormValues(prev => ({ ...prev, guardText: normalized, guardError: err }));
-                  setElements(prev => ({
-                    ...prev,
-                    transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: normalized } : t)
-                  }));
-                  updateHistory && updateHistory();
-                } catch (ex) {
-                  // If annotation causes parsing error, keep original
-                  err = String(ex.message || ex);
-                  setFormValues(prev => ({ ...prev, guardError: err }));
-                }
-              }
-            }}
-            className={`w-full px-3 py-2 border ${formValues.guardError ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm font-mono text-sm`}
-            placeholder="e.g., x + y >= 3"
+            onChange={(e) => setFormValues(prev => ({ ...prev, guardText: e.target.value }))}
+            onBlur={handleGuardBlur}
+            className={`w-full px-3 py-2 border rounded-md font-mono text-sm ${
+              formValues.guardError ? 'border-red-500' : 'border-gray-300'
+            }`}
+            placeholder="e.g., x > 0 and y < 10"
           />
-          {formValues.guardError && <p className="text-red-500 text-xs mt-1">{formValues.guardError}</p>}
+          {formValues.guardError && (
+            <p className="text-red-600 text-xs mt-1">{formValues.guardError}</p>
+          )}
         </div>
       )}
-
-      {/* Petri Net panel is rendered separately in the right sidebar */}
     </div>
   );
 };

@@ -364,6 +364,7 @@ export class AlgebraicSimulator extends BaseSimulator {
                 if (typeof tok === 'boolean' && ast.varType && ast.varType !== 'bool') ok = false;
                 if (typeof tok === 'number' && ast.varType && ast.varType !== 'int') ok = false;
                 if (typeof tok === 'string' && ast.varType && ast.varType !== 'string') ok = false;
+                if (Array.isArray(tok) && ast.varType && ast.varType !== 'list') ok = false;
                 if (isPair(tok) && ast.varType && ast.varType !== 'pair') ok = false;
                 if (ok) nextEnv = { ...(nextEnv || {}), [ast.name]: tok };
               }
@@ -655,7 +656,13 @@ export class AlgebraicSimulator extends BaseSimulator {
               place.valueTokens.push(v);
             }
             else if (Array.isArray(v)) {
-              place.valueTokens.push(...v);
+              // If it's from arith evaluation (list token), push as-is
+              // If it's from tuple destructuring, spread it
+              if (kind === 'arith' || kind === 'pair' || (ast && ast.type === 'list')) {
+                place.valueTokens.push(v); // Push list as single token
+              } else {
+                place.valueTokens.push(...v); // Spread tuple elements
+              }
             }
           } catch (e) { 
             // Skip invalid bindings

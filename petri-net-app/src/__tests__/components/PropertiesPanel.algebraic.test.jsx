@@ -21,7 +21,7 @@ describe('PropertiesPanel (algebraic mode)', () => {
       />
     );
 
-    const input = screen.getByPlaceholderText("e.g., 2, 3, 'hello', T, F, (1, 2)");
+    const input = screen.getByPlaceholderText("e.g., 2, 3, 'hello', T, F, (1, 2), [1, 2, 3]");
     fireEvent.change(input, { target: { value: '2, 3, 5' } });
     fireEvent.blur(input);
 
