@@ -14,8 +14,8 @@ describe('PropertiesPanel Component', () => {
   test('renders empty panel when no element is selected', () => {
     render(<PropertiesPanel selectedElement={null} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
-    expect(screen.getByText('Properties')).toBeInTheDocument();
-    expect(screen.getByText('Select an element to edit its properties')).toBeInTheDocument();
+    // Component renders nothing when no element is selected
+    expect(screen.queryByText('Properties')).not.toBeInTheDocument();
   });
 
   test('renders place properties when a place is selected', () => {
@@ -36,8 +36,8 @@ describe('PropertiesPanel Component', () => {
     const labelInput = within(labelDiv).getByRole('textbox');
     expect(labelInput).toHaveValue('P1');
     
-    // Find the tokens input by looking for the div containing the label 'Tokens (0-20)'
-    const tokensDiv = screen.getByText('Tokens (0-20)').closest('div');
+    // PT tokens label changed to 'Tokens (PT mode)'
+    const tokensDiv = screen.getByText('Tokens (PT mode)').closest('div');
     const tokensInput = within(tokensDiv).getByRole('spinbutton');
     expect(tokensInput).toHaveValue(5);
   });
@@ -60,7 +60,7 @@ describe('PropertiesPanel Component', () => {
     expect(labelInput).toHaveValue('T1');
     
     // Transition should not have token input
-    expect(screen.queryByText('Tokens (0-20)')).not.toBeInTheDocument();
+    expect(screen.queryByText('Tokens (PT mode)')).not.toBeInTheDocument();
   });
 
   test('renders arc properties when an arc is selected', () => {
@@ -83,8 +83,8 @@ describe('PropertiesPanel Component', () => {
     const labelInput = within(labelDiv).getByRole('textbox');
     expect(labelInput).toHaveValue('A1');
     
-    // Find the weight input by looking for the div containing the label 'Weight (1-20)'
-    const weightDiv = screen.getByText('Weight (1-20)').closest('div');
+    // Weight label is just 'Weight'
+    const weightDiv = screen.getByText('Weight').closest('div');
     const weightInput = within(weightDiv).getByRole('spinbutton');
     expect(weightInput).toHaveValue(3);
   });
@@ -120,7 +120,7 @@ describe('PropertiesPanel Component', () => {
 
     render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
-    const tokensDiv = screen.getByText('Tokens (0-20)').closest('div');
+    const tokensDiv = screen.getByText('Tokens (PT mode)').closest('div');
     const tokensInput = within(tokensDiv).getByRole('spinbutton');
     fireEvent.change(tokensInput, { target: { value: '10' } });
     
@@ -157,7 +157,7 @@ describe('PropertiesPanel Component', () => {
 
     render(<PropertiesPanel selectedElement={mockArc} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
-    const weightDiv = screen.getByText('Weight (1-20)').closest('div');
+    const weightDiv = screen.getByText('Weight').closest('div');
     const weightInput = within(weightDiv).getByRole('spinbutton');
     fireEvent.change(weightInput, { target: { value: '5' } });
     
@@ -175,7 +175,7 @@ describe('PropertiesPanel Component', () => {
 
     render(<PropertiesPanel selectedElement={mockPlace} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
-    const tokensDiv = screen.getByText('Tokens (0-20)').closest('div');
+    const tokensDiv = screen.getByText('Tokens (PT mode)').closest('div');
     const tokensInput = within(tokensDiv).getByRole('spinbutton');
     
     // Test with valid value
@@ -209,7 +209,7 @@ describe('PropertiesPanel Component', () => {
 
     render(<PropertiesPanel selectedElement={mockArc} setElements={mockSetElements} updateHistory={mockUpdateHistory} simulationSettings={{ maxTokens: 20 }} elements={{ places: [], transitions: [], arcs: [] }} />);
     
-    const weightDiv = screen.getByText('Weight (1-20)').closest('div');
+    const weightDiv = screen.getByText('Weight').closest('div');
     const weightInput = within(weightDiv).getByRole('spinbutton');
     
     // Test with valid value

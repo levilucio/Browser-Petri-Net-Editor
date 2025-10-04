@@ -373,6 +373,14 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
         }
         throw new Error('length requires string or list argument');
       }
+      if (node.name === 'isSubstringOf' && node.args && node.args.length === 2) {
+        const sub = evalNode(node.args[0]);
+        const str = evalNode(node.args[1]);
+        if (typeof sub !== 'string' || typeof str !== 'string') {
+          throw new Error('isSubstringOf requires two string arguments');
+        }
+        return str.includes(sub);
+      }
       if (node.name === 'head' && node.args && node.args.length === 1) {
         const list = evalNode(node.args[0]);
         if (!Array.isArray(list)) {
@@ -595,6 +603,36 @@ export function parseBooleanExpr(input, parseArithmetic) {
       i++;
       return node;
     }
+    // Bool function: isSubstringOf(s, t)
+    if (src.slice(i).startsWith('isSubstringOf')) {
+      i += 'isSubstringOf'.length;
+      skipWs();
+      if (src[i] !== '(') throw new Error(`Expected '(' after isSubstringOf at position ${i}`);
+      // parse two arguments inside parentheses, respecting nested parens
+      let startArgs = i + 1;
+      let d = 1; i++;
+      for (; i < src.length && d > 0; i++) {
+        const ch = src[i];
+        if (ch === '(') d++;
+        else if (ch === ')') d--;
+      }
+      if (d !== 0) throw new Error('Unterminated isSubstringOf arguments');
+      const inside = src.slice(startArgs, i - 1).trim();
+      // split on top-level comma
+      let depth = 0; let cur = ''; const parts = [];
+      for (let k = 0; k < inside.length; k++) {
+        const ch = inside[k];
+        if (ch === '(') { depth++; cur += ch; continue; }
+        if (ch === ')') { depth = Math.max(0, depth - 1); cur += ch; continue; }
+        if (ch === ',' && depth === 0) { parts.push(cur.trim()); cur = ''; continue; }
+        cur += ch;
+      }
+      if (cur.trim().length) parts.push(cur.trim());
+      if (parts.length !== 2) throw new Error('isSubstringOf expects two arguments');
+      const a0 = parseArithmetic(parts[0]);
+      const a1 = parseArithmetic(parts[1]);
+      return { type: 'boolFuncall', name: 'isSubstringOf', args: [a0, a1] };
+    }
     // Literal true/false
     if (startsWithWord('true')) { i += 4; return { type: 'boolLit', value: true }; }
     if (startsWithWord('false')) { i += 5; return { type: 'boolLit', value: false }; }
@@ -685,6 +723,17 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
     switch (node.type) {
       case 'boolLit': return !!node.value;
       case 'boolVar': return toBool(bindings?.[node.name]);
+      case 'boolFuncall': {
+        if (node.name === 'isSubstringOf' && node.args && node.args.length === 2) {
+          const sub = evaluateArithmeticWithBindings(node.args[0], bindings || {});
+          const str = evaluateArithmeticWithBindings(node.args[1], bindings || {});
+          if (typeof sub !== 'string' || typeof str !== 'string') {
+            throw new Error('isSubstringOf requires two string arguments');
+          }
+          return str.includes(sub);
+        }
+        throw new Error(`Unknown boolean function '${node.name}'`);
+      }
       case 'not': return !evalBool(node.expr);
       case 'and': return evalBool(node.left) && evalBool(node.right);
       case 'or': return evalBool(node.left) || evalBool(node.right);
@@ -776,6 +825,15 @@ export async function evaluateBooleanPredicate(boolAstOrString, bindings, parseA
     switch (node.type) {
       case 'boolLit': return node.value ? Bool.val(true) : Bool.val(false);
       case 'boolVar': return boolSym.get(node.name);
+      case 'boolFuncall': {
+        if (node.name === 'isSubstringOf' && node.args && node.args.length === 2) {
+          const str1 = buildZ3Expr(ctx, node.args[1], (n) => intSym.get(n));
+          const sub = buildZ3Expr(ctx, node.args[0], (n) => intSym.get(n));
+          // str.contains(sub)
+          return str1.contains(sub);
+        }
+        throw new Error(`Unknown boolean function '${node.name}'`);
+      }
       case 'not': return Not(buildBool(node.expr));
       case 'and': return And(buildBool(node.left), buildBool(node.right));
       case 'or': return Or(buildBool(node.left), buildBool(node.right));

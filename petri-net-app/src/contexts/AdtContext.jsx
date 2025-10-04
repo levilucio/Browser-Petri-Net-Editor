@@ -109,6 +109,10 @@ const BASE_ADT_XML = `<?xml version="1.0"?>
       <param index="1" type="Int"/>
       <param index="2" type="Int"/>
     </operation>
+    <operation name="isSubstringOf" arity="2" result="Bool">
+      <param index="0" type="String"/>
+      <param index="1" type="String"/>
+    </operation>
     <operation name="length" arity="1" result="Int">
       <param index="0" type="String"/>
     </operation>
