@@ -474,9 +474,15 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       }
     });
 
+    // Prepare a view of arcs that includes any Rule 1 updates so subsequent rules see fresh input types
+    const arcsEffective = state.arcs.map(arc => {
+      const upd = updates.arcs.find(u => u.arcId === arc.id);
+      return upd ? { ...arc, bindings: [upd.newBinding] } : arc;
+    });
+
     // Rule 2 and 3: Use input arc types to annotate guard and output arcs
     state.transitions.forEach(transition => {
-      const inputArcs = state.arcs.filter(arc => arc.target === transition.id);
+      const inputArcs = arcsEffective.filter(arc => arc.target === transition.id);
       const variableTypes = new Map();
 
       inputArcs.forEach(arc => {
@@ -511,7 +517,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       }
 
       // Rule 3: output arcs
-      const outputArcs = state.arcs.filter(arc => arc.source === transition.id);
+      const outputArcs = arcsEffective.filter(arc => arc.source === transition.id);
       outputArcs.forEach(arc => {
         if (arc.bindings && arc.bindings.length > 0) {
           const currentBinding = arc.bindings[0];

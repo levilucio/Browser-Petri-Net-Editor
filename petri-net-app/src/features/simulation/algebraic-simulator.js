@@ -85,6 +85,14 @@ export class AlgebraicSimulator extends BaseSimulator {
         let parsed = null;
         const tf = (text === 'T') ? true : (text === 'F') ? false : null;
         try { parsed = parseArithmetic(text); } catch (_) { parsed = null; }
+        // If parsed as a function call, ensure it's one of the arithmetic/string/list functions we support.
+        // Otherwise, treat it as a boolean expression (e.g., not(x)).
+        if (parsed && parsed.type === 'funcall') {
+          const allowedArithFuncs = new Set(['concat', 'substring', 'length', 'head', 'tail', 'append', 'sublist', 'isSublistOf', 'isSubstringOf']);
+          if (!allowedArithFuncs.has(parsed.name)) {
+            parsed = null; // fall back to boolean parsing below
+          }
+        }
         if (parsed) {
           if (parsed.type === 'var' && parsed.varType === 'bool') {
             // Represent as bool variable for uniformity
