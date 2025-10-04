@@ -201,16 +201,19 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     console.log('===================================');
 
     const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
-    setElements(prev => ({
-      ...prev,
-      places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
-    }));
+    setElements(prev => {
+      const newState = {
+        ...prev,
+        places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
+      };
+      
+      // Run global type inference synchronously against the just-updated state
+      const inferredState = computeGlobalTypeInference(newState);
+      return inferredState;
+      
+      // return newState; // unreachable
+    });
     updateHistory();
-    
-    // Trigger type inference for connected arcs after a short delay to ensure state is updated
-    setTimeout(() => {
-      inferTypesForPlace(elementId);
-    }, 100);
   };
 
   const handleBindingsBlur = () => {
@@ -277,6 +280,16 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings } : a)
       }));
       updateHistory();
+      
+      // Run global type inference synchronously after arc binding change
+      setElements(prev => {
+        const baseState = {
+          ...prev,
+          arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings } : a)
+        };
+        return computeGlobalTypeInference(baseState);
+      });
+      updateHistory();
     }
   };
 
@@ -299,9 +312,19 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     try {
       parseBooleanExpr(guardInput, parseArithmetic);
       setElements(prev => ({
-          ...prev,
+        ...prev,
         transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: guardInput } : t)
       }));
+      updateHistory();
+      
+      // Run global type inference synchronously after guard change
+      setElements(prev => {
+        const baseState = {
+          ...prev,
+          transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: guardInput } : t)
+        };
+        return computeGlobalTypeInference(baseState);
+      });
       updateHistory();
     } catch (e) {
       setFormValues(prev => ({ ...prev, guardError: `Invalid guard: ${e.message}` }));
@@ -316,26 +339,46 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
   // Function to infer types for arcs connected to a specific place
   const inferTypesForPlace = (placeId) => {
-    if (netMode !== 'algebraic-int' || !elements.places || !elements.arcs) return;
+    console.log('=== inferTypesForPlace DEBUG ===');
+    console.log('1. placeId:', placeId);
+    console.log('2. netMode:', netMode);
+    console.log('3. elements.places:', elements.places);
+    console.log('4. elements.arcs:', elements.arcs);
+    
+    if (netMode !== 'algebraic-int' || !elements.places || !elements.arcs) {
+      console.log('5. Early return - conditions not met');
+      return;
+    }
     
     const place = elements.places.find(p => p.id === placeId);
-    if (!place || !place.valueTokens || place.valueTokens.length === 0) return;
+    console.log('6. place found:', place);
+    if (!place || !place.valueTokens || place.valueTokens.length === 0) {
+      console.log('7. Early return - no place or no tokens');
+      return;
+    }
     
-    // Get the type of the first token
-    const tokenType = inferTokenType(place.valueTokens[0]);
+    // Get the type of the most recently added token (last in the array)
+    const tokenType = inferTokenType(place.valueTokens[place.valueTokens.length - 1]);
+    console.log('8. tokenType:', tokenType);
     
     // Find arcs that connect from this place
     const connectedArcs = elements.arcs.filter(arc => arc.source === placeId);
+    console.log('9. connectedArcs:', connectedArcs);
     
     const arcsToUpdate = [];
-    connectedArcs.forEach(arc => {
-      if (arc.bindings && arc.bindings.length > 0) {
-        const currentBinding = arc.bindings[0];
+      connectedArcs.forEach(arc => {
+        console.log('10. Processing arc:', arc);
+        console.log('10a. arc.bindings:', arc.bindings);
+        console.log('10b. arc.bindings length:', arc.bindings ? arc.bindings.length : 'undefined');
+        if (arc.bindings && arc.bindings.length > 0) {
+          const currentBinding = arc.bindings[0];
+          console.log('11. currentBinding:', currentBinding);
         // Only update if the binding doesn't already have a type annotation
         if (currentBinding && !currentBinding.includes(':')) {
           const typeMap = new Map();
           // Extract variable names from the binding
           const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+          console.log('12. varMatches:', varMatches);
           if (varMatches) {
             varMatches.forEach(varName => {
               if (varName !== 'true' && varName !== 'false' && 
@@ -345,8 +388,10 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             });
           }
           
+          console.log('13. typeMap:', typeMap);
           if (typeMap.size > 0) {
             const annotatedBinding = autoAnnotateTypes(currentBinding, typeMap);
+            console.log('14. annotatedBinding:', annotatedBinding);
             if (annotatedBinding !== currentBinding) {
               arcsToUpdate.push({ arcId: arc.id, newBinding: annotatedBinding });
             }
@@ -355,10 +400,12 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       }
     });
     
+    console.log('15. arcsToUpdate:', arcsToUpdate);
     // Update arcs if any need type annotation
     if (arcsToUpdate.length > 0) {
+      console.log('16. Updating arcs');
       setElements(prev => ({
-        ...prev,
+          ...prev,
         arcs: prev.arcs.map(arc => {
           const update = arcsToUpdate.find(u => u.arcId === arc.id);
           if (update) {
@@ -367,6 +414,146 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
           return arc;
         })
       }));
+      updateHistory();
+    } else {
+      console.log('16. No arcs to update');
+    }
+    console.log('===================================');
+  };
+
+  // Function to get the unique type of all tokens in a place, or null if ambiguous
+  const getPlaceTokenType = (place) => {
+    if (!place.valueTokens || place.valueTokens.length === 0) {
+      return null;
+    }
+    
+    const firstTokenType = inferTokenType(place.valueTokens[0]);
+    const allSameType = place.valueTokens.every(token => inferTokenType(token) === firstTokenType);
+    
+    return allSameType ? firstTokenType : null;
+  };
+
+  // Pure function: given a state snapshot, return a new state with inferred types applied
+  const computeGlobalTypeInference = (state) => {
+    if (netMode !== 'algebraic-int' || !state?.places || !state?.arcs || !state?.transitions) {
+      return state;
+    }
+
+    const updates = { arcs: [], transitions: [] };
+
+    // Rule 1: Infer types for input arcs based on source place tokens (only if unambiguous)
+    state.places.forEach(place => {
+      const placeTokenType = getPlaceTokenType(place);
+      if (placeTokenType) {
+        const inputArcs = state.arcs.filter(arc => arc.source === place.id);
+        inputArcs.forEach(arc => {
+          if (arc.bindings && arc.bindings.length > 0) {
+            const currentBinding = arc.bindings[0];
+            if (currentBinding) {
+              const typeMap = new Map();
+              const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+              if (varMatches) {
+                varMatches.forEach(varName => {
+                  if (varName !== 'true' && varName !== 'false' && varName !== 'and' && varName !== 'or' && varName !== 'not') {
+                    if (!currentBinding.includes(`${varName}:`)) typeMap.set(varName, placeTokenType);
+                  }
+                });
+              }
+              if (typeMap.size > 0) {
+                const annotatedBinding = autoAnnotateTypes(currentBinding, typeMap);
+                if (annotatedBinding !== currentBinding) updates.arcs.push({ arcId: arc.id, newBinding: annotatedBinding });
+              }
+            }
+          }
+        });
+      }
+    });
+
+    // Rule 2 and 3: Use input arc types to annotate guard and output arcs
+    state.transitions.forEach(transition => {
+      const inputArcs = state.arcs.filter(arc => arc.target === transition.id);
+      const variableTypes = new Map();
+
+      inputArcs.forEach(arc => {
+        if (arc.bindings && arc.bindings.length > 0) {
+          const binding = arc.bindings[0];
+          const typedVarMatches = binding.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair|String|List)\b/g);
+          if (typedVarMatches) {
+            typedVarMatches.forEach(match => {
+              const [, varName, varType] = match.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair|String|List)\b/);
+              variableTypes.set(varName, varType);
+            });
+          }
+        }
+      });
+
+      // Rule 2: guard variables
+      if (transition.guard && variableTypes.size > 0) {
+        const guardVarMatches = transition.guard.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+        if (guardVarMatches) {
+          const guardTypeMap = new Map();
+          guardVarMatches.forEach(varName => {
+            if (varName !== 'true' && varName !== 'false' && varName !== 'and' && varName !== 'or' && varName !== 'not') {
+              const inputType = variableTypes.get(varName);
+              if (inputType && !transition.guard.includes(`${varName}:`)) guardTypeMap.set(varName, inputType);
+            }
+          });
+          if (guardTypeMap.size > 0) {
+            const annotatedGuard = autoAnnotateTypes(transition.guard, guardTypeMap);
+            if (annotatedGuard !== transition.guard) updates.transitions.push({ transitionId: transition.id, newGuard: annotatedGuard });
+          }
+        }
+      }
+
+      // Rule 3: output arcs
+      const outputArcs = state.arcs.filter(arc => arc.source === transition.id);
+      outputArcs.forEach(arc => {
+        if (arc.bindings && arc.bindings.length > 0) {
+          const currentBinding = arc.bindings[0];
+          if (currentBinding) {
+            const typeMap = new Map();
+            const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
+            if (varMatches) {
+              varMatches.forEach(varName => {
+                if (varName !== 'true' && varName !== 'false' && varName !== 'and' && varName !== 'or' && varName !== 'not') {
+                  const inputType = variableTypes.get(varName);
+                  if (inputType && !currentBinding.includes(`${varName}:`)) typeMap.set(varName, inputType);
+                }
+              });
+            }
+            if (typeMap.size > 0) {
+              const annotatedBinding = autoAnnotateTypes(currentBinding, typeMap);
+              if (annotatedBinding !== currentBinding) updates.arcs.push({ arcId: arc.id, newBinding: annotatedBinding });
+            }
+          }
+        }
+      });
+    });
+
+    if (updates.arcs.length === 0 && updates.transitions.length === 0) {
+      return state;
+    }
+
+    const nextState = {
+      ...state,
+      arcs: state.arcs.map(arc => {
+        const upd = updates.arcs.find(u => u.arcId === arc.id);
+        return upd ? { ...arc, bindings: [upd.newBinding] } : arc;
+      }),
+      transitions: state.transitions.map(t => {
+        const upd = updates.transitions.find(u => u.transitionId === t.id);
+        return upd ? { ...t, guard: upd.newGuard } : t;
+      })
+    };
+
+    return nextState;
+  };
+
+  // Backward-compatible wrapper that updates the current state
+  const performGlobalTypeInference = () => {
+    const updated = computeGlobalTypeInference(elements);
+    if (updated !== elements) {
+      setElements(updated);
       updateHistory();
     }
   };

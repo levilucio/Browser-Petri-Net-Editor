@@ -151,25 +151,37 @@ export function parsePNML(pnmlString) {
       return '';
     };
 
-    // Split a string on top-level commas (ignore commas inside parentheses)
+    // Split a string on top-level commas (ignore commas inside parentheses, brackets and strings)
     const splitTopLevelCommas = (input) => {
       const parts = [];
       let current = '';
-      let depth = 0;
+      let parenDepth = 0;
+      let bracketDepth = 0;
+      let inString = false;
       for (let i = 0; i < input.length; i++) {
         const ch = input[i];
-        if (ch === '(') {
-          depth++;
+        if (inString) {
           current += ch;
-        } else if (ch === ')') {
-          depth = Math.max(0, depth - 1);
+          if (ch === "'" && input[i - 1] !== '\\') {
+            inString = false;
+          }
+          continue;
+        }
+        if (ch === "'") {
+          inString = true;
           current += ch;
-        } else if (ch === ',' && depth === 0) {
+          continue;
+        }
+        if (ch === '(') { parenDepth++; current += ch; continue; }
+        if (ch === ')') { parenDepth = Math.max(0, parenDepth - 1); current += ch; continue; }
+        if (ch === '[') { bracketDepth++; current += ch; continue; }
+        if (ch === ']') { bracketDepth = Math.max(0, bracketDepth - 1); current += ch; continue; }
+        if (ch === ',' && parenDepth === 0 && bracketDepth === 0) {
           parts.push(current.trim());
           current = '';
-        } else {
-          current += ch;
+          continue;
         }
+        current += ch;
       }
       const last = current.trim();
       if (last.length > 0) parts.push(last);

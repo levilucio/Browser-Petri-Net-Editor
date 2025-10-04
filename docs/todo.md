@@ -144,9 +144,11 @@ Total duration: **6 months** (26 weeks), divided into phases with iterative spri
 #### Milestone 2.2: Full Type System with Multisets (6 weeks, Weeks 19–24)
 - **Tasks**:
   - Extend algebraic Petri nets to support full type system:
-    - Boolean, List, Pair, and String types in addition to Integer
-    - Multisets allowing mixed token types in places
-    - Z3 theories for all supported types (Bool, Seq, Tuple, String theories)
+    - ✅ Boolean, List, Pair, and String types in addition to Integer
+    - ✅ Multisets allowing mixed token types in places
+    - ✅ Z3 theories for all supported types (Bool, Seq, Tuple, String theories)
+    - Automated type inference for edition of variables
+    - isSubstringOf implemented for String type
   - Implement multiset operations and pattern matching:
     - List destructuring and construction using Z3 Seq theory
     - Pair/tuple pattern matching using Z3 Tuple theory
