@@ -129,6 +129,27 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     }
     
     // Parse comma-separated tokens
+    // Helper: split a string on top-level commas, respecting nested () and []
+    function splitTopLevelCommas(str) {
+      const parts = [];
+      let current = '';
+      let depth = 0;
+      for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (ch === '(' || ch === '[') {
+          depth++;
+        } else if (ch === ')' || ch === ']') {
+          depth = Math.max(0, depth - 1);
+        } else if (ch === ',' && depth === 0) {
+          parts.push(current);
+          current = '';
+          continue;
+        }
+        current += ch;
+      }
+      if (current.trim()) parts.push(current);
+      return parts;
+    }
     const parsePart = (part) => {
       const p = part.trim();
       const low = p.toLowerCase();
@@ -139,10 +160,10 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       if (p.startsWith("'") && p.endsWith("'") && p.length >= 2) {
         return p.slice(1, -1);
       }
-      // Handle pair literals: (x, y)
+      // Handle pair literals: (x, y) with recursive, unlimited nesting
       if (p.startsWith('(') && p.endsWith(')')) {
         const inner = p.slice(1, -1);
-        const parts = inner.split(',').map(x => x.trim());
+        const parts = splitTopLevelCommas(inner).map(x => x.trim());
         if (parts.length === 2) {
           return { __pair__: true, fst: parsePart(parts[0]), snd: parsePart(parts[1]) };
         }
@@ -173,24 +194,9 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     };
 
     // Split by commas at the top level only
-    const splitTopLevel = (str) => {
-      const parts = [];
-      let current = '';
-      let depth = 0;
-      for (let i = 0; i < str.length; i++) {
-        const ch = str[i];
-        if (ch === '(' || ch === '[') depth++;
-        else if (ch === ')' || ch === ']') depth--;
-        else if (ch === ',' && depth === 0) {
-          parts.push(current);
-          current = '';
-          continue;
-        }
-        current += ch;
-      }
-      if (current.trim()) parts.push(current);
-      return parts;
-    };
+    function splitTopLevel(str) {
+      return splitTopLevelCommas(str);
+    }
 
     const parts = splitTopLevel(input);
     const parsed = parts.map(parsePart).filter(v => v !== null);
@@ -255,7 +261,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
     const bindings = parts.filter(b => b.length > 0);
 
-    // Validate bindings by trying to parse them
+    // Validate bindings by trying to parse them (support String, List, Pair, Int)
     let allValid = true;
     for (const binding of bindings) {
       try {
@@ -453,8 +459,10 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         const inputArcs = state.arcs.filter(arc => arc.source === place.id);
         inputArcs.forEach(arc => {
           if (arc.bindings && arc.bindings.length > 0) {
-            const currentBinding = arc.bindings[0];
-            if (currentBinding) {
+            const updatedBindings = [];
+            let changed = false;
+            for (const currentBinding of arc.bindings) {
+              if (!currentBinding) { updatedBindings.push(currentBinding); continue; }
               const typeMap = new Map();
               const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
               if (varMatches) {
@@ -464,11 +472,27 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                   }
                 });
               }
-              if (typeMap.size > 0) {
-                const annotatedBinding = autoAnnotateTypes(currentBinding, typeMap);
-                if (annotatedBinding !== currentBinding) updates.arcs.push({ arcId: arc.id, newBinding: annotatedBinding });
+              if (placeTokenType === 'List') {
+                const vt = Array.isArray(place.valueTokens) ? place.valueTokens : [];
+                let elementType = null;
+                if (vt.length > 0 && Array.isArray(vt[0]) && vt[0].length > 0) {
+                  const firstElemType = inferTokenType(vt[0][0]);
+                  const allSame = vt.every(lst => Array.isArray(lst) && lst.every(el => inferTokenType(el) === firstElemType));
+                  if (allSame) elementType = firstElemType;
+                }
+                if (elementType) {
+                  for (const [k, v] of Array.from(typeMap.entries())) {
+                    if (v === 'List') typeMap.set(k, elementType);
+                  }
+                } else {
+                  typeMap.clear();
+                }
               }
+              const annotated = typeMap.size > 0 ? autoAnnotateTypes(currentBinding, typeMap) : currentBinding;
+              if (annotated !== currentBinding) changed = true;
+              updatedBindings.push(annotated);
             }
+            if (changed) updates.arcs.push({ arcId: arc.id, newBindings: updatedBindings });
           }
         });
       }
@@ -477,7 +501,9 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     // Prepare a view of arcs that includes any Rule 1 updates so subsequent rules see fresh input types
     const arcsEffective = state.arcs.map(arc => {
       const upd = updates.arcs.find(u => u.arcId === arc.id);
-      return upd ? { ...arc, bindings: [upd.newBinding] } : arc;
+      if (!upd) return arc;
+      if (upd.newBindings) return { ...arc, bindings: [...upd.newBindings] };
+      return { ...arc, bindings: [upd.newBinding] };
     });
 
     // Rule 2 and 3: Use input arc types to annotate guard and output arcs
@@ -520,8 +546,10 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       const outputArcs = arcsEffective.filter(arc => arc.source === transition.id);
       outputArcs.forEach(arc => {
         if (arc.bindings && arc.bindings.length > 0) {
-          const currentBinding = arc.bindings[0];
-          if (currentBinding) {
+          const newBindings = [];
+          let changed = false;
+          for (const currentBinding of arc.bindings) {
+            if (!currentBinding) { newBindings.push(currentBinding); continue; }
             const typeMap = new Map();
             const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
             if (varMatches) {
@@ -532,11 +560,11 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
                 }
               });
             }
-            if (typeMap.size > 0) {
-              const annotatedBinding = autoAnnotateTypes(currentBinding, typeMap);
-              if (annotatedBinding !== currentBinding) updates.arcs.push({ arcId: arc.id, newBinding: annotatedBinding });
-            }
+            const annotatedBinding = typeMap.size > 0 ? autoAnnotateTypes(currentBinding, typeMap) : currentBinding;
+            if (annotatedBinding !== currentBinding) changed = true;
+            newBindings.push(annotatedBinding);
           }
+          if (changed) updates.arcs.push({ arcId: arc.id, newBindings });
         }
       });
     });
@@ -549,7 +577,9 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       ...state,
       arcs: state.arcs.map(arc => {
         const upd = updates.arcs.find(u => u.arcId === arc.id);
-        return upd ? { ...arc, bindings: [upd.newBinding] } : arc;
+        if (!upd) return arc;
+        if (upd.newBindings) return { ...arc, bindings: [...upd.newBindings] };
+        return { ...arc, bindings: [upd.newBinding] };
       }),
       transitions: state.transitions.map(t => {
         const upd = updates.transitions.find(u => u.transitionId === t.id);

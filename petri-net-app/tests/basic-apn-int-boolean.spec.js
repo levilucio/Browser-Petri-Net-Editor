@@ -38,9 +38,18 @@ test.describe('APN (int+bool) basics', () => {
 
     // Run to completion
     await page.getByTestId('sim-run').click();
+    // Wait for final marking deterministically instead of relying on enabled list races
     await page.waitForFunction(() => {
-      const en = (window.__ENABLED_TRANSITIONS__ || []);
-      return Array.isArray(en) && en.length === 0;
+      const s = window.__PETRI_NET_STATE__;
+      if (!s) return false;
+      const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
+      const p2 = byLabel('P2');
+      const p3 = byLabel('P3');
+      const vt2 = Array.isArray(p2?.valueTokens) ? p2.valueTokens.slice() : [];
+      const vt3 = Array.isArray(p3?.valueTokens) ? p3.valueTokens.slice() : [];
+      const has26 = vt2.includes(2) && vt2.includes(6) && vt2.length === 2;
+      const hasTF = vt3.includes(true) && vt3.includes(false) && vt3.length === 2;
+      return has26 && hasTF;
     }, { timeout: 60000 });
 
     const finalInfo = await page.evaluate(() => {

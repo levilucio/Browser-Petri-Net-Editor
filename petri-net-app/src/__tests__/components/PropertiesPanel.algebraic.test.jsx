@@ -57,6 +57,31 @@ describe('PropertiesPanel (algebraic mode)', () => {
     expect(newState.arcs[0].bindings).toEqual(['x:Int', 'y+2', 'z-1']);
   });
 
+  test('place: supports recursively nested pair tokens', () => {
+    const setElements = jest.fn();
+    const updateHistory = jest.fn();
+    const selectedPlace = { id: 'place-1', label: 'P', tokens: 0, valueTokens: [], x: 0, y: 0 };
+
+    render(
+      <PropertiesPanel
+        selectedElement={selectedPlace}
+        elements={elementsEmpty}
+        setElements={setElements}
+        updateHistory={updateHistory}
+        simulationSettings={simulationSettings}
+      />
+    );
+
+    const input = screen.getByPlaceholderText("e.g., 2, 3, 'hello', T, F, (1, 2), [1, 2, 3]");
+    fireEvent.change(input, { target: { value: "(7, (4, 1))" } });
+    fireEvent.blur(input);
+
+    expect(setElements).toHaveBeenCalled();
+    const updater = setElements.mock.calls[0][0];
+    const newState = updater({ places: [{ id: 'place-1', tokens: 0 }], transitions: [], arcs: [] });
+    expect(newState.places[0].valueTokens).toEqual([{ __pair__: true, fst: 7, snd: { __pair__: true, fst: 4, snd: 1 } }]);
+  });
+
 });
 
 

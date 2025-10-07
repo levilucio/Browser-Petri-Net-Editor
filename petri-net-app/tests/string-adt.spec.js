@@ -75,6 +75,48 @@ test.describe('String ADT Tests', () => {
     expect(finalState.p2Tokens).toEqual(['helloworld!']);
   });
 
+  test('petri-net14: fst(z:Pair) string projection produces world in P6', async ({ page }) => {
+    await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net14.pnml');
+
+    await waitSimulatorReady(page);
+
+    // Step once
+    await page.getByTestId('sim-step').click();
+    await page.waitForTimeout(800);
+
+    // Read state and verify P6 includes 'world'
+    const state = await page.evaluate(() => {
+      const s = window.__PETRI_NET_STATE__;
+      const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
+      const p6 = byLabel('P6');
+      const vt6 = Array.isArray(p6?.valueTokens) ? p6.valueTokens.slice() : [];
+      return { vt6 };
+    });
+
+    expect(state.vt6).toEqual(expect.arrayContaining(['world']));
+  });
+
+  test('petri-net15: numeric/string projection produces 5 in P6', async ({ page }) => {
+    await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net15.pnml');
+
+    await waitSimulatorReady(page);
+
+    await page.getByTestId('sim-step').click();
+    await page.waitForTimeout(800);
+
+    const state = await page.evaluate(() => {
+      const s = window.__PETRI_NET_STATE__;
+      const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
+      const p6 = byLabel('P6');
+      const vt6 = Array.isArray(p6?.valueTokens) ? p6.valueTokens.slice() : [];
+      return { vt6 };
+    });
+
+    // Accept either numeric 5 or string '5' depending on encoding
+    const asStrings = state.vt6.map(v => String(v));
+    expect(asStrings).toEqual(expect.arrayContaining(['5']));
+  });
+
   test('petri-net11: String concatenation with substring guard', async ({ page }) => {
     // Load the PNML file
     await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net11.pnml');

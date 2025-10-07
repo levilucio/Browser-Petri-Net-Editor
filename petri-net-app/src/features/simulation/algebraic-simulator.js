@@ -146,6 +146,33 @@ export class AlgebraicSimulator extends BaseSimulator {
     }
   }
 
+  // Internal: verify that output arc bindings with explicit type annotations
+  // are compatible with the current environment of bound variables.
+  _outputBindingsTypeCompatible(transitionId, env) {
+    try {
+      const outputArcs = (this.petriNet.arcs || []).filter(a => a.sourceId === transitionId && (a.targetType === 'place' || !a.targetType));
+      for (const arc of outputArcs) {
+        const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
+        for (const astObj of bindingAsts) {
+          const { kind, ast } = astObj || {};
+          // Only check variables with type annotations; literals and untyped variables are fine
+          if (ast && (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar')) {
+            const v = env ? env[ast.name] : undefined;
+            if (v === undefined) continue; // will be filled by guard/action later
+            if (ast.varType === 'int' && typeof v !== 'number') return false;
+            if (ast.varType === 'bool' && typeof v !== 'boolean') return false;
+            if (ast.varType === 'string' && typeof v !== 'string') return false;
+            if (ast.varType === 'pair' && !(v && typeof v === 'object' && v.__pair__ === true)) return false;
+            if (ast.varType === 'list' && !Array.isArray(v)) return false;
+          }
+        }
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   async updateSpecific(petriNet) {
     // Rebuild caches if guards or bindings changed
     const incomingSignature = computeCacheSignature(petriNet);
@@ -234,6 +261,11 @@ export class AlgebraicSimulator extends BaseSimulator {
         case 'pairPattern':
           traverse(node.fst);
           traverse(node.snd);
+          break;
+        case 'listPattern':
+          if (Array.isArray(node.elements)) {
+            node.elements.forEach(traverse);
+          }
           break;
         case 'tuplePattern':
           if (node.elements) {
@@ -324,9 +356,14 @@ export class AlgebraicSimulator extends BaseSimulator {
         if (!guardAst) return true;
         const free = getUnboundBooleanGuardVars(guardAst, env);
         if (free.length > 0) {
-          return evaluateBooleanPredicate(guardAst, env, parseArithmetic);
+          const ok = await evaluateBooleanPredicate(guardAst, env, parseArithmetic);
+          if (!ok) return false;
+          // After guard, ensure output bindings that declare explicit types are compatible with env
+          return this._outputBindingsTypeCompatible(transitionId, env);
         }
-        return evalBooleanGuardPure(guardAst, env);
+        const ok = evalBooleanGuardPure(guardAst, env);
+        if (!ok) return false;
+        return this._outputBindingsTypeCompatible(transitionId, env);
       }
       const arc = inputArcs[arcIndex];
       const arcId = arc.id;
@@ -613,35 +650,18 @@ export class AlgebraicSimulator extends BaseSimulator {
             } else if (kind === 'bool') {
               v = evaluateBooleanWithBindings(ast, env, parseArithmetic);
             } else if (kind === 'pattern') {
-              // Evaluate pattern literal (like (T,2)) or simple literals
-              if (ast.type === 'pairPattern') {
-                const litEval = (node) => {
-                  if (node.type === 'pairPattern') return { __pair__: true, fst: litEval(node.fst), snd: litEval(node.snd) };
-                  if (node.type === 'boolLit') return !!node.value;
-                  if (node.type === 'int') return node.value | 0;
-                  if (node.type === 'var') return (env || {})[node.name];
-                  return null;
-                };
-                v = litEval(ast);
-              } else if (ast.type === 'tuplePattern') {
-                // Future: handle tuple patterns
-                const components = ast.components.map(comp => {
-                  if (comp.type === 'boolLit') return !!comp.value;
-                  if (comp.type === 'int') return comp.value | 0;
-                  if (comp.type === 'var') return (env || {})[comp.name];
-                  return null;
-                });
-                v = components;
-              } else if (ast.type === 'int') {
-                // Simple int literal
-                v = ast.value | 0;
-              } else if (ast.type === 'boolLit') {
-                // Simple bool literal
-                v = !!ast.value;
-              } else if (ast.type === 'var') {
-                // Simple variable
-                v = (env || {})[ast.name];
-              }
+              // Evaluate pattern literal recursively: pairs, lists, tuples, literals, variables
+              const litEval = (node) => {
+                if (!node) return null;
+                if (node.type === 'pairPattern') return { __pair__: true, fst: litEval(node.fst), snd: litEval(node.snd) };
+                if (node.type === 'tuplePattern') return (node.elements || node.components || []).map(litEval);
+                if (node.type === 'listPattern') return (node.elements || []).map(litEval);
+                if (node.type === 'boolLit') return !!node.value;
+                if (node.type === 'int') return node.value | 0;
+                if (node.type === 'var' || node.type === 'boolVar' || node.type === 'pairVar') return (env || {})[node.name];
+                return null;
+              };
+              v = litEval(ast);
             } else if (kind === 'pair') {
               // Evaluate pair literal
               if (ast.type === 'pairLit') {
@@ -671,7 +691,7 @@ export class AlgebraicSimulator extends BaseSimulator {
             else if (Array.isArray(v)) {
               // If it's from arith evaluation (list token), push as-is
               // If it's from tuple destructuring, spread it
-              if (kind === 'arith' || kind === 'pair' || (ast && ast.type === 'list')) {
+              if (kind === 'arith' || kind === 'pair' || (ast && (ast.type === 'list' || ast.type === 'listPattern' || ast.type === 'tuplePattern'))) {
                 place.valueTokens.push(v); // Push list as single token
               } else {
                 place.valueTokens.push(...v); // Spread tuple elements

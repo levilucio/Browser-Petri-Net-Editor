@@ -65,4 +65,26 @@ test.describe('Pair token support', () => {
     // T1 should no longer be enabled since the matching token was consumed
     expect(finalInfo.enabled).not.toContain('t1');
   });
+
+  test('PN13: fst(z:Pair) output produces hello in P6', async ({ page }) => {
+    // Load APN model that uses fst on output arc
+    await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net13.pnml');
+
+    await waitSimulatorReady(page, 60000);
+
+    // Step once
+    await page.getByTestId('sim-step').click();
+    await page.waitForTimeout(800);
+
+    // Inspect state and verify P6 contains 'hello'
+    const result = await page.evaluate(() => {
+      const s = window.__PETRI_NET_STATE__;
+      const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
+      const p6 = byLabel('P6');
+      const vt6 = Array.isArray(p6?.valueTokens) ? p6.valueTokens.slice() : [];
+      return { vt6 };
+    });
+
+    expect(result.vt6).toEqual(expect.arrayContaining(['hello']));
+  });
 });

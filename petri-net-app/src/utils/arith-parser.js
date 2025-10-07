@@ -262,6 +262,21 @@ export function parsePattern(input) {
       return { type: 'int', value };
     }
     
+    // Check for list pattern: [a, b, c]
+    if (src[i] === '[') {
+      i++; // consume '['
+      skipWs();
+      const elements = [];
+      while (i < src.length && src[i] !== ']') {
+        elements.push(parsePatternElement());
+        skipWs();
+        if (src[i] === ',') { i++; skipWs(); }
+      }
+      if (i >= src.length || src[i] !== ']') throw new Error(`Expected ']' at position ${i}`);
+      i++; // consume ']'
+      return { type: 'listPattern', elements };
+    }
+
     // Check for variables
     if (/[a-zA-Z_]/.test(src[i])) {
       let start = i;
@@ -276,7 +291,7 @@ export function parsePattern(input) {
         let tStart = i;
         while (i < src.length && /[a-zA-Z]/.test(src[i])) i++;
         const varType = src.slice(tStart, i).toLowerCase();
-        if (varType === 'int' || varType === 'bool' || varType === 'pair') {
+        if (varType === 'int' || varType === 'bool' || varType === 'pair' || varType === 'string' || varType === 'list') {
           return { type: 'var', name, varType };
         } else {
           throw new Error(`Unknown type '${varType}' at position ${tStart}`);
@@ -392,6 +407,16 @@ export function matchPattern(pattern, value) {
           }
         }
         return true;
+      case 'listPattern':
+        if (!Array.isArray(val) || val.length !== pat.elements.length) {
+          return false; // Wrong list length
+        }
+        for (let i = 0; i < pat.elements.length; i++) {
+          if (!matchElement(pat.elements[i], val[i])) {
+            return false; // Sub-pattern matching failed
+          }
+        }
+        return true;
         
       default:
         return false; // Unknown pattern type
@@ -491,7 +516,9 @@ export function capitalizeTypeNames(bindingString) {
   return bindingString
     .replace(/:int\b/g, ':Int')
     .replace(/:bool\b/g, ':Bool')
-    .replace(/:pair\b/g, ':Pair');
+    .replace(/:pair\b/g, ':Pair')
+    .replace(/:string\b/g, ':String')
+    .replace(/:list\b/g, ':List');
 }
 
 /**
@@ -739,6 +766,9 @@ function extractVariablesFromPattern(pattern) {
       case 'pairPattern':
         if (node.fst) traverse(node.fst);
         if (node.snd) traverse(node.snd);
+        break;
+      case 'listPattern':
+        if (Array.isArray(node.elements)) node.elements.forEach(traverse);
         break;
       case 'tuplePattern':
         if (node.elements) {

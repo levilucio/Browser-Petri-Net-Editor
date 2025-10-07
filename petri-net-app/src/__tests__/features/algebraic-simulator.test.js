@@ -285,6 +285,28 @@ describe('Pairs support', () => {
     expect(out.snd).toBe(1);
   }, 20000);
 
+  test('type mismatch between input (String) and output (Int) keeps transition disabled', async () => {
+    const net = {
+      places: [
+        { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [{ __pair__: true, fst: 1, snd: { __pair__: true, fst: 2, snd: 'hello' } }] },
+      ],
+      transitions: [
+        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'T' },
+      ],
+      arcs: [
+        // Input arc binds x as String (nested in pair)
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['(1,(2,x:String))'] },
+        // Output expects x as Int, which should mismatch with String env
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x:Int'] },
+      ],
+      netMode: 'algebraic-int'
+    };
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'single' });
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).not.toContain('t1');
+  }, 20000);
+
   test('output arc fst(z:Pair) projects first component', async () => {
     const sim = new AlgebraicSimulator();
     const pPair = { __pair__: true, fst: true, snd: 42 };
@@ -312,6 +334,71 @@ describe('Pairs support', () => {
     const after = await sim.fireTransition('t3');
     const p6 = after.places.find(p => p.id === 'p6');
     expect(p6.valueTokens).toEqual([true]);
+  }, 20000);
+
+  test('list deconstruction [1,x:Int,y:Int,z:Int,5] enables transition', async () => {
+    const net = {
+      places: [
+        { id: 'p1', label: 'P1', x: 0, y: 0, valueTokens: [[1,2,3,4,5]] },
+        { id: 'p2', label: 'P2', x: 0, y: 0, valueTokens: [] },
+      ],
+      transitions: [
+        { id: 't1', label: 'T1', x: 0, y: 0, guard: 'T' },
+      ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['[1,x:Int,y:Int,z:Int,5]'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['x:Int', 'y:Int', 'z:Int'] },
+      ],
+      netMode: 'algebraic-int'
+    };
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'single' });
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).toContain('t1');
+  }, 20000);
+
+  test('output list construction with variables produces a list token', async () => {
+    const net = {
+      places: [
+        { id: 'p1', valueTokens: [[1,2,3,4,5]] },
+        { id: 'p2', valueTokens: [] },
+      ],
+      transitions: [ { id: 't1', guard: 'T' } ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['[1,x:Int,y:Int,z:Int,5]'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['[x:Int, y:Int, z:Int]'] },
+      ],
+      netMode: 'algebraic-int'
+    };
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'single' });
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).toContain('t1');
+    const after = await sim.fireTransition('t1');
+    const p2 = after.places.find(p => p.id === 'p2');
+    expect(Array.isArray(p2.valueTokens)).toBe(true);
+    expect(p2.valueTokens.length).toBe(1);
+    expect(p2.valueTokens[0]).toEqual([2,3,4]);
+  }, 20000);
+
+  test('output list construction with literals produces a list token', async () => {
+    const net = {
+      places: [
+        { id: 'p1', valueTokens: [[1,2,3,4,5]] },
+        { id: 'p2', valueTokens: [] },
+      ],
+      transitions: [ { id: 't1', guard: 'T' } ],
+      arcs: [
+        { id: 'a1', sourceId: 'p1', targetId: 't1', sourceType: 'place', targetType: 'transition', bindings: ['[1,x:Int,y:Int,z:Int,5]'] },
+        { id: 'a2', sourceId: 't1', targetId: 'p2', sourceType: 'transition', targetType: 'place', bindings: ['[10, 20]'] },
+      ],
+      netMode: 'algebraic-int'
+    };
+    const sim = new AlgebraicSimulator();
+    await sim.initialize(net, { simulationMode: 'single' });
+    const after = await sim.fireTransition('t1');
+    const p2 = after.places.find(p => p.id === 'p2');
+    expect(p2.valueTokens).toEqual([[10, 20]]);
   }, 20000);
 });
 

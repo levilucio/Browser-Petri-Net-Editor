@@ -92,3 +92,34 @@ test.describe('List ADT - PN12', () => {
 });
 
 
+test.describe('List ADT - PN16', () => {
+  test('petri-net16: produces [2,3] in P2', async ({ page }) => {
+    await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net16.pnml');
+
+    await waitSimulatorReady(page);
+
+    // Step once
+    await page.getByTestId('sim-step').click();
+
+    // Wait until P2 has exactly one list token [2,3]
+    await page.waitForFunction(() => {
+      const s = window.__PETRI_NET_STATE__;
+      if (!s) return false;
+      const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
+      const p2 = byLabel('P2');
+      const vt2 = Array.isArray(p2?.valueTokens) ? p2.valueTokens : [];
+      return vt2.length === 1 && Array.isArray(vt2[0]) && vt2[0][0] === 2 && vt2[0][1] === 3 && vt2[0].length === 2;
+    }, { timeout: 15000 });
+
+    // Final assert with state fetch
+    const p2Tokens = await page.evaluate(() => {
+      const s = window.__PETRI_NET_STATE__;
+      const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
+      const p2 = byLabel('P2');
+      return p2?.valueTokens || [];
+    });
+    expect(p2Tokens).toEqual([[2, 3]]);
+  });
+});
+
+
