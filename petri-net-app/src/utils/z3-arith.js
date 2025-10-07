@@ -439,6 +439,21 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
         }
         return false;
       }
+      // Pair projection functions for algebraic tokens
+      if (node.name === 'fst' && node.args && node.args.length === 1) {
+        const arg = evalNode(node.args[0]);
+        if (!arg || typeof arg !== 'object' || arg.__pair__ !== true || !('fst' in arg) || !('snd' in arg)) {
+          throw new Error('fst requires a pair argument');
+        }
+        return arg.fst;
+      }
+      if (node.name === 'snd' && node.args && node.args.length === 1) {
+        const arg = evalNode(node.args[0]);
+        if (!arg || typeof arg !== 'object' || arg.__pair__ !== true || !('fst' in arg) || !('snd' in arg)) {
+          throw new Error('snd requires a pair argument');
+        }
+        return arg.snd;
+      }
       throw new Error(`Unknown function '${node.name}'`);
     }
     if (node.type === 'binop') {

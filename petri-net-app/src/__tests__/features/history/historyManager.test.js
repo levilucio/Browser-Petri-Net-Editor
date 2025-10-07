@@ -45,6 +45,44 @@ describe('HistoryManager', () => {
     expect(historyManager.states.length).toBe(stateCount);
   });
 
+  test('detects arc label change as a different state', () => {
+    const stateA = {
+      places: [{ id: 'p3', x: 0, y: 0 }],
+      transitions: [{ id: 't3', x: 10, y: 10 }],
+      arcs: [{ id: 'a1', source: 'p3', target: 't3', weight: 1, label: 'x:Bool' }]
+    };
+    const stateB = {
+      places: [{ id: 'p3', x: 0, y: 0 }],
+      transitions: [{ id: 't3', x: 10, y: 10 }],
+      arcs: [{ id: 'a1', source: 'p3', target: 't3', weight: 1, label: 'y:Bool' }]
+    };
+
+    historyManager.addState(stateA);
+    // Adding B should be accepted as different
+    const res = historyManager.addState(stateB);
+    expect(res.canUndo).toBe(true);
+    expect(historyManager.states.length).toBe(3);
+  });
+
+  test('detects transition guard and place valueTokens diffs', () => {
+    const stateA = {
+      places: [{ id: 'p5', x: 0, y: 0, tokens: 0, valueTokens: [true] }],
+      transitions: [{ id: 't3', x: 10, y: 10, guard: 'x:Bool' }],
+      arcs: []
+    };
+    const stateB = {
+      places: [{ id: 'p5', x: 0, y: 0, tokens: 0, valueTokens: [false] }],
+      transitions: [{ id: 't3', x: 10, y: 10, guard: 'not(x:Bool)' }],
+      arcs: []
+    };
+
+    historyManager.addState(stateA);
+    // Should be treated as different due to guard and valueTokens
+    const res = historyManager.addState(stateB);
+    expect(res.canUndo).toBe(true);
+    expect(historyManager.states.length).toBe(3);
+  });
+
   test('should undo and redo correctly', () => {
     const state1 = { 
       places: [{ id: 'p1', x: 100, y: 100 }], 

@@ -88,7 +88,12 @@ export class AlgebraicSimulator extends BaseSimulator {
         // If parsed as a function call, ensure it's one of the arithmetic/string/list functions we support.
         // Otherwise, treat it as a boolean expression (e.g., not(x)).
         if (parsed && parsed.type === 'funcall') {
-          const allowedArithFuncs = new Set(['concat', 'substring', 'length', 'head', 'tail', 'append', 'sublist', 'isSublistOf', 'isSubstringOf']);
+          // Whitelist arithmetic/string/list utility functions that can appear in bindings,
+          // plus pair projections fst/snd for Pair values
+          const allowedArithFuncs = new Set([
+            'concat', 'substring', 'length', 'head', 'tail', 'append', 'sublist', 'isSublistOf', 'isSubstringOf',
+            'fst', 'snd'
+          ]);
           if (!allowedArithFuncs.has(parsed.name)) {
             parsed = null; // fall back to boolean parsing below
           }

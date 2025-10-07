@@ -67,7 +67,7 @@ export class HistoryManager {
     // Fast path for null states
     if (!state1 || !state2) return false;
     
-    // Compare places - check tokens more carefully
+    // Compare places - include tokens and valueTokens (algebraic mode)
     if (state1.places.length !== state2.places.length) {
       console.log('HistoryManager: States differ in number of places');
       return false;
@@ -80,9 +80,10 @@ export class HistoryManager {
         return false;
       }
       
-      // Compare all relevant properties including tokens
-      if (p1.x !== p2.x || p1.y !== p2.y || p1.tokens !== p2.tokens || 
-          p1.label !== p2.label || p1.name !== p2.name) {
+      // Compare all relevant properties including tokens and algebraic valueTokens
+      const valueTokensEqual = JSON.stringify(p1.valueTokens || []) === JSON.stringify(p2.valueTokens || []);
+      if (p1.x !== p2.x || p1.y !== p2.y || p1.tokens !== p2.tokens ||
+          p1.label !== p2.label || p1.name !== p2.name || !valueTokensEqual) {
         console.log(`HistoryManager: Place ${p1.id} differs - x: ${p1.x} vs ${p2.x}, y: ${p1.y} vs ${p2.y}, tokens: ${p1.tokens} vs ${p2.tokens}, label: ${p1.label} vs ${p2.label}, name: ${p1.name} vs ${p2.name}`);
         return false;
       }
@@ -101,14 +102,14 @@ export class HistoryManager {
         return false;
       }
       
-      // Compare all relevant properties
-      if (t1.x !== t2.x || t1.y !== t2.y || t1.label !== t2.label || t1.name !== t2.name) {
+      // Compare all relevant properties, including optional guard (algebraic mode)
+      if (t1.x !== t2.x || t1.y !== t2.y || t1.label !== t2.label || t1.name !== t2.name || (t1.guard || '') !== (t2.guard || '')) {
         console.log(`HistoryManager: Transition ${t1.id} differs - x: ${t1.x} vs ${t2.x}, y: ${t1.y} vs ${t2.y}, label: ${t1.label} vs ${t2.label}, name: ${t1.name} vs ${t2.name}`);
         return false;
       }
     }
     
-    // Compare arcs
+    // Compare arcs (include bindings, labels, anglePoints, and correct keys)
     if (state1.arcs.length !== state2.arcs.length) {
       console.log('HistoryManager: States differ in number of arcs');
       return false;
@@ -121,10 +122,21 @@ export class HistoryManager {
         return false;
       }
       
-      // Compare all relevant properties
-      if (a1.sourceId !== a2.sourceId || a1.targetId !== a2.targetId || 
-          a1.weight !== a2.weight || a1.type !== a2.type) {
-        console.log(`HistoryManager: Arc ${a1.id} differs - sourceId: ${a1.sourceId} vs ${a2.sourceId}, targetId: ${a1.targetId} vs ${a2.targetId}, weight: ${a1.weight} vs ${a2.weight}, type: ${a1.type} vs ${a2.type}`);
+      // Compare core properties using correct keys
+      if (a1.source !== a2.source || a1.target !== a2.target || a1.weight !== a2.weight) {
+        console.log(`HistoryManager: Arc ${a1.id} differs - source: ${a1.source} vs ${a2.source}, target: ${a1.target} vs ${a2.target}, weight: ${a1.weight} vs ${a2.weight}`);
+        return false;
+      }
+
+      // Compare optional properties that affect semantics/rendering
+      const labelEqual = (a1.label || '') === (a2.label || '');
+      const sourceTypeEqual = (a1.sourceType || '') === (a2.sourceType || '');
+      const targetTypeEqual = (a1.targetType || '') === (a2.targetType || '');
+      const bindingsEqual = JSON.stringify(a1.bindings || []) === JSON.stringify(a2.bindings || []);
+      const anglePointsEqual = JSON.stringify(a1.anglePoints || []) === JSON.stringify(a2.anglePoints || []);
+
+      if (!labelEqual || !sourceTypeEqual || !targetTypeEqual || !bindingsEqual || !anglePointsEqual) {
+        console.log(`HistoryManager: Arc ${a1.id} differs in secondary properties`);
         return false;
       }
     }

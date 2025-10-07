@@ -284,6 +284,35 @@ describe('Pairs support', () => {
     expect(out.fst).toBe(false);
     expect(out.snd).toBe(1);
   }, 20000);
+
+  test('output arc fst(z:Pair) projects first component', async () => {
+    const sim = new AlgebraicSimulator();
+    const pPair = { __pair__: true, fst: true, snd: 42 };
+    const net = {
+      places: [
+        { id: 'p4', label: 'P4', x: 0, y: 0, valueTokens: [pPair] },
+        { id: 'p5', label: 'P5', x: 0, y: 0, valueTokens: [true] },
+        { id: 'p3', label: 'P3', x: 0, y: 0, valueTokens: [true] },
+        { id: 'p6', label: 'P6', x: 0, y: 0, valueTokens: [] },
+      ],
+      transitions: [
+        { id: 't3', label: 'T3', x: 100, y: 0, guard: 'x:Bool' },
+      ],
+      arcs: [
+        { id: 'a1', sourceId: 'p3', targetId: 't3', sourceType: 'place', targetType: 'transition', bindings: ['x:Bool'] },
+        { id: 'a2', sourceId: 'p5', targetId: 't3', sourceType: 'place', targetType: 'transition', bindings: ['y:Bool'] },
+        { id: 'a3', sourceId: 'p4', targetId: 't3', sourceType: 'place', targetType: 'transition', bindings: ['z:Pair'] },
+        { id: 'a4', sourceId: 't3', targetId: 'p6', sourceType: 'transition', targetType: 'place', bindings: ['fst(z:Pair)'] },
+      ],
+      netMode: 'algebraic-int'
+    };
+    await sim.initialize(net, { simulationMode: 'single' });
+    const enabled = await sim.getEnabledTransitions();
+    expect(enabled).toContain('t3');
+    const after = await sim.fireTransition('t3');
+    const p6 = after.places.find(p => p.id === 'p6');
+    expect(p6.valueTokens).toEqual([true]);
+  }, 20000);
 });
 
 
