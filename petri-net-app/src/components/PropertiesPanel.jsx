@@ -3,6 +3,9 @@ import { PetriNetContext } from '../contexts/PetriNetContext';
 import { parseArithmetic, parsePattern, validatePatternTyping, addTypeAnnotations, stringifyPattern, capitalizeTypeNames, inferVariableTypes, autoAnnotateTypes, inferTokenType } from '../utils/arith-parser';
 import { getTokensForPlace } from '../utils/token-utils';
 import { parseBooleanExpr } from '../utils/z3-arith';
+import PlaceProperties from './panel/PlaceProperties.jsx';
+import ArcBindingsEditor from './panel/ArcBindingsEditor.jsx';
+import TransitionGuardEditor from './panel/TransitionGuardEditor.jsx';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
   // Read enabled transitions from context (fallback to defaults if no provider in unit tests)
@@ -647,82 +650,36 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         </div>
 
       {/* Place-specific properties */}
-      {selectedElement && elementType === 'place' && netMode === 'pt' && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tokens (PT mode)</label>
-          <input
-            type="number"
-            min="0"
-            value={formValues.tokens}
-            onChange={handleTokensChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
+      {selectedElement && elementType === 'place' && (
+        <PlaceProperties
+          mode={netMode}
+          tokens={formValues.tokens}
+          valueTokensInput={formValues.valueTokensInput}
+          onTokensChange={handleTokensChange}
+          onValueTokensChange={(e) => setFormValues(prev => ({ ...prev, valueTokensInput: e.target.value }))}
+          onValueTokensBlur={handleValueTokensBlur}
+        />
       )}
 
-      {selectedElement && elementType === 'place' && netMode === 'algebraic-int' && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Algebraic Tokens</label>
-          <input
-            type="text"
-            value={formValues.valueTokensInput}
-            onChange={(e) => setFormValues(prev => ({ ...prev, valueTokensInput: e.target.value }))}
-            onBlur={handleValueTokensBlur}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
-            placeholder="e.g., 2, 3, 'hello', T, F, (1, 2), [1, 2, 3]"
-          />
-        </div>
-      )}
-
-      {selectedElement && elementType === 'arc' && netMode === 'pt' && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Weight</label>
-          <input
-            type="number"
-            min="1"
-            value={formValues.weight}
-            onChange={handleWeightChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-      )}
-
-      {selectedElement && elementType === 'arc' && netMode === 'algebraic-int' && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Bindings</label>
-          <input
-            type="text"
-            value={formValues.bindingsInput}
-            onChange={(e) => setFormValues(prev => ({ ...prev, bindingsInput: e.target.value }))}
-            onBlur={handleBindingsBlur}
-            className={`w-full px-3 py-2 border rounded-md font-mono text-sm ${
-              formValues.bindingError ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="e.g., x, y, (a, b)"
-          />
-          {formValues.bindingError && (
-            <p className="text-red-600 text-xs mt-1">{formValues.bindingError}</p>
-          )}
-        </div>
+      {selectedElement && elementType === 'arc' && (
+        <ArcBindingsEditor
+          mode={netMode}
+          weight={formValues.weight}
+          bindingsInput={formValues.bindingsInput}
+          bindingError={formValues.bindingError}
+          onWeightChange={handleWeightChange}
+          onBindingsChange={(e) => setFormValues(prev => ({ ...prev, bindingsInput: e.target.value }))}
+          onBindingsBlur={handleBindingsBlur}
+        />
       )}
 
       {selectedElement && elementType === 'transition' && netMode === 'algebraic-int' && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Guard</label>
-          <input
-            type="text"
-            value={formValues.guardText}
-            onChange={(e) => setFormValues(prev => ({ ...prev, guardText: e.target.value }))}
-            onBlur={handleGuardBlur}
-            className={`w-full px-3 py-2 border rounded-md font-mono text-sm ${
-              formValues.guardError ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="e.g., x > 0 and y < 10"
-          />
-          {formValues.guardError && (
-            <p className="text-red-600 text-xs mt-1">{formValues.guardError}</p>
-          )}
-        </div>
+        <TransitionGuardEditor
+          guardText={formValues.guardText}
+          guardError={formValues.guardError}
+          onGuardChange={(e) => setFormValues(prev => ({ ...prev, guardText: e.target.value }))}
+          onGuardBlur={handleGuardBlur}
+        />
       )}
     </div>
   );
