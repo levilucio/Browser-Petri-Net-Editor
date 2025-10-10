@@ -4,6 +4,7 @@
  */
 import { BaseSimulator } from './BaseSimulator.js';
 import { getSimulationStats } from './simulation-utils.js';
+import { consumeTokens, produceTokens } from './token-io.js';
 
 export class PTSimulator extends BaseSimulator {
   constructor() {
@@ -113,21 +114,47 @@ export class PTSimulator extends BaseSimulator {
       arc.source === transitionId && arc.target !== transitionId
     );
     
-    // Consume tokens from input places
+    // Use shared token I/O to keep semantics consistent with APN path
+    // Build picks for PT: each input arc consumes 'weight' anonymous tokens
+    const picks = [];
     for (const arc of inputArcs) {
-      const place = newPlaces.find(p => p.id === arc.source);
-      if (place) {
-        const tokensToConsume = arc.weight || 1;
-        place.tokens = Math.max(0, (place.tokens || 0) - tokensToConsume);
+      const n = (arc.weight || 1) | 0;
+      for (let i = 0; i < n; i++) {
+        picks.push({ srcId: arc.source, countFallback: true });
       }
     }
-    
-    // Produce tokens in output places
-    for (const arc of outputArcs) {
-      const place = newPlaces.find(p => p.id === arc.target);
-      if (place) {
-        const tokensToProduce = arc.weight || 1;
-        place.tokens = Math.min(this.maxTokens, (place.tokens || 0) + tokensToProduce);
+
+    const placesById = Object.fromEntries(newPlaces.map(p => [p.id, p]));
+    consumeTokens(picks, placesById);
+
+    // For PT, outputArcs may not have bindings; produce integer tokens by weight
+    const outputArcsNormalized = outputArcs.map(a => ({
+      id: a.id,
+      sourceId: a.source,
+      targetId: a.target,
+      weight: a.weight || 1,
+    }));
+    // Minimal evaluators; PT doesn't use expressions here
+    produceTokens(
+      outputArcsNormalized,
+      new Map(),
+      {},
+      placesById,
+      {
+        evaluateArithmeticWithBindings: () => 1,
+        evaluateBooleanWithBindings: () => true,
+        evaluatePatternLiteral: () => 1,
+        parseArithmetic: (s) => ({ type: 'int', value: 1 })
+      }
+    );
+
+    // Cap tokens by PT maxTokens per place (PT has scalar tokens)
+    for (const p of newPlaces) {
+      if (!Array.isArray(p.valueTokens)) {
+        p.tokens = Math.min(this.maxTokens, (p.tokens || 0));
+      } else {
+        // Keep tokens count in sync if valueTokens existed from a previous mode
+        p.tokens = p.valueTokens.length;
       }
     }
     
