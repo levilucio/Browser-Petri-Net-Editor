@@ -4,8 +4,8 @@
 //   Term   -> Factor ((*|/) Factor)*
 //   Factor -> INT | '(' Expr ')'
 
-// Import getTokensForPlace from algebraic-simulator
-import { getTokensForPlace } from '../features/simulation/algebraic-simulator.js';
+// Import getTokensForPlace from token utils to avoid simulator coupling
+import { getTokensForPlace } from './token-utils.js';
 
 export function parseArithmetic(input) {
   if (typeof input !== 'string') throw new Error('Expression must be a string');
@@ -189,9 +189,20 @@ export function parseArithmetic(input) {
     return left;
   }
 
-  const result = parseExpr();
+  let result = parseExpr();
   skipWs();
   if (i < src.length) throw new Error(`Unexpected character '${src[i]}' at position ${i}`);
+  // Normalize legacy 'bin' to 'binop' if any callers still emit/expect 'bin'
+  function normalize(node) {
+    if (!node || typeof node !== 'object') return node;
+    if (node.type === 'bin') node.type = 'binop';
+    if (node.left) node.left = normalize(node.left);
+    if (node.right) node.right = normalize(node.right);
+    if (Array.isArray(node.args)) node.args = node.args.map(normalize);
+    if (Array.isArray(node.elements)) node.elements = node.elements.map(normalize);
+    return node;
+  }
+  result = normalize(result);
   return result;
 }
 

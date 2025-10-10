@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PetriNetContext } from '../contexts/PetriNetContext';
 import { parseArithmetic, parsePattern, validatePatternTyping, addTypeAnnotations, stringifyPattern, capitalizeTypeNames, inferVariableTypes, autoAnnotateTypes, inferTokenType } from '../utils/arith-parser';
-import { getTokensForPlace } from '../features/simulation/algebraic-simulator';
+import { getTokensForPlace } from '../utils/token-utils';
 import { parseBooleanExpr } from '../utils/z3-arith';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
@@ -201,15 +201,16 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     const parts = splitTopLevel(input);
     const parsed = parts.map(parsePart).filter(v => v !== null);
 
-    // DEBUG LOGGING
-    console.log('=== DEBUG handleValueTokensBlur ===');
-    console.log('1. Input string:', input);
-    console.log('2. After splitTopLevel:', parts);
-    console.log('3. After parsing each part:', parsed);
-    console.log('4. Parsed length:', parsed.length);
-    console.log('5. First element type:', Array.isArray(parsed[0]) ? 'Array' : typeof parsed[0]);
-    console.log('6. First element value:', parsed[0]);
-    console.log('===================================');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('=== DEBUG handleValueTokensBlur ===');
+      console.log('1. Input string:', input);
+      console.log('2. After splitTopLevel:', parts);
+      console.log('3. After parsing each part:', parsed);
+      console.log('4. Parsed length:', parsed.length);
+      console.log('5. First element type:', Array.isArray(parsed[0]) ? 'Array' : typeof parsed[0]);
+      console.log('6. First element value:', parsed[0]);
+      console.log('===================================');
+    }
 
     const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
     setElements(prev => {
@@ -350,46 +351,64 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
   // Function to infer types for arcs connected to a specific place
   const inferTypesForPlace = (placeId) => {
-    console.log('=== inferTypesForPlace DEBUG ===');
-    console.log('1. placeId:', placeId);
-    console.log('2. netMode:', netMode);
-    console.log('3. elements.places:', elements.places);
-    console.log('4. elements.arcs:', elements.arcs);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('=== inferTypesForPlace DEBUG ===');
+      console.log('1. placeId:', placeId);
+      console.log('2. netMode:', netMode);
+      console.log('3. elements.places:', elements.places);
+      console.log('4. elements.arcs:', elements.arcs);
+    }
     
     if (netMode !== 'algebraic-int' || !elements.places || !elements.arcs) {
-      console.log('5. Early return - conditions not met');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('5. Early return - conditions not met');
+      }
       return;
     }
     
     const place = elements.places.find(p => p.id === placeId);
-    console.log('6. place found:', place);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('6. place found:', place);
+    }
     if (!place || !place.valueTokens || place.valueTokens.length === 0) {
-      console.log('7. Early return - no place or no tokens');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('7. Early return - no place or no tokens');
+      }
       return;
     }
     
     // Get the type of the most recently added token (last in the array)
     const tokenType = inferTokenType(place.valueTokens[place.valueTokens.length - 1]);
-    console.log('8. tokenType:', tokenType);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('8. tokenType:', tokenType);
+    }
     
     // Find arcs that connect from this place
     const connectedArcs = elements.arcs.filter(arc => arc.source === placeId);
-    console.log('9. connectedArcs:', connectedArcs);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('9. connectedArcs:', connectedArcs);
+    }
     
     const arcsToUpdate = [];
       connectedArcs.forEach(arc => {
-        console.log('10. Processing arc:', arc);
-        console.log('10a. arc.bindings:', arc.bindings);
-        console.log('10b. arc.bindings length:', arc.bindings ? arc.bindings.length : 'undefined');
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('10. Processing arc:', arc);
+          console.log('10a. arc.bindings:', arc.bindings);
+          console.log('10b. arc.bindings length:', arc.bindings ? arc.bindings.length : 'undefined');
+        }
         if (arc.bindings && arc.bindings.length > 0) {
           const currentBinding = arc.bindings[0];
-          console.log('11. currentBinding:', currentBinding);
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('11. currentBinding:', currentBinding);
+          }
         // Only update if the binding doesn't already have a type annotation
         if (currentBinding && !currentBinding.includes(':')) {
           const typeMap = new Map();
           // Extract variable names from the binding
           const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
-          console.log('12. varMatches:', varMatches);
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('12. varMatches:', varMatches);
+          }
           if (varMatches) {
             varMatches.forEach(varName => {
               if (varName !== 'true' && varName !== 'false' && 
@@ -399,10 +418,14 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
             });
           }
           
-          console.log('13. typeMap:', typeMap);
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('13. typeMap:', typeMap);
+          }
           if (typeMap.size > 0) {
             const annotatedBinding = autoAnnotateTypes(currentBinding, typeMap);
-            console.log('14. annotatedBinding:', annotatedBinding);
+            if (process.env.NODE_ENV !== 'production') {
+              console.log('14. annotatedBinding:', annotatedBinding);
+            }
             if (annotatedBinding !== currentBinding) {
               arcsToUpdate.push({ arcId: arc.id, newBinding: annotatedBinding });
             }
@@ -411,10 +434,14 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       }
     });
     
-    console.log('15. arcsToUpdate:', arcsToUpdate);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('15. arcsToUpdate:', arcsToUpdate);
+    }
     // Update arcs if any need type annotation
     if (arcsToUpdate.length > 0) {
-      console.log('16. Updating arcs');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('16. Updating arcs');
+      }
       setElements(prev => ({
           ...prev,
         arcs: prev.arcs.map(arc => {
@@ -427,9 +454,13 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       }));
       updateHistory();
     } else {
-      console.log('16. No arcs to update');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('16. No arcs to update');
+      }
     }
-    console.log('===================================');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('===================================');
+    }
   };
 
   // Function to get the unique type of all tokens in a place, or null if ambiguous

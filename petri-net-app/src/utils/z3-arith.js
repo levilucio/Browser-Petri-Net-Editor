@@ -842,10 +842,24 @@ export async function evaluateBooleanPredicate(boolAstOrString, bindings, parseA
       case 'boolVar': return boolSym.get(node.name);
       case 'boolFuncall': {
         if (node.name === 'isSubstringOf' && node.args && node.args.length === 2) {
-          const str1 = buildZ3Expr(ctx, node.args[1], (n) => intSym.get(n));
-          const sub = buildZ3Expr(ctx, node.args[0], (n) => intSym.get(n));
-          // str.contains(sub)
-          return str1.contains(sub);
+          // Fallback to pure evaluation to support fst/snd/etc in arithmetic args
+          try {
+            const sub = evaluateArithmeticWithBindings(node.args[0], bindings || {});
+            const str = evaluateArithmeticWithBindings(node.args[1], bindings || {});
+            if (typeof sub !== 'string' || typeof str !== 'string') {
+              throw new Error('isSubstringOf requires two string arguments');
+            }
+            return str.includes(sub) ? Bool.val(true) : Bool.val(false);
+          } catch (_) {
+            // As a last resort, try Z3 String ops if args are simple
+            try {
+              const str1 = buildZ3Expr(ctx, node.args[1], (n) => intSym.get(n));
+              const sub = buildZ3Expr(ctx, node.args[0], (n) => intSym.get(n));
+              return str1.contains(sub);
+            } catch (e) {
+              return Bool.val(false);
+            }
+          }
         }
         throw new Error(`Unknown boolean function '${node.name}'`);
       }
@@ -854,12 +868,12 @@ export async function evaluateBooleanPredicate(boolAstOrString, bindings, parseA
       case 'or': return Or(buildBool(node.left), buildBool(node.right));
       case 'cmp': {
         // Support only Int comparisons in Z3; for pairs we will fall back to pure evaluation
-        const canBuildIntTerm = (t) => t && (t.type === 'int' || t.type === 'var' || t.type === 'bin');
+        const canBuildIntTerm = (t) => t && (t.type === 'int' || t.type === 'var' || t.type === 'bin' || t.type === 'binop');
         if (canBuildIntTerm(node.left) && canBuildIntTerm(node.right)) {
           const buildArith = (t) => {
             if (t.type === 'int') return Int.val(t.value);
             if (t.type === 'var') return intSym.get(t.name);
-            if (t.type === 'bin') {
+            if (t.type === 'bin' || t.type === 'binop') {
               const l = buildArith(t.left); const r = buildArith(t.right);
               switch (t.op) {
                 case '+': return l.add(r);

@@ -23,19 +23,25 @@ export class HistoryManager {
     // to avoid adding duplicate states
     const currentState = this.states[this.currentIndex];
     if (this.currentIndex >= 0 && this.compareStates(currentState, stateCopy)) {
-      console.log('HistoryManager: State unchanged, not adding to history');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('HistoryManager: State unchanged, not adding to history');
+      }
       return {
         canUndo: this.canUndo(),
         canRedo: this.canRedo()
       };
     }
     
-    console.log(`HistoryManager: Adding new state to history. Current index: ${this.currentIndex}, States count: ${this.states.length}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`HistoryManager: Adding new state to history. Current index: ${this.currentIndex}, States count: ${this.states.length}`);
+    }
     
     // If we're not at the end of the history (user has undone some actions),
     // remove all states after the current index
     if (this.currentIndex < this.states.length - 1) {
-      console.log(`HistoryManager: Removing ${this.states.length - this.currentIndex - 1} future states`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`HistoryManager: Removing ${this.states.length - this.currentIndex - 1} future states`);
+      }
       this.states = this.states.slice(0, this.currentIndex + 1);
     }
     
@@ -49,7 +55,9 @@ export class HistoryManager {
       this.currentIndex--;
     }
     
-    console.log(`HistoryManager: New state added. Current index: ${this.currentIndex}, States count: ${this.states.length}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`HistoryManager: New state added. Current index: ${this.currentIndex}, States count: ${this.states.length}`);
+    }
     
     return {
       canUndo: this.canUndo(),
@@ -69,14 +77,18 @@ export class HistoryManager {
     
     // Compare places - include tokens and valueTokens (algebraic mode)
     if (state1.places.length !== state2.places.length) {
-      console.log('HistoryManager: States differ in number of places');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('HistoryManager: States differ in number of places');
+      }
       return false;
     }
     for (let i = 0; i < state1.places.length; i++) {
       const p1 = state1.places[i];
       const p2 = state2.places.find(p => p.id === p1.id);
       if (!p2) {
-        console.log(`HistoryManager: Place ${p1.id} not found in second state`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`HistoryManager: Place ${p1.id} not found in second state`);
+        }
         return false;
       }
       
@@ -84,47 +96,61 @@ export class HistoryManager {
       const valueTokensEqual = JSON.stringify(p1.valueTokens || []) === JSON.stringify(p2.valueTokens || []);
       if (p1.x !== p2.x || p1.y !== p2.y || p1.tokens !== p2.tokens ||
           p1.label !== p2.label || p1.name !== p2.name || !valueTokensEqual) {
-        console.log(`HistoryManager: Place ${p1.id} differs - x: ${p1.x} vs ${p2.x}, y: ${p1.y} vs ${p2.y}, tokens: ${p1.tokens} vs ${p2.tokens}, label: ${p1.label} vs ${p2.label}, name: ${p1.name} vs ${p2.name}`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`HistoryManager: Place ${p1.id} differs - x: ${p1.x} vs ${p2.x}, y: ${p1.y} vs ${p2.y}, tokens: ${p1.tokens} vs ${p2.tokens}, label: ${p1.label} vs ${p2.label}, name: ${p1.name} vs ${p2.name}`);
+        }
         return false;
       }
     }
     
     // Compare transitions
     if (state1.transitions.length !== state2.transitions.length) {
-      console.log('HistoryManager: States differ in number of transitions');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('HistoryManager: States differ in number of transitions');
+      }
       return false;
     }
     for (let i = 0; i < state1.transitions.length; i++) {
       const t1 = state1.transitions[i];
       const t2 = state2.transitions.find(t => t.id === t1.id);
       if (!t2) {
-        console.log(`HistoryManager: Transition ${t1.id} not found in second state`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`HistoryManager: Transition ${t1.id} not found in second state`);
+        }
         return false;
       }
       
       // Compare all relevant properties, including optional guard (algebraic mode)
       if (t1.x !== t2.x || t1.y !== t2.y || t1.label !== t2.label || t1.name !== t2.name || (t1.guard || '') !== (t2.guard || '')) {
-        console.log(`HistoryManager: Transition ${t1.id} differs - x: ${t1.x} vs ${t2.x}, y: ${t1.y} vs ${t2.y}, label: ${t1.label} vs ${t2.label}, name: ${t1.name} vs ${t2.name}`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`HistoryManager: Transition ${t1.id} differs - x: ${t1.x} vs ${t2.x}, y: ${t1.y} vs ${t2.y}, label: ${t1.label} vs ${t2.label}, name: ${t1.name} vs ${t2.name}`);
+        }
         return false;
       }
     }
     
     // Compare arcs (include bindings, labels, anglePoints, and correct keys)
     if (state1.arcs.length !== state2.arcs.length) {
-      console.log('HistoryManager: States differ in number of arcs');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('HistoryManager: States differ in number of arcs');
+      }
       return false;
     }
     for (let i = 0; i < state1.arcs.length; i++) {
       const a1 = state1.arcs[i];
       const a2 = state2.arcs.find(a => a.id === a1.id);
       if (!a2) {
-        console.log(`HistoryManager: Arc ${a1.id} not found in second state`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`HistoryManager: Arc ${a1.id} not found in second state`);
+        }
         return false;
       }
       
       // Compare core properties using correct keys
       if (a1.source !== a2.source || a1.target !== a2.target || a1.weight !== a2.weight) {
-        console.log(`HistoryManager: Arc ${a1.id} differs - source: ${a1.source} vs ${a2.source}, target: ${a1.target} vs ${a2.target}, weight: ${a1.weight} vs ${a2.weight}`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`HistoryManager: Arc ${a1.id} differs - source: ${a1.source} vs ${a2.source}, target: ${a1.target} vs ${a2.target}, weight: ${a1.weight} vs ${a2.weight}`);
+        }
         return false;
       }
 
@@ -136,12 +162,16 @@ export class HistoryManager {
       const anglePointsEqual = JSON.stringify(a1.anglePoints || []) === JSON.stringify(a2.anglePoints || []);
 
       if (!labelEqual || !sourceTypeEqual || !targetTypeEqual || !bindingsEqual || !anglePointsEqual) {
-        console.log(`HistoryManager: Arc ${a1.id} differs in secondary properties`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`HistoryManager: Arc ${a1.id} differs in secondary properties`);
+        }
         return false;
       }
     }
     
-    console.log('HistoryManager: States are identical');
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('HistoryManager: States are identical');
+    }
     return true;
   }
 
@@ -151,14 +181,18 @@ export class HistoryManager {
    */
   undo() {
     if (!this.canUndo()) {
-      console.log('HistoryManager: Cannot undo - no previous states');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('HistoryManager: Cannot undo - no previous states');
+      }
       return null;
     }
     
     this.currentIndex--;
     const state = this.states[this.currentIndex];
     
-    console.log(`HistoryManager: Undoing to index ${this.currentIndex}, states count: ${this.states.length}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`HistoryManager: Undoing to index ${this.currentIndex}, states count: ${this.states.length}`);
+    }
     
     // Validate the state before returning it
     const validatedState = this.validateState(state);
@@ -176,14 +210,18 @@ export class HistoryManager {
    */
   redo() {
     if (!this.canRedo()) {
-      console.log('HistoryManager: Cannot redo - no future states');
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('HistoryManager: Cannot redo - no future states');
+      }
       return null;
     }
     
     this.currentIndex++;
     const state = this.states[this.currentIndex];
     
-    console.log(`HistoryManager: Redoing to index ${this.currentIndex}, states count: ${this.states.length}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`HistoryManager: Redoing to index ${this.currentIndex}, states count: ${this.states.length}`);
+    }
     
     // Validate the state before returning it
     const validatedState = this.validateState(state);
