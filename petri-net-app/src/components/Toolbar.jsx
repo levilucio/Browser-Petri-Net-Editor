@@ -1,4 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import FileControls from './toolbar/FileControls.jsx';
+import ModeButtons from './toolbar/ModeButtons.jsx';
+import HistoryButtons from './toolbar/HistoryButtons.jsx';
+import SettingsButton from './toolbar/SettingsButton.jsx';
 import { exportToPNML, importFromPNML } from '../utils/python/index';
 // Import icons for simulation controls
 import { simulatorCore } from '../features/simulation';
@@ -441,31 +445,7 @@ const Toolbar = ({
         {/* File Operations Group */}
         <div className="file-operations p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">File</h3>
-          <div className="flex justify-between">
-            <button 
-              style={{ ...buttonStyle(false), opacity: isLoading ? 0.5 : 1 }}
-              onClick={handleSave}
-              disabled={isLoading}
-              title="Save as PNML"
-            >
-              Save
-            </button>
-            <button 
-              style={{ ...buttonStyle(false), opacity: isLoading ? 0.5 : 1 }}
-              onClick={handleLoad}
-              disabled={isLoading}
-              title="Load PNML file"
-            >
-              Load
-            </button>
-            <button 
-              style={{ ...buttonStyle(false) }}
-              onClick={handleClear}
-              title="Clear canvas"
-            >
-              Clear
-            </button>
-          </div>
+          <FileControls isLoading={isLoading} onSave={handleSave} onLoad={handleLoad} onClear={handleClear} buttonStyle={buttonStyle} />
         </div>
         
         {/* Visual separator - engraved effect */}
@@ -494,57 +474,7 @@ const Toolbar = ({
               />
               <label htmlFor="grid-snap-toggle" className="text-xs text-gray-700">Snap to Grid</label>
             </div>
-            <div className="flex justify-between">
-              <button 
-                style={{ ...buttonStyle(mode === 'select') }}
-                data-testid="toolbar-select"
-                onClick={() => {
-                  // Use immediate state update for better responsiveness
-                  if (mode !== 'select') {
-                    setMode('select');
-                  }
-                }}
-              >
-                Select
-              </button>
-              <button 
-                style={buttonStyle(mode === 'place')}
-                data-testid="toolbar-place"
-                onClick={() => {
-                  // Use immediate state update for better responsiveness
-                  if (mode !== 'place') {
-                    setMode('place');
-                  }
-                }}
-              >
-                Place
-              </button>
-              <button 
-                style={buttonStyle(mode === 'transition')}
-                data-testid="toolbar-transition"
-                onClick={() => {
-                  // Use immediate state update for better responsiveness
-                  if (mode !== 'transition') {
-                    setMode('transition');
-                  }
-                }}
-              >
-                Transition
-              </button>
-              <button 
-                style={buttonStyle(mode === 'arc')}
-                data-testid="toolbar-arc"
-                onClick={() => {
-                  // Use immediate state update for better responsiveness
-                  if (mode !== 'arc') {
-                    setMode('arc');
-                  }
-                }}
-              >
-                Arc
-              </button>
-              
-            </div>
+            <ModeButtons mode={mode} setMode={setMode} buttonStyle={buttonStyle} />
           </div>
         </div>
         
@@ -586,24 +516,7 @@ const Toolbar = ({
         {/* History Group */}
         <div className="history-tools p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">History</h3>
-          <div className="flex justify-between">
-            <button 
-              style={{ ...buttonStyle(false), opacity: canUndo ? 1 : 0.5 }}
-              onClick={onUndo}
-              disabled={!canUndo}
-              title="Undo (Ctrl+Z)"
-            >
-              Undo
-            </button>
-            <button 
-              style={{ ...buttonStyle(false), opacity: canRedo ? 1 : 0.5 }}
-              onClick={onRedo}
-              disabled={!canRedo}
-              title="Redo (Ctrl+Y)"
-            >
-              Redo
-            </button>
-          </div>
+          <HistoryButtons canUndo={canUndo} canRedo={canRedo} onUndo={onUndo} onRedo={onRedo} buttonStyle={buttonStyle} />
         </div>
         
         {/* Visual separator between history and settings */}
@@ -619,16 +532,7 @@ const Toolbar = ({
         {/* Settings Group */}
         <div className="settings-tools p-2 ml-auto">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Settings</h3>
-          <div className="flex justify-between">
-            <button 
-              style={buttonStyle(false)}
-              onClick={onOpenSettings}
-              title="Simulation Settings"
-              data-testid="toolbar-settings"
-            >
-              Settings
-            </button>
-          </div>
+          <SettingsButton onOpenSettings={onOpenSettings} buttonStyle={buttonStyle} />
         </div>
       </div>
       
