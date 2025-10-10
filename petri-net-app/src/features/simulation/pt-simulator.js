@@ -127,34 +127,32 @@ export class PTSimulator extends BaseSimulator {
     const placesById = Object.fromEntries(newPlaces.map(p => [p.id, p]));
     consumeTokens(picks, placesById);
 
-    // For PT, outputArcs may not have bindings; produce integer tokens by weight
+    // For PT, outputArcs do not use algebraic bindings; produce count-only tokens
     const outputArcsNormalized = outputArcs.map(a => ({
       id: a.id,
       sourceId: a.source,
       targetId: a.target,
       weight: a.weight || 1,
     }));
-    // Minimal evaluators; PT doesn't use expressions here
-    produceTokens(
-      outputArcsNormalized,
-      new Map(),
-      {},
-      placesById,
-      {
-        evaluateArithmeticWithBindings: () => 1,
-        evaluateBooleanWithBindings: () => true,
-        evaluatePatternLiteral: () => 1,
-        parseArithmetic: (s) => ({ type: 'int', value: 1 })
+    for (const arc of outputArcsNormalized) {
+      const place = placesById[arc.targetId];
+      if (!place) continue;
+      // Ensure we are operating in PT mode: no valueTokens array
+      if (Array.isArray(place.valueTokens)) {
+        delete place.valueTokens;
       }
-    );
+      const n = (arc.weight || 1) | 0;
+      place.tokens = ((Number(place.tokens || 0) + n) | 0);
+    }
 
     // Cap tokens by PT maxTokens per place (PT has scalar tokens)
     for (const p of newPlaces) {
       if (!Array.isArray(p.valueTokens)) {
         p.tokens = Math.min(this.maxTokens, (p.tokens || 0));
       } else {
-        // Keep tokens count in sync if valueTokens existed from a previous mode
-        p.tokens = p.valueTokens.length;
+        // If valueTokens accidentally exists, normalize back to PT counts
+        p.tokens = Math.min(this.maxTokens, Array.isArray(p.valueTokens) ? p.valueTokens.length : (p.tokens || 0));
+        delete p.valueTokens;
       }
     }
     

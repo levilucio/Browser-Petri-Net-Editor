@@ -13,6 +13,8 @@ import { allowedOps } from './ops/registry';
 import { buildGuardCache, buildBindingCache } from './cache';
 import { findSatisfyingAssignment } from './assignment';
 import { consumeTokens, produceTokens } from './token-io';
+import { extractVariablesFromPattern, extractVariablesFromExpression, checkForUnboundVariables as checkUnbound } from './guard-utils';
+import { getCurrentStateNormalized } from './state-normalizer';
 import {
   evaluateAction,
   evaluateArithmeticWithBindings,
@@ -128,139 +130,18 @@ export class AlgebraicSimulator extends BaseSimulator {
   }
 
   async checkForUnboundVariables(transitionId, inputArcs) {
-    // Get all variables that can be bound from input arcs
-    const boundVariables = new Set();
-    
-    // Collect variables from input arc bindings (including nested variables in patterns)
-    for (const arc of inputArcs) {
-      const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
-      for (const astObj of bindingAsts) {
-        const { kind, ast } = astObj;
-        if (kind === 'pattern') {
-          const variables = this.extractVariablesFromPattern(ast);
-          variables.forEach(varName => boundVariables.add(varName));
-        }
-      }
-    }
-
-    // Check guard for unbound variables
-    const guardAst = this.cache.guardAstByTransition.get(transitionId);
-    if (guardAst) {
-      const guardVars = this.extractVariablesFromExpression(guardAst);
-      for (const varName of guardVars) {
-        if (!boundVariables.has(varName)) {
-          console.log('Unbound variable in guard:', varName);
-          return true; // Has unbound variables
-        }
-      }
-    }
-
-    // Check output arcs for unbound variables and empty bindings
-    const outputArcs = (this.petriNet.arcs || []).filter(a => a.sourceId === transitionId && (a.targetType === 'place' || !a.targetType));
-    
-    for (const arc of outputArcs) {
-      const bindingAsts = this.cache.bindingAstsByArc.get(arc.id) || [];
-      
-      // If output arc has no bindings at all, disable transition (no token can be produced)
-      if (bindingAsts.length === 0) {
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('Output arc has no bindings, disabling transition');
-        }
-        return true; // Disable transition
-      }
-      
-      for (const astObj of bindingAsts) {
-        const { kind, ast } = astObj;
-        if (kind === 'pattern' && ast.type === 'var') {
-          // Only check variables - literals like 'int', 'boolLit', 'pairPattern' are always valid
-          if (!boundVariables.has(ast.name)) {
-            if (process.env.NODE_ENV !== 'production') {
-              console.log('Unbound variable in output arc:', ast.name);
-            }
-            return true; // Has unbound variables
-          }
-        }
-      }
-    }
-
-    return false; // No unbound variables and all output arcs have bindings
+    return checkUnbound(
+      this.petriNet,
+      this.cache.bindingAstsByArc,
+      this.cache.guardAstByTransition,
+      transitionId,
+      inputArcs
+    );
   }
 
-  extractVariablesFromPattern(ast) {
-    const variables = new Set();
-    
-    function traverse(node) {
-      if (!node) return;
-      
-      switch (node.type) {
-        case 'var':
-          variables.add(node.name);
-          break;
-        case 'pairPattern':
-          traverse(node.fst);
-          traverse(node.snd);
-          break;
-        case 'listPattern':
-          if (Array.isArray(node.elements)) {
-            node.elements.forEach(traverse);
-          }
-          break;
-        case 'tuplePattern':
-          if (node.elements) {
-            node.elements.forEach(traverse);
-          }
-          break;
-      }
-    }
-    
-    traverse(ast);
-    return Array.from(variables);
-  }
-
-  extractVariablesFromExpression(ast) {
-    const variables = new Set();
-    
-    function traverse(node) {
-      if (!node) return;
-      
-      switch (node.type) {
-        case 'var':
-        case 'boolVar':
-        case 'pairVar':
-          variables.add(node.name);
-          break;
-        case 'binop':
-        case 'cmp':
-          traverse(node.left);
-          traverse(node.right);
-          break;
-        case 'unop':
-          traverse(node.operand);
-          break;
-        case 'call':
-          if (node.args) {
-            node.args.forEach(traverse);
-          }
-          break;
-        case 'pairPattern':
-          traverse(node.fst);
-          traverse(node.snd);
-          break;
-        case 'tuplePattern':
-          if (node.elements) {
-            node.elements.forEach(traverse);
-          }
-          break;
-        case 'pairLit':
-          traverse(node.fst);
-          traverse(node.snd);
-          break;
-      }
-    }
-    
-    traverse(ast);
-    return Array.from(variables);
-  }
+  // Deprecated helpers retained for compatibility if referenced externally
+  extractVariablesFromPattern(ast) { return extractVariablesFromPattern(ast); }
+  extractVariablesFromExpression(ast) { return extractVariablesFromExpression(ast); }
 
   async isTransitionEnabled(transitionId) {
     if (!this.isInitialized) return false;
@@ -268,7 +149,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     if (!t) return false;
 
     // Gather input arcs (place -> transition)
-    const inputArcs = (this.petriNet.arcs || []).filter(a => a.targetId === transitionId && (a.sourceType === 'place' || !a.sourceType));
+    const inputArcs = (this.petriNet.arcs || []).filter(a => (a.targetId === transitionId || a.target === transitionId) && (a.sourceType === 'place' || !a.sourceType));
     if (inputArcs.length === 0) return true; // degenerate: no inputs
 
     // Check for unbound variables in guard and output arcs
@@ -313,8 +194,8 @@ export class AlgebraicSimulator extends BaseSimulator {
     // A simple re-evaluation: find one satisfying assignment and apply
     const t = (this.petriNet.transitions || []).find(x => x.id === transitionId);
     if (!t) return this.getCurrentState();
-    const inputArcs = (this.petriNet.arcs || []).filter(a => a.targetId === transitionId && (a.sourceType === 'place' || !a.sourceType));
-    const outputArcs = (this.petriNet.arcs || []).filter(a => a.sourceId === transitionId && (a.targetType === 'place' || !a.targetType));
+    const inputArcs = (this.petriNet.arcs || []).filter(a => (a.targetId === transitionId || a.target === transitionId) && (a.sourceType === 'place' || !a.sourceType));
+    const outputArcs = (this.petriNet.arcs || []).filter(a => (a.sourceId === transitionId || a.source === transitionId) && (a.targetType === 'place' || !a.targetType));
     const placesById = Object.fromEntries((this.petriNet.places || []).map(p => [p.id, p]));
     const guardAst = this.cache.guardAstByTransition.get(transitionId);
 
@@ -388,49 +269,7 @@ export class AlgebraicSimulator extends BaseSimulator {
   }
 
   getCurrentState() {
-    // Normalize return shape as in PyodideSimulator.validateResult
-    const places = (this.petriNet.places || []).map(p => ({
-      id: p.id,
-      label: p.label || '',
-      tokens: Number(Array.isArray(p.valueTokens) ? p.valueTokens.length : (p.tokens || 0)),
-      x: Number(p.x || 0),
-      y: Number(p.y || 0),
-      name: p.name || '',
-      type: 'place',
-      valueTokens: Array.isArray(p.valueTokens) ? [...p.valueTokens] : undefined,
-    }));
-    const transitions = (this.petriNet.transitions || []).map(t => ({
-      id: t.id,
-      label: t.label || '',
-      x: Number(t.x || 0),
-      y: Number(t.y || 0),
-      name: t.name || '',
-      type: 'transition',
-      guard: t.guard,
-      action: t.action,
-    }));
-    const placeIds = new Set(places.map(p => p.id));
-    const transitionIds = new Set(transitions.map(t => t.id));
-    const arcs = (this.petriNet.arcs || []).map(a => {
-      const s = a.sourceId || a.source;
-      const t = a.targetId || a.target;
-      const inferredSourceType = placeIds.has(s) ? 'place' : (transitionIds.has(s) ? 'transition' : (a.sourceType || 'place'));
-      const inferredTargetType = placeIds.has(t) ? 'place' : (transitionIds.has(t) ? 'transition' : (a.targetType || 'transition'));
-      const type = a.type || `${inferredSourceType}-to-${inferredTargetType}`;
-      return {
-        id: a.id,
-        sourceId: s,
-        targetId: t,
-        source: s,
-        target: t,
-        weight: Number(a.weight || 1),
-        sourceType: inferredSourceType,
-        targetType: inferredTargetType,
-        type,
-        bindings: Array.isArray(a.bindings) ? [...a.bindings] : (a.binding ? [a.binding] : []),
-      };
-    });
-    return { places, transitions, arcs };
+    return getCurrentStateNormalized(this.petriNet);
   }
 
   async checkTransitionStateChanges() {

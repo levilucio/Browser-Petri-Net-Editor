@@ -35,9 +35,9 @@ export function produceTokens(outputArcs, bindingAstsByArc, env, placesById, eva
     const tgtId = arc.targetId;
     const place = placesById[tgtId];
     if (!place) continue;
-    if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
     const bindingAsts = bindingAstsByArc.get(arc.id) || [];
     if (bindingAsts.length > 0) {
+      if (!Array.isArray(place.valueTokens)) place.valueTokens = [];
       for (const astObj of bindingAsts) {
         try {
           let v;
