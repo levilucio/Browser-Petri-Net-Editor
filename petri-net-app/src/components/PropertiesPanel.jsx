@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PetriNetContext } from '../contexts/PetriNetContext';
-import { capitalizeTypeNames } from '../utils/arith-parser';
+import { capitalizeTypeNames, parseArithmetic } from '../utils/arith-parser';
 import { parseBooleanExpr } from '../utils/z3-arith';
 import PlaceProperties from './panel/PlaceProperties.jsx';
 import ArcBindingsEditor from './panel/ArcBindingsEditor.jsx';
@@ -213,7 +213,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
           ...prev,
           transitions: prev.transitions.map(t => t.id === elementId ? { ...t, guard: guardInput } : t)
         };
-        return computeGlobalTypeInference(baseState);
+        return computeGlobalTypeInferenceForState(baseState, netMode);
       });
       updateHistory();
     } catch (e) {

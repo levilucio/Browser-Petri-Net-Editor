@@ -3,12 +3,8 @@ import FileControls from './toolbar/FileControls.jsx';
 import ModeButtons from './toolbar/ModeButtons.jsx';
 import HistoryButtons from './toolbar/HistoryButtons.jsx';
 import SettingsButton from './toolbar/SettingsButton.jsx';
-import { exportToPNML, importFromPNML } from '../utils/python/index';
-// Import icons for simulation controls
-import { simulatorCore } from '../features/simulation';
-import { useAdtRegistry } from '../contexts/AdtContext';
 import AdtDialog from './AdtDialog';
-import { detectNetModeFromContent } from '../utils/netMode';
+import useToolbarActions from './toolbar/useToolbarActions';
 
 const Toolbar = ({ 
   mode, 
@@ -37,12 +33,19 @@ const Toolbar = ({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isAdtOpen, setIsAdtOpen] = useState(false);
-  let adtRegistry = null;
-  try {
-    adtRegistry = useAdtRegistry();
-  } catch (_) {
-    adtRegistry = null;
-  }
+  // Handlers moved to hook for clarity
+  const { handleSave, handleLoad, handleClear, handleOpenAdtManager } = useToolbarActions({
+    elements,
+    setElements,
+    updateHistory,
+    simulationSettings,
+    setSimulationSettings,
+    resetEditor,
+    setIsLoading,
+    setError,
+    setSuccess,
+    setIsAdtOpen,
+  });
   
   // Auto-dismiss success messages after 5 seconds
   useEffect(() => {
@@ -51,286 +54,6 @@ const Toolbar = ({
     return () => clearTimeout(timeoutId);
   }, [success]);
   
-  // Function to handle saving the Petri net as PNML XML
-  const handleSave = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      setSuccess(null);
-      
-      // Include the current netMode in the elements when saving
-      const elementsWithMode = {
-        ...elements,
-        netMode: simulationSettings?.netMode || 'pt'
-      };
-      
-      // Convert the Petri net to PNML
-      const pnmlString = await exportToPNML(elementsWithMode);
-      
-      // Create a blob and download link
-      const blob = new Blob([pnmlString], { type: 'application/xml' });
-      const url = URL.createObjectURL(blob);
-      
-      // Create a download link and trigger it
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'petri-net.pnml';
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
-      // Show success message
-      setSuccess('Petri net saved successfully as PNML file.');
-    } catch (error) {
-      console.error('Error saving Petri net:', error);
-      setError(`Error saving Petri net: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  // Function to handle loading a Petri net from PNML XML
-  const handleLoad = () => {
-    // Create a file input element
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '.pnml,.xml';
-    // Append to DOM so E2E tests can target it reliably
-    try {
-      fileInput.style.display = 'none';
-      document.body.appendChild(fileInput);
-    } catch (_) {}
-    
-    // Handle file selection
-    fileInput.onchange = async (event) => {
-      const file = event.target.files[0];
-      if (!file) return;
-      
-      try {
-        setIsLoading(true);
-        setError(null);
-        setSuccess(null);
-        
-        // Read the file
-        const fileContent = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.onerror = reject;
-          reader.readAsText(file);
-        });
-        
-        // Validate that the file content is not empty
-        if (!fileContent || fileContent.trim() === '') {
-          throw new Error('The selected file is empty');
-        }
-        
-        // Basic XML validation
-        if (!fileContent.includes('<pnml') && !fileContent.includes('<PNML')) {
-          throw new Error('The file does not appear to be a valid PNML file');
-        }
-        
-        // File content loaded, converting PNML to JSON
-        
-        // Convert the PNML to JSON with a timeout to prevent UI freezing
-        const petriNetJsonPromise = importFromPNML(fileContent);
-        
-        // Set a timeout to detect if the operation is taking too long
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Operation timed out. The file may be too large or invalid.')), 10000);
-        });
-        
-        // Race the promises to handle timeouts
-        const petriNetJson = await Promise.race([petriNetJsonPromise, timeoutPromise]);
-        
-        // PNML converted to JSON successfully
-        
-        // Validate the result structure
-        if (!petriNetJson || typeof petriNetJson !== 'object') {
-          throw new Error('Invalid data structure in the imported file');
-        }
-        
-        // No ad-hoc PNML debug analysis in production code
-        
-        // Ensure the required arrays exist
-        const safeJson = {
-          places: Array.isArray(petriNetJson.places) ? petriNetJson.places : [],
-          transitions: Array.isArray(petriNetJson.transitions) ? petriNetJson.transitions : [],
-          arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : []
-        };
-        
-        // About to update Petri net state
-        
-        // Verify the structure of the imported data
-        if (safeJson.places && safeJson.places.length > 0) {
-          // Places found in imported file
-          // First place processed
-        } else {
-          console.warn('No places found in imported data');
-        }
-        
-        if (safeJson.transitions && safeJson.transitions.length > 0) {
-          // Transitions found in imported file
-          // First transition processed
-        } else {
-          console.warn('No transitions found in imported data');
-        }
-        
-        if (safeJson.arcs && safeJson.arcs.length > 0) {
-          // Arcs found before validation
-          // First arc processed
-          
-          // Filter out arcs with undefined or invalid source/target
-          const validArcs = safeJson.arcs.filter(arc => {
-            // Skip arcs with undefined or missing source/target
-            if (arc.source === 'undefined' || arc.target === 'undefined' || 
-                !arc.source || !arc.target) {
-              console.warn(`Skipping invalid arc ${arc.id} - has undefined or missing source/target`);
-              return false;
-            }
-            
-            // Skip arcs with source/target that don't reference existing places/transitions
-            const sourceExists = safeJson.places.some(p => p.id === arc.source) || 
-                             safeJson.transitions.some(t => t.id === arc.source);
-            const targetExists = safeJson.places.some(p => p.id === arc.target) || 
-                             safeJson.transitions.some(t => t.id === arc.target);
-            
-            if (!sourceExists || !targetExists) {
-              console.warn(`Skipping invalid arc ${arc.id} - references non-existent elements`);
-              return false;
-            }
-            
-            return true;
-          });
-          
-          // Filtered out invalid arcs
-          safeJson.arcs = validArcs;
-          // Valid arcs count after filtering
-          
-          // Ensure all arcs have a valid type property
-          safeJson.arcs = safeJson.arcs.map(arc => {
-            if (!arc.type || (arc.type !== 'place-to-transition' && arc.type !== 'transition-to-place')) {
-              // Try to infer type from source and target IDs
-              const sourceIsPlace = safeJson.places.some(p => p.id === arc.source);
-              const targetIsPlace = safeJson.places.some(p => p.id === arc.target);
-              
-              if (sourceIsPlace && !targetIsPlace) {
-                // Fixed arc type to place-to-transition
-                return { ...arc, type: 'place-to-transition' };
-              } else if (!sourceIsPlace && targetIsPlace) {
-                // Fixed arc type to transition-to-place
-                return { ...arc, type: 'transition-to-place' };
-              } else {
-                // Default to place-to-transition as fallback
-                console.warn(`Could not determine type for arc ${arc.id}, defaulting to place-to-transition`);
-                return { ...arc, type: 'place-to-transition' };
-              }
-            }
-            return arc;
-          });
-        } else {
-          console.warn('No arcs found in imported data');
-        }
-        
-        // Reset simulator and editor state completely before loading new Petri net
-        try {
-          // Stop any running simulations
-          simulatorCore.deactivateSimulation?.();
-          // Reset simulator state
-          simulatorCore.reset?.();
-        } catch (e) {
-          console.warn('Simulator reset on load failed or not available:', e);
-        }
-
-        // Reset editor state completely
-        if (resetEditor) {
-          resetEditor();
-        }
-
-        // Update the Petri net state
-        setElements(safeJson);
-
-        // Use stored netMode from file instead of detecting from content
-        const storedMode = safeJson.netMode;
-        if (storedMode) {
-          setSimulationSettings(prev => ({ ...(prev || {}), netMode: storedMode }));
-        } else {
-          // Fallback to detection only if no stored mode
-          try {
-            const importedMode = detectNetModeFromContent(safeJson);
-            setSimulationSettings(prev => ({ ...(prev || {}), netMode: importedMode }));
-          } catch (_) {}
-        }
-        
-        // Verify the state was updated by exposing it to the window for debugging
-        // State prepared for loading
-        
-        // Add to history
-        if (updateHistory) {
-          // Adding imported state to history
-          updateHistory(safeJson);
-        } else {
-          console.warn('updateHistory function not available');
-        }
-        
-        // Show success message
-        setSuccess(`Petri net loaded successfully with ${safeJson.places.length} places, ${safeJson.transitions.length} transitions, and ${safeJson.arcs.length} arcs.`);
-      } catch (error) {
-        console.error('Error loading Petri net:', error);
-        setError(`Error loading Petri net: ${error.message}`);
-        
-        // Ensure the canvas is not left in an inconsistent state
-        // by keeping the current state if there's an error
-      } finally {
-        setIsLoading(false);
-        // Cleanup the temporary input
-        try { if (fileInput && fileInput.parentNode) { fileInput.parentNode.removeChild(fileInput); } } catch (_) {}
-      }
-    };
-    
-    // Trigger the file input
-    fileInput.click();
-  };
-  
-  // Function to clear the canvas
-  const handleClear = () => {
-    try {
-      // Reset simulator and editor state completely when canvas is empty
-      simulatorCore.deactivateSimulation?.();
-      simulatorCore.reset?.();
-    } catch (e) {
-      console.warn('Simulator reset on clear failed or not available:', e);
-    }
-
-    // Use the complete reset function
-    if (resetEditor) {
-      resetEditor();
-    } else {
-      // Fallback to manual reset if resetEditor not available
-      const emptyState = {
-        places: [],
-        transitions: [],
-        arcs: []
-      };
-      setElements(emptyState);
-      
-      // Reset simulation settings to default when canvas is empty
-      setSimulationSettings(prev => ({ 
-        ...(prev || {}), 
-        netMode: 'pt' // Reset to P/T mode when canvas is empty
-      }));
-      
-      // Add to history
-      if (updateHistory) {
-        updateHistory(emptyState);
-      }
-    }
-    
-    // Show success message
-    setSuccess('Canvas cleared successfully.');
-  };
   
   // Styles for the separator
   const separatorStyle = {
@@ -372,10 +95,7 @@ const Toolbar = ({
   });
   
   // Open in-app ADT dialog
-  const handleOpenAdtManager = () => {
-    if (!adtRegistry) { setError('ADT Manager unavailable in this context'); return; }
-    setIsAdtOpen(true);
-  };
+  // Open ADT dialog now handled by hook
 
   // Additional style for button hover state - will be applied via JavaScript
   document.addEventListener('DOMContentLoaded', () => {

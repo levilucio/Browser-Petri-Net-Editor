@@ -1,0 +1,135 @@
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml" xmlns:apn="http://example.org/apn">
+  <net xmlns="" id="net-large-apn" type="http://www.pnml.org/version-2009/grammar/ptnet" netMode="algebraic-int">
+    <name><text>Algebraic Demo Net (20+ places, 20+ transitions)</text></name>
+    <page id="page1">
+      <!-- Input / initial places -->
+      <place id="p1"><name><text>P_ints</text></name><graphics><position x="200" y="100"/></graphics><initialMarking><text>[[1,2,3,4,5,6,7,8,9,10]]</text></initialMarking></place>
+      <place id="p2"><name><text>P_strings</text></name><graphics><position x="200" y="220"/></graphics><initialMarking><text>[['hello','world','foo','bar','hell']]</text></initialMarking></place>
+      <place id="p3"><name><text>P_pair</text></name><graphics><position x="200" y="340"/></graphics><initialMarking><text>[(7,(4,1))]</text></initialMarking></place>
+      <place id="p4"><name><text>P_pairlist</text></name><graphics><position x="200" y="460"/></graphics><initialMarking><text>[(1,2),(3,4),(5,6)]</text></initialMarking></place>
+      <place id="p5"><name><text>P_bools</text></name><graphics><position x="200" y="580"/></graphics><initialMarking><text>[T,F,T,F]</text></initialMarking></place>
+
+      <!-- Output / intermediate places -->
+      <place id="p6"><name><text>P_out_evenlist</text></name><graphics><position x="900" y="100"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p7"><name><text>P_out_intlist_length</text></name><graphics><position x="900" y="160"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p8"><name><text>P_out_hellos</text></name><graphics><position x="900" y="220"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p9"><name><text>P_out_fst</text></name><graphics><position x="900" y="340"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p10"><name><text>P_out_snd</text></name><graphics><position x="900" y="400"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p11"><name><text>P_out_concat</text></name><graphics><position x="900" y="280"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p12"><name><text>P_out_head</text></name><graphics><position x="900" y="520"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p13"><name><text>P_out_append</text></name><graphics><position x="900" y="580"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p14"><name><text>P_out_strlen</text></name><graphics><position x="900" y="640"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p15"><name><text>P_out_sublist</text></name><graphics><position x="900" y="700"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p16"><name><text>P_out_substring_flags</text></name><graphics><position x="900" y="760"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p17"><name><text>P_out_list_construct</text></name><graphics><position x="900" y="820"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p18"><name><text>P_out_guarded</text></name><graphics><position x="900" y="880"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p19"><name><text>P_out_nestedlist</text></name><graphics><position x="900" y="940"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p20"><name><text>P_sink</text></name><graphics><position x="900" y="1000"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p21"><name><text>P_out_pairlist_head_fst</text></name><graphics><position x="900" y="460"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+      <place id="p22"><name><text>P_out_tail</text></name><graphics><position x="900" y="1060"/></graphics><initialMarking><text>[]</text></initialMarking></place>
+
+      <!-- Transitions (20+) -->
+      <transition id="t1"><name><text>T_head_ints</text></name><graphics><position x="550" y="100"/></graphics></transition>
+      <transition id="t2"><name><text>T_tail_ints</text></name><graphics><position x="550" y="160"/></graphics></transition>
+      <transition id="t3"><name><text>T_sublist_ints</text></name><graphics><position x="550" y="220"/></graphics></transition>
+      <transition id="t4"><name><text>T_append_ints</text></name><graphics><position x="550" y="280"/></graphics></transition>
+      <transition id="t5"><name><text>T_concat_head_string</text></name><graphics><position x="550" y="340"/></graphics></transition>
+      <transition id="t6"><name><text>T_isSubstring_head_string</text></name><graphics><position x="550" y="400"/></graphics></transition>
+      <transition id="t7"><name><text>T_length_head_string</text></name><graphics><position x="550" y="460"/></graphics></transition>
+      <transition id="t8"><name><text>T_filter_hell</text></name><graphics><position x="550" y="520"/></graphics><apn:guard xmlns:apn="http://example.org/apn"><apn:text>isSubstringOf(head(s), 'hell')</apn:text></apn:guard></transition>
+      <transition id="t9"><name><text>T_pair_fst</text></name><graphics><position x="550" y="580"/></graphics></transition>
+      <transition id="t10"><name><text>T_pair_snd</text></name><graphics><position x="550" y="640"/></graphics></transition>
+      <transition id="t11"><name><text>T_pairlist_head_fst</text></name><graphics><position x="550" y="700"/></graphics></transition>
+      <transition id="t12"><name><text>T_pairlist_head_snd</text></name><graphics><position x="550" y="760"/></graphics></transition>
+      <transition id="t13"><name><text>T_nestedlist_from_pair</text></name><graphics><position x="550" y="820"/></graphics></transition>
+      <transition id="t14"><name><text>T_list_construct_from_ints</text></name><graphics><position x="550" y="880"/></graphics></transition>
+      <transition id="t15"><name><text>T_strings_pattern_ops</text></name><graphics><position x="550" y="940"/></graphics><apn:guard xmlns:apn="http://example.org/apn"><apn:text>isSubstringOf(s2, 'hell')</apn:text></apn:guard></transition>
+      <transition id="t16"><name><text>T_guard_bool_head</text></name><graphics><position x="550" y="1000"/></graphics><apn:guard xmlns:apn="http://example.org/apn"><apn:text>head(b)</apn:text></apn:guard></transition>
+      <transition id="t17"><name><text>T_intlist_length</text></name><graphics><position x="550" y="1060"/></graphics></transition>
+      <transition id="t18"><name><text>T_filter_len_gt4</text></name><graphics><position x="550" y="1120"/></graphics><apn:guard xmlns:apn="http://example.org/apn"><apn:text>length(head(s)) &gt; 4</apn:text></apn:guard></transition>
+      <transition id="t19"><name><text>T_mixed_list</text></name><graphics><position x="550" y="1180"/></graphics></transition>
+      <transition id="t20"><name><text>T_isSubstring_foo</text></name><graphics><position x="550" y="1240"/></graphics></transition>
+
+      <!-- Arcs: inputs and outputs with bindings -->
+      <!-- T1: head of int list -->
+      <arc id="a1" source="p1" target="t1"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>l:List</apn:text></apn:binding></arc>
+      <arc id="a2" source="t1" target="p12"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>head(l)</apn:text></apn:binding></arc>
+
+      <!-- T2: tail of int list -->
+      <arc id="a3" source="p1" target="t2"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>l:List</apn:text></apn:binding></arc>
+      <arc id="a4" source="t2" target="p22"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>tail(l)</apn:text></apn:binding></arc>
+
+      <!-- T3: sublist of int list -->
+      <arc id="a5" source="p1" target="t3"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>l:List</apn:text></apn:binding></arc>
+      <arc id="a6" source="t3" target="p15"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>sublist(l, 2, 5)</apn:text></apn:binding></arc>
+
+      <!-- T4: append to int list -->
+      <arc id="a7" source="p1" target="t4"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>l:List</apn:text></apn:binding></arc>
+      <arc id="a8" source="t4" target="p13"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>append(l, [11,12])</apn:text></apn:binding></arc>
+
+      <!-- T5: concat head string with suffix -->
+      <arc id="a9" source="p2" target="t5"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>s:List</apn:text></apn:binding></arc>
+      <arc id="a10" source="t5" target="p11"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>concat(head(s), '!!!')</apn:text></apn:binding></arc>
+
+      <!-- T6: isSubstring flag on head string -->
+      <arc id="a11" source="p2" target="t6"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>s:List</apn:text></apn:binding></arc>
+      <arc id="a12" source="t6" target="p16"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>isSubstringOf(head(s), 'hell')</apn:text></apn:binding></arc>
+
+      <!-- T7: length of head string -->
+      <arc id="a13" source="p2" target="t7"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>s:List</apn:text></apn:binding></arc>
+      <arc id="a14" source="t7" target="p14"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>length(head(s))</apn:text></apn:binding></arc>
+
+      <!-- T8: filter head string containing 'hell' -->
+      <arc id="a15" source="p2" target="t8"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>s:List</apn:text></apn:binding></arc>
+      <arc id="a16" source="t8" target="p8"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>head(s)</apn:text></apn:binding></arc>
+
+      <!-- T9/T10: fst/snd from pair -->
+      <arc id="a17" source="p3" target="t9"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>p:Pair</apn:text></apn:binding></arc>
+      <arc id="a18" source="t9" target="p9"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>fst(p:Pair)</apn:text></apn:binding></arc>
+      <arc id="a19" source="p3" target="t10"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>p:Pair</apn:text></apn:binding></arc>
+      <arc id="a20" source="t10" target="p10"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>snd(p:Pair)</apn:text></apn:binding></arc>
+
+      <!-- T11/T12: pairlist head fst/snd -->
+      <arc id="a21" source="p4" target="t11"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>pl:List</apn:text></apn:binding></arc>
+      <arc id="a22" source="t11" target="p21"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>fst(head(pl))</apn:text></apn:binding></arc>
+      <arc id="a23" source="p4" target="t12"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>pl:List</apn:text></apn:binding></arc>
+      <arc id="a24" source="t12" target="p20"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>snd(head(pl))</apn:text></apn:binding></arc>
+
+      <!-- T13: nested list from pair -->
+      <arc id="a25" source="p3" target="t13"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>p:Pair</apn:text></apn:binding></arc>
+      <arc id="a26" source="t13" target="p19"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>[[fst(p)],[snd(p)]]</apn:text></apn:binding></arc>
+
+      <!-- T14: deconstruct ints list and construct new list -->
+      <arc id="a27" source="p1" target="t14"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>[a:Int,b:Int,c:Int,d:Int,e:Int,f:Int,g:Int,h:Int,i:Int,j:Int]</apn:text></apn:binding></arc>
+      <arc id="a28" source="t14" target="p17"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>[a,b,c]</apn:text></apn:binding></arc>
+
+      <!-- T15: strings pattern + guard; produce two outputs -->
+      <arc id="a29" source="p2" target="t15"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>[s1:String,s2:String,s3:String,s4:String,s5:String]</apn:text></apn:binding></arc>
+      <arc id="a30" source="t15" target="p8"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>s2</apn:text></apn:binding></arc>
+      <arc id="a31" source="t15" target="p11"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>concat(s1, s5)</apn:text></apn:binding></arc>
+
+      <!-- T16: guard on head boolean; echo to output -->
+      <arc id="a32" source="p5" target="t16"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>b:List</apn:text></apn:binding></arc>
+      <arc id="a33" source="t16" target="p18"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>head(b)</apn:text></apn:binding></arc>
+
+      <!-- T17: length of int list -->
+      <arc id="a34" source="p1" target="t17"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>l:List</apn:text></apn:binding></arc>
+      <arc id="a35" source="t17" target="p7"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>length(l)</apn:text></apn:binding></arc>
+
+      <!-- T18: filter strings with length &gt; 4 -->
+      <arc id="a36" source="p2" target="t18"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>s:List</apn:text></apn:binding></arc>
+      <arc id="a37" source="t18" target="p8"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>head(s)</apn:text></apn:binding></arc>
+
+      <!-- T19: produce mixed list [head(ints), length(ints)] to sink -->
+      <arc id="a38" source="p1" target="t19"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>l:List</apn:text></apn:binding></arc>
+      <arc id="a39" source="t19" target="p20"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>[head(l), length(l)]</apn:text></apn:binding></arc>
+
+      <!-- T20: isSubstring on 'foo' -->
+      <arc id="a40" source="p2" target="t20"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>s:List</apn:text></apn:binding></arc>
+      <arc id="a41" source="t20" target="p16"><apn:binding xmlns:apn="http://example.org/apn"><apn:text>isSubstringOf(head(s), 'foo')</apn:text></apn:binding></arc>
+
+    </page>
+  </net>
+</pnml>
+
+
