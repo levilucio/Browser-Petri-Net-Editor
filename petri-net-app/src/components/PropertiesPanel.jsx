@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { PetriNetContext } from '../contexts/PetriNetContext';
-import { parseArithmetic, parsePattern, validatePatternTyping, addTypeAnnotations, stringifyPattern, capitalizeTypeNames, inferVariableTypes, autoAnnotateTypes, inferTokenType } from '../utils/arith-parser';
-import { getTokensForPlace } from '../utils/token-utils';
+import { capitalizeTypeNames } from '../utils/arith-parser';
 import { parseBooleanExpr } from '../utils/z3-arith';
 import PlaceProperties from './panel/PlaceProperties.jsx';
 import ArcBindingsEditor from './panel/ArcBindingsEditor.jsx';
 import TransitionGuardEditor from './panel/TransitionGuardEditor.jsx';
+import { useValueTokensInput } from './hooks/useValueTokensInput';
+import { useBindingsInput } from './hooks/useBindingsInput';
+import { computeGlobalTypeInferenceForState } from './hooks/useGlobalTypeInference';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
   // Read enabled transitions from context (fallback to defaults if no provider in unit tests)
@@ -24,6 +26,10 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     guardText: '',
     guardError: null
   });
+
+  // Hooks for parsing/validation
+  const { parseValueTokensInput } = useValueTokensInput();
+  const { validateBindings } = useBindingsInput();
 
   // State for markings/enabled panels moved to PetriNetPanel
 
@@ -120,9 +126,8 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
   const handleValueTokensBlur = () => {
     const input = formValues.valueTokensInput.trim();
+    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
     if (!input) {
-      // Empty input: clear valueTokens but keep at least tokens=0
-      const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
       setElements(prev => ({
         ...prev,
         places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: [], tokens: 0 } : p)
@@ -130,103 +135,14 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       updateHistory();
       return;
     }
-    
-    // Parse comma-separated tokens
-    // Helper: split a string on top-level commas, respecting nested () and []
-    function splitTopLevelCommas(str) {
-      const parts = [];
-      let current = '';
-      let depth = 0;
-      for (let i = 0; i < str.length; i++) {
-        const ch = str[i];
-        if (ch === '(' || ch === '[') {
-          depth++;
-        } else if (ch === ')' || ch === ']') {
-          depth = Math.max(0, depth - 1);
-        } else if (ch === ',' && depth === 0) {
-          parts.push(current);
-          current = '';
-          continue;
-        }
-        current += ch;
-      }
-      if (current.trim()) parts.push(current);
-      return parts;
-    }
-    const parsePart = (part) => {
-      const p = part.trim();
-      const low = p.toLowerCase();
-      if (p === 'T' || low === 'true') return true;
-      if (p === 'F' || low === 'false') return false;
-      if (/^[+-]?\d+$/.test(p)) return parseInt(p, 10);
-      // Handle string literals
-      if (p.startsWith("'") && p.endsWith("'") && p.length >= 2) {
-        return p.slice(1, -1);
-      }
-      // Handle pair literals: (x, y) with recursive, unlimited nesting
-      if (p.startsWith('(') && p.endsWith(')')) {
-        const inner = p.slice(1, -1);
-        const parts = splitTopLevelCommas(inner).map(x => x.trim());
-        if (parts.length === 2) {
-          return { __pair__: true, fst: parsePart(parts[0]), snd: parsePart(parts[1]) };
-        }
-      }
-      // Handle list literals: [x, y, z]
-      if (p.startsWith('[') && p.endsWith(']')) {
-        const inner = p.slice(1, -1).trim();
-        if (inner.length === 0) return [];
-        // Split by commas, respecting nesting
-        const elements = [];
-        let current = '';
-        let depth = 0;
-        for (let i = 0; i < inner.length; i++) {
-          const ch = inner[i];
-          if (ch === '[' || ch === '(') depth++;
-          else if (ch === ']' || ch === ')') depth--;
-          else if (ch === ',' && depth === 0) {
-            elements.push(parsePart(current));
-            current = '';
-            continue;
-          }
-          current += ch;
-        }
-        if (current.trim()) elements.push(parsePart(current));
-        return elements;
-      }
-      return null;
-    };
 
-    // Split by commas at the top level only
-    function splitTopLevel(str) {
-      return splitTopLevelCommas(str);
-    }
-
-    const parts = splitTopLevel(input);
-    const parsed = parts.map(parsePart).filter(v => v !== null);
-
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('=== DEBUG handleValueTokensBlur ===');
-      console.log('1. Input string:', input);
-      console.log('2. After splitTopLevel:', parts);
-      console.log('3. After parsing each part:', parsed);
-      console.log('4. Parsed length:', parsed.length);
-      console.log('5. First element type:', Array.isArray(parsed[0]) ? 'Array' : typeof parsed[0]);
-      console.log('6. First element value:', parsed[0]);
-      console.log('===================================');
-    }
-
-    const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
+    const parsed = parseValueTokensInput(input);
     setElements(prev => {
       const newState = {
         ...prev,
         places: prev.places.map(p => p.id === elementId ? { ...p, valueTokens: parsed, tokens: parsed.length } : p)
       };
-      
-      // Run global type inference synchronously against the just-updated state
-      const inferredState = computeGlobalTypeInference(newState);
-      return inferredState;
-      
-      // return newState; // unreachable
+      return computeGlobalTypeInferenceForState(newState, netMode);
     });
     updateHistory();
   };
@@ -234,9 +150,8 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   const handleBindingsBlur = () => {
     const input = formValues.bindingsInput.trim();
     setFormValues(prev => ({ ...prev, bindingError: null }));
-    
     const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);
-    
+
     if (!input) {
       setElements(prev => ({
         ...prev,
@@ -246,66 +161,26 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       return;
     }
 
-    // Split by commas, being careful with nested structures
-    const parts = [];
-    let current = '';
-    let depth = 0;
-    for (let i = 0; i < input.length; i++) {
-      const ch = input[i];
-      if (ch === '(' || ch === '[') depth++;
-      else if (ch === ')' || ch === ']') depth--;
-      else if (ch === ',' && depth === 0) {
-        parts.push(current.trim());
-        current = '';
-        continue;
-      }
-      current += ch;
-    }
-    if (current.trim()) parts.push(current.trim());
-
-    const bindings = parts.filter(b => b.length > 0);
-
-    // Validate bindings by trying to parse them (support String, List, Pair, Int)
-    let allValid = true;
-    for (const binding of bindings) {
-      try {
-        // Try to parse as pattern first
-        parsePattern(binding);
-      } catch (e1) {
-        try {
-          // If pattern fails, try arithmetic expression
-          parseArithmetic(binding);
-        } catch (e2) {
-          try {
-            // Finally try boolean expression
-            parseBooleanExpr(binding, parseArithmetic);
-          } catch (e3) {
-            // If all fail, it's invalid
-            allValid = false;
-            setFormValues(prev => ({ ...prev, bindingError: `Invalid binding: ${binding}` }));
-            break;
-          }
-        }
-      }
+    const { ok, bindings, error } = validateBindings(input);
+    if (!ok) {
+      setFormValues(prev => ({ ...prev, bindingError: error }));
+      return;
     }
 
-    if (allValid) {
-      setElements(prev => ({
+    setElements(prev => ({
+      ...prev,
+      arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings } : a)
+    }));
+    updateHistory();
+
+    setElements(prev => {
+      const baseState = {
         ...prev,
         arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings } : a)
-      }));
-      updateHistory();
-      
-      // Run global type inference synchronously after arc binding change
-      setElements(prev => {
-        const baseState = {
-          ...prev,
-          arcs: prev.arcs.map(a => a.id === elementId ? { ...a, bindings } : a)
-        };
-        return computeGlobalTypeInference(baseState);
-      });
-      updateHistory();
-    }
+      };
+      return computeGlobalTypeInferenceForState(baseState, netMode);
+    });
+    updateHistory();
   };
 
   const handleGuardBlur = () => {
@@ -466,167 +341,9 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     }
   };
 
-  // Function to get the unique type of all tokens in a place, or null if ambiguous
-  const getPlaceTokenType = (place) => {
-    if (!place.valueTokens || place.valueTokens.length === 0) {
-      return null;
-    }
-    
-    const firstTokenType = inferTokenType(place.valueTokens[0]);
-    const allSameType = place.valueTokens.every(token => inferTokenType(token) === firstTokenType);
-    
-    return allSameType ? firstTokenType : null;
-  };
-
-  // Pure function: given a state snapshot, return a new state with inferred types applied
-  const computeGlobalTypeInference = (state) => {
-    if (netMode !== 'algebraic-int' || !state?.places || !state?.arcs || !state?.transitions) {
-      return state;
-    }
-
-    const updates = { arcs: [], transitions: [] };
-
-    // Rule 1: Infer types for input arcs based on source place tokens (only if unambiguous)
-    state.places.forEach(place => {
-      const placeTokenType = getPlaceTokenType(place);
-      if (placeTokenType) {
-        const inputArcs = state.arcs.filter(arc => arc.source === place.id);
-        inputArcs.forEach(arc => {
-          if (arc.bindings && arc.bindings.length > 0) {
-            const updatedBindings = [];
-            let changed = false;
-            for (const currentBinding of arc.bindings) {
-              if (!currentBinding) { updatedBindings.push(currentBinding); continue; }
-              const typeMap = new Map();
-              const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
-              if (varMatches) {
-                varMatches.forEach(varName => {
-                  if (varName !== 'true' && varName !== 'false' && varName !== 'and' && varName !== 'or' && varName !== 'not') {
-                    if (!currentBinding.includes(`${varName}:`)) typeMap.set(varName, placeTokenType);
-                  }
-                });
-              }
-              if (placeTokenType === 'List') {
-                const vt = Array.isArray(place.valueTokens) ? place.valueTokens : [];
-                let elementType = null;
-                if (vt.length > 0 && Array.isArray(vt[0]) && vt[0].length > 0) {
-                  const firstElemType = inferTokenType(vt[0][0]);
-                  const allSame = vt.every(lst => Array.isArray(lst) && lst.every(el => inferTokenType(el) === firstElemType));
-                  if (allSame) elementType = firstElemType;
-                }
-                if (elementType) {
-                  for (const [k, v] of Array.from(typeMap.entries())) {
-                    if (v === 'List') typeMap.set(k, elementType);
-                  }
-                } else {
-                  typeMap.clear();
-                }
-              }
-              const annotated = typeMap.size > 0 ? autoAnnotateTypes(currentBinding, typeMap) : currentBinding;
-              if (annotated !== currentBinding) changed = true;
-              updatedBindings.push(annotated);
-            }
-            if (changed) updates.arcs.push({ arcId: arc.id, newBindings: updatedBindings });
-          }
-        });
-      }
-    });
-
-    // Prepare a view of arcs that includes any Rule 1 updates so subsequent rules see fresh input types
-    const arcsEffective = state.arcs.map(arc => {
-      const upd = updates.arcs.find(u => u.arcId === arc.id);
-      if (!upd) return arc;
-      if (upd.newBindings) return { ...arc, bindings: [...upd.newBindings] };
-      return { ...arc, bindings: [upd.newBinding] };
-    });
-
-    // Rule 2 and 3: Use input arc types to annotate guard and output arcs
-    state.transitions.forEach(transition => {
-      const inputArcs = arcsEffective.filter(arc => arc.target === transition.id);
-      const variableTypes = new Map();
-
-      inputArcs.forEach(arc => {
-        if (arc.bindings && arc.bindings.length > 0) {
-          const binding = arc.bindings[0];
-          const typedVarMatches = binding.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair|String|List)\b/g);
-          if (typedVarMatches) {
-            typedVarMatches.forEach(match => {
-              const [, varName, varType] = match.match(/\b([a-z][a-zA-Z0-9_]*):(Int|Bool|Pair|String|List)\b/);
-              variableTypes.set(varName, varType);
-            });
-          }
-        }
-      });
-
-      // Rule 2: guard variables
-      if (transition.guard && variableTypes.size > 0) {
-        const guardVarMatches = transition.guard.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
-        if (guardVarMatches) {
-          const guardTypeMap = new Map();
-          guardVarMatches.forEach(varName => {
-            if (varName !== 'true' && varName !== 'false' && varName !== 'and' && varName !== 'or' && varName !== 'not') {
-              const inputType = variableTypes.get(varName);
-              if (inputType && !transition.guard.includes(`${varName}:`)) guardTypeMap.set(varName, inputType);
-            }
-          });
-          if (guardTypeMap.size > 0) {
-            const annotatedGuard = autoAnnotateTypes(transition.guard, guardTypeMap);
-            if (annotatedGuard !== transition.guard) updates.transitions.push({ transitionId: transition.id, newGuard: annotatedGuard });
-          }
-        }
-      }
-
-      // Rule 3: output arcs
-      const outputArcs = arcsEffective.filter(arc => arc.source === transition.id);
-      outputArcs.forEach(arc => {
-        if (arc.bindings && arc.bindings.length > 0) {
-          const newBindings = [];
-          let changed = false;
-          for (const currentBinding of arc.bindings) {
-            if (!currentBinding) { newBindings.push(currentBinding); continue; }
-            const typeMap = new Map();
-            const varMatches = currentBinding.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
-            if (varMatches) {
-              varMatches.forEach(varName => {
-                if (varName !== 'true' && varName !== 'false' && varName !== 'and' && varName !== 'or' && varName !== 'not') {
-                  const inputType = variableTypes.get(varName);
-                  if (inputType && !currentBinding.includes(`${varName}:`)) typeMap.set(varName, inputType);
-                }
-              });
-            }
-            const annotatedBinding = typeMap.size > 0 ? autoAnnotateTypes(currentBinding, typeMap) : currentBinding;
-            if (annotatedBinding !== currentBinding) changed = true;
-            newBindings.push(annotatedBinding);
-          }
-          if (changed) updates.arcs.push({ arcId: arc.id, newBindings });
-        }
-      });
-    });
-
-    if (updates.arcs.length === 0 && updates.transitions.length === 0) {
-      return state;
-    }
-
-    const nextState = {
-      ...state,
-      arcs: state.arcs.map(arc => {
-        const upd = updates.arcs.find(u => u.arcId === arc.id);
-        if (!upd) return arc;
-        if (upd.newBindings) return { ...arc, bindings: [...upd.newBindings] };
-        return { ...arc, bindings: [upd.newBinding] };
-      }),
-      transitions: state.transitions.map(t => {
-        const upd = updates.transitions.find(u => u.transitionId === t.id);
-        return upd ? { ...t, guard: upd.newGuard } : t;
-      })
-    };
-
-    return nextState;
-  };
-
-  // Backward-compatible wrapper that updates the current state
+  // Backward-compatible wrapper that updates the current state using extracted helper
   const performGlobalTypeInference = () => {
-    const updated = computeGlobalTypeInference(elements);
+    const updated = computeGlobalTypeInferenceForState(elements, netMode);
     if (updated !== elements) {
       setElements(updated);
       updateHistory();
