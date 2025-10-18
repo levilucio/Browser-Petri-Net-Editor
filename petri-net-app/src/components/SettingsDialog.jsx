@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
+import Z3SettingsDialog from './Z3SettingsDialog.jsx';
 
 const SettingsDialog = ({ isOpen, onClose }) => {
   const { simulatorCore, simulationSettings, handleSaveSettings, elements } = usePetriNet();
@@ -10,6 +11,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const [unlimitedIterations, setUnlimitedIterations] = useState(false);
   const [netMode, setNetMode] = useState('pt');
   const [netModeLocked, setNetModeLocked] = useState(false);
+  const [z3Open, setZ3Open] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -231,6 +233,12 @@ const SettingsDialog = ({ isOpen, onClose }) => {
 
         <div className="mt-6 flex justify-end">
           <button
+            onClick={() => setZ3Open(true)}
+            className="px-3 py-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors mr-auto"
+          >
+            Z3 Settings
+          </button>
+          <button
             onClick={onClose}
             className="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors mr-2"
             data-testid="settings-cancel"
@@ -246,6 +254,9 @@ const SettingsDialog = ({ isOpen, onClose }) => {
           </button>
         </div>
       </div>
+      {z3Open && (
+        <Z3SettingsDialog isOpen={z3Open} onClose={() => setZ3Open(false)} />
+      )}
     </div>
   );
 };

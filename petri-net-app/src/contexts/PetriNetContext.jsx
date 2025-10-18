@@ -1,6 +1,7 @@
 /* @refresh reload */
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { simulatorCore, useSimulationManager } from '../features/simulation';
+// setZ3WorkerConfig is only available in browser; guard dynamic import
 import debounce from 'lodash/debounce';
 import { HistoryManager } from '../features/history/historyManager';
 
@@ -25,6 +26,12 @@ export const PetriNetProvider = ({ children }) => {
     maxIterations: 100,
     maxTokens: 20,
     netMode: 'pt'
+  });
+  const [z3Settings, setZ3Settings] = useState({
+    minWorkers: 1,
+    maxWorkers: 2,
+    idleTimeoutMs: 300000,
+    prewarmOnAlgebraicMode: true,
   });
 
   const [stageDimensions, setStageDimensions] = useState({ width: 800, height: 600 });
@@ -139,6 +146,18 @@ export const PetriNetProvider = ({ children }) => {
     setIsSettingsDialogOpen(false); // Also close the dialog on save
   };
 
+  // Expose Z3 settings via context setter (used by Z3SettingsDialog through z3-remote)
+  useEffect(() => {
+    const run = async () => {
+      if (typeof window === 'undefined') return;
+      try {
+        const { setZ3WorkerConfig } = await import('../utils/z3-remote');
+        setZ3WorkerConfig(z3Settings);
+      } catch (_) {}
+    };
+    run();
+  }, [z3Settings]);
+
   // Complete reset function for editor and simulator
   const resetEditor = () => {
     // Reset elements to empty state
@@ -221,6 +240,7 @@ export const PetriNetProvider = ({ children }) => {
       setContainerRef: setContainerRefValue, // Expose the setter
       stageRef,
       handleSaveSettings, // Expose settings save handler
+      z3Settings, setZ3Settings,
       resetEditor, // Expose complete editor reset function
       MIN_ZOOM, // Expose MIN_ZOOM
       MAX_ZOOM  // Expose MAX_ZOOM
