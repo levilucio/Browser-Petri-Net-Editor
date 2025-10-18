@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
 
 const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
-	const { handleFireTransition } = usePetriNet();
+	const { handleFireTransition, netMode } = usePetriNet();
 	const [isMarkingsPanelOpen, setIsMarkingsPanelOpen] = useState(false);
 	const [isEnabledPanelOpen, setIsEnabledPanelOpen] = useState(false);
 
@@ -29,19 +29,41 @@ const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
 						{(elements.places || []).length === 0 ? (
 							<p className="text-gray-500 text-sm">No places defined</p>
 						) : (
-							<div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
-								{(elements.places || []).map(place => {
-									const label = place.label || place.name || place.id.substring(6, 12);
-									const tokens = place.tokens || 0;
-									return (
-										<div key={place.id} className="flex items-center text-sm">
-											<span className="font-medium text-gray-800 mr-2 truncate" title={label}>{label}</span>
-											<span className="inline-flex items-center px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 font-semibold min-w-[2rem] justify-center">
-												{tokens}
-											</span>
-										</div>
-									);
-								})}
+							<div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-1">
+					{((elements.places || []).filter(p => {
+						if (netMode === 'algebraic-int') {
+							const vt = Array.isArray(p.valueTokens) ? p.valueTokens : [];
+							return vt.length > 0; // show only non-empty places in algebraic mode
+						}
+						return true;
+					})).map(place => {
+						const label = place.label || place.name || place.id.substring(6, 12);
+						const tokens = place.tokens || 0;
+						const valueTokens = Array.isArray(place.valueTokens) ? place.valueTokens : [];
+						const isAlgebraic = (netMode === 'algebraic-int') && Array.isArray(place.valueTokens);
+						const fmt = (v) => {
+							if (typeof v === 'boolean') return v ? 'T' : 'F';
+							if (typeof v === 'string') return `'${v}'`;
+							if (Array.isArray(v)) return `[${v.map(fmt).join(', ')}]`;
+							if (v && typeof v === 'object' && v.__pair__) return `(${fmt(v.fst)}, ${fmt(v.snd)})`;
+							return String(v);
+						};
+						const algebraicText = isAlgebraic ? valueTokens.map(fmt).join(', ') : '';
+						return (
+							<div key={place.id} className="flex items-start text-sm">
+								<span className="font-medium text-gray-800 mr-2 truncate" title={label}>{label}</span>
+								{isAlgebraic ? (
+									<div className="flex-1 text-gray-800 bg-purple-50 border border-purple-200 rounded px-2 py-1 whitespace-pre-wrap break-words overflow-visible" title={algebraicText}>
+										{algebraicText || '[]'}
+									</div>
+								) : (
+									<span className="inline-flex items-center px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200 font-semibold min-w-[2rem] justify-center">
+										{tokens}
+									</span>
+								)}
+							</div>
+						);
+					})}
 							</div>
 						)}
 					</div>
