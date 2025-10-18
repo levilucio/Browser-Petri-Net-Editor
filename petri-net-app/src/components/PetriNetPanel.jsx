@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { usePetriNet } from '../contexts/PetriNetContext';
 
 const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
+	const { handleFireTransition } = usePetriNet();
 	const [isMarkingsPanelOpen, setIsMarkingsPanelOpen] = useState(false);
 	const [isEnabledPanelOpen, setIsEnabledPanelOpen] = useState(false);
 
@@ -74,15 +76,21 @@ const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
 									<p className="text-gray-500 text-sm">No enabled transitions</p>
 								);
 							}
-							return (
-								<div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-									{items.map(({ id, label }) => (
-										<button key={id} className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium border border-yellow-200">
-											{label}
-										</button>
-									))}
-								</div>
-							);
+						return (
+							<div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+								{items.map(({ id, label }) => (
+									<button
+										key={id}
+										className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium border border-yellow-200 hover:bg-yellow-200"
+										onClick={() => handleFireTransition && handleFireTransition(id)}
+										data-testid={`enabled-${label}`}
+										title={`Fire ${label}`}
+									>
+										{label}
+									</button>
+								))}
+							</div>
+						);
 						})()}
 					</div>
 				)}

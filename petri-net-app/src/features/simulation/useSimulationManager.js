@@ -345,6 +345,7 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode) => 
     enabledTransitionIds,
     simulationError,
     isSimulatorReady,
+    handleFireTransition,
     stepSimulation,
     startContinuousSimulation,
     startRunSimulation,

@@ -302,6 +302,39 @@ test.describe('Simple Simulation', () => {
     }, { timeout: 60000 });
   });
 
+  test('fires T1 and T2 by clicking transition buttons; P1 and P2 get 1 token', async ({ page }) => {
+    await page.goto('/');
+
+    // Load PN3
+    const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net3.pnml');
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent('filechooser'),
+      page.getByRole('button', { name: 'Load' }).click(),
+    ]);
+    await fileChooser.setFiles(pnmlPath);
+
+    // Ensure simulator ready and open Enabled Transitions panel
+    await waitSimulatorReady(page, 60000);
+    const toggle = page.getByTestId('show-enabled-transitions');
+    if (await toggle.count()) {
+      await toggle.click();
+    }
+
+    // Fire T1, then T2 via enabled transitions panel
+    await page.getByTestId('enabled-T1').click();
+    await page.getByTestId('enabled-T2').click();
+
+    // Assert P1 and P2 now each have 1 token
+    await page.waitForFunction(() => {
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
+      if (!s) return false;
+      const byLabel = (label) => (s.places || []).find(p => (p.label || p.name) === label);
+      const p1 = byLabel('P1');
+      const p2 = byLabel('P2');
+      return p1 && p2 && Number(p1.tokens || 0) === 1 && Number(p2.tokens || 0) === 1;
+    }, { timeout: 60000 });
+  });
+
   test('non-deterministic firing with two enabled transitions (from PN)', async ({ page }) => {
     test.setTimeout(120000);
     // Helper: run one trial and return the fired transition id
