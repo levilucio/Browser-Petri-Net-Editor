@@ -22,35 +22,91 @@ const Place = ({
     snapToGrid, 
     setSnapIndicator,
     netMode,
+    elements,
+    selectedElements,
+    setElements,
+    multiDragRef,
+    isIdSelected
   } = usePetriNet();
   
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
     setIsDragging(true);
+    // Initialize multi-drag if multiple nodes selected and this node is among them
+    const isSelected = isIdSelected(id, 'place');
+    if (isSelected) {
+      const selectedNodeIds = new Set(selectedElements.filter(se => se.type === 'place' || se.type === 'transition').map(se => se.id));
+      const startPositions = new Map();
+      elements.places.forEach(p => { if (selectedNodeIds.has(p.id)) startPositions.set(p.id, { type: 'place', x: p.x, y: p.y }); });
+      elements.transitions.forEach(t => { if (selectedNodeIds.has(t.id)) startPositions.set(t.id, { type: 'transition', x: t.x, y: t.y }); });
+      const startArcPoints = new Map();
+      elements.arcs.forEach(a => {
+        if (selectedNodeIds.has(a.source) && selectedNodeIds.has(a.target)) {
+          const pts = Array.isArray(a.anglePoints) ? a.anglePoints.map(p => ({ x: p.x, y: p.y })) : [];
+          startArcPoints.set(a.id, pts);
+        }
+      });
+      multiDragRef.current = { baseId: id, startPositions, startArcPoints };
+    } else {
+      multiDragRef.current = null;
+    }
   };
 
   const handleDragMove = (e) => {
     // Only apply snapping if grid snapping is enabled
+    let currentPos = {
+      x: e.target.x(),
+      y: e.target.y()
+    };
     if (gridSnappingEnabled) {
-      const currentPos = {
-        x: e.target.x(),
-        y: e.target.y()
-      };
-      
-      // Calculate where this would snap to
       const snappedPos = snapToGrid(currentPos.x, currentPos.y);
-      
-      // Update the snap indicator position
       setSnapIndicator({
         visible: true,
         position: snappedPos,
         elementType: 'place'
       });
-      
-      // Force the element to snap to grid during drag
-      e.target.position({
-        x: snappedPos.x,
-        y: snappedPos.y
+      e.target.position({ x: snappedPos.x, y: snappedPos.y });
+      currentPos = snappedPos;
+    }
+
+    // Apply multi-drag delta to other selected nodes and keep arcs attached visually
+    if (multiDragRef.current && multiDragRef.current.startPositions && multiDragRef.current.baseId === id) {
+      const start = multiDragRef.current.startPositions.get(id);
+      if (!start) return;
+      const deltaX = currentPos.x - start.x;
+      const deltaY = currentPos.y - start.y;
+      // Batch updates during drag to avoid excessive renders
+      setElements(prev => {
+        if (!multiDragRef.current || !multiDragRef.current.startPositions) return prev;
+        const next = { ...prev };
+        next.places = prev.places.map(p => {
+          const s = multiDragRef.current.startPositions.get(p.id);
+          if (s) {
+            const pos = gridSnappingEnabled ? snapToGrid(s.x + deltaX, s.y + deltaY) : { x: s.x + deltaX, y: s.y + deltaY };
+            return { ...p, x: pos.x, y: pos.y };
+          }
+          return p;
+        });
+        next.transitions = prev.transitions.map(t => {
+          const s = multiDragRef.current.startPositions.get(t.id);
+          if (s) {
+            const pos = gridSnappingEnabled ? snapToGrid(s.x + deltaX, s.y + deltaY) : { x: s.x + deltaX, y: s.y + deltaY };
+            return { ...t, x: pos.x, y: pos.y };
+          }
+          return t;
+        });
+        if (multiDragRef.current.startArcPoints) {
+          next.arcs = prev.arcs.map(a => {
+            const pts = multiDragRef.current.startArcPoints.get(a.id);
+            if (pts) {
+              const movedPts = pts.map(p => ({ x: p.x + deltaX, y: p.y + deltaY }));
+              return { ...a, anglePoints: movedPts };
+            }
+            return a;
+          });
+        }
+        // arcs recompute positions from node coords each render, so no change needed here
+        return next;
       });
     }
   };
@@ -74,6 +130,7 @@ const Place = ({
     
     // The onChange handler (from useElementManager) expects the new virtual position
     onChange(newVirtualPos);
+    multiDragRef.current = null;
   };
 
   const renderTokens = () => {

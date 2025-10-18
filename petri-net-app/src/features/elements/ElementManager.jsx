@@ -2,6 +2,7 @@ import React from 'react';
 import { Layer } from 'react-konva';
 import Place from '../../components/Place';
 import Transition from '../../components/Transition';
+import { usePetriNet } from '../../contexts/PetriNetContext';
 
 const ElementManager = ({
   elements,
@@ -10,6 +11,7 @@ const ElementManager = ({
   handleElementDragEnd,
   enabledTransitionIds,
 }) => {
+  const { isIdSelected } = usePetriNet();
   return (
     <Layer>
       {/* Places */}
@@ -17,8 +19,8 @@ const ElementManager = ({
         <Place
           key={place.id}
           {...place}
-          isSelected={selectedElement?.id === place.id}
-          onSelect={() => handleElementClick(place, 'place')}
+          isSelected={isIdSelected(place.id, 'place')}
+          onSelect={(id) => handleElementClick(place, 'place')}
           onChange={(newAttrs) => handleElementDragEnd(place, 'place', newAttrs)}
         />
       ))}
@@ -28,8 +30,8 @@ const ElementManager = ({
         <Transition
           key={transition.id}
           {...transition}
-          isSelected={selectedElement?.id === transition.id}
-          onSelect={() => handleElementClick(transition, 'transition')}
+          isSelected={isIdSelected(transition.id, 'transition')}
+          onSelect={(id) => handleElementClick(transition, 'transition')}
           onChange={(newAttrs) => handleElementDragEnd(transition, 'transition', newAttrs)}
           isEnabled={Array.isArray(enabledTransitionIds) ? enabledTransitionIds.includes(transition.id) : false}
         />

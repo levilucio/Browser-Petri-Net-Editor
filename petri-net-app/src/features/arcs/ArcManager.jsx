@@ -10,6 +10,7 @@ const ArcManager = () => {
   const {
     elements,
     selectedElement,
+    selectedElements,
     mode,
     tempArcEnd,
     getVirtualPointerPosition,
@@ -113,6 +114,8 @@ const ArcManager = () => {
         const weightOffset = 8; // closer to the arc
         const labelOffset = 14; // vertical offset from the arc (opposite side)
 
+        const isImplicitSelected = selectedElements?.some(se => se.id === arc.id && se.type === 'arc')
+          || (selectedElements?.some(se => se.id === source.id) && selectedElements?.some(se => se.id === target.id));
         return (
           <Group key={arc.id}>
             {/* Invisible, wide hit area behind the arrow to make selection easier */}
@@ -122,19 +125,19 @@ const ArcManager = () => {
               strokeWidth={24}
               lineCap="round"
               lineJoin="round"
-              onClick={() => handleElementClick(arc, 'arc')}
-              onTap={() => handleElementClick(arc, 'arc')}
+              onClick={(evt) => handleElementClick(evt, arc, 'arc')}
+              onTap={(evt) => handleElementClick(evt, arc, 'arc')}
             />
             <Arrow
               points={virtualPoints}
-              stroke={selectedElement?.id === arc.id ? 'blue' : 'black'}
+              stroke={(selectedElement?.id === arc.id || isImplicitSelected) ? 'blue' : 'black'}
               strokeWidth={2}
               fill="black"
               pointerLength={10}
               pointerWidth={10}
               hitStrokeWidth={20}
-              onClick={() => handleElementClick(arc, 'arc')}
-              onTap={() => handleElementClick(arc, 'arc')}
+              onClick={(evt) => handleElementClick(evt, arc, 'arc')}
+              onTap={(evt) => handleElementClick(evt, arc, 'arc')}
               onDblClick={(e) => {
                 if (mode === 'arc_angle') {
                   const pos = getVirtualPointerPosition();

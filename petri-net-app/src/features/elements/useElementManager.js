@@ -7,10 +7,13 @@ export const useElementManager = () => {
   const { 
     elements, setElements, 
     selectedElement, setSelectedElement, 
+    selectedElements, setSelectedElements,
+    isIdSelected, setSelection,
     mode,
     arcStart, setArcStart, 
     tempArcEnd, setTempArcEnd, 
     snapToGrid, gridSnappingEnabled,
+    isShiftPressedRef,
   } = usePetriNet();
 
   const { handleCompleteArc } = useArcManager();
@@ -59,9 +62,36 @@ export const useElementManager = () => {
     }
   }, [mode, elements?.places?.length, elements?.transitions?.length, setElements, snapToGrid, gridSnappingEnabled]);
 
-  const handleElementClick = useCallback((element, type) => {
+  const handleElementClick = useCallback((a, b, c) => {
+    // Support (element, type) and (evt, element, type)
+    let evt = null;
+    let element = null;
+    let type = null;
+    if (typeof c !== 'undefined') {
+      evt = a;
+      element = b;
+      type = c;
+    } else {
+      element = a;
+      type = b;
+    }
+
     if (mode === 'select' || mode === 'arc_angle') {
-      setSelectedElement({ ...element, type });
+      const isShift = !!(evt && (evt.evt?.shiftKey || (evt.evt?.getModifierState && evt.evt.getModifierState('Shift')))) || !!(isShiftPressedRef && isShiftPressedRef.current);
+      if (isShift) {
+        // toggle selection
+        const exists = isIdSelected(element.id, type);
+        if (exists) {
+          setSelectedElements(prev => prev.filter(se => !(se.id === element.id && se.type === type)));
+        } else {
+          setSelectedElements(prev => [...prev, { id: element.id, type }]);
+        }
+        // keep last-focused element
+        setSelectedElement({ ...element, type });
+      } else {
+        // single select replaces selection
+        setSelection([{ id: element.id, type }]);
+      }
       setArcStart(null);
       setTempArcEnd(null);
     } else if (mode === 'arc') {
@@ -73,7 +103,7 @@ export const useElementManager = () => {
         handleCompleteArc(arcStart.element, { ...element, type });
       }
     }
-  }, [mode, arcStart, setSelectedElement, setArcStart, setTempArcEnd, handleCompleteArc]);
+  }, [mode, arcStart, setSelectedElement, setSelectedElements, isIdSelected, setSelection, setArcStart, setTempArcEnd, handleCompleteArc]);
 
   const handleElementDragEnd = useCallback((elementData, type, newPosition) => {
     // Apply grid snapping if enabled

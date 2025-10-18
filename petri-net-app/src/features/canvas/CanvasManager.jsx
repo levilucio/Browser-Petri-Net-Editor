@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import { useElementManager } from '../elements/useElementManager';
@@ -26,6 +26,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     gridSnappingEnabled,
     snapToGrid,
     snapIndicator, setSnapIndicator,
+    selectedElements, setSelection,
   } = usePetriNet();
 
   const { 
@@ -35,6 +36,8 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
   } = useElementManager();
 
   const localContainerRef = useRef(null);
+  const selectingRef = useRef({ isSelecting: false, start: null });
+  const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
 
   useEffect(() => {
     const container = localContainerRef.current;
@@ -108,6 +111,12 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
       });
     }
     
+    // Update selection rectangle during drag in select mode
+    if (mode === 'select' && selectingRef.current.isSelecting && selectingRef.current.start) {
+      const start = selectingRef.current.start;
+      setSelectionRect({ x: start.x, y: start.y, w: pos.x - start.x, h: pos.y - start.y });
+    }
+
     // Show snap indicator when grid snapping is enabled and in place/transition mode
     if (gridSnappingEnabled && (mode === 'place' || mode === 'transition')) {
       const snappedPos = snapToGrid(pos.x, pos.y);
@@ -201,6 +210,30 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
         height={stageDimensions.height}
         onClick={handleStageClick}
         onMouseMove={handleMouseMove}
+        onMouseDown={(e) => {
+          if (mode !== 'select') return;
+          if (e.target && e.target.name && e.target.name() !== 'background') return;
+          const start = getVirtualPointerPosition();
+          if (!start) return;
+          selectingRef.current = { isSelecting: true, start };
+          setSelectionRect({ x: start.x, y: start.y, w: 0, h: 0 });
+        }}
+        onMouseUp={() => {
+          if (mode !== 'select') return;
+          if (!selectingRef.current.isSelecting || !selectionRect) return;
+          const { x, y, w, h } = selectionRect;
+          const minX = Math.min(x, x + w);
+          const minY = Math.min(y, y + h);
+          const maxX = Math.max(x, x + w);
+          const maxY = Math.max(y, y + h);
+          const inside = (pt) => pt.x >= minX && pt.x <= maxX && pt.y >= minY && pt.y <= maxY;
+          const newSelection = [];
+          elements.places.forEach(p => { if (inside({ x: p.x, y: p.y })) newSelection.push({ id: p.id, type: 'place' }); });
+          elements.transitions.forEach(t => { if (inside({ x: t.x, y: t.y })) newSelection.push({ id: t.id, type: 'transition' }); });
+          setSelection(newSelection);
+          selectingRef.current = { isSelecting: false, start: null };
+          setSelectionRect(null);
+        }}
         scaleX={zoomLevel}
         scaleY={zoomLevel}
         offsetX={canvasScroll.x}
@@ -222,6 +255,19 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
               setSelectedElement(null);
             }}
           />
+          {selectionRect && (
+            <Rect
+              x={Math.min(selectionRect.x, selectionRect.x + selectionRect.w)}
+              y={Math.min(selectionRect.y, selectionRect.y + selectionRect.h)}
+              width={Math.abs(selectionRect.w)}
+              height={Math.abs(selectionRect.h)}
+              stroke="#3399FF"
+              strokeWidth={1}
+              dash={[4, 4]}
+              fill="rgba(51,153,255,0.15)"
+              listening={false}
+            />
+          )}
           <Grid 
             width={virtualCanvasDimensions.width} 
             height={virtualCanvasDimensions.height} 
