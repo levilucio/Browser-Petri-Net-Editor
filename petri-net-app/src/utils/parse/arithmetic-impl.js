@@ -141,11 +141,23 @@ export function parseArithmetic(input) {
 
     if (src[i] === '(') {
       i++; // consume '('
-      const expr = parseExpr();
       skipWs();
+      // Parse first expression inside parens
+      const first = parseExpr();
+      skipWs();
+      if (src[i] === ',') {
+        // Pair literal: (a, b)
+        i++; // consume comma
+        const second = parseExpr();
+        skipWs();
+        if (i >= src.length || src[i] !== ')') throw new Error(`Expected ')' at position ${i}`);
+        i++; // consume ')'
+        return { type: 'pair', fst: first, snd: second };
+      }
+      // Grouping
       if (i >= src.length || src[i] !== ')') throw new Error(`Expected ')' at position ${i}`);
       i++; // consume ')'
-      return expr;
+      return first;
     }
 
     if (src[i] === '[') return parseListLiteral();

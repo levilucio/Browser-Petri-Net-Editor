@@ -52,6 +52,7 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
     if (node.type === 'int') return node.value | 0;
     if (node.type === 'string') return node.value;
     if (node.type === 'list') return (node.elements || []).map(evalNode);
+    if (node.type === 'pair') return { __pair__: true, fst: evalNode(node.fst), snd: evalNode(node.snd) };
     if (node.type === 'var') {
       const v = bindings?.[node.name];
       if (v === undefined) throw new Error(`Unbound variable '${node.name}'`);

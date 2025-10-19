@@ -1,21 +1,20 @@
 import React, { useMemo, useState } from 'react';
 import { useAdtRegistry } from '../contexts/AdtContext';
 import { parseArithmetic } from '../utils/arith-parser';
-import { evaluateTermWithBindings, solveEquation } from '../utils/z3-arith';
+import { evaluateArithmeticWithBindings, solveEquation, parseBooleanExpr, evaluateBooleanWithBindings } from '../utils/z3-arith';
+import { formatToken } from '../utils/token-format';
 
 const sectionTitle = 'text-xs font-semibold text-gray-600 uppercase tracking-wider';
 
 export default function AdtDialog({ isOpen, onClose }) {
   const reg = useAdtRegistry();
   const types = reg.listTypes();
-  // Term/equation evaluator state
-  const [termInput, setTermInput] = useState('x + 2 * y');
+  // Interactive sandbox state (single input for term or equation)
+  const [sandboxInput, setSandboxInput] = useState('x + 2 * y');
   const [bindingsInput, setBindingsInput] = useState('x=3, y=4');
   const [termResult, setTermResult] = useState(null);
-  const [termError, setTermError] = useState(null);
-  const [equationInput, setEquationInput] = useState('x + y = 7');
   const [solutions, setSolutions] = useState([]);
-  const [equationError, setEquationError] = useState(null);
+  const [sandboxError, setSandboxError] = useState(null);
 
   const preview = useMemo(() => {
     const arr = types.map((name) => reg.getType(name));
@@ -47,32 +46,55 @@ export default function AdtDialog({ isOpen, onClose }) {
     return out;
   }
 
-  const handleEvaluateTerm = async () => {
-    setTermError(null);
-    setTermResult(null);
-    try {
-      const ast = parseArithmetic(String(termInput || ''));
-      const bindings = parseBindings(bindingsInput);
-      const value = await evaluateTermWithBindings(ast, bindings);
-      setTermResult(value);
-    } catch (e) {
-      setTermError(String(e.message || e));
+  function findTopLevelSingleEqualsIndex(src) {
+    // Return index of a single '=' at parentheses depth 0 that is not part of '==', '!=', '<=', '>='
+    let depth = 0;
+    for (let i = 0; i < src.length; i++) {
+      const ch = src[i];
+      if (ch === '(') depth++;
+      else if (ch === ')') depth = Math.max(0, depth - 1);
+      if (depth !== 0) continue;
+      if (ch === '=') {
+        const prev = src[i - 1] || '';
+        const next = src[i + 1] || '';
+        if (prev !== '=' && next !== '=' && prev !== '<' && prev !== '>') {
+          return i;
+        }
+      }
     }
-  };
+    return -1;
+  }
 
-  const handleSolveEquation = async () => {
-    setEquationError(null);
+  const handleRunSandbox = async () => {
+    setSandboxError(null);
+    setTermResult(null);
     setSolutions([]);
     try {
-      const txt = String(equationInput || '').trim();
-      const eqIdx = txt.indexOf('=');
-      if (eqIdx === -1) throw new Error("Equation must contain '='");
-      const lhs = parseArithmetic(txt.slice(0, eqIdx));
-      const rhs = parseArithmetic(txt.slice(eqIdx + 1));
-      const { solutions: sols } = await solveEquation(lhs, rhs, 5);
-      setSolutions(sols || []);
+      const txt = String(sandboxInput || '').trim();
+      if (!txt) throw new Error('Please enter an expression or an equation.');
+      const eqIdx = findTopLevelSingleEqualsIndex(txt);
+      const bindings = parseBindings(bindingsInput);
+      if (eqIdx >= 0) {
+        // Equation mode
+        const lhs = parseArithmetic(txt.slice(0, eqIdx));
+        const rhs = parseArithmetic(txt.slice(eqIdx + 1));
+        const { solutions: sols } = await solveEquation(lhs, rhs, 5);
+        setSolutions(sols || []);
+      } else {
+        // Expression mode: try arithmetic; if it fails, try boolean predicate/expression
+        try {
+          const ast = parseArithmetic(txt);
+          const value = await evaluateArithmeticWithBindings(ast, bindings);
+          setTermResult(value);
+        } catch (arithErr) {
+          // Fallback to boolean
+          const bast = parseBooleanExpr(txt, parseArithmetic);
+          const boolVal = evaluateBooleanWithBindings(bast, bindings, parseArithmetic);
+          setTermResult(!!boolVal);
+        }
+      }
     } catch (e) {
-      setEquationError(String(e.message || e));
+      setSandboxError(String(e.message || e));
     }
   };
 
@@ -139,17 +161,17 @@ export default function AdtDialog({ isOpen, onClose }) {
           
           <div>
             <div className={sectionTitle}>Interactive Tools</div>
-            
+
             <div className="mt-3 p-3 border rounded bg-gray-50">
-              <div className="text-sm font-semibold mb-3 text-gray-700">Term Evaluator</div>
+              <div className="text-sm font-semibold mb-3 text-gray-700">Sandbox</div>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs text-gray-700 mb-1">Arithmetic Expression</label>
+                  <label className="block text-xs text-gray-700 mb-1">Expression or Equation</label>
                   <input
                     className="w-full border rounded p-2 text-sm font-mono"
-                    placeholder="e.g., x + 2 * y, (a, b) == (c, d)"
-                    value={termInput}
-                    onChange={(e) => setTermInput(e.target.value)}
+                    placeholder="Enter an expression (e.g., x + 2*y) or equation with '=' (e.g., x + y = 7)"
+                    value={sandboxInput}
+                    onChange={(e) => setSandboxInput(e.target.value)}
                   />
                 </div>
                 <div>
@@ -162,34 +184,13 @@ export default function AdtDialog({ isOpen, onClose }) {
                   />
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm" onClick={handleEvaluateTerm}>Evaluate</button>
+                  <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm" onClick={handleRunSandbox}>Run</button>
                   {termResult !== null && (
-                    <span className="text-sm">Result: <span className="font-mono bg-green-100 px-2 py-1 rounded">{String(termResult)}</span></span>
+                    <span className="text-sm">Result: <span className="font-mono bg-green-100 px-2 py-1 rounded">{formatToken(termResult)}</span></span>
                   )}
                 </div>
-                {termError && (
-                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-sm whitespace-pre-wrap">{termError}</div>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-4 p-3 border rounded bg-gray-50">
-              <div className="text-sm font-semibold mb-3 text-gray-700">Equation Solver</div>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-xs text-gray-700 mb-1">Equation</label>
-                  <input
-                    className="w-full border rounded p-2 text-sm font-mono"
-                    placeholder="e.g., x + y = 7, x * 2 = 10"
-                    value={equationInput}
-                    onChange={(e) => setEquationInput(e.target.value)}
-                  />
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm" onClick={handleSolveEquation}>Solve</button>
-                </div>
-                {equationError && (
-                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-sm whitespace-pre-wrap">{equationError}</div>
+                {sandboxError && (
+                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-sm whitespace-pre-wrap">{sandboxError}</div>
                 )}
                 {solutions && solutions.length > 0 && (
                   <div className="text-sm">

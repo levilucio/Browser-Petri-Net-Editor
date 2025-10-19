@@ -28,10 +28,13 @@ export function parseBooleanExpr(input, parseArithmetic) {
   const src = input.trim();
   let i = 0;
   function skipWs() { while (i < src.length && /\s/.test(src[i])) i++; }
+  function isWordBoundaryAt(pos, len) {
+    return (pos === 0 || /[^A-Za-z0-9_]/.test(src[pos - 1] || '')) &&
+      (pos + len === src.length || /[^A-Za-z0-9_]/.test(src[pos + len] || ''));
+  }
   function startsWithWord(word) {
     skipWs();
-    return src.slice(i, i + word.length).toLowerCase() === word &&
-      (i + word.length === src.length || /[^A-Za-z0-9_]/.test(src[i + word.length] || ''));
+    return src.slice(i, i + word.length).toLowerCase() === word && isWordBoundaryAt(i, word.length);
   }
   function parseIdentWithOptionalType() {
     skipWs();
@@ -99,18 +102,63 @@ export function parseBooleanExpr(input, parseArithmetic) {
     }
     const ops = ['>=', '<=', '==', '!=', '>', '<'];
     let depth = 0; let opIndex = -1; let foundOp = null;
-    for (let j = i; j < src.length; j++) { const ch = src[j]; if (ch === '(') depth++; else if (ch === ')') depth = Math.max(0, depth - 1); if (depth !== 0) continue; const two = src.slice(j, j + 2); if (ops.includes(two)) { foundOp = two; opIndex = j; break; } if (ops.includes(ch)) { foundOp = ch; opIndex = j; break; } }
+    for (let j = i; j < src.length; j++) {
+      const ch = src[j];
+      if (ch === '(') depth++;
+      else if (ch === ')') depth = Math.max(0, depth - 1);
+      if (depth !== 0) continue;
+      const two = src.slice(j, j + 2);
+      if (ops.includes(two)) { foundOp = two; opIndex = j; break; }
+      if (ops.includes(ch)) { foundOp = ch; opIndex = j; break; }
+    }
     if (foundOp && opIndex >= 0) {
-      const leftStr = src.slice(i, opIndex).trim(); const rightStr = src.slice(opIndex + foundOp.length).trim();
-      const leftAst = parseAnyTermString(leftStr); const rightAst = parseAnyTermString(rightStr); i = src.length; return { type: 'cmp', op: foundOp, left: leftAst, right: rightAst };
+      const leftStr = src.slice(i, opIndex).trim();
+      // determine the end of the right-hand arithmetic term by scanning until a top-level 'and'/'or' word
+      const afterOp = opIndex + foundOp.length;
+      let end = src.length;
+      depth = 0;
+      const isWordBoundary = (pos) => (pos === 0 || /[^A-Za-z0-9_]/.test(src[pos - 1] || '')) && (pos + 3 <= src.length ? /[^A-Za-z0-9_]/.test(src[pos + 3] || '') : true);
+      for (let k = afterOp; k < src.length; k++) {
+        const ch = src[k];
+        if (ch === '(') { depth++; continue; }
+        if (ch === ')') { if (depth === 0) { end = k; break; } depth = Math.max(0, depth - 1); continue; }
+        if (depth !== 0) continue;
+        // look for ' and ' or ' or ' with word boundaries
+        if (src.slice(k).toLowerCase().startsWith('and') && isWordBoundary(k)) { end = k; break; }
+        if (src.slice(k).toLowerCase().startsWith('or') && (k === 0 || /[^A-Za-z0-9_]/.test(src[k - 1] || '')) && (k + 2 === src.length || /[^A-Za-z0-9_]/.test(src[k + 2] || ''))) { end = k; break; }
+      }
+      const rightStr = src.slice(afterOp, end).trim();
+      const leftAst = parseAnyTermString(leftStr);
+      const rightAst = parseAnyTermString(rightStr);
+      i = end; // stop right before ')' or logical operator; outer parser consumes next token
+      return { type: 'cmp', op: foundOp, left: leftAst, right: rightAst };
     }
     const { name, varType } = parseIdentWithOptionalType();
     return varType ? { type: 'boolVar', name, varType } : { type: 'boolVar', name };
   }
-  function parseNot() { skipWs(); if (startsWithWord('not')) { i += 3; const expr = parseNot(); return { type: 'not', expr }; } return parseBoolPrimary(); }
-  function parseAnd() { let node = parseNot(); while (true) { skipWs(); if (startsWithWord('and')) { i += 3; const right = parseNot(); node = { type: 'and', left: node, right }; } else break; } return node; }
-  function parseOr() { let node = parseAnd(); while (true) { skipWs(); if (startsWithWord('or')) { i += 2; const right = parseAnd(); node = { type: 'or', left: node, right }; } else break; } return node; }
-  const ast = parseOr(); skipWs(); if (i !== src.length) throw new Error(`Unexpected token '${src[i]}' at position ${i}`); return ast;
+  // Supported operators (words + symbol aliases) with precedence (high -> low)
+  const OP_WORDS = { not: ['not'], and: ['and'], xor: ['xor'], or: ['or'], implies: ['implies'], iff: ['iff'] };
+  const OP_SYMS = { not: ['!'], and: ['&&'], xor: ['^'], or: ['||'], implies: ['->'], iff: ['<->'] };
+
+  function tryConsumeSymbolOrWord(symbols, words) {
+    skipWs();
+    for (const s of symbols) { if (src.slice(i, i + s.length) === s) { i += s.length; return true; } }
+    for (const w of words) { if (src.slice(i, i + w.length).toLowerCase() === w && isWordBoundaryAt(i, w.length)) { i += w.length; return true; } }
+    return false;
+  }
+
+  function parseNot() {
+    skipWs();
+    if (tryConsumeSymbolOrWord(OP_SYMS.not, OP_WORDS.not)) { const expr = parseNot(); return { type: 'not', expr }; }
+    return parseBoolPrimary();
+  }
+
+  function parseAnd() { let node = parseNot(); while (true) { skipWs(); if (tryConsumeSymbolOrWord(OP_SYMS.and, OP_WORDS.and)) { const right = parseNot(); node = { type: 'and', left: node, right }; } else break; } return node; }
+  function parseXor() { let node = parseAnd(); while (true) { skipWs(); if (tryConsumeSymbolOrWord(OP_SYMS.xor, OP_WORDS.xor)) { const right = parseAnd(); node = { type: 'xor', left: node, right }; } else break; } return node; }
+  function parseOr() { let node = parseXor(); while (true) { skipWs(); if (tryConsumeSymbolOrWord(OP_SYMS.or, OP_WORDS.or)) { const right = parseXor(); node = { type: 'or', left: node, right }; } else break; } return node; }
+  function parseImplies() { let node = parseOr(); while (true) { skipWs(); if (tryConsumeSymbolOrWord(OP_SYMS.implies, OP_WORDS.implies)) { const right = parseOr(); node = { type: 'implies', left: node, right }; } else break; } return node; }
+  function parseIff() { let node = parseImplies(); while (true) { skipWs(); if (tryConsumeSymbolOrWord(OP_SYMS.iff, OP_WORDS.iff)) { const right = parseImplies(); node = { type: 'iff', left: node, right }; } else break; } return node; }
+  const ast = parseIff(); skipWs(); if (i !== src.length) throw new Error(`Unexpected token '${src[i]}' at position ${i}`); return ast;
 }
 
 export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {

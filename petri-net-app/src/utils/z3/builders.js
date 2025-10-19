@@ -1,6 +1,10 @@
 export function collectVariables(ast, acc = new Set()) {
   if (!ast) return acc;
   if (ast.type === 'var') acc.add(ast.name);
+  if (ast.type === 'pair') {
+    collectVariables(ast.fst, acc);
+    collectVariables(ast.snd, acc);
+  }
   if (ast.type === 'binop') {
     collectVariables(ast.left, acc);
     collectVariables(ast.right, acc);
@@ -18,6 +22,11 @@ export function buildZ3Expr(ctx, ast, sym) {
       return Int.val(ast.value);
     case 'string':
       return Z3String.val(ast.value);
+    case 'pair':
+      // Represent pair as concatenated string for now, sufficient for evaluation context
+      const left = buildZ3Expr(ctx, ast.fst, sym);
+      const right = buildZ3Expr(ctx, ast.snd, sym);
+      return left.concat(Z3String.val(',')).concat(right);
     case 'var':
       return sym(ast.name);
     case 'funcall': {
