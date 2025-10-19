@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, getPetriNetState, waitForState, clickStage } from './helpers.js';
+import { waitForAppReady, getPetriNetState, waitForState, clickStage } from '../../helpers.js';
 
 test.describe('Petri Net Editor', () => {
   test.beforeEach(async ({ page }) => {
@@ -203,11 +203,11 @@ test.describe('Petri Net Editor', () => {
     
     // Verify we have 2 places and 1 transition
     const { places: curPlaces, transitions: curTransitions } = await getPetriNetState(page);
-    const placesCount = curPlaces.length || 0;
-    const transitionsCount = curTransitions.length || 0;
+    const placesCount2 = curPlaces.length || 0;
+    const transitionsCount2 = curTransitions.length || 0;
     
-    expect(placesCount).toBe(2);
-    expect(transitionsCount).toBe(1);
+    expect(placesCount2).toBe(2);
+    expect(transitionsCount2).toBe(1);
     
     // Step 4: Create an arc from transition to first place
     const arcButton = page.getByTestId('toolbar-arc');
@@ -235,8 +235,8 @@ test.describe('Petri Net Editor', () => {
     
     // Verify we have 2 arcs
     const { arcs } = await getPetriNetState(page);
-    const arcsCount = arcs.length || 0;
-    expect(arcsCount).toBe(2);
+    const arcsCount2 = arcs.length || 0;
+    expect(arcsCount2).toBe(2);
     
     // Step 6: Select and delete the transition
     const selectButton = page.getByTestId('toolbar-select');
@@ -259,8 +259,8 @@ test.describe('Petri Net Editor', () => {
     
     // Verify arcs were also deleted
     const { arcs: finalArcs } = await getPetriNetState(page);
-    const finalArcsCount = finalArcs.length || 0;
-    expect(finalArcsCount).toBe(0);
+    const finalArcsCount2 = finalArcs.length || 0;
+    expect(finalArcsCount2).toBe(0);
     
     // Remove remaining isolated places to keep the PN fully connected (empty)
     // Delete place at (200, 150)
@@ -273,7 +273,9 @@ test.describe('Petri Net Editor', () => {
     await waitForState(page, (s) => (s.places?.length || 0) === 0);
 
     const { places: finalPlaces } = await getPetriNetState(page);
-    const finalPlacesCount = finalPlaces.length || 0;
-    expect(finalPlacesCount).toBe(0);
+    const finalPlacesCount2 = finalPlaces.length || 0;
+    expect(finalPlacesCount2).toBe(0);
   });
 });
+
+

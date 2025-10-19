@@ -1,4 +1,4 @@
-/// <reference path="./types/global.d.ts" />
+/// <reference path="../../types/global.d.ts" />
 // @ts-check
 import { test, expect } from '@playwright/test';
 import path from 'path';
@@ -351,8 +351,6 @@ test.describe('Simple Simulation', () => {
 
       // Wait for simulator ready and Step enabled
       await waitSimulatorReady(page, 10000);
-
-      // Wait for state change and read last fired transition directly from window
 
       // Read transitions present before step for validation
       const transitionIds = await page.evaluate(() => (((/** @type {any} */ (window)).__PETRI_NET_STATE__?.transitions) || []).map(t => t.id));

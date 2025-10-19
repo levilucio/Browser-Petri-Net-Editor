@@ -17,5 +17,14 @@ module.exports = {
   ],
   transformIgnorePatterns: [
     '/node_modules/(?!react-konva|konva)'
-  ]
+  ],
+  coverageReporters: ['html', 'text-summary'],
+  coverageThreshold: {
+    global: {
+      lines: 60,
+      branches: 50,
+      functions: 55,
+      statements: 60,
+    },
+  },
 };
