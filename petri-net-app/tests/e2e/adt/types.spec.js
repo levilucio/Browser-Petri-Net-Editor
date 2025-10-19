@@ -1,3 +1,4 @@
+/// <reference path="../../types/global.d.ts" />
 // @ts-check
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
@@ -32,7 +33,7 @@ test.describe('ADT Types (String/List/Pair)', () => {
     await waitSimulatorReady(page);
     await page.getByTestId('sim-step').click();
     await page.waitForFunction(() => {
-      const s = window.__PETRI_NET_STATE__;
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return false;
       const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
       const p2 = byLabel('P2');
@@ -40,7 +41,7 @@ test.describe('ADT Types (String/List/Pair)', () => {
       return vt2.length > 0 && vt2.includes('helloworld!');
     }, { timeout: 10000 });
     const final = await page.evaluate(() => {
-      const s = window.__PETRI_NET_STATE__;
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
       const p2 = byLabel('P2');
       return p2?.valueTokens || [];
@@ -79,7 +80,7 @@ test.describe('ADT Types (String/List/Pair)', () => {
     await waitSimulatorReady(page);
     await page.getByTestId('sim-step').click();
     await page.waitForFunction(() => {
-      const s = window.__PETRI_NET_STATE__;
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return false;
       const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
       const p2 = byLabel('P2');
@@ -93,7 +94,7 @@ test.describe('ADT Types (String/List/Pair)', () => {
     await waitSimulatorReady(page);
     await page.getByTestId('sim-step').click();
     const p2Tokens = await page.waitForFunction(() => {
-      const s = window.__PETRI_NET_STATE__;
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return null;
       const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
       const p2 = byLabel('P2');
@@ -111,7 +112,7 @@ test.describe('ADT Types (String/List/Pair)', () => {
     await page.getByTestId('sim-step').click();
     await page.waitForTimeout(500);
     const finalInfo = await page.evaluate(() => {
-      const s = window.__PETRI_NET_STATE__;
+      const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       const byLabel = (lbl) => (s?.places || []).find(p => (p.label || p.name) === lbl);
       const p1 = byLabel('P1');
       const p2 = byLabel('P2');

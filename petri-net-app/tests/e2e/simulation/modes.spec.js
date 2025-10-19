@@ -1,3 +1,4 @@
+/// <reference path="../../types/global.d.ts" />
 // @ts-check
 import { test, expect } from '@playwright/test';
 import { waitForAppReady } from '../../helpers.js';
@@ -11,7 +12,7 @@ async function clearCanvas(page) {
   await page.getByRole('button', { name: 'Clear' }).click();
   await page.waitForTimeout(200);
   const counts = await page.evaluate(() => {
-    const s = window.__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
+    const s = /** @type {any} */ (window).__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
     return { p: s.places.length || 0, t: s.transitions.length || 0, a: s.arcs.length || 0 };
   });
   expect(counts.p + counts.t + counts.a).toBe(0);
