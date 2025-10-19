@@ -172,6 +172,7 @@ export default function AdtDialog({ isOpen, onClose }) {
                     placeholder="Enter an expression (e.g., x + 2*y) or equation with '=' (e.g., x + y = 7)"
                     value={sandboxInput}
                     onChange={(e) => setSandboxInput(e.target.value)}
+                    data-testid="sandbox-expr"
                   />
                 </div>
                 <div>
@@ -181,23 +182,24 @@ export default function AdtDialog({ isOpen, onClose }) {
                     placeholder='{"x":3, "y":4} or x=3, y=4'
                     value={bindingsInput}
                     onChange={(e) => setBindingsInput(e.target.value)}
+                    data-testid="sandbox-bindings"
                   />
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm" onClick={handleRunSandbox}>Run</button>
+                  <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm" onClick={handleRunSandbox} data-testid="sandbox-run">Run</button>
                   {termResult !== null && (
-                    <span className="text-sm">Result: <span className="font-mono bg-green-100 px-2 py-1 rounded">{formatToken(termResult)}</span></span>
+                    <span className="text-sm" data-testid="sandbox-result">Result: <span className="font-mono bg-green-100 px-2 py-1 rounded">{formatToken(termResult)}</span></span>
                   )}
                 </div>
                 {sandboxError && (
                   <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-sm whitespace-pre-wrap">{sandboxError}</div>
                 )}
                 {solutions && solutions.length > 0 && (
-                  <div className="text-sm">
+                  <div className="text-sm" data-testid="sandbox-solutions">
                     <div className="font-semibold mb-2 text-gray-700">Solutions (up to 5):</div>
                     <div className="space-y-1">
                       {solutions.map((s, idx) => (
-                        <div key={idx} className="font-mono bg-white p-2 rounded border">{JSON.stringify(s)}</div>
+                        <div key={idx} className="font-mono bg-white p-2 rounded border" data-testid="sandbox-sol-entry">{JSON.stringify(s)}</div>
                       ))}
                     </div>
                   </div>

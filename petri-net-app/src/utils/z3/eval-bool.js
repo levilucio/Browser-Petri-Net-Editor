@@ -273,6 +273,56 @@ export async function evaluateBooleanPredicate(boolAstOrString, bindings, parseA
 export async function solveEquation(lhsAst, rhsAst, maxModels = 5) {
   const { ctx } = await getContext();
   const { Int, Solver } = ctx;
+  // Partially reduce any fully-ground arithmetic subterms (e.g., length([1,2,3]) → 3)
+  function toLiteralAst(value) {
+    if (typeof value === 'number') return { type: 'int', value: value | 0 };
+    if (typeof value === 'string') return { type: 'string', value };
+    if (Array.isArray(value)) {
+      const els = value.map(toLiteralAst).filter(Boolean);
+      return { type: 'list', elements: els };
+    }
+    // Pairs and other structures are not converted here
+    return null;
+  }
+  function partialReduce(node) {
+    // Attempt to evaluate the subtree; fall back to structural recursion
+    try {
+      const val = evaluateArithmeticWithBindings(node, {});
+      const lit = toLiteralAst(val);
+      if (lit) return lit;
+    } catch (_) {}
+    if (!node || typeof node !== 'object') return node;
+    if (node.type === 'binop' || node.type === 'bin') {
+      const left = partialReduce(node.left);
+      const right = partialReduce(node.right);
+      const rebuilt = { ...node, type: 'binop', left, right };
+      try {
+        const v = evaluateArithmeticWithBindings(rebuilt, {});
+        const lit = toLiteralAst(v);
+        if (lit) return lit;
+      } catch (_) {}
+      return rebuilt;
+    }
+    if (node.type === 'funcall') {
+      const args = Array.isArray(node.args) ? node.args.map(partialReduce) : [];
+      const rebuilt = { ...node, args };
+      try {
+        const v = evaluateArithmeticWithBindings(rebuilt, {});
+        const lit = toLiteralAst(v);
+        if (lit) return lit;
+      } catch (_) {}
+      return rebuilt;
+    }
+    if (node.type === 'list') {
+      const elements = (node.elements || []).map(partialReduce);
+      return { ...node, elements };
+    }
+    return node;
+  }
+
+  lhsAst = partialReduce(lhsAst);
+  rhsAst = partialReduce(rhsAst);
+
   const vars = Array.from(collectVariables(lhsAst)).concat(Array.from(collectVariables(rhsAst)));
   const uniqueVars = Array.from(new Set(vars));
   const symMap = new Map(uniqueVars.map((v) => [v, Int.const(v)]));
