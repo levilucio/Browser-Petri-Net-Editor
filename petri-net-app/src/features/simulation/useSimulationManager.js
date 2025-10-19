@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import debounce from 'lodash.debounce';
-import simulatorCore from './simulator-core.js';
+import defaultSimulatorCore from './simulator-core.js';
 import { simulationEventBus, SimulationEvents } from './SimulationEventBus.js';
 import { ConflictResolver } from './conflict-resolver.js';
 import { getSimulationStats } from './simulation-utils.js';
 
-const useSimulationManager = (elements, setElements, updateHistory, netMode) => {
+const useSimulationManager = (elements, setElements, updateHistory, netMode, injectedSimCore) => {
   // Core simulation state
   const [isContinuousSimulating, setIsContinuousSimulating] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -19,6 +19,9 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode) => 
   const isRunningRef = useRef(false);
   const latestElementsRef = useRef(elements);
   const conflictResolverRef = useRef(new ConflictResolver());
+
+  // Resolve simulator core (allow DI)
+  const simulatorCore = injectedSimCore || defaultSimulatorCore;
 
   // Set up event bus
   useEffect(() => {

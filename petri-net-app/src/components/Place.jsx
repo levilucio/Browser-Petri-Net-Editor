@@ -1,4 +1,5 @@
 import React from 'react';
+import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 import { Circle, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
 
@@ -75,38 +76,10 @@ const Place = ({
       if (!start) return;
       const deltaX = currentPos.x - start.x;
       const deltaY = currentPos.y - start.y;
-      // Batch updates during drag to avoid excessive renders
       setElements(prev => {
         if (!multiDragRef.current || !multiDragRef.current.startPositions) return prev;
-        const next = { ...prev };
-        next.places = prev.places.map(p => {
-          const s = multiDragRef.current.startPositions.get(p.id);
-          if (s) {
-            const pos = gridSnappingEnabled ? snapToGrid(s.x + deltaX, s.y + deltaY) : { x: s.x + deltaX, y: s.y + deltaY };
-            return { ...p, x: pos.x, y: pos.y };
-          }
-          return p;
-        });
-        next.transitions = prev.transitions.map(t => {
-          const s = multiDragRef.current.startPositions.get(t.id);
-          if (s) {
-            const pos = gridSnappingEnabled ? snapToGrid(s.x + deltaX, s.y + deltaY) : { x: s.x + deltaX, y: s.y + deltaY };
-            return { ...t, x: pos.x, y: pos.y };
-          }
-          return t;
-        });
-        if (multiDragRef.current.startArcPoints) {
-          next.arcs = prev.arcs.map(a => {
-            const pts = multiDragRef.current.startArcPoints.get(a.id);
-            if (pts) {
-              const movedPts = pts.map(p => ({ x: p.x + deltaX, y: p.y + deltaY }));
-              return { ...a, anglePoints: movedPts };
-            }
-            return a;
-          });
-        }
-        // arcs recompute positions from node coords each render, so no change needed here
-        return next;
+        const snapshot = multiDragRef.current;
+        return applyMultiDragDeltaFromSnapshot(prev, snapshot, { dx: deltaX, dy: deltaY }, { gridSnappingEnabled, snapToGrid });
       });
     }
   };

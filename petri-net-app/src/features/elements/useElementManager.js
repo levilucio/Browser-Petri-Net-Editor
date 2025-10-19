@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import { v4 as uuidv4 } from 'uuid';
 import { useArcManager } from '../arcs/useArcManager';
+import { toggleSelection } from '../selection/selection-utils';
+import { collectSelection, remapIdsForPaste } from '../selection/clipboard-utils';
 
 export const useElementManager = () => {
   const { 
@@ -79,17 +81,9 @@ export const useElementManager = () => {
     if (mode === 'select' || mode === 'arc_angle') {
       const isShift = !!(evt && (evt.evt?.shiftKey || (evt.evt?.getModifierState && evt.evt.getModifierState('Shift')))) || !!(isShiftPressedRef && isShiftPressedRef.current);
       if (isShift) {
-        // toggle selection
-        const exists = isIdSelected(element.id, type);
-        if (exists) {
-          setSelectedElements(prev => prev.filter(se => !(se.id === element.id && se.type === type)));
-        } else {
-          setSelectedElements(prev => [...prev, { id: element.id, type }]);
-        }
-        // keep last-focused element
+        setSelectedElements(prev => toggleSelection(prev, { id: element.id, type }));
         setSelectedElement({ ...element, type });
       } else {
-        // single select replaces selection
         setSelection([{ id: element.id, type }]);
       }
       setArcStart(null);
@@ -124,11 +118,27 @@ export const useElementManager = () => {
     });
   }, [setElements, gridSnappingEnabled, snapToGrid]);
 
+  // Replace inline keyboard logic in context later; keep helpers here for reuse
+  const collectClipboard = useCallback((selection) => collectSelection(elements, selection), [elements]);
+  const pasteClipboard = useCallback((clipboard, offset = { x: 40, y: 40 }) => {
+    if (!clipboard) return null;
+    const { newPlaces, newTransitions, newArcs, newSelection } = remapIdsForPaste(clipboard, uuidv4, offset);
+    setElements(prev => ({
+      ...prev,
+      places: [...prev.places, ...newPlaces],
+      transitions: [...prev.transitions, ...newTransitions],
+      arcs: [...prev.arcs, ...newArcs],
+    }));
+    return newSelection;
+  }, [setElements]);
+
   return {
     handleDeleteElement,
     clearAllElements,
     handleCreateElement,
     handleElementClick,
     handleElementDragEnd,
+    collectClipboard,
+    pasteClipboard,
   };
 };

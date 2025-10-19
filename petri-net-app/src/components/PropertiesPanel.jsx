@@ -8,6 +8,7 @@ import TransitionGuardEditor from './panel/TransitionGuardEditor.jsx';
 import { useValueTokensInput } from './hooks/useValueTokensInput';
 import { useBindingsInput } from './hooks/useBindingsInput';
 import { computeGlobalTypeInferenceForState } from './hooks/useGlobalTypeInference';
+import { formatTokensList } from '../utils/token-format';
 
 const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory, simulationSettings }) => {
   // Read enabled transitions from context (fallback to defaults if no provider in unit tests)
@@ -39,14 +40,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
       const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id) || '';
       const elementType = selectedElement.type || (elementId.split('-')[0]);
       const toTF = (s) => (typeof s === 'boolean') ? (s ? 'T' : 'F') : String(s);
-      const fmt = (v) => {
-        if (typeof v === 'boolean') return v ? 'T' : 'F';
-        if (typeof v === 'string') return `'${v}'`;
-        if (Array.isArray(v)) return `[${v.map(fmt).join(', ')}]`;
-        if (v && typeof v === 'object' && v.__pair__) return `(${fmt(v.fst)}, ${fmt(v.snd)})`;
-        return String(v);
-      };
-      const tokensToString = (arr) => Array.isArray(arr) ? arr.map(fmt).join(', ') : '';
+      const tokensToString = (arr) => Array.isArray(arr) ? formatTokensList(arr) : '';
       const bindingsToString = (arr) => Array.isArray(arr) ? arr.map(b => {
         const t = String(b || '');
         if (/^true$/i.test(t)) return 'T';

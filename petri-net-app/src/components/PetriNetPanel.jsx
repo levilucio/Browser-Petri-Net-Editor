@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
+import EnabledTransitionsPanel from './EnabledTransitionsPanel';
+import { formatTokensList } from '../utils/token-format';
 
 const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
 	const { handleFireTransition, netMode } = usePetriNet();
@@ -41,14 +43,7 @@ const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
 						const tokens = place.tokens || 0;
 						const valueTokens = Array.isArray(place.valueTokens) ? place.valueTokens : [];
 						const isAlgebraic = (netMode === 'algebraic-int') && Array.isArray(place.valueTokens);
-						const fmt = (v) => {
-							if (typeof v === 'boolean') return v ? 'T' : 'F';
-							if (typeof v === 'string') return `'${v}'`;
-							if (Array.isArray(v)) return `[${v.map(fmt).join(', ')}]`;
-							if (v && typeof v === 'object' && v.__pair__) return `(${fmt(v.fst)}, ${fmt(v.snd)})`;
-							return String(v);
-						};
-						const algebraicText = isAlgebraic ? valueTokens.map(fmt).join(', ') : '';
+							const algebraicText = isAlgebraic ? formatTokensList(valueTokens) : '';
 						return (
 							<div key={place.id} className="flex items-start text-sm">
 								<span className="font-medium text-gray-800 mr-2 truncate" title={label}>{label}</span>
@@ -86,35 +81,16 @@ const PetriNetPanel = ({ elements, enabledTransitionIds }) => {
 					</button>
 				</div>
 				{isEnabledPanelOpen && (
-					<div data-testid="enabled-transitions" className="markings-panel p-3 bg-gray-50 border border-gray-200 rounded-md">
-						{(() => {
-							const items = (enabledTransitionIds || []).map((id) => {
-								const t = (elements.transitions || []).find(tr => tr.id === id);
-								const label = (t && (t.label || t.name)) || id;
-								return { id, label };
-							});
-							if (items.length === 0) {
-								return (
-									<p className="text-gray-500 text-sm">No enabled transitions</p>
-								);
-							}
-						return (
-							<div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-								{items.map(({ id, label }) => (
-									<button
-										key={id}
-										className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs font-medium border border-yellow-200 hover:bg-yellow-200"
-										onClick={() => handleFireTransition && handleFireTransition(id)}
-										data-testid={`enabled-${label}`}
-										title={`Fire ${label}`}
-									>
-										{label}
-									</button>
-								))}
-							</div>
-						);
-						})()}
-					</div>
+					<EnabledTransitionsPanel
+						isOpen={true}
+						enabledTransitions={(enabledTransitionIds || []).map((id) => {
+							const t = (elements.transitions || []).find(tr => tr.id === id);
+							return { id, label: (t && (t.label || t.name)) || id };
+						})}
+						isLoading={false}
+						onClose={() => setIsEnabledPanelOpen(false)}
+						onFire={(id) => handleFireTransition && handleFireTransition(id)}
+					/>
 				)}
 			</div>
 		</div>

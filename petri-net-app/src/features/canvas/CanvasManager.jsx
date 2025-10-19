@@ -5,6 +5,7 @@ import { useElementManager } from '../elements/useElementManager';
 import ElementManager from '../elements/ElementManager';
 import ArcManager from '../arcs/ArcManager';
 import Grid from '../../components/Grid';
+import { buildSelectionFromRect } from '../selection/selection-utils';
 import CustomScrollbar from '../../components/CustomScrollbar';
 import SnapIndicator from '../../components/SnapIndicator';
 
@@ -221,15 +222,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
         onMouseUp={() => {
           if (mode !== 'select') return;
           if (!selectingRef.current.isSelecting || !selectionRect) return;
-          const { x, y, w, h } = selectionRect;
-          const minX = Math.min(x, x + w);
-          const minY = Math.min(y, y + h);
-          const maxX = Math.max(x, x + w);
-          const maxY = Math.max(y, y + h);
-          const inside = (pt) => pt.x >= minX && pt.x <= maxX && pt.y >= minY && pt.y <= maxY;
-          const newSelection = [];
-          elements.places.forEach(p => { if (inside({ x: p.x, y: p.y })) newSelection.push({ id: p.id, type: 'place' }); });
-          elements.transitions.forEach(t => { if (inside({ x: t.x, y: t.y })) newSelection.push({ id: t.id, type: 'transition' }); });
+          const newSelection = buildSelectionFromRect(elements, selectionRect);
           setSelection(newSelection);
           selectingRef.current = { isSelecting: false, start: null };
           setSelectionRect(null);
