@@ -8,7 +8,7 @@ test.describe('Editor keyboard shortcuts', () => {
     await waitForAppReady(page);
   });
 
-  test.fixme('Ctrl+C / Ctrl+V duplicates selected node; Delete removes it', async ({ page }) => {
+test('Ctrl+C / Ctrl+V duplicates selected node; Delete removes it', async ({ page }) => {
     // Add two places
     const placeBtn = page.getByTestId('toolbar-place');
     await placeBtn.click();
@@ -22,11 +22,45 @@ test.describe('Editor keyboard shortcuts', () => {
     const selectBtn = page.getByTestId('toolbar-select');
     await selectBtn.click();
     await clickStage(page, { x: 200, y: 200 });
+    // Allow selection state to propagate before copy
+    await page.waitForTimeout(250);
+    // Make sure the stage has focus
+    await clickStage(page, { x: 205, y: 205 });
 
     // Copy/Paste
-    await page.keyboard.press('Control+C');
-    await page.keyboard.press('Control+V');
-    await waitForState(page, s => (s.places?.length || 0) === beforePlaces + 1);
+    const isMac = await page.evaluate(() => navigator.platform.toUpperCase().includes('MAC'));
+    if (isMac) {
+      await page.keyboard.down('Meta');
+      await page.keyboard.press('c');
+      await page.keyboard.up('Meta');
+      await page.waitForTimeout(100);
+      await page.keyboard.down('Meta');
+      await page.keyboard.press('v');
+      await page.keyboard.up('Meta');
+    } else {
+      await page.keyboard.down('Control');
+      await page.keyboard.press('c');
+      await page.keyboard.up('Control');
+      await page.waitForTimeout(100);
+      await page.keyboard.down('Control');
+      await page.keyboard.press('v');
+      await page.keyboard.up('Control');
+    }
+    try {
+      await waitForState(page, s => (s.places?.length || 0) === beforePlaces + 1);
+    } catch (_) {
+      // Retry paste once in case the first keypress was swallowed
+      if (isMac) {
+        await page.keyboard.down('Meta');
+        await page.keyboard.press('v');
+        await page.keyboard.up('Meta');
+      } else {
+        await page.keyboard.down('Control');
+        await page.keyboard.press('v');
+        await page.keyboard.up('Control');
+      }
+      await waitForState(page, s => (s.places?.length || 0) === beforePlaces + 1);
+    }
 
     // Delete newly pasted selection
     await page.keyboard.press('Delete');

@@ -66,7 +66,8 @@ export function useKeyboardShortcuts(ctx) {
           transitions: [...prev.transitions, ...newTransitions],
           arcs: [...prev.arcs, ...newArcs],
         }));
-        setTimeout(() => setSelection(newSelection), 0);
+        // Immediately transfer selection to the freshly pasted elements
+        setSelection(newSelection);
         return;
       }
     };

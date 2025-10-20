@@ -22,6 +22,7 @@ const AppWrapper = () => {
     const {
       elements, setElements,
       selectedElement, setSelectedElement,
+      selectedElements,
       mode, setMode,
       arcStart, setArcStart,
       tempArcEnd, setTempArcEnd,
@@ -146,7 +147,9 @@ const AppWrapper = () => {
         switch (event.key) {
           case 'Delete':
           case 'Backspace':
-            if (selectedElement) {
+            // Avoid duplicate deletion: global shortcuts handle multi-selection and single selection.
+            // Only handle here if there is NO multi-selection active.
+            if (selectedElement && (!Array.isArray(selectedElements) || selectedElements.length === 0)) {
               event.preventDefault();
               handleDeleteElement();
             }
