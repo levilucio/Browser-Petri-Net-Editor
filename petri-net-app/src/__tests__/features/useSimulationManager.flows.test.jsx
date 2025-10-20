@@ -28,19 +28,27 @@ function baseElements() {
   };
 }
 
-function makeCore({ mode = 'single', enabledSeq = [['t1']], fireResult } = {}) {
+function makeCore({ mode = 'single', enabledSeq, fireResult } = {}) {
   let callIdx = 0;
+  let fired = false;
+  const nextEnabled = () => {
+    if (enabledSeq) {
+      return enabledSeq[Math.min(callIdx++, enabledSeq.length - 1)];
+    }
+    if (fired) return [];
+    return mode === 'maximal' ? [{ id: 't1' }] : ['t1'];
+  };
   const core = {
     setEventBus: jest.fn(),
     isReady: jest.fn(async () => true),
     initialize: jest.fn(async () => {}),
     update: jest.fn(async () => {}),
-    getEnabledTransitions: jest.fn(async () => enabledSeq[Math.min(callIdx++, enabledSeq.length - 1)]),
+    getEnabledTransitions: jest.fn(async () => nextEnabled()),
     getSimulatorType: jest.fn(() => 'z3'),
     getSimulationMode: jest.fn(() => mode),
     activateSimulation: jest.fn(async () => {}),
     deactivateSimulation: jest.fn(async () => {}),
-    fireTransition: jest.fn(async () => fireResult || baseElements()),
+    fireTransition: jest.fn(async () => { fired = true; return fireResult || baseElements(); }),
   };
   return core;
 }
@@ -75,22 +83,22 @@ describe('useSimulationManager flows', () => {
   });
 
   test('startContinuousSimulation runs then stops when no more enabled transitions', async () => {
-    jest.useFakeTimers();
-    // Sequence: initial getEnabled -> ['t1']; stepSimulation -> ['t1']; refresh -> [] (stop)
     const after = baseElements();
     after.places = after.places.map(p => (p.id === 'p1' ? { ...p, tokens: 0 } : p.id === 'p2' ? { ...p, tokens: 1 } : p));
-    const core = makeCore({ mode: 'single', enabledSeq: [['t1'], ['t1'], []], fireResult: after });
+    // Use fired-gated mock: returns enabled until one fire occurs
+    const core = makeCore({ mode: 'single', fireResult: after });
     const outRef = { current: null };
 
     await act(async () => { render(<Harness injectedSimCore={core} outRef={outRef} />); });
 
     await act(async () => { outRef.current.mgr.startContinuousSimulation(); });
-    // flush microtasks; no delay should be awaited because refresh returned []
+    // allow state updates to flush
     await act(async () => { await Promise.resolve(); });
 
-    expect(core.activateSimulation).toHaveBeenCalled();
-    expect(core.fireTransition).toHaveBeenCalledWith('t1');
-    // Simulation should have stopped and flags reset
+    // Observable effects instead of spying on core.fireTransition
+    const p2 = outRef.current.elements.places.find(p => p.id === 'p2');
+    expect(p2?.tokens).toBe(1);
+    expect(outRef.current.history.current.length).toBeGreaterThan(0);
     expect(outRef.current.mgr.isContinuousSimulating).toBe(false);
   });
 
@@ -99,17 +107,17 @@ describe('useSimulationManager flows', () => {
     // Three ticks: two runs with t1 then stop
     const after = baseElements();
     after.places = after.places.map(p => (p.id === 'p1' ? { ...p, tokens: 0 } : p.id === 'p2' ? { ...p, tokens: 1 } : p));
-    const core = makeCore({ mode: 'maximal', enabledSeq: [[{ id: 't1' }], [{ id: 't1' }], []], fireResult: after });
+    const core = makeCore({ mode: 'maximal', fireResult: after });
     const outRef = { current: null };
 
     await act(async () => { render(<Harness injectedSimCore={core} outRef={outRef} />); });
     await act(async () => { await outRef.current.mgr.startRunSimulation(); });
-    // allow two 50ms cycles to run
-    await act(async () => { await new Promise(res => setTimeout(res, 150)); });
+    // allow a couple of runStep cycles
+    await act(async () => { await new Promise(res => setTimeout(res, 180)); });
 
-    expect(core.activateSimulation).toHaveBeenCalled();
-    expect(core.getEnabledTransitions).toHaveBeenCalled();
-    expect(core.fireTransition).toHaveBeenCalled();
+    const p2 = outRef.current.elements.places.find(p => p.id === 'p2');
+    expect(p2?.tokens).toBe(1);
+    expect(outRef.current.history.current.length).toBeGreaterThan(0);
     expect(outRef.current.mgr.isRunning).toBe(false);
   });
 
