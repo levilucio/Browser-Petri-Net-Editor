@@ -58,6 +58,7 @@ export function parseBooleanExpr(input, parseArithmetic) {
     const srcTerm = String(s || '').trim();
     if (/^true$/i.test(srcTerm) || srcTerm === 'T') return { type: 'boolLit', value: true };
     if (/^false$/i.test(srcTerm) || srcTerm === 'F') return { type: 'boolLit', value: false };
+    if (/^-?\d+$/.test(srcTerm)) return { type: 'int', value: parseInt(srcTerm, 10) };
     // Try to parse a pair literal like (2, (T, 3)) with balanced parentheses
     if (srcTerm.startsWith('(') && srcTerm.endsWith(')')) {
       const inner = srcTerm.slice(1, -1).trim();
@@ -76,17 +77,24 @@ export function parseBooleanExpr(input, parseArithmetic) {
         }
       }
     }
-    try { return parseArithmetic(srcTerm); } catch (_) {}
-    try {
-      const { name, varType } = parseIdentWithOptionalType();
-      if (varType === 'bool') return { type: 'boolVar', name, varType };
-      if (varType === 'pair') return { type: 'pairVar', name, varType };
-      return { type: 'var', name };
-    } catch (_) { throw new Error(`Unrecognized term '${srcTerm}'`); }
+    try { if (typeof parseArithmetic === 'function') return parseArithmetic(srcTerm); } catch (_) {}
+    // Local identifier parse: name[:type]
+    const m = srcTerm.match(/^([A-Za-z_][A-Za-z0-9_]*)(?::([A-Za-z]+))?$/);
+    if (!m) throw new Error(`Unrecognized term '${srcTerm}'`);
+    const name = m[1];
+    if (name && /^[A-Z]/.test(name)) throw new Error(`Variable names must start with lowercase letter, got '${name}'`);
+    const tWord = (m[2] || '').toLowerCase();
+    if (tWord === 'bool') return { type: 'boolVar', name, varType: 'bool' };
+    if (tWord === 'pair') return { type: 'pairVar', name, varType: 'pair' };
+    return { type: 'var', name };
   }
   function parseBoolPrimary() {
     skipWs(); if (i >= src.length) throw new Error('Unexpected end');
-    if (src[i] === '(') { i++; const node = parseOr(); skipWs(); if (src[i] !== ')') throw new Error(`Expected ')' at ${i}`); i++; return node; }
+    // Accept boolean literals T/F (single letter) and true/false words
+    if (src[i] === 'T' && isWordBoundaryAt(i, 1)) { i += 1; return { type: 'boolLit', value: true }; }
+    if (src[i] === 'F' && isWordBoundaryAt(i, 1)) { i += 1; return { type: 'boolLit', value: false }; }
+    if (startsWithWord('true')) { i += 4; return { type: 'boolLit', value: true }; }
+    if (startsWithWord('false')) { i += 5; return { type: 'boolLit', value: false }; }
     if (src.slice(i).startsWith('isSubstringOf')) {
       i += 'isSubstringOf'.length; skipWs(); if (src[i] !== '(') throw new Error(`Expected '('`);
       let startArgs = i + 1; let d = 1; i++;
@@ -107,6 +115,9 @@ export function parseBooleanExpr(input, parseArithmetic) {
       if (ch === '(') depth++;
       else if (ch === ')') depth = Math.max(0, depth - 1);
       if (depth !== 0) continue;
+      // Skip over logic symbol operators so they are not mistaken for comparisons
+      if (src.slice(j, j + 3) === '<->') { j += 2; continue; }
+      if (src.slice(j, j + 2) === '->') { j += 1; continue; }
       const two = src.slice(j, j + 2);
       if (ops.includes(two)) { foundOp = two; opIndex = j; break; }
       if (ops.includes(ch)) { foundOp = ch; opIndex = j; break; }
@@ -127,12 +138,31 @@ export function parseBooleanExpr(input, parseArithmetic) {
         if (src.slice(k).toLowerCase().startsWith('and') && isWordBoundary(k)) { end = k; break; }
         if (src.slice(k).toLowerCase().startsWith('or') && (k === 0 || /[^A-Za-z0-9_]/.test(src[k - 1] || '')) && (k + 2 === src.length || /[^A-Za-z0-9_]/.test(src[k + 2] || ''))) { end = k; break; }
       }
+      const LOGIC_WORDS = ['and','or','xor','implies','iff'];
+      const LOGIC_SYMS = ['&&','||','^','->','<->'];
+      const isTopLevelLogicAt = (pos) => {
+        const rest = src.slice(pos);
+        for (const s of LOGIC_SYMS) { if (rest.startsWith(s)) return true; }
+        for (const w of LOGIC_WORDS) { if (rest.toLowerCase().startsWith(w) && isWordBoundaryAt(pos, w.length)) return true; }
+        return false;
+      };
+      // re-scan to include symbol operators, too
+      depth = 0; end = src.length;
+      for (let k = afterOp; k < src.length; k++) {
+        const ch2 = src[k];
+        if (ch2 === '(') { depth++; continue; }
+        if (ch2 === ')') { if (depth === 0) { end = k; break; } depth = Math.max(0, depth - 1); continue; }
+        if (depth !== 0) continue;
+        if (isTopLevelLogicAt(k)) { end = k; break; }
+      }
       const rightStr = src.slice(afterOp, end).trim();
       const leftAst = parseAnyTermString(leftStr);
       const rightAst = parseAnyTermString(rightStr);
       i = end; // stop right before ')' or logical operator; outer parser consumes next token
       return { type: 'cmp', op: foundOp, left: leftAst, right: rightAst };
     }
+    // If no comparison found, handle grouped boolean sub-expression
+    if (src[i] === '(') { i++; const node = parseIff(); skipWs(); if (src[i] !== ')') throw new Error(`Expected ')' at ${i}`); i++; return node; }
     const { name, varType } = parseIdentWithOptionalType();
     return varType ? { type: 'boolVar', name, varType } : { type: 'boolVar', name };
   }
@@ -196,6 +226,18 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
       case 'not': return !evalBool(node.expr);
       case 'and': return evalBool(node.left) && evalBool(node.right);
       case 'or': return evalBool(node.left) || evalBool(node.right);
+      case 'xor': {
+        const l = evalBool(node.left); const r = evalBool(node.right);
+        return (l && !r) || (!l && r);
+      }
+      case 'implies': {
+        const l = evalBool(node.left); const r = evalBool(node.right);
+        return (!l) || r;
+      }
+      case 'iff': {
+        const l = evalBool(node.left); const r = evalBool(node.right);
+        return l === r;
+      }
       case 'cmp': {
         const l = tryEvalAnyTerm(node.left); const r = tryEvalAnyTerm(node.right);
         const eq = (a, b) => { if (a && typeof a === 'object' && a.__pair__ && b && typeof b === 'object' && b.__pair__) return eq(a.fst, b.fst) && eq(a.snd, b.snd); return a === b; };

@@ -30,6 +30,10 @@ export function buildZ3Expr(ctx, ast, sym) {
     case 'var':
       return sym(ast.name);
     case 'funcall': {
+      // Fast-path: length over a string literal without requiring String theory
+      if (ast.name === 'length' && ast.args && ast.args.length === 1 && ast.args[0]?.type === 'string') {
+        return Int.val((ast.args[0].value || '').length);
+      }
       if (ast.name === 'concat' && ast.args && ast.args.length === 2) {
         const arg1 = buildZ3Expr(ctx, ast.args[0], sym);
         const arg2 = buildZ3Expr(ctx, ast.args[1], sym);

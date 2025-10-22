@@ -136,12 +136,46 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
 }
 
 export async function evaluateTermWithBindings(ast, bindings) {
+  // Mitigation 1: try JS reduction first for fully-ground terms
+  try {
+    const val = evaluateArithmeticWithBindings(ast, bindings || {});
+    if (typeof val === 'number') return val | 0;
+  } catch (_) {}
+
   const { ctx } = await getContext();
-  const { Int, Solver, And } = ctx;
-  const vars = Array.from(collectVariables(ast));
-  const uniqueVars = Array.from(new Set(vars));
-  const symMap = new Map(uniqueVars.map((v) => [v, Int.const(v)]));
-  const sym = (name) => symMap.get(name);
+  const { Int, Solver, And, String: Z3String } = ctx;
+
+  // Infer string variables from usage contexts
+  const stringVars = new Set();
+  (function markStringVars(node) {
+    if (!node || typeof node !== 'object') return;
+    if (node.type === 'funcall') {
+      const name = node.name;
+      const args = Array.isArray(node.args) ? node.args : [];
+      if (name === 'concat') {
+        args.forEach(a => {
+          if (a && a.type === 'var') stringVars.add(a.name);
+          markStringVars(a);
+        });
+      } else if (name === 'substring' || name === 'length') {
+        const a0 = args[0];
+        if (a0 && a0.type === 'var') stringVars.add(a0.name);
+        args.forEach(a => markStringVars(a));
+      } else {
+        args.forEach(a => markStringVars(a));
+      }
+      return;
+    }
+    if (node.type === 'binop') { markStringVars(node.left); markStringVars(node.right); return; }
+    if (node.type === 'pair') { markStringVars(node.fst); markStringVars(node.snd); return; }
+  })(ast);
+
+  const allVars = Array.from(new Set(Array.from(collectVariables(ast))));
+  const intVars = allVars.filter(v => !stringVars.has(v));
+  const intSym = new Map(intVars.map((v) => [v, Int.const(v)]));
+  const strSym = new Map(stringVars.map((v) => [v, Z3String?.const ? Z3String.const(v) : null]));
+  const sym = (name) => (stringVars.has(name) ? strSym.get(name) : intSym.get(name));
+
   const expr = buildZ3Expr(ctx, ast, sym);
   const res = Int.const('result');
   const s = new Solver();
@@ -150,7 +184,8 @@ export async function evaluateTermWithBindings(ast, bindings) {
   if (bindings && typeof bindings === 'object') {
     const eqs = [];
     for (const [name, value] of Object.entries(bindings)) {
-      if (symMap.has(name)) eqs.push(symMap.get(name).eq(Int.val(value | 0)));
+      if (typeof value === 'number' && intSym.has(name)) eqs.push(intSym.get(name).eq(Int.val(value | 0)));
+      else if (typeof value === 'string' && strSym.has(name) && Z3String?.val) eqs.push(strSym.get(name).eq(Z3String.val(value)));
     }
     if (eqs.length) s.add(And(...eqs));
   }
