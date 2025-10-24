@@ -315,7 +315,12 @@ export function parsePNML(pnmlString) {
         let weight = 1;
         const inscriptionText = getTextContent(arc, 'inscription');
         if (inscriptionText) {
-          try { weight = parseInt(inscriptionText); } catch (e) { console.warn(`Could not parse weight for ${arcId}:`, e); }
+          const parsed = parseInt(inscriptionText, 10);
+          if (Number.isFinite(parsed)) {
+            weight = parsed;
+          } else {
+            console.warn(`Could not parse weight for ${arcId}: '${inscriptionText}', defaulting to 1`);
+          }
         }
         const bindingText = getTextContent(arc, 'binding');
         let bindingsArray = undefined;
