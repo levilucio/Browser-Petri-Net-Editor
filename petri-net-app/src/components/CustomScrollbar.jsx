@@ -111,14 +111,14 @@ const CustomScrollbar = ({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.1)',
-    borderRadius: '0px',
-    overflow: 'visible',
+    borderRadius: '6px',
+    overflow: 'hidden',
   };
 
   const thumbStyle = {
     position: 'absolute',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: '0px',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    borderRadius: '6px',
     cursor: 'pointer',
     willChange: 'transform',
     ...(isHorizontal
