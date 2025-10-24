@@ -28,10 +28,11 @@ const CustomScrollbar = ({
           const { left, top, width, height } = trackRef.current.getBoundingClientRect();
           const trackSize = isHorizontal ? width : height;
           const thumbSize = Math.max(20, trackSize * (viewportSize / contentSize));
-          const maxScroll = contentSize - viewportSize;
+          const maxScroll = Math.max(0, contentSize - viewportSize);
+          const maxThumbPosition = Math.max(0, trackSize - thumbSize);
           
           const mousePosition = isHorizontal ? e.clientX - left : e.clientY - top;
-          let newScrollPosition = ((mousePosition - thumbSize / 2) / (trackSize - thumbSize)) * maxScroll;
+          let newScrollPosition = ((mousePosition - thumbSize / 2) / maxThumbPosition) * maxScroll;
           newScrollPosition = Math.max(0, Math.min(newScrollPosition, maxScroll));
           onScroll(newScrollPosition);
       }
@@ -46,8 +47,8 @@ const CustomScrollbar = ({
 
         const trackSize = isHorizontal ? trackRef.current.clientWidth : trackRef.current.clientHeight;
         const thumbSize = Math.max(20, trackSize * (viewportSize / contentSize));
-        const maxScroll = contentSize - viewportSize;
-        const maxThumbPosition = trackSize - thumbSize;
+        const maxScroll = Math.max(0, contentSize - viewportSize);
+        const maxThumbPosition = Math.max(0, trackSize - thumbSize);
 
         if (maxThumbPosition <= 0) return;
 
@@ -83,46 +84,61 @@ const CustomScrollbar = ({
   }
 
   const trackSize = trackRef.current ? (isHorizontal ? trackRef.current.clientWidth : trackRef.current.clientHeight) : 0;
-  const thumbSize = trackSize > 0 ? Math.max(20, trackSize * (viewportSize / contentSize)) : 0;
-  const maxScroll = contentSize - viewportSize;
-  const maxThumbPosition = trackSize > thumbSize ? trackSize - thumbSize : 0;
-  const thumbPosition = maxScroll > 0 ? (scrollPosition / maxScroll) * maxThumbPosition : 0;
+  const calculatedThumbSize = trackSize > 0 ? trackSize * (viewportSize / contentSize) : 0;
+  const thumbSize = Math.max(20, Math.min(calculatedThumbSize, trackSize));
+  const maxScroll = Math.max(0, contentSize - viewportSize);
+  const maxThumbPosition = Math.max(0, trackSize - thumbSize);
+  // Clamp thumb position; allow exact 0 and max alignment
+  const safeScroll = Math.max(0, Math.min(scrollPosition, maxScroll));
+  const thumbPosition = maxScroll > 0 ? Math.min((safeScroll / maxScroll) * maxThumbPosition, maxThumbPosition) : 0;
 
-  const toolbarOffset = 64; // keep scrollbar below fixed toolbar
-  const rightSidebarOffset = 320; // approximate width of right sidebar
+  const toolbarOffset = 0; // no offset; Canvas container already sits below toolbar
+  const rightSidebarOffset = 0; // no offset inside canvas container
   const scrollbarStyle = {
     position: 'absolute',
-    zIndex: 10,
+    zIndex: 50,
+    padding: 0,
+    margin: 0,
     ...(isHorizontal
-      ? { left: '10px', right: `${rightSidebarOffset - 5}px`, bottom: '5px', height: '10px' }
-      : { top: `${toolbarOffset}px`, bottom: '20px', right: '5px', width: '10px' }),
+      ? { left: '0px', right: '0px', bottom: '0px', height: '10px' }
+      : { top: '0px', bottom: '0px', right: '0px', width: '10px' }),
   };
 
   const trackStyle = {
-    position: 'relative',
-    width: '100%',
-    height: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.1)',
-    borderRadius: '5px',
+    borderRadius: '0px',
+    overflow: 'visible',
   };
 
   const thumbStyle = {
     position: 'absolute',
     backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: '5px',
+    borderRadius: '0px',
     cursor: 'pointer',
+    willChange: 'transform',
     ...(isHorizontal
-      ? { left: `${thumbPosition}px`, top: 0, width: `${thumbSize}px`, height: '100%' }
-      : { top: `${thumbPosition}px`, left: 0, height: `${thumbSize}px`, width: '100%' }),
+      ? { left: `${Math.round(thumbPosition)}px`, top: '0px', width: `${Math.round(thumbSize)}px`, height: '100%' }
+      : { top: `${Math.round(thumbPosition)}px`, left: '0px', height: `${Math.round(thumbSize)}px`, width: '100%' }),
   };
 
   return (
-    <div style={scrollbarStyle} ref={trackRef} onMouseDown={handleTrackClick}>
+    <div style={scrollbarStyle}>
         <div
-          ref={thumbRef}
-          style={thumbStyle}
-          onMouseDown={handleThumbMouseDown}
-        />
+          ref={trackRef}
+          style={trackStyle}
+          onMouseDown={handleTrackClick}
+        >
+          <div
+            ref={thumbRef}
+            style={thumbStyle}
+            onMouseDown={handleThumbMouseDown}
+          />
+        </div>
     </div>
   );
 };

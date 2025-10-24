@@ -243,7 +243,7 @@ const AppWrapper = () => {
             <CanvasManager handleZoom={handleZoom} ZOOM_STEP={ZOOM_STEP} />
           </div>
           {/* Zoom controls */}
-          <div className="fixed top-24 right-[336px] z-20 flex flex-col space-y-2">
+          <div className="fixed top-24 right-[336px] z-10 flex flex-col space-y-2 pointer-events-auto">
             <button 
               className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
               onClick={() => handleZoom(ZOOM_STEP)}

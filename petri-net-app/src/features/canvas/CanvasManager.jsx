@@ -182,14 +182,13 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
 
   const handleScroll = useCallback((axis, newScrollValue) => {
     setCanvasScroll(prev => {
-        const newScroll = { ...prev, [axis]: newScrollValue };
-        const maxScrollX = Math.max(0, virtualCanvasDimensions.width - (stageDimensions.width / zoomLevel));
-        const maxScrollY = Math.max(0, virtualCanvasDimensions.height - (stageDimensions.height / zoomLevel));
-
-        return {
-            x: Math.max(0, Math.min(newScroll.x, maxScrollX)),
-            y: Math.max(0, Math.min(newScroll.y, maxScrollY)),
-        };
+      const maxScrollX = Math.max(0, (virtualCanvasDimensions.width) - (stageDimensions.width / zoomLevel));
+      const maxScrollY = Math.max(0, (virtualCanvasDimensions.height) - (stageDimensions.height / zoomLevel));
+      const clamped = (val, max) => Math.max(0, Math.min(val, max));
+      const next = { ...prev };
+      if (axis === 'x') next.x = clamped(newScrollValue, maxScrollX);
+      if (axis === 'y') next.y = clamped(newScrollValue, maxScrollY);
+      return next;
     });
   }, [setCanvasScroll, virtualCanvasDimensions, stageDimensions, zoomLevel]);
 
@@ -209,6 +208,8 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
         ref={stageRef}
         width={stageDimensions.width}
         height={stageDimensions.height}
+        // Ensure pointer events are allowed even when overlapped by other fixed UI
+        listening={true}
         onClick={handleStageClick}
         onMouseMove={handleMouseMove}
         onMouseDown={(e) => {
@@ -227,10 +228,11 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
           selectingRef.current = { isSelecting: false, start: null };
           setSelectionRect(null);
         }}
+        // Apply zoom and pan using scale and position (ensure exact edge scrolling)
         scaleX={zoomLevel}
         scaleY={zoomLevel}
-        offsetX={canvasScroll.x}
-        offsetY={canvasScroll.y}
+        x={-canvasScroll.x * zoomLevel}
+        y={-canvasScroll.y * zoomLevel}
       >
         <Layer>
           <Rect
@@ -283,7 +285,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
         />
         <ArcManager />
       </Stage>
-      {stageDimensions.width > 0 && virtualCanvasDimensions.width * zoomLevel > stageDimensions.width && (
+      {stageDimensions.width > 0 && virtualCanvasDimensions.width > stageDimensions.width / zoomLevel && (
           <CustomScrollbar
               orientation="horizontal"
               contentSize={virtualCanvasDimensions.width}
@@ -292,13 +294,20 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
               onScroll={(newScroll) => handleScroll('x', newScroll)}
           />
       )}
-      {stageDimensions.height > 0 && virtualCanvasDimensions.height * zoomLevel > stageDimensions.height && (
+      {stageDimensions.height > 0 && virtualCanvasDimensions.height > stageDimensions.height / zoomLevel && (
           <CustomScrollbar
               orientation="vertical"
               contentSize={virtualCanvasDimensions.height}
-              viewportSize={(stageDimensions.height / zoomLevel)}
+              viewportSize={stageDimensions.height / zoomLevel}
               scrollPosition={canvasScroll.y}
-              onScroll={(newScroll) => handleScroll('y', newScroll)}
+              onScroll={(newScroll) => {
+                console.log('Vertical scroll callback:', { 
+                  newScroll, 
+                  currentScroll: canvasScroll.y,
+                  maxScroll: Math.max(0, virtualCanvasDimensions.height - (stageDimensions.height / zoomLevel))
+                });
+                handleScroll('y', newScroll);
+              }}
           />
       )}
     </div>
