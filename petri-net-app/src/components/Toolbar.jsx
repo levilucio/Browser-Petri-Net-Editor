@@ -5,6 +5,7 @@ import HistoryButtons from './toolbar/HistoryButtons.jsx';
 import SettingsButton from './toolbar/SettingsButton.jsx';
 import AdtDialog from './AdtDialog';
 import useToolbarActions from './toolbar/useToolbarActions';
+import { usePetriNet } from '../contexts/PetriNetContext';
 
 const Toolbar = ({ 
   mode, 
@@ -34,7 +35,9 @@ const Toolbar = ({
   const [success, setSuccess] = useState(null);
   const [isAdtOpen, setIsAdtOpen] = useState(false);
   // Handlers moved to hook for clarity
-  const { handleSave, handleLoad, handleClear, handleOpenAdtManager } = useToolbarActions({
+  const { saveFileHandle, setSaveFileHandle } = (() => { try { return usePetriNet(); } catch (_) { return { saveFileHandle: null, setSaveFileHandle: () => {} }; } })();
+
+  const { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager } = useToolbarActions({
     elements,
     setElements,
     updateHistory,
@@ -45,6 +48,8 @@ const Toolbar = ({
     setError,
     setSuccess,
     setIsAdtOpen,
+    saveFileHandle,
+    setSaveFileHandle,
   });
   
   // Auto-dismiss success messages after 5 seconds
@@ -165,7 +170,15 @@ const Toolbar = ({
         {/* File Operations Group */}
         <div className="file-operations p-2">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">File</h3>
-          <FileControls isLoading={isLoading} onSave={handleSave} onLoad={handleLoad} onClear={handleClear} buttonStyle={buttonStyle} />
+          <FileControls 
+            isLoading={isLoading} 
+            onSave={handleSave} 
+            onSaveAs={handleSaveAs}
+            canSaveAs={!!saveFileHandle}
+            onLoad={handleLoad} 
+            onClear={handleClear} 
+            buttonStyle={buttonStyle} 
+          />
         </div>
         
         {/* Visual separator - engraved effect */}

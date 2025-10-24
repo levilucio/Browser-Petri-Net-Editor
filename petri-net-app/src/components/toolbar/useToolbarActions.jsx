@@ -16,6 +16,8 @@ export default function useToolbarActions(params) {
     setError,
     setSuccess,
     setIsAdtOpen,
+    saveFileHandle,
+    setSaveFileHandle,
   } = params || {};
 
   let adtRegistry = null;
@@ -31,6 +33,12 @@ export default function useToolbarActions(params) {
     setIsAdtOpen(true);
   }, [adtRegistry, setError, setIsAdtOpen]);
 
+  const writeToHandle = async (handle, pnmlString) => {
+    const writable = await handle.createWritable();
+    await writable.write(new Blob([pnmlString], { type: 'application/xml' }));
+    await writable.close();
+  };
+
   const handleSave = useCallback(async () => {
     try {
       setIsLoading?.(true);
@@ -43,26 +51,115 @@ export default function useToolbarActions(params) {
       };
 
       const pnmlString = await exportToPNML(elementsWithMode);
-      const blob = new Blob([pnmlString], { type: 'application/xml' });
-      const url = URL.createObjectURL(blob);
+      const defaultName = 'petri-net.pnml';
+      const hasFS = typeof window !== 'undefined' && typeof window.showSaveFilePicker === 'function';
+      if (hasFS) {
+        try {
+          if (saveFileHandle) {
+            await writeToHandle(saveFileHandle, pnmlString);
+          } else {
+            const handle = await window.showSaveFilePicker({
+              suggestedName: defaultName,
+              types: [{ description: 'PNML Files', accept: { 'application/xml': ['.pnml', '.xml'], 'text/xml': ['.pnml', '.xml'] } }],
+              excludeAcceptAllOption: false,
+            });
+            await writeToHandle(handle, pnmlString);
+            setSaveFileHandle?.(handle);
+          }
+        } catch (err) {
+          if (err && (err.name === 'AbortError' || err.name === 'SecurityError')) {
+            setSuccess?.('Save cancelled.');
+          } else {
+            const blob = new Blob([pnmlString], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = defaultName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        }
+      } else {
+        const blob = new Blob([pnmlString], { type: 'application/xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = defaultName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
 
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'petri-net.pnml';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      setSuccess?.('Petri net saved successfully as PNML file.');
+      setSuccess?.('Petri net saved.');
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Error saving Petri net:', error);
       setError?.(`Error saving Petri net: ${error.message}`);
     } finally {
       setIsLoading?.(false);
     }
-  }, [elements, simulationSettings, setIsLoading, setError, setSuccess]);
+  }, [elements, simulationSettings, setIsLoading, setError, setSuccess, saveFileHandle, setSaveFileHandle]);
+
+  const handleSaveAs = useCallback(async () => {
+    try {
+      setIsLoading?.(true);
+      setError?.(null);
+      setSuccess?.(null);
+
+      const elementsWithMode = {
+        ...(elements || {}),
+        netMode: simulationSettings?.netMode || 'pt'
+      };
+      const pnmlString = await exportToPNML(elementsWithMode);
+      const defaultName = 'petri-net.pnml';
+
+      const hasFS = typeof window !== 'undefined' && typeof window.showSaveFilePicker === 'function';
+      if (hasFS) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: defaultName,
+            types: [{ description: 'PNML Files', accept: { 'application/xml': ['.pnml', '.xml'], 'text/xml': ['.pnml', '.xml'] } }],
+            excludeAcceptAllOption: false,
+          });
+          await writeToHandle(handle, pnmlString);
+          setSaveFileHandle?.(handle);
+        } catch (err) {
+          if (err && (err.name === 'AbortError' || err.name === 'SecurityError')) {
+            setSuccess?.('Save cancelled.');
+          } else {
+            const blob = new Blob([pnmlString], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = defaultName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        }
+      } else {
+        const blob = new Blob([pnmlString], { type: 'application/xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = defaultName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      setSuccess?.('Petri net saved.');
+    } catch (error) {
+      console.error('Error saving Petri net:', error);
+      setError?.(`Error saving Petri net: ${error.message}`);
+    } finally {
+      setIsLoading?.(false);
+    }
+  }, [elements, simulationSettings, setIsLoading, setError, setSuccess, setSaveFileHandle]);
 
   const handleLoad = useCallback(() => {
     const fileInput = document.createElement('input');
@@ -109,7 +206,6 @@ export default function useToolbarActions(params) {
           arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : []
         };
 
-        // filter invalid arcs
         const validArcs = (safeJson.arcs || []).filter(arc => {
           if (arc.source === 'undefined' || arc.target === 'undefined' || !arc.source || !arc.target) return false;
           const sourceExists = safeJson.places.some(p => p.id === arc.source) || safeJson.transitions.some(t => t.id === arc.source);
@@ -149,7 +245,6 @@ export default function useToolbarActions(params) {
         if (updateHistory) updateHistory(safeJson);
         setSuccess?.(`Petri net loaded successfully with ${safeJson.places.length} places, ${safeJson.transitions.length} transitions, and ${safeJson.arcs.length} arcs.`);
       } catch (error) {
-        // eslint-disable-next-line no-console
         console.error('Error loading Petri net:', error);
         setError?.(`Error loading Petri net: ${error.message}`);
       } finally {
@@ -179,7 +274,8 @@ export default function useToolbarActions(params) {
     setSuccess?.('Canvas cleared successfully.');
   }, [resetEditor, setElements, setSimulationSettings, updateHistory, setSuccess]);
 
-  return { handleSave, handleLoad, handleClear, handleOpenAdtManager };
+  return { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager };
 }
+
 
 

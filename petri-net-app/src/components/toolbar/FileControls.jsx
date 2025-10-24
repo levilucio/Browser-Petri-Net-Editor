@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FileControls = ({ isLoading, onSave, onLoad, onClear, buttonStyle }) => {
+const FileControls = ({ isLoading, onSave, onSaveAs, canSaveAs, onLoad, onClear, buttonStyle }) => {
   return (
     <div className="flex justify-between">
       <button 
@@ -10,6 +10,14 @@ const FileControls = ({ isLoading, onSave, onLoad, onClear, buttonStyle }) => {
         title="Save as PNML"
       >
         Save
+      </button>
+      <button
+        style={{ ...buttonStyle(false), opacity: isLoading || !canSaveAs ? 0.5 : 1 }}
+        onClick={onSaveAs}
+        disabled={isLoading || !canSaveAs}
+        title="Save As (choose location and filename)"
+      >
+        Save as
       </button>
       <button 
         style={{ ...buttonStyle(false), opacity: isLoading ? 0.5 : 1 }}

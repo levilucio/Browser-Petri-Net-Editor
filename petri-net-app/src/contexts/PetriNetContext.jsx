@@ -46,6 +46,9 @@ export const PetriNetProvider = ({ children }) => {
   const [gridSnappingEnabled, setGridSnappingEnabled] = useState(true);
   const gridSize = 20;
 
+  // Track native file handle for Save/Save As semantics (File System Access API)
+  const [saveFileHandle, setSaveFileHandle] = useState(null);
+
   const historyManagerRef = useRef(new HistoryManager({ places: [], transitions: [], arcs: [] }));
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
@@ -301,7 +304,9 @@ export const PetriNetProvider = ({ children }) => {
       isIdSelected, clearSelection, setSelection,
       multiDragRef,
       clipboardRef,
-      isShiftPressedRef
+      isShiftPressedRef,
+      // Save/Save As state
+      saveFileHandle, setSaveFileHandle
     }}>
       {children}
     </PetriNetContext.Provider>
