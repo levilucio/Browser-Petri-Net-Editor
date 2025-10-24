@@ -1,7 +1,5 @@
-import { useCallback } from 'react';
 import { exportToPNML, importFromPNML } from '../../utils/python/index';
 import { simulatorCore } from '../../features/simulation';
-import { useAdtRegistry } from '../../contexts/AdtContext';
 import { detectNetModeFromContent } from '../../utils/netMode';
 
 export default function useToolbarActions(params) {
@@ -20,18 +18,10 @@ export default function useToolbarActions(params) {
     setSaveFileHandle,
   } = params || {};
 
-  let adtRegistry = null;
-  try {
-    adtRegistry = useAdtRegistry();
-  } catch (_) {
-    adtRegistry = null;
-  }
-
-  const handleOpenAdtManager = useCallback(() => {
+  const handleOpenAdtManager = () => {
     if (!setIsAdtOpen) return;
-    if (!adtRegistry) { setError?.('ADT Manager unavailable in this context'); return; }
     setIsAdtOpen(true);
-  }, [adtRegistry, setError, setIsAdtOpen]);
+  };
 
   const writeToHandle = async (handle, pnmlString) => {
     const writable = await handle.createWritable();
@@ -39,7 +29,7 @@ export default function useToolbarActions(params) {
     await writable.close();
   };
 
-  const handleSave = useCallback(async () => {
+  const handleSave = async () => {
     try {
       setIsLoading?.(true);
       setError?.(null);
@@ -100,9 +90,9 @@ export default function useToolbarActions(params) {
     } finally {
       setIsLoading?.(false);
     }
-  }, [elements, simulationSettings, setIsLoading, setError, setSuccess, saveFileHandle, setSaveFileHandle]);
+  };
 
-  const handleSaveAs = useCallback(async () => {
+  const handleSaveAs = async () => {
     try {
       setIsLoading?.(true);
       setError?.(null);
@@ -159,9 +149,9 @@ export default function useToolbarActions(params) {
     } finally {
       setIsLoading?.(false);
     }
-  }, [elements, simulationSettings, setIsLoading, setError, setSuccess, setSaveFileHandle]);
+  };
 
-  const handleLoad = useCallback(() => {
+  const handleLoad = () => {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = '.pnml,.xml';
@@ -254,9 +244,9 @@ export default function useToolbarActions(params) {
     };
 
     fileInput.click();
-  }, [setIsLoading, setError, setSuccess, setElements, updateHistory, setSimulationSettings, resetEditor]);
+  };
 
-  const handleClear = useCallback(() => {
+  const handleClear = () => {
     try {
       simulatorCore.deactivateSimulation?.();
       simulatorCore.reset?.();
@@ -272,7 +262,7 @@ export default function useToolbarActions(params) {
     }
 
     setSuccess?.('Canvas cleared successfully.');
-  }, [resetEditor, setElements, setSimulationSettings, updateHistory, setSuccess]);
+  };
 
   return { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager };
 }

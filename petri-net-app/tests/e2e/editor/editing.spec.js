@@ -58,6 +58,15 @@ test.describe('Petri Net Editor', () => {
     }
   });
 
+  test('Save as button is disabled before first save', async ({ page }) => {
+    await page.goto('/');
+    // locate Save and Save as by their button text
+    const saveButton = page.getByRole('button', { name: /^Save$/ });
+    const saveAsButton = page.getByRole('button', { name: /^Save as$/ });
+    await expect(saveButton).toBeEnabled();
+    await expect(saveAsButton).toBeDisabled();
+  });
+
   test('should create place, transition, arc and then delete the arc', async ({ page }) => {
     // Step 1: Add a place
     const placeButton = page.locator('[data-testid="toolbar-place"]');
