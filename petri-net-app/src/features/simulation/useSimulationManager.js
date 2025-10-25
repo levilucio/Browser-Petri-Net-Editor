@@ -325,7 +325,14 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
             mod.setZ3WorkerConfig(boosted);
           } catch (_) {}
           const shouldCancel = () => { try { return Boolean(window.__PETRI_NET_CANCEL_RUN__); } catch (_) { return false; } };
-          const onProgress = (info) => { try { window.__PETRI_NET_RUN_PROGRESS__ = info; } catch (_) {} };
+          const onProgress = (info) => {
+            try {
+              window.__PETRI_NET_RUN_PROGRESS__ = info;
+              // Force a small tick so React has a chance to paint progress without heavy updates
+              // We avoid setState to keep it lightweight; a tiny timeout can hint React scheduler
+              setTimeout(() => {}, 0);
+            } catch (_) {}
+          };
           const batchMax = (mode === 'maximal') ? 64 : 0;
           const finalNet = await simulatorCore.runToCompletion({ mode, maxSteps: 200000, timeBudgetMs: 60000, yieldEvery: 50, onProgress, shouldCancel, batchMax });
           if (finalNet && typeof finalNet === 'object') {

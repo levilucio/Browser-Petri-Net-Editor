@@ -118,10 +118,14 @@ export class SimulatorCore {
         }
 
         if (steps % yieldEvery === 0) {
-          if (onProgress) {
-            onProgress({ steps, elapsedMs: now() - startTs });
-          }
-          await Promise.resolve();
+          if (onProgress) { onProgress({ steps, elapsedMs: now() - startTs }); }
+          // Yield to browser to keep UI responsive and allow paints
+          try { await new Promise((res) => setTimeout(res, 0)); } catch (_) {}
+          try {
+            if (typeof requestAnimationFrame !== 'undefined') {
+              await new Promise((res) => requestAnimationFrame(() => res()));
+            }
+          } catch (_) {}
           if ((now() - startTs) > timeBudgetMs) break;
         }
       }

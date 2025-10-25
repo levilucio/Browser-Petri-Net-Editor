@@ -93,13 +93,21 @@ const SimulationManager = () => {
         </div>
 
         {isRunning && (
-          <div className="mt-2 text-xs text-gray-600">
-            {(() => {
-              try {
-                const p = window.__PETRI_NET_RUN_PROGRESS__ || {};
-                return <span>Running… steps: {p.steps || 0}, elapsed: {(p.elapsedMs|0)}ms</span>;
-              } catch (_) { return null; }
-            })()}
+          <div className="mt-2 text-xs text-gray-700 flex items-center justify-between">
+            <span>
+              {(() => {
+                try {
+                  const p = window.__PETRI_NET_RUN_PROGRESS__ || {};
+                  const steps = Number(p.steps || 0);
+                  const ms = Number(p.elapsedMs || 0);
+                  return `Running… steps: ${steps.toLocaleString()}, elapsed: ${ms.toLocaleString()}ms`;
+                } catch (_) { return 'Running…'; }
+              })()}
+            </span>
+            <span className="ml-3 inline-flex items-center space-x-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span>working</span>
+            </span>
           </div>
         )}
       </div>
