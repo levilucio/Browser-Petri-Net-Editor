@@ -68,13 +68,18 @@ const AppWrapper = () => {
         arcs: elements.arcs
       };
       window.__PETRI_NET_MODE__ = mode;
+      // Expose non-visual run flag for useSimulationManager (wired from settings)
+      try {
+        const anyWin = window;
+        anyWin.__PETRI_NET_NON_VISUAL_RUN__ = Boolean(simulationSettings?.useNonVisualRun);
+      } catch (_) {}
       try {
         const anyWin = window;
         if (!anyWin.__PETRI_NET_SIM_CORE__ && simulatorCore) {
           anyWin.__PETRI_NET_SIM_CORE__ = simulatorCore;
         }
       } catch (_) {}
-    }, [elements.places, elements.transitions, elements.arcs, mode]);
+    }, [elements.places, elements.transitions, elements.arcs, mode, simulationSettings?.useNonVisualRun]);
 
     const handleZoom = (delta) => {
       setZoomLevel(prevZoom => {

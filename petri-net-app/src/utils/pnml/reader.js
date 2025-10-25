@@ -177,18 +177,37 @@ export function parsePNML(pnmlString) {
         if (positionElements.length > 0) {
           const x = parseInt(positionElements[0].getAttribute('x') || '0');
           const y = parseInt(positionElements[0].getAttribute('y') || '0');
-          return { x, y };
+          return { x, y, found: true };
         }
       }
-      return { x: 0, y: 0 };
+      return { x: 0, y: 0, found: false };
     };
+
+    // Decide whether to auto-layout large nets lacking positions for readability
+    const applyAutoLayout = (places.length + ((() => {
+      const transitionsNS2 = pageElement.getElementsByTagNameNS(PNML_NS, 'transition');
+      const transitionsNoNS2 = pageElement.getElementsByTagName('transition');
+      const totalTransitions = (transitionsNS2 && transitionsNS2.length ? transitionsNS2.length : (transitionsNoNS2 ? transitionsNoNS2.length : 0));
+      return totalTransitions;
+    })())) >= 500;
 
     // Places
     places.forEach((place, index) => {
       try {
         const placeId = place.getAttribute('id');
         const name = getTextContent(place, 'name') || `P${index + 1}`;
-        const { x, y } = getPosition(place);
+        let pos = getPosition(place);
+        let x = pos.x;
+        let y = pos.y;
+        if (!pos.found && applyAutoLayout) {
+          // Fallback grid layout for readability when positions are missing
+          const columns = 25; // number of columns in grid
+          const spacing = 80; // pixels between nodes
+          const col = index % columns;
+          const row = Math.floor(index / columns);
+          x = 40 + col * spacing;
+          y = 40 + row * spacing;
+        }
         let tokens = 0;
         let valueTokens = undefined;
         const markingText = getTextContent(place, 'initialMarking');
@@ -240,7 +259,20 @@ export function parsePNML(pnmlString) {
       try {
         const transitionId = transition.getAttribute('id');
         const name = getTextContent(transition, 'name') || `T${index + 1}`;
-        const { x, y } = getPosition(transition);
+        let pos = getPosition(transition);
+        let x = pos.x;
+        let y = pos.y;
+        if (!pos.found && applyAutoLayout) {
+          // Fallback grid layout for readability when positions are missing
+          // Place transitions near their corresponding place column with a horizontal offset
+          const columns = 25; // number of columns in grid
+          const spacing = 80; // pixels between nodes
+          const col = index % columns;
+          const row = Math.floor(index / columns);
+          const offsetX = 220; // distance to the right of the place column
+          x = 40 + col * spacing + offsetX;
+          y = 40 + row * spacing;
+        }
         const guardText = getTextContent(transition, 'guard');
         const actionText = getTextContent(transition, 'action');
         const transitionObj = {

@@ -79,6 +79,58 @@ export class SimulatorCore {
     }
   }
 
+  // Headless run to completion without per-step UI events
+  async runToCompletion({ mode = 'single', maxSteps = 100000, timeBudgetMs = 30000, yieldEvery = 100, onProgress, shouldCancel, batchMax = 0 } = {}) {
+    if (!this.currentSimulator) throw new Error('Simulator not initialized');
+    // Detach event bus to suppress per-step emissions
+    const prevBus = this.currentSimulator.eventBus || null;
+    try {
+      if (this.currentSimulator.setEventBus) this.currentSimulator.setEventBus(null);
+    } catch (_) {}
+
+    try {
+      if (this.currentSimulator.setSimulationMode) this.currentSimulator.simulationMode = mode;
+      const now = (typeof performance !== 'undefined' && performance.now) ? () => performance.now() : () => Date.now();
+      const startTs = now();
+      let steps = 0;
+
+      const getEnabledIds = async () => {
+        const enabled = await this.currentSimulator.getEnabledTransitions();
+        return (enabled || []).map(t => (typeof t === 'string') ? t : (t && t.id) ? t.id : String(t));
+      };
+      while (steps < maxSteps) {
+        if (shouldCancel && shouldCancel()) break;
+        const enabledIds = await getEnabledIds();
+        if (!enabledIds || enabledIds.length === 0) break;
+
+        if (mode === 'maximal' && batchMax > 0) {
+          const net = this.currentSimulator.petriNet || {};
+          const batch = chooseGreedyNonConflicting(enabledIds, net.arcs || [], batchMax);
+          for (const id of batch) {
+            if (shouldCancel && shouldCancel()) break;
+            await this.currentSimulator.fireTransition(id);
+            steps++;
+          }
+        } else {
+          const pick = enabledIds[Math.floor(Math.random() * enabledIds.length)];
+          await this.currentSimulator.fireTransition(pick);
+          steps++;
+        }
+
+        if (steps % yieldEvery === 0) {
+          if (onProgress) {
+            onProgress({ steps, elapsedMs: now() - startTs });
+          }
+          await Promise.resolve();
+          if ((now() - startTs) > timeBudgetMs) break;
+        }
+      }
+      return this.currentSimulator.petriNet || null;
+    } finally {
+      try { if (this.currentSimulator.setEventBus) this.currentSimulator.setEventBus(prevBus); } catch (_) {}
+    }
+  }
+
   reset() {
     if (this.currentSimulator) this.currentSimulator.reset();
     this.currentSimulator = null;
@@ -153,6 +205,36 @@ export class SimulatorCore {
     console.log('Using P/T mode');
     return 'pt';
   }
+
+}
+
+// Greedy non-conflicting set: avoid transitions that share input places
+function chooseGreedyNonConflicting(enabledIds, arcs, batchMax) {
+  const byT = new Map(); // tId -> Set(inputPlaceIds)
+  for (const tId of enabledIds) byT.set(tId, new Set());
+  for (const a of (arcs || [])) {
+    const tgt = a.targetId || a.target;
+    const src = a.sourceId || a.source;
+    const placeToTransition = (a.type === 'place-to-transition') || (a.sourceType === 'place');
+    if (placeToTransition && byT.has(tgt)) {
+      byT.get(tgt).add(src);
+    }
+  }
+  const order = enabledIds.slice();
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0; const tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+  }
+  const used = new Set();
+  const out = [];
+  for (const tId of order) {
+    const inputs = byT.get(tId) || new Set();
+    let ok = true; for (const p of inputs) { if (used.has(p)) { ok = false; break; } }
+    if (!ok) continue;
+    out.push(tId);
+    for (const p of inputs) used.add(p);
+    if (batchMax > 0 && out.length >= batchMax) break;
+  }
+  return out;
 }
 
 export const simulatorCore = new SimulatorCore();

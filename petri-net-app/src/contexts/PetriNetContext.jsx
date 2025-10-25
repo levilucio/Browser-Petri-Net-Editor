@@ -30,13 +30,15 @@ export const PetriNetProvider = ({ children }) => {
   const [simulationSettings, setSimulationSettings] = useState({
     maxIterations: 100,
     maxTokens: 20,
-    netMode: 'pt'
+    netMode: 'pt',
+    useNonVisualRun: false
   });
   const [z3Settings, setZ3Settings] = useState({
     minWorkers: 1,
     maxWorkers: 2,
     idleTimeoutMs: 300000,
     prewarmOnAlgebraicMode: true,
+    solverTimeoutMs: 10000,
   });
 
   const [stageDimensions, setStageDimensions] = useState({ width: 800, height: 600 });
@@ -195,7 +197,8 @@ export const PetriNetProvider = ({ children }) => {
     setSimulationSettings({
       maxIterations: 100,
       maxTokens: 20,
-      netMode: 'pt'
+      netMode: 'pt',
+      useNonVisualRun: false
     });
     
     // Reset canvas state

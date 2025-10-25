@@ -305,6 +305,47 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
       setIsContinuousSimulating(false);
       isRunningRef.current = true;
       await refreshEnabledTransitions();
+      
+      // Check for non-visual run setting exposed on window (wired via context)
+      let useNonVisual = false;
+      try { useNonVisual = Boolean(window.__PETRI_NET_NON_VISUAL_RUN__); } catch (_) {}
+      if (useNonVisual && typeof simulatorCore.runToCompletion === 'function') {
+        try {
+          let mode = 'single';
+          try { mode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single'; } catch (_) {}
+          // Temporarily boost Z3 workers during headless run
+          let prevZ3 = null;
+          try {
+            const anyWin = window;
+            prevZ3 = { ...(anyWin.__Z3_SETTINGS__ || {}) };
+            const boosted = { ...prevZ3 };
+            boosted.minWorkers = Math.max(1, Number(prevZ3.minWorkers || 1));
+            boosted.maxWorkers = Math.max(4, Number(prevZ3.maxWorkers || 2));
+            const mod = await import('../../utils/z3-remote');
+            mod.setZ3WorkerConfig(boosted);
+          } catch (_) {}
+          const shouldCancel = () => { try { return Boolean(window.__PETRI_NET_CANCEL_RUN__); } catch (_) { return false; } };
+          const onProgress = (info) => { try { window.__PETRI_NET_RUN_PROGRESS__ = info; } catch (_) {} };
+          const batchMax = (mode === 'maximal') ? 64 : 0;
+          const finalNet = await simulatorCore.runToCompletion({ mode, maxSteps: 200000, timeBudgetMs: 60000, yieldEvery: 50, onProgress, shouldCancel, batchMax });
+          if (finalNet && typeof finalNet === 'object') {
+            setElements(finalNet);
+            latestElementsRef.current = finalNet;
+            if (updateHistory) updateHistory(finalNet, true);
+          }
+        } finally {
+          // Restore Z3 worker config
+          try {
+            const anyWin = window; const prev = anyWin.__Z3_SETTINGS__;
+            if (prev) { const mod2 = await import('../../utils/z3-remote'); mod2.setZ3WorkerConfig(prev); }
+          } catch (_) {}
+          await refreshEnabledTransitions();
+          isRunningRef.current = false;
+          setIsRunning(false);
+          try { simulatorCore.deactivateSimulation(); } catch (_) {}
+        }
+        return;
+      }
 
       const runStep = async () => {
         if (!isRunningRef.current) { setIsRunning(false); return; }

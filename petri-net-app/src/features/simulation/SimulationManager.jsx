@@ -64,7 +64,7 @@ const SimulationManager = () => {
           <button
             data-testid="sim-run"
             className="flex-1 h-12 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:bg-gray-400 flex flex-col items-center justify-center transition-all shadow-md"
-            onClick={startRunSimulation}
+            onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = false; } catch (_) {}; startRunSimulation(); }}
             disabled={!isSimulatorReady || isAnySimulationRunning || enabledTransitionIds.length === 0}
             title="Run to completion"
           >
@@ -81,7 +81,7 @@ const SimulationManager = () => {
           <button
             data-testid="sim-stop"
             className="w-full h-10 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400 flex items-center justify-center space-x-2 transition-all shadow-md"
-            onClick={stopAllSimulations}
+            onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = true; } catch (_) {}; stopAllSimulations(); }}
             disabled={!isAnySimulationRunning}
             title="Stop simulation or run"
           >
@@ -91,6 +91,17 @@ const SimulationManager = () => {
             <span className="text-sm font-bold">STOP</span>
           </button>
         </div>
+
+        {isRunning && (
+          <div className="mt-2 text-xs text-gray-600">
+            {(() => {
+              try {
+                const p = window.__PETRI_NET_RUN_PROGRESS__ || {};
+                return <span>Running… steps: {p.steps || 0}, elapsed: {(p.elapsedMs|0)}ms</span>;
+              } catch (_) { return null; }
+            })()}
+          </div>
+        )}
       </div>
     </div>
   );

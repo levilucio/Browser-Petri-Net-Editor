@@ -298,7 +298,11 @@ export async function evaluateBooleanPredicate(boolAstOrString, bindings, parseA
     }
   }
   const s = new Solver();
-  try { s.set('timeout', 10000); } catch (_) {}
+  try {
+    let t = 10000;
+    try { if (typeof window !== 'undefined' && window.__Z3_SETTINGS__ && typeof window.__Z3_SETTINGS__.solverTimeoutMs === 'number') t = window.__Z3_SETTINGS__.solverTimeoutMs | 0; } catch (_) {}
+    s.set('timeout', t);
+  } catch (_) {}
   if (bindings && typeof bindings === 'object') {
     const eqs = [];
     for (const [name, value] of Object.entries(bindings)) {

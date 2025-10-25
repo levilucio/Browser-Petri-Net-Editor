@@ -12,6 +12,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const [netMode, setNetMode] = useState('pt');
   const [netModeLocked, setNetModeLocked] = useState(false);
   const [z3Open, setZ3Open] = useState(false);
+  const [useNonVisualRun, setUseNonVisualRun] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,6 +39,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       }
       const currentNetMode = simulationSettings?.netMode || 'pt';
       setNetMode(currentNetMode);
+      setUseNonVisualRun(Boolean(simulationSettings?.useNonVisualRun));
       // Lock switching if canvas is not empty
       try {
         const hasContent = (elements?.places?.length || 0) > 0 || (elements?.transitions?.length || 0) > 0 || (elements?.arcs?.length || 0) > 0;
@@ -75,7 +77,8 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       ...simulationSettings,
       maxTokens: tokens,
       maxIterations: iterations,
-      netMode
+      netMode,
+      useNonVisualRun
     });
     onClose?.();
   };
@@ -136,6 +139,20 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Non-visual run toggle */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Run Options</label>
+            <label className="flex items-center text-sm">
+              <input
+                type="checkbox"
+                checked={useNonVisualRun}
+                onChange={(e) => setUseNonVisualRun(e.target.checked)}
+                className="mr-2"
+              />
+              Use non-visual execution for Run (no per-step animations)
+            </label>
           </div>
 
           <div>

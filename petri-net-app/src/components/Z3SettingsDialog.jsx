@@ -8,6 +8,7 @@ const Z3SettingsDialog = ({ isOpen, onClose }) => {
   const [maxWorkers, setMaxWorkers] = useState(2);
   const [idleTimeoutMs, setIdleTimeoutMs] = useState(300000);
   const [prewarmOnAlgebraicMode, setPrewarm] = useState(true);
+  const [solverTimeoutMs, setSolverTimeoutMs] = useState(10000);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -15,6 +16,7 @@ const Z3SettingsDialog = ({ isOpen, onClose }) => {
     setMaxWorkers(Number(z3Settings?.maxWorkers ?? 2));
     setIdleTimeoutMs(Number(z3Settings?.idleTimeoutMs ?? 300000));
     setPrewarm(Boolean(z3Settings?.prewarmOnAlgebraicMode ?? true));
+    setSolverTimeoutMs(Number(z3Settings?.solverTimeoutMs ?? 10000));
   }, [isOpen, z3Settings]);
 
   const onSave = () => {
@@ -23,6 +25,7 @@ const Z3SettingsDialog = ({ isOpen, onClose }) => {
       maxWorkers: Math.max(1, Number(maxWorkers) || 2),
       idleTimeoutMs: Math.max(1000, Number(idleTimeoutMs) || 300000),
       prewarmOnAlgebraicMode: Boolean(prewarmOnAlgebraicMode),
+      solverTimeoutMs: Math.max(100, Number(solverTimeoutMs) || 10000),
     };
     try {
       if (typeof window !== 'undefined') {
@@ -74,6 +77,10 @@ const Z3SettingsDialog = ({ isOpen, onClose }) => {
                 <input type="checkbox" checked={prewarmOnAlgebraicMode} onChange={(e) => setPrewarm(e.target.checked)} className="mr-2" />
                 Pre-warm when switching to Algebraic mode
               </label>
+              <div className="flex items-center justify-between">
+                <div className="text-sm">Solver timeout (ms)</div>
+                <input type="number" min={100} max={60000} step={100} value={solverTimeoutMs} onChange={(e) => setSolverTimeoutMs(e.target.value)} className="w-28 border rounded px-2 py-1 text-sm" />
+              </div>
             </div>
           </div>
 
@@ -83,6 +90,7 @@ const Z3SettingsDialog = ({ isOpen, onClose }) => {
               <li>• minWorkers ≥ 1 pre-creates workers on load</li>
               <li>• Idle timeout trims the pool down to minWorkers</li>
               <li>• Pre-warm hides first-use latency after switching to algebraic-int</li>
+              <li>• Solver timeout applies to boolean predicate checks (headless runs benefit from a shorter timeout)</li>
             </ul>
           </div>
         </div>

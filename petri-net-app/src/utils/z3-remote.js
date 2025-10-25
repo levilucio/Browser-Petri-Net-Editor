@@ -37,6 +37,13 @@ function ensureMinWorkers() {
   while (workerPool.length < Math.min(z3Config.minWorkers, z3Config.maxWorkers)) {
     workerPool.push(createWorker());
   }
+  try {
+    // Also publish solver timeout to global config for eval-bool usage
+    if (typeof window !== 'undefined') {
+      const anyWin = window;
+      anyWin.__Z3_SETTINGS__ = { ...(anyWin.__Z3_SETTINGS__ || {}), ...z3Config };
+    }
+  } catch (_) {}
 }
 
 function getWorker() {
