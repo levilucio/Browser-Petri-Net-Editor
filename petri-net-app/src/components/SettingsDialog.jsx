@@ -13,6 +13,8 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const [netModeLocked, setNetModeLocked] = useState(false);
   const [z3Open, setZ3Open] = useState(false);
   const [useNonVisualRun, setUseNonVisualRun] = useState(false);
+  const [useWorkerRun, setUseWorkerRun] = useState(false);
+  const [prewarmWorker, setPrewarmWorker] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -40,6 +42,8 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       const currentNetMode = simulationSettings?.netMode || 'pt';
       setNetMode(currentNetMode);
       setUseNonVisualRun(Boolean(simulationSettings?.useNonVisualRun));
+      setUseWorkerRun(Boolean(simulationSettings?.useWorkerRun));
+      setPrewarmWorker(Boolean(simulationSettings?.prewarmSimulationWorker));
       // Lock switching if canvas is not empty
       try {
         const hasContent = (elements?.places?.length || 0) > 0 || (elements?.transitions?.length || 0) > 0 || (elements?.arcs?.length || 0) > 0;
@@ -78,7 +82,9 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       maxTokens: tokens,
       maxIterations: iterations,
       netMode,
-      useNonVisualRun
+      useNonVisualRun,
+      useWorkerRun,
+      prewarmSimulationWorker: prewarmWorker
     });
     onClose?.();
   };
@@ -152,6 +158,24 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 className="mr-2"
               />
               Use non-visual execution for Run (no per-step animations)
+            </label>
+            <label className="flex items-center text-sm mt-2">
+              <input
+                type="checkbox"
+                checked={useWorkerRun}
+                onChange={(e) => setUseWorkerRun(e.target.checked)}
+                className="mr-2"
+              />
+              Run simulation in background worker (keeps UI responsive)
+            </label>
+            <label className="flex items-center text-xs mt-1 text-gray-600">
+              <input
+                type="checkbox"
+                checked={prewarmWorker}
+                onChange={(e) => setPrewarmWorker(e.target.checked)}
+                className="mr-2"
+              />
+              Prewarm simulation worker (reduce first-run overhead)
             </label>
           </div>
 

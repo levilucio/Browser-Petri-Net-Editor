@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import debounce from 'lodash.debounce';
 import defaultSimulatorCore from './simulator-core.js';
+import { createSimulationWorker } from '../../workers/worker-factory';
 import { simulationEventBus, SimulationEvents } from './SimulationEventBus.js';
 import { ConflictResolver } from './conflict-resolver.js';
 import { getSimulationStats } from './simulation-utils.js';
@@ -19,6 +20,7 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
   const isRunningRef = useRef(false);
   const latestElementsRef = useRef(elements);
   const conflictResolverRef = useRef(new ConflictResolver());
+  const simWorkerRef = useRef(null);
 
   // Resolve simulator core (allow DI)
   const simulatorCore = injectedSimCore || defaultSimulatorCore;
@@ -26,6 +28,18 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
   // Set up event bus
   useEffect(() => {
     try { simulatorCore.setEventBus(simulationEventBus); } catch (_) {}
+  }, []);
+
+  const ensureWorker = useCallback(async () => {
+    if (simWorkerRef.current) return simWorkerRef.current;
+    try {
+      const w = createSimulationWorker();
+      simWorkerRef.current = w;
+      return w;
+    } catch (err) {
+      console.error('Failed to create simulation worker:', err);
+      return null;
+    }
   }, []);
 
   // Single effect to manage simulator initialization and updates
@@ -129,6 +143,7 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
     try { simulatorCore.deactivateSimulation(); } catch (_) {}
     clearError();
     setEnabledTransitionIds([]);
+    try { simWorkerRef.current?.postMessage?.({ op: 'cancel' }); } catch (_) {}
   }, [clearError]);
 
   // Refresh enabled transitions using simulator
@@ -309,6 +324,59 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
       // Check for non-visual run setting exposed on window (wired via context)
       let useNonVisual = false;
       try { useNonVisual = Boolean(window.__PETRI_NET_NON_VISUAL_RUN__); } catch (_) {}
+      const settings = (typeof window !== 'undefined' && window.__PETRI_NET_SETTINGS__) ? window.__PETRI_NET_SETTINGS__ : {};
+      const useWorkerRun = Boolean(settings?.useWorkerRun);
+      const prewarmWorker = Boolean(settings?.prewarmSimulationWorker);
+
+      if (useNonVisual && useWorkerRun) {
+        const worker = await ensureWorker();
+        if (worker) {
+          try {
+            let mode = 'single';
+            try { mode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single'; } catch (_) {}
+            if (prewarmWorker) {
+              try { worker.postMessage({ op: 'prewarm', payload: { z3: (typeof window !== 'undefined' ? (window.__Z3_SETTINGS__ || {}) : {}) } }); } catch (_) {}
+            }
+            const onMessage = async (ev) => {
+              const { op, payload: pl } = ev.data || {};
+              if (op === 'progress') {
+                try { window.__PETRI_NET_RUN_PROGRESS__ = pl || {}; } catch (_) {}
+                setTimeout(() => {}, 0);
+              } else if (op === 'done') {
+                worker.removeEventListener('message', onMessage);
+                if (pl && pl.elements && typeof pl.elements === 'object') {
+                  setElements(pl.elements);
+                  latestElementsRef.current = pl.elements;
+                  if (updateHistory) updateHistory(pl.elements, true);
+                }
+                await refreshEnabledTransitions();
+                isRunningRef.current = false;
+                setIsRunning(false);
+                try { simulatorCore.deactivateSimulation(); } catch (_) {}
+              } else if (op === 'error') {
+                worker.removeEventListener('message', onMessage);
+                setSimulationError(pl?.message || 'Worker error');
+                isRunningRef.current = false;
+                setIsRunning(false);
+              }
+            };
+            worker.addEventListener('message', onMessage);
+            worker.postMessage({
+              op: 'start',
+              payload: {
+                elements: latestElementsRef.current,
+                simOptions: { netMode, maxTokens: 20 },
+                run: { mode, batchMax: (mode === 'maximal' ? 64 : 0), maxSteps: 200000, timeBudgetMs: 60000, yieldEvery: 50 },
+                z3: (typeof window !== 'undefined' ? (window.__Z3_SETTINGS__ || {}) : {}),
+              }
+            });
+          } catch (err) {
+            console.error('Worker run failed, falling back to in-thread run:', err);
+          }
+        }
+        return;
+      }
+
       if (useNonVisual && typeof simulatorCore.runToCompletion === 'function') {
         try {
           let mode = 'single';

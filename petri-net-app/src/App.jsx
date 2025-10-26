@@ -72,6 +72,11 @@ const AppWrapper = () => {
       try {
         const anyWin = window;
         anyWin.__PETRI_NET_NON_VISUAL_RUN__ = Boolean(simulationSettings?.useNonVisualRun);
+        anyWin.__PETRI_NET_SETTINGS__ = {
+          ...(anyWin.__PETRI_NET_SETTINGS__ || {}),
+          useWorkerRun: Boolean(simulationSettings?.useWorkerRun),
+          prewarmSimulationWorker: Boolean(simulationSettings?.prewarmSimulationWorker),
+        };
       } catch (_) {}
       try {
         const anyWin = window;

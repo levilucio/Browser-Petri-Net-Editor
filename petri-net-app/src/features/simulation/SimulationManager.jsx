@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import './SimulationManager.css';
 
@@ -16,6 +16,25 @@ const SimulationManager = () => {
   } = usePetriNet();
 
   const isAnySimulationRunning = isContinuousSimulating || isRunning;
+
+  const [runProgress, setRunProgress] = useState({ steps: 0, elapsedMs: 0 });
+
+  useEffect(() => {
+    let timer = null;
+    if (isRunning) {
+      const tick = () => {
+        try {
+          const p = (typeof window !== 'undefined' ? (window.__PETRI_NET_RUN_PROGRESS__ || {}) : {});
+          const steps = Number(p.steps || 0);
+          const ms = Number(p.elapsedMs || 0);
+          setRunProgress((prev) => (prev.steps !== steps || prev.elapsedMs !== ms ? { steps, elapsedMs: ms } : prev));
+        } catch (_) {}
+      };
+      tick();
+      timer = setInterval(tick, 50);
+    }
+    return () => { if (timer) clearInterval(timer); };
+  }, [isRunning]);
 
   return (
     <div data-testid="simulation-manager" className="simulation-manager w-full px-4 py-2 mx-0">
@@ -95,18 +114,11 @@ const SimulationManager = () => {
         {isRunning && (
           <div className="mt-2 text-xs text-gray-700 flex items-center justify-between">
             <span>
-              {(() => {
-                try {
-                  const p = window.__PETRI_NET_RUN_PROGRESS__ || {};
-                  const steps = Number(p.steps || 0);
-                  const ms = Number(p.elapsedMs || 0);
-                  return `Running… steps: ${steps.toLocaleString()}, elapsed: ${ms.toLocaleString()}ms`;
-                } catch (_) { return 'Running…'; }
-              })()}
+              {`Running… steps: ${Number(runProgress.steps || 0).toLocaleString()}, elapsed: ${Number(runProgress.elapsedMs || 0).toLocaleString()}ms`}
             </span>
             <span className="ml-3 inline-flex items-center space-x-1">
-              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span>working</span>
+              <span className="w-3 h-3 bg-green-500 rounded-full sim-pulse-strong" />
+              <span className="font-medium">working</span>
             </span>
           </div>
         )}

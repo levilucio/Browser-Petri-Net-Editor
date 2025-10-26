@@ -82,9 +82,11 @@ export class HistoryManager {
       }
       return false;
     }
+    const placesById2 = new Map();
+    for (let i = 0; i < state2.places.length; i++) { const p = state2.places[i]; placesById2.set(p.id, p); }
     for (let i = 0; i < state1.places.length; i++) {
       const p1 = state1.places[i];
-      const p2 = state2.places.find(p => p.id === p1.id);
+      const p2 = placesById2.get(p1.id);
       if (!p2) {
         if (process.env.NODE_ENV !== 'production') {
           console.log(`HistoryManager: Place ${p1.id} not found in second state`);
@@ -110,9 +112,11 @@ export class HistoryManager {
       }
       return false;
     }
+    const transitionsById2 = new Map();
+    for (let i = 0; i < state2.transitions.length; i++) { const t = state2.transitions[i]; transitionsById2.set(t.id, t); }
     for (let i = 0; i < state1.transitions.length; i++) {
       const t1 = state1.transitions[i];
-      const t2 = state2.transitions.find(t => t.id === t1.id);
+      const t2 = transitionsById2.get(t1.id);
       if (!t2) {
         if (process.env.NODE_ENV !== 'production') {
           console.log(`HistoryManager: Transition ${t1.id} not found in second state`);
@@ -136,9 +140,11 @@ export class HistoryManager {
       }
       return false;
     }
+    const arcsById2 = new Map();
+    for (let i = 0; i < state2.arcs.length; i++) { const a = state2.arcs[i]; arcsById2.set(a.id, a); }
     for (let i = 0; i < state1.arcs.length; i++) {
       const a1 = state1.arcs[i];
-      const a2 = state2.arcs.find(a => a.id === a1.id);
+      const a2 = arcsById2.get(a1.id);
       if (!a2) {
         if (process.env.NODE_ENV !== 'production') {
           console.log(`HistoryManager: Arc ${a1.id} not found in second state`);

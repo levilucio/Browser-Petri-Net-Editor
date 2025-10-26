@@ -31,7 +31,9 @@ export const PetriNetProvider = ({ children }) => {
     maxIterations: 100,
     maxTokens: 20,
     netMode: 'pt',
-    useNonVisualRun: false
+    useNonVisualRun: false,
+    useWorkerRun: false,
+    prewarmSimulationWorker: false
   });
   const [z3Settings, setZ3Settings] = useState({
     minWorkers: 1,
@@ -198,7 +200,9 @@ export const PetriNetProvider = ({ children }) => {
       maxIterations: 100,
       maxTokens: 20,
       netMode: 'pt',
-      useNonVisualRun: false
+      useNonVisualRun: false,
+      useWorkerRun: false,
+      prewarmSimulationWorker: false
     });
     
     // Reset canvas state

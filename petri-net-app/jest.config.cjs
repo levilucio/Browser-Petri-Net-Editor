@@ -6,7 +6,8 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@components/(.*)$': '<rootDir>/src/components/$1',
-    '\\.(css|less|scss|sass)$': '<rootDir>/src/__mocks__/styleMock.js'
+    '\\.(css|less|scss|sass)$': '<rootDir>/src/__mocks__/styleMock.js',
+    '^.+\\.worker\\.js$': '<rootDir>/src/__mocks__/workerMock.js'
   },
   setupFilesAfterEnv: [
     '<rootDir>/src/setupTests.js'
