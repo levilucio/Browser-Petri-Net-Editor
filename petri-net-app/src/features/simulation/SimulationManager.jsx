@@ -20,20 +20,29 @@ const SimulationManager = () => {
   const [runProgress, setRunProgress] = useState({ steps: 0, elapsedMs: 0 });
 
   useEffect(() => {
-    let timer = null;
+    let tickTimer = null;
+    let hideTimer = null;
+    const tick = () => {
+      try {
+        const p = (typeof window !== 'undefined' ? (window.__PETRI_NET_RUN_PROGRESS__ || {}) : {});
+        const steps = Number(p.steps || 0);
+        const ms = Number(p.elapsedMs || 0);
+        setRunProgress((prev) => (prev.steps !== steps || prev.elapsedMs !== ms ? { steps, elapsedMs: ms } : prev));
+      } catch (_) {}
+    };
     if (isRunning) {
-      const tick = () => {
-        try {
-          const p = (typeof window !== 'undefined' ? (window.__PETRI_NET_RUN_PROGRESS__ || {}) : {});
-          const steps = Number(p.steps || 0);
-          const ms = Number(p.elapsedMs || 0);
-          setRunProgress((prev) => (prev.steps !== steps || prev.elapsedMs !== ms ? { steps, elapsedMs: ms } : prev));
-        } catch (_) {}
-      };
       tick();
-      timer = setInterval(tick, 50);
+      // Poll at 1Hz to match worker heartbeat (keeps UI calm and consistent)
+      tickTimer = setInterval(tick, 1000);
+    } else {
+      // When run ends, keep the last numbers visible for 3 seconds
+      tick();
+      hideTimer = setTimeout(() => setRunProgress({ steps: 0, elapsedMs: 0 }), 3000);
     }
-    return () => { if (timer) clearInterval(timer); };
+    return () => {
+      if (tickTimer) clearInterval(tickTimer);
+      if (hideTimer) clearTimeout(hideTimer);
+    };
   }, [isRunning]);
 
   return (
@@ -114,7 +123,11 @@ const SimulationManager = () => {
         {isRunning && (
           <div className="mt-2 text-xs text-gray-700 flex items-center justify-between">
             <span>
-              {`Running… steps: ${Number(runProgress.steps || 0).toLocaleString()}, elapsed: ${Number(runProgress.elapsedMs || 0).toLocaleString()}ms`}
+              {(() => {
+                const secs = Math.max(0, Number(runProgress.elapsedMs || 0)) / 1000;
+                const secsText = secs.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+                return `Running… steps: ${Number(runProgress.steps || 0).toLocaleString()}, elapsed: ${secsText}s`;
+              })()}
             </span>
             <span className="ml-3 inline-flex items-center space-x-1">
               <span className="w-3 h-3 bg-green-500 rounded-full sim-pulse-strong" />

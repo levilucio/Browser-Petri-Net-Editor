@@ -402,7 +402,19 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
             } catch (_) {}
           };
           const batchMax = (mode === 'maximal') ? 64 : 0;
-          const finalNet = await simulatorCore.runToCompletion({ mode, maxSteps: 200000, timeBudgetMs: 60000, yieldEvery: 50, onProgress, shouldCancel, batchMax });
+          const finalNet = await simulatorCore.runToCompletion({
+            mode,
+            maxSteps: 200000,
+            timeBudgetMs: 60000,
+            yieldEvery: 50,
+            // Ensure consistent 1 Hz progress updates even for slow steps
+            progressEveryMs: 1000,
+            // Tighten yielding cadence so progressive runs stay responsive
+            yieldEveryMs: 8,
+            onProgress,
+            shouldCancel,
+            batchMax,
+          });
           if (finalNet && typeof finalNet === 'object') {
             setElements(finalNet);
             latestElementsRef.current = finalNet;

@@ -80,7 +80,7 @@ export class SimulatorCore {
   }
 
   // Headless run to completion without per-step UI events
-  async runToCompletion({ mode = 'single', maxSteps = 100000, timeBudgetMs = 30000, yieldEvery = 100, onProgress, shouldCancel, batchMax = 0 } = {}) {
+  async runToCompletion({ mode = 'single', maxSteps = 100000, timeBudgetMs = 30000, yieldEvery = 100, onProgress, shouldCancel, batchMax = 0, progressEveryMs = 0, yieldEveryMs = 0 } = {}) {
     if (!this.currentSimulator) throw new Error('Simulator not initialized');
     // Detach event bus to suppress per-step emissions
     const prevBus = this.currentSimulator.eventBus || null;
@@ -93,41 +93,106 @@ export class SimulatorCore {
       const now = (typeof performance !== 'undefined' && performance.now) ? () => performance.now() : () => Date.now();
       const startTs = now();
       let steps = 0;
+      let lastProgressTs = startTs;
+      let lastYieldTs = startTs;
+
+      const tinyYield = async () => {
+        try { await new Promise((res) => setTimeout(res, 0)); } catch (_) {}
+        try {
+          if (typeof requestAnimationFrame !== 'undefined') {
+            await new Promise((res) => requestAnimationFrame(() => res()));
+          }
+        } catch (_) {}
+      };
+
+      let lastReported = -1;
+
+      const emitProgress = (ts) => {
+        if (!onProgress) return;
+        const elapsed = ts - startTs;
+        const bucket = progressEveryMs > 0 ? Math.floor(elapsed / progressEveryMs) : 0;
+        if (bucket === lastReported) return;
+        lastReported = bucket;
+        try {
+          onProgress({ steps, elapsedMs: elapsed });
+        } catch (_) {}
+      };
+
+      const handleStepProgress = async () => {
+        if (shouldCancel && shouldCancel()) return false;
+        const currentTs = now();
+        const elapsed = currentTs - startTs;
+
+        if (yieldEvery > 0 && steps % yieldEvery === 0) {
+          const beforeYield = now();
+          emitProgress(beforeYield);
+          await tinyYield();
+          const afterYield = now();
+          lastYieldTs = afterYield;
+          lastProgressTs = afterYield;
+          if (progressEveryMs > 0) emitProgress(afterYield);
+          if (timeBudgetMs > 0 && (afterYield - startTs) > timeBudgetMs) return false;
+          if (shouldCancel && shouldCancel()) return false;
+          return true;
+        }
+
+        if (progressEveryMs > 0 && (currentTs - lastProgressTs) >= progressEveryMs) {
+          emitProgress(currentTs);
+          lastProgressTs = currentTs;
+        }
+
+        if (yieldEveryMs > 0 && (currentTs - lastYieldTs) >= yieldEveryMs) {
+          await tinyYield();
+          const afterYield = now();
+          lastYieldTs = afterYield;
+          if (progressEveryMs > 0 && (afterYield - lastProgressTs) >= progressEveryMs) {
+            emitProgress(afterYield);
+            lastProgressTs = afterYield;
+          }
+          if (timeBudgetMs > 0 && (afterYield - startTs) > timeBudgetMs) return false;
+          if (shouldCancel && shouldCancel()) return false;
+        }
+
+        if (timeBudgetMs > 0 && elapsed > timeBudgetMs) return false;
+        if (shouldCancel && shouldCancel()) return false;
+        return true;
+      };
 
       const getEnabledIds = async () => {
         const enabled = await this.currentSimulator.getEnabledTransitions();
         return (enabled || []).map(t => (typeof t === 'string') ? t : (t && t.id) ? t.id : String(t));
       };
-      while (steps < maxSteps) {
+
+      let continueRunning = true;
+      while (continueRunning && steps < maxSteps) {
         if (shouldCancel && shouldCancel()) break;
         const enabledIds = await getEnabledIds();
         if (!enabledIds || enabledIds.length === 0) break;
 
         if (mode === 'maximal' && batchMax > 0) {
           const net = this.currentSimulator.petriNet || {};
-          const batch = chooseGreedyNonConflicting(enabledIds, net.arcs || [], batchMax);
+          let batch = chooseGreedyNonConflicting(enabledIds, net.arcs || [], batchMax);
+          if (!batch || batch.length === 0) {
+            const fallback = enabledIds[Math.floor(Math.random() * enabledIds.length)];
+            batch = fallback ? [fallback] : [];
+          }
           for (const id of batch) {
-            if (shouldCancel && shouldCancel()) break;
+            if (shouldCancel && shouldCancel()) { continueRunning = false; break; }
             await this.currentSimulator.fireTransition(id);
             steps++;
+            continueRunning = await handleStepProgress();
+            if (!continueRunning) break;
           }
         } else {
           const pick = enabledIds[Math.floor(Math.random() * enabledIds.length)];
           await this.currentSimulator.fireTransition(pick);
           steps++;
+          continueRunning = await handleStepProgress();
         }
+      }
 
-        if (steps % yieldEvery === 0) {
-          if (onProgress) { onProgress({ steps, elapsedMs: now() - startTs }); }
-          // Yield to browser to keep UI responsive and allow paints
-          try { await new Promise((res) => setTimeout(res, 0)); } catch (_) {}
-          try {
-            if (typeof requestAnimationFrame !== 'undefined') {
-              await new Promise((res) => requestAnimationFrame(() => res()));
-            }
-          } catch (_) {}
-          if ((now() - startTs) > timeBudgetMs) break;
-        }
+      if (onProgress) {
+        try { onProgress({ steps, elapsedMs: now() - startTs }); } catch (_) {}
       }
       return this.currentSimulator.petriNet || null;
     } finally {

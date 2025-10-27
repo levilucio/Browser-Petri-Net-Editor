@@ -1,16 +1,16 @@
 .sim-pulse-strong {
-  animation: simPulse 1s ease-in-out infinite;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.9);
+  animation: simPulse 1.15s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.85);
 }
 
 @keyframes simPulse {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.9);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.85);
   }
   70% {
-    transform: scale(1.35);
-    box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+    transform: scale(1.2);
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
   }
   100% {
     transform: scale(1);
