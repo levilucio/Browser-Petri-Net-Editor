@@ -125,8 +125,8 @@ const SimulationManager = () => {
             <span>
               {(() => {
                 const secs = Math.max(0, Number(runProgress.elapsedMs || 0)) / 1000;
-                const secsText = secs.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-                return `Running… steps: ${Number(runProgress.steps || 0).toLocaleString()}, elapsed: ${secsText}s`;
+                const secsInt = Math.round(secs);
+                return `Running… steps: ${Number(runProgress.steps || 0).toLocaleString()}, elapsed: ${secsInt.toLocaleString()}s`;
               })()}
             </span>
             <span className="ml-3 inline-flex items-center space-x-1">
