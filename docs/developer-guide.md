@@ -92,6 +92,41 @@ This guide helps developers understand the structure, key patterns, and testing 
   - Utilities, parsers, and simulation helpers under `src/__tests__/utils/` and `src/__tests__/features/` (e.g., `pnml-parser.test.js`, `simulator.test.js`).
   - History manager tests under `src/__tests__/features/history/`.
 
+#### Coverage Baseline (2025-10-31)
+
+- Command: `npm run test -- --coverage`
+- Statements: 57.61% (target ≥ 60%)
+- Branches: 48.28% (target ≥ 50%)
+- Functions: 56.62%
+- Lines: 60.14%
+- Note: Jest reported global coverage thresholds for statements and branches are currently unmet; future test additions should prioritize these areas.
+
+#### Priority Targets for Additional Tests
+
+- `src/features/simulation/simulator-core.js`: exercise net-mode detection, factory swaps, error propagation, and `runToCompletion` guards using stub simulators to cover branch-heavy logic.
+- `src/features/simulation/pt-simulator.js`: add PT-focused smoke tests (initialize, enable detection, firing semantics, guard validation, stats) similar to existing algebraic simulator specs.
+- `src/features/simulation/conflict-resolver.js`: cover cache hits/misses, combination generation, and non-conflicting set selection to support maximal-mode flows.
+- `src/features/simulation/simulation-utils.js`: validate structural checks, deep clone/compare helpers, marking utilities, PNML conversion, and deadlock detection with small fixture nets.
+- `src/features/simulation/SimulatorFactory.js` & `src/utils/netMode.js`: add lightweight unit specs for supported type detection and mode inference fallbacks.
+- `src/utils/python/index.js`: verify async PNML/ADT wrappers propagate successes and surface parser errors via mocked dependencies.
+- `src/features/simulation/useSimulationManager.js`: extend hook tests to cover worker fallback, error branches, and maximal-mode conflict resolution using injected stub cores.
+
+#### Coverage Progress (2025-10-31)
+
+- Follow-up run (`npm run test -- --coverage`) after adding targeted specs produced:
+  - Statements: 65.57%
+  - Branches: 54.84%
+  - Functions: 67.97%
+  - Lines: 69.29%
+- New Jest suites strengthen simulation coverage:
+  - `src/__tests__/features/simulator-factory.test.js`
+  - `src/__tests__/features/conflict-resolver.test.js`
+  - `src/__tests__/features/simulation-utils.test.js`
+  - `src/__tests__/features/pt-simulator.test.js`
+  - `src/__tests__/features/simulator-core.test.js`
+  - `src/__tests__/utils/python.index.test.js`
+- These specs now exercise deterministic net-mode selection, PT simulator flows, conflict resolution caching, and PNML/ADT wrapper error handling while keeping patterns aligned with existing algebraic simulator tests.
+
 - **Algebraic solver (Z3) notes**:
   - Z3 runs as a WebAssembly worker and requires cross-origin isolation (`COOP/COEP`). Vite dev server sets the required headers in `vite.config.js` and serves Z3 static assets.
   - Direct unit tests for Z3 are limited in Node/JSDOM; APN behavior is exercised via E2E tests.
