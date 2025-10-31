@@ -21,18 +21,18 @@ pie title Overall coverage (this run)
 
 ```mermaid
 graph TD
-  A[UI Components] --> A1[components/* tests]
-  B[Contexts] --> B1[contexts/* tests]
-  C[Features - Simulation] --> C1[simulator-core / BaseSimulator / PT / algebraic]
-  C --> C2[useSimulationManager*]
+  A[UI Components] --> A1["components/* tests"]
+  B[Contexts] --> B1["contexts/* tests"]
+  C[Features - Simulation] --> C1["simulator-core / BaseSimulator / PT / algebraic"]
+  C --> C2["useSimulationManager*"]
   C --> C3[SimulationEventBus]
-  D[Features - Selection/History/Keymap] --> D1[selection-utils*]
-  D --> D2[historyManager*]
-  D --> D3[useKeyboardShortcuts*]
-  E[Utils - PNML/Parsing/ADT] --> E1[pnml.reader / writer / normalize]
-  E --> E2[parse-* (arithmetic, types, pattern)]
-  F[Utils - Z3] --> F1[eval-bool / eval-arith / builders]
-  G[Integration] --> G1[python/index]
+  D[Features - Selection/History/Keymap] --> D1["selection-utils*"]
+  D --> D2["historyManager*"]
+  D --> D3["useKeyboardShortcuts*"]
+  E[Utils - PNML/Parsing/ADT] --> E1["pnml.reader / writer / normalize"]
+  E --> E2["parse-* (arithmetic, types, pattern)"]
+  F[Utils - Z3] --> F1["eval-bool / eval-arith / builders"]
+  G[Integration] --> G1["python/index"]
   H[Workers] --> H1[worker-factory]
 
   %% Representative usage links
