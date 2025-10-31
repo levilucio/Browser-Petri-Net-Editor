@@ -1,5 +1,7 @@
 ## Unit Test Report — Petri Net Editor (2025-10-31)
 
+> For per-suite, per-test details, see the appendix: [unit-test-report.details.md](unit-test-report.details.md)
+
 ### Executive summary
 
 - **Suites/Tests**: 136 suites, 490 tests, 0 failures
