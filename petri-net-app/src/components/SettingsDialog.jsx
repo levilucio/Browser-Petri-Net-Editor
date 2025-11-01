@@ -161,7 +161,9 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 disabled={batchMode}
                 className="mr-2"
               />
-              Use non-visual execution for Run (no per-step animations)
+              <span className="text-sm">
+                <strong>Use non-visual execution for Run</strong> - No per-step animations
+              </span>
             </label>
             <label className="flex items-center text-sm mt-2">
               <input
@@ -176,7 +178,9 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 }}
                 className="mr-2"
               />
-              Batch mode (always headless, keeps background worker active)
+              <span className="text-sm">
+                <strong>Batch mode</strong> - Always headless, keeps background worker active
+              </span>
             </label>
             {batchMode && (
               <p className="text-xs text-gray-600 mt-1">
@@ -260,15 +264,6 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 </div>
               )}
             </div>
-          </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded p-3">
-            <h3 className="text-sm font-medium text-blue-800 mb-1">How it works:</h3>
-            <ul className="text-xs text-blue-700 space-y-1">
-              <li>• <strong>Single:</strong> Randomly chooses one enabled transition to fire</li>
-              <li>• <strong>Maximal:</strong> Finds the largest set of non-conflicting transitions and fires them all</li>
-              <li>• <strong>Conflict Resolution:</strong> When transitions share input places, one is chosen randomly</li>
-            </ul>
           </div>
 
           {isLoading && (
