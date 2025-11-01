@@ -133,8 +133,8 @@ describe('useSimulationManager worker and non-visual runs', () => {
       }
     });
 
-    window.__PETRI_NET_NON_VISUAL_RUN__ = true;
-    window.__PETRI_NET_SETTINGS__ = { useWorkerRun: true, prewarmSimulationWorker: true };
+    window.__PETRI_NET_NON_VISUAL_RUN__ = false;
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true };
 
     const core = makeCore({ enabledSequence: [['t1'], []] });
     const outRef = { current: null };
@@ -154,7 +154,6 @@ describe('useSimulationManager worker and non-visual runs', () => {
     await act(async () => { await Promise.resolve(); });
 
     expect(createSimulationWorker).toHaveBeenCalledTimes(1);
-    expect(worker.postMessage).toHaveBeenCalledWith(expect.objectContaining({ op: 'prewarm' }));
     expect(worker.postMessage).toHaveBeenCalledWith(expect.objectContaining({ op: 'start' }));
     expect(outRef.current.elements.places.find((p) => p.id === 'p2')?.tokens).toBe(1);
     expect(outRef.current.manager.isRunning).toBe(false);
@@ -186,8 +185,8 @@ describe('useSimulationManager worker and non-visual runs', () => {
       }
     });
 
-    window.__PETRI_NET_NON_VISUAL_RUN__ = true;
-    window.__PETRI_NET_SETTINGS__ = { useWorkerRun: true };
+    window.__PETRI_NET_NON_VISUAL_RUN__ = false;
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true };
 
     const core = makeCore({ enabledSequence: [['t1'], []] });
     const outRef = { current: null };
@@ -222,7 +221,7 @@ describe('useSimulationManager worker and non-visual runs', () => {
     });
 
     window.__PETRI_NET_NON_VISUAL_RUN__ = true;
-    window.__PETRI_NET_SETTINGS__ = { useWorkerRun: false };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: false };
     window.__Z3_SETTINGS__ = { minWorkers: 1, maxWorkers: 2 };
 
     const core = makeCore({ runToCompletion, enabledSequence: [['t1'], []] });

@@ -325,18 +325,17 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
       let useNonVisual = false;
       try { useNonVisual = Boolean(window.__PETRI_NET_NON_VISUAL_RUN__); } catch (_) {}
       const settings = (typeof window !== 'undefined' && window.__PETRI_NET_SETTINGS__) ? window.__PETRI_NET_SETTINGS__ : {};
-      const useWorkerRun = Boolean(settings?.useWorkerRun);
-      const prewarmWorker = Boolean(settings?.prewarmSimulationWorker);
+      const batchMode = Boolean(settings?.batchMode);
+      if (batchMode) {
+        useNonVisual = true;
+      }
 
-      if (useNonVisual && useWorkerRun) {
+      if (batchMode) {
         const worker = await ensureWorker();
         if (worker) {
           try {
             let mode = 'single';
             try { mode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single'; } catch (_) {}
-            if (prewarmWorker) {
-              try { worker.postMessage({ op: 'prewarm', payload: { z3: (typeof window !== 'undefined' ? (window.__Z3_SETTINGS__ || {}) : {}) } }); } catch (_) {}
-            }
             const onMessage = async (ev) => {
               const { op, payload: pl } = ev.data || {};
               if (op === 'progress') {

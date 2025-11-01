@@ -166,7 +166,7 @@ describe('useSimulationManager non-visual & error paths', () => {
 
   test('non-visual run uses runToCompletion when worker run disabled', async () => {
     window.__PETRI_NET_NON_VISUAL_RUN__ = true;
-    window.__PETRI_NET_SETTINGS__ = { useWorkerRun: false };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: false };
     const finalNet = {
       ...makeBaseNet(),
       places: [{ id: 'p1', tokens: 0, valueTokens: [] }],
@@ -197,8 +197,8 @@ describe('useSimulationManager non-visual & error paths', () => {
   test('worker run handles progress and completion events', async () => {
     const worker = new MockWorker();
     createSimulationWorker.mockReturnValue(worker);
-    window.__PETRI_NET_NON_VISUAL_RUN__ = true;
-    window.__PETRI_NET_SETTINGS__ = { useWorkerRun: true, prewarmSimulationWorker: true };
+    window.__PETRI_NET_NON_VISUAL_RUN__ = false;
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true };
     window.__Z3_SETTINGS__ = { minWorkers: 1, maxWorkers: 2 };
 
     const finalNet = {
@@ -223,7 +223,6 @@ describe('useSimulationManager non-visual & error paths', () => {
       await outRef.current.manager.startRunSimulation();
     });
 
-    expect(worker.messages.some((m) => m?.op === 'prewarm')).toBe(true);
     const startMessage = worker.messages.find((m) => m?.op === 'start');
     expect(startMessage).toBeTruthy();
     expect(startMessage.payload.run.batchMax).toBe(64);
@@ -274,8 +273,8 @@ describe('useSimulationManager non-visual & error paths', () => {
   test('stopAllSimulations cancels worker and clears simulation flags', async () => {
     const worker = new MockWorker();
     createSimulationWorker.mockReturnValue(worker);
-    window.__PETRI_NET_NON_VISUAL_RUN__ = true;
-    window.__PETRI_NET_SETTINGS__ = { useWorkerRun: true };
+    window.__PETRI_NET_NON_VISUAL_RUN__ = false;
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true };
 
     let callIndex = 0;
     const simCore = makeSimCore({
@@ -303,7 +302,7 @@ describe('useSimulationManager non-visual & error paths', () => {
   test('startRunSimulation iterates run loop in visual mode', async () => {
     jest.useFakeTimers();
     window.__PETRI_NET_NON_VISUAL_RUN__ = false;
-    window.__PETRI_NET_SETTINGS__ = { useWorkerRun: false };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: false };
 
     const simCore = makeSimCore({
       enabledSequence: [['t1'], ['t1'], []],

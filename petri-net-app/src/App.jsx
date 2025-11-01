@@ -71,11 +71,12 @@ const AppWrapper = () => {
       // Expose non-visual run flag for useSimulationManager (wired from settings)
       try {
         const anyWin = window;
-        anyWin.__PETRI_NET_NON_VISUAL_RUN__ = Boolean(simulationSettings?.useNonVisualRun);
+        const batchMode = Boolean(simulationSettings?.batchMode);
+        const nonVisual = Boolean(simulationSettings?.useNonVisualRun || batchMode);
+        anyWin.__PETRI_NET_NON_VISUAL_RUN__ = nonVisual;
         anyWin.__PETRI_NET_SETTINGS__ = {
           ...(anyWin.__PETRI_NET_SETTINGS__ || {}),
-          useWorkerRun: Boolean(simulationSettings?.useWorkerRun),
-          prewarmSimulationWorker: Boolean(simulationSettings?.prewarmSimulationWorker),
+          batchMode,
         };
       } catch (_) {}
       try {
@@ -84,7 +85,7 @@ const AppWrapper = () => {
           anyWin.__PETRI_NET_SIM_CORE__ = simulatorCore;
         }
       } catch (_) {}
-    }, [elements.places, elements.transitions, elements.arcs, mode, simulationSettings?.useNonVisualRun]);
+    }, [elements.places, elements.transitions, elements.arcs, mode, simulationSettings?.useNonVisualRun, simulationSettings?.batchMode]);
 
     const handleZoom = (delta) => {
       setZoomLevel(prevZoom => {

@@ -13,8 +13,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const [netModeLocked, setNetModeLocked] = useState(false);
   const [z3Open, setZ3Open] = useState(false);
   const [useNonVisualRun, setUseNonVisualRun] = useState(false);
-  const [useWorkerRun, setUseWorkerRun] = useState(false);
-  const [prewarmWorker, setPrewarmWorker] = useState(false);
+  const [batchMode, setBatchMode] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -41,9 +40,10 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       }
       const currentNetMode = simulationSettings?.netMode || 'pt';
       setNetMode(currentNetMode);
-      setUseNonVisualRun(Boolean(simulationSettings?.useNonVisualRun));
-      setUseWorkerRun(Boolean(simulationSettings?.useWorkerRun));
-      setPrewarmWorker(Boolean(simulationSettings?.prewarmSimulationWorker));
+      const initialBatch = Boolean(simulationSettings?.batchMode);
+      setBatchMode(initialBatch);
+      const initialNonVisual = Boolean(initialBatch || simulationSettings?.useNonVisualRun);
+      setUseNonVisualRun(initialNonVisual);
       // Lock switching if canvas is not empty
       try {
         const hasContent = (elements?.places?.length || 0) > 0 || (elements?.transitions?.length || 0) > 0 || (elements?.arcs?.length || 0) > 0;
@@ -77,14 +77,14 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const onSave = () => {
     const tokens = Math.max(1, Math.min(9999, Number(maxTokens) || 20));
     const iterations = unlimitedIterations ? Infinity : Math.max(1, Math.min(1000000, Number(maxIterations) || 100));
+    const finalUseNonVisual = batchMode ? true : useNonVisualRun;
     handleSaveSettings({
       ...simulationSettings,
       maxTokens: tokens,
       maxIterations: iterations,
       netMode,
-      useNonVisualRun,
-      useWorkerRun,
-      prewarmSimulationWorker: prewarmWorker
+      useNonVisualRun: finalUseNonVisual,
+      batchMode,
     });
     onClose?.();
   };
@@ -147,14 +147,18 @@ const SettingsDialog = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Non-visual run toggle */}
+          {/* Run options */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Run Options</label>
             <label className="flex items-center text-sm">
               <input
                 type="checkbox"
-                checked={useNonVisualRun}
-                onChange={(e) => setUseNonVisualRun(e.target.checked)}
+                checked={batchMode ? true : useNonVisualRun}
+                onChange={(e) => {
+                  const next = e.target.checked;
+                  setUseNonVisualRun(next);
+                }}
+                disabled={batchMode}
                 className="mr-2"
               />
               Use non-visual execution for Run (no per-step animations)
@@ -162,21 +166,23 @@ const SettingsDialog = ({ isOpen, onClose }) => {
             <label className="flex items-center text-sm mt-2">
               <input
                 type="checkbox"
-                checked={useWorkerRun}
-                onChange={(e) => setUseWorkerRun(e.target.checked)}
+                checked={batchMode}
+                onChange={(e) => {
+                  const next = e.target.checked;
+                  setBatchMode(next);
+                  if (next) {
+                    setUseNonVisualRun(true);
+                  }
+                }}
                 className="mr-2"
               />
-              Run simulation in background worker (keeps UI responsive)
+              Batch mode (always headless, keeps background worker active)
             </label>
-            <label className="flex items-center text-xs mt-1 text-gray-600">
-              <input
-                type="checkbox"
-                checked={prewarmWorker}
-                onChange={(e) => setPrewarmWorker(e.target.checked)}
-                className="mr-2"
-              />
-              Prewarm simulation worker (reduce first-run overhead)
-            </label>
+            {batchMode && (
+              <p className="text-xs text-gray-600 mt-1">
+                Batch mode forces non-visual execution and reuses the simulation worker after the first run.
+              </p>
+            )}
           </div>
 
           <div>
