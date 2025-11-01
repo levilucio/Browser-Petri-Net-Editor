@@ -183,17 +183,16 @@ describe('PropertiesPanel Component', () => {
     expect(mockSetElements).toHaveBeenCalled();
     mockSetElements.mockClear();
     
-    // Test with value above max
+    // Test with value above previous cap
     fireEvent.change(tokensInput, { target: { value: '25' } });
     expect(mockSetElements).toHaveBeenCalled();
-    // Check that the value is capped at 20
     const updateFunction = mockSetElements.mock.calls[0][0];
     const result = updateFunction({
       places: [{ id: 'place-1', tokens: 5 }],
       transitions: [],
       arcs: []
     });
-    expect(result.places[0].tokens).toBe(20);
+    expect(result.places[0].tokens).toBe(25);
   });
 
   test('validates arc weight within range (1-20)', () => {

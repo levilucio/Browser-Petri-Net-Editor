@@ -65,7 +65,7 @@ const useSimulationManager = (
             console.log('Initializing simulator with:');
             console.log('- elements:', elements);
             console.log('- netMode parameter:', netMode);
-            await simulatorCore.initialize(elements, { maxTokens: 20, netMode: netMode });
+            await simulatorCore.initialize(elements, { netMode: netMode });
           } catch (error) {
             console.error('Failed to initialize simulator:', error);
           }
@@ -388,7 +388,7 @@ const useSimulationManager = (
               op: 'start',
               payload: {
                 elements: latestElementsRef.current,
-                simOptions: { netMode, maxTokens: 20 },
+                simOptions: { netMode },
                 run: { mode, batchMax: (mode === 'maximal' ? 64 : 0), maxSteps: effectiveMaxSteps, timeBudgetMs: 60000, yieldEvery: 50 },
                 z3: (typeof window !== 'undefined' ? (window.__Z3_SETTINGS__ || {}) : {}),
               }

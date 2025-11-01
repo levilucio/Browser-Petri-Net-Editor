@@ -8,7 +8,6 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const { simulatorCore, simulationSettings, handleSaveSettings, elements } = usePetriNet();
   const [simulationMode, setSimulationMode] = useState('single');
   const [isLoading, setIsLoading] = useState(false);
-  const [maxTokens, setMaxTokens] = useState(20);
   const [maxIterations, setMaxIterations] = useState(DEFAULT_MAX_STEPS);
   const [limitIterations, setLimitIterations] = useState(false);
   const [netMode, setNetMode] = useState('pt');
@@ -30,9 +29,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       }
 
       // Initialize settings from context
-      const ctxMaxTokens = Number(simulationSettings?.maxTokens ?? 20);
       const ctxMaxIterations = Number(simulationSettings?.maxIterations ?? DEFAULT_MAX_STEPS);
-      setMaxTokens(Number.isFinite(ctxMaxTokens) && ctxMaxTokens > 0 ? ctxMaxTokens : 20);
       const limitedFlag = Boolean(simulationSettings?.limitIterations);
       setLimitIterations(limitedFlag);
       const sanitizedIterations = Number.isFinite(ctxMaxIterations) && ctxMaxIterations > 0
@@ -76,14 +73,12 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   };
 
   const onSave = () => {
-    const tokens = Math.max(1, Math.min(9999, Number(maxTokens) || 20));
     const limited = Boolean(limitIterations);
     const iterationsInput = Math.max(1, Math.min(1000000, Math.floor(Number(maxIterations) || DEFAULT_MAX_STEPS)));
     const finalIterations = limited ? iterationsInput : DEFAULT_MAX_STEPS;
     const finalUseNonVisual = batchMode ? true : useNonVisualRun;
     handleSaveSettings({
       ...simulationSettings,
-      maxTokens: tokens,
       maxIterations: finalIterations,
       limitIterations: limited,
       netMode,
@@ -114,17 +109,6 @@ const SettingsDialog = ({ isOpen, onClose }) => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Limits</label>
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="text-sm">Max tokens (also caps arc weights)</div>
-                <input
-                  type="number"
-                  min={1}
-                  max={9999}
-                  value={maxTokens}
-                  onChange={(e) => setMaxTokens(e.target.value)}
-                  className="w-24 border rounded px-2 py-1 text-sm"
-                />
-              </div>
               <div className="flex items-center justify-between">
                 <div className="text-sm">Max iterations</div>
                 <div className="flex items-center space-x-2">

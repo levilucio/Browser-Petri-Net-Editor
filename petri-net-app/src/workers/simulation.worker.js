@@ -42,7 +42,7 @@ self.onmessage = async (e) => {
       try { setZ3WorkerConfig(z3 || {}); } catch (_) {}
       if (!core) core = new SimulatorCore();
 
-      await core.initialize(elements || {}, { netMode: simOptions.netMode || elements?.netMode, maxTokens: simOptions.maxTokens || 20 });
+      await core.initialize(elements || {}, { netMode: simOptions.netMode || elements?.netMode });
 
       const now = (typeof performance !== 'undefined' && performance.now) ? () => performance.now() : () => Date.now();
       const startedAt = now();

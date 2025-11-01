@@ -92,10 +92,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   const handleTokensChange = (e) => {
     let newTokens = parseInt(e.target.value, 10);
     if (!Number.isFinite(newTokens)) newTokens = 0;
-    // Clamp to [0, maxTokens]
-    const max = (simulationSettings && typeof simulationSettings.maxTokens === 'number') ? simulationSettings.maxTokens : 20;
     if (newTokens < 0) newTokens = 0;
-    if (newTokens > max) newTokens = max;
     setFormValues(prev => ({ ...prev, tokens: newTokens }));
     
     const elementId = selectedElement.id || (selectedElement.element && selectedElement.element.id);

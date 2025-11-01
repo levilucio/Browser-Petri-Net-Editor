@@ -19,7 +19,7 @@ describe('PTSimulator', () => {
   test('initializes, determines enabled transitions, and fires tokens', async () => {
     const net = makePTNet();
     const sim = new PTSimulator();
-    await sim.initialize(net, { maxTokens: 5 });
+    await sim.initialize(net);
 
     expect(sim.getType()).toBe('pt');
     const enabled = await sim.getEnabledTransitions();
@@ -53,7 +53,7 @@ describe('PTSimulator', () => {
     const sim = new PTSimulator();
     sim.maxTokens = 3;
     sim.resetSpecific();
-    expect(sim.maxTokens).toBe(20);
+    expect(sim.maxTokens).toBe(Infinity);
   });
 });
 

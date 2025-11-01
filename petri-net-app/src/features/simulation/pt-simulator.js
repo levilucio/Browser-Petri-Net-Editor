@@ -9,7 +9,7 @@ import { consumeTokens, produceTokens } from './token-io.js';
 export class PTSimulator extends BaseSimulator {
   constructor() {
     super();
-    this.maxTokens = 20;
+    this.maxTokens = Infinity;
   }
 
   /**
@@ -23,7 +23,8 @@ export class PTSimulator extends BaseSimulator {
    * Initialize the P/T simulator
    */
   async initializeSpecific(petriNet, options = {}) {
-    this.maxTokens = options.maxTokens || 20;
+    const optMax = Number(options.maxTokens);
+    this.maxTokens = Number.isFinite(optMax) && optMax >= 0 ? optMax : Infinity;
     
     // Validate that this is a P/T net (no algebraic expressions)
     this.validatePTNet(petriNet);
@@ -182,7 +183,7 @@ export class PTSimulator extends BaseSimulator {
    */
   resetSpecific() {
     // Reset any P/T-specific state
-    this.maxTokens = 20;
+    this.maxTokens = Infinity;
   }
 
   /**

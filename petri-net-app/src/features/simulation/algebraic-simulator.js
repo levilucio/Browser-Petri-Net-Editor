@@ -37,7 +37,7 @@ export class AlgebraicSimulator extends BaseSimulator {
       bindingAstsByArc: new Map(),
     };
     this._cacheSignature = null;
-    this._config = { maxTokensPerPlace: 20 };
+    this._config = { maxTokensPerPlace: Infinity };
   }
 
   /**
@@ -49,8 +49,10 @@ export class AlgebraicSimulator extends BaseSimulator {
 
   async initializeSpecific(petriNet, options = {}) {
     this.petriNet = deepCloneNet(petriNet);
-    if (options && typeof options.maxTokensPerPlace === 'number') {
+    if (options && typeof options.maxTokensPerPlace === 'number' && options.maxTokensPerPlace >= 0) {
       this._config.maxTokensPerPlace = options.maxTokensPerPlace | 0;
+    } else {
+      this._config.maxTokensPerPlace = Infinity;
     }
     await this.buildCaches();
     await this.checkTransitionStateChanges();
@@ -296,6 +298,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     this.cache.guardAstByTransition.clear();
     this.cache.bindingAstsByArc.clear();
     this._cacheSignature = null;
+    this._config.maxTokensPerPlace = Infinity;
   }
 }
 

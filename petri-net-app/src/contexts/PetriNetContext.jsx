@@ -30,7 +30,6 @@ export const PetriNetProvider = ({ children }) => {
   const [simulationSettings, setSimulationSettings] = useState({
     maxIterations: 200000,
     limitIterations: false,
-    maxTokens: 20,
     netMode: 'pt',
     useNonVisualRun: false,
     batchMode: false,
@@ -205,7 +204,6 @@ export const PetriNetProvider = ({ children }) => {
     setSimulationSettings({
       maxIterations: 200000,
       limitIterations: false,
-      maxTokens: 20,
       netMode: 'pt',
       useNonVisualRun: false,
       batchMode: false,
