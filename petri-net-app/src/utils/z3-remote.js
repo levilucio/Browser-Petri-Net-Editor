@@ -1,26 +1,41 @@
 let workerPool = [];
 let nextId = 1;
 const pending = new Map();
-let poolSize = 0;
+let roundRobinIndex = 0;
 let idleTimer = null;
 
-// Default config; will be overridden from UI
+const workerSupported = typeof Worker !== 'undefined';
+
 const z3Config = {
-  minWorkers: 1,
-  maxWorkers: 2,
+  poolSize: 0,
   idleTimeoutMs: 300000,
   prewarmOnAlgebraicMode: true,
+  solverTimeoutMs: 10000,
 };
 
+function publishConfig() {
+  try {
+    if (typeof globalThis !== 'undefined') {
+      const target = globalThis;
+      target.__Z3_SETTINGS__ = { ...(target.__Z3_SETTINGS__ || {}), ...z3Config };
+    }
+  } catch (_) {}
+}
+
+function normalizePoolSize(value) {
+  return Math.max(0, (Number.isFinite(value) ? value : 0) | 0);
+}
+
 export function setZ3WorkerConfig(cfg = {}) {
-  if (typeof cfg.minWorkers === 'number') z3Config.minWorkers = Math.max(0, cfg.minWorkers | 0);
-  if (typeof cfg.maxWorkers === 'number') z3Config.maxWorkers = Math.max(1, cfg.maxWorkers | 0);
+  if (typeof cfg.poolSize === 'number') z3Config.poolSize = normalizePoolSize(cfg.poolSize);
   if (typeof cfg.idleTimeoutMs === 'number') z3Config.idleTimeoutMs = Math.max(1000, cfg.idleTimeoutMs | 0);
   if (typeof cfg.prewarmOnAlgebraicMode === 'boolean') z3Config.prewarmOnAlgebraicMode = cfg.prewarmOnAlgebraicMode;
-  ensureMinWorkers();
+  if (typeof cfg.solverTimeoutMs === 'number') z3Config.solverTimeoutMs = Math.max(0, cfg.solverTimeoutMs | 0);
+  ensurePoolCapacity();
 }
 
 function createWorker() {
+  if (!workerSupported) throw new Error('Z3 worker pool unavailable in this environment');
   const w = new Worker(new URL('../workers/z3.worker.js', import.meta.url), { type: 'module' });
   w.onmessage = ({ data }) => {
     const { id, ok, result, error } = data || {};
@@ -33,35 +48,40 @@ function createWorker() {
   return w;
 }
 
-function ensureMinWorkers() {
-  while (workerPool.length < Math.min(z3Config.minWorkers, z3Config.maxWorkers)) {
+function ensurePoolCapacity() {
+  publishConfig();
+  if (!workerSupported) {
+    return;
+  }
+  const target = normalizePoolSize(z3Config.poolSize);
+  while (workerPool.length < target) {
     workerPool.push(createWorker());
   }
-  try {
-    // Also publish solver timeout to global config for eval-bool usage
-    if (typeof window !== 'undefined') {
-      const anyWin = window;
-      anyWin.__Z3_SETTINGS__ = { ...(anyWin.__Z3_SETTINGS__ || {}), ...z3Config };
-    }
-  } catch (_) {}
+  while (workerPool.length > target) {
+    const w = workerPool.pop();
+    try { w.terminate(); } catch (_) {}
+  }
 }
 
 function getWorker() {
+  if (!workerSupported) throw new Error('Z3 worker pool unavailable in this environment');
+  const target = normalizePoolSize(z3Config.poolSize);
+  if (target <= 0) throw new Error('Z3 worker pool disabled');
   if (workerPool.length === 0) {
     workerPool.push(createWorker());
   }
-  // simple round-robin
-  const w = workerPool[poolSize % workerPool.length];
-  poolSize++;
+  const w = workerPool[roundRobinIndex % workerPool.length];
+  roundRobinIndex++;
   return w;
 }
 
 function tickIdleTimer() {
+  if (!workerSupported) return;
   if (z3Config.idleTimeoutMs <= 0) return;
   if (idleTimer) clearTimeout(idleTimer);
   idleTimer = setTimeout(() => {
-    // Keep minWorkers alive
-    while (workerPool.length > Math.min(z3Config.minWorkers, z3Config.maxWorkers)) {
+    const target = normalizePoolSize(z3Config.poolSize);
+    while (workerPool.length > target) {
       const w = workerPool.pop();
       try { w.terminate(); } catch (_) {}
     }
@@ -73,17 +93,30 @@ function call(op, ...args) {
   const id = nextId++;
   return new Promise((resolve, reject) => {
     pending.set(id, { resolve, reject });
-    try { w.postMessage({ id, op, args }); } catch (err) { pending.delete(id); reject(err); }
+    try {
+      w.postMessage({ id, op, args });
+    } catch (err) {
+      pending.delete(id);
+      reject(err);
+      return;
+    }
     tickIdleTimer();
   });
 }
 
-// Public API mirroring local z3-arith exports
+export function getConfiguredPoolSize() {
+  return normalizePoolSize(z3Config.poolSize);
+}
+
+export function isWorkerPoolEnabled() {
+  return workerSupported && normalizePoolSize(z3Config.poolSize) > 0;
+}
+
 export const parseBooleanExpr = (s) => call('parseBooleanExpr', s);
 export const evaluateBooleanPredicate = (astOrStr, env, _parseArithmeticIgnored) => call('evaluateBooleanPredicate', astOrStr, env);
 export const evaluateArithmeticWithBindings = (astOrStr, env, _parseArithmeticIgnored) => call('evaluateArithmeticWithBindings', astOrStr, env);
 export const evaluateAction = (text, env) => call('evaluateAction', text, env);
 export const solveEquation = (l, r) => call('solveEquation', l, r);
-export const solveInequality = (l, r) => call('solveInequality', l, r);
+export const solveInequality = (l, r, op) => call('solveInequality', l, r, op);
 
 

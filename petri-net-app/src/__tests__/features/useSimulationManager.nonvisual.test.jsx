@@ -199,7 +199,7 @@ describe('useSimulationManager non-visual & error paths', () => {
 
     expect(createSimulationWorker).not.toHaveBeenCalled();
     expect(simCore.runToCompletion).toHaveBeenCalledTimes(1);
-    expect(setZ3WorkerConfig).toHaveBeenCalled();
+    expect(setZ3WorkerConfig).not.toHaveBeenCalled();
     expect(outRef.current.elements.places[0].tokens).toBe(0);
     expect(outRef.current.manager.isRunning).toBe(false);
   });
@@ -233,7 +233,7 @@ describe('useSimulationManager non-visual & error paths', () => {
     createSimulationWorker.mockReturnValue(worker);
     window.__PETRI_NET_NON_VISUAL_RUN__ = false;
     window.__PETRI_NET_SETTINGS__ = { batchMode: true, limitIterations: false, maxIterations: 100 };
-    window.__Z3_SETTINGS__ = { minWorkers: 1, maxWorkers: 2 };
+    window.__Z3_SETTINGS__ = { poolSize: 2 };
 
     const finalNet = {
       ...makeBaseNet(),
@@ -259,7 +259,10 @@ describe('useSimulationManager non-visual & error paths', () => {
 
     const startMessage = worker.messages.find((m) => m?.op === 'start');
     expect(startMessage).toBeTruthy();
-    expect(startMessage.payload.run.batchMax).toBe(64);
+    expect(startMessage.payload.run.batchMax).toBe(0);
+    expect(setZ3WorkerConfig).toHaveBeenCalled();
+    const firstCall = setZ3WorkerConfig.mock.calls[0]?.[0] || {};
+    expect(firstCall.poolSize).toBe(8);
 
     await act(async () => {
       worker.emit('message', { op: 'progress', payload: { percent: 0.5 } });
@@ -282,7 +285,7 @@ describe('useSimulationManager non-visual & error paths', () => {
     createSimulationWorker.mockReturnValue(worker);
     window.__PETRI_NET_NON_VISUAL_RUN__ = false;
     window.__PETRI_NET_SETTINGS__ = { batchMode: true, limitIterations: true, maxIterations: 50 };
-    window.__Z3_SETTINGS__ = { minWorkers: 1, maxWorkers: 2 };
+    window.__Z3_SETTINGS__ = { poolSize: 2 };
 
     const finalNet = makeBaseNet();
     let callIndex = 0;
@@ -307,6 +310,9 @@ describe('useSimulationManager non-visual & error paths', () => {
     const startMessage = worker.messages.find((m) => m?.op === 'start');
     expect(startMessage).toBeTruthy();
     expect(startMessage.payload.run.maxSteps).toBe(50);
+    expect(setZ3WorkerConfig).toHaveBeenCalled();
+    const firstBoost = setZ3WorkerConfig.mock.calls[0]?.[0] || {};
+    expect(firstBoost.poolSize).toBe(8);
 
     await act(async () => {
       worker.emit('message', { op: 'done', payload: { elements: finalNet } });

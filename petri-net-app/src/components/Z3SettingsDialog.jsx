@@ -4,16 +4,14 @@ import { usePetriNet } from '../contexts/PetriNetContext';
 
 const Z3SettingsDialog = ({ isOpen, onClose }) => {
   const { z3Settings, setZ3Settings } = usePetriNet();
-  const [minWorkers, setMinWorkers] = useState(1);
-  const [maxWorkers, setMaxWorkers] = useState(2);
+  const [poolSize, setPoolSize] = useState(0);
   const [idleTimeoutMs, setIdleTimeoutMs] = useState(300000);
   const [prewarmOnAlgebraicMode, setPrewarm] = useState(true);
   const [solverTimeoutMs, setSolverTimeoutMs] = useState(10000);
 
   useEffect(() => {
     if (!isOpen) return;
-    setMinWorkers(Number(z3Settings?.minWorkers ?? 0));
-    setMaxWorkers(Number(z3Settings?.maxWorkers ?? 2));
+    setPoolSize(Number(z3Settings?.poolSize ?? 0));
     setIdleTimeoutMs(Number(z3Settings?.idleTimeoutMs ?? 300000));
     setPrewarm(Boolean(z3Settings?.prewarmOnAlgebraicMode ?? true));
     setSolverTimeoutMs(Number(z3Settings?.solverTimeoutMs ?? 10000));
@@ -21,8 +19,7 @@ const Z3SettingsDialog = ({ isOpen, onClose }) => {
 
   const onSave = () => {
     const cfg = {
-      minWorkers: Math.max(0, Number(minWorkers) || 0),
-      maxWorkers: Math.max(1, Number(maxWorkers) || 2),
+      poolSize: Math.max(0, Number(poolSize) || 0),
       idleTimeoutMs: Math.max(1000, Number(idleTimeoutMs) || 300000),
       prewarmOnAlgebraicMode: Boolean(prewarmOnAlgebraicMode),
       solverTimeoutMs: Math.max(100, Number(solverTimeoutMs) || 10000),
@@ -56,12 +53,15 @@ const Z3SettingsDialog = ({ isOpen, onClose }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">Worker Pool</label>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="text-sm">minWorkers (0 lazy)</div>
-                <input type="number" min={0} max={8} value={minWorkers} onChange={(e) => setMinWorkers(e.target.value)} className="w-24 border rounded px-2 py-1 text-sm" />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="text-sm">maxWorkers</div>
-                <input type="number" min={1} max={16} value={maxWorkers} onChange={(e) => setMaxWorkers(e.target.value)} className="w-24 border rounded px-2 py-1 text-sm" />
+                <div className="text-sm">Pool size (0 = on-demand)</div>
+                <input
+                  type="number"
+                  min={0}
+                  max={8}
+                  value={poolSize}
+                  onChange={(e) => setPoolSize(e.target.value)}
+                  className="w-24 border rounded px-2 py-1 text-sm"
+                />
               </div>
             </div>
           </div>
@@ -87,9 +87,9 @@ const Z3SettingsDialog = ({ isOpen, onClose }) => {
           <div className="bg-purple-50 border border-purple-200 rounded p-3">
             <h3 className="text-sm font-medium text-purple-800 mb-1">Notes</h3>
             <ul className="text-xs text-purple-700 space-y-1">
-              <li>• minWorkers ≥ 1 pre-creates workers on load</li>
-              <li>• Idle timeout trims the pool down to minWorkers</li>
-              <li>• Pre-warm hides first-use latency after switching to algebraic-int</li>
+              <li>• Pool size 0 keeps workers off until a batch run forces 8 workers</li>
+              <li>• Idle timeout trims the pool back to the configured size after bursts</li>
+              <li>• Pre-warm hides first-use latency when switching to algebraic-int</li>
               <li>• Solver timeout applies to boolean predicate checks (headless runs benefit from a shorter timeout)</li>
             </ul>
           </div>

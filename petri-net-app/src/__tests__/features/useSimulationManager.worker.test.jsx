@@ -176,7 +176,9 @@ describe('useSimulationManager worker and non-visual runs', () => {
     expect(outRef.current.manager.isRunning).toBe(false);
     expect(outRef.current.manager.simulationError).toBe(null);
     expect(core.deactivateSimulation).toHaveBeenCalled();
-    expect(setZ3WorkerConfig).not.toHaveBeenCalled();
+    expect(setZ3WorkerConfig).toHaveBeenCalled();
+    const firstCall = setZ3WorkerConfig.mock.calls[0]?.[0] || {};
+    expect(firstCall.poolSize).toBe(8);
 
     await act(async () => {
       outRef.current.manager.stopAllSimulations();
@@ -225,6 +227,7 @@ describe('useSimulationManager worker and non-visual runs', () => {
     expect(outRef.current.manager.simulationError).toBe('worker failed');
     expect(outRef.current.manager.isRunning).toBe(false);
     expect(core.deactivateSimulation).toHaveBeenCalled();
+    expect(setZ3WorkerConfig).toHaveBeenCalled();
   });
 
   test('startRunSimulation falls back to runToCompletion when worker runs are disabled', async () => {
@@ -239,7 +242,7 @@ describe('useSimulationManager worker and non-visual runs', () => {
 
     window.__PETRI_NET_NON_VISUAL_RUN__ = true;
     window.__PETRI_NET_SETTINGS__ = { batchMode: false, limitIterations: false, maxIterations: 100 };
-    window.__Z3_SETTINGS__ = { minWorkers: 1, maxWorkers: 2 };
+    window.__Z3_SETTINGS__ = { poolSize: 2 };
 
     const core = makeCore({ runToCompletion, enabledSequence: [['t1'], []] });
     const outRef = { current: null };
@@ -260,7 +263,7 @@ describe('useSimulationManager worker and non-visual runs', () => {
 
     expect(createSimulationWorker).not.toHaveBeenCalled();
     expect(runToCompletion).toHaveBeenCalled();
-    expect(setZ3WorkerConfig).toHaveBeenCalled();
+    expect(setZ3WorkerConfig).not.toHaveBeenCalled();
     expect(outRef.current.elements.places.find((p) => p.id === 'p2')?.tokens).toBe(2);
     expect(outRef.current.manager.isRunning).toBe(false);
     expect(outRef.current.manager.simulationError).toBe(null);

@@ -5,7 +5,7 @@ import Z3SettingsDialog from './Z3SettingsDialog.jsx';
 const DEFAULT_MAX_STEPS = 200000;
 
 const SettingsDialog = ({ isOpen, onClose }) => {
-  const { simulatorCore, simulationSettings, handleSaveSettings, elements } = usePetriNet();
+  const { simulatorCore, simulationSettings, handleSaveSettings, elements, z3Settings, setZ3Settings } = usePetriNet();
   const [simulationMode, setSimulationMode] = useState('single');
   const [isLoading, setIsLoading] = useState(false);
   const [maxIterations, setMaxIterations] = useState(DEFAULT_MAX_STEPS);
@@ -173,6 +173,16 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                   setBatchMode(next);
                   if (next) {
                     setUseNonVisualRun(true);
+                    try {
+                      setZ3Settings((prev) => {
+                        const current = prev ? { ...prev } : (z3Settings ? { ...z3Settings } : {});
+                        const currentSize = Number(current.poolSize || 0);
+                        if (currentSize >= 8) {
+                          return current;
+                        }
+                        return { ...current, poolSize: 8 };
+                      });
+                    } catch (_) {}
                   }
                 }}
                 className="mr-2"

@@ -203,20 +203,19 @@ export class SimulatorCore {
         const enabledIds = await getEnabledIds();
         if (!enabledIds || enabledIds.length === 0) break;
 
-        if (mode === 'maximal' && batchMax > 0) {
+        if (mode === 'maximal') {
           const net = this.currentSimulator.petriNet || {};
-          let batch = chooseGreedyNonConflicting(enabledIds, net.arcs || [], batchMax);
+          const cap = (batchMax > 0) ? batchMax : Number.POSITIVE_INFINITY;
+          let batch = chooseGreedyNonConflicting(enabledIds, net.arcs || [], cap);
           if (!batch || batch.length === 0) {
             const fallback = enabledIds[Math.floor(Math.random() * enabledIds.length)];
             batch = fallback ? [fallback] : [];
           }
-          for (const id of batch) {
-            if (shouldCancel && shouldCancel()) { continueRunning = false; break; }
-            await this.currentSimulator.fireTransition(id);
-            steps++;
-            continueRunning = await handleStepProgress();
-            if (!continueRunning) break;
-          }
+          // Fire all non-conflicting transitions in parallel for maximum throughput
+          if (shouldCancel && shouldCancel()) { continueRunning = false; break; }
+          await Promise.all(batch.map(id => this.currentSimulator.fireTransition(id)));
+          steps += batch.length;
+          continueRunning = await handleStepProgress();
         } else {
           const pick = enabledIds[Math.floor(Math.random() * enabledIds.length)];
           await this.currentSimulator.fireTransition(pick);

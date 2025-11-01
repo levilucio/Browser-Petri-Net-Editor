@@ -25,8 +25,23 @@ import {
   // Boolean support
   parseBooleanExpr,
   evaluateBooleanWithBindings,
-  evaluateBooleanPredicate,
+  evaluateBooleanPredicate as evaluateBooleanPredicateDirect,
 } from '../../utils/z3-arith.js';
+import * as z3Pool from '../../utils/z3-remote.js';
+
+const evaluateBooleanPredicateWithPool = async (guardAst, env, parseArithmeticFn) => {
+  try {
+    const poolEnabled = typeof z3Pool.isWorkerPoolEnabled === 'function' ? z3Pool.isWorkerPoolEnabled() : false;
+    if (poolEnabled && typeof z3Pool.evaluateBooleanPredicate === 'function') {
+      try {
+        return await z3Pool.evaluateBooleanPredicate(guardAst, env, parseArithmeticFn);
+      } catch (_) {
+        // fall through to inline evaluation
+      }
+    }
+  } catch (_) {}
+  return await evaluateBooleanPredicateDirect(guardAst, env, parseArithmeticFn);
+};
 
 export class AlgebraicSimulator extends BaseSimulator {
   constructor() {
@@ -38,6 +53,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     };
     this._cacheSignature = null;
     this._config = { maxTokensPerPlace: Infinity };
+    this._enabledCache = new Map(); // transitionId -> boolean (enabled state)
   }
 
   /**
@@ -111,6 +127,33 @@ export class AlgebraicSimulator extends BaseSimulator {
     return ensureOutputBindingsTypeCompatible(this.petriNet, this.cache, transitionId, env);
   }
 
+  /**
+   * Invalidate enabled cache for transitions connected to the given places.
+   * @param {Set<string>} changedPlaces - Set of place IDs that changed
+   */
+  _invalidateEnabledCache(changedPlaces) {
+    if (!changedPlaces || changedPlaces.size === 0) {
+      return;
+    }
+    const arcs = this.petriNet.arcs || [];
+    for (const arc of arcs) {
+      // Check if this arc comes from a changed place to a transition
+      const placeId = arc.sourceId || arc.source;
+      const isPlaceToTransition = (arc.type === 'place-to-transition') || (arc.sourceType === 'place');
+      if (isPlaceToTransition && changedPlaces.has(placeId)) {
+        const tId = String(arc.targetId || arc.target);
+        this._enabledCache.delete(tId);
+      }
+    }
+  }
+
+  /**
+   * Clear the entire enabled cache (e.g., on net update or reset).
+   */
+  _clearEnabledCache() {
+    this._enabledCache.clear();
+  }
+
   async updateSpecific(petriNet) {
     // Rebuild caches if guards or bindings changed
     const incomingSignature = computeCacheSignature(petriNet);
@@ -119,14 +162,83 @@ export class AlgebraicSimulator extends BaseSimulator {
     if (shouldRebuildCaches) {
       await this.buildCaches();
     }
+    // Clear enabled cache since net structure may have changed
+    this._clearEnabledCache();
     await this.checkTransitionStateChanges();
   }
 
   async getEnabledTransitionsSpecific() {
+    const transitions = Array.isArray(this.petriNet.transitions) ? this.petriNet.transitions : [];
+    if (transitions.length === 0) return [];
+
+    // Separate cached and uncached transitions
+    const toCheck = [];
+    const toCheckIndices = [];
+    for (let i = 0; i < transitions.length; i++) {
+      const tId = String(transitions[i].id);
+      if (!this._enabledCache.has(tId)) {
+        toCheck.push(transitions[i]);
+        toCheckIndices.push(i);
+      }
+    }
+
+    // If we have transitions to check, evaluate them in parallel
+    if (toCheck.length > 0) {
+      const poolSize = (typeof z3Pool.getConfiguredPoolSize === 'function')
+        ? Number(z3Pool.getConfiguredPoolSize() || 0)
+        : 0;
+      const concurrency = Math.max(1, Math.min(toCheck.length, poolSize > 0 ? poolSize : 1));
+
+      if (concurrency <= 1) {
+        // Sequential evaluation for uncached transitions
+        for (const t of toCheck) {
+          try {
+            const ok = await this.isTransitionEnabled(t.id);
+            this._enabledCache.set(String(t.id), ok);
+          } catch (err) {
+            if (process.env.NODE_ENV !== 'production') {
+              console.warn('Failed to evaluate transition', t?.id, err);
+            }
+            this._enabledCache.set(String(t.id), false);
+          }
+        }
+      } else {
+        // Parallel evaluation for uncached transitions
+        const flags = new Array(toCheck.length).fill(false);
+        let nextIndex = 0;
+        const runSlot = async () => {
+          while (true) {
+            const idx = nextIndex++;
+            if (idx >= toCheck.length) break;
+            const t = toCheck[idx];
+            try {
+              const ok = await this.isTransitionEnabled(t.id);
+              flags[idx] = ok;
+            } catch (err) {
+              if (process.env.NODE_ENV !== 'production') {
+                console.warn('Failed to evaluate transition', t?.id, err);
+              }
+            }
+          }
+        };
+
+        const workers = Array.from({ length: concurrency }, () => runSlot());
+        await Promise.all(workers);
+
+        // Update cache with results
+        for (let i = 0; i < toCheck.length; i++) {
+          this._enabledCache.set(String(toCheck[i].id), flags[i]);
+        }
+      }
+    }
+
+    // Collect all enabled transitions from cache
     const enabled = [];
-    for (const t of (this.petriNet.transitions || [])) {
-      const ok = await this.isTransitionEnabled(t.id);
-      if (ok) enabled.push(String(t.id));
+    for (const t of transitions) {
+      const tId = String(t.id);
+      if (this._enabledCache.get(tId) === true) {
+        enabled.push(tId);
+      }
     }
     return enabled;
   }
@@ -173,7 +285,7 @@ export class AlgebraicSimulator extends BaseSimulator {
       bindingAstsByArc: this.cache.bindingAstsByArc,
       guardAst,
       parseArithmetic,
-      evaluateBooleanPredicate,
+      evaluateBooleanPredicate: evaluateBooleanPredicateWithPool,
       matchPattern,
       getTokensForPlace,
       evaluateArithmeticWithBindings,
@@ -208,7 +320,7 @@ export class AlgebraicSimulator extends BaseSimulator {
       bindingAstsByArc: this.cache.bindingAstsByArc,
       guardAst,
       parseArithmetic,
-      evaluateBooleanPredicate,
+      evaluateBooleanPredicate: evaluateBooleanPredicateWithPool,
       matchPattern,
       getTokensForPlace,
       evaluateArithmeticWithBindings,
@@ -226,10 +338,19 @@ export class AlgebraicSimulator extends BaseSimulator {
       if (free.length > 0) {
         try {
           // Use SAT check to see if any assignment exists; if so, keep env as-is
-          const ok = await evaluateBooleanPredicate(guardAst, env, parseArithmetic);
+          const ok = await evaluateBooleanPredicateWithPool(guardAst, env, parseArithmetic);
           if (!ok) throw new Error('Guard unsatisfied under any extension');
         } catch (_) { /* ignore */ }
       }
+    }
+
+    // Track which places will change for cache invalidation
+    const changedPlaces = new Set();
+    for (const pick of picks) {
+      changedPlaces.add(pick.srcId);
+    }
+    for (const arc of outputArcs) {
+      changedPlaces.add(arc.targetId || arc.target);
     }
 
     // Consume tokens
@@ -259,6 +380,9 @@ export class AlgebraicSimulator extends BaseSimulator {
         // If future semantics require, we could apply assignments to outputs here.
       } catch (_) { /* ignore action errors */ }
     }
+
+    // Invalidate enabled cache for transitions connected to changed places
+    this._invalidateEnabledCache(changedPlaces);
 
     await this.checkTransitionStateChanges();
     const newState = this.getCurrentState();
@@ -299,6 +423,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     this.cache.bindingAstsByArc.clear();
     this._cacheSignature = null;
     this._config.maxTokensPerPlace = Infinity;
+    this._clearEnabledCache();
   }
 }
 

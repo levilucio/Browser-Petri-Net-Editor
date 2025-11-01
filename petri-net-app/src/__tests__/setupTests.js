@@ -9,6 +9,18 @@ global.import = {
   }
 };
 
+jest.mock('../utils/z3-remote', () => ({
+  setZ3WorkerConfig: jest.fn(),
+  getConfiguredPoolSize: jest.fn(() => 0),
+  isWorkerPoolEnabled: jest.fn(() => false),
+  parseBooleanExpr: jest.fn(async () => { throw new Error('Z3 worker disabled in tests'); }),
+  evaluateBooleanPredicate: jest.fn(async () => { throw new Error('Z3 worker disabled in tests'); }),
+  evaluateArithmeticWithBindings: jest.fn(async () => { throw new Error('Z3 worker disabled in tests'); }),
+  evaluateAction: jest.fn(async () => { throw new Error('Z3 worker disabled in tests'); }),
+  solveEquation: jest.fn(async () => { throw new Error('Z3 worker disabled in tests'); }),
+  solveInequality: jest.fn(async () => { throw new Error('Z3 worker disabled in tests'); }),
+}));
+
 // Set up any other global mocks needed for tests
 
 // Add a simple test to avoid the "no tests" error

@@ -58,19 +58,19 @@ self.onmessage = async (e) => {
       }, 1000);
       const shouldCancel = () => canceled === true;
       const onProgress = (info) => {
+        // Update only; heartbeat will emit progress at 1 Hz
         const payload = { steps: info?.steps || 0, elapsedMs: info?.elapsedMs ?? (now() - startedAt) };
         latestProgress = payload;
-        postMessage({ op: 'progress', payload });
       };
 
       const result = await core.runToCompletion({
         mode: run.mode || 'single',
         maxSteps: run.maxSteps ?? 200000,
-        timeBudgetMs: run.timeBudgetMs ?? 60000,
-        yieldEvery: run.yieldEvery ?? 50,
-        progressEveryMs: 1000,
-        yieldEveryMs: 16,
-        batchMax: run.batchMax ?? (run.mode === 'maximal' ? 64 : 0),
+        timeBudgetMs: run.timeBudgetMs ?? 0,
+        yieldEvery: run.yieldEvery ?? 5000,
+        progressEveryMs: run.progressEveryMs ?? 0,
+        yieldEveryMs: run.yieldEveryMs ?? 0,
+        batchMax: run.batchMax ?? 0,
         onProgress,
         shouldCancel,
       });

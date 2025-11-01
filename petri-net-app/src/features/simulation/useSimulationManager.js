@@ -354,7 +354,46 @@ const useSimulationManager = (
         : DEFAULT_MAX_STEPS;
       const effectiveMaxSteps = limitIterationsFlag ? sanitizedIterations : DEFAULT_MAX_STEPS;
 
+      let prevZ3Settings = null;
+      let z3PoolBoosted = false;
+      const captureZ3Settings = () => {
+        if (prevZ3Settings !== null) return prevZ3Settings;
+        try {
+          const current = window.__Z3_SETTINGS__ || {};
+          prevZ3Settings = {
+            poolSize: Number.isFinite(Number(current.poolSize)) ? Number(current.poolSize) : 0,
+            idleTimeoutMs: current.idleTimeoutMs,
+            prewarmOnAlgebraicMode: current.prewarmOnAlgebraicMode,
+            solverTimeoutMs: current.solverTimeoutMs,
+          };
+        } catch (_) {
+          prevZ3Settings = { poolSize: 0 };
+        }
+        return prevZ3Settings;
+      };
+      const boostZ3PoolTo = async (targetSize) => {
+        try {
+          const current = captureZ3Settings();
+          const currentSize = Number(current.poolSize || 0);
+          if (currentSize >= targetSize) return;
+          const mod = await import('../../utils/z3-remote');
+          mod.setZ3WorkerConfig({ ...current, poolSize: targetSize });
+          z3PoolBoosted = true;
+        } catch (_) {}
+      };
+      const restoreZ3Pool = async () => {
+        if (!z3PoolBoosted) return;
+        try {
+          const mod = await import('../../utils/z3-remote');
+          mod.setZ3WorkerConfig(prevZ3Settings || {});
+        } catch (_) {}
+        z3PoolBoosted = false;
+      };
+
+      let workerStarted = false;
+
       if (batchMode) {
+        await boostZ3PoolTo(8);
         const worker = await ensureWorker();
         if (worker) {
           try {
@@ -372,6 +411,7 @@ const useSimulationManager = (
                   latestElementsRef.current = pl.elements;
                   if (updateHistory) updateHistory(pl.elements, true);
                 }
+                await restoreZ3Pool();
                 await refreshEnabledTransitions();
                 isRunningRef.current = false;
                 setIsRunning(false);
@@ -379,6 +419,7 @@ const useSimulationManager = (
               } else if (op === 'error') {
                 worker.removeEventListener('message', onMessage);
                 setSimulationError(pl?.message || 'Worker error');
+                await restoreZ3Pool();
                 isRunningRef.current = false;
                 setIsRunning(false);
               }
@@ -389,14 +430,19 @@ const useSimulationManager = (
               payload: {
                 elements: latestElementsRef.current,
                 simOptions: { netMode },
-                run: { mode, batchMax: (mode === 'maximal' ? 64 : 0), maxSteps: effectiveMaxSteps, timeBudgetMs: 60000, yieldEvery: 50 },
+                run: { mode, batchMax: (mode === 'maximal' ? 0 : 0), maxSteps: effectiveMaxSteps, timeBudgetMs: 0, yieldEvery: 5000, progressEveryMs: 0, yieldEveryMs: 0 },
                 z3: (typeof window !== 'undefined' ? (window.__Z3_SETTINGS__ || {}) : {}),
               }
             });
+            workerStarted = true;
           } catch (err) {
             console.error('Worker run failed, falling back to in-thread run:', err);
+            await restoreZ3Pool();
           }
         }
+      }
+
+      if (workerStarted) {
         return;
       }
 
@@ -404,17 +450,6 @@ const useSimulationManager = (
         try {
           let mode = 'single';
           try { mode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single'; } catch (_) {}
-          // Temporarily boost Z3 workers during headless run
-          let prevZ3 = null;
-          try {
-            const anyWin = window;
-            prevZ3 = { ...(anyWin.__Z3_SETTINGS__ || {}) };
-            const boosted = { ...prevZ3 };
-            boosted.minWorkers = Math.max(1, Number(prevZ3.minWorkers || 1));
-            boosted.maxWorkers = Math.max(4, Number(prevZ3.maxWorkers || 2));
-            const mod = await import('../../utils/z3-remote');
-            mod.setZ3WorkerConfig(boosted);
-          } catch (_) {}
           const shouldCancel = () => { try { return Boolean(window.__PETRI_NET_CANCEL_RUN__); } catch (_) { return false; } };
           const onProgress = (info) => {
             try {
@@ -424,16 +459,15 @@ const useSimulationManager = (
               setTimeout(() => {}, 0);
             } catch (_) {}
           };
-          const batchMax = (mode === 'maximal') ? 64 : 0;
+          const batchMax = (mode === 'maximal') ? 0 : 0;
           const finalNet = await simulatorCore.runToCompletion({
             mode,
             maxSteps: effectiveMaxSteps,
-            timeBudgetMs: 60000,
-            yieldEvery: 50,
-            // Ensure consistent 1 Hz progress updates even for slow steps
-            progressEveryMs: 1000,
-            // Tighten yielding cadence so progressive runs stay responsive
-            yieldEveryMs: 8,
+            timeBudgetMs: 0,
+            yieldEvery: 5000,
+            // keep silent; rely on worker-like heartbeat if any
+            progressEveryMs: 0,
+            yieldEveryMs: 0,
             onProgress,
             shouldCancel,
             batchMax,
@@ -445,10 +479,7 @@ const useSimulationManager = (
           }
         } finally {
           // Restore Z3 worker config
-          try {
-            const anyWin = window; const prev = anyWin.__Z3_SETTINGS__;
-            if (prev) { const mod2 = await import('../../utils/z3-remote'); mod2.setZ3WorkerConfig(prev); }
-          } catch (_) {}
+          await restoreZ3Pool();
           await refreshEnabledTransitions();
           isRunningRef.current = false;
           setIsRunning(false);
