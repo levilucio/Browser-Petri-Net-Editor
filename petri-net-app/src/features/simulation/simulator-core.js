@@ -158,9 +158,43 @@ export class SimulatorCore {
         return true;
       };
 
+      // Pre-compute isolated transitions (no inputs and no outputs) so that
+      // headless runs can ignore them and terminate if only isolated nodes remain.
+      const computeIsolatedTransitions = (net) => {
+        const isolated = new Set();
+        if (!net || !Array.isArray(net.transitions)) return isolated;
+        const arcs = Array.isArray(net.arcs) ? net.arcs : [];
+        for (const t of net.transitions) {
+          const tId = String(t.id);
+          let hasInput = false;
+          let hasOutput = false;
+          for (const a of arcs) {
+            const src = a.sourceId || a.source;
+            const tgt = a.targetId || a.target;
+            // Inputs: place -> transition (fallback: any arc targeting t, not a self-loop)
+            const isInput = (String(tgt) === tId && String(src) !== tId) && (
+              a.sourceType === 'place' || a.type === 'place-to-transition' || a.sourceType === undefined
+            );
+            // Outputs: transition -> place (fallback: any arc sourced at t, not a self-loop)
+            const isOutput = (String(src) === tId && String(tgt) !== tId) && (
+              a.targetType === 'place' || a.type === 'transition-to-place' || a.targetType === undefined
+            );
+            if (isInput) hasInput = true;
+            if (isOutput) hasOutput = true;
+            if (hasInput && hasOutput) break;
+          }
+          if (!hasInput && !hasOutput) isolated.add(tId);
+        }
+        return isolated;
+      };
+
+      // Compute once; net structure (arcs/transitions) does not change during run
+      const isolatedIds = computeIsolatedTransitions(this.currentSimulator.petriNet || {});
+
       const getEnabledIds = async () => {
         const enabled = await this.currentSimulator.getEnabledTransitions();
-        return (enabled || []).map(t => (typeof t === 'string') ? t : (t && t.id) ? t.id : String(t));
+        const ids = (enabled || []).map(t => (typeof t === 'string') ? t : (t && t.id) ? t.id : String(t));
+        return ids.filter((id) => !isolatedIds.has(String(id)));
       };
 
       let continueRunning = true;
