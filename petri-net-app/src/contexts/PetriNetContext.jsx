@@ -28,7 +28,8 @@ export const PetriNetProvider = ({ children }) => {
   // Settings dialog state
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [simulationSettings, setSimulationSettings] = useState({
-    maxIterations: 100,
+    maxIterations: 200000,
+    limitIterations: false,
     maxTokens: 20,
     netMode: 'pt',
     useNonVisualRun: false,
@@ -101,7 +102,13 @@ export const PetriNetProvider = ({ children }) => {
     startContinuousSimulation,
     startRunSimulation,
     stopAllSimulations,
-  } = useSimulationManager(elements, setElements, updateHistory, simulationSettings?.netMode || 'pt');
+  } = useSimulationManager(
+    elements,
+    setElements,
+    updateHistory,
+    simulationSettings?.netMode || 'pt',
+    simulationSettings
+  );
   
   // Only update history when not dragging and not just changing modes
   useEffect(() => {
@@ -196,7 +203,8 @@ export const PetriNetProvider = ({ children }) => {
     
     // Reset simulation settings to default
     setSimulationSettings({
-      maxIterations: 100,
+      maxIterations: 200000,
+      limitIterations: false,
       maxTokens: 20,
       netMode: 'pt',
       useNonVisualRun: false,

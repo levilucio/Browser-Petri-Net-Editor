@@ -33,6 +33,13 @@ const { createSimulationWorker } = require('../../workers/worker-factory');
 const { setZ3WorkerConfig } = require('../../utils/z3-remote');
 const { getSimulationStats } = require('../../features/simulation/simulation-utils.js');
 
+const defaultSettings = {
+  maxIterations: 100,
+  limitIterations: false,
+  batchMode: false,
+  useNonVisualRun: false,
+};
+
 function baseElements() {
   return {
     places: [
@@ -74,10 +81,18 @@ function makeCore(overrides = {}) {
   return Object.assign(core, overrides);
 }
 
-function Harness({ core, netMode = 'algebraic', outRef }) {
+function Harness({ core, netMode = 'algebraic', outRef, settings }) {
   const [elements, setElements] = useState(baseElements());
   const history = useRef([]);
-  const manager = useSimulationManager(elements, setElements, (net) => { history.current.push(net); }, netMode, core);
+  const mergedSettings = { ...defaultSettings, ...(settings || {}) };
+  const manager = useSimulationManager(
+    elements,
+    setElements,
+    (net) => { history.current.push(net); },
+    netMode,
+    mergedSettings,
+    core
+  );
 
   useEffect(() => {
     outRef.current = { elements, setElements, history, manager };
@@ -134,13 +149,13 @@ describe('useSimulationManager worker and non-visual runs', () => {
     });
 
     window.__PETRI_NET_NON_VISUAL_RUN__ = false;
-    window.__PETRI_NET_SETTINGS__ = { batchMode: true };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true, limitIterations: false, maxIterations: 100 };
 
     const core = makeCore({ enabledSequence: [['t1'], []] });
     const outRef = { current: null };
 
     await act(async () => {
-      render(<Harness core={core} outRef={outRef} />);
+      render(<Harness core={core} outRef={outRef} settings={{ batchMode: true }} />);
     });
     await act(async () => { await Promise.resolve(); });
 
@@ -155,6 +170,8 @@ describe('useSimulationManager worker and non-visual runs', () => {
 
     expect(createSimulationWorker).toHaveBeenCalledTimes(1);
     expect(worker.postMessage).toHaveBeenCalledWith(expect.objectContaining({ op: 'start' }));
+    const startCall = worker.postMessage.mock.calls.find(([message]) => message?.op === 'start');
+    expect(startCall?.[0]?.payload?.run?.maxSteps).toBe(200000);
     expect(outRef.current.elements.places.find((p) => p.id === 'p2')?.tokens).toBe(1);
     expect(outRef.current.manager.isRunning).toBe(false);
     expect(outRef.current.manager.simulationError).toBe(null);
@@ -186,13 +203,13 @@ describe('useSimulationManager worker and non-visual runs', () => {
     });
 
     window.__PETRI_NET_NON_VISUAL_RUN__ = false;
-    window.__PETRI_NET_SETTINGS__ = { batchMode: true };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true, limitIterations: false, maxIterations: 100 };
 
     const core = makeCore({ enabledSequence: [['t1'], []] });
     const outRef = { current: null };
 
     await act(async () => {
-      render(<Harness core={core} outRef={outRef} />);
+      render(<Harness core={core} outRef={outRef} settings={{ batchMode: true }} />);
     });
     await act(async () => { await Promise.resolve(); });
 
@@ -221,14 +238,14 @@ describe('useSimulationManager worker and non-visual runs', () => {
     });
 
     window.__PETRI_NET_NON_VISUAL_RUN__ = true;
-    window.__PETRI_NET_SETTINGS__ = { batchMode: false };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: false, limitIterations: false, maxIterations: 100 };
     window.__Z3_SETTINGS__ = { minWorkers: 1, maxWorkers: 2 };
 
     const core = makeCore({ runToCompletion, enabledSequence: [['t1'], []] });
     const outRef = { current: null };
 
     await act(async () => {
-      render(<Harness core={core} outRef={outRef} />);
+      render(<Harness core={core} outRef={outRef} settings={{ useNonVisualRun: true }} />);
     });
     await act(async () => { await Promise.resolve(); });
 
@@ -367,7 +384,14 @@ describe('useSimulationManager worker and non-visual runs', () => {
     function HarnessWithHistory({ core: injectedCore, outRef }) {
       const [elements, setElements] = useState(baseElements());
       const updateHistory = (net) => { history.push(net); };
-      const manager = useSimulationManager(elements, setElements, updateHistory, 'algebraic', injectedCore);
+      const manager = useSimulationManager(
+        elements,
+        setElements,
+        updateHistory,
+        'algebraic',
+        defaultSettings,
+        injectedCore
+      );
       useEffect(() => { outRef.current = { elements, manager }; }, [elements, manager]);
       return <div />;
     }

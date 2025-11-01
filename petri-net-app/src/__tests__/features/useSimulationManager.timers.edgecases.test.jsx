@@ -4,6 +4,13 @@ import useSimulationManager from '../../features/simulation/useSimulationManager
 
 jest.useFakeTimers();
 
+const defaultSettings = {
+  maxIterations: 100,
+  limitIterations: false,
+  batchMode: false,
+  useNonVisualRun: false,
+};
+
 function makeElements() {
   return {
     places: [ { id: 'p1' } ],
@@ -35,7 +42,7 @@ describe('useSimulationManager timers edge cases', () => {
     const { result } = renderHook(() => {
       const [elements, setElements] = useState(initial);
       const updateHistory = jest.fn();
-      return useSimulationManager(elements, setElements, updateHistory, 'pt', core);
+      return useSimulationManager(elements, setElements, updateHistory, 'pt', defaultSettings, core);
     });
 
     await act(async () => {});
@@ -51,7 +58,7 @@ describe('useSimulationManager timers edge cases', () => {
     const { result } = renderHook(() => {
       const [elements, setElements] = useState(initial);
       const updateHistory = jest.fn();
-      return useSimulationManager(elements, setElements, updateHistory, 'pt', core);
+      return useSimulationManager(elements, setElements, updateHistory, 'pt', defaultSettings, core);
     });
 
     await act(async () => {});

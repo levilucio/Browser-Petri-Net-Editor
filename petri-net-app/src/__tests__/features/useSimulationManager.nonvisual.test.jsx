@@ -31,7 +31,15 @@ function makeBaseNet() {
   };
 }
 
-function createHarness({ simCore, netMode = 'algebraic-int', initialElements, outRef }) {
+const defaultSettings = {
+  maxIterations: 100,
+  limitIterations: false,
+  batchMode: false,
+  useNonVisualRun: false,
+};
+
+function createHarness({ simCore, netMode = 'algebraic-int', initialElements, outRef, settings }) {
+  const mergedSettings = { ...defaultSettings, ...(settings || {}) };
   function Harness() {
     const [elements, setElements] = useState(initialElements || makeBaseNet());
     const history = useRef([]);
@@ -41,6 +49,7 @@ function createHarness({ simCore, netMode = 'algebraic-int', initialElements, ou
       setElements,
       updateHistoryRef.current,
       netMode,
+      mergedSettings,
       simCore
     );
 
@@ -150,7 +159,7 @@ describe('useSimulationManager non-visual & error paths', () => {
     getSimulationStats.mockReturnValueOnce({ enabledTransitions: ['stats-route'] });
     const simCore = makeSimCore({ isReady: jest.fn(async () => false) });
     const outRef = { current: null };
-    const Harness = createHarness({ simCore, outRef });
+    const Harness = createHarness({ simCore, outRef, settings: { useNonVisualRun: true } });
 
     await act(async () => {
       render(<Harness />);
@@ -166,7 +175,7 @@ describe('useSimulationManager non-visual & error paths', () => {
 
   test('non-visual run uses runToCompletion when worker run disabled', async () => {
     window.__PETRI_NET_NON_VISUAL_RUN__ = true;
-    window.__PETRI_NET_SETTINGS__ = { batchMode: false };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: false, limitIterations: false, maxIterations: 100 };
     const finalNet = {
       ...makeBaseNet(),
       places: [{ id: 'p1', tokens: 0, valueTokens: [] }],
@@ -178,7 +187,7 @@ describe('useSimulationManager non-visual & error paths', () => {
         .fn(async () => (callIndex++ === 0 ? ['t1'] : [])),
     });
     const outRef = { current: null };
-    const Harness = createHarness({ simCore, outRef });
+    const Harness = createHarness({ simCore, outRef, settings: { useNonVisualRun: true } });
 
     await act(async () => {
       render(<Harness />);
@@ -188,17 +197,42 @@ describe('useSimulationManager non-visual & error paths', () => {
     });
     await act(async () => {});
 
+    expect(createSimulationWorker).not.toHaveBeenCalled();
     expect(simCore.runToCompletion).toHaveBeenCalledTimes(1);
     expect(setZ3WorkerConfig).toHaveBeenCalled();
     expect(outRef.current.elements.places[0].tokens).toBe(0);
     expect(outRef.current.manager.isRunning).toBe(false);
   });
 
+  test('non-visual run respects custom max iterations', async () => {
+    window.__PETRI_NET_NON_VISUAL_RUN__ = true;
+    window.__PETRI_NET_SETTINGS__ = { batchMode: false, limitIterations: true, maxIterations: 25 };
+    const simCore = makeSimCore({
+      runToCompletion: jest.fn(async () => makeBaseNet()),
+      getEnabledTransitions: jest.fn(async () => ['t1']),
+    });
+    const outRef = { current: null };
+    const Harness = createHarness({
+      simCore,
+      outRef,
+      settings: { useNonVisualRun: true, limitIterations: true, maxIterations: 25 },
+    });
+
+    await act(async () => {
+      render(<Harness />);
+    });
+    await act(async () => {
+      await outRef.current.manager.startRunSimulation();
+    });
+
+    expect(simCore.runToCompletion).toHaveBeenCalledWith(expect.objectContaining({ maxSteps: 25 }));
+  });
+
   test('worker run handles progress and completion events', async () => {
     const worker = new MockWorker();
     createSimulationWorker.mockReturnValue(worker);
     window.__PETRI_NET_NON_VISUAL_RUN__ = false;
-    window.__PETRI_NET_SETTINGS__ = { batchMode: true };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true, limitIterations: false, maxIterations: 100 };
     window.__Z3_SETTINGS__ = { minWorkers: 1, maxWorkers: 2 };
 
     const finalNet = {
@@ -213,7 +247,7 @@ describe('useSimulationManager non-visual & error paths', () => {
         .fn(async () => (callIndex++ === 0 ? ['t1'] : [])),
     });
     const outRef = { current: null };
-    const Harness = createHarness({ simCore, outRef });
+    const Harness = createHarness({ simCore, outRef, settings: { batchMode: true } });
 
     await act(async () => {
       render(<Harness />);
@@ -243,12 +277,50 @@ describe('useSimulationManager non-visual & error paths', () => {
     expect(simCore.deactivateSimulation).toHaveBeenCalled();
   });
 
+  test('worker run enforces custom max iterations', async () => {
+    const worker = new MockWorker();
+    createSimulationWorker.mockReturnValue(worker);
+    window.__PETRI_NET_NON_VISUAL_RUN__ = false;
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true, limitIterations: true, maxIterations: 50 };
+    window.__Z3_SETTINGS__ = { minWorkers: 1, maxWorkers: 2 };
+
+    const finalNet = makeBaseNet();
+    let callIndex = 0;
+    const simCore = makeSimCore({
+      getEnabledTransitions: jest.fn(async () => (callIndex++ === 0 ? ['t1'] : [])),
+    });
+    const outRef = { current: null };
+    const Harness = createHarness({
+      simCore,
+      outRef,
+      settings: { batchMode: true, limitIterations: true, maxIterations: 50 },
+    });
+
+    await act(async () => {
+      render(<Harness />);
+    });
+
+    await act(async () => {
+      await outRef.current.manager.startRunSimulation();
+    });
+
+    const startMessage = worker.messages.find((m) => m?.op === 'start');
+    expect(startMessage).toBeTruthy();
+    expect(startMessage.payload.run.maxSteps).toBe(50);
+
+    await act(async () => {
+      worker.emit('message', { op: 'done', payload: { elements: finalNet } });
+    });
+
+    expect(outRef.current.manager.isRunning).toBe(false);
+  });
+
   test('handleFireTransition reports errors for invalid simulator state', async () => {
     const simCore = makeSimCore({
       getSimulatorType: jest.fn(() => 'none'),
     });
     const outRef = { current: null };
-    const Harness = createHarness({ simCore, outRef });
+    const Harness = createHarness({ simCore, outRef, settings: { batchMode: true } });
 
     await act(async () => {
       render(<Harness />);
@@ -274,14 +346,14 @@ describe('useSimulationManager non-visual & error paths', () => {
     const worker = new MockWorker();
     createSimulationWorker.mockReturnValue(worker);
     window.__PETRI_NET_NON_VISUAL_RUN__ = false;
-    window.__PETRI_NET_SETTINGS__ = { batchMode: true };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: true, limitIterations: false, maxIterations: 100 };
 
     let callIndex = 0;
     const simCore = makeSimCore({
       getEnabledTransitions: jest.fn(async () => (callIndex++ === 0 ? ['t1'] : [])),
     });
     const outRef = { current: null };
-    const Harness = createHarness({ simCore, outRef });
+    const Harness = createHarness({ simCore, outRef, settings: { batchMode: true } });
 
     await act(async () => {
       render(<Harness />);
@@ -302,7 +374,7 @@ describe('useSimulationManager non-visual & error paths', () => {
   test('startRunSimulation iterates run loop in visual mode', async () => {
     jest.useFakeTimers();
     window.__PETRI_NET_NON_VISUAL_RUN__ = false;
-    window.__PETRI_NET_SETTINGS__ = { batchMode: false };
+    window.__PETRI_NET_SETTINGS__ = { batchMode: false, limitIterations: false, maxIterations: 100 };
 
     const simCore = makeSimCore({
       enabledSequence: [['t1'], ['t1'], []],

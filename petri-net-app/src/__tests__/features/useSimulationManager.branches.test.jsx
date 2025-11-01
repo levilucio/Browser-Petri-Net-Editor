@@ -6,6 +6,13 @@ function makeElements() {
   return { places: [{ id: 'p1' }], transitions: [{ id: 't1' }], arcs: [{ id: 'a1', source: 'p1', target: 't1' }] };
 }
 
+const defaultSettings = {
+  maxIterations: 100,
+  limitIterations: false,
+  batchMode: false,
+  useNonVisualRun: false,
+};
+
 describe('useSimulationManager branches', () => {
   const core = {
     getSimulatorType: () => 'mock',
@@ -25,7 +32,7 @@ describe('useSimulationManager branches', () => {
     const { result } = renderHook(() => {
       const [elements, setElements] = useState(initial);
       const updateHistory = jest.fn();
-      return useSimulationManager(elements, setElements, updateHistory, 'pt', core);
+      return useSimulationManager(elements, setElements, updateHistory, 'pt', defaultSettings, core);
     });
 
     // set an error by forcing a failing fire
@@ -38,7 +45,7 @@ describe('useSimulationManager branches', () => {
     const { result: bad } = renderHook(() => {
       const [elements, setElements] = useState(initial);
       const updateHistory = jest.fn();
-      return useSimulationManager(elements, setElements, updateHistory, 'pt', badCore);
+      return useSimulationManager(elements, setElements, updateHistory, 'pt', defaultSettings, badCore);
     });
 
     await act(async () => {

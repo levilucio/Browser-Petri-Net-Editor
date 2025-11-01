@@ -12,10 +12,10 @@ import { useElementManager } from './features/elements/useElementManager';
 import { PetriNetProvider, usePetriNet } from './contexts/PetriNetContext';
 import { AdtProvider } from './contexts/AdtContext';
 
+const DEFAULT_MAX_STEPS = 200000;
+
 // Create a wrapper component that provides the context
-const AppWrapper = () => {
-  // Define AppContent inside AppWrapper to ensure context is available
-  const AppContent = () => {
+const AppContent = () => {
     const ZOOM_STEP = 0.1;
     const localCanvasContainerDivRef = useRef(null);
     const programmaticScrollRef = useRef(false);
@@ -49,7 +49,6 @@ const AppWrapper = () => {
       setContainerRef,
       stageRef,
 
-      handleSaveSettings,
       resetEditor,
       enabledTransitionIds
     } = usePetriNet();
@@ -72,11 +71,18 @@ const AppWrapper = () => {
       try {
         const anyWin = window;
         const batchMode = Boolean(simulationSettings?.batchMode);
+        const limitIterations = Boolean(simulationSettings?.limitIterations);
+        const rawMaxIterations = Number(simulationSettings?.maxIterations);
+        const sanitizedMaxIterations = Number.isFinite(rawMaxIterations) && rawMaxIterations > 0
+          ? Math.floor(rawMaxIterations)
+          : DEFAULT_MAX_STEPS;
         const nonVisual = Boolean(simulationSettings?.useNonVisualRun || batchMode);
         anyWin.__PETRI_NET_NON_VISUAL_RUN__ = nonVisual;
         anyWin.__PETRI_NET_SETTINGS__ = {
           ...(anyWin.__PETRI_NET_SETTINGS__ || {}),
           batchMode,
+          limitIterations,
+          maxIterations: sanitizedMaxIterations,
         };
       } catch (_) {}
       try {
@@ -85,7 +91,16 @@ const AppWrapper = () => {
           anyWin.__PETRI_NET_SIM_CORE__ = simulatorCore;
         }
       } catch (_) {}
-    }, [elements.places, elements.transitions, elements.arcs, mode, simulationSettings?.useNonVisualRun, simulationSettings?.batchMode]);
+    }, [
+      elements.places,
+      elements.transitions,
+      elements.arcs,
+      mode,
+      simulationSettings?.useNonVisualRun,
+      simulationSettings?.batchMode,
+      simulationSettings?.limitIterations,
+      simulationSettings?.maxIterations,
+    ]);
 
     const handleZoom = (delta) => {
       setZoomLevel(prevZoom => {
@@ -290,20 +305,17 @@ const AppWrapper = () => {
         <SettingsDialog 
           isOpen={isSettingsDialogOpen}
           onClose={() => setIsSettingsDialogOpen(false)}
-          settings={simulationSettings}
-          onSave={handleSaveSettings}
         />
       </div>
     );
   };
 
-  return (
-    <AdtProvider>
-      <PetriNetProvider>
-        <AppContent />
-      </PetriNetProvider>
-    </AdtProvider>
-  );
-};
+const AppWrapper = () => (
+  <AdtProvider>
+    <PetriNetProvider>
+      <AppContent />
+    </PetriNetProvider>
+  </AdtProvider>
+);
 
 export default AppWrapper;

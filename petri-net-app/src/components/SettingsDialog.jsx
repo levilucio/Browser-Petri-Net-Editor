@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import Z3SettingsDialog from './Z3SettingsDialog.jsx';
 
+const DEFAULT_MAX_STEPS = 200000;
+
 const SettingsDialog = ({ isOpen, onClose }) => {
   const { simulatorCore, simulationSettings, handleSaveSettings, elements } = usePetriNet();
   const [simulationMode, setSimulationMode] = useState('single');
   const [isLoading, setIsLoading] = useState(false);
   const [maxTokens, setMaxTokens] = useState(20);
-  const [maxIterations, setMaxIterations] = useState(100);
-  const [unlimitedIterations, setUnlimitedIterations] = useState(false);
+  const [maxIterations, setMaxIterations] = useState(DEFAULT_MAX_STEPS);
+  const [limitIterations, setLimitIterations] = useState(false);
   const [netMode, setNetMode] = useState('pt');
   const [netModeLocked, setNetModeLocked] = useState(false);
   const [z3Open, setZ3Open] = useState(false);
@@ -29,15 +31,14 @@ const SettingsDialog = ({ isOpen, onClose }) => {
 
       // Initialize settings from context
       const ctxMaxTokens = Number(simulationSettings?.maxTokens ?? 20);
-      const ctxMaxIterations = simulationSettings?.maxIterations;
+      const ctxMaxIterations = Number(simulationSettings?.maxIterations ?? DEFAULT_MAX_STEPS);
       setMaxTokens(Number.isFinite(ctxMaxTokens) && ctxMaxTokens > 0 ? ctxMaxTokens : 20);
-      if (ctxMaxIterations === Infinity) {
-        setUnlimitedIterations(true);
-        setMaxIterations(100); // default UI value when toggling off unlimited
-      } else {
-        setUnlimitedIterations(false);
-        setMaxIterations(Number.isFinite(Number(ctxMaxIterations)) ? Number(ctxMaxIterations) : 100);
-      }
+      const limitedFlag = Boolean(simulationSettings?.limitIterations);
+      setLimitIterations(limitedFlag);
+      const sanitizedIterations = Number.isFinite(ctxMaxIterations) && ctxMaxIterations > 0
+        ? Math.max(1, Math.min(1000000, Math.floor(ctxMaxIterations)))
+        : DEFAULT_MAX_STEPS;
+      setMaxIterations(sanitizedIterations);
       const currentNetMode = simulationSettings?.netMode || 'pt';
       setNetMode(currentNetMode);
       const initialBatch = Boolean(simulationSettings?.batchMode);
@@ -76,12 +77,15 @@ const SettingsDialog = ({ isOpen, onClose }) => {
 
   const onSave = () => {
     const tokens = Math.max(1, Math.min(9999, Number(maxTokens) || 20));
-    const iterations = unlimitedIterations ? Infinity : Math.max(1, Math.min(1000000, Number(maxIterations) || 100));
+    const limited = Boolean(limitIterations);
+    const iterationsInput = Math.max(1, Math.min(1000000, Math.floor(Number(maxIterations) || DEFAULT_MAX_STEPS)));
+    const finalIterations = limited ? iterationsInput : DEFAULT_MAX_STEPS;
     const finalUseNonVisual = batchMode ? true : useNonVisualRun;
     handleSaveSettings({
       ...simulationSettings,
       maxTokens: tokens,
-      maxIterations: iterations,
+      maxIterations: finalIterations,
+      limitIterations: limited,
       netMode,
       useNonVisualRun: finalUseNonVisual,
       batchMode,
@@ -128,22 +132,33 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                     type="number"
                     min={1}
                     max={1000000}
-                    value={unlimitedIterations ? '' : maxIterations}
+                    value={maxIterations}
                     onChange={(e) => setMaxIterations(e.target.value)}
-                    disabled={unlimitedIterations}
+                    disabled={!limitIterations}
                     className="w-24 border rounded px-2 py-1 text-sm disabled:bg-gray-100"
                   />
                   <label className="flex items-center text-sm">
                     <input
                       type="checkbox"
-                      checked={unlimitedIterations}
-                      onChange={(e) => setUnlimitedIterations(e.target.checked)}
+                      checked={limitIterations}
+                      onChange={(e) => {
+                        const next = e.target.checked;
+                        setLimitIterations(next);
+                        if (next && (!Number.isFinite(Number(maxIterations)) || Number(maxIterations) <= 0)) {
+                          setMaxIterations(100);
+                        }
+                      }}
                       className="mr-1"
                     />
-                    Unlimited
+                    Limit iterations
                   </label>
                 </div>
               </div>
+              {!limitIterations && (
+                <div className="text-xs text-gray-600">
+                  Default runs allow up to 200,000 steps when this option is unchecked.
+                </div>
+              )}
             </div>
           </div>
 

@@ -10,6 +10,13 @@ function createElements() {
   };
 }
 
+const defaultSettings = {
+  maxIterations: 100,
+  limitIterations: false,
+  batchMode: false,
+  useNonVisualRun: false,
+};
+
 function ErroringSimCore({ when = 'initialize' } = {}) {
   const err = new Error('boom');
   return {
@@ -29,7 +36,14 @@ function Harness({ injectedSimCore, netMode = 'pt', outRef }) {
   const [elements, setElements] = useState(createElements());
   const history = useRef([]);
   const updateHistory = (st) => { history.current.push(st); };
-  const mgr = useSimulationManager(elements, setElements, updateHistory, netMode, injectedSimCore);
+  const mgr = useSimulationManager(
+    elements,
+    setElements,
+    updateHistory,
+    netMode,
+    defaultSettings,
+    injectedSimCore
+  );
   useEffect(() => { if (outRef) outRef.current = { elements, setElements, history, mgr }; }, [elements, mgr]);
   return <div data-testid="harness" />;
 }

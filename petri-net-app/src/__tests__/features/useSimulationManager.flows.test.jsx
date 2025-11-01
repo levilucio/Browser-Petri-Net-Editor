@@ -28,6 +28,13 @@ function baseElements() {
   };
 }
 
+const defaultSettings = {
+  maxIterations: 100,
+  limitIterations: false,
+  batchMode: false,
+  useNonVisualRun: false,
+};
+
 function makeCore({ mode = 'single', enabledSeq, fireResult } = {}) {
   let callIdx = 0;
   let fired = false;
@@ -53,11 +60,18 @@ function makeCore({ mode = 'single', enabledSeq, fireResult } = {}) {
   return core;
 }
 
-function Harness({ injectedSimCore, netMode = 'pt', outRef }) {
+function Harness({ injectedSimCore, netMode = 'pt', outRef, settings }) {
   const [elements, setElements] = useState(baseElements());
   const history = useRef([]);
   const updateHistory = (st) => { history.current.push(st); };
-  const mgr = useSimulationManager(elements, setElements, updateHistory, netMode, injectedSimCore);
+  const mgr = useSimulationManager(
+    elements,
+    setElements,
+    updateHistory,
+    netMode,
+    { ...defaultSettings, ...(settings || {}) },
+    injectedSimCore
+  );
   useEffect(() => { if (outRef) outRef.current = { elements, setElements, history, mgr }; }, [elements, mgr]);
   return <div data-testid="h" />;
 }

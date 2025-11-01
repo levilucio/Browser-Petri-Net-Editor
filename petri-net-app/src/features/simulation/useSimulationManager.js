@@ -6,7 +6,17 @@ import { simulationEventBus, SimulationEvents } from './SimulationEventBus.js';
 import { ConflictResolver } from './conflict-resolver.js';
 import { getSimulationStats } from './simulation-utils.js';
 
-const useSimulationManager = (elements, setElements, updateHistory, netMode, injectedSimCore) => {
+const DEFAULT_MAX_STEPS = 200000;
+const MAX_ITERATIONS_CAP = 1000000;
+
+const useSimulationManager = (
+  elements,
+  setElements,
+  updateHistory,
+  netMode,
+  simulationSettings = {},
+  injectedSimCore
+) => {
   // Core simulation state
   const [isContinuousSimulating, setIsContinuousSimulating] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -324,11 +334,25 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
       // Check for non-visual run setting exposed on window (wired via context)
       let useNonVisual = false;
       try { useNonVisual = Boolean(window.__PETRI_NET_NON_VISUAL_RUN__); } catch (_) {}
+      if (!useNonVisual && simulationSettings?.useNonVisualRun) {
+        useNonVisual = true;
+      }
       const settings = (typeof window !== 'undefined' && window.__PETRI_NET_SETTINGS__) ? window.__PETRI_NET_SETTINGS__ : {};
-      const batchMode = Boolean(settings?.batchMode);
+      const batchModeSetting = simulationSettings?.batchMode;
+      const batchMode =
+        batchModeSetting !== undefined
+          ? Boolean(batchModeSetting)
+          : Boolean(settings?.batchMode);
       if (batchMode) {
         useNonVisual = true;
       }
+
+      const limitIterationsFlag = Boolean(simulationSettings?.limitIterations ?? settings?.limitIterations);
+      const rawIterations = Number(simulationSettings?.maxIterations ?? settings?.maxIterations);
+      const sanitizedIterations = Number.isFinite(rawIterations) && rawIterations > 0
+        ? Math.max(1, Math.min(MAX_ITERATIONS_CAP, Math.floor(rawIterations)))
+        : DEFAULT_MAX_STEPS;
+      const effectiveMaxSteps = limitIterationsFlag ? sanitizedIterations : DEFAULT_MAX_STEPS;
 
       if (batchMode) {
         const worker = await ensureWorker();
@@ -365,7 +389,7 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
               payload: {
                 elements: latestElementsRef.current,
                 simOptions: { netMode, maxTokens: 20 },
-                run: { mode, batchMax: (mode === 'maximal' ? 64 : 0), maxSteps: 200000, timeBudgetMs: 60000, yieldEvery: 50 },
+                run: { mode, batchMax: (mode === 'maximal' ? 64 : 0), maxSteps: effectiveMaxSteps, timeBudgetMs: 60000, yieldEvery: 50 },
                 z3: (typeof window !== 'undefined' ? (window.__Z3_SETTINGS__ || {}) : {}),
               }
             });
@@ -403,7 +427,7 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
           const batchMax = (mode === 'maximal') ? 64 : 0;
           const finalNet = await simulatorCore.runToCompletion({
             mode,
-            maxSteps: 200000,
+            maxSteps: effectiveMaxSteps,
             timeBudgetMs: 60000,
             yieldEvery: 50,
             // Ensure consistent 1 Hz progress updates even for slow steps
@@ -433,8 +457,11 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
         return;
       }
 
+      let remainingSteps = effectiveMaxSteps;
+
       const runStep = async () => {
         if (!isRunningRef.current) { setIsRunning(false); return; }
+        if (remainingSteps <= 0) { isRunningRef.current = false; setIsRunning(false); return; }
         try {
           const enabled = await simulatorCore.getEnabledTransitions();
           if (!enabled || enabled.length === 0) { isRunningRef.current = false; setIsRunning(false); return; }
@@ -453,7 +480,18 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
           const setsArray = Array.isArray(nonConflictingSets) ? nonConflictingSets : Array.from(nonConflictingSets || []);
           const candidate = setsArray.length ? setsArray[Math.floor(Math.random() * setsArray.length)] : [];
           const chosenSet = Array.isArray(candidate) ? candidate : (candidate ? [candidate] : []);
-          for (const t of (Array.isArray(chosenSet) ? chosenSet : [])) { await handleFireTransition(t.id); }
+          let firedCount = 0;
+          for (const t of (Array.isArray(chosenSet) ? chosenSet : [])) {
+            if (remainingSteps <= 0) break;
+            await handleFireTransition(t.id);
+            firedCount += 1;
+            remainingSteps -= 1;
+          }
+          if (remainingSteps <= 0) {
+            isRunningRef.current = false;
+            setIsRunning(false);
+            return;
+          }
           setTimeout(runStep, 50);
         } catch (error) {
           console.error('Error in run simulation:', error);
@@ -467,7 +505,16 @@ const useSimulationManager = (elements, setElements, updateHistory, netMode, inj
       console.error('Error starting run simulation:', error);
       setSimulationError('Failed to start run simulation');
     }
-  }, [isContinuousSimulating, refreshEnabledTransitions, handleFireTransition, elements]);
+  }, [
+    isContinuousSimulating,
+    refreshEnabledTransitions,
+    handleFireTransition,
+    elements,
+    simulationSettings?.limitIterations,
+    simulationSettings?.maxIterations,
+    simulationSettings?.batchMode,
+    simulationSettings?.useNonVisualRun,
+  ]);
 
   return {
     isContinuousSimulating,

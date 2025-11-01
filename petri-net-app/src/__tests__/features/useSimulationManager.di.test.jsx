@@ -10,6 +10,13 @@ function makeElements() {
   };
 }
 
+const defaultSettings = {
+  maxIterations: 100,
+  limitIterations: false,
+  batchMode: false,
+  useNonVisualRun: false,
+};
+
 function wrapperWithElements(initial) {
   return function Wrapper({ children }) {
     const [elements, setElements] = useState(initial);
@@ -71,7 +78,7 @@ describe('useSimulationManager with DI core', () => {
     const { result, rerender } = renderHook(({ els }) => {
       const [elements, setElements] = useState(els);
       const updateHistory = jest.fn();
-      return useSimulationManager(elements, setElements, updateHistory, 'pt', core);
+      return useSimulationManager(elements, setElements, updateHistory, 'pt', defaultSettings, core);
     }, { initialProps: { els: initial } });
 
     // Allow effects to run
@@ -91,7 +98,7 @@ describe('useSimulationManager with DI core', () => {
     const { result } = renderHook(() => {
       const [elements, setElements] = useState(initial);
       const updateHistory = jest.fn();
-      return useSimulationManager(elements, setElements, updateHistory, 'pt', core);
+      return useSimulationManager(elements, setElements, updateHistory, 'pt', defaultSettings, core);
     });
 
     await act(async () => {});
@@ -108,7 +115,7 @@ describe('useSimulationManager with DI core', () => {
     const { result } = renderHook(() => {
       const [elements, setElements] = useState(initial);
       const updateHistory = jest.fn();
-      return useSimulationManager(elements, setElements, updateHistory, 'pt', core);
+      return useSimulationManager(elements, setElements, updateHistory, 'pt', defaultSettings, core);
     });
 
     await act(async () => {});
@@ -125,7 +132,7 @@ describe('useSimulationManager with DI core', () => {
     const { result } = renderHook(() => {
       const [elements, setElements] = useState(initial);
       const updateHistory = jest.fn();
-      return useSimulationManager(elements, setElements, updateHistory, 'pt', core);
+      return useSimulationManager(elements, setElements, updateHistory, 'pt', defaultSettings, core);
     });
 
     await act(async () => {});
