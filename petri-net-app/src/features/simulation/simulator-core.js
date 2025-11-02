@@ -228,7 +228,7 @@ export class SimulatorCore {
       if (onProgress) {
         try { onProgress({ steps, elapsedMs: now() - startTs }); } catch (_) {}
       }
-      return this.currentSimulator.petriNet || null;
+      return { petriNet: this.currentSimulator.petriNet || null, steps };
     } finally {
       try { if (this.currentSimulator.setEventBus) this.currentSimulator.setEventBus(prevBus); } catch (_) {}
     }

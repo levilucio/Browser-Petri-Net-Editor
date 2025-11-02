@@ -237,7 +237,7 @@ describe('useSimulationManager worker and non-visual runs', () => {
 
     const runToCompletion = jest.fn(async ({ onProgress }) => {
       onProgress?.({ percent: 42 });
-      return doneNet;
+      return { petriNet: doneNet, steps: 1 };
     });
 
     window.__PETRI_NET_NON_VISUAL_RUN__ = true;
@@ -267,7 +267,8 @@ describe('useSimulationManager worker and non-visual runs', () => {
     expect(outRef.current.elements.places.find((p) => p.id === 'p2')?.tokens).toBe(2);
     expect(outRef.current.manager.isRunning).toBe(false);
     expect(outRef.current.manager.simulationError).toBe(null);
-    expect(window.__PETRI_NET_RUN_PROGRESS__).toEqual({ percent: 42 });
+    // Progress communication removed for performance
+    expect(window.__PETRI_NET_RUN_PROGRESS__).toBeUndefined();
     expect(core.deactivateSimulation).toHaveBeenCalled();
   });
 

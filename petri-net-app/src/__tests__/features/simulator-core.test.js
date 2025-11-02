@@ -92,9 +92,10 @@ describe('SimulatorCore', () => {
     sim.getEnabledTransitions
       .mockResolvedValueOnce(['t1'])
       .mockResolvedValue([]);
-    const final = await core.runToCompletion({ maxSteps: 5 });
+    const result = await core.runToCompletion({ maxSteps: 5 });
     expect(sim.fireTransition).toHaveBeenCalledWith('t1');
-    expect(final).toEqual(core.currentSimulator.petriNet);
+    expect(result.petriNet).toEqual(core.currentSimulator.petriNet);
+    expect(result.steps).toBe(1);
   });
 
   test('reset clears simulator reference', async () => {
@@ -224,7 +225,8 @@ describe('SimulatorCore', () => {
         onProgress,
       });
 
-      expect(result).toEqual(sim.petriNet);
+      expect(result.petriNet).toEqual(sim.petriNet);
+      expect(result.steps).toBe(2);
       expect(sim.fireTransition).toHaveBeenCalled();
       expect(onProgress).toHaveBeenCalled();
       expect(shouldCancel).toHaveBeenCalled();

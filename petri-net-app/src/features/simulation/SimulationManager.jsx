@@ -2,6 +2,57 @@ import React, { useEffect, useState } from 'react';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import './SimulationManager.css';
 
+// Completion Dialog Component
+const CompletionDialog = ({ stats, onDismiss }) => {
+  if (!stats) return null;
+
+  const formatTime = (ms) => {
+    if (ms < 1000) return `${ms}ms`;
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    if (minutes > 0) {
+      return `${minutes}m ${remainingSeconds}s`;
+    }
+    return `${seconds}s`;
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg shadow-xl p-6 max-w-md mx-4">
+        <div className="flex items-center mb-4">
+          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900">Simulation Complete</h3>
+        </div>
+
+        <div className="space-y-3 mb-6">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">Duration:</span>
+            <span className="font-medium text-gray-900">{formatTime(stats.elapsedMs)}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">Transitions Fired:</span>
+            <span className="font-medium text-gray-900">{stats.transitionsFired}</span>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            onClick={onDismiss}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const SimulationManager = () => {
   const {
     isContinuousSimulating,
@@ -13,37 +64,12 @@ const SimulationManager = () => {
     startContinuousSimulation,
     startRunSimulation,
     stopAllSimulations,
+    completionStats,
+    dismissCompletionDialog,
   } = usePetriNet();
 
   const isAnySimulationRunning = isContinuousSimulating || isRunning;
 
-  const [runProgress, setRunProgress] = useState({ steps: 0, elapsedMs: 0 });
-
-  useEffect(() => {
-    let tickTimer = null;
-    let hideTimer = null;
-    const tick = () => {
-      try {
-        const p = (typeof window !== 'undefined' ? (window.__PETRI_NET_RUN_PROGRESS__ || {}) : {});
-        const steps = Number(p.steps || 0);
-        const ms = Number(p.elapsedMs || 0);
-        setRunProgress((prev) => (prev.steps !== steps || prev.elapsedMs !== ms ? { steps, elapsedMs: ms } : prev));
-      } catch (_) {}
-    };
-    if (isRunning) {
-      tick();
-      // Poll at 1Hz to match worker heartbeat (keeps UI calm and consistent)
-      tickTimer = setInterval(tick, 1000);
-    } else {
-      // When run ends, keep the last numbers visible for 3 seconds
-      tick();
-      hideTimer = setTimeout(() => setRunProgress({ steps: 0, elapsedMs: 0 }), 3000);
-    }
-    return () => {
-      if (tickTimer) clearInterval(tickTimer);
-      if (hideTimer) clearTimeout(hideTimer);
-    };
-  }, [isRunning]);
 
   return (
     <div data-testid="simulation-manager" className="simulation-manager w-full px-4 py-2 mx-0">
@@ -121,21 +147,19 @@ const SimulationManager = () => {
         </div>
 
         {isRunning && (
-          <div className="mt-2 text-xs text-gray-700 flex items-center justify-between">
-            <span>
-              {(() => {
-                const secs = Math.max(0, Number(runProgress.elapsedMs || 0)) / 1000;
-                const secsInt = Math.round(secs);
-                return `Running… steps: ${Number(runProgress.steps || 0).toLocaleString()}, elapsed: ${secsInt.toLocaleString()}s`;
-              })()}
-            </span>
-            <span className="ml-3 inline-flex items-center space-x-1">
-              <span className="w-3 h-3 bg-green-500 rounded-full sim-pulse-strong" />
-              <span className="font-medium">working</span>
+          <div className="mt-2 flex items-center justify-center">
+            <span className="inline-flex items-center space-x-1 text-green-600">
+              <span className="w-4 h-4 bg-green-500 rounded-full sim-pulse-strong" />
+              <span className="font-medium text-sm">Simulation running...</span>
             </span>
           </div>
         )}
       </div>
+
+      <CompletionDialog
+        stats={completionStats}
+        onDismiss={dismissCompletionDialog}
+      />
     </div>
   );
 };

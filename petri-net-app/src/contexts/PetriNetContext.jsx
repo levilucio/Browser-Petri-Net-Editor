@@ -100,6 +100,8 @@ export const PetriNetProvider = ({ children }) => {
     startContinuousSimulation,
     startRunSimulation,
     stopAllSimulations,
+    completionStats,
+    dismissCompletionDialog,
   } = useSimulationManager(
     elements,
     setElements,
@@ -277,6 +279,8 @@ export const PetriNetProvider = ({ children }) => {
       startContinuousSimulation,
       startRunSimulation,
       stopAllSimulations,
+      completionStats,
+      dismissCompletionDialog,
       isSettingsDialogOpen, setIsSettingsDialogOpen,
       simulationSettings, setSimulationSettings,
       netMode: (simulationSettings?.netMode || 'pt'),

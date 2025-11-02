@@ -182,7 +182,7 @@ describe('useSimulationManager non-visual & error paths', () => {
     };
     let callIndex = 0;
     const simCore = makeSimCore({
-      runToCompletion: jest.fn(async () => finalNet),
+      runToCompletion: jest.fn(async () => ({ petriNet: finalNet, steps: 1 })),
       getEnabledTransitions: jest
         .fn(async () => (callIndex++ === 0 ? ['t1'] : [])),
     });
@@ -267,7 +267,8 @@ describe('useSimulationManager non-visual & error paths', () => {
     await act(async () => {
       worker.emit('message', { op: 'progress', payload: { percent: 0.5 } });
     });
-    expect(window.__PETRI_NET_RUN_PROGRESS__).toEqual({ percent: 0.5 });
+    // Progress communication removed for performance
+    expect(window.__PETRI_NET_RUN_PROGRESS__).toBeUndefined();
 
     await act(async () => {
       worker.emit('message', { op: 'done', payload: { elements: finalNet } });

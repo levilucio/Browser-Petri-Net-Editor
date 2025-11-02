@@ -24,6 +24,9 @@ const useSimulationManager = (
   const [simulationError, setSimulationError] = useState(null);
   const [isSimulatorReady, setIsSimulatorReady] = useState(false);
 
+  // Completion dialog state
+  const [completionStats, setCompletionStats] = useState(null);
+
   // Refs for managing intervals and state
   const animationIntervalRef = useRef(null);
   const isAnimatingRef = useRef(false);
@@ -401,10 +404,7 @@ const useSimulationManager = (
             try { mode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single'; } catch (_) {}
             const onMessage = async (ev) => {
               const { op, payload: pl } = ev.data || {};
-              if (op === 'progress') {
-                try { window.__PETRI_NET_RUN_PROGRESS__ = pl || {}; } catch (_) {}
-                setTimeout(() => {}, 0);
-              } else if (op === 'done') {
+              if (op === 'done') {
                 worker.removeEventListener('message', onMessage);
                 if (pl && pl.elements && typeof pl.elements === 'object') {
                   setElements(pl.elements);
@@ -416,6 +416,14 @@ const useSimulationManager = (
                 isRunningRef.current = false;
                 setIsRunning(false);
                 try { simulatorCore.deactivateSimulation(); } catch (_) {}
+
+                // Show completion stats dialog
+                if (pl?.stats) {
+                  setCompletionStats({
+                    elapsedMs: pl.stats.elapsedMs,
+                    transitionsFired: 'N/A (worker mode)'
+                  });
+                }
               } else if (op === 'error') {
                 worker.removeEventListener('message', onMessage);
                 setSimulationError(pl?.message || 'Worker error');
@@ -451,32 +459,41 @@ const useSimulationManager = (
           let mode = 'single';
           try { mode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single'; } catch (_) {}
           const shouldCancel = () => { try { return Boolean(window.__PETRI_NET_CANCEL_RUN__); } catch (_) { return false; } };
-          const onProgress = (info) => {
-            try {
-              window.__PETRI_NET_RUN_PROGRESS__ = info;
-              // Force a small tick so React has a chance to paint progress without heavy updates
-              // We avoid setState to keep it lightweight; a tiny timeout can hint React scheduler
-              setTimeout(() => {}, 0);
-            } catch (_) {}
+          const onProgress = () => {
+            // Silent - no progress reporting to frontend
           };
           const batchMax = (mode === 'maximal') ? 0 : 0;
-          const finalNet = await simulatorCore.runToCompletion({
+
+          // Track timing for completion stats
+          const startTime = performance.now ? performance.now() : Date.now();
+
+          const result = await simulatorCore.runToCompletion({
             mode,
             maxSteps: effectiveMaxSteps,
             timeBudgetMs: 0,
             yieldEvery: 5000,
-            // keep silent; rely on worker-like heartbeat if any
+            // Silent - no progress reporting
             progressEveryMs: 0,
             yieldEveryMs: 0,
             onProgress,
             shouldCancel,
             batchMax,
           });
-          if (finalNet && typeof finalNet === 'object') {
-            setElements(finalNet);
-            latestElementsRef.current = finalNet;
-            if (updateHistory) updateHistory(finalNet, true);
+
+          const endTime = performance.now ? performance.now() : Date.now();
+          const elapsedMs = Math.round(endTime - startTime);
+
+          if (result && result.petriNet && typeof result.petriNet === 'object') {
+            setElements(result.petriNet);
+            latestElementsRef.current = result.petriNet;
+            if (updateHistory) updateHistory(result.petriNet, true);
           }
+
+          // Show completion stats dialog
+          setCompletionStats({
+            elapsedMs,
+            transitionsFired: result?.steps ? result.steps.toLocaleString() : 'N/A (in-thread mode)'
+          });
         } finally {
           // Restore Z3 worker config
           await restoreZ3Pool();
@@ -547,6 +564,10 @@ const useSimulationManager = (
     simulationSettings?.useNonVisualRun,
   ]);
 
+  const dismissCompletionDialog = useCallback(() => {
+    setCompletionStats(null);
+  }, []);
+
   return {
     isContinuousSimulating,
     isRunning,
@@ -559,6 +580,8 @@ const useSimulationManager = (
     startRunSimulation,
     stopAllSimulations,
     clearError,
+    completionStats,
+    dismissCompletionDialog,
   };
 };
 
