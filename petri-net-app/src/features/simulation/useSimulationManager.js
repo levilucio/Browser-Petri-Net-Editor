@@ -421,7 +421,7 @@ const useSimulationManager = (
                 if (pl?.stats) {
                   setCompletionStats({
                     elapsedMs: pl.stats.elapsedMs,
-                    transitionsFired: 'N/A (worker mode)'
+                    transitionsFired: pl.stats.steps ? pl.stats.steps.toLocaleString() : '0'
                   });
                 }
               } else if (op === 'error') {
@@ -492,7 +492,7 @@ const useSimulationManager = (
           // Show completion stats dialog
           setCompletionStats({
             elapsedMs,
-            transitionsFired: result?.steps ? result.steps.toLocaleString() : 'N/A (in-thread mode)'
+            transitionsFired: result?.steps ? result.steps.toLocaleString() : '0'
           });
         } finally {
           // Restore Z3 worker config

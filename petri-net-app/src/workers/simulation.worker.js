@@ -67,8 +67,8 @@ self.onmessage = async (e) => {
         op: 'done',
         payload: {
           canceled: shouldCancel(),
-          elements: result || core.currentSimulator?.petriNet || null,
-          stats: { elapsedMs }
+          elements: result?.petriNet || core.currentSimulator?.petriNet || null,
+          stats: { elapsedMs, steps: result?.steps || 0 }
         }
       });
       return;

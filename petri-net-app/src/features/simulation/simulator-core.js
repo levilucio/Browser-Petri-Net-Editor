@@ -164,23 +164,26 @@ export class SimulatorCore {
         const isolated = new Set();
         if (!net || !Array.isArray(net.transitions)) return isolated;
         const arcs = Array.isArray(net.arcs) ? net.arcs : [];
+        const places = Array.isArray(net.places) ? net.places : [];
+        const placeIds = new Set(places.map(p => String(p.id)));
+        
         for (const t of net.transitions) {
           const tId = String(t.id);
           let hasInput = false;
           let hasOutput = false;
           for (const a of arcs) {
-            const src = a.sourceId || a.source;
-            const tgt = a.targetId || a.target;
-            // Inputs: place -> transition (fallback: any arc targeting t, not a self-loop)
-            const isInput = (String(tgt) === tId && String(src) !== tId) && (
-              a.sourceType === 'place' || a.type === 'place-to-transition' || a.sourceType === undefined
-            );
-            // Outputs: transition -> place (fallback: any arc sourced at t, not a self-loop)
-            const isOutput = (String(src) === tId && String(tgt) !== tId) && (
-              a.targetType === 'place' || a.type === 'transition-to-place' || a.targetType === undefined
-            );
-            if (isInput) hasInput = true;
-            if (isOutput) hasOutput = true;
+            const src = String(a.sourceId || a.source);
+            const tgt = String(a.targetId || a.target);
+            
+            // Check if this arc connects to the transition
+            if (tgt === tId && src !== tId && placeIds.has(src)) {
+              // This is an input arc (place -> transition)
+              hasInput = true;
+            }
+            if (src === tId && tgt !== tId && placeIds.has(tgt)) {
+              // This is an output arc (transition -> place)
+              hasOutput = true;
+            }
             if (hasInput && hasOutput) break;
           }
           if (!hasInput && !hasOutput) isolated.add(tId);
