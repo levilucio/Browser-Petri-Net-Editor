@@ -213,7 +213,8 @@ export class SimulatorCore {
           }
           // Fire all non-conflicting transitions in parallel for maximum throughput
           if (shouldCancel && shouldCancel()) { continueRunning = false; break; }
-          await Promise.all(batch.map(id => this.currentSimulator.fireTransition(id)));
+          // Skip enabled checks during parallel firing to avoid cache thrashing
+          await Promise.all(batch.map(id => this.currentSimulator.fireTransition(id, { skipEnabledCheck: true })));
           steps += batch.length;
           continueRunning = await handleStepProgress();
         } else {

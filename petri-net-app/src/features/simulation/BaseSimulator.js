@@ -87,17 +87,21 @@ export class BaseSimulator {
    * @param {string} transitionId - ID of the transition to fire
    * @returns {Object} Updated Petri net structure
    */
-  async fireTransition(transitionId) {
+  async fireTransition(transitionId, options = {}) {
     if (!this.isInitialized) {
       throw new Error('Simulator not initialized');
     }
-    
-    const enabled = await this.getEnabledTransitions();
-    if (!enabled.includes(transitionId)) {
-      throw new Error(`Transition ${transitionId} is not enabled`);
+
+    // Skip expensive enabled checks if firing in batch mode (caller guarantees transitions are enabled)
+    const skipEnabledCheck = options.skipEnabledCheck || false;
+    if (!skipEnabledCheck) {
+      const enabled = await this.getEnabledTransitions();
+      if (!enabled.includes(transitionId)) {
+        throw new Error(`Transition ${transitionId} is not enabled`);
+      }
     }
-    
-    return await this.fireTransitionSpecific(transitionId);
+
+    return await this.fireTransitionSpecific(transitionId, options);
   }
 
   /**

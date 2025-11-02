@@ -302,9 +302,11 @@ export class AlgebraicSimulator extends BaseSimulator {
     return this.getCurrentState();
   }
 
-  async fireTransitionSpecific(transitionId) {
+  async fireTransitionSpecific(transitionId, options = {}) {
+    // Skip expensive enabled checks if firing in batch mode (caller will handle after all fires complete)
+    const skipEnabledCheck = options.skipEnabledCheck || false;
     // Capture previous enabled transitions for parity payload
-    const previouslyEnabled = await this.getEnabledTransitionsSpecific();
+    const previouslyEnabled = skipEnabledCheck ? [] : await this.getEnabledTransitionsSpecific();
     // A simple re-evaluation: find one satisfying assignment and apply
     const t = (this.petriNet.transitions || []).find(x => x.id === transitionId);
     if (!t) return this.getCurrentState();
@@ -384,14 +386,19 @@ export class AlgebraicSimulator extends BaseSimulator {
     // Invalidate enabled cache for transitions connected to changed places
     this._invalidateEnabledCache(changedPlaces);
 
-    await this.checkTransitionStateChanges();
-    const newState = this.getCurrentState();
-    // Emit transitionFired via shared event bus
-    this.emitTransitionFired({ transitionId, newPetriNet: newState });
-    // Emit transitionsChanged with parity payload
-    const enabledAfter = await this.getEnabledTransitionsSpecific();
-    this.emitTransitionsChanged({ enabled: enabledAfter, previouslyEnabled });
-    return newState;
+    // Skip expensive checks if firing in batch mode (caller will handle after all fires complete)
+    if (!skipEnabledCheck) {
+      await this.checkTransitionStateChanges();
+      const newState = this.getCurrentState();
+      // Emit transitionFired via shared event bus
+      this.emitTransitionFired({ transitionId, newPetriNet: newState });
+      // Emit transitionsChanged with parity payload
+      const enabledAfter = await this.getEnabledTransitionsSpecific();
+      this.emitTransitionsChanged({ enabled: enabledAfter, previouslyEnabled });
+      return newState;
+    }
+
+    return this.getCurrentState();
   }
 
   getCurrentState() {
