@@ -35,7 +35,7 @@ export const PetriNetProvider = ({ children }) => {
     batchMode: false,
   });
   const [z3Settings, setZ3Settings] = useState({
-    poolSize: 0,
+    poolSize: 1, // Ensure at least one Z3 worker is available by default
     idleTimeoutMs: 300000,
     prewarmOnAlgebraicMode: true,
     solverTimeoutMs: 10000,

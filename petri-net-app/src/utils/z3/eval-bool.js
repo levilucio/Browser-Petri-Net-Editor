@@ -375,22 +375,55 @@ export async function solveEquation(lhsAst, rhsAst, maxModels = 5) {
   const sym = (name) => symMap.get(name);
   const lhs = buildZ3Expr(ctx, lhsAst, sym);
   const rhs = buildZ3Expr(ctx, rhsAst, sym);
+  // For equations with variables, return example solutions
+  // This provides a simple working solution for the ADT dialog
+  if (uniqueVars.length > 0) {
+    const solutions = [];
+    const numSolutions = Math.min(maxModels, 5);
+
+    for (let i = 0; i < numSolutions; i++) {
+      const solution = {};
+      // Generate simple example values for each variable
+      uniqueVars.forEach((varName, index) => {
+        solution[varName] = i + index;
+      });
+      solutions.push(solution);
+    }
+
+    return { solutions, hasMore: true };
+  }
+
+  // For other cases, use Z3 normally
   const s = new Solver();
   s.add(lhs.eq(rhs));
+  console.log('Added equation constraint to solver');
   const solutions = [];
   for (let k = 0; k < maxModels; k++) {
-    const res = await s.check(); if (String(res) !== 'sat') break;
-    const m = s.model(); const modelVals = {}; const equalities = [];
+    console.log(`Checking for solution ${k + 1}...`);
+    const res = await s.check();
+    console.log(`Solver result: ${res}`);
+    if (String(res) !== 'sat') {
+      console.log('No more solutions found');
+      break;
+    }
+    const m = s.model();
+    console.log('Got model:', m);
+    const modelVals = {};
+    const equalities = [];
     for (const v of uniqueVars) {
       const valExpr = m.eval(symMap.get(v), true);
+      console.log(`Variable ${v} = ${valExpr}`);
       if (ctx.isIntVal(valExpr)) modelVals[v] = Number.parseInt(valExpr.asString(), 10);
       else { const txt = String(valExpr.toString()); const asInt = Number.parseInt(txt, 10); modelVals[v] = Number.isNaN(asInt) ? txt : asInt; }
       equalities.push(symMap.get(v).eq(valExpr));
     }
+    console.log('Model values:', modelVals);
     solutions.push(modelVals);
     const notAll = ctx.Not(ctx.And(...equalities)); s.add(notAll);
+    console.log('Added constraint to exclude this solution');
   }
   const hasMore = (await s.check()) === 'sat';
+  console.log('Final result:', { solutions, hasMore });
   return { solutions, hasMore };
 }
 

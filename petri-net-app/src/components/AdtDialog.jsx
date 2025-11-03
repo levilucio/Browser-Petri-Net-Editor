@@ -78,8 +78,17 @@ export default function AdtDialog({ isOpen, onClose }) {
         // Equation mode
         const lhs = parseArithmetic(txt.slice(0, eqIdx));
         const rhs = parseArithmetic(txt.slice(eqIdx + 1));
-        const { solutions: sols } = await solveEquation(lhs, rhs, 5);
-        setSolutions(sols || []);
+
+        // If bindings are provided, treat as boolean verification: check if equation holds
+        if (Object.keys(bindings).length > 0) {
+          const eqAst = { type: 'cmp', op: '==', left: lhs, right: rhs };
+          const result = await evaluateBooleanWithBindings(eqAst, bindings, parseArithmetic);
+          setTermResult(!!result);
+        } else {
+          // No bindings: solve for variables
+          const { solutions: sols } = await solveEquation(lhs, rhs, 5);
+          setSolutions(sols || []);
+        }
       } else {
         // Expression mode: try arithmetic; if it fails, try boolean predicate/expression
         try {

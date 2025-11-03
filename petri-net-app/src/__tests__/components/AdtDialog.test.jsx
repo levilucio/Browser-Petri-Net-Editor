@@ -94,12 +94,29 @@ describe('AdtDialog', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  test('solves equations via sandbox', async () => {
-    solveEquation.mockResolvedValue({ solutions: [{ x: 3, y: 4 }] });
+  test('verifies equations with bindings via sandbox', async () => {
+    evaluateBooleanWithBindings.mockResolvedValueOnce(true);
+    formatToken.mockReturnValueOnce('true');
     render(<AdtDialog isOpen onClose={jest.fn()} />);
 
     fireEvent.change(screen.getByTestId('sandbox-expr'), { target: { value: 'x + y = 7' } });
     fireEvent.change(screen.getByTestId('sandbox-bindings'), { target: { value: '{"x":3, "y":4}' } });
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('sandbox-run'));
+    });
+
+    const result = await screen.findByTestId('sandbox-result');
+    expect(result).toHaveTextContent('Result: true');
+    expect(evaluateBooleanWithBindings).toHaveBeenCalled();
+  });
+
+  test('solves equations without bindings via sandbox', async () => {
+    solveEquation.mockResolvedValue({ solutions: [{ x: 3, y: 4 }] });
+    render(<AdtDialog isOpen onClose={jest.fn()} />);
+
+    fireEvent.change(screen.getByTestId('sandbox-expr'), { target: { value: 'x + y = 7' } });
+    fireEvent.change(screen.getByTestId('sandbox-bindings'), { target: { value: '' } }); // Empty bindings
 
     await act(async () => {
       fireEvent.click(screen.getByTestId('sandbox-run'));
