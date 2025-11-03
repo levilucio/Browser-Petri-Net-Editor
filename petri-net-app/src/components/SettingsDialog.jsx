@@ -42,6 +42,11 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       setBatchMode(initialBatch);
       const initialNonVisual = Boolean(initialBatch || simulationSettings?.useNonVisualRun);
       setUseNonVisualRun(initialNonVisual);
+
+      // If batch mode is enabled, default to maximal concurrent mode
+      if (initialBatch && simulationMode !== 'maximal') {
+        handleModeChange('maximal');
+      }
       // Lock switching if canvas is not empty
       try {
         const hasContent = (elements?.places?.length || 0) > 0 || (elements?.transitions?.length || 0) > 0 || (elements?.arcs?.length || 0) > 0;
@@ -173,6 +178,8 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                   setBatchMode(next);
                   if (next) {
                     setUseNonVisualRun(true);
+                    // Enable maximal concurrent mode by default when batch mode is enabled
+                    handleModeChange('maximal');
                     try {
                       setZ3Settings((prev) => {
                         const current = prev ? { ...prev } : (z3Settings ? { ...z3Settings } : {});

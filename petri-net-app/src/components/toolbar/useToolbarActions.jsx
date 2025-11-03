@@ -10,6 +10,7 @@ export default function useToolbarActions(params) {
     simulationSettings,
     setSimulationSettings,
     resetEditor,
+    forceSimulatorReset,
     setIsLoading,
     setError,
     setSuccess,
@@ -213,13 +214,8 @@ export default function useToolbarActions(params) {
           return arc;
         });
 
-        try {
-          simulatorCore.deactivateSimulation?.();
-          simulatorCore.reset?.();
-        } catch (e) { /* noop */ }
-
-        if (resetEditor) resetEditor();
-
+        // Force simulator reset when loading a new net
+        if (forceSimulatorReset) forceSimulatorReset();
         setElements?.(safeJson);
 
         const storedMode = safeJson.netMode;

@@ -20,9 +20,11 @@ export class SimulatorCore {
       const netMode = this.determineNetMode(petriNet, options);
       const currentType = this.currentSimulator?.getType?.() || null;
       const expectedType = netMode === 'algebraic' ? 'algebraic' : 'pt';
-      if (!currentType || currentType !== expectedType) {
-        this.currentSimulator = SimulatorFactory.createSimulator(netMode);
-      }
+      
+      // Always create a fresh simulator to avoid stale state
+      // This ensures proper reinitialization when loading the same net multiple times
+      this.currentSimulator = SimulatorFactory.createSimulator(netMode);
+      
       this.netMode = netMode;
       if (this.eventBus) this.currentSimulator.setEventBus(this.eventBus);
       await this.currentSimulator.initialize(petriNet, options);

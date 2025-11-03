@@ -100,6 +100,7 @@ export const PetriNetProvider = ({ children }) => {
     startContinuousSimulation,
     startRunSimulation,
     stopAllSimulations,
+    forceSimulatorReset,
     completionStats,
     dismissCompletionDialog,
   } = useSimulationManager(
@@ -132,6 +133,8 @@ export const PetriNetProvider = ({ children }) => {
       setElements(result.state);
       setCanUndo(result.canUndo);
       setCanRedo(result.canRedo);
+      // Force simulator reset since we're going back to a previous state
+      forceSimulatorReset();
     }
   };
 
@@ -144,6 +147,8 @@ export const PetriNetProvider = ({ children }) => {
       setElements(result.state);
       setCanUndo(result.canUndo);
       setCanRedo(result.canRedo);
+      // Force simulator reset since we're going to a different state
+      forceSimulatorReset();
     }
   };
 
@@ -313,6 +318,7 @@ export const PetriNetProvider = ({ children }) => {
       MAX_ZOOM  // Expose MAX_ZOOM
       ,
       simulatorCore, // Expose simulator core so Settings can change mode
+      forceSimulatorReset, // Expose to force simulator reinitialization
       // Multi-select and clipboard
       selectedElements, setSelectedElements,
       isIdSelected, clearSelection, setSelection,

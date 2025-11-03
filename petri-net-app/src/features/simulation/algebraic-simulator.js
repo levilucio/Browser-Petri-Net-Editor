@@ -64,6 +64,11 @@ export class AlgebraicSimulator extends BaseSimulator {
   }
 
   async initializeSpecific(petriNet, options = {}) {
+    // Clear all cached state on initialization
+    this.lastEnabledTransitions = [];
+    this._enabledCache.clear();
+    this._cacheSignature = null;
+    
     this.petriNet = deepCloneNet(petriNet);
     if (options && typeof options.maxTokensPerPlace === 'number' && options.maxTokensPerPlace >= 0) {
       this._config.maxTokensPerPlace = options.maxTokensPerPlace | 0;

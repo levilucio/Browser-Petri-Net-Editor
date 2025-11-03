@@ -23,6 +23,7 @@ const useSimulationManager = (
   const [enabledTransitionIds, setEnabledTransitionIds] = useState([]);
   const [simulationError, setSimulationError] = useState(null);
   const [isSimulatorReady, setIsSimulatorReady] = useState(false);
+  const [forceResetCounter, setForceResetCounter] = useState(0);
 
   // Completion dialog state
   const [completionStats, setCompletionStats] = useState(null);
@@ -59,49 +60,72 @@ const useSimulationManager = (
   useEffect(() => {
     latestElementsRef.current = elements;
     const manageSimulator = async () => {
-      if (
-        elements && elements.places && elements.transitions && elements.arcs &&
-        elements.places.length > 0 && elements.transitions.length > 0 && elements.arcs.length > 0
-      ) {
-        if (!simulatorCore.isReady || !(await simulatorCore.isReady())) {
-          try {
-            console.log('Initializing simulator with:');
-            console.log('- elements:', elements);
-            console.log('- netMode parameter:', netMode);
-            await simulatorCore.initialize(elements, { netMode: netMode });
-          } catch (error) {
-            console.error('Failed to initialize simulator:', error);
-          }
-        }
+      // Check if elements are empty - reset simulator if so
+      const hasElements = elements && elements.places && elements.transitions && elements.arcs &&
+        elements.places.length > 0 && elements.transitions.length > 0 && elements.arcs.length > 0;
 
+      if (!hasElements) {
+        // Reset simulator when no elements
         try {
-          await simulatorCore.update(latestElementsRef.current);
-
-          if (simulatorCore.isReady && await simulatorCore.isReady()) {
-            const enabled = await simulatorCore.getEnabledTransitions();
-            setEnabledTransitionIds(enabled || []);
-            setIsSimulatorReady(enabled && enabled.length > 0);
-          } else {
-            const stats = getSimulationStats(latestElementsRef.current);
-            const enabled = stats?.enabledTransitions || [];
-            setEnabledTransitionIds(enabled);
-            setIsSimulatorReady(enabled.length > 0);
-          }
-        } catch (error) {
-          console.error('Error updating simulator:', error);
+          await simulatorCore.deactivateSimulation?.();
+          await simulatorCore.reset?.();
           setEnabledTransitionIds([]);
           setIsSimulatorReady(false);
-          setSimulationError('Failed to update simulator');
+          setSimulationError(null);
+        } catch (error) {
+          console.error('Failed to reset simulator:', error);
         }
-      } else {
-        setIsSimulatorReady(false);
+        return;
+      }
+
+      // Elements exist - always reinitialize when elements or forceResetCounter changes
+      try {
+        console.log('Simulator force reset counter:', forceResetCounter);
+        console.log('Initializing/updating simulator with:');
+        console.log('- elements:', elements);
+        console.log('- netMode parameter:', netMode);
+
+        await simulatorCore.initialize(elements, { netMode: netMode });
+      } catch (error) {
+        console.error('Failed to initialize simulator:', error);
         setEnabledTransitionIds([]);
-        setSimulationError(null);
+        setIsSimulatorReady(false);
+        // Keep previous semantics: initialization errors are logged but not surfaced as user-facing errors
+        return;
+      }
+
+      try {
+        await simulatorCore.update(latestElementsRef.current);
+      } catch (error) {
+        console.error('Failed to update simulator:', error);
+        setEnabledTransitionIds([]);
+        setIsSimulatorReady(false);
+        setSimulationError('Failed to update simulator');
+        return;
+      }
+
+      try {
+        if (simulatorCore.isReady && await simulatorCore.isReady()) {
+          const enabled = await simulatorCore.getEnabledTransitions();
+          setEnabledTransitionIds(enabled || []);
+          setIsSimulatorReady(enabled && enabled.length > 0);
+        } else {
+          const stats = getSimulationStats(latestElementsRef.current);
+          const enabled = stats?.enabledTransitions || [];
+          setEnabledTransitionIds(enabled);
+          setIsSimulatorReady(enabled.length > 0);
+        }
+        setSimulationError((prev) => (prev === 'Failed to update simulator' ? null : prev));
+      } catch (error) {
+        console.error('Failed to compute enabled transitions:', error);
+        setEnabledTransitionIds([]);
+        setIsSimulatorReady(false);
+        setSimulationError('Failed to update simulator');
       }
     };
 
     manageSimulator();
-  }, [elements]);
+  }, [elements, netMode, simulatorCore, forceResetCounter]);
 
   // Listen to simulation events
   useEffect(() => {
@@ -139,6 +163,11 @@ const useSimulationManager = (
   // Clear error when it's resolved
   const clearError = useCallback(() => {
     setSimulationError(null);
+  }, []);
+
+  const forceSimulatorReset = useCallback(() => {
+    console.log('Forcing simulator reset');
+    setForceResetCounter(prev => prev + 1);
   }, []);
 
   // Stop all simulations and reset state
@@ -580,6 +609,7 @@ const useSimulationManager = (
     startRunSimulation,
     stopAllSimulations,
     clearError,
+    forceSimulatorReset,
     completionStats,
     dismissCompletionDialog,
   };

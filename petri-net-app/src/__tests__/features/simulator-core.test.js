@@ -120,8 +120,9 @@ describe('SimulatorCore', () => {
     createSpy.mockClear();
 
     await core.initialize(baseNet, { netMode: 'pt' });
-    expect(createSpy).not.toHaveBeenCalled();
-    expect(core.currentSimulator).toBe(firstSimulator);
+    // Changed behavior: always create fresh simulator to avoid stale state
+    expect(createSpy).toHaveBeenCalled();
+    expect(core.currentSimulator).not.toBe(firstSimulator);
   });
 
   test('determineNetMode covers algebraic-int alias, bindings, and valueTokens', () => {

@@ -84,6 +84,9 @@ export default defineConfig({
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'require-corp'
+    },
+    mimeTypes: {
+      'application/wasm': ['.wasm']
     }
   },
   build: {
