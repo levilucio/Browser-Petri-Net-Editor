@@ -9,6 +9,10 @@ export function useKeyboardShortcuts(ctx) {
     selectedElement, selectedElements,
     clearSelection, setSelection,
     clipboardRef,
+    netMode,
+    setClipboard,
+    getClipboard,
+    onClipboardMismatch,
   } = ctx;
 
   useEffect(() => {
@@ -50,16 +54,39 @@ export function useKeyboardShortcuts(ctx) {
       if (!isEditable && ctrlOrCmd && (e.key === 'c' || e.key === 'C')) {
         if (selectedElements.length === 0) return;
         e.preventDefault();
-        clipboardRef.current = collectSelection(elements, selectedElements);
+        const selectionPayload = collectSelection(elements, selectedElements);
+        const localMode = netMode || 'pt';
+        if (typeof setClipboard === 'function') {
+          setClipboard(selectionPayload);
+        } else if (clipboardRef) {
+          clipboardRef.current = {
+            payload: selectionPayload,
+            netMode: localMode,
+            source: 'local',
+            timestamp: Date.now(),
+          };
+        }
         return;
       }
 
       // Paste
       if (!isEditable && ctrlOrCmd && (e.key === 'v' || e.key === 'V')) {
-        const clip = clipboardRef.current;
-        if (!clip) return;
+        const localMode = netMode || 'pt';
+        const clipEntry = typeof getClipboard === 'function' ? getClipboard() : clipboardRef?.current;
+        if (!clipEntry) return;
+        const payload = clipEntry.payload || clipEntry;
+        if (!payload) return;
+        const clipboardMode = clipEntry.netMode || localMode;
+        if (clipboardMode && localMode && clipboardMode !== localMode) {
+          if (typeof onClipboardMismatch === 'function') {
+            onClipboardMismatch(clipboardMode, localMode, clipEntry);
+          } else {
+            console.warn(`Blocked paste: shared clipboard contains ${clipboardMode} net, editor mode is ${localMode}.`);
+          }
+          return;
+        }
         e.preventDefault();
-        const { newPlaces, newTransitions, newArcs, newSelection } = remapIdsForPaste(clip, uuidv4, { x: 40, y: 40 });
+        const { newPlaces, newTransitions, newArcs, newSelection } = remapIdsForPaste(payload, uuidv4, { x: 40, y: 40 });
         setElements(prev => ({
           ...prev,
           places: [...prev.places, ...newPlaces],

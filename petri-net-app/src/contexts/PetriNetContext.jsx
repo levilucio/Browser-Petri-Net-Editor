@@ -1,5 +1,5 @@
 /* @refresh reload */
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { simulatorCore, useSimulationManager } from '../features/simulation';
 import { collectSelection, remapIdsForPaste } from '../features/selection/clipboard-utils';
@@ -8,6 +8,7 @@ import { useKeyboardShortcuts } from '../features/keymap/useKeyboardShortcuts';
 // setZ3WorkerConfig is only available in browser; guard dynamic import
 import debounce from 'lodash/debounce';
 import { HistoryManager } from '../features/history/historyManager';
+import { useSharedClipboard } from '../features/selection/useSharedClipboard';
 
 export const PetriNetContext = createContext();
 
@@ -74,7 +75,25 @@ export const PetriNetProvider = ({ children }) => {
   const prevModeRef = useRef(mode);
   const multiDragRef = useRef(null); // holds { baseId, startPositions: Map(id -> { type, x, y }) }
   const clipboardRef = useRef(null); // holds last copied selection payload
+  const instanceIdRef = useRef(uuidv4());
   const isShiftPressedRef = useRef(false);
+
+  const currentNetMode = simulationSettings?.netMode || 'pt';
+
+  const handleClipboardMismatch = useCallback((sourceMode, targetMode) => {
+    const source = sourceMode || 'unknown';
+    const target = targetMode || currentNetMode;
+    console.warn(
+      `Shared clipboard net mode mismatch: received ${source} while editor is ${target}. Copy/paste is disabled until both editors use the same mode.`
+    );
+  }, [currentNetMode]);
+
+  const { setClipboard: setSharedClipboard, getClipboard: getSharedClipboard } = useSharedClipboard({
+    clipboardRef,
+    netMode: currentNetMode,
+    instanceId: instanceIdRef.current,
+    onIncompatibleClipboard: handleClipboardMismatch,
+  });
   
   // Define updateHistory function after all refs and state are initialized
   const updateHistory = (newState, isSimulationStep = false) => {
@@ -264,6 +283,10 @@ export const PetriNetProvider = ({ children }) => {
     setSelection,
     clipboardRef,
     isShiftPressedRef,
+    netMode: currentNetMode,
+    setClipboard: setSharedClipboard,
+    getClipboard: getSharedClipboard,
+    onClipboardMismatch: handleClipboardMismatch,
   });
 
   return (
@@ -288,7 +311,7 @@ export const PetriNetProvider = ({ children }) => {
       dismissCompletionDialog,
       isSettingsDialogOpen, setIsSettingsDialogOpen,
       simulationSettings, setSimulationSettings,
-      netMode: (simulationSettings?.netMode || 'pt'),
+      netMode: currentNetMode,
       stageDimensions, setStageDimensions,
       virtualCanvasDimensions, setVirtualCanvasDimensions,
       canvasScroll, setCanvasScroll,
@@ -324,6 +347,10 @@ export const PetriNetProvider = ({ children }) => {
       isIdSelected, clearSelection, setSelection,
       multiDragRef,
       clipboardRef,
+      setClipboard: setSharedClipboard,
+      getClipboard: getSharedClipboard,
+      onClipboardMismatch: handleClipboardMismatch,
+      instanceId: instanceIdRef.current,
       isShiftPressedRef,
       // Save/Save As state
       saveFileHandle, setSaveFileHandle

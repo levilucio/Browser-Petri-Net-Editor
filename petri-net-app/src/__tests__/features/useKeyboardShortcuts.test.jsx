@@ -8,9 +8,20 @@ jest.mock('uuid', () => {
   return { v4: () => `nid-${mockUidCounter++}` };
 });
 
-function Harness({ ctxRef }) {
+function Harness({ ctxRef, overrides }) {
   const clipboardRef = useRef(null);
   const isShiftPressedRef = useRef(false);
+
+  const netMode = overrides?.netMode || 'pt';
+  const setClipboard = overrides?.setClipboard || ((payload) => {
+    clipboardRef.current = {
+      payload,
+      netMode,
+      source: 'local',
+    };
+  });
+  const getClipboard = overrides?.getClipboard || (() => clipboardRef.current);
+  const onClipboardMismatch = overrides?.onClipboardMismatch || (() => {});
 
   // Local mutable element state for setElements(prev => next)
   const stateRef = useRef({
@@ -40,6 +51,10 @@ function Harness({ ctxRef }) {
     clearSelection: () => { lastSelectionRef.current = []; },
     setSelection: (sel) => { lastSelectionRef.current = sel; },
     clipboardRef,
+    netMode,
+    setClipboard,
+    getClipboard,
+    onClipboardMismatch,
     isShiftPressedRef,
   };
 
@@ -47,7 +62,7 @@ function Harness({ ctxRef }) {
 
   useEffect(() => {
     if (ctxRef) ctxRef.current = { ctx, stateRef, lastSelectionRef, isShiftPressedRef };
-  }, []);
+  }, [ctxRef, ctx]);
 
   return <div data-testid="harness" />;
 }
@@ -71,13 +86,18 @@ describe('useKeyboardShortcuts', () => {
     // Copy
     fireEvent.keyDown(document, { key: 'c', ctrlKey: true });
     expect(ctxRef.current.ctx.clipboardRef.current).toBeTruthy();
-    const beforeCounts = ctxRef.current.stateRef.current;
+    expect(ctxRef.current.ctx.clipboardRef.current.payload).toBeTruthy();
+    const beforeCounts = {
+      places: ctxRef.current.stateRef.current.places.length,
+      transitions: ctxRef.current.stateRef.current.transitions.length,
+      arcs: ctxRef.current.stateRef.current.arcs.length,
+    };
     // Paste
     fireEvent.keyDown(document, { key: 'v', ctrlKey: true });
     const after = ctxRef.current.stateRef.current;
-    expect(after.places.length).toBe(beforeCounts.places.length + 1);
-    expect(after.transitions.length).toBe(beforeCounts.transitions.length + 1);
-    expect(after.arcs.length).toBe(beforeCounts.arcs.length + 1);
+    expect(after.places.length).toBe(beforeCounts.places + 1);
+    expect(after.transitions.length).toBe(beforeCounts.transitions + 1);
+    expect(after.arcs.length).toBe(beforeCounts.arcs + 1);
     // New ids are nid-*
     const addedPlace = after.places.find(p => p.id.startsWith('nid-'));
     const addedTransition = after.transitions.find(t => t.id.startsWith('nid-'));
@@ -86,6 +106,40 @@ describe('useKeyboardShortcuts', () => {
     // Selection set asynchronously; give event loop a tick
     await new Promise(res => setTimeout(res, 0));
     expect(ctxRef.current.lastSelectionRef.current.length).toBeGreaterThan(0);
+  });
+
+  test('Paste blocked when clipboard mode mismatches editor mode', () => {
+    const mismatchSpy = jest.fn();
+    const remotePayload = {
+      places: [{ id: 'rp1', x: 0, y: 0 }],
+      transitions: [],
+      arcs: [],
+    };
+    const overrides = {
+      netMode: 'pt',
+      getClipboard: () => ({
+        payload: remotePayload,
+        netMode: 'algebraic-int',
+        source: 'remote',
+        instanceId: 'remote-tab',
+      }),
+      onClipboardMismatch: mismatchSpy,
+    };
+    const ctxRef = { current: null };
+    render(<Harness ctxRef={ctxRef} overrides={overrides} />);
+    const before = {
+      places: ctxRef.current.stateRef.current.places.length,
+      transitions: ctxRef.current.stateRef.current.transitions.length,
+      arcs: ctxRef.current.stateRef.current.arcs.length,
+    };
+
+    fireEvent.keyDown(document, { key: 'v', ctrlKey: true });
+
+    expect(mismatchSpy).toHaveBeenCalledWith('algebraic-int', 'pt', expect.any(Object));
+    const after = ctxRef.current.stateRef.current;
+    expect(after.places.length).toBe(before.places);
+    expect(after.transitions.length).toBe(before.transitions);
+    expect(after.arcs.length).toBe(before.arcs);
   });
 
   test('Keys ignored when target is editable', () => {

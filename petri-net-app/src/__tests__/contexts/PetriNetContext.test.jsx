@@ -12,6 +12,7 @@ const mockSimulationManager = {
   startContinuousSimulation: jest.fn(),
   startRunSimulation: jest.fn(),
   stopAllSimulations: jest.fn(),
+  forceSimulatorReset: jest.fn(),
 };
 
 jest.mock('../../features/simulation', () => ({
