@@ -79,7 +79,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true,
+    open: process.env.PW_NO_OPEN ? false : true,
     host: true,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
