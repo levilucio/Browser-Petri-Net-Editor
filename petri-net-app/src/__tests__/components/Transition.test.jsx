@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Transition from '../../components/Transition';
+import { EditorUIProvider } from '../../contexts/EditorUIContext';
 
 // Mock PetriNet context used by Transition
 jest.mock('../../contexts/PetriNetContext', () => ({
@@ -52,7 +53,11 @@ describe('Transition Component', () => {
   });
 
   test('renders with correct position', () => {
-    render(<Transition {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Transition {...mockProps} />
+      </EditorUIProvider>
+    );
     const groups = screen.queryAllByTestId('group');
     expect(groups.length).toBeGreaterThan(0);
     expect(groups[0]).toHaveAttribute('x', '150');
@@ -60,7 +65,11 @@ describe('Transition Component', () => {
   });
 
   test('applies selected styling when isSelected is true', () => {
-    render(<Transition {...mockProps} isSelected={true} />);
+    render(
+      <EditorUIProvider>
+        <Transition {...mockProps} isSelected={true} />
+      </EditorUIProvider>
+    );
     const rects = screen.queryAllByTestId('rect');
     expect(rects.length).toBeGreaterThan(0);
     const hasBlueStroke = rects.some(rect => rect.getAttribute('stroke') === 'blue');
@@ -68,14 +77,22 @@ describe('Transition Component', () => {
   });
 
   test('displays correct transition name', () => {
-    render(<Transition {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Transition {...mockProps} />
+      </EditorUIProvider>
+    );
     const texts = screen.queryAllByTestId('text');
     const nameText = texts.find(text => text.textContent === 'T1');
     expect(nameText).toBeTruthy();
   });
 
   test('calls onSelect handler when clicked', () => {
-    render(<Transition {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Transition {...mockProps} />
+      </EditorUIProvider>
+    );
     const groups = screen.queryAllByTestId('group');
     expect(groups.length).toBeGreaterThan(0);
     fireEvent.click(groups[0]);
@@ -83,21 +100,33 @@ describe('Transition Component', () => {
   });
 
   test('is draggable', () => {
-    render(<Transition {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Transition {...mockProps} />
+      </EditorUIProvider>
+    );
     const groups = screen.queryAllByTestId('group');
     expect(groups.length).toBeGreaterThan(0);
     expect(groups[0]).toHaveAttribute('draggable', 'true');
   });
 
   test('renders correctly with transition data', () => {
-    render(<Transition {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Transition {...mockProps} />
+      </EditorUIProvider>
+    );
     const rects = screen.queryAllByTestId('rect');
     expect(rects.length).toBeGreaterThan(0);
     expect(rects[0]).toBeInTheDocument();
   });
 
   test('has correct dimensions', () => {
-    render(<Transition {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Transition {...mockProps} />
+      </EditorUIProvider>
+    );
     const rects = screen.queryAllByTestId('rect');
     expect(rects.length).toBeGreaterThan(0);
     expect(rects[0]).toHaveAttribute('width', '40');

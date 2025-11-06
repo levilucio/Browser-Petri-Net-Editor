@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Transition from '../../components/Transition';
+import { EditorUIProvider } from '../../contexts/EditorUIContext';
 
 // Capture calls for assertions (must be defined before jest.mock factory)
 const mockSetIsDragging = jest.fn();
@@ -19,6 +20,32 @@ jest.mock('../../contexts/PetriNetContext', () => ({
     setElements: jest.fn(),
     multiDragRef: { current: null },
     isIdSelected: () => false,
+  }),
+}));
+
+jest.mock('../../contexts/EditorUIContext', () => ({
+  EditorUIProvider: ({ children }) => <div>{children}</div>,
+  useEditorUI: () => ({
+    gridSnappingEnabled: true,
+    toggleGridSnapping: jest.fn(),
+    snapIndicator: { visible: false, position: null, elementType: null },
+    setSnapIndicator: mockSetSnapIndicator,
+    snapToGrid: (x, y) => ({ x: Math.round(x / 10) * 10, y: Math.round(y / 10) * 10 }),
+    stageDimensions: { width: 0, height: 0 },
+    setStageDimensions: jest.fn(),
+    virtualCanvasDimensions: { width: 0, height: 0 },
+    setVirtualCanvasDimensions: jest.fn(),
+    canvasScroll: { x: 0, y: 0 },
+    setCanvasScroll: jest.fn(),
+    zoomLevel: 1,
+    setZoomLevel: jest.fn(),
+    MIN_ZOOM: 0.1,
+    MAX_ZOOM: 3,
+    appRef: { current: null },
+    containerRef: null,
+    setContainerRef: jest.fn(),
+    stageRef: { current: null },
+    gridSize: 10,
   }),
 }));
 
@@ -52,7 +79,20 @@ describe('Transition drag lifecycle', () => {
 
   test('drag start/move/end toggles flags, snaps, and calls onChange', () => {
     const onChange = jest.fn();
-    render(<Transition id="t1" x={100} y={100} label="T1" isSelected={false} isEnabled={false} onSelect={jest.fn()} onChange={onChange} />);
+    render(
+      <EditorUIProvider>
+        <Transition
+          id="t1"
+          x={100}
+          y={100}
+          label="T1"
+          isSelected={false}
+          isEnabled={false}
+          onSelect={jest.fn()}
+          onChange={onChange}
+        />
+      </EditorUIProvider>
+    );
     const group = screen.getByTestId('group');
 
     // Start drag

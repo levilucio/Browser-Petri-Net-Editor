@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { render, screen, act } from '@testing-library/react';
 import { PetriNetProvider, usePetriNet } from '../../contexts/PetriNetContext.jsx';
+import { EditorUIProvider } from '../../contexts/EditorUIContext.jsx';
 
 // Mock the simulation module to avoid initializing the real simulator in tests
 jest.mock('../../features/simulation', () => ({
@@ -29,9 +30,11 @@ describe('PetriNetContext selection state', () => {
   test('setSelection focuses last entry; clearSelection resets', async () => {
     let ctxRef = null;
     render(
-      <PetriNetProvider>
-        <Harness onReady={(c) => { ctxRef = c; }} />
-      </PetriNetProvider>
+      <EditorUIProvider>
+        <PetriNetProvider>
+          <Harness onReady={(c) => { ctxRef = c; }} />
+        </PetriNetProvider>
+      </EditorUIProvider>
     );
 
     // Seed elements so focusing works
@@ -70,9 +73,11 @@ describe('PetriNetContext selection state', () => {
   test('setSelection([]) unsets focused element; isIdSelected behaves accordingly', async () => {
     let ctxRef = null;
     render(
-      <PetriNetProvider>
-        <Harness onReady={(c) => { ctxRef = c; }} />
-      </PetriNetProvider>
+      <EditorUIProvider>
+        <PetriNetProvider>
+          <Harness onReady={(c) => { ctxRef = c; }} />
+        </PetriNetProvider>
+      </EditorUIProvider>
     );
 
     await act(async () => {

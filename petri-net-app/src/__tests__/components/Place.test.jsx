@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Place from '../../components/Place';
+import { EditorUIProvider } from '../../contexts/EditorUIContext';
 
 // Mock PetriNet context used by Place
 jest.mock('../../contexts/PetriNetContext', () => ({
@@ -49,7 +50,11 @@ describe('Place Component', () => {
   });
 
   test('renders with correct position', () => {
-    render(<Place {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Place {...mockProps} />
+      </EditorUIProvider>
+    );
     const group = screen.queryAllByTestId('group');
     expect(group.length).toBeGreaterThan(0);
     expect(group[0]).toHaveAttribute('x', '100');
@@ -57,7 +62,11 @@ describe('Place Component', () => {
   });
 
   test('applies selected styling when isSelected is true', () => {
-    render(<Place {...mockProps} isSelected={true} />);
+    render(
+      <EditorUIProvider>
+        <Place {...mockProps} isSelected={true} />
+      </EditorUIProvider>
+    );
     const circles = screen.queryAllByTestId('circle');
     expect(circles.length).toBeGreaterThan(0);
     // Find the main circle (the one with radius 30)
@@ -67,21 +76,33 @@ describe('Place Component', () => {
   });
 
   test('displays correct place name', () => {
-    render(<Place {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Place {...mockProps} />
+      </EditorUIProvider>
+    );
     const texts = screen.queryAllByTestId('text');
     const nameText = texts.find(text => text.textContent === 'P1');
     expect(nameText).toBeTruthy();
   });
 
   test('displays correct token count', () => {
-    render(<Place {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Place {...mockProps} />
+      </EditorUIProvider>
+    );
     const texts = screen.queryAllByTestId('text');
     const tokenText = texts.find(text => text.textContent === '3');
     expect(tokenText).toBeTruthy();
   });
 
   test('calls onSelect handler when clicked', () => {
-    render(<Place {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Place {...mockProps} />
+      </EditorUIProvider>
+    );
     const group = screen.queryAllByTestId('group');
     expect(group.length).toBeGreaterThan(0);
     fireEvent.click(group[0]);
@@ -90,7 +111,11 @@ describe('Place Component', () => {
   });
 
   test('is draggable', () => {
-    render(<Place {...mockProps} />);
+    render(
+      <EditorUIProvider>
+        <Place {...mockProps} />
+      </EditorUIProvider>
+    );
     const group = screen.getByTestId('group');
     expect(group).toHaveAttribute('draggable', 'true');
   });

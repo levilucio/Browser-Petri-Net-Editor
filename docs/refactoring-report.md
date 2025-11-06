@@ -238,8 +238,8 @@ Extract to `usePropertiesForm.js` hook to handle:
 9. ✅ Split `eval-bool.js` (4 hours) - Factored into `booleanParser`, `booleanEvaluator`, `booleanPredicateSolver`, `equationSolver`; aggregator now 12 lines
 
 ### Phase 4: Lower Priority (Week 5+)
-10. ✅ Split `reader.js` (4 hours)
-11. ✅ Split `historyManager.js` (4 hours)
+10. ✅ Split `reader.js` (4 hours) – Extracted `dom-utils`, `position-utils`, `token-parsers`, and element-specific parsers; shrank orchestrator from 389 → ~110 lines
+11. ✅ Split `historyManager.js` (4 hours) – Moved deep copy / comparison logic into `utils/stateCopy` and `utils/stateCompare`, leaving the class focused on orchestration
 
 ---
 

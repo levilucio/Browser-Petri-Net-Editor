@@ -37,9 +37,18 @@ jest.mock('../../features/keymap/useKeyboardShortcuts', () => ({
 }));
 
 import { PetriNetProvider, usePetriNet } from '../../contexts/PetriNetContext';
+import { EditorUIProvider, useEditorUI } from '../../contexts/EditorUIContext';
 
 describe('PetriNetContext', () => {
-  const wrapper = ({ children }) => <PetriNetProvider>{children}</PetriNetProvider>;
+  const petriNetWrapper = ({ children }) => (
+    <EditorUIProvider>
+      <PetriNetProvider>{children}</PetriNetProvider>
+    </EditorUIProvider>
+  );
+
+  const editorUIWrapper = ({ children }) => (
+    <EditorUIProvider>{children}</EditorUIProvider>
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -55,8 +64,7 @@ describe('PetriNetContext', () => {
   });
 
   test('exposes default state and toggles grid snapping', () => {
-    const { result } = renderHook(() => usePetriNet(), { wrapper });
-    expect(result.current.mode).toBe('select');
+    const { result } = renderHook(() => useEditorUI(), { wrapper: editorUIWrapper });
     expect(result.current.gridSnappingEnabled).toBe(true);
 
     act(() => {
@@ -67,24 +75,32 @@ describe('PetriNetContext', () => {
   });
 
   test('snapToGrid respects gridSnappingEnabled flag', async () => {
-    const { result } = renderHook(() => usePetriNet(), { wrapper });
+    const useCombined = () => {
+      const petri = usePetriNet();
+      const ui = useEditorUI();
+      return { petri, ui };
+    };
+
+    const { result } = renderHook(() => useCombined(), { wrapper: petriNetWrapper });
+
     let snapped;
     act(() => {
-      snapped = result.current.snapToGrid(23, 37);
+      snapped = result.current.petri.snapToGrid(23, 37);
     });
     expect(snapped).toEqual({ x: 20, y: 40 });
 
     await act(async () => {
-      result.current.toggleGridSnapping();
+      result.current.ui.toggleGridSnapping();
     });
+
     act(() => {
-      snapped = result.current.snapToGrid(23, 37);
+      snapped = result.current.petri.snapToGrid(23, 37);
     });
     expect(snapped).toEqual({ x: 23, y: 37 });
   });
 
   test('resetEditor clears elements and history', () => {
-    const { result } = renderHook(() => usePetriNet(), { wrapper });
+    const { result } = renderHook(() => usePetriNet(), { wrapper: petriNetWrapper });
 
     act(() => {
       result.current.setElements({
@@ -104,7 +120,7 @@ describe('PetriNetContext', () => {
   test('handleUndo and handleRedo use history manager', () => {
     mockUndo.mockReturnValueOnce({ state: { places: [{ id: 'p1' }], transitions: [], arcs: [] }, canUndo: false, canRedo: true });
     mockRedo.mockReturnValueOnce({ state: { places: [], transitions: [{ id: 't1' }], arcs: [] }, canUndo: true, canRedo: false });
-    const { result } = renderHook(() => usePetriNet(), { wrapper });
+    const { result } = renderHook(() => usePetriNet(), { wrapper: petriNetWrapper });
 
     act(() => {
       result.current.setCanUndo(true);
@@ -124,7 +140,7 @@ describe('PetriNetContext', () => {
   });
 
   test('setSelection updates selected elements and focused element', async () => {
-    const { result } = renderHook(() => usePetriNet(), { wrapper });
+    const { result } = renderHook(() => usePetriNet(), { wrapper: petriNetWrapper });
 
     await act(async () => {
       result.current.setElements({
