@@ -162,6 +162,23 @@ describe('useKeyboardShortcuts', () => {
     fireEvent.keyUp(document, { key: 'Shift' });
     expect(ctxRef.current.isShiftPressedRef.current).toBe(false);
   });
+
+  test('Ctrl+A selects all elements', () => {
+    const ctxRef = { current: null };
+    render(<Harness ctxRef={ctxRef} />);
+    // Initially selection is empty in lastSelectionRef
+    expect(ctxRef.current.lastSelectionRef.current).toEqual([]);
+    // Press Ctrl+A
+    fireEvent.keyDown(document, { key: 'a', ctrlKey: true });
+    // Should now have all elements selected (2 places + 1 transition + 2 arcs = 5 total)
+    expect(ctxRef.current.lastSelectionRef.current).toEqual([
+      { id: 'p1', type: 'place' },
+      { id: 'p2', type: 'place' },
+      { id: 't1', type: 'transition' },
+      { id: 'a1', type: 'arc' },
+      { id: 'a2', type: 'arc' }
+    ]);
+  });
 });
 
 

@@ -14,6 +14,69 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     await pageB.goto('/');
     await waitForAppReady(pageB);
 
+    // Tab A: Create a place, transition, and arc through the UI
+    await pageA.getByTestId('toolbar-place').click();
+    await clickStage(pageA, { x: 100, y: 100 });
+    await pageA.waitForTimeout(300);
+
+    await pageA.getByTestId('toolbar-transition').click();
+    await clickStage(pageA, { x: 200, y: 100 });
+    await pageA.waitForTimeout(300);
+
+    await pageA.getByTestId('toolbar-arc').click();
+    await clickStage(pageA, { x: 100, y: 100 }); // from place
+    await clickStage(pageA, { x: 200, y: 100 }); // to transition
+    await pageA.waitForTimeout(300);
+
+    // Verify elements were created in tab A
+    const stateA = await getPetriNetState(pageA);
+    expect(stateA.places.length).toBe(1);
+    expect(stateA.transitions.length).toBe(1);
+    expect(stateA.arcs.length).toBe(1);
+
+    // Select all elements manually (Ctrl+A not implemented)
+    await pageA.getByTestId('toolbar-select').click();
+    await pageA.waitForTimeout(300);
+    
+    const isMac = await pageA.evaluate(() => navigator.platform.toUpperCase().includes('MAC'));
+    
+    // Select transition first (click offset from arc line)
+    await clickStage(pageA, { x: 200, y: 110 });
+    await pageA.waitForTimeout(200);
+    
+    // Add place to selection with Shift+Click
+    await pageA.keyboard.down('Shift');
+    await clickStage(pageA, { x: 100, y: 110 });
+    await pageA.keyboard.up('Shift');
+    await pageA.waitForTimeout(200);
+
+    // Copy the selection
+    if (isMac) {
+      await pageA.keyboard.down('Meta');
+      await pageA.keyboard.press('c');
+      await pageA.keyboard.up('Meta');
+    } else {
+      await pageA.keyboard.down('Control');
+      await pageA.keyboard.press('c');
+      await pageA.keyboard.up('Control');
+    }
+    await pageA.waitForTimeout(500);
+    
+    // Wait for BroadcastChannel to propagate the clipboard across tabs
+    // Poll pageB to verify clipboard was received
+    let clipboardReceived = false;
+    for (let attempt = 0; attempt < 10; attempt++) {
+      await pageB.waitForTimeout(200);
+      const hasClipboard = await pageB.evaluate(() => {
+        return window.__PETRI_NET_CLIPBOARD__?.current?.payload != null;
+      });
+      if (hasClipboard) {
+        clipboardReceived = true;
+        break;
+      }
+    }
+    expect(clipboardReceived).toBeTruthy();
+
     const beforeB = await getPetriNetState(pageB);
     const beforeCountsB = {
       p: beforeB.places.length || 0,
@@ -21,39 +84,22 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
       a: beforeB.arcs.length || 0,
     };
 
-    // Simulate a remote tab broadcasting a clipboard payload (PT net)
-    await pageA.evaluate(() => {
-      const channel = new BroadcastChannel('petri-net-shared-clipboard');
-      const payload = {
-        places: [{ id: 'p1', x: 100, y: 100 }],
-        transitions: [{ id: 't1', x: 200, y: 100 }],
-        arcs: [{ id: 'a1', source: 'p1', target: 't1' }],
-      };
-      channel.postMessage({
-        type: 'PETRI_NET_CLIPBOARD_UPDATE',
-        payload,
-        netMode: 'pt',
-        instanceId: 'remote-tab',
-        timestamp: Date.now(),
-      });
-    });
-
     // Paste on B (PT mode)
+    await pageB.bringToFront();
     await pageB.getByTestId('toolbar-select').click();
     await clickStage(pageB, { x: 200, y: 220 });
-    const isMacB = await pageB.evaluate(() => navigator.platform.toUpperCase().includes('MAC'));
     const attemptPaste = async () => {
-      if (isMacB) {
+      if (isMac) {
         await pageB.keyboard.down('Meta'); await pageB.keyboard.press('v'); await pageB.keyboard.up('Meta');
       } else {
         await pageB.keyboard.down('Control'); await pageB.keyboard.press('v'); await pageB.keyboard.up('Control');
       }
     };
-    // Try up to 3 times to account for timing of shared clipboard propagation
+    // Try up to 3 times to account for any remaining timing issues
     let ok = false;
     for (let i = 0; i < 3; i++) {
       await attemptPaste();
-      await pageB.waitForTimeout(200);
+      await pageB.waitForTimeout(300);
       const s = await getPetriNetState(pageB);
       if (s.places.length === beforeCountsB.p + 1 && s.transitions.length === beforeCountsB.t + 1 && s.arcs.length === beforeCountsB.a + 1) { ok = true; break; }
     }
@@ -72,20 +118,24 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     const logs = [];
     pageC.on('console', msg => logs.push(String(msg.text())));
 
-    // Re-broadcast the clipboard so page C receives it
-    await pageA.evaluate(() => {
-      const channel = new BroadcastChannel('petri-net-shared-clipboard');
-      const payload = {
-        places: [{ id: 'p1', x: 100, y: 100 }],
-        transitions: [{ id: 't1', x: 200, y: 100 }],
-        arcs: [{ id: 'a1', source: 'p1', target: 't1' }],
-      };
-      channel.postMessage({ type: 'PETRI_NET_CLIPBOARD_UPDATE', payload, netMode: 'pt', instanceId: 'remote-tab', timestamp: Date.now() });
-    });
+    // Copy again from tab A to ensure clipboard is shared with new tab C
+    await pageA.bringToFront();
+    if (isMac) {
+      await pageA.keyboard.down('Meta');
+      await pageA.keyboard.press('c');
+      await pageA.keyboard.up('Meta');
+    } else {
+      await pageA.keyboard.down('Control');
+      await pageA.keyboard.press('c');
+      await pageA.keyboard.up('Control');
+    }
+    await pageA.waitForTimeout(300);
 
     const preC = await getPetriNetState(pageC);
     const cBefore = { p: preC.places.length, t: preC.transitions.length, a: preC.arcs.length };
-    if (isMacB) {
+    
+    await pageC.bringToFront();
+    if (isMac) {
       await pageC.keyboard.down('Meta'); await pageC.keyboard.press('v'); await pageC.keyboard.up('Meta');
     } else {
       await pageC.keyboard.down('Control'); await pageC.keyboard.press('v'); await pageC.keyboard.up('Control');

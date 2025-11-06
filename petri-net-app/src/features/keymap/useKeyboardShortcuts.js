@@ -50,6 +50,18 @@ export function useKeyboardShortcuts(ctx) {
         return;
       }
 
+      // Select All
+      if (!isEditable && ctrlOrCmd && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        const allElements = [
+          ...elements.places.map(p => ({ id: p.id, type: 'place' })),
+          ...elements.transitions.map(t => ({ id: t.id, type: 'transition' })),
+          ...elements.arcs.map(a => ({ id: a.id, type: 'arc' }))
+        ];
+        setSelection(allElements);
+        return;
+      }
+
       // Copy
       if (!isEditable && ctrlOrCmd && (e.key === 'c' || e.key === 'C')) {
         if (selectedElements.length === 0) return;

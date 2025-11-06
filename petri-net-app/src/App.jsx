@@ -50,7 +50,8 @@ const AppContent = () => {
       stageRef,
 
       resetEditor,
-      enabledTransitionIds
+      enabledTransitionIds,
+      clipboardRef
     } = usePetriNet();
 
     const { handleDeleteElement, clearAllElements } = useElementManager();
@@ -64,9 +65,11 @@ const AppContent = () => {
       window.__PETRI_NET_STATE__ = {
         places: elements.places,
         transitions: elements.transitions,
-        arcs: elements.arcs
+        arcs: elements.arcs,
+        selectedElements: selectedElements
       };
       window.__PETRI_NET_MODE__ = mode;
+      window.__PETRI_NET_CLIPBOARD__ = clipboardRef;
       // Expose non-visual run flag for useSimulationManager (wired from settings)
       try {
         const anyWin = window;
@@ -95,11 +98,13 @@ const AppContent = () => {
       elements.places,
       elements.transitions,
       elements.arcs,
+      selectedElements,
       mode,
       simulationSettings?.useNonVisualRun,
       simulationSettings?.batchMode,
       simulationSettings?.limitIterations,
       simulationSettings?.maxIterations,
+      clipboardRef
     ]);
 
     const handleZoom = (delta) => {

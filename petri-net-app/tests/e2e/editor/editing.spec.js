@@ -184,6 +184,55 @@ test.describe('Petri Net Editor', () => {
     expect(finalCounts.arcs).toBe(0);
   });
 
+  test('should select all elements with Ctrl+A', async ({ page }) => {
+    // Create a place
+    const placeButton = page.locator('[data-testid="toolbar-place"]');
+    await expect(placeButton).toBeVisible();
+    await placeButton.click();
+    await clickStage(page, { x: 100, y: 100 });
+    await page.waitForTimeout(300);
+
+    // Create a transition
+    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
+    await expect(transitionButton).toBeVisible();
+    await transitionButton.click();
+    await clickStage(page, { x: 200, y: 100 });
+    await page.waitForTimeout(300);
+
+    // Create an arc
+    const arcButton = page.locator('[data-testid="toolbar-arc"]');
+    await expect(arcButton).toBeVisible();
+    await arcButton.click();
+    await clickStage(page, { x: 100, y: 100 }); // from place
+    await clickStage(page, { x: 200, y: 100 }); // to transition
+    await page.waitForTimeout(300);
+
+    // Switch to select mode and press Ctrl+A
+    const selectButton = page.locator('[data-testid="toolbar-select"]');
+    await expect(selectButton).toBeVisible();
+    await selectButton.click();
+    await page.waitForTimeout(200);
+
+    // Press Ctrl+A to select all
+    const isMac = await page.evaluate(() => navigator.platform.toUpperCase().includes('MAC'));
+    if (isMac) {
+      await page.keyboard.down('Meta');
+      await page.keyboard.press('a');
+      await page.keyboard.up('Meta');
+    } else {
+      await page.keyboard.down('Control');
+      await page.keyboard.press('a');
+      await page.keyboard.up('Control');
+    }
+    await page.waitForTimeout(300);
+
+    // Verify all elements are selected
+    const selectedCount = await page.evaluate(() => {
+      return window.__PETRI_NET_STATE__?.selectedElements?.length || 0;
+    });
+    expect(selectedCount).toBe(3); // 1 place + 1 transition + 1 arc
+  });
+
   test('should create a transition with two places and delete the transition with its arcs', async ({ page }) => {
     // Step 1: Add a transition in the middle
     const transitionButton = page.locator('[data-testid="toolbar-transition"]');
