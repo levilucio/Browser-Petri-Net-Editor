@@ -232,10 +232,10 @@ Extract to `usePropertiesForm.js` hook to handle:
 5. ✅ Split `PropertiesPanel.jsx` (extract form hook) (4 hours) - Reduced from 369 to 92 lines
 6. ✅ Split `PetriNetContext.jsx` (extract UI context) (6 hours) - Created EditorUIContext.jsx
 
-### Phase 3: High Impact, Higher Risk (Week 3-4)
-7. ✅ Split `useSimulationManager.js` (8 hours)
-8. ✅ Split `algebraic-simulator.js` (6 hours)
-9. ✅ Split `eval-bool.js` (4 hours)
+### Phase 3: High Impact, Higher Risk (Week 3-4) ✅ COMPLETED
+7. ✅ Split `useSimulationManager.js` (8 hours) - Extracted `useSimulatorInitialization` hook (111 LOC) and reduced the manager from 559 → 448 lines
+8. ✅ Split `algebraic-simulator.js` (6 hours) - Moved helper utilities to `algebraicHelpers.js`, net size down 460 → 392 lines
+9. ✅ Split `eval-bool.js` (4 hours) - Factored into `booleanParser`, `booleanEvaluator`, `booleanPredicateSolver`, `equationSolver`; aggregator now 12 lines
 
 ### Phase 4: Lower Priority (Week 5+)
 10. ✅ Split `reader.js` (4 hours)

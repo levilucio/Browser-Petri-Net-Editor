@@ -6,7 +6,7 @@
 
 import { BaseSimulator } from './BaseSimulator.js';
 import { parseArithmetic, parsePattern, matchPattern } from '../../utils/arith-parser';
-import { getTokensForPlace, isPair } from '../../utils/token-utils';
+import { getTokensForPlace } from '../../utils/token-utils';
 import { evaluatePatternLiteral } from '../../utils/ast-eval';
 import { ensureOutputBindingsTypeCompatible } from './type-check';
 import { allowedOps } from './ops/registry';
@@ -25,23 +25,14 @@ import {
   // Boolean support
   parseBooleanExpr,
   evaluateBooleanWithBindings,
-  evaluateBooleanPredicate as evaluateBooleanPredicateDirect,
 } from '../../utils/z3-arith.js';
 import * as z3Pool from '../../utils/z3-remote.js';
-
-const evaluateBooleanPredicateWithPool = async (guardAst, env, parseArithmeticFn) => {
-  try {
-    const poolEnabled = typeof z3Pool.isWorkerPoolEnabled === 'function' ? z3Pool.isWorkerPoolEnabled() : false;
-    if (poolEnabled && typeof z3Pool.evaluateBooleanPredicate === 'function') {
-      try {
-        return await z3Pool.evaluateBooleanPredicate(guardAst, env, parseArithmeticFn);
-      } catch (_) {
-        // fall through to inline evaluation
-      }
-    }
-  } catch (_) {}
-  return await evaluateBooleanPredicateDirect(guardAst, env, parseArithmeticFn);
-};
+import {
+  computeCacheSignature,
+  deepCloneNet,
+  evaluateBooleanPredicateWithPool,
+  getUnboundBooleanGuardVars,
+} from './algebraic/algebraicHelpers.js';
 
 export class AlgebraicSimulator extends BaseSimulator {
   constructor() {
@@ -439,75 +430,8 @@ export class AlgebraicSimulator extends BaseSimulator {
   }
 }
 
-function deepCloneNet(net) {
-  return JSON.parse(JSON.stringify(net || { places: [], transitions: [], arcs: [] }));
-}
-
-function evalBooleanGuardPure(guardAst, env) {
-  try {
-    return evaluateBooleanWithBindings(guardAst, env || {}, parseArithmetic);
-  } catch (_) { return false; }
-}
-
-function getUnboundBooleanGuardVars(ast, env) {
-  const names = new Set();
-  function collect(node) {
-    if (!node) return;
-    switch (node.type) {
-      case 'boolVar': names.add(node.name); break;
-      case 'pairVar': names.add(node.name); break;
-      case 'and': case 'or': collect(node.left); collect(node.right); break;
-      case 'not': collect(node.expr); break;
-      case 'cmp': collectArith(node.left); collectArith(node.right); break;
-      default: break;
-    }
-  }
-  function collectArith(ast) {
-    if (!ast) return;
-    if (ast.type === 'var') names.add(ast.name);
-    if (ast.type === 'boolVar') names.add(ast.name);
-    if (ast.type === 'pairVar') names.add(ast.name);
-    else if (ast.type === 'bin') { collectArith(ast.left); collectArith(ast.right); }
-    else if (ast.type === 'pairLit') { collectArith(ast.fst); collectArith(ast.snd); }
-  }
-  collect(ast);
-  const bound = new Set(Object.keys(env || {}));
-  return Array.from(names).filter(n => !bound.has(n));
-}
-
-function substituteBindings(ast, env) {
-  if (!ast) return ast;
-  if (ast.type === 'var') {
-    if (Object.prototype.hasOwnProperty.call(env || {}, ast.name)) {
-      return { type: 'int', value: env[ast.name] | 0 };
-    }
-    return ast;
-  }
-  if (ast.type === 'bin') {
-    return { type: 'bin', op: ast.op, left: substituteBindings(ast.left, env), right: substituteBindings(ast.right, env) };
-  }
-  return ast;
-}
-
 // Utility: obtain tokens for a place in algebraic mode.
 // If explicit int tokens are not provided (valueTokens), fall back to PT count by
 // materializing that many tokens with value 1. This keeps APNs usable when only counts are set.
-// getTokensForPlace, isPair now imported from ../../utils/token-utils
 
 // Build a lightweight signature over guards/bindings (and actions) to detect semantic changes
-function computeCacheSignature(net) {
-  try {
-    const transitions = Array.isArray(net?.transitions) ? net.transitions.slice() : [];
-    const arcs = Array.isArray(net?.arcs) ? net.arcs.slice() : [];
-    transitions.sort((a, b) => String(a.id).localeCompare(String(b.id)));
-    arcs.sort((a, b) => String(a.id).localeCompare(String(b.id)));
-    const tSig = transitions.map(t => `${t.id}|g:${String(t.guard || '')}|a:${String(t.action || '')}`).join(';');
-    const aSig = arcs.map(a => `${a.id}|b:${Array.isArray(a.bindings) ? a.bindings.join(',') : (a.binding ? String(a.binding) : '')}`).join(';');
-    return `${tSig}||${aSig}`;
-  } catch (_) {
-    return String(Math.random());
-  }
-}
-
-
-
