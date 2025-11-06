@@ -2,6 +2,7 @@ import React from 'react';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 import { Circle, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
+import { useEditorUI } from '../contexts/EditorUIContext';
 
 const Place = ({
   id,
@@ -16,12 +17,16 @@ const Place = ({
 }) => {
   const radius = 30;
 
-  // Access the context states
+  // Access UI state from EditorUIContext
+  const { 
+    gridSnappingEnabled, 
+    setSnapIndicator,
+  } = useEditorUI();
+  
+  // Access core editor state from PetriNetContext
   const { 
     setIsDragging, 
-    gridSnappingEnabled, 
     snapToGrid, 
-    setSnapIndicator,
     netMode,
     elements,
     selectedElements,

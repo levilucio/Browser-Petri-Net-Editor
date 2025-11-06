@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { Stage, Layer, Rect } from 'react-konva';
 import { usePetriNet } from '../../contexts/PetriNetContext';
+import { useEditorUI } from '../../contexts/EditorUIContext';
 import { useElementManager } from '../elements/useElementManager';
 import ElementManager from '../elements/ElementManager';
 import ArcManager from '../arcs/ArcManager';
@@ -10,23 +11,28 @@ import CustomScrollbar from '../../components/CustomScrollbar';
 import SnapIndicator from '../../components/SnapIndicator';
 
 const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
+  // Get UI state from EditorUIContext
   const {
     stageDimensions, setStageDimensions,
     virtualCanvasDimensions,
     canvasScroll, setCanvasScroll,
     zoomLevel,
+    setContainerRef,
+    stageRef,
+    gridSize,
+    gridSnappingEnabled,
+    snapIndicator, setSnapIndicator,
+  } = useEditorUI();
+  
+  // Get core editor state from PetriNetContext
+  const {
     mode, setMode,
     arcStart, setArcStart,
     tempArcEnd, setTempArcEnd,
     selectedElement, setSelectedElement,
     elements,
     enabledTransitionIds,
-    setContainerRef,
-    stageRef,
-    gridSize,
-    gridSnappingEnabled,
     snapToGrid,
-    snapIndicator, setSnapIndicator,
     selectedElements, setSelection,
   } = usePetriNet();
 

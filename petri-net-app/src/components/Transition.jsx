@@ -1,6 +1,7 @@
 import React from 'react';
 import { Rect, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
+import { useEditorUI } from '../contexts/EditorUIContext';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 
 const Transition = ({
@@ -17,12 +18,16 @@ const Transition = ({
   const baseWidth = 40;
   const baseHeight = 50;
 
-  // Access the context states
+  // Access UI state from EditorUIContext
+  const { 
+    gridSnappingEnabled, 
+    setSnapIndicator,
+  } = useEditorUI();
+  
+  // Access core editor state from PetriNetContext
   const { 
     setIsDragging, 
-    gridSnappingEnabled, 
     snapToGrid, 
-    setSnapIndicator,
     simulationSettings,
     netMode,
     elements,

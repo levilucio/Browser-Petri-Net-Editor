@@ -9,12 +9,18 @@ import { useKeyboardShortcuts } from '../features/keymap/useKeyboardShortcuts';
 import debounce from 'lodash/debounce';
 import { HistoryManager } from '../features/history/historyManager';
 import { useSharedClipboard } from '../features/selection/useSharedClipboard';
+import { useEditorUI } from './EditorUIContext';
 
 export const PetriNetContext = createContext();
 
 export const PetriNetProvider = ({ children }) => {
-  const MIN_ZOOM = 0.1;
-  const MAX_ZOOM = 3.0;
+  // Get UI state from EditorUIContext
+  const {
+    gridSnappingEnabled,
+    gridSize,
+    setCanvasScroll,
+    setZoomLevel,
+  } = useEditorUI();
   const [elements, setElements] = useState({
     places: [],
     transitions: [],
@@ -42,23 +48,12 @@ export const PetriNetProvider = ({ children }) => {
     solverTimeoutMs: 10000,
   });
 
-  const [stageDimensions, setStageDimensions] = useState({ width: 800, height: 600 });
-  const [virtualCanvasDimensions, setVirtualCanvasDimensions] = useState({ width: 10000, height: 7500 });
-  const [canvasScroll, setCanvasScroll] = useState({ x: 0, y: 0 });
-  const [zoomLevel, setZoomLevel] = useState(1.0);
-  const [gridSnappingEnabled, setGridSnappingEnabled] = useState(true);
-  const gridSize = 20;
-
   // Track native file handle for Save/Save As semantics (File System Access API)
   const [saveFileHandle, setSaveFileHandle] = useState(null);
 
   const historyManagerRef = useRef(new HistoryManager({ places: [], transitions: [], arcs: [] }));
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
-
-  const appRef = useRef(null);
-  const [containerRefValue, setContainerRefValue] = useState(null); // Changed from useRef to useState
-  const stageRef = useRef(null);
 
   // More aggressive debounce for history updates to improve responsiveness
   const debouncedAddStateRef = useRef(
@@ -70,8 +65,8 @@ export const PetriNetProvider = ({ children }) => {
   );
 
   // Track if we're currently dragging or changing modes to avoid expensive operations
+  // Note: isDragging is kept here because it's used in history update logic
   const [isDragging, setIsDragging] = useState(false);
-  const [snapIndicator, setSnapIndicator] = useState({ visible: false, position: null, elementType: null });
   const prevModeRef = useRef(mode);
   const multiDragRef = useRef(null); // holds { baseId, startPositions: Map(id -> { type, x, y }) }
   const clipboardRef = useRef(null); // holds last copied selection payload
@@ -181,9 +176,6 @@ export const PetriNetProvider = ({ children }) => {
     return { x, y };
   };
 
-  const toggleGridSnapping = () => {
-    setGridSnappingEnabled(prev => !prev);
-  };
 
 
 
@@ -234,7 +226,7 @@ export const PetriNetProvider = ({ children }) => {
       batchMode: false,
     });
     
-    // Reset canvas state
+    // Reset canvas state (via EditorUIContext)
     setCanvasScroll({ x: 0, y: 0 });
     setZoomLevel(1.0);
     
@@ -312,15 +304,6 @@ export const PetriNetProvider = ({ children }) => {
       isSettingsDialogOpen, setIsSettingsDialogOpen,
       simulationSettings, setSimulationSettings,
       netMode: currentNetMode,
-      stageDimensions, setStageDimensions,
-      virtualCanvasDimensions, setVirtualCanvasDimensions,
-      canvasScroll, setCanvasScroll,
-      zoomLevel, setZoomLevel,
-      gridSnappingEnabled,
-      toggleGridSnapping,
-      gridSize,
-      snapIndicator,
-      setSnapIndicator,
       historyManagerRef, // Expose ref for direct manipulation if needed, though prefer actions
       canUndo,
       setCanUndo, // Expose setters if direct manipulation is needed, else remove
@@ -330,16 +313,9 @@ export const PetriNetProvider = ({ children }) => {
       handleRedo,
       updateHistory, // Expose for components that modify elements directly
       snapToGrid,
-      appRef,
-      containerRef: containerRefValue, // Expose the state value
-      setContainerRef: setContainerRefValue, // Expose the setter
-      stageRef,
       handleSaveSettings, // Expose settings save handler
       z3Settings, setZ3Settings,
       resetEditor, // Expose complete editor reset function
-      MIN_ZOOM, // Expose MIN_ZOOM
-      MAX_ZOOM  // Expose MAX_ZOOM
-      ,
       simulatorCore, // Expose simulator core so Settings can change mode
       forceSimulatorReset, // Expose to force simulator reinitialization
       // Multi-select and clipboard

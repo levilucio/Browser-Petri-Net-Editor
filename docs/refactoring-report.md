@@ -227,10 +227,10 @@ Extract to `usePropertiesForm.js` hook to handle:
 2. ✅ Move all keyboard shortcuts to `useKeyboardShortcuts.js` (3 hours)
 3. ✅ Extract zoom logic to hook (2 hours)
 
-### Phase 2: Medium Impact, Medium Risk (Week 2)
+### Phase 2: Medium Impact, Medium Risk (Week 2) ✅ COMPLETED
 4. ✅ Split `App.jsx` (remove keyboard shortcuts, extract globals) (4 hours)
-5. ✅ Split `PropertiesPanel.jsx` (extract form hook) (4 hours)
-6. ✅ Split `PetriNetContext.jsx` (extract UI context) (6 hours)
+5. ✅ Split `PropertiesPanel.jsx` (extract form hook) (4 hours) - Reduced from 369 to 92 lines
+6. ✅ Split `PetriNetContext.jsx` (extract UI context) (6 hours) - Created EditorUIContext.jsx
 
 ### Phase 3: High Impact, Higher Risk (Week 3-4)
 7. ✅ Split `useSimulationManager.js` (8 hours)

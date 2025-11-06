@@ -14,12 +14,32 @@ import { syncWindowGlobals } from './utils/testGlobals';
 
 import { PetriNetProvider, usePetriNet } from './contexts/PetriNetContext';
 import { AdtProvider } from './contexts/AdtContext';
+import { EditorUIProvider, useEditorUI } from './contexts/EditorUIContext';
 
 const DEFAULT_MAX_STEPS = 200000;
 
 // Create a wrapper component that provides the context
 const AppContent = () => {
     const ZOOM_STEP = 0.1;
+    // Get UI state from EditorUIContext
+    const {
+      stageDimensions,
+      virtualCanvasDimensions,
+      canvasScroll,
+      setCanvasScroll,
+      zoomLevel,
+      setZoomLevel,
+      gridSnappingEnabled,
+      toggleGridSnapping,
+      MIN_ZOOM,
+      MAX_ZOOM,
+      appRef,
+      containerRef,
+      setContainerRef,
+      stageRef,
+    } = useEditorUI();
+    
+    // Get core editor state from PetriNetContext
     const {
       elements, setElements,
       selectedElement, setSelectedElement,
@@ -32,14 +52,6 @@ const AppContent = () => {
 
       isSettingsDialogOpen, setIsSettingsDialogOpen,
       simulationSettings, setSimulationSettings,
-      stageDimensions, setStageDimensions,
-      virtualCanvasDimensions, setVirtualCanvasDimensions,
-      canvasScroll, setCanvasScroll,
-      zoomLevel, setZoomLevel,
-      gridSnappingEnabled, toggleGridSnapping,
-      gridSize,
-      MIN_ZOOM,
-      MAX_ZOOM,
       historyManagerRef,
       canUndo,
       canRedo,
@@ -47,11 +59,6 @@ const AppContent = () => {
       handleRedo,
       updateHistory,
       snapToGrid,
-      appRef,
-      containerRef,
-      setContainerRef,
-      stageRef,
-
       resetEditor,
       enabledTransitionIds,
       clipboardRef,
@@ -234,9 +241,11 @@ const AppContent = () => {
 
 const AppWrapper = () => (
   <AdtProvider>
-    <PetriNetProvider>
-      <AppContent />
-    </PetriNetProvider>
+    <EditorUIProvider>
+      <PetriNetProvider>
+        <AppContent />
+      </PetriNetProvider>
+    </EditorUIProvider>
   </AdtProvider>
 );
 

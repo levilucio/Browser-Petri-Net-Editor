@@ -1,11 +1,16 @@
 import { useCallback } from 'react';
 import { usePetriNet } from '../../contexts/PetriNetContext';
+import { useEditorUI } from '../../contexts/EditorUIContext';
 import { v4 as uuidv4 } from 'uuid';
 import { useArcManager } from '../arcs/useArcManager';
 import { toggleSelection } from '../selection/selection-utils';
 import { collectSelection, remapIdsForPaste } from '../selection/clipboard-utils';
 
 export const useElementManager = () => {
+  // Get UI state from EditorUIContext
+  const { gridSnappingEnabled } = useEditorUI();
+  
+  // Get core editor state from PetriNetContext
   const { 
     elements, setElements, 
     selectedElement, setSelectedElement, 
@@ -14,7 +19,7 @@ export const useElementManager = () => {
     mode,
     arcStart, setArcStart, 
     tempArcEnd, setTempArcEnd, 
-    snapToGrid, gridSnappingEnabled,
+    snapToGrid,
     isShiftPressedRef,
   } = usePetriNet();
 
