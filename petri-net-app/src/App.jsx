@@ -6,6 +6,9 @@ import SimulationManager from './features/simulation/SimulationManager';
 import SettingsDialog from './components/SettingsDialog';
 import CanvasManager from './features/canvas/CanvasManager';
 import { useElementManager } from './features/elements/useElementManager';
+import { useKeyboardShortcuts } from './features/keymap/useKeyboardShortcuts';
+import { useCanvasZoom } from './features/canvas/useCanvasZoom';
+import { syncWindowGlobals } from './utils/testGlobals';
 
 // Auto layout removed
 
@@ -17,8 +20,6 @@ const DEFAULT_MAX_STEPS = 200000;
 // Create a wrapper component that provides the context
 const AppContent = () => {
     const ZOOM_STEP = 0.1;
-    const localCanvasContainerDivRef = useRef(null);
-    const programmaticScrollRef = useRef(false);
     const {
       elements, setElements,
       selectedElement, setSelectedElement,
@@ -26,6 +27,8 @@ const AppContent = () => {
       mode, setMode,
       arcStart, setArcStart,
       tempArcEnd, setTempArcEnd,
+      clearSelection,
+      setSelection,
 
       isSettingsDialogOpen, setIsSettingsDialogOpen,
       simulationSettings, setSimulationSettings,
@@ -51,8 +54,22 @@ const AppContent = () => {
 
       resetEditor,
       enabledTransitionIds,
-      clipboardRef
+      clipboardRef,
+      setClipboard,
+      getClipboard,
+      isShiftPressedRef
     } = usePetriNet();
+
+    const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll } = useCanvasZoom({
+      MIN_ZOOM,
+      MAX_ZOOM,
+      zoomLevel,
+      setZoomLevel,
+      virtualCanvasDimensions,
+      canvasScroll,
+      setCanvasScroll,
+      setContainerRef,
+    });
 
     const { handleDeleteElement, clearAllElements } = useElementManager();
     
@@ -62,38 +79,14 @@ const AppContent = () => {
     // handleAutoLayout removed
 
     useEffect(() => {
-      window.__PETRI_NET_STATE__ = {
-        places: elements.places,
-        transitions: elements.transitions,
-        arcs: elements.arcs,
-        selectedElements: selectedElements
-      };
-      window.__PETRI_NET_MODE__ = mode;
-      window.__PETRI_NET_CLIPBOARD__ = clipboardRef;
-      // Expose non-visual run flag for useSimulationManager (wired from settings)
-      try {
-        const anyWin = window;
-        const batchMode = Boolean(simulationSettings?.batchMode);
-        const limitIterations = Boolean(simulationSettings?.limitIterations);
-        const rawMaxIterations = Number(simulationSettings?.maxIterations);
-        const sanitizedMaxIterations = Number.isFinite(rawMaxIterations) && rawMaxIterations > 0
-          ? Math.floor(rawMaxIterations)
-          : DEFAULT_MAX_STEPS;
-        const nonVisual = Boolean(simulationSettings?.useNonVisualRun || batchMode);
-        anyWin.__PETRI_NET_NON_VISUAL_RUN__ = nonVisual;
-        anyWin.__PETRI_NET_SETTINGS__ = {
-          ...(anyWin.__PETRI_NET_SETTINGS__ || {}),
-          batchMode,
-          limitIterations,
-          maxIterations: sanitizedMaxIterations,
-        };
-      } catch (_) {}
-      try {
-        const anyWin = window;
-        if (!anyWin.__PETRI_NET_SIM_CORE__ && simulatorCore) {
-          anyWin.__PETRI_NET_SIM_CORE__ = simulatorCore;
-        }
-      } catch (_) {}
+      syncWindowGlobals({
+        elements,
+        selectedElements,
+        mode,
+        clipboardRef,
+        simulationSettings,
+        simulatorCore,
+      });
     }, [
       elements.places,
       elements.transitions,
@@ -104,111 +97,35 @@ const AppContent = () => {
       simulationSettings?.batchMode,
       simulationSettings?.limitIterations,
       simulationSettings?.maxIterations,
-      clipboardRef
+      clipboardRef,
+      simulatorCore,
     ]);
 
-    const handleZoom = (delta) => {
-      setZoomLevel(prevZoom => {
-        const newZoomLevel = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prevZoom + delta));
-        if (newZoomLevel !== prevZoom && localCanvasContainerDivRef.current) {
-          const container = localCanvasContainerDivRef.current;
-          const viewportWidth = container.clientWidth;
-          const viewportHeight = container.clientHeight;
-          const viewportCenterXVirtual = (canvasScroll.x + viewportWidth / 2) / prevZoom;
-          const viewportCenterYVirtual = (canvasScroll.y + viewportHeight / 2) / prevZoom;
-          let newScrollX = (viewportCenterXVirtual * newZoomLevel) - (viewportWidth / 2);
-          let newScrollY = (viewportCenterYVirtual * newZoomLevel) - (viewportHeight / 2);
-          const maxScrollX = Math.max(0, (virtualCanvasDimensions.width * newZoomLevel) - viewportWidth);
-          const maxScrollY = Math.max(0, (virtualCanvasDimensions.height * newZoomLevel) - viewportHeight);
-          newScrollX = Math.max(0, Math.min(maxScrollX, newScrollX));
-          newScrollY = Math.max(0, Math.min(maxScrollY, newScrollY));
-          setCanvasScroll({
-            x: newScrollX,
-            y: newScrollY
-          });
-        }
-        return newZoomLevel;
-      });
-    };
-
-    const handleNativeCanvasScroll = (event) => {
-      if (programmaticScrollRef.current) {
-        programmaticScrollRef.current = false;
-        return;
-      }
-      if (setCanvasScroll) {
-        setCanvasScroll({
-          x: event.target.scrollLeft,
-          y: event.target.scrollTop,
-        });
-      }
-    };
-
-    useEffect(() => {
-      if (localCanvasContainerDivRef.current) {
-        programmaticScrollRef.current = true;
-        if (localCanvasContainerDivRef.current.scrollLeft !== canvasScroll.x) {
-          localCanvasContainerDivRef.current.scrollLeft = canvasScroll.x;
-        }
-        if (localCanvasContainerDivRef.current.scrollTop !== canvasScroll.y) {
-          localCanvasContainerDivRef.current.scrollTop = canvasScroll.y;
-        }
-      }
-    }, [canvasScroll, localCanvasContainerDivRef]);
-
-    useEffect(() => {
-      if (localCanvasContainerDivRef.current && setContainerRef) {
-        setContainerRef(localCanvasContainerDivRef.current);
-      }
-    }, [localCanvasContainerDivRef, setContainerRef]);
-
-    const handleKeyDown = (event) => {
-      if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable) {
-        return;
-      }
-      if (event.ctrlKey) {
-        if (event.key === 'z' || event.key === 'Z') {
-          event.preventDefault();
-          handleUndo();
-        } else if (event.key === 'y' || event.key === 'Y') {
-          event.preventDefault();
-          handleRedo();
-        }
-      } else {
-        switch (event.key) {
-          case 'Delete':
-          case 'Backspace':
-            // Avoid duplicate deletion: global shortcuts handle multi-selection and single selection.
-            // Only handle here if there is NO multi-selection active.
-            if (selectedElement && (!Array.isArray(selectedElements) || selectedElements.length === 0)) {
-              event.preventDefault();
-              handleDeleteElement();
-            }
-            break;
-          case 'p': case 'P':
-            event.preventDefault(); setMode('place'); break;
-          case 't': case 'T':
-            event.preventDefault(); setMode('transition'); break;
-          case 'a': case 'A':
-            event.preventDefault(); setMode('arc'); break;
-          case 's': case 'S': 
-            event.preventDefault(); setMode('select'); break;
-          case 'Escape':
-            event.preventDefault();
-            setMode('select');
-            if (arcStart) {
-              setArcStart(null);
-              setTempArcEnd(null);
-            }
-            setSelectedElement(null);
-            break;
-          default: break;
-        }
-      }
-    };
+    // Keyboard shortcuts: consolidate via useKeyboardShortcuts
+    useKeyboardShortcuts({
+      elements,
+      setElements,
+      selectedElement,
+      selectedElements,
+      clearSelection,
+      setSelection,
+      clipboardRef,
+      netMode: simulationSettings?.netMode || 'pt',
+      setClipboard,
+      getClipboard,
+      onClipboardMismatch: undefined,
+      handleUndo,
+      handleRedo,
+      setMode,
+      arcStart,
+      setArcStart,
+      setTempArcEnd,
+      setSelectedElement,
+      isShiftPressedRef,
+    });
 
     return (
-      <div ref={appRef} className="app-container h-screen max-h-screen overflow-hidden" tabIndex={-1} onKeyDown={handleKeyDown}>
+      <div ref={appRef} className="app-container h-screen max-h-screen overflow-hidden" tabIndex={-1}>
         {/* Toolbar - fixed at the top */}
         <div 
           className="fixed top-0 left-0 right-0 z-30 bg-white" 

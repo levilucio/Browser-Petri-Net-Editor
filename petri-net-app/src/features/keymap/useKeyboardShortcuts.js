@@ -13,6 +13,14 @@ export function useKeyboardShortcuts(ctx) {
     setClipboard,
     getClipboard,
     onClipboardMismatch,
+    // Optional actions wired when available
+    handleUndo,
+    handleRedo,
+    setMode,
+    arcStart,
+    setArcStart,
+    setTempArcEnd,
+    setSelectedElement,
   } = ctx;
 
   useEffect(() => {
@@ -60,6 +68,38 @@ export function useKeyboardShortcuts(ctx) {
         ];
         setSelection(allElements);
         return;
+      }
+
+      // Undo / Redo
+      if (!isEditable && ctrlOrCmd && (e.key === 'z' || e.key === 'Z')) {
+        if (typeof handleUndo === 'function') {
+          e.preventDefault();
+          handleUndo();
+          return;
+        }
+      }
+      if (!isEditable && ctrlOrCmd && (e.key === 'y' || e.key === 'Y')) {
+        if (typeof handleRedo === 'function') {
+          e.preventDefault();
+          handleRedo();
+          return;
+        }
+      }
+
+      // Mode switching (no modifiers)
+      if (!isEditable && !ctrlOrCmd) {
+        if ((e.key === 'p' || e.key === 'P') && typeof setMode === 'function') { e.preventDefault(); setMode('place'); return; }
+        if ((e.key === 't' || e.key === 'T') && typeof setMode === 'function') { e.preventDefault(); setMode('transition'); return; }
+        if ((e.key === 'a' || e.key === 'A') && typeof setMode === 'function') { e.preventDefault(); setMode('arc'); return; }
+        if ((e.key === 's' || e.key === 'S') && typeof setMode === 'function') { e.preventDefault(); setMode('select'); return; }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          if (typeof setMode === 'function') setMode('select');
+          if (typeof setArcStart === 'function' && arcStart) setArcStart(null);
+          if (typeof setTempArcEnd === 'function') setTempArcEnd(null);
+          if (typeof setSelectedElement === 'function') setSelectedElement(null);
+          return;
+        }
       }
 
       // Copy
@@ -121,7 +161,7 @@ export function useKeyboardShortcuts(ctx) {
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [elements, selectedElements, selectedElement, setElements, clearSelection, setSelection, clipboardRef, ctx]);
+  }, [elements, selectedElements, selectedElement, setElements, clearSelection, setSelection, clipboardRef, ctx, handleUndo, handleRedo, setMode, arcStart, setArcStart, setTempArcEnd, setSelectedElement]);
 }
 
 export default useKeyboardShortcuts;
