@@ -1,28 +1,39 @@
-let globalDebug = false;
+import { DEFAULT_LOG_LEVEL, getLogLevel, setLogLevel as setConfigLevel, shouldLog } from '../config/logging';
+
+export function setLogLevel(level) {
+  setConfigLevel(level);
+}
 
 export function setDebug(enabled) {
-  globalDebug = !!enabled;
+  setConfigLevel(enabled ? 'debug' : DEFAULT_LOG_LEVEL);
 }
+
+export { getLogLevel };
 
 export const logger = {
   debug: (...args) => {
-    if (process.env.NODE_ENV !== 'production' || globalDebug) {
+    if (shouldLog('debug')) {
       // eslint-disable-next-line no-console
-      console.log(...args);
+      console.debug(...args);
     }
   },
   info: (...args) => {
-    // eslint-disable-next-line no-console
-    console.info(...args);
+    if (shouldLog('info')) {
+      // eslint-disable-next-line no-console
+      console.info(...args);
+    }
   },
   warn: (...args) => {
-    // eslint-disable-next-line no-console
-    console.warn(...args);
+    if (shouldLog('warn')) {
+      // eslint-disable-next-line no-console
+      console.warn(...args);
+    }
   },
   error: (...args) => {
-    // eslint-disable-next-line no-console
-    console.error(...args);
+    if (shouldLog('error')) {
+      // eslint-disable-next-line no-console
+      console.error(...args);
+    }
   },
 };
-
 

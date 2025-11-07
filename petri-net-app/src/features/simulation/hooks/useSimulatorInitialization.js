@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import debounce from 'lodash.debounce';
+import { logger } from '../../../utils/logger.js';
 import { simulationEventBus, SimulationEvents } from '../SimulationEventBus.js';
 import { getSimulationStats } from '../simulation-utils.js';
 
@@ -44,20 +45,18 @@ export const useSimulatorInitialization = ({
           setIsSimulatorReady(false);
           setSimulationError(null);
         } catch (error) {
-          console.error('Failed to reset simulator:', error);
+          logger.error('Failed to reset simulator:', error);
         }
         return;
       }
 
       try {
-        console.log('Simulator force reset counter:', forceResetCounter);
-        console.log('Initializing/updating simulator with:');
-        console.log('- elements:', elements);
-        console.log('- netMode parameter:', netMode);
+        logger.debug('Simulator force reset counter:', forceResetCounter);
+        logger.debug('Initializing/updating simulator', { elements, netMode });
 
         await simulatorCore.initialize(elements, { netMode });
       } catch (error) {
-        console.error('Failed to initialize simulator:', error);
+        logger.error('Failed to initialize simulator:', error);
         setEnabledTransitionIds([]);
         setIsSimulatorReady(false);
         return;
@@ -66,7 +65,7 @@ export const useSimulatorInitialization = ({
       try {
         await simulatorCore.update(latestElementsRef.current);
       } catch (error) {
-        console.error('Failed to update simulator:', error);
+        logger.error('Failed to update simulator:', error);
         setEnabledTransitionIds([]);
         setIsSimulatorReady(false);
         setSimulationError('Failed to update simulator');
@@ -88,7 +87,7 @@ export const useSimulatorInitialization = ({
           prev === 'Failed to update simulator' ? null : prev
         );
       } catch (error) {
-        console.error('Failed to compute enabled transitions:', error);
+        logger.error('Failed to compute enabled transitions:', error);
         setEnabledTransitionIds([]);
         setIsSimulatorReady(false);
         setSimulationError('Failed to update simulator');

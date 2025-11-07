@@ -2,6 +2,7 @@
  * HistoryManager class for implementing undo/redo functionality
  * Maintains a history of states and provides methods to navigate through them
  */
+import { logger } from '../../utils/logger.js';
 import { compareStates } from './utils/stateCompare.js';
 import { deepCopyState, validateState } from './utils/stateCopy.js';
 
@@ -16,23 +17,17 @@ export class HistoryManager {
     const stateCopy = deepCopyState(newState);
     const currentState = this.states[this.currentIndex];
     if (this.currentIndex >= 0 && compareStates(currentState, stateCopy)) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('HistoryManager: State unchanged, not adding to history');
-      }
+      logger.debug('HistoryManager: State unchanged, not adding to history');
       return {
         canUndo: this.canUndo(),
         canRedo: this.canRedo()
       };
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`HistoryManager: Adding new state to history. Current index: ${this.currentIndex}, States count: ${this.states.length}`);
-    }
+    logger.debug(`HistoryManager: Adding new state to history. Current index: ${this.currentIndex}, States count: ${this.states.length}`);
 
     if (this.currentIndex < this.states.length - 1) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`HistoryManager: Removing ${this.states.length - this.currentIndex - 1} future states`);
-      }
+      logger.debug(`HistoryManager: Removing ${this.states.length - this.currentIndex - 1} future states`);
       this.states = this.states.slice(0, this.currentIndex + 1);
     }
 
@@ -44,9 +39,7 @@ export class HistoryManager {
       this.currentIndex--;
     }
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`HistoryManager: New state added. Current index: ${this.currentIndex}, States count: ${this.states.length}`);
-    }
+    logger.debug(`HistoryManager: New state added. Current index: ${this.currentIndex}, States count: ${this.states.length}`);
 
     return {
       canUndo: this.canUndo(),
@@ -56,18 +49,14 @@ export class HistoryManager {
 
   undo() {
     if (!this.canUndo()) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('HistoryManager: Cannot undo - no previous states');
-      }
+      logger.debug('HistoryManager: Cannot undo - no previous states');
       return null;
     }
     
     this.currentIndex--;
     const state = this.states[this.currentIndex];
     
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`HistoryManager: Undoing to index ${this.currentIndex}, states count: ${this.states.length}`);
-    }
+    logger.debug(`HistoryManager: Undoing to index ${this.currentIndex}, states count: ${this.states.length}`);
     
     return {
       state: validateState(state),
@@ -78,18 +67,14 @@ export class HistoryManager {
 
   redo() {
     if (!this.canRedo()) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('HistoryManager: Cannot redo - no future states');
-      }
+      logger.debug('HistoryManager: Cannot redo - no future states');
       return null;
     }
     
     this.currentIndex++;
     const state = this.states[this.currentIndex];
     
-    if (process.env.NODE_ENV !== 'production') {
-      console.log(`HistoryManager: Redoing to index ${this.currentIndex}, states count: ${this.states.length}`);
-    }
+    logger.debug(`HistoryManager: Redoing to index ${this.currentIndex}, states count: ${this.states.length}`);
     
     return {
       state: validateState(state),

@@ -1,3 +1,5 @@
+import { logger } from '../logger.js';
+
 let z3InitPromise = null;
 
 async function ensureZ3Available() {
@@ -18,11 +20,11 @@ async function ensureZ3Available() {
         ...(typeof originalModule === 'object' ? originalModule : {}),
         locateFile: (path) => {
           if (path.endsWith('.wasm')) {
-            try { console.log('[Z3 worker] locateFile', path, '->', wasmDataUrl.substring(0, 50) + '...'); } catch (_) {}
+            logger.debug('[Z3 worker] locateFile', path, '->', `${wasmDataUrl.substring(0, 50)}...`);
             return wasmDataUrl;
           }
           const resolved = `/${path}`;
-          try { console.log('[Z3 worker] locateFile', path, '->', resolved); } catch (_) {}
+          logger.debug('[Z3 worker] locateFile', path, '->', resolved);
           return resolved;
         }
       };
@@ -49,7 +51,7 @@ async function ensureZ3Available() {
 
   // Main thread (DOM available)
   if (typeof globalThis.initZ3 === 'function') return;
-  console.log('initZ3 not found, loading Z3 built assets...');
+  logger.debug('initZ3 not found, loading Z3 built assets...');
   try {
     const response = await fetch('/z3-built.js');
     if (!response.ok) throw new Error(`Failed to fetch z3-built.js: ${response.status}`);
@@ -59,7 +61,7 @@ async function ensureZ3Available() {
     document.head.appendChild(scriptElement);
     await new Promise(resolve => setTimeout(resolve, 100));
     if (typeof globalThis.initZ3 !== 'function') throw new Error('initZ3 function not found after loading z3-built.js');
-    console.log('Z3 built assets loaded successfully');
+    logger.debug('Z3 built assets loaded successfully');
   } catch (error) {
     throw new Error(`Failed to load Z3 built assets: ${error.message}`);
   }
@@ -69,7 +71,7 @@ export async function getContext() {
   if (!z3InitPromise) {
     z3InitPromise = (async () => {
       try {
-        console.log('Initializing Z3 context...');
+        logger.debug('Initializing Z3 context...');
         // Always ensure Z3 assets are loaded first (skip direct WASM init that fails)
         await ensureZ3Available();
 
@@ -78,32 +80,32 @@ export async function getContext() {
           throw new Error('Z3 init function not found. Z3-solver package may not be properly installed.');
         }
 
-        console.log('Calling Z3 init...');
+        logger.debug('Calling Z3 init...');
         const z3 = await init();
         if (!z3) {
           throw new Error('Z3 initialization failed. Check browser console for WASM loading errors.');
         }
 
-        console.log('Creating Z3 context...');
+        logger.debug('Creating Z3 context...');
         // Use a general-purpose context so both arithmetic and string theories are available
         const ctx = new z3.Context('main');
         if (!ctx) {
           throw new Error('Failed to create Z3 context.');
         }
 
-        console.log('Z3 context initialized successfully');
+        logger.debug('Z3 context initialized successfully');
         return { z3, ctx };
       } catch (error) {
-        console.error('Z3 initialization error:', error);
+        logger.error('Z3 initialization error:', error);
 
         // For browser (not test environment), try asset loading fallback
         const isNodeJSTest = typeof process !== 'undefined' && process.env && process.env.JEST_WORKER_ID;
         if (typeof document !== 'undefined' && !isNodeJSTest) {
-          console.log('Retrying Z3 initialization with asset loading...');
+          logger.debug('Retrying Z3 initialization with asset loading...');
           try {
             // Force asset loading
             if (typeof globalThis.initZ3 !== 'function') {
-              console.log('initZ3 not found, loading Z3 built assets...');
+              logger.debug('initZ3 not found, loading Z3 built assets...');
               const response = await fetch('/z3-built.js');
               if (!response.ok) throw new Error(`Failed to fetch z3-built.js: ${response.status}`);
               const z3Script = await response.text();
@@ -112,30 +114,30 @@ export async function getContext() {
               document.head.appendChild(scriptElement);
               await new Promise(resolve => setTimeout(resolve, 100));
               if (typeof globalThis.initZ3 !== 'function') throw new Error('initZ3 function not found after loading z3-built.js');
-              console.log('Z3 built assets loaded successfully');
+              logger.debug('Z3 built assets loaded successfully');
             }
 
             const { init } = await import('z3-solver');
             const z3 = await init();
             const ctx = new z3.Context('main');
-            console.log('Z3 context initialized successfully (fallback)');
+            logger.debug('Z3 context initialized successfully (fallback)');
             return { z3, ctx };
           } catch (fallbackError) {
-            console.error('Fallback Z3 initialization also failed:', fallbackError);
+            logger.error('Fallback Z3 initialization also failed:', fallbackError);
           }
         }
 
         // For Node.js (tests), try direct import without asset loading
         if (isNodeJSTest || typeof document === 'undefined') {
-          console.log('Retrying Z3 initialization for Node.js...');
+          logger.debug('Retrying Z3 initialization for Node.js...');
           try {
             const { init } = await import('z3-solver');
             const z3 = await init();
             const ctx = new z3.Context('main');
-            console.log('Z3 context initialized successfully (Node.js)');
+            logger.debug('Z3 context initialized successfully (Node.js)');
             return { z3, ctx };
           } catch (nodeError) {
-            console.error('Node.js Z3 initialization also failed:', nodeError);
+            logger.error('Node.js Z3 initialization also failed:', nodeError);
           }
         }
 

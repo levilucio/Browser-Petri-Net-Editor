@@ -33,6 +33,7 @@ import {
   evaluateBooleanPredicateWithPool,
   getUnboundBooleanGuardVars,
 } from './algebraic/algebraicHelpers.js';
+import { logger } from '../../utils/logger.js';
 
 export class AlgebraicSimulator extends BaseSimulator {
   constructor() {
@@ -265,9 +266,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     // Check for unbound variables in guard and output arcs
     const hasUnboundVariables = await this.checkForUnboundVariables(transitionId, inputArcs);
     if (hasUnboundVariables) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Transition disabled due to unbound variables:', transitionId);
-      }
+      logger.debug('Transition disabled due to unbound variables:', transitionId);
       return false;
     }
 

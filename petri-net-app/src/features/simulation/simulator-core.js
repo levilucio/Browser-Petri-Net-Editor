@@ -4,6 +4,7 @@
  */
 
 import { SimulatorFactory } from './SimulatorFactory.js';
+import { logger } from '../../utils/logger.js';
 import { runHeadlessSimulation } from './core/headlessRunner.js';
 import {
   determineNetMode as determineCoreNetMode,
@@ -21,7 +22,7 @@ export class SimulatorCore {
 
   async initialize(petriNet, options = {}) {
     try {
-      console.log('SimulatorCore.initialize called with:', { petriNet, options });
+      logger.debug('SimulatorCore.initialize called with:', { petriNet, options });
       const netMode = determineCoreNetMode(petriNet, options);
       
       // Always create a fresh simulator to avoid stale state
@@ -33,7 +34,7 @@ export class SimulatorCore {
       await this.currentSimulator.initialize(petriNet, options);
       this._ready = true;
       this.setupPendingListeners();
-      console.log(`Simulator initialized with ${netMode} simulator`);
+      logger.debug(`Simulator initialized with ${netMode} simulator`);
       return { success: true, netMode, simulatorType: this.currentSimulator.getType() };
     } catch (error) {
       console.error('Failed to initialize simulator:', error);
@@ -134,7 +135,7 @@ export class SimulatorCore {
 
   activateSimulation(continuous = false) {
     if (!this.currentSimulator) throw new Error('Simulator not initialized');
-    console.log(`Simulation activated (continuous: ${continuous})`);
+    logger.debug(`Simulation activated (continuous: ${continuous})`);
   }
 
   async isReady() { return this._ready && this.currentSimulator && this.currentSimulator.isReady(); }

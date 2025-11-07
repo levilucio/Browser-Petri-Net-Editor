@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
+import { logger } from '../utils/logger';
 import Z3SettingsDialog from './Z3SettingsDialog.jsx';
 
 const DEFAULT_MAX_STEPS = 200000;
@@ -25,7 +26,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
           setSimulationMode(currentMode);
         }
       } catch (error) {
-        console.log('Could not get current simulation mode:', error.message);
+        logger.warn('Could not get current simulation mode:', error);
       }
 
       // Initialize settings from context
@@ -67,9 +68,9 @@ const SettingsDialog = ({ isOpen, onClose }) => {
     try {
       await simulatorCore.setSimulationMode(newMode);
       setSimulationMode(newMode);
-      console.log('Simulation mode changed to:', newMode);
+      logger.info('Simulation mode changed to:', newMode);
     } catch (error) {
-      console.error('Failed to change simulation mode:', error);
+      logger.error('Failed to change simulation mode:', error);
       // Revert to previous mode
       setSimulationMode(simulationMode);
     } finally {

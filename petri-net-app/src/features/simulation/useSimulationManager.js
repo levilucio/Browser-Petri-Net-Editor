@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { logger } from '../../utils/logger.js';
 import defaultSimulatorCore from './simulator-core.js';
 import { createSimulationWorker } from '../../workers/worker-factory';
 import { useSimulatorInitialization } from './hooks/useSimulatorInitialization.js';
@@ -73,7 +74,7 @@ const useSimulationManager = (
   }, []);
 
   const forceSimulatorReset = useCallback(() => {
-    console.log('Forcing simulator reset');
+    logger.debug('Forcing simulator reset');
     setForceResetCounter((prev) => prev + 1);
   }, []);
 

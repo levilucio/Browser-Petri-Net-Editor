@@ -5,6 +5,7 @@
 import { BaseSimulator } from './BaseSimulator.js';
 import { getSimulationStats } from './simulation-utils.js';
 import { consumeTokens, produceTokens } from './token-io.js';
+import { logger } from '../../utils/logger.js';
 
 export class PTSimulator extends BaseSimulator {
   constructor() {
@@ -32,7 +33,7 @@ export class PTSimulator extends BaseSimulator {
     // Initialize place tokens if not present
     this.initializeTokens(petriNet);
     
-    console.log('P/T Simulator initialized with', petriNet.places.length, 'places and', petriNet.transitions.length, 'transitions');
+    logger.debug('P/T Simulator initialized with', petriNet.places.length, 'places and', petriNet.transitions.length, 'transitions');
   }
 
   /**

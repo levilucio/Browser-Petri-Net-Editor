@@ -9,6 +9,7 @@ import Grid from '../../components/Grid';
 import { buildSelectionFromRect } from '../selection/selection-utils';
 import CustomScrollbar from '../../components/CustomScrollbar';
 import SnapIndicator from '../../components/SnapIndicator';
+import { logger } from '../../utils/logger.js';
 
 const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
   // Get UI state from EditorUIContext
@@ -307,8 +308,8 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
               viewportSize={stageDimensions.height / zoomLevel}
               scrollPosition={canvasScroll.y}
               onScroll={(newScroll) => {
-                console.log('Vertical scroll callback:', { 
-                  newScroll, 
+                logger.debug('Vertical scroll callback:', {
+                  newScroll,
                   currentScroll: canvasScroll.y,
                   maxScroll: Math.max(0, virtualCanvasDimensions.height - (stageDimensions.height / zoomLevel))
                 });

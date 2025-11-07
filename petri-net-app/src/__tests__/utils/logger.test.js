@@ -1,33 +1,40 @@
-import { logger, setDebug } from '../../utils/logger';
+import { logger, setDebug, setLogLevel, getLogLevel } from '../../utils/logger';
 
 describe('logger', () => {
   const origEnv = process.env.NODE_ENV;
-  let infoSpy, warnSpy, errorSpy, logSpy;
+  let infoSpy;
+  let warnSpy;
+  let errorSpy;
+  let debugSpy;
+  let originalLevel;
   beforeEach(() => {
+    originalLevel = getLogLevel();
     infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
     warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    logSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+    setLogLevel('debug');
   });
   afterEach(() => {
     process.env.NODE_ENV = origEnv;
     jest.restoreAllMocks();
-    setDebug(false);
+    setLogLevel(originalLevel);
   });
 
   test('debug logs in development by default', () => {
     process.env.NODE_ENV = 'development';
     logger.debug('dev-debug');
-    expect(logSpy).toHaveBeenCalled();
+    expect(debugSpy).toHaveBeenCalled();
   });
 
   test('debug suppressed in production unless setDebug(true)', () => {
     process.env.NODE_ENV = 'production';
+    setLogLevel('warn');
     logger.debug('prod-no');
-    expect(logSpy).not.toHaveBeenCalled();
+    expect(debugSpy).not.toHaveBeenCalled();
     setDebug(true);
     logger.debug('prod-yes');
-    expect(logSpy).toHaveBeenCalled();
+    expect(debugSpy).toHaveBeenCalled();
   });
 
   test('info/warn/error always forward', () => {

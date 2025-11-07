@@ -1,4 +1,4 @@
-const isDev = () => process.env.NODE_ENV !== 'production';
+import { logger } from '../../../utils/logger.js';
 
 export function compareStates(state1, state2) {
   if (!state1 || !state2) return false;
@@ -15,22 +15,18 @@ export function compareStates(state1, state2) {
     return false;
   }
 
-  if (isDev()) {
-    console.log('HistoryManager: States are identical');
-  }
+  logger.debug('HistoryManager: States are identical');
   return true;
 }
 
 function compareCollections(listA = [], listB = [], comparator) {
   if (listA.length !== listB.length) {
-    if (isDev()) {
-      const label = comparator === comparePlace
-        ? 'places'
-        : comparator === compareTransition
-          ? 'transitions'
-          : 'arcs';
-      console.log(`HistoryManager: States differ in number of ${label}`);
-    }
+    const label = comparator === comparePlace
+      ? 'places'
+      : comparator === compareTransition
+        ? 'transitions'
+        : 'arcs';
+    logger.debug(`HistoryManager: States differ in number of ${label}`);
     return false;
   }
 
@@ -40,9 +36,7 @@ function compareCollections(listA = [], listB = [], comparator) {
   for (const itemA of listA) {
     const itemB = mapB.get(itemA.id);
     if (!itemB) {
-      if (isDev()) {
-        console.log(`HistoryManager: ${comparator === compareArc ? 'Arc' : comparator === compareTransition ? 'Transition' : 'Place'} ${itemA.id} not found in second state`);
-      }
+      logger.debug(`HistoryManager: ${comparator === compareArc ? 'Arc' : comparator === compareTransition ? 'Transition' : 'Place'} ${itemA.id} not found in second state`);
       return false;
     }
     if (!comparator(itemA, itemB)) {
@@ -63,8 +57,8 @@ function comparePlace(p1, p2) {
     p1.name === p2.name &&
     valueTokensEqual;
 
-  if (!equal && isDev()) {
-    console.log(`HistoryManager: Place ${p1.id} differs - x: ${p1.x} vs ${p2.x}, y: ${p1.y} vs ${p2.y}, tokens: ${p1.tokens} vs ${p2.tokens}, label: ${p1.label} vs ${p2.label}, name: ${p1.name} vs ${p2.name}`);
+  if (!equal) {
+    logger.debug(`HistoryManager: Place ${p1.id} differs - x: ${p1.x} vs ${p2.x}, y: ${p1.y} vs ${p2.y}, tokens: ${p1.tokens} vs ${p2.tokens}, label: ${p1.label} vs ${p2.label}, name: ${p1.name} vs ${p2.name}`);
   }
 
   return equal;
@@ -78,8 +72,8 @@ function compareTransition(t1, t2) {
     t1.name === t2.name &&
     (t1.guard || '') === (t2.guard || '');
 
-  if (!equal && isDev()) {
-    console.log(`HistoryManager: Transition ${t1.id} differs - x: ${t1.x} vs ${t2.x}, y: ${t1.y} vs ${t2.y}, label: ${t1.label} vs ${t2.label}, name: ${t1.name} vs ${t2.name}`);
+  if (!equal) {
+    logger.debug(`HistoryManager: Transition ${t1.id} differs - x: ${t1.x} vs ${t2.x}, y: ${t1.y} vs ${t2.y}, label: ${t1.label} vs ${t2.label}, name: ${t1.name} vs ${t2.name}`);
   }
 
   return equal;
@@ -92,9 +86,7 @@ function compareArc(a1, a2) {
     a1.weight === a2.weight;
 
   if (!coreEqual) {
-    if (isDev()) {
-      console.log(`HistoryManager: Arc ${a1.id} differs - source: ${a1.source} vs ${a2.source}, target: ${a1.target} vs ${a2.target}, weight: ${a1.weight} vs ${a2.weight}`);
-    }
+    logger.debug(`HistoryManager: Arc ${a1.id} differs - source: ${a1.source} vs ${a2.source}, target: ${a1.target} vs ${a2.target}, weight: ${a1.weight} vs ${a2.weight}`);
     return false;
   }
 
@@ -105,8 +97,8 @@ function compareArc(a1, a2) {
     JSON.stringify(a1.bindings || []) === JSON.stringify(a2.bindings || []) &&
     JSON.stringify(a1.anglePoints || []) === JSON.stringify(a2.anglePoints || []);
 
-  if (!secondaryEqual && isDev()) {
-    console.log(`HistoryManager: Arc ${a1.id} differs in secondary properties`);
+  if (!secondaryEqual) {
+    logger.debug(`HistoryManager: Arc ${a1.id} differs in secondary properties`);
   }
 
   return secondaryEqual;

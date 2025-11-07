@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { inferTokenType, autoAnnotateTypes } from '../../../utils/arith-parser';
+import { logger } from '../../../utils/logger';
 import { computeGlobalTypeInferenceForState } from '../useGlobalTypeInference';
 
 const isProd = () => process.env.NODE_ENV === 'production';
@@ -8,7 +9,7 @@ export const useTypeInferenceHandlers = ({ elements, netMode, setElements, updat
   const inferTypesForPlace = useCallback((placeId) => {
     if (!elements?.places || !elements?.arcs || netMode !== 'algebraic-int') {
       if (!isProd()) {
-        console.log('inferTypesForPlace: skipping type inference', { placeId, netMode });
+        logger.debug('inferTypesForPlace: skipping type inference', { placeId, netMode });
       }
       return;
     }
@@ -16,7 +17,7 @@ export const useTypeInferenceHandlers = ({ elements, netMode, setElements, updat
     const place = elements.places.find((candidate) => candidate.id === placeId);
     if (!place || !place.valueTokens || place.valueTokens.length === 0) {
       if (!isProd()) {
-        console.log('inferTypesForPlace: no tokens available for place', placeId);
+        logger.debug('inferTypesForPlace: no tokens available for place', placeId);
       }
       return;
     }
@@ -60,7 +61,7 @@ export const useTypeInferenceHandlers = ({ elements, netMode, setElements, updat
 
     if (updates.length === 0) {
       if (!isProd()) {
-        console.log('inferTypesForPlace: no binding updates generated');
+        logger.debug('inferTypesForPlace: no binding updates generated');
       }
       return;
     }

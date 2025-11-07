@@ -10,6 +10,7 @@ import debounce from 'lodash/debounce';
 import { HistoryManager } from '../features/history/historyManager';
 import { useSharedClipboard } from '../features/selection/useSharedClipboard';
 import { useEditorUI } from './EditorUIContext';
+import { logger } from '../utils/logger';
 
 export const PetriNetContext = createContext();
 
@@ -140,10 +141,10 @@ export const PetriNetProvider = ({ children }) => {
 
   const handleUndo = () => {
     if (!canUndo) return;
-    console.log('Undoing to previous state...');
+    logger.debug('Undoing to previous state...');
     const result = historyManagerRef.current.undo();
     if (result) {
-      console.log('Undo result:', result.state);
+      logger.debug('Undo result:', result.state);
       setElements(result.state);
       setCanUndo(result.canUndo);
       setCanRedo(result.canRedo);
@@ -154,10 +155,10 @@ export const PetriNetProvider = ({ children }) => {
 
   const handleRedo = () => {
     if (!canRedo) return;
-    console.log('Redoing to next state...');
+    logger.debug('Redoing to next state...');
     const result = historyManagerRef.current.redo();
     if (result) {
-      console.log('Redo result:', result.state);
+      logger.debug('Redo result:', result.state);
       setElements(result.state);
       setCanUndo(result.canUndo);
       setCanRedo(result.canRedo);
@@ -235,7 +236,7 @@ export const PetriNetProvider = ({ children }) => {
     setCanUndo(false);
     setCanRedo(false);
     
-    console.log('Editor completely reset');
+    logger.debug('Editor completely reset');
   };
 
   // Selection helpers
