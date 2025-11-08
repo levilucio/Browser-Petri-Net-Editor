@@ -7,6 +7,21 @@ import { getArcSourceType, getArcTargetType } from '../../utils/arcTypes';
 import { capitalizeTypeNames } from '../../utils/arith-parser';
 import { resolvePlaceRadius } from '../../utils/place-layout.js';
 
+const TEXT_CHAR_FACTOR = 0.52;
+
+const measureText = (text = '', fontSize = 12, { padding = 4, maxWidth = Infinity } = {}) => {
+  if (!text.length) {
+    return { width: 0, wrap: 'none' };
+  }
+  const estimated = text.length * fontSize * TEXT_CHAR_FACTOR + padding * 2;
+  if (estimated <= maxWidth) {
+    return { width: estimated, wrap: 'none' };
+  }
+  return { width: maxWidth, wrap: 'char' };
+};
+
+const computeTextWidth = (metrics, fallbackSize) => (metrics.width || fallbackSize * 2);
+
 const ArcManager = () => {
   const {
     elements,
@@ -118,6 +133,61 @@ const ArcManager = () => {
 
         const isImplicitSelected = selectedElements?.some(se => se.id === arc.id && se.type === 'arc')
           || (selectedElements?.some(se => se.id === source.id) && selectedElements?.some(se => se.id === target.id));
+
+        const labelFontSize = 12;
+        const weightFontSize = 12;
+        const bindingFontSize = 12;
+
+        const arcLabelText = arc.label ? `${arc.label}` : '';
+        const weightText = arc.weight > 1 ? `${arc.weight}` : '';
+        const bindingText = netMode === 'algebraic-int' && Array.isArray(arc.bindings) && arc.bindings.length > 0
+          ? arc.bindings.map(capitalizeTypeNames).join(', ')
+          : '';
+
+        const labelMetrics = measureText(arcLabelText, labelFontSize, { padding: 6, maxWidth: 220 });
+        const weightMetrics = measureText(weightText, weightFontSize, { padding: 4, maxWidth: 80 });
+        const bindingMetrics = measureText(bindingText, bindingFontSize, { padding: 6, maxWidth: 240 });
+
+        const startX = virtualPoints[0];
+        const startY = virtualPoints[1];
+        const endX = virtualPoints[virtualPoints.length - 2];
+        const endY = virtualPoints[virtualPoints.length - 1];
+
+        const dirX = endX - startX;
+        const dirY = endY - startY;
+        const dirLength = Math.hypot(dirX, dirY);
+        let normalX = 0;
+        let normalY = -1;
+        if (dirLength > 1e-3) {
+          normalX = -dirY / dirLength;
+          normalY = dirX / dirLength;
+        }
+
+        const weightBase = 6;
+        const labelBase = 9;
+        const bindingGap = 8;
+
+        const normalXAbs = Math.abs(normalX);
+        const normalYAbs = Math.abs(normalY);
+
+        const computeClearance = (width, fontSize, margin = 4) =>
+          (width / 2) * normalXAbs + (fontSize / 2) * normalYAbs + margin;
+
+        const weightWidth = computeTextWidth(weightMetrics, weightFontSize);
+        const labelWidth = computeTextWidth(labelMetrics, labelFontSize);
+        const bindingWidth = computeTextWidth(bindingMetrics, bindingFontSize);
+
+        const weightDistance = Math.max(weightBase, computeClearance(weightWidth, weightFontSize));
+        const labelDistance = Math.max(labelBase, computeClearance(labelWidth, labelFontSize));
+        const bindingDistance = Math.max(labelDistance + bindingGap, computeClearance(bindingWidth, bindingFontSize, 6));
+
+        const weightAnchorX = midX - normalX * weightDistance;
+        const weightAnchorY = midY - normalY * weightDistance;
+        const labelAnchorX = midX + normalX * labelDistance;
+        const labelAnchorY = midY + normalY * labelDistance;
+        const bindingAnchorX = midX + normalX * bindingDistance;
+        const bindingAnchorY = midY + normalY * bindingDistance;
+
         return (
           <Group key={arc.id}>
             {/* Invisible, wide hit area behind the arrow to make selection easier */}
@@ -150,33 +220,49 @@ const ArcManager = () => {
             {/* Weight: render only when > 1, below the arc */}
             {arc.weight > 1 && (
               <Text
-                x={midX}
-                y={midY + weightOffset}
-                text={`${arc.weight}`}
-                fontSize={12}
+                x={weightAnchorX}
+                y={weightAnchorY}
+                text={weightText}
+                fontSize={weightFontSize}
+                width={weightWidth}
+                offsetX={weightWidth / 2}
+                offsetY={weightFontSize / 2}
                 align="center"
+                listening={false}
               />
             )}
             {/* Arc label: render on the opposite side of the weight (above the arc) */}
             {arc.label && (
               <Text
-                x={midX}
-                y={midY - labelOffset}
-                text={`${arc.label}`}
-                fontSize={12}
+                x={labelAnchorX}
+                y={labelAnchorY}
+                text={arcLabelText}
+                fontSize={labelFontSize}
                 fill="gray"
+                width={labelWidth}
+                offsetX={labelWidth / 2}
+                offsetY={labelFontSize / 2}
                 align="center"
+                wrap={labelMetrics.wrap}
+                ellipsis={labelMetrics.wrap !== 'none'}
+                listening={false}
               />
             )}
             {/* Binding term label (Algebraic-Int mode) */}
-            {netMode === 'algebraic-int' && Array.isArray(arc.bindings) && arc.bindings.length > 0 && (
+            {bindingText && (
               <Text
-                x={midX}
-                y={midY - labelOffset + 14}
-                text={`${arc.bindings.map(capitalizeTypeNames).join(', ')}`}
-                fontSize={12}
+                x={bindingAnchorX}
+                y={bindingAnchorY}
+                text={bindingText}
+                fontSize={bindingFontSize}
                 fill="#333"
+                width={bindingWidth}
+                offsetX={bindingWidth / 2}
+                offsetY={bindingFontSize / 2}
                 align="center"
+                wrap={bindingMetrics.wrap}
+                ellipsis={bindingMetrics.wrap !== 'none'}
+                listening={false}
               />
             )}
           </Group>

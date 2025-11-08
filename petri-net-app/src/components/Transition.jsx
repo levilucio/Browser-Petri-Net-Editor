@@ -4,6 +4,11 @@ import { usePetriNet } from '../contexts/PetriNetContext';
 import { useEditorUI } from '../contexts/EditorUIContext';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 
+const GUARD_FONT_SIZE = 11;
+const GUARD_CHAR_FACTOR = 0.48;
+const GUARD_MAX_WIDTH = 160;
+const GUARD_HORIZONTAL_PADDING = 6;
+
 const Transition = ({
   id,
   x,
@@ -112,6 +117,21 @@ const Transition = ({
     multiDragRef.current = null;
   };
 
+  const guardText = netMode === 'algebraic-int' ? String(guard || '') : '';
+
+  let guardWidth = baseWidth;
+  let guardWrap = 'none';
+
+  if (guardText) {
+    const estimated = guardText.length * GUARD_FONT_SIZE * GUARD_CHAR_FACTOR + GUARD_HORIZONTAL_PADDING * 2;
+    if (estimated <= GUARD_MAX_WIDTH) {
+      guardWidth = Math.max(baseWidth, estimated);
+    } else {
+      guardWidth = GUARD_MAX_WIDTH;
+      guardWrap = 'char';
+    }
+  }
+
   return (
     <Group
       x={x}
@@ -145,10 +165,24 @@ const Transition = ({
         align="center"
         listening={false}
       />
-      {netMode === 'algebraic-int' && (
+      {netMode === 'algebraic-int' && guardText && (
         <Text
-          text={String(guard || '')}
-          fontSize={10}
+          text={guardText}
+          fontSize={GUARD_FONT_SIZE}
+          fill="gray"
+          x={-guardWidth / 2}
+          y={-baseHeight / 2 - 14}
+          width={guardWidth}
+          align="center"
+          wrap={guardWrap}
+          listening={false}
+          ellipsis={guardWrap !== 'none'}
+        />
+      )}
+      {netMode === 'algebraic-int' && !guardText && (
+        <Text
+          text=""
+          fontSize={GUARD_FONT_SIZE}
           fill="gray"
           x={-baseWidth / 2}
           y={-baseHeight / 2 - 14}
