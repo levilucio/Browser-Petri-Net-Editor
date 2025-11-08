@@ -201,6 +201,7 @@ const ArcManager = () => {
         const weightBase = 6;
         const labelBase = 9;
         const bindingGap = 8;
+        const bindingScale = 0.66;
 
         const normalXAbs = Math.abs(normalX);
         const normalYAbs = Math.abs(normalY);
@@ -214,7 +215,7 @@ const ArcManager = () => {
 
         const weightDistance = Math.max(weightBase, computeClearance(weightWidth, weightFontSize));
         const labelDistance = Math.max(labelBase, computeClearance(labelWidth, labelFontSize));
-        const bindingDistance = Math.max(labelDistance + bindingGap, computeClearance(bindingWidth, bindingFontSize, 6));
+        const bindingDistance = Math.max(labelDistance + bindingGap, computeClearance(bindingWidth, bindingFontSize, 6) * bindingScale);
 
         const weightAnchorX = midX - normalX * weightDistance;
         const weightAnchorY = midY - normalY * weightDistance;

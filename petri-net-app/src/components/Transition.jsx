@@ -221,7 +221,7 @@ const Transition = ({
         <Text
           text={guardText}
           fontSize={GUARD_FONT_SIZE}
-          fill="gray"
+                      fill="#333"
           x={-guardWidth / 2}
           y={-baseHeight / 2 - 14}
           width={guardWidth}
