@@ -25,7 +25,8 @@ const Place = ({
     selectedElements,
     setElements,
     multiDragRef,
-    isIdSelected
+    isIdSelected,
+    setSelection
   } = usePetriNet();
 
   // Access UI state from EditorUIContext
@@ -94,27 +95,45 @@ const Place = ({
 
   const radius = isAlgebraicNet ? algebraicVisuals.radius : baseRadius;
 
+  const buildDragSnapshot = useCallback((selectedNodeIds) => {
+    const startPositions = new Map();
+    elements.places.forEach(p => {
+      if (selectedNodeIds.has(p.id)) {
+        startPositions.set(p.id, { type: 'place', x: p.x, y: p.y });
+      }
+    });
+    elements.transitions.forEach(t => {
+      if (selectedNodeIds.has(t.id)) {
+        startPositions.set(t.id, { type: 'transition', x: t.x, y: t.y });
+      }
+    });
+    const startArcPoints = new Map();
+    elements.arcs.forEach(a => {
+      if (selectedNodeIds.has(a.source) && selectedNodeIds.has(a.target)) {
+        const pts = Array.isArray(a.anglePoints) ? a.anglePoints.map(p => ({ x: p.x, y: p.y })) : [];
+        startArcPoints.set(a.id, pts);
+      }
+    });
+    return { startPositions, startArcPoints };
+  }, [elements]);
+
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
     setIsDragging(true);
-    // Initialize multi-drag if multiple nodes selected and this node is among them
-    const isSelected = isIdSelected(id, 'place');
-    if (isSelected) {
-      const selectedNodeIds = new Set(selectedElements.filter(se => se.type === 'place' || se.type === 'transition').map(se => se.id));
-      const startPositions = new Map();
-      elements.places.forEach(p => { if (selectedNodeIds.has(p.id)) startPositions.set(p.id, { type: 'place', x: p.x, y: p.y }); });
-      elements.transitions.forEach(t => { if (selectedNodeIds.has(t.id)) startPositions.set(t.id, { type: 'transition', x: t.x, y: t.y }); });
-      const startArcPoints = new Map();
-      elements.arcs.forEach(a => {
-        if (selectedNodeIds.has(a.source) && selectedNodeIds.has(a.target)) {
-          const pts = Array.isArray(a.anglePoints) ? a.anglePoints.map(p => ({ x: p.x, y: p.y })) : [];
-          startArcPoints.set(a.id, pts);
-        }
-      });
-      multiDragRef.current = { baseId: id, startPositions, startArcPoints };
+    // Initialize multi-drag snapshot
+    let selectedNodeIds;
+    if (isIdSelected(id, 'place')) {
+      selectedNodeIds = new Set(
+        selectedElements
+          .filter(se => se.type === 'place' || se.type === 'transition')
+          .map(se => se.id)
+      );
     } else {
-      multiDragRef.current = null;
+      selectedNodeIds = new Set([id]);
+      setSelection([{ id, type: 'place' }]);
     }
+    const snapshot = buildDragSnapshot(selectedNodeIds);
+    multiDragRef.current = { baseId: id, ...snapshot };
   };
 
   const handleDragMove = (e) => {
@@ -151,9 +170,6 @@ const Place = ({
       y: e.target.y(),
     };
     
-    const snapshot = multiDragRef.current;
-    const usedMultiDrag = !!(snapshot && snapshot.startPositions);
-
     // Set dragging state to false when drag ends
     setIsDragging(false);
     
@@ -168,9 +184,7 @@ const Place = ({
     flushMultiDragUpdate();
 
     // The onChange handler (from useElementManager) expects the new virtual position
-    if (!usedMultiDrag) {
-      onChange(newVirtualPos);
-    }
+    onChange(newVirtualPos);
     multiDragRef.current = null;
   };
 

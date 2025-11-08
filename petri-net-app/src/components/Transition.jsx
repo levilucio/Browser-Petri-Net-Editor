@@ -39,7 +39,8 @@ const Transition = ({
     selectedElements,
     setElements,
     multiDragRef,
-    isIdSelected
+    isIdSelected,
+    setSelection
   } = usePetriNet();
   // netMode provided by context
   
@@ -92,26 +93,44 @@ const Transition = ({
     }
   }, [runMultiDragUpdate]);
 
+  const buildDragSnapshot = useCallback((selectedNodeIds) => {
+    const startPositions = new Map();
+    elements.places.forEach(p => {
+      if (selectedNodeIds.has(p.id)) {
+        startPositions.set(p.id, { type: 'place', x: p.x, y: p.y });
+      }
+    });
+    elements.transitions.forEach(t => {
+      if (selectedNodeIds.has(t.id)) {
+        startPositions.set(t.id, { type: 'transition', x: t.x, y: t.y });
+      }
+    });
+    const startArcPoints = new Map();
+    elements.arcs.forEach(a => {
+      if (selectedNodeIds.has(a.source) && selectedNodeIds.has(a.target)) {
+        const pts = Array.isArray(a.anglePoints) ? a.anglePoints.map(p => ({ x: p.x, y: p.y })) : [];
+        startArcPoints.set(a.id, pts);
+      }
+    });
+    return { startPositions, startArcPoints };
+  }, [elements]);
+
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
     setIsDragging(true);
-    const isSelected = isIdSelected(id, 'transition');
-    if (isSelected) {
-      const selectedNodeIds = new Set(selectedElements.filter(se => se.type === 'place' || se.type === 'transition').map(se => se.id));
-      const startPositions = new Map();
-      elements.places.forEach(p => { if (selectedNodeIds.has(p.id)) startPositions.set(p.id, { type: 'place', x: p.x, y: p.y }); });
-      elements.transitions.forEach(t => { if (selectedNodeIds.has(t.id)) startPositions.set(t.id, { type: 'transition', x: t.x, y: t.y }); });
-      const startArcPoints = new Map();
-      elements.arcs.forEach(a => {
-        if (selectedNodeIds.has(a.source) && selectedNodeIds.has(a.target)) {
-          const pts = Array.isArray(a.anglePoints) ? a.anglePoints.map(p => ({ x: p.x, y: p.y })) : [];
-          startArcPoints.set(a.id, pts);
-        }
-      });
-      multiDragRef.current = { baseId: id, startPositions, startArcPoints };
+    let selectedNodeIds;
+    if (isIdSelected(id, 'transition')) {
+      selectedNodeIds = new Set(
+        selectedElements
+          .filter(se => se.type === 'place' || se.type === 'transition')
+          .map(se => se.id)
+      );
     } else {
-      multiDragRef.current = null;
+      selectedNodeIds = new Set([id]);
+      setSelection([{ id, type: 'transition' }]);
     }
+    const snapshot = buildDragSnapshot(selectedNodeIds);
+    multiDragRef.current = { baseId: id, ...snapshot };
   };
 
   const handleDragMove = (e) => {
@@ -146,9 +165,6 @@ const Transition = ({
       y: e.target.y(),
     };
 
-    const snapshot = multiDragRef.current;
-    const usedMultiDrag = !!(snapshot && snapshot.startPositions);
-    
     // Set dragging state to false when drag ends
     setIsDragging(false);
     
@@ -163,9 +179,7 @@ const Transition = ({
     flushMultiDragUpdate();
 
     // The onChange handler (from useElementManager) expects the new virtual position
-    if (!usedMultiDrag) {
-      onChange(newVirtualPos);
-    }
+    onChange(newVirtualPos);
     multiDragRef.current = null;
   };
 

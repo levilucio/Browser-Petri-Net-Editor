@@ -6,6 +6,7 @@ import { EditorUIProvider } from '../../contexts/EditorUIContext';
 // Capture calls for assertions (must be defined before jest.mock factory)
 const mockSetIsDragging = jest.fn();
 const mockSetSnapIndicator = jest.fn();
+const mockSetSelection = jest.fn();
 
 // Mock PetriNet context used by Transition
 jest.mock('../../contexts/PetriNetContext', () => ({
@@ -15,11 +16,12 @@ jest.mock('../../contexts/PetriNetContext', () => ({
     snapToGrid: (x, y) => ({ x: Math.round(x / 10) * 10, y: Math.round(y / 10) * 10 }),
     setSnapIndicator: mockSetSnapIndicator,
     netMode: 'pt',
-    elements: { places: [], transitions: [], arcs: [] },
+    elements: { places: [], transitions: [{ id: 't1', x: 100, y: 100 }], arcs: [] },
     selectedElements: [],
     setElements: jest.fn(),
     multiDragRef: { current: null },
     isIdSelected: () => false,
+    setSelection: mockSetSelection,
   }),
 }));
 
