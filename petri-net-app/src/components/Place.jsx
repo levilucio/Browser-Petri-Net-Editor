@@ -25,8 +25,7 @@ const Place = ({
     selectedElements,
     setElements,
     multiDragRef,
-    isIdSelected,
-    setSelection
+    isIdSelected
   } = usePetriNet();
 
   // Access UI state from EditorUIContext
@@ -40,6 +39,7 @@ const Place = ({
     pending: false,
     rafId: null,
     delta: { dx: 0, dy: 0 },
+    lastApplied: { dx: 0, dy: 0 },
   });
 
   const runMultiDragUpdate = useCallback(() => {
@@ -56,12 +56,30 @@ const Place = ({
         return prev;
       }
       const snapshot = multiDragRef.current;
-      return applyMultiDragDeltaFromSnapshot(prev, snapshot, scheduler.delta, { gridSnappingEnabled, snapToGrid });
+      const next = applyMultiDragDeltaFromSnapshot(prev, snapshot, scheduler.delta, { gridSnappingEnabled, snapToGrid });
+      scheduler.lastApplied = { ...scheduler.delta };
+      return next;
     });
   }, [gridSnappingEnabled, snapToGrid, setElements, multiDragRef]);
 
   const scheduleMultiDragUpdate = useCallback((delta) => {
     const scheduler = dragSchedulerRef.current;
+    const sameAsPending = scheduler.pending &&
+      scheduler.delta &&
+      scheduler.delta.dx === delta.dx &&
+      scheduler.delta.dy === delta.dy;
+    if (sameAsPending) {
+      return;
+    }
+
+    const sameAsLastApplied = !scheduler.pending &&
+      scheduler.lastApplied &&
+      scheduler.lastApplied.dx === delta.dx &&
+      scheduler.lastApplied.dy === delta.dy;
+    if (sameAsLastApplied) {
+      return;
+    }
+
     scheduler.delta = delta;
 
     if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
@@ -120,9 +138,12 @@ const Place = ({
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
     setIsDragging(true);
-    // Initialize multi-drag snapshot
+    const scheduler = dragSchedulerRef.current;
+    scheduler.lastApplied = { dx: 0, dy: 0 };
+
+    const alreadySelected = isIdSelected(id, 'place');
     let selectedNodeIds;
-    if (isIdSelected(id, 'place')) {
+    if (alreadySelected) {
       selectedNodeIds = new Set(
         selectedElements
           .filter(se => se.type === 'place' || se.type === 'transition')
@@ -130,8 +151,11 @@ const Place = ({
       );
     } else {
       selectedNodeIds = new Set([id]);
-      setSelection([{ id, type: 'place' }]);
+      if (typeof onSelect === 'function') {
+        onSelect(id);
+      }
     }
+
     const snapshot = buildDragSnapshot(selectedNodeIds);
     multiDragRef.current = { baseId: id, ...snapshot };
   };
