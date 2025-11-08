@@ -5,7 +5,7 @@ import { useElementManager } from '../elements/useElementManager';
 import { useArcManager } from './useArcManager';
 import { getArcSourceType, getArcTargetType } from '../../utils/arcTypes';
 import { capitalizeTypeNames } from '../../utils/arith-parser';
-import { resolvePlaceRadius } from '../../utils/place-layout.js';
+import { computeAlgebraicPlaceVisuals } from '../../utils/place-layout.js';
 
 const TEXT_CHAR_FACTOR = 0.52;
 
@@ -21,6 +21,7 @@ const measureText = (text = '', fontSize = 12, { padding = 4, maxWidth = Infinit
 };
 
 const computeTextWidth = (metrics, fallbackSize) => (metrics.width || fallbackSize * 2);
+const isFiniteNumber = (value) => Number.isFinite(value);
 
 const ArcManager = () => {
   const {
@@ -44,13 +45,33 @@ const ArcManager = () => {
   } = useArcManager();
 
   const getElementById = (id) => {
+    if (!id || typeof id !== 'string') return null;
     return elements.places.find(p => p.id === id) || elements.transitions.find(t => t.id === id);
+  };
+
+  const computePlaceRadius = (place) => {
+    if (!place) return 30;
+    if (netMode === 'algebraic-int' || Array.isArray(place.valueTokens)) {
+      const visuals = computeAlgebraicPlaceVisuals(place.valueTokens, 30);
+      if (visuals && typeof visuals.radius === 'number' && Number.isFinite(visuals.radius)) {
+        return visuals.radius;
+      }
+    }
+    return 30;
   };
 
   // Arc source/target type inference centralized in utils/arcTypes
 
   const getAdjustedPoints = (source, target, anglePoints = []) => {
-    const allPoints = [{...source}, ...anglePoints, {...target}];
+    // Guard against invalid inputs
+    if (!source || !target || typeof source.x !== 'number' || typeof source.y !== 'number' || 
+        typeof target.x !== 'number' || typeof target.y !== 'number') {
+      return [0, 0, 100, 100]; // Fallback to avoid crashes
+    }
+    
+    const originalSource = { x: source.x, y: source.y };
+    const originalTarget = { x: target.x, y: target.y };
+    const allPoints = [{ ...source }, ...anglePoints, { ...target }];
     const transitionWidth = 40; // from Transition.jsx
     const transitionHeight = 50; // from Transition.jsx
 
@@ -64,7 +85,7 @@ const ArcManager = () => {
     let startAngle = Math.atan2(startDy, startDx);
 
     if (source.type === 'place') {
-      const dynamicRadius = resolvePlaceRadius(source, netMode);
+      const dynamicRadius = computePlaceRadius(source, netMode);
       start.x += dynamicRadius * Math.cos(startAngle);
       start.y += dynamicRadius * Math.sin(startAngle);
     } else { // transition
@@ -72,11 +93,13 @@ const ArcManager = () => {
         const halfH = transitionHeight / 2;
         const absCos = Math.abs(Math.cos(startAngle));
         const absSin = Math.abs(Math.sin(startAngle));
+        const tanStart = Math.tan(startAngle);
         if (halfW * absSin <= halfH * absCos) {
             start.x += Math.sign(startDx) * halfW;
-            start.y += Math.sign(startDx) * halfW * Math.tan(startAngle);
+            start.y += Math.sign(startDx) * halfW * tanStart;
         } else {
-            start.x += Math.sign(startDy) * halfH / Math.tan(startAngle);
+            const tanSafe = Math.abs(tanStart) < 1e-6 ? 1e-6 * Math.sign(tanStart || 1) : tanStart;
+            start.x += Math.sign(startDy) * halfH / tanSafe;
             start.y += Math.sign(startDy) * halfH;
         }
     }
@@ -86,7 +109,7 @@ const ArcManager = () => {
     let endAngle = Math.atan2(endDy, endDx);
 
     if (target.type === 'place') {
-      const dynamicRadius = resolvePlaceRadius(target, netMode);
+      const dynamicRadius = computePlaceRadius(target, netMode);
       end.x -= dynamicRadius * Math.cos(endAngle);
       end.y -= dynamicRadius * Math.sin(endAngle);
     } else { // transition
@@ -94,11 +117,13 @@ const ArcManager = () => {
         const halfH = transitionHeight / 2;
         const absCos = Math.abs(Math.cos(endAngle));
         const absSin = Math.abs(Math.sin(endAngle));
+        const tanEnd = Math.tan(endAngle);
         if (halfW * absSin <= halfH * absCos) {
             end.x -= Math.sign(endDx) * halfW;
-            end.y -= Math.sign(endDx) * halfW * Math.tan(endAngle);
+            end.y -= Math.sign(endDx) * halfW * tanEnd;
         } else {
-            end.x -= Math.sign(endDy) * halfH / Math.tan(endAngle);
+            const tanSafe = Math.abs(tanEnd) < 1e-6 ? 1e-6 * Math.sign(tanEnd || 1) : tanEnd;
+            end.x -= Math.sign(endDy) * halfH / tanSafe;
             end.y -= Math.sign(endDy) * halfH;
         }
     }
@@ -107,22 +132,32 @@ const ArcManager = () => {
     anglePoints.forEach(p => finalPoints.push(p.x, p.y));
     finalPoints.push(end.x, end.y);
 
-    return finalPoints;
+    const hasFinitePoints = finalPoints.every((value) => Number.isFinite(value));
+    if (hasFinitePoints) {
+      return finalPoints;
+    }
+
+    const fallbackPoints = [originalSource.x, originalSource.y];
+    anglePoints.forEach(p => fallbackPoints.push(p.x, p.y));
+    fallbackPoints.push(originalTarget.x, originalTarget.y);
+    return fallbackPoints;
   };
 
   return [
     <Layer key="arcs-layer">
-      {/* Render existing arcs */}
-      {elements?.arcs?.map(arc => {
-        const source = getElementById(arc.source);
-        const target = getElementById(arc.target);
+          {/* Render existing arcs */}
+          {elements?.arcs?.map(arc => {
+            if (!arc || !arc.source || !arc.target) return null;
+            
+            const source = getElementById(arc.source);
+            const target = getElementById(arc.target);
 
-        if (!source || !target) return null;
+            if (!source || !target) return null;
 
         const virtualPoints = getAdjustedPoints(
           { ...source, type: getArcSourceType(arc) },
           { ...target, type: getArcTargetType(arc) },
-          arc.anglePoints
+          Array.isArray(arc.anglePoints) ? arc.anglePoints : []
         );
 
         // Midpoint of the arc to position labels
@@ -188,18 +223,16 @@ const ArcManager = () => {
         const bindingAnchorX = midX + normalX * bindingDistance;
         const bindingAnchorY = midY + normalY * bindingDistance;
 
+        if (
+          !isFiniteNumber(weightAnchorX) || !isFiniteNumber(weightAnchorY) ||
+          !isFiniteNumber(labelAnchorX) || !isFiniteNumber(labelAnchorY) ||
+          !isFiniteNumber(bindingAnchorX) || !isFiniteNumber(bindingAnchorY)
+        ) {
+          return null;
+        }
+
         return (
           <Group key={arc.id}>
-            {/* Invisible, wide hit area behind the arrow to make selection easier */}
-            <Line
-              points={virtualPoints}
-              stroke="transparent"
-              strokeWidth={24}
-              lineCap="round"
-              lineJoin="round"
-              onClick={(evt) => handleElementClick(evt, arc, 'arc')}
-              onTap={(evt) => handleElementClick(evt, arc, 'arc')}
-            />
             <Arrow
               points={virtualPoints}
               stroke={(selectedElement?.id === arc.id || isImplicitSelected) ? 'blue' : 'black'}
@@ -207,7 +240,7 @@ const ArcManager = () => {
               fill="black"
               pointerLength={10}
               pointerWidth={10}
-              hitStrokeWidth={20}
+              hitStrokeWidth={12}
               onClick={(evt) => handleElementClick(evt, arc, 'arc')}
               onTap={(evt) => handleElementClick(evt, arc, 'arc')}
               onDblClick={(e) => {

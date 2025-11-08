@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import { Rect, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import { useEditorUI } from '../contexts/EditorUIContext';
@@ -43,6 +43,55 @@ const Transition = ({
   } = usePetriNet();
   // netMode provided by context
   
+  const dragSchedulerRef = useRef({
+    pending: false,
+    rafId: null,
+    delta: { dx: 0, dy: 0 },
+  });
+
+  const runMultiDragUpdate = useCallback(() => {
+    const scheduler = dragSchedulerRef.current;
+    scheduler.pending = false;
+    scheduler.rafId = null;
+
+    if (!multiDragRef.current || !multiDragRef.current.startPositions) {
+      return;
+    }
+
+    setElements(prev => {
+      if (!multiDragRef.current || !multiDragRef.current.startPositions) {
+        return prev;
+      }
+      const snapshot = multiDragRef.current;
+      return applyMultiDragDeltaFromSnapshot(prev, snapshot, scheduler.delta, { gridSnappingEnabled, snapToGrid });
+    });
+  }, [gridSnappingEnabled, snapToGrid, setElements, multiDragRef]);
+
+  const scheduleMultiDragUpdate = useCallback((delta) => {
+    const scheduler = dragSchedulerRef.current;
+    scheduler.delta = delta;
+
+    if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
+      runMultiDragUpdate();
+      return;
+    }
+
+    if (!scheduler.pending) {
+      scheduler.pending = true;
+      scheduler.rafId = window.requestAnimationFrame(runMultiDragUpdate);
+    }
+  }, [runMultiDragUpdate]);
+
+  const flushMultiDragUpdate = useCallback(() => {
+    const scheduler = dragSchedulerRef.current;
+    if (typeof window !== 'undefined' && typeof window.cancelAnimationFrame === 'function' && scheduler.rafId !== null) {
+      window.cancelAnimationFrame(scheduler.rafId);
+    }
+    if (scheduler.pending || scheduler.rafId !== null) {
+      runMultiDragUpdate();
+    }
+  }, [runMultiDragUpdate]);
+
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
     setIsDragging(true);
@@ -86,12 +135,7 @@ const Transition = ({
       if (!start) return;
       const deltaX = currentPos.x - start.x;
       const deltaY = currentPos.y - start.y;
-      // Batch updates during drag to avoid excessive renders
-      setElements(prev => {
-        if (!multiDragRef.current || !multiDragRef.current.startPositions) return prev;
-        const snapshot = multiDragRef.current;
-        return applyMultiDragDeltaFromSnapshot(prev, snapshot, { dx: deltaX, dy: deltaY }, { gridSnappingEnabled, snapToGrid });
-      });
+      scheduleMultiDragUpdate({ dx: deltaX, dy: deltaY });
     }
   };
 
@@ -112,6 +156,9 @@ const Transition = ({
       elementType: null
     });
     
+    // Flush any pending multi-drag updates before finalizing
+    flushMultiDragUpdate();
+
     // The onChange handler (from useElementManager) expects the new virtual position
     onChange(newVirtualPos);
     multiDragRef.current = null;

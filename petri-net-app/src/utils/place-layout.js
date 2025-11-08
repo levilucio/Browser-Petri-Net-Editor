@@ -9,6 +9,14 @@ const SCATTER_THRESHOLD = 10;
 
 const CHAR_WIDTH_FACTOR = 0.48;
 const TEXT_PADDING_FACTOR = 0.25;
+
+const EMPTY_VALUE_TOKENS_KEY = {};
+const algebraicVisualCache = new WeakMap();
+
+function cacheVisuals(cacheKey, baseRadius, visuals) {
+  algebraicVisualCache.set(cacheKey, { baseRadius, visuals });
+  return visuals;
+}
 function layoutsOverlap(boxA, boxB, margin = 2) {
   const aRight = boxA.x + boxA.width;
   const aBottom = boxA.y + boxA.height;
@@ -465,15 +473,22 @@ function buildScatterLayout(formattedTokens, radius, baseRadius) {
 }
 
 export function computeAlgebraicPlaceVisuals(valueTokens, baseRadius = DEFAULT_BASE_RADIUS) {
-  if (!Array.isArray(valueTokens) || valueTokens.length === 0) {
-    return {
+  const cacheKey = Array.isArray(valueTokens) ? valueTokens : EMPTY_VALUE_TOKENS_KEY;
+  const cached = algebraicVisualCache.get(cacheKey);
+  if (cached && cached.baseRadius === baseRadius) {
+    return cached.visuals;
+  }
+
+  const tokensArray = Array.isArray(valueTokens) ? valueTokens : [];
+  if (tokensArray.length === 0) {
+    return cacheVisuals(cacheKey, baseRadius, {
       radius: baseRadius,
       tokens: [],
       indicator: null,
-    };
+    });
   }
 
-  const formattedTokens = valueTokens.map(formatAlgebraicToken);
+  const formattedTokens = tokensArray.map(formatAlgebraicToken);
   const maxRadius = baseRadius * MAX_RADIUS_MULTIPLIER;
 
   for (let radius = baseRadius; radius <= maxRadius; radius += RADIUS_STEP) {
@@ -481,40 +496,48 @@ export function computeAlgebraicPlaceVisuals(valueTokens, baseRadius = DEFAULT_B
       const scatterResult = buildScatterLayout(formattedTokens, radius, baseRadius);
       if (scatterResult && scatterResult.layout?.length === formattedTokens.length) {
         const adjustedRadius = Math.max(baseRadius, Math.min(scatterResult.radius, radius));
-        return {
+        return cacheVisuals(cacheKey, baseRadius, {
           radius: adjustedRadius,
           tokens: scatterResult.layout,
           indicator: null,
-        };
+        });
       }
     }
 
     const layout = tryLayout(formattedTokens, radius, baseRadius);
     if (layout) {
       const adjustedRadius = Math.max(baseRadius, Math.min(layout.radius, radius));
-      return {
+      return cacheVisuals(cacheKey, baseRadius, {
         radius: adjustedRadius,
         tokens: layout.layout,
         indicator: null,
-      };
+      });
     }
   }
 
   // If nothing fits, show count indicator at max radius
-  return {
+  return cacheVisuals(cacheKey, baseRadius, {
     radius: baseRadius,
     tokens: [],
     indicator: formattedTokens.length,
-  };
+  });
 }
 
 export function resolvePlaceRadius(place, netMode, baseRadius = DEFAULT_BASE_RADIUS) {
   if (!place) return baseRadius;
+  
+  // Guard against non-object place values
+  if (typeof place !== 'object') return baseRadius;
+  
+  // Only compute dynamic radius for algebraic nets
   if (netMode === 'algebraic-int' || Array.isArray(place.valueTokens)) {
-    const visuals = computeAlgebraicPlaceVisuals(place.valueTokens || [], baseRadius);
-    return visuals.radius;
+    const visuals = computeAlgebraicPlaceVisuals(place.valueTokens, baseRadius);
+    if (visuals && typeof visuals.radius === 'number' && Number.isFinite(visuals.radius)) {
+      return visuals.radius;
+    }
   }
   return baseRadius;
 }
+
 
 

@@ -31,14 +31,20 @@ export function pasteClipboard(state, clipboard, idFactory, offset = { x: 40, y:
   const newPlaces = (clipboard.places || []).map(p => {
     const nid = idFactory();
     idMap.set(p.id, nid);
-    const np = { ...p, id: nid, x: p.x + dx, y: p.y + dy };
+    // Ensure numeric coordinates
+    const baseX = typeof p.x === 'number' && isFinite(p.x) ? p.x : 0;
+    const baseY = typeof p.y === 'number' && isFinite(p.y) ? p.y : 0;
+    const np = { ...p, id: nid, x: baseX + dx, y: baseY + dy };
     newSelection.push({ id: nid, type: 'place' });
     return np;
   });
   const newTransitions = (clipboard.transitions || []).map(t => {
     const nid = idFactory();
     idMap.set(t.id, nid);
-    const nt = { ...t, id: nid, x: t.x + dx, y: t.y + dy };
+    // Ensure numeric coordinates
+    const baseX = typeof t.x === 'number' && isFinite(t.x) ? t.x : 0;
+    const baseY = typeof t.y === 'number' && isFinite(t.y) ? t.y : 0;
+    const nt = { ...t, id: nid, x: baseX + dx, y: baseY + dy };
     newSelection.push({ id: nid, type: 'transition' });
     return nt;
   });
