@@ -145,6 +145,9 @@ const Transition = ({
       x: e.target.x(),
       y: e.target.y(),
     };
+
+    const snapshot = multiDragRef.current;
+    const usedMultiDrag = !!(snapshot && snapshot.startPositions);
     
     // Set dragging state to false when drag ends
     setIsDragging(false);
@@ -160,7 +163,9 @@ const Transition = ({
     flushMultiDragUpdate();
 
     // The onChange handler (from useElementManager) expects the new virtual position
-    onChange(newVirtualPos);
+    if (!usedMultiDrag) {
+      onChange(newVirtualPos);
+    }
     multiDragRef.current = null;
   };
 
