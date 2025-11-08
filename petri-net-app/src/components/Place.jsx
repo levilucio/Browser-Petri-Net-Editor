@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 import { Circle, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import { useEditorUI } from '../contexts/EditorUIContext';
+import { computeAlgebraicPlaceVisuals } from '../utils/place-layout.js';
 
 const Place = ({
   id,
@@ -15,18 +16,10 @@ const Place = ({
   onSelect,
   onChange,
 }) => {
-  const radius = 30;
-
-  // Access UI state from EditorUIContext
-  const { 
-    gridSnappingEnabled, 
-    setSnapIndicator,
-  } = useEditorUI();
-  
   // Access core editor state from PetriNetContext
-  const { 
-    setIsDragging, 
-    snapToGrid, 
+  const {
+    setIsDragging,
+    snapToGrid,
     netMode,
     elements,
     selectedElements,
@@ -34,7 +27,25 @@ const Place = ({
     multiDragRef,
     isIdSelected
   } = usePetriNet();
-  
+
+  // Access UI state from EditorUIContext
+  const {
+    gridSnappingEnabled,
+    setSnapIndicator,
+  } = useEditorUI();
+
+  const baseRadius = 30;
+  const isAlgebraicNet = netMode === 'algebraic-int' || Array.isArray(valueTokens);
+
+  const algebraicVisuals = useMemo(() => {
+    if (!isAlgebraicNet) {
+      return { radius: baseRadius, tokens: [], indicator: null };
+    }
+    return computeAlgebraicPlaceVisuals(valueTokens || [], baseRadius);
+  }, [isAlgebraicNet, valueTokens]);
+
+  const radius = isAlgebraicNet ? algebraicVisuals.radius : baseRadius;
+
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
     setIsDragging(true);
@@ -112,75 +123,43 @@ const Place = ({
   };
 
   const renderTokens = () => {
-    // If algebraic integer tokens provided, render them as scattered integers when they fit
-    if (Array.isArray(valueTokens) && valueTokens.length > 0) {
-      const maxScatter = 6;
-      const count = valueTokens.length;
-      const formatToken = (v) => {
-        if (typeof v === 'boolean') return v ? 'T' : 'F';
-        if (typeof v === 'string') return `'${v}'`;
-        if (Array.isArray(v)) return `[${v.map(formatToken).join(', ')}]`;
-        if (v && typeof v === 'object' && v.__pair__) return `(${formatToken(v.fst)}, ${formatToken(v.snd)})`;
-        return String(v);
-      };
-      // Single algebraic integer: center it
-      if (count === 1) {
-        const text = formatToken(valueTokens[0]);
+    if (isAlgebraicNet) {
+      if (algebraicVisuals.tokens.length > 0) {
+        return (
+          <>
+            {algebraicVisuals.tokens.map(token => (
+              <Text
+                key={token.key}
+                text={token.text}
+                fontSize={token.fontSize}
+                fill="black"
+                x={token.x}
+                y={token.y}
+                width={token.width}
+                align="center"
+                wrap="none"
+                listening={false}
+              />
+            ))}
+          </>
+        );
+      }
+      if (algebraicVisuals.indicator) {
         return (
           <Text
-            text={text}
-            fontSize={14}
+            text={`(${algebraicVisuals.indicator})`}
+            fontSize={12}
             fill="black"
             x={-radius}
             y={-7}
             width={radius * 2}
             align="center"
+            wrap="none"
             listening={false}
           />
         );
       }
-      if (count <= maxScatter) {
-        // Arrange around inner circle at fixed positions for readability
-        const innerR = radius - 12;
-        return (
-          <>
-            {valueTokens.map((val, index) => {
-              // Offset start angle so first token sits near top-left, matching screenshot layout better
-              const angle = -Math.PI / 2 + (2 * Math.PI * index) / count;
-              const tx = Math.cos(angle) * innerR;
-              const ty = Math.sin(angle) * innerR;
-              const fontSize = 12;
-              const text = formatToken(val);
-              const estWidth = Math.max(12, text.length * fontSize * 0.6);
-              return (
-                <Text
-                  key={`ival-${index}`}
-                  text={text}
-                  fontSize={fontSize}
-                  fill="black"
-                  x={tx - estWidth / 2}
-                  y={ty - fontSize / 2}
-                  wrap="none"
-                  listening={false}
-                />
-              );
-            })}
-          </>
-        );
-      }
-      // Too many integers to display; show indicator
-      return (
-        <Text
-          text={`(${valueTokens.length})`}
-          fontSize={12}
-          fill="black"
-          x={-radius}
-          y={-7}
-          width={radius * 2}
-          align="center"
-          listening={false}
-        />
-      );
+      return null;
     }
     if (tokens === 0) {
       // For algebraic nets, show nothing when empty regardless of whether valueTokens is defined

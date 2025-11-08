@@ -6,9 +6,13 @@ import { EditorUIProvider } from '../../contexts/EditorUIContext';
 jest.mock('../../contexts/PetriNetContext', () => ({
   usePetriNet: () => ({
     setIsDragging: jest.fn(),
-    gridSnappingEnabled: false,
     snapToGrid: (x, y) => ({ x, y }),
-    setSnapIndicator: jest.fn(),
+    netMode: 'algebraic-int',
+    elements: { places: [], transitions: [], arcs: [] },
+    selectedElements: [],
+    setElements: jest.fn(),
+    multiDragRef: { current: null },
+    isIdSelected: jest.fn(() => false),
   }),
 }));
 
@@ -49,7 +53,13 @@ jest.mock('react-konva', () => ({
 describe('Place (algebraic tokens)', () => {
   const baseProps = { id: 'p1', x: 0, y: 0, label: 'P1', tokens: 0, isSelected: false, onSelect: jest.fn(), onChange: jest.fn() };
 
-  test('renders small integer tokens as scattered numbers', () => {
+  const getRenderedCircleRadius = () => {
+    const circles = screen.getAllByTestId('circle');
+    const mainCircle = circles.find((circle) => circle.getAttribute('radius'));
+    return mainCircle ? Number(mainCircle.getAttribute('radius')) : null;
+  };
+
+  test('renders algebraic tokens inside the place without expanding unnecessarily', () => {
     render(
       <EditorUIProvider>
         <Place {...baseProps} valueTokens={[2, 4, 6]} />
@@ -59,17 +69,38 @@ describe('Place (algebraic tokens)', () => {
     expect(texts).toContain('2');
     expect(texts).toContain('4');
     expect(texts).toContain('6');
+    expect(getRenderedCircleRadius()).toBe(30);
   });
 
-  test('renders large integer token list as count indicator', () => {
-    const many = Array.from({ length: 10 }, (_, i) => i + 1);
+  test('expands radius when tokens require more space but caps at 4x', () => {
+    const complexTokens = Array.from({ length: 7 }, (_, i) => i + 1);
+
     render(
       <EditorUIProvider>
-        <Place {...baseProps} valueTokens={many} />
+        <Place {...baseProps} valueTokens={complexTokens} />
       </EditorUIProvider>
     );
-    expect(screen.getAllByTestId('text').some(n => n.textContent === '(10)')).toBe(true);
+
+    const radius = getRenderedCircleRadius();
+    expect(radius).toBeGreaterThanOrEqual(30);
+    expect(radius).toBeLessThanOrEqual(120);
+
+    const texts = screen.getAllByTestId('text').map(n => n.textContent);
+    complexTokens.forEach(token => {
+      expect(texts).toContain(String(token));
+    });
+  });
+
+  test('shows indicator when content cannot fit even at maximum radius', () => {
+    const overflowingTokens = Array.from({ length: 20 }, (_, i) => `super_long_token_${i}_with_many_characters`);
+    render(
+      <EditorUIProvider>
+        <Place {...baseProps} valueTokens={overflowingTokens} />
+      </EditorUIProvider>
+    );
+
+    const indicator = screen.getAllByTestId('text').find(n => n.textContent === `(${overflowingTokens.length})`);
+    expect(indicator).toBeDefined();
+    expect(getRenderedCircleRadius()).toBe(30);
   });
 });
-
-

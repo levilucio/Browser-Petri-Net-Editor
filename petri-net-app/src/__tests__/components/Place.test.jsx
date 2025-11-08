@@ -7,9 +7,13 @@ import { EditorUIProvider } from '../../contexts/EditorUIContext';
 jest.mock('../../contexts/PetriNetContext', () => ({
   usePetriNet: () => ({
     setIsDragging: jest.fn(),
-    gridSnappingEnabled: false,
     snapToGrid: (x, y) => ({ x, y }),
-    setSnapIndicator: jest.fn(),
+    netMode: 'pt',
+    elements: { places: [], transitions: [], arcs: [] },
+    selectedElements: [],
+    setElements: jest.fn(),
+    multiDragRef: { current: null },
+    isIdSelected: jest.fn(() => false),
   }),
 }));
 

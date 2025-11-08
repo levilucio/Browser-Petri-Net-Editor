@@ -5,6 +5,7 @@ import { useElementManager } from '../elements/useElementManager';
 import { useArcManager } from './useArcManager';
 import { getArcSourceType, getArcTargetType } from '../../utils/arcTypes';
 import { capitalizeTypeNames } from '../../utils/arith-parser';
+import { resolvePlaceRadius } from '../../utils/place-layout.js';
 
 const ArcManager = () => {
   const {
@@ -35,7 +36,6 @@ const ArcManager = () => {
 
   const getAdjustedPoints = (source, target, anglePoints = []) => {
     const allPoints = [{...source}, ...anglePoints, {...target}];
-    const placeRadius = 30; // from Place.jsx
     const transitionWidth = 40; // from Transition.jsx
     const transitionHeight = 50; // from Transition.jsx
 
@@ -49,8 +49,9 @@ const ArcManager = () => {
     let startAngle = Math.atan2(startDy, startDx);
 
     if (source.type === 'place') {
-      start.x += placeRadius * Math.cos(startAngle);
-      start.y += placeRadius * Math.sin(startAngle);
+      const dynamicRadius = resolvePlaceRadius(source, netMode);
+      start.x += dynamicRadius * Math.cos(startAngle);
+      start.y += dynamicRadius * Math.sin(startAngle);
     } else { // transition
         const halfW = transitionWidth / 2;
         const halfH = transitionHeight / 2;
@@ -70,8 +71,9 @@ const ArcManager = () => {
     let endAngle = Math.atan2(endDy, endDx);
 
     if (target.type === 'place') {
-      end.x -= placeRadius * Math.cos(endAngle);
-      end.y -= placeRadius * Math.sin(endAngle);
+      const dynamicRadius = resolvePlaceRadius(target, netMode);
+      end.x -= dynamicRadius * Math.cos(endAngle);
+      end.y -= dynamicRadius * Math.sin(endAngle);
     } else { // transition
         const halfW = transitionWidth / 2;
         const halfH = transitionHeight / 2;
