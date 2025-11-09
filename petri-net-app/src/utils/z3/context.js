@@ -52,19 +52,23 @@ async function ensureZ3Available() {
   // Main thread (DOM available)
   if (typeof globalThis.initZ3 === 'function') return;
   logger.debug('initZ3 not found, loading Z3 built assets...');
-  try {
-    const response = await fetch('/z3-built.js');
-    if (!response.ok) throw new Error(`Failed to fetch z3-built.js: ${response.status}`);
-    const z3Script = await response.text();
+  await new Promise((resolve, reject) => {
     const scriptElement = document.createElement('script');
-    scriptElement.textContent = z3Script;
+    scriptElement.src = '/z3-built.js';
+    scriptElement.async = true;
+    scriptElement.addEventListener('load', () => {
+      if (typeof globalThis.initZ3 === 'function') {
+        logger.debug('Z3 built assets loaded successfully');
+        resolve();
+      } else {
+        reject(new Error('initZ3 function not found after loading z3-built.js'));
+      }
+    });
+    scriptElement.addEventListener('error', (err) => {
+      reject(new Error(`Failed to load z3-built.js: ${err?.message || err}`));
+    });
     document.head.appendChild(scriptElement);
-    await new Promise(resolve => setTimeout(resolve, 100));
-    if (typeof globalThis.initZ3 !== 'function') throw new Error('initZ3 function not found after loading z3-built.js');
-    logger.debug('Z3 built assets loaded successfully');
-  } catch (error) {
-    throw new Error(`Failed to load Z3 built assets: ${error.message}`);
-  }
+  });
 }
 
 export async function getContext() {
@@ -106,15 +110,23 @@ export async function getContext() {
             // Force asset loading
             if (typeof globalThis.initZ3 !== 'function') {
               logger.debug('initZ3 not found, loading Z3 built assets...');
-              const response = await fetch('/z3-built.js');
-              if (!response.ok) throw new Error(`Failed to fetch z3-built.js: ${response.status}`);
-              const z3Script = await response.text();
-              const scriptElement = document.createElement('script');
-              scriptElement.textContent = z3Script;
-              document.head.appendChild(scriptElement);
-              await new Promise(resolve => setTimeout(resolve, 100));
-              if (typeof globalThis.initZ3 !== 'function') throw new Error('initZ3 function not found after loading z3-built.js');
-              logger.debug('Z3 built assets loaded successfully');
+              await new Promise((resolve, reject) => {
+                const scriptElement = document.createElement('script');
+                scriptElement.src = '/z3-built.js';
+                scriptElement.async = true;
+                scriptElement.addEventListener('load', () => {
+                  if (typeof globalThis.initZ3 === 'function') {
+                    logger.debug('Z3 built assets loaded successfully');
+                    resolve();
+                  } else {
+                    reject(new Error('initZ3 function not found after loading z3-built.js'));
+                  }
+                });
+                scriptElement.addEventListener('error', (err) => {
+                  reject(new Error(`Failed to load z3-built.js: ${err?.message || err}`));
+                });
+                document.head.appendChild(scriptElement);
+              });
             }
 
             const { init } = await import('z3-solver');
