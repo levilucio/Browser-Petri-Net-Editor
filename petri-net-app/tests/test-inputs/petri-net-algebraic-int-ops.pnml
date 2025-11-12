@@ -1,0 +1,43 @@
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml" xmlns:apn="http://example.org/apn">
+  <net id="net-int" type="http://www.pnml.org/version-2009/grammar/ptnet" netMode="algebraic-int">
+    <name><text>Algebraic Int Operators</text></name>
+    <page id="page1">
+      <place id="p1">
+        <name><text>P1</text></name>
+        <graphics><position x="200" y="200"/></graphics>
+        <apn:valueTokens>
+          <apn:token><apn:text>3</apn:text></apn:token>
+          <apn:token><apn:text>2</apn:text></apn:token>
+          <apn:token><apn:text>7</apn:text></apn:token>
+          <apn:token><apn:text>1</apn:text></apn:token>
+        </apn:valueTokens>
+      </place>
+      <place id="p2">
+        <name><text>P2</text></name>
+        <graphics><position x="600" y="100"/></graphics>
+      </place>
+      <place id="p3">
+        <name><text>P3</text></name>
+        <graphics><position x="600" y="300"/></graphics>
+      </place>
+      <transition id="t1">
+        <name><text>T1</text></name>
+        <graphics><position x="400" y="200"/></graphics>
+        <apn:guard><apn:text>(a + b) * c == 35 and c - a &gt; b and d &lt;= b and a != d and c &gt;= a + b and b &lt; c</apn:text></apn:guard>
+      </transition>
+      <arc id="a1" source="p1" target="t1">
+        <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
+        <apn:binding><apn:text>a:Int, b:Int, c:Int, d:Int</apn:text></apn:binding>
+      </arc>
+      <arc id="a2" source="t1" target="p2">
+        <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
+        <apn:binding><apn:text>a + b, c - a, a * d</apn:text></apn:binding>
+      </arc>
+      <arc id="a3" source="t1" target="p3">
+        <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
+        <apn:binding><apn:text>a == b, a != d, a &lt; c, c &gt; b, c &gt;= a + b, d &lt;= b</apn:text></apn:binding>
+      </arc>
+    </page>
+  </net>
+</pnml>
+

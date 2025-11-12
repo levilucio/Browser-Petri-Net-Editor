@@ -1,6 +1,6 @@
 import { generatePNML } from '../../utils/pnml/writer';
 
-describe('pnml writer formats valueTokens in initialMarking', () => {
+describe('pnml writer formats algebraic valueTokens using apn:valueTokens', () => {
   test('formats booleans, strings with quotes, lists and pairs', () => {
     const xml = generatePNML({
       places: [
@@ -12,9 +12,14 @@ describe('pnml writer formats valueTokens in initialMarking', () => {
       transitions: [],
       arcs: []
     });
-    expect(xml).toContain("<initialMarking>");
-    // Expect escaped single quote in string, spaces after commas
-    expect(xml).toContain("[T, F, 'a\\'b', (1, 3), [1, 2]]");
+    expect(xml).toMatch(/<apn:valueTokens[^>]*>/);
+    // writer should no longer emit the ambiguous initialMarking for algebraic places
+    expect(xml).not.toContain('<initialMarking>');
+    expect(xml).toContain('<apn:token><apn:text>T</apn:text></apn:token>');
+    expect(xml).toContain('<apn:token><apn:text>F</apn:text></apn:token>');
+    expect(xml).toContain("<apn:token><apn:text>'a\\'b'</apn:text></apn:token>");
+    expect(xml).toContain('<apn:token><apn:text>(1, 3)</apn:text></apn:token>');
+    expect(xml).toContain('<apn:token><apn:text>[1, 2]</apn:text></apn:token>');
   });
 });
 

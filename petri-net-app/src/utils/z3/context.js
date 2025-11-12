@@ -3,6 +3,11 @@ import { logger } from '../logger.js';
 let z3InitPromise = null;
 
 async function ensureZ3Available() {
+  const isNodeJSTest = typeof process !== 'undefined' && process.env && process.env.JEST_WORKER_ID;
+  if (isNodeJSTest) {
+    logger.debug('Jest worker detected, skipping Z3 asset fetch');
+    return;
+  }
   // Worker context (no DOM): fetch and evaluate z3-built.js with embedded WASM
   if (typeof document === 'undefined') {
     if (typeof globalThis.initZ3 === 'function') return;

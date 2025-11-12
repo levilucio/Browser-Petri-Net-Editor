@@ -68,6 +68,36 @@ describe('pnml reader additional branches', () => {
     expect(a12.type).toBe('place-to-transition');
     expect(a12.weight).toBe(2);
   });
+
+  test('parses apn:valueTokens and prefers them over legacy initialMarking', () => {
+    const xml = `<?xml version="1.0"?>
+<pnml xmlns="${PNML_NS}" xmlns:apn="${APN_NS}">
+  <net id="n2" netMode="algebraic-int">
+    <page id="page1">
+      <place id="P2">
+        <name><text>P2</text></name>
+        <graphics><position x="0" y="0"/></graphics>
+        <initialMarking><text>[999]</text></initialMarking>
+        <apn:valueTokens>
+          <apn:token><apn:text>1</apn:text></apn:token>
+          <apn:token><apn:text>[2, 3]</apn:text></apn:token>
+          <apn:token><apn:text>(4, (5, 6))</apn:text></apn:token>
+        </apn:valueTokens>
+      </place>
+    </page>
+  </net>
+</pnml>`;
+
+    const res = parsePNML(xml);
+    expect(res.places.length).toBe(1);
+    const place = res.places[0];
+    expect(place.tokens).toBe(3);
+    expect(place.valueTokens).toEqual([
+      1,
+      [2, 3],
+      { __pair__: true, fst: 4, snd: { __pair__: true, fst: 5, snd: 6 } },
+    ]);
+  });
 });
 
 

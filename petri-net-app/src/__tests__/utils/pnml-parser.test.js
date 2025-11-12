@@ -112,7 +112,9 @@ describe('PNML Parser (real)', () => {
     expect(xml).toContain('<apn:guard');
     expect(xml).toContain('<apn:action');
     expect(xml).toContain('<apn:binding');
-    expect(xml).toContain('[2, 4]');
+    expect(xml).toMatch(/<apn:valueTokens[^>]*>/);
+    expect(xml).toContain('<apn:token><apn:text>2</apn:text></apn:token>');
+    expect(xml).toContain('<apn:token><apn:text>4</apn:text></apn:token>');
   });
 
   test('generatePNML handles mixed arc formats (source/target and sourceId/targetId)', () => {

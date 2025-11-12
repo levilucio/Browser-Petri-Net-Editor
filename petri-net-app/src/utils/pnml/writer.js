@@ -64,33 +64,38 @@ export function generatePNML(petriNetJson) {
         apnUsed = true;
       }
 
+      const formatToken = (v) => {
+        if (typeof v === 'boolean') return v ? 'T' : 'F';
+        if (typeof v === 'string') {
+          const escaped = v
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, "\\'")
+            .replace(/\n/g, '\\n')
+            .replace(/\t/g, '\\t')
+            .replace(/\r/g, '\\r');
+          return `'${escaped}'`;
+        }
+        if (Array.isArray(v)) {
+          const elements = v.map(formatToken);
+          return `[${elements.join(', ')}]`;
+        }
+        if (v && typeof v === 'object' && v.__pair__) {
+          return `(${formatToken(v.fst)}, ${formatToken(v.snd)})`;
+        }
+        return String(v);
+      };
+
       if (Array.isArray(place.valueTokens)) {
-        const markingElement = xmlDoc.createElement('initialMarking');
-        const markingTextElement = xmlDoc.createElement('text');
-        const formatToken = (v) => {
-          if (typeof v === 'boolean') return v ? 'T' : 'F';
-          if (typeof v === 'string') {
-            const escaped = v
-              .replace(/\\/g, '\\\\')
-              .replace(/'/g, "\\'")
-              .replace(/\n/g, '\\n')
-              .replace(/\t/g, '\\t')
-              .replace(/\r/g, '\\r');
-            return `'${escaped}'`;
-          }
-          if (Array.isArray(v)) {
-            const elements = v.map(formatToken);
-            return `[${elements.join(', ')}]`;
-          }
-          if (v && typeof v === 'object' && v.__pair__) {
-            return `(${formatToken(v.fst)}, ${formatToken(v.snd)})`;
-          }
-          return String(v);
-        };
-        const parts = place.valueTokens.map(formatToken);
-        markingTextElement.textContent = `[${parts.join(', ')}]`;
-        markingElement.appendChild(markingTextElement);
-        placeElement.appendChild(markingElement);
+        const valueTokensElement = xmlDoc.createElementNS(APN_NS, 'apn:valueTokens');
+        place.valueTokens.forEach((token) => {
+          const tokenElement = xmlDoc.createElementNS(APN_NS, 'apn:token');
+          const textElement = xmlDoc.createElementNS(APN_NS, 'apn:text');
+          textElement.textContent = formatToken(token);
+          tokenElement.appendChild(textElement);
+          valueTokensElement.appendChild(tokenElement);
+        });
+        placeElement.appendChild(valueTokensElement);
+        apnUsed = true;
       } else if (place.tokens > 0) {
         const markingElement = xmlDoc.createElement('initialMarking');
         const markingTextElement = xmlDoc.createElement('text');

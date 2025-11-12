@@ -1,0 +1,44 @@
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml" xmlns:apn="http://example.org/apn">
+  <net id="net-list-skeleton" type="http://www.pnml.org/version-2009/grammar/ptnet" netMode="algebraic-int">
+    <name><text>Algebraic List Skeleton</text></name>
+    <page id="page1">
+      <place id="p1">
+        <name><text>P1</text></name>
+        <graphics><position x="200" y="200"/></graphics>
+        <apn:valueTokens>
+          <apn:token><apn:text>[1, 2, 3, 4, 5]</apn:text></apn:token>
+          <apn:token><apn:text>[6, 7]</apn:text></apn:token>
+          <apn:token><apn:text>[1, 2, 3, 4, 5, 6, 7]</apn:text></apn:token>
+          <apn:token><apn:text>[3, 4, 5]</apn:text></apn:token>
+        </apn:valueTokens>
+      </place>
+      <place id="p2">
+        <name><text>P2</text></name>
+        <graphics><position x="600" y="100"/></graphics>
+      </place>
+      <place id="p3">
+        <name><text>P3</text></name>
+        <graphics><position x="600" y="300"/></graphics>
+      </place>
+      <transition id="t1">
+        <name><text>T1</text></name>
+        <graphics><position x="400" y="200"/></graphics>
+        <apn:guard><apn:text>concat(xs, ys) == zs and length(zs) == length(xs) + length(ys) and isSublistOf(sub, zs) and sublist(zs, 2, 3) == sub and tail(xs) == [2, 3, 4, 5] and head(xs) != head(ys)</apn:text></apn:guard>
+      </transition>
+      <arc id="a1" source="p1" target="t1">
+        <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
+        <apn:binding><apn:text>xs:List, ys:List, zs:List, sub:List</apn:text></apn:binding>
+      </arc>
+      <arc id="a2" source="t1" target="p2">
+        <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
+        <apn:binding><apn:text>concat(xs, ys), append(xs, head(ys)), tail(ys)</apn:text></apn:binding>
+      </arc>
+      <arc id="a3" source="t1" target="p3">
+        <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
+        <apn:binding><apn:text>sublist(zs, 1, 4), isSublistOf(sub, zs), xs == sub, xs != ys, length(xs)</apn:text></apn:binding>
+      </arc>
+    </page>
+  </net>
+</pnml>
+
+

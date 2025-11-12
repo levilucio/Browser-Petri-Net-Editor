@@ -52,7 +52,13 @@ describe('PNML (algebraic annotations)', () => {
       netMode: 'algebraic'
     };
     const xml = generatePNML(net);
-    expect(xml).toContain('[2, 11, 6, T, F]');
+    expect(xml).toMatch(/<apn:valueTokens[^>]*>/);
+    expect(xml).not.toContain('[2, 11, 6, T, F]');
+    expect(xml).toContain('<apn:token><apn:text>2</apn:text></apn:token>');
+    expect(xml).toContain('<apn:token><apn:text>11</apn:text></apn:token>');
+    expect(xml).toContain('<apn:token><apn:text>6</apn:text></apn:token>');
+    expect(xml).toContain('<apn:token><apn:text>T</apn:text></apn:token>');
+    expect(xml).toContain('<apn:token><apn:text>F</apn:text></apn:token>');
     const parsed = parsePNML(xml);
     expect(parsed.places[0].valueTokens).toEqual([2, 11, 6, true, false]);
   });
