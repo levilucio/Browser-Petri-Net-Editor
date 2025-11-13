@@ -60,6 +60,7 @@ const AppContent = () => {
       updateHistory,
       snapToGrid,
       resetEditor,
+      simulatorCore,
       enabledTransitionIds,
       clipboardRef,
       setClipboard,
@@ -79,9 +80,6 @@ const AppContent = () => {
     });
 
     const { handleDeleteElement, clearAllElements } = useElementManager();
-    
-    // Get simulator core for testing
-    const simulatorCore = window.__PETRI_NET_SIM_CORE__;
 
     // handleAutoLayout removed
 

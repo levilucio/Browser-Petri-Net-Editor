@@ -22,7 +22,7 @@
       <transition id="t1">
         <name><text>T1</text></name>
         <graphics><position x="400" y="200"/></graphics>
-        <apn:guard><apn:text>concat(s1, s2) == s3 and substring(s3, 0, 3) == s1 and isSubstringOf(s3, s2) and length(s3) == 6 and s1 != s2</apn:text></apn:guard>
+        <apn:guard><apn:text>concat(s1, s2) == s3 and substring(s3, 0, 3) == s1 and isSubstringOf(s2, s3) and length(s3) == 6 and s1 != s2</apn:text></apn:guard>
       </transition>
       <arc id="a1" source="p1" target="t1">
         <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
@@ -34,7 +34,7 @@
       </arc>
       <arc id="a3" source="t1" target="p3">
         <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
-        <apn:binding><apn:text>isSubstringOf(s3, s1), s1 == substring(s3, 0, 3), s1 != s2</apn:text></apn:binding>
+        <apn:binding><apn:text>isSubstringOf(s1, s3), s1 == substring(s3, 0, 3), s1 != s2</apn:text></apn:binding>
       </arc>
     </page>
   </net>

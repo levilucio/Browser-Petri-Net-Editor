@@ -6,8 +6,8 @@
         <name><text>P1</text></name>
         <graphics><position x="200" y="200"/></graphics>
         <apn:valueTokens>
-          <apn:token><apn:text>('key', (1, T))</apn:text></apn:token>
-          <apn:token><apn:text>('key', (3, F))</apn:text></apn:token>
+          <apn:token><apn:text>('key', (1, true))</apn:text></apn:token>
+          <apn:token><apn:text>('key', (3, false))</apn:text></apn:token>
         </apn:valueTokens>
       </place>
       <place id="p2">
@@ -29,7 +29,7 @@
       </arc>
       <arc id="a2" source="t1" target="p2">
         <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
-        <apn:binding><apn:text>fst(x), snd(x), fst(y), snd(y)</apn:text></apn:binding>
+        <apn:binding><apn:text>fst(x), snd(x), fst(snd(y)), snd(snd(y)), (fst(x), fst(snd(y)))</apn:text></apn:binding>
       </arc>
       <arc id="a3" source="t1" target="p3">
         <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>

@@ -24,7 +24,7 @@
       </transition>
       <arc id="a1" source="p1" target="t1">
         <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>
-        <apn:binding><apn:text>[xs:List]</apn:text></apn:binding>
+        <apn:binding><apn:text>xs:List</apn:text></apn:binding>
       </arc>
       <arc id="a2" source="t1" target="p2">
         <graphics><metadata><sourceDirection>north</sourceDirection><targetDirection>south</targetDirection></metadata></graphics>

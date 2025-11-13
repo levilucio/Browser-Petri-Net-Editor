@@ -30,12 +30,12 @@ export async function findSatisfyingAssignment({
         const pureOk = evaluateBooleanWithBindings(guardAst, env || {}, parseArithmetic);
         if (!pureOk) return null;
         return { env, picks };
-      } catch (_) {
+      } catch (err) {
         try {
           const ok = await evaluateBooleanPredicate(guardAst, env || {}, parseArithmetic);
           return ok ? { env, picks } : null;
         } catch (_) {
-          return null;
+          throw err;
         }
       }
     }
