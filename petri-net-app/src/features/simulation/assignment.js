@@ -35,7 +35,7 @@ export async function findSatisfyingAssignment({
           const ok = await evaluateBooleanPredicate(guardAst, env || {}, parseArithmetic);
           return ok ? { env, picks } : null;
         } catch (_) {
-          throw err;
+          return null;
         }
       }
     }

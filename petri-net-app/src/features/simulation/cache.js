@@ -20,6 +20,27 @@ export function buildGuardCache(petriNet, parseArithmetic, parseBooleanExpr, par
   return guardAstByTransition;
 }
 
+function containsOperationCall(text, ops) {
+  if (!text) return false;
+  const len = text.length;
+  for (let i = 0; i < len; i += 1) {
+    const ch = text[i];
+    if (!/[A-Za-z_]/.test(ch)) continue;
+    let j = i + 1;
+    while (j < len && /[A-Za-z0-9_]/.test(text[j])) j += 1;
+    const ident = text.slice(i, j);
+    if (ops.has(ident)) {
+      let k = j;
+      while (k < len && /\s/.test(text[k])) k += 1;
+      if (k < len && text[k] === '(') {
+        return true;
+      }
+    }
+    i = j - 1;
+  }
+  return false;
+}
+
 export function buildBindingCache(petriNet, parsePattern, parseArithmetic, parseBooleanExpr, allowedOps) {
   const bindingAstsByArc = new Map();
   for (const a of (petriNet.arcs || [])) {
@@ -29,25 +50,31 @@ export function buildBindingCache(petriNet, parsePattern, parseArithmetic, parse
     for (const b of bindings) {
       const text = String(b);
 
-      // First try pattern matching (for deconstruction like (F, x))
-      try {
-        const pattern = parsePattern(text);
-        asts.push({ kind: 'pattern', ast: pattern });
-        continue;
-      } catch (_) {
-        // Not a pattern, continue with other parsing methods
-      }
+      const trimmed = text.trim();
+      const preferArithmetic = containsOperationCall(trimmed, allowedOps);
 
-      // Prefer arithmetic, but if variable annotated as bool, store as bool kind
-      let parsed = null;
-      const tf = (text === 'T') ? true : (text === 'F') ? false : null;
-      try { parsed = parseArithmetic(text); } catch (_) { parsed = null; }
-      if (parsed && parsed.type === 'funcall') {
-        if (!allowedOps.has(parsed.name)) {
-          parsed = null; // fall back to boolean parsing below
+      const isAllowedFuncall = (node) => {
+        if (!node || typeof node !== 'object') return true;
+        switch (node.type) {
+          case 'funcall':
+            if (!allowedOps.has(node.name)) return false;
+            return (node.args || []).every(isAllowedFuncall);
+          case 'pair':
+            return isAllowedFuncall(node.fst) && isAllowedFuncall(node.snd);
+          case 'list':
+            return (node.elements || []).every(isAllowedFuncall);
+          case 'binop':
+            return isAllowedFuncall(node.left) && isAllowedFuncall(node.right);
+          default:
+            return true;
         }
-      }
-      if (parsed) {
+      };
+
+      const tryArithmetic = () => {
+        let parsed = null;
+        try { parsed = parseArithmetic(text); } catch (_) { parsed = null; }
+        if (!parsed) return false;
+        if (!isAllowedFuncall(parsed)) return false;
         if (parsed.type === 'var' && parsed.varType === 'bool') {
           asts.push({ kind: 'bool', ast: { type: 'boolVar', name: parsed.name, varType: 'bool' } });
         } else if (parsed.type === 'var' && parsed.varType === 'pair') {
@@ -55,8 +82,32 @@ export function buildBindingCache(petriNet, parsePattern, parseArithmetic, parse
         } else {
           asts.push({ kind: 'arith', ast: parsed });
         }
-        continue;
+        return true;
+      };
+
+      const tryPattern = () => {
+        try {
+          const pattern = parsePattern(text);
+          asts.push({ kind: 'pattern', ast: pattern });
+          return true;
+        } catch (_) {
+          return false;
+        }
+      };
+
+      let handled = false;
+      if (preferArithmetic) {
+        handled = tryArithmetic();
+        if (!handled) handled = tryPattern();
+      } else {
+        handled = tryPattern();
+        if (!handled) handled = tryArithmetic();
       }
+
+      if (handled) continue;
+
+      // Prefer arithmetic, but if variable annotated as bool, store as bool kind
+      const tf = (text === 'T') ? true : (text === 'F') ? false : null;
       if (tf !== null) { asts.push({ kind: 'bool', ast: { type: 'boolLit', value: tf } }); continue; }
       try { asts.push({ kind: 'bool', ast: parseBooleanExpr(text, parseArithmetic) }); continue; } catch (_) {}
       // Skip invalid

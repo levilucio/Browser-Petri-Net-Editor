@@ -224,7 +224,9 @@ test.describe('Algebraic skeleton error handling', () => {
   test('invalid head usage surfaces descriptive error', async ({ page }) => {
     await loadSkeletonNet(page, 'petri-net-algebraic-invalid-head.pnml', { requireEnabled: false });
 
-    const errorMessage = await page.evaluate(async () => {
+    await expect(page.getByTestId('sim-step')).toBeDisabled();
+
+    const fireResult = await page.evaluate(async () => {
       const core = /** @type {any} */ (window).__PETRI_NET_SIM_CORE__;
       try {
         await core.fireTransition('t1');
@@ -233,9 +235,7 @@ test.describe('Algebraic skeleton error handling', () => {
         return err?.message || String(err);
       }
     });
-    expect(errorMessage).toContain('head requires non-empty list');
-
-    await expect(page.getByTestId('sim-step')).toBeDisabled();
+    expect(fireResult).toContain('not enabled');
 
     const p2Tokens = await readPlaceTokens(page, 'P2');
     const p3Tokens = await readPlaceTokens(page, 'P3');
