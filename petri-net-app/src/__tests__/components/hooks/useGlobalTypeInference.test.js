@@ -86,6 +86,37 @@ describe('computeGlobalTypeInferenceForState', () => {
     const outArcBinding = next.arcs.find(a => a.id === 'aOut').bindings[0];
     expect(outArcBinding).toContain('x:Int');
   });
+
+  test('annotates all variables in guard and output when input has all types (petri-net19 scenario)', () => {
+    const state = {
+      places: [{ id: 'p1', valueTokens: [1, 2, 3, 8] }],
+      transitions: [
+        { id: 't1', guard: 'a:Int + b == 5 and c - d == 7 and a:Int * d == 2' },
+      ],
+      arcs: [
+        { id: 'a1', source: 'p1', target: 't1', bindings: ['a:Int, b:Int, c:Int, d:Int'] },
+        { id: 'a2', source: 't1', target: 'p1', bindings: ['[a:Int + b, c - d, a:Int * d]'] },
+      ],
+    };
+
+    const next = computeGlobalTypeInferenceForState(state, 'algebraic-int', true);
+    const updatedGuard = next.transitions.find(t => t.id === 't1').guard;
+    // Should annotate b, c, d even though a is already annotated
+    expect(autoAnnotateTypes).toHaveBeenCalledWith(
+      expect.stringContaining('a:Int + b'),
+      expect.objectContaining(new Map([['b', 'Int'], ['c', 'Int'], ['d', 'Int']])),
+      null,
+      { overwrite: true }
+    );
+    const outArcBinding = next.arcs.find(a => a.id === 'a2').bindings[0];
+    // Should annotate b, c, d in output binding
+    expect(autoAnnotateTypes).toHaveBeenCalledWith(
+      expect.stringContaining('[a:Int + b'),
+      expect.objectContaining(new Map([['b', 'Int'], ['c', 'Int'], ['d', 'Int']])),
+      null,
+      { overwrite: true }
+    );
+  });
 });
 
 

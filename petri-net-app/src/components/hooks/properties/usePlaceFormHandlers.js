@@ -10,6 +10,7 @@ export const usePlaceFormHandlers = ({
   updateHistory,
   netMode,
   parseValueTokensInput,
+  showInferredTypes,
 }) => {
   const handleTokensChange = useCallback((event) => {
     let newTokens = parseInt(event.target.value, 10);
@@ -46,10 +47,10 @@ export const usePlaceFormHandlers = ({
           ? { ...place, valueTokens: parsed, tokens: parsed.length }
           : place)),
       };
-      return computeGlobalTypeInferenceForState(nextState, netMode);
+      return computeGlobalTypeInferenceForState(nextState, netMode, showInferredTypes);
     });
     updateHistory();
-  }, [formValues.valueTokensInput, getElementInfo, netMode, parseValueTokensInput, setElements, updateHistory]);
+  }, [formValues.valueTokensInput, getElementInfo, netMode, parseValueTokensInput, setElements, updateHistory, showInferredTypes]);
 
   const serializeTokensFromElement = useCallback((element) => (
     Array.isArray(element.valueTokens) ? formatTokensList(element.valueTokens) : ''

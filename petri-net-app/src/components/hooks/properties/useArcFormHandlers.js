@@ -10,6 +10,7 @@ export const useArcFormHandlers = ({
   updateHistory,
   netMode,
   validateBindings,
+  showInferredTypes,
 }) => {
   const handleWeightChange = useCallback((event) => {
     const newWeight = parseInt(event.target.value, 10) || 1;
@@ -54,10 +55,10 @@ export const useArcFormHandlers = ({
         ...prev,
         arcs: prev.arcs.map((arc) => (arc.id === elementId ? { ...arc, bindings } : arc)),
       };
-      return computeGlobalTypeInferenceForState(nextState, netMode);
+      return computeGlobalTypeInferenceForState(nextState, netMode, showInferredTypes);
     });
     updateHistory();
-  }, [formValues.bindingsInput, getElementInfo, netMode, setElements, setFormValues, updateHistory, validateBindings]);
+  }, [formValues.bindingsInput, getElementInfo, netMode, setElements, setFormValues, updateHistory, validateBindings, showInferredTypes]);
 
   const serializeBindingsFromElement = useCallback((elementType, element) => {
     if (elementType !== 'arc' || !Array.isArray(element.bindings)) return '';

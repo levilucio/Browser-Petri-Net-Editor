@@ -8,6 +8,12 @@ describe('autoAnnotateTypes basics', () => {
     expect(out).toContain('y:Int');
     expect(out).toContain('true');
   });
+
+  test('overwrites existing annotations when requested', () => {
+    const map = new Map([['x', 'Int']]);
+    const out = autoAnnotateTypes('x:Int + x', map, null, { overwrite: true });
+    expect(out).toBe('x:Int + x:Int');
+  });
 });
 
 

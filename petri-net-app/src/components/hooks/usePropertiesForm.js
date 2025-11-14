@@ -11,7 +11,7 @@ import { useTypeInferenceHandlers } from './properties/useTypeInferenceHandlers'
  * Hook to manage form state and handlers for the Properties Panel
  * Extracted from PropertiesPanel.jsx to reduce complexity
  */
-export function usePropertiesForm({ selectedElement, elements, setElements, updateHistory, netMode }) {
+export function usePropertiesForm({ selectedElement, elements, setElements, updateHistory, netMode, showInferredTypes = true }) {
   // Local state for form values to provide immediate feedback
   const [formValues, setFormValues] = useState({
     label: '',
@@ -49,6 +49,7 @@ export function usePropertiesForm({ selectedElement, elements, setElements, upda
     updateHistory,
     netMode,
     parseValueTokensInput,
+    showInferredTypes,
   });
 
   const {
@@ -63,6 +64,7 @@ export function usePropertiesForm({ selectedElement, elements, setElements, upda
     updateHistory,
     netMode,
     validateBindings,
+    showInferredTypes,
   });
 
   const { handleGuardBlur } = useTransitionFormHandlers({
@@ -72,6 +74,7 @@ export function usePropertiesForm({ selectedElement, elements, setElements, upda
     setElements,
     updateHistory,
     netMode,
+    showInferredTypes,
   });
 
   const handleLabelChange = useElementLabelHandler({
@@ -86,6 +89,7 @@ export function usePropertiesForm({ selectedElement, elements, setElements, upda
     netMode,
     setElements,
     updateHistory,
+    showInferredTypes,
   });
 
   useEffect(() => {

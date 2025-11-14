@@ -12,6 +12,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
   const isSimulatorReady = context.isSimulatorReady || false;
 
   const netMode = simulationSettings?.netMode || 'pt';
+  const showInferredTypes = Boolean(simulationSettings?.showInferredTypes);
 
   // Use the extracted form hook
   const {
@@ -30,6 +31,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
     setElements,
     updateHistory,
     netMode,
+    showInferredTypes,
   });
 
   if (!selectedElement) return null;

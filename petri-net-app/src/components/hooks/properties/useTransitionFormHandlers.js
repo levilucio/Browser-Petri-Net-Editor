@@ -10,6 +10,7 @@ export const useTransitionFormHandlers = ({
   setElements,
   updateHistory,
   netMode,
+  showInferredTypes,
 }) => {
   const handleGuardBlur = useCallback(() => {
     const guardInput = formValues.guardText.trim();
@@ -39,13 +40,13 @@ export const useTransitionFormHandlers = ({
           ...prev,
           transitions: prev.transitions.map((transition) => (transition.id === elementId ? { ...transition, guard: guardInput } : transition)),
         };
-        return computeGlobalTypeInferenceForState(nextState, netMode);
+        return computeGlobalTypeInferenceForState(nextState, netMode, showInferredTypes);
       });
       updateHistory();
     } catch (error) {
       setFormValues((prev) => ({ ...prev, guardError: `Invalid guard: ${error.message}` }));
     }
-  }, [formValues.guardText, getElementInfo, netMode, setElements, setFormValues, updateHistory]);
+  }, [formValues.guardText, getElementInfo, netMode, setElements, setFormValues, updateHistory, showInferredTypes]);
 
   return {
     handleGuardBlur,

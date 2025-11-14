@@ -5,8 +5,17 @@ import { computeGlobalTypeInferenceForState } from '../useGlobalTypeInference';
 
 const isProd = () => process.env.NODE_ENV === 'production';
 
-export const useTypeInferenceHandlers = ({ elements, netMode, setElements, updateHistory }) => {
+export const useTypeInferenceHandlers = ({ elements, netMode, setElements, updateHistory, showInferredTypes }) => {
+  const inferenceEnabled = showInferredTypes ?? true;
+
   const inferTypesForPlace = useCallback((placeId) => {
+    if (!inferenceEnabled) {
+      if (!isProd()) {
+        logger.debug('inferTypesForPlace: feature disabled via settings');
+      }
+      return;
+    }
+
     if (!elements?.places || !elements?.arcs || netMode !== 'algebraic-int') {
       if (!isProd()) {
         logger.debug('inferTypesForPlace: skipping type inference', { placeId, netMode });
@@ -31,7 +40,10 @@ export const useTypeInferenceHandlers = ({ elements, netMode, setElements, updat
       }
 
       const currentBinding = arc.bindings[0];
-      if (!currentBinding || currentBinding.includes(':')) {
+      if (!currentBinding) {
+        return acc;
+      }
+      if (!inferenceEnabled && currentBinding.includes(':')) {
         return acc;
       }
 
@@ -51,7 +63,7 @@ export const useTypeInferenceHandlers = ({ elements, netMode, setElements, updat
         return acc;
       }
 
-      const annotated = autoAnnotateTypes(currentBinding, typeMap);
+      const annotated = autoAnnotateTypes(currentBinding, typeMap, null, { overwrite: inferenceEnabled });
       if (annotated !== currentBinding) {
         acc.push({ arcId: arc.id, newBinding: annotated });
       }
@@ -74,15 +86,22 @@ export const useTypeInferenceHandlers = ({ elements, netMode, setElements, updat
       }),
     }));
     updateHistory();
-  }, [elements, netMode, setElements, updateHistory]);
+  }, [elements, netMode, setElements, updateHistory, inferenceEnabled]);
 
   const performGlobalTypeInference = useCallback(() => {
-    const updated = computeGlobalTypeInferenceForState(elements, netMode);
+    if (!inferenceEnabled) {
+      if (!isProd()) {
+        logger.debug('performGlobalTypeInference: feature disabled via settings');
+      }
+      return;
+    }
+
+    const updated = computeGlobalTypeInferenceForState(elements, netMode, inferenceEnabled);
     if (updated !== elements) {
       setElements(updated);
       updateHistory();
     }
-  }, [elements, netMode, setElements, updateHistory]);
+  }, [elements, netMode, setElements, updateHistory, inferenceEnabled]);
 
   return {
     inferTypesForPlace,

@@ -11,6 +11,7 @@ import { HistoryManager } from '../features/history/historyManager';
 import { useSharedClipboard } from '../features/selection/useSharedClipboard';
 import { useEditorUI } from './EditorUIContext';
 import { logger } from '../utils/logger';
+import { computeGlobalTypeInferenceForState } from '../components/hooks/useGlobalTypeInference';
 
 export const PetriNetContext = createContext();
 
@@ -41,6 +42,7 @@ export const PetriNetProvider = ({ children }) => {
     netMode: 'pt',
     useNonVisualRun: false,
     batchMode: false,
+    showInferredTypes: false,
   });
   const [z3Settings, setZ3Settings] = useState({
     poolSize: 1, // Ensure at least one Z3 worker is available by default
@@ -75,6 +77,8 @@ export const PetriNetProvider = ({ children }) => {
   const isShiftPressedRef = useRef(false);
 
   const currentNetMode = simulationSettings?.netMode || 'pt';
+  const prevShowInferredRef = useRef(Boolean(simulationSettings?.showInferredTypes));
+  const manualElementsRef = useRef(null);
 
   const handleClipboardMismatch = useCallback((sourceMode, targetMode) => {
     const source = sourceMode || 'unknown';
@@ -138,6 +142,25 @@ export const PetriNetProvider = ({ children }) => {
     
     return () => debouncedAddStateRef.current.cancel();
   }, [elements, isDragging, mode]);
+
+  useEffect(() => {
+    const current = Boolean(simulationSettings?.showInferredTypes);
+    const prev = prevShowInferredRef.current;
+    if (current === prev) return;
+    prevShowInferredRef.current = current;
+    if (current && currentNetMode === 'algebraic-int') {
+      setElements((prevElements) => {
+        manualElementsRef.current = prevElements;
+        return computeGlobalTypeInferenceForState(prevElements, currentNetMode, true);
+      });
+      return;
+    }
+
+    if (!current && manualElementsRef.current) {
+      setElements(manualElementsRef.current);
+      manualElementsRef.current = null;
+    }
+  }, [simulationSettings?.showInferredTypes, currentNetMode, setElements]);
 
   const handleUndo = () => {
     if (!canUndo) return;
@@ -225,6 +248,7 @@ export const PetriNetProvider = ({ children }) => {
       netMode: 'pt',
       useNonVisualRun: false,
       batchMode: false,
+      showInferredTypes: false,
     });
     
     // Reset canvas state (via EditorUIContext)

@@ -16,6 +16,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const [z3Open, setZ3Open] = useState(false);
   const [useNonVisualRun, setUseNonVisualRun] = useState(false);
   const [batchMode, setBatchMode] = useState(false);
+  const [showInferredTypes, setShowInferredTypes] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -43,6 +44,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       setBatchMode(initialBatch);
       const initialNonVisual = Boolean(initialBatch || simulationSettings?.useNonVisualRun);
       setUseNonVisualRun(initialNonVisual);
+      setShowInferredTypes(Boolean(simulationSettings?.showInferredTypes));
 
       // If batch mode is enabled, default to maximal concurrent mode
       if (initialBatch && simulationMode !== 'maximal') {
@@ -90,6 +92,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       netMode,
       useNonVisualRun: finalUseNonVisual,
       batchMode,
+      showInferredTypes,
     });
     onClose?.();
   };
@@ -98,7 +101,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+      <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4 max-h-[90vh] flex flex-col">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Simulation Settings</h2>
           <button
@@ -110,7 +113,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-y-auto flex-1 pr-2">
           {/* Limits */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Limits</label>
@@ -207,6 +210,24 @@ const SettingsDialog = ({ isOpen, onClose }) => {
           </div>
 
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Type Annotations</label>
+            <label className="flex items-center text-sm">
+              <input
+                type="checkbox"
+                checked={showInferredTypes}
+                onChange={(e) => setShowInferredTypes(e.target.checked)}
+                className="mr-2"
+              />
+              <span className="text-sm">
+                <strong>Show inferred variable types</strong> – Display automatically inferred types in guards and bindings
+              </span>
+            </label>
+            <p className="text-xs text-gray-600 mt-1">
+              When off, only manually annotated types remain visible so expressions stay concise.
+            </p>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Simulation Mode
             </label>
@@ -290,7 +311,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
           )}
         </div>
 
-        <div className="mt-6 flex justify-end">
+        <div className="mt-6 pt-4 flex justify-end border-t border-gray-200">
           <button
             onClick={() => setZ3Open(true)}
             className="px-3 py-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition-colors mr-auto"

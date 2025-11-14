@@ -63,19 +63,26 @@ export function inferVariableTypes(elementType, selectedElement, elements) {
   return typeMap;
 }
 
-export function autoAnnotateTypes(input, typeMap, defaultType = null) {
+export function autoAnnotateTypes(input, typeMap, defaultType = null, options = {}) {
   if (!input) return input;
   if ((!typeMap || typeMap.size === 0) && !defaultType) return input;
 
   let result = input;
+  const { overwrite = false } = options || {};
   const varMatches = input.match(/\b[a-z][a-zA-Z0-9_]*\b/g);
   if (varMatches) {
     varMatches.forEach(varName => {
       if (varName !== 'true' && varName !== 'false' &&
-          varName !== 'and' && varName !== 'or' && varName !== 'not' &&
-          !input.includes(`${varName}:`)) {
+          varName !== 'and' && varName !== 'or' && varName !== 'not') {
         const varType = typeMap.get(varName) || defaultType;
-        if (varType) {
+        if (!varType) {
+          return;
+        }
+
+        if (overwrite) {
+          const pattern = new RegExp(`\\b${varName}(?::[A-Za-z]+)?\\b`, 'g');
+          result = result.replace(pattern, `${varName}:${varType}`);
+        } else if (!input.includes(`${varName}:`)) {
           const pattern = new RegExp(`\\b${varName}(?!:)\\b`, 'g');
           result = result.replace(pattern, `${varName}:${varType}`);
         }
