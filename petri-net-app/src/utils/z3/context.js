@@ -8,44 +8,57 @@ async function ensureZ3Available() {
     logger.debug('Jest worker detected, skipping Z3 asset fetch');
     return;
   }
-  // Worker context (no DOM): fetch and evaluate z3-built.js with embedded WASM
-  if (typeof document === 'undefined') {
-    if (typeof globalThis.initZ3 === 'function') return;
-    const originalModule = globalThis.Module;
-    try {
-      // First load the WASM file as base64
-      const wasmResponse = await fetch('/z3-built.wasm.base64');
-      if (!wasmResponse.ok) throw new Error(`Failed to fetch WASM base64: ${wasmResponse.status}`);
-      const wasmBase64 = await wasmResponse.text();
+    // Worker context (no DOM): fetch and evaluate z3-built.js with embedded WASM
+    if (typeof document === 'undefined') {
+      if (typeof globalThis.initZ3 === 'function') return;
+      const originalModule = globalThis.Module;
+      try {
+        // Determine base URL for fetching assets
+        // In Vite, import.meta.env.BASE_URL is replaced with the public base path
+        const baseUrl = import.meta.env.BASE_URL || '/';
+        const resolveAsset = (path) => {
+          // Ensure we don't have double slashes
+          const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+          const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+          return `${cleanBase}${cleanPath}`;
+        };
 
-      // Create data URL for WASM
-      const wasmDataUrl = `data:application/wasm;base64,${wasmBase64}`;
+        // First load the WASM file as base64
+        const wasmPath = resolveAsset('z3-built.wasm.base64');
+        logger.debug('[Z3 worker] fetching WASM base64 from', wasmPath);
+        const wasmResponse = await fetch(wasmPath);
+        if (!wasmResponse.ok) throw new Error(`Failed to fetch WASM base64 from ${wasmPath}: ${wasmResponse.status}`);
+        const wasmBase64 = await wasmResponse.text();
 
-      const patchedModule = {
-        ...(typeof originalModule === 'object' ? originalModule : {}),
-        locateFile: (path) => {
-          if (path.endsWith('.wasm')) {
-            logger.debug('[Z3 worker] locateFile', path, '->', `${wasmDataUrl.substring(0, 50)}...`);
-            return wasmDataUrl;
+        // Create data URL for WASM
+        const wasmDataUrl = `data:application/wasm;base64,${wasmBase64}`;
+
+        const patchedModule = {
+          ...(typeof originalModule === 'object' ? originalModule : {}),
+          locateFile: (path) => {
+            if (path.endsWith('.wasm')) {
+              logger.debug('[Z3 worker] locateFile', path, '->', `${wasmDataUrl.substring(0, 50)}...`);
+              return wasmDataUrl;
+            }
+            const resolved = resolveAsset(path);
+            logger.debug('[Z3 worker] locateFile', path, '->', resolved);
+            return resolved;
           }
-          const resolved = `/${path}`;
-          logger.debug('[Z3 worker] locateFile', path, '->', resolved);
-          return resolved;
-        }
-      };
-      globalThis.Module = patchedModule;
+        };
+        globalThis.Module = patchedModule;
 
-      const response = await fetch('/z3-built.js');
-      if (!response.ok) throw new Error(`Failed to fetch z3-built.js: ${response.status}`);
-      const z3Script = await response.text();
-      // Evaluate in worker global scope
-      (0, eval)(z3Script);
-      await new Promise(resolve => setTimeout(resolve, 20));
-      if (typeof globalThis.initZ3 !== 'function') throw new Error('initZ3 not defined after eval');
-      return;
-    } catch (error) {
-      throw new Error(`Failed to load Z3 in worker: ${error.message}`);
-    } finally {
+        const jsPath = resolveAsset('z3-built.js');
+        const response = await fetch(jsPath);
+        if (!response.ok) throw new Error(`Failed to fetch z3-built.js from ${jsPath}: ${response.status}`);
+        const z3Script = await response.text();
+        // Evaluate in worker global scope
+        (0, eval)(z3Script);
+        await new Promise(resolve => setTimeout(resolve, 20));
+        if (typeof globalThis.initZ3 !== 'function') throw new Error('initZ3 not defined after eval');
+        return;
+      } catch (error) {
+        throw new Error(`Failed to load Z3 in worker: ${error.message}`);
+      } finally {
       if (typeof originalModule === 'object') {
         globalThis.Module = originalModule;
       } else {
