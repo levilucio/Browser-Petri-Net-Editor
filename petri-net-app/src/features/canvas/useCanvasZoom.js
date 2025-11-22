@@ -187,6 +187,8 @@ export function useCanvasZoom({
 
     const handleTouchStart = (event) => {
       if (event.touches.length === 2) {
+        event.preventDefault(); // Only prevent default for pinch gestures
+        event.stopPropagation(); // Stop propagation for pinch to avoid conflicts
         pinchStateRef.current = {
           active: true,
           startDistance: getDistance(event.touches),
@@ -194,16 +196,22 @@ export function useCanvasZoom({
           lastCenter: getCenter(event.touches),
         };
       }
+      // For single touches, don't prevent default - let them propagate to Konva Stage for tap events
     };
 
     const handleTouchMove = (event) => {
       const state = pinchStateRef.current;
-      if (!state.active) return;
+      if (!state.active) {
+        // If not in pinch mode, don't prevent default - let single touches work
+        return;
+      }
       if (event.touches.length !== 2) {
         pinchStateRef.current = { active: false };
         return;
       }
+      // Only prevent default for active pinch gestures
       event.preventDefault();
+      event.stopPropagation();
       const center = getCenter(event.touches);
       const distance = getDistance(event.touches);
       const ratio = state.startDistance === 0 ? 1 : distance / state.startDistance;
@@ -228,10 +236,10 @@ export function useCanvasZoom({
       pinchStateRef.current = { active: false };
     };
 
-    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchstart', handleTouchStart, { passive: false });
     container.addEventListener('touchmove', handleTouchMove, { passive: false });
-    container.addEventListener('touchend', handleTouchEnd);
-    container.addEventListener('touchcancel', handleTouchEnd);
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
 
     return () => {
       container.removeEventListener('touchstart', handleTouchStart);

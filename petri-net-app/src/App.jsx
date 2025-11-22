@@ -208,39 +208,37 @@ const AppContent = () => {
           >
             <CanvasManager handleZoom={handleZoom} ZOOM_STEP={ZOOM_STEP} />
           </div>
-          {/* Zoom controls */}
-          {!localCanvasContainerDivRef.current?.matchMedia?.('(pointer: coarse)').matches && (
-            <div className="fixed top-24 right-[336px] z-10 flex flex-col space-y-2 pointer-events-auto">
-              <button 
-                className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
-                onClick={() => handleZoom(ZOOM_STEP)}
-                title="Zoom In"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </button>
-              <button 
-                className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
-                onClick={() => handleZoom(-ZOOM_STEP)}
-                title="Zoom Out"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
-                </svg>
-              </button>
-              <button 
-                className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none text-xs font-mono"
-                onClick={() => {
-                  setZoomLevel(1.0);
-                  setCanvasScroll({ x: 0, y: 0 }); 
-                }}
-                title="Reset Zoom"
-              >
-                {Math.round(zoomLevel * 100)}%
-              </button>
-            </div>
-          )}
+          {/* Zoom controls - hidden on mobile, visible on desktop */}
+          <div className="hidden lg:flex fixed top-24 right-[336px] z-10 flex-col space-y-2 pointer-events-auto">
+            <button 
+              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+              onClick={() => handleZoom(ZOOM_STEP)}
+              title="Zoom In"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+            <button 
+              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
+              onClick={() => handleZoom(-ZOOM_STEP)}
+              title="Zoom Out"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 12H6" />
+              </svg>
+            </button>
+            <button 
+              className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none text-xs font-mono"
+              onClick={() => {
+                setZoomLevel(1.0);
+                setCanvasScroll({ x: 0, y: 0 }); 
+              }}
+              title="Reset Zoom"
+            >
+              {Math.round(zoomLevel * 100)}%
+            </button>
+          </div>
           <FloatingEditorControls />
         </div>
         

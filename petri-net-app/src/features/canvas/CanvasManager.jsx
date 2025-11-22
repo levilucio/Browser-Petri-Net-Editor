@@ -111,10 +111,23 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
       return;
     }
     const pos = getVirtualPointerPosition();
-    handleCreateElement(pos);
+    if (pos) {
+      handleCreateElement(pos);
+    }
   };
 
-  const handleMouseMove = () => {
+  const handleStageTap = (e) => {
+    // Handle tap on touch devices (works like click but more reliable for touch)
+    if (e.target.name() !== 'background') {
+      return;
+    }
+    const pos = getVirtualPointerPosition();
+    if (pos) {
+      handleCreateElement(pos);
+    }
+  };
+
+  const handlePointerMove = () => {
     const pos = getVirtualPointerPosition();
     if (!pos) return;
     
@@ -239,7 +252,9 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
         // Ensure pointer events are allowed even when overlapped by other fixed UI
         listening={true}
         onClick={handleStageClick}
-        onMouseMove={handleMouseMove}
+        onTap={handleStageTap}
+        onMouseMove={handlePointerMove}
+        onTouchMove={handlePointerMove}
         onMouseDown={(e) => {
           if (mode !== 'select') return;
           if (e.target && e.target.name && e.target.name() !== 'background') return;
@@ -248,7 +263,23 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
           selectingRef.current = { isSelecting: true, start };
           setSelectionRect({ x: start.x, y: start.y, w: 0, h: 0 });
         }}
+        onTouchStart={(e) => {
+          if (mode !== 'select') return;
+          if (e.target && e.target.name && e.target.name() !== 'background') return;
+          const start = getVirtualPointerPosition();
+          if (!start) return;
+          selectingRef.current = { isSelecting: true, start };
+          setSelectionRect({ x: start.x, y: start.y, w: 0, h: 0 });
+        }}
         onMouseUp={() => {
+          if (mode !== 'select') return;
+          if (!selectingRef.current.isSelecting || !selectionRect) return;
+          const newSelection = buildSelectionFromRect(elements, selectionRect);
+          setSelection(newSelection);
+          selectingRef.current = { isSelecting: false, start: null };
+          setSelectionRect(null);
+        }}
+        onTouchEnd={() => {
           if (mode !== 'select') return;
           if (!selectingRef.current.isSelecting || !selectionRect) return;
           const newSelection = buildSelectionFromRect(elements, selectionRect);
