@@ -6,6 +6,9 @@ let idleTimer = null;
 
 const workerSupported = typeof Worker !== 'undefined';
 
+// Check if SharedArrayBuffer is available (required for Z3 workers)
+const sharedArrayBufferSupported = typeof SharedArrayBuffer !== 'undefined';
+
 const z3Config = {
   poolSize: 0,
   idleTimeoutMs: 300000,
@@ -36,7 +39,13 @@ export function setZ3WorkerConfig(cfg = {}) {
 
 function createWorker() {
   if (!workerSupported) throw new Error('Z3 worker pool unavailable in this environment');
+  if (!sharedArrayBufferSupported) {
+    throw new Error('SharedArrayBuffer not available. COOP/COEP headers may not be set correctly.');
+  }
   const w = new Worker(new URL('../workers/z3.worker.js', import.meta.url), { type: 'module' });
+  w.onerror = (err) => {
+    console.error('Z3 worker error:', err);
+  };
   w.onmessage = ({ data }) => {
     const { id, ok, result, error } = data || {};
     const entry = pending.get(id);
@@ -92,10 +101,26 @@ function call(op, ...args) {
   const w = getWorker();
   const id = nextId++;
   return new Promise((resolve, reject) => {
-    pending.set(id, { resolve, reject });
+    const timeout = setTimeout(() => {
+      pending.delete(id);
+      reject(new Error(`Z3 worker operation "${op}" timed out after ${z3Config.solverTimeoutMs}ms`));
+    }, z3Config.solverTimeoutMs || 10000);
+    
+    pending.set(id, { 
+      resolve: (result) => {
+        clearTimeout(timeout);
+        resolve(result);
+      }, 
+      reject: (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      }
+    });
+    
     try {
       w.postMessage({ id, op, args });
     } catch (err) {
+      clearTimeout(timeout);
       pending.delete(id);
       reject(err);
       return;
@@ -109,7 +134,11 @@ export function getConfiguredPoolSize() {
 }
 
 export function isWorkerPoolEnabled() {
-  return workerSupported && normalizePoolSize(z3Config.poolSize) > 0;
+  return workerSupported && sharedArrayBufferSupported && normalizePoolSize(z3Config.poolSize) > 0;
+}
+
+export function isSharedArrayBufferAvailable() {
+  return sharedArrayBufferSupported;
 }
 
 export const parseBooleanExpr = (s) => call('parseBooleanExpr', s);

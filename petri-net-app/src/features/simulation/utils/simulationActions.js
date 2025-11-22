@@ -277,16 +277,46 @@ export const createStartRunSimulation = ({
     let workerStarted = false;
 
     if (batchMode) {
+      // Check if SharedArrayBuffer is available before trying to use workers
+      const z3Remote = await import('../../../utils/z3-remote');
+      if (!z3Remote.isSharedArrayBufferAvailable()) {
+        const errorMsg = 'SharedArrayBuffer not available. This is required for batch mode. ' +
+          'Please ensure COOP/COEP headers are set correctly (service worker should handle this). ' +
+          'Try refreshing the page.';
+        console.error(errorMsg);
+        setSimulationError(errorMsg);
+        isRunningRef.current = false;
+        setIsRunning(false);
+        return;
+      }
+      
       await boostZ3PoolTo(8);
       const worker = await ensureWorker();
       if (worker) {
         try {
           let mode = 'single';
           try { mode = simulatorCore.getSimulationMode ? simulatorCore.getSimulationMode() : 'single'; } catch (_) {}
+          
+          // Add timeout for worker operation (5 minutes max)
+          const workerTimeout = setTimeout(() => {
+            worker.removeEventListener('message', onMessage);
+            worker.removeEventListener('error', onError);
+            const timeoutMsg = 'Simulation worker timed out after 5 minutes. This may indicate that ' +
+              'Z3 workers are not responding. Check browser console for errors.';
+            console.error(timeoutMsg);
+            setSimulationError(timeoutMsg);
+            restoreZ3Pool();
+            isRunningRef.current = false;
+            setIsRunning(false);
+            try { simulatorCore.deactivateSimulation(); } catch (_) {}
+          }, 5 * 60 * 1000);
+          
           const onMessage = async (ev) => {
             const { op, payload: pl } = ev.data || {};
             if (op === 'done') {
+              clearTimeout(workerTimeout);
               worker.removeEventListener('message', onMessage);
+              worker.removeEventListener('error', onError);
               if (pl && pl.elements && typeof pl.elements === 'object') {
                 setElements(pl.elements);
                 latestElementsRef.current = pl.elements;
@@ -304,14 +334,32 @@ export const createStartRunSimulation = ({
                 });
               }
             } else if (op === 'error') {
+              clearTimeout(workerTimeout);
               worker.removeEventListener('message', onMessage);
+              worker.removeEventListener('error', onError);
               setSimulationError(pl?.message || 'Worker error');
               await restoreZ3Pool();
               isRunningRef.current = false;
               setIsRunning(false);
             }
           };
+          
+          const onError = (err) => {
+            clearTimeout(workerTimeout);
+            worker.removeEventListener('message', onMessage);
+            worker.removeEventListener('error', onError);
+            const errorMsg = `Worker error: ${err.message || 'Unknown error'}. ` +
+              'This may indicate that Z3 workers failed to initialize.';
+            console.error(errorMsg, err);
+            setSimulationError(errorMsg);
+            restoreZ3Pool();
+            isRunningRef.current = false;
+            setIsRunning(false);
+            try { simulatorCore.deactivateSimulation(); } catch (_) {}
+          };
+          
           worker.addEventListener('message', onMessage);
+          worker.addEventListener('error', onError);
           worker.postMessage({
             op: 'start',
             payload: {
@@ -332,8 +380,16 @@ export const createStartRunSimulation = ({
           workerStarted = true;
         } catch (err) {
           console.error('Worker run failed, falling back to in-thread run:', err);
+          setSimulationError(`Worker initialization failed: ${err.message}. Falling back to in-thread execution.`);
           await restoreZ3Pool();
         }
+      } else {
+        const errorMsg = 'Failed to create simulation worker. SharedArrayBuffer may not be available.';
+        console.error(errorMsg);
+        setSimulationError(errorMsg);
+        isRunningRef.current = false;
+        setIsRunning(false);
+        return;
       }
     }
 

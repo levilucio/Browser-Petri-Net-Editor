@@ -71,6 +71,21 @@ const AppContent = () => {
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    // Check for SharedArrayBuffer availability (required for Z3 workers)
+    useEffect(() => {
+      if (typeof SharedArrayBuffer === 'undefined') {
+        console.warn(
+          '⚠️ SharedArrayBuffer is not available. ' +
+          'This is required for Z3 workers in batch mode. ' +
+          'The COOP/COEP service worker should enable this. ' +
+          'If this warning persists, the service worker may not be active. ' +
+          'Try refreshing the page or checking browser console for service worker errors.'
+        );
+      } else {
+        console.log('✓ SharedArrayBuffer is available - Z3 workers should work correctly');
+      }
+    }, []);
+
     const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll } = useCanvasZoom({
       MIN_ZOOM,
       MAX_ZOOM,
