@@ -188,92 +188,100 @@ export function useCanvasZoom({
 
     const handleTouchStart = (event) => {
       if (event.touches.length === 2) {
-        event.preventDefault(); // Only prevent default for pinch gestures
-        event.stopPropagation(); // Stop propagation for pinch to avoid conflicts
+        const center = getCenter(event.touches);
+        const distance = getDistance(event.touches);
+        
+        // Initialize both pinch and pan state for two-finger gestures
         pinchStateRef.current = {
-          active: true,
-          startDistance: getDistance(event.touches),
+          active: false, // Will be activated if distance changes significantly
+          startDistance: distance,
           startZoom: zoomLevelRef.current,
-          lastCenter: getCenter(event.touches),
+          lastCenter: center,
         };
-        panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
-      } else if (event.touches.length === 1) {
-        // Track single finger touch for potential panning
-        const touch = event.touches[0];
         panStateRef.current = {
-          active: false, // Will be activated after drag threshold
-          startX: touch.clientX,
-          startY: touch.clientY,
-          lastX: touch.clientX,
-          lastY: touch.clientY,
+          active: false, // Will be activated if distance stays relatively constant
+          startX: center.clientX,
+          startY: center.clientY,
+          lastX: center.clientX,
+          lastY: center.clientY,
         };
+      } else if (event.touches.length === 1) {
+        // Single finger - no panning, just reset state
+        panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+        pinchStateRef.current = { active: false };
       }
-      // Don't prevent default initially - let taps work, we'll prevent on move if panning
+      // Don't prevent default initially - let taps work, we'll prevent on move if panning/zooming
     };
 
     const handleTouchMove = (event) => {
-      const pinchState = pinchStateRef.current;
-      
-      // Handle two-finger pinch zoom
-      if (pinchState.active) {
-        if (event.touches.length !== 2) {
-          pinchStateRef.current = { active: false };
-          return;
-        }
-        // Only prevent default for active pinch gestures
-        event.preventDefault();
-        event.stopPropagation();
+      if (event.touches.length === 2) {
         const center = getCenter(event.touches);
         const distance = getDistance(event.touches);
-        const ratio = pinchState.startDistance === 0 ? 1 : distance / pinchState.startDistance;
-        const targetZoom = clampZoom(pinchState.startZoom * ratio);
-        handleZoomTo(targetZoom, center);
-
-        const deltaX = center.clientX - pinchState.lastCenter.clientX;
-        const deltaY = center.clientY - pinchState.lastCenter.clientY;
-        pinchStateRef.current = {
-          ...pinchState,
-          active: true,
-          startDistance: pinchState.startDistance,
-          startZoom: pinchState.startZoom,
-          lastCenter: center,
-        };
-        if (Math.abs(deltaX) > 0.5 || Math.abs(deltaY) > 0.5) {
-          applyPanDelta(deltaX, deltaY, targetZoom);
+        const pinchState = pinchStateRef.current;
+        
+        // Calculate distance change ratio
+        const distanceRatio = pinchState.startDistance > 0 
+          ? distance / pinchState.startDistance 
+          : 1;
+        const distanceChange = Math.abs(distanceRatio - 1);
+        
+        // Threshold to distinguish zoom (distance changing) from pan (distance constant)
+        const ZOOM_THRESHOLD = 0.05; // 5% change in distance = zoom gesture
+        
+        if (distanceChange > ZOOM_THRESHOLD) {
+          // Distance is changing significantly = pinch zoom
+          if (!pinchState.active) {
+            pinchStateRef.current = { ...pinchState, active: true };
+          }
+          
+          event.preventDefault();
+          event.stopPropagation();
+          
+          const targetZoom = clampZoom(pinchState.startZoom * distanceRatio);
+          handleZoomTo(targetZoom, center);
+          
+          pinchStateRef.current = {
+            ...pinchState,
+            active: true,
+            startDistance: pinchState.startDistance,
+            startZoom: pinchState.startZoom,
+            lastCenter: center,
+          };
+        } else {
+          // Distance is relatively constant = two-finger pan
+          const panState = panStateRef.current;
+          const deltaX = center.clientX - panState.lastX;
+          const deltaY = center.clientY - panState.lastY;
+          const totalDeltaX = center.clientX - panState.startX;
+          const totalDeltaY = center.clientY - panState.startY;
+          const dragDistance = Math.hypot(totalDeltaX, totalDeltaY);
+          
+          // Activate panning after small threshold
+          const PAN_THRESHOLD = 5;
+          if (!panState.active && dragDistance > PAN_THRESHOLD) {
+            panStateRef.current = { ...panState, active: true };
+          }
+          
+          if (panState.active) {
+            event.preventDefault();
+            event.stopPropagation();
+            // Apply pan delta using center point movement
+            // applyPanDelta does prev.x - deltaX/zoom, so we pass negative deltaX to increase scroll
+            applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
+          }
+          
+          // Update pan state
+          panStateRef.current = {
+            ...panState,
+            lastX: center.clientX,
+            lastY: center.clientY,
+          };
         }
         return;
-      }
-
-      // Handle single-finger panning
-      if (event.touches.length === 1) {
-        const panState = panStateRef.current;
-        const touch = event.touches[0];
-        const deltaX = touch.clientX - panState.lastX;
-        const deltaY = touch.clientY - panState.lastY;
-        const totalDeltaX = touch.clientX - panState.startX;
-        const totalDeltaY = touch.clientY - panState.startY;
-        const dragDistance = Math.hypot(totalDeltaX, totalDeltaY);
-        
-        // Activate panning after 10px drag threshold to distinguish from taps
-        const PAN_THRESHOLD = 10;
-        if (!panState.active && dragDistance > PAN_THRESHOLD) {
-          panStateRef.current = { ...panState, active: true };
-        }
-        
-        if (panState.active) {
-          // Prevent default to stop scrolling and allow smooth panning
-          event.preventDefault();
-          // Apply pan delta - when dragging right, we want to see content to the left (increase scroll)
-          // applyPanDelta does prev.x - deltaX/zoom, so we pass negative deltaX to increase scroll
-          applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
-        }
-        
-        // Update last position
-        panStateRef.current = {
-          ...panState,
-          lastX: touch.clientX,
-          lastY: touch.clientY,
-        };
+      } else {
+        // Not two fingers - reset states
+        pinchStateRef.current = { active: false };
+        panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
       }
     };
 
