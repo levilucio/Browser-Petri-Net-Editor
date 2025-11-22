@@ -5,7 +5,7 @@
     
     // Load the Z3 built script
     const scriptElement = document.createElement('script');
-    scriptElement.src = '/z3-built.js';
+    scriptElement.src = 'z3-built.js';
     scriptElement.async = true;
 
     await new Promise((resolve, reject) => {
