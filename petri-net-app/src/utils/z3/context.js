@@ -13,18 +13,37 @@ async function ensureZ3Available() {
       if (typeof globalThis.initZ3 === 'function') return;
       const originalModule = globalThis.Module;
       try {
-        // Determine base URL for fetching assets
-        // In Vite, import.meta.env.BASE_URL is replaced with the public base path
-        const baseUrl = import.meta.env.BASE_URL || '/';
-        const resolveAsset = (path) => {
-          // Ensure we don't have double slashes
-          const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-          const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-          return `${cleanBase}${cleanPath}`;
+        const deriveBaseUrl = () => {
+          try {
+            const { origin, pathname } = self.location || {};
+            if (!origin) return '';
+            if (typeof pathname === 'string') {
+              const assetsIdx = pathname.indexOf('/assets/');
+              if (assetsIdx !== -1) {
+                return `${origin}${pathname.slice(0, assetsIdx + 1)}`;
+              }
+              // Fallback to directory of current path
+              const lastSlash = pathname.lastIndexOf('/');
+              const dir = lastSlash >= 0 ? pathname.slice(0, lastSlash + 1) : '/';
+              return `${origin}${dir}`;
+            }
+            return `${origin}/`;
+          } catch (_) {
+            return '';
+          }
+        };
+
+        const baseUrl = deriveBaseUrl();
+        const buildAssetUrl = (assetPath) => {
+          const cleanPath = assetPath.startsWith('/') ? assetPath.slice(1) : assetPath;
+          if (!baseUrl) {
+            return `/${cleanPath}`;
+          }
+          return `${baseUrl}${cleanPath}`;
         };
 
         // First load the WASM file as base64
-        const wasmPath = resolveAsset('z3-built.wasm.base64');
+        const wasmPath = buildAssetUrl('z3-built.wasm.base64');
         logger.debug('[Z3 worker] fetching WASM base64 from', wasmPath);
         const wasmResponse = await fetch(wasmPath);
         if (!wasmResponse.ok) throw new Error(`Failed to fetch WASM base64 from ${wasmPath}: ${wasmResponse.status}`);
@@ -40,14 +59,14 @@ async function ensureZ3Available() {
               logger.debug('[Z3 worker] locateFile', path, '->', `${wasmDataUrl.substring(0, 50)}...`);
               return wasmDataUrl;
             }
-            const resolved = resolveAsset(path);
+            const resolved = buildAssetUrl(path);
             logger.debug('[Z3 worker] locateFile', path, '->', resolved);
             return resolved;
           }
         };
         globalThis.Module = patchedModule;
 
-        const jsPath = resolveAsset('z3-built.js');
+        const jsPath = buildAssetUrl('z3-built.js');
         const response = await fetch(jsPath);
         if (!response.ok) throw new Error(`Failed to fetch z3-built.js from ${jsPath}: ${response.status}`);
         const z3Script = await response.text();
