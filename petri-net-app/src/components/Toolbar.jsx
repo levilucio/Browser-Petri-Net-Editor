@@ -322,7 +322,7 @@ const Toolbar = ({
       <div className="hidden lg:block">
         {renderDesktopGroups()}
       </div>
-      <div className="lg:hidden flex items-center justify-between gap-3 px-2">
+      <div className="lg:hidden flex items-center justify-between gap-3 px-2 py-1">
         <div className="flex-1">
           <button
             type="button"

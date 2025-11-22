@@ -64,7 +64,7 @@ const FloatingEditorControls = () => {
         title="Transition Tool"
         className="active:scale-95"
       >
-        <div style={{ width: '24px', height: '24px', border: '2px solid currentColor', backgroundColor: 'transparent' }} />
+        <div style={{ width: '14px', height: '32px', backgroundColor: 'currentColor' }} />
       </button>
 
       {/* Place Button */}
