@@ -279,13 +279,42 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
           selectingRef.current = { isSelecting: false, start: null };
           setSelectionRect(null);
         }}
-        onTouchEnd={() => {
-          if (mode !== 'select') return;
-          if (!selectingRef.current.isSelecting || !selectionRect) return;
-          const newSelection = buildSelectionFromRect(elements, selectionRect);
-          setSelection(newSelection);
-          selectingRef.current = { isSelecting: false, start: null };
-          setSelectionRect(null);
+        onTouchEnd={(e) => {
+          if (mode === 'select') {
+            if (!selectingRef.current.isSelecting || !selectionRect) return;
+            const newSelection = buildSelectionFromRect(elements, selectionRect);
+            setSelection(newSelection);
+            selectingRef.current = { isSelecting: false, start: null };
+            setSelectionRect(null);
+          } else if (mode === 'arc' && arcStart) {
+            // If touch ends during arc creation, check if it ended on an element
+            // If not, clear the temporary arc after a small delay to allow element handlers to complete
+            setTimeout(() => {
+              // Check again if arcStart still exists (arc wasn't completed by element handler)
+              if (mode === 'arc' && arcStart) {
+                const stage = stageRef.current;
+                if (stage) {
+                  const pointerPos = stage.getPointerPosition();
+                  if (pointerPos) {
+                    const shape = stage.getIntersection(pointerPos);
+                    // If touch didn't end on a place or transition, clear the arc
+                    if (!shape || (shape.attrs.elementType !== 'place' && shape.attrs.elementType !== 'transition')) {
+                      setArcStart(null);
+                      setTempArcEnd(null);
+                    }
+                  } else {
+                    // No pointer position available, clear the arc
+                    setArcStart(null);
+                    setTempArcEnd(null);
+                  }
+                } else {
+                  // No stage available, clear the arc
+                  setArcStart(null);
+                  setTempArcEnd(null);
+                }
+              }
+            }, 20); // Small delay to allow element touch handlers to complete first
+          }
         }}
         // Apply zoom and pan using scale and position (ensure exact edge scrolling)
         scaleX={zoomLevel}
@@ -302,6 +331,20 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
             fill="#FFFFFF"
             name="background"
             onClick={() => {
+              if (mode === 'arc' && arcStart) {
+                setArcStart(null);
+                setTempArcEnd(null);
+              }
+              setSelectedElement(null);
+            }}
+            onTap={() => {
+              if (mode === 'arc' && arcStart) {
+                setArcStart(null);
+                setTempArcEnd(null);
+              }
+              setSelectedElement(null);
+            }}
+            onTouchEnd={() => {
               if (mode === 'arc' && arcStart) {
                 setArcStart(null);
                 setTempArcEnd(null);
