@@ -90,6 +90,9 @@ export default defineConfig({
       'application/wasm': ['.wasm']
     }
   },
+  worker: {
+    format: 'es'
+  },
   build: {
     outDir: 'dist',
     sourcemap: true
