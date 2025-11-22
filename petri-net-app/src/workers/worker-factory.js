@@ -6,21 +6,12 @@ export function createSimulationWorker() {
     if (typeof process !== 'undefined' && process.env && (process.env.JEST_WORKER_ID || process.env.NODE_ENV === 'test')) {
       return null;
     }
-    // Use dynamic Function string to avoid "import.meta" parse errors in CJS/Jest
-    // eslint-disable-next-line no-new-func
-    const factory = new Function(
-      'return new Worker(new URL("../workers/simulation.worker.js", import.meta.url), { type: "module" })'
-    );
-    const w = factory();
-    return w || null;
+    
+    // Standard Vite syntax for worker import
+    return new Worker(new URL('./simulation.worker.js', import.meta.url), { type: 'module' });
   } catch (err) {
-    try {
-      // Fallback: try absolute path (works in some dev servers)
-      const w2 = new Worker('/src/workers/simulation.worker.js', { type: 'module' });
-      return w2 || null;
-    } catch (_) {
-      return null;
-    }
+    console.error('Failed to create simulation worker:', err);
+    return null;
   }
 }
 

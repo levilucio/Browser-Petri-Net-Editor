@@ -14,7 +14,13 @@ self.onmessage = async (e) => {
   try {
     if (op === 'prewarm') {
       const { z3 } = payload || {};
-      if (z3 && typeof z3 === 'object') { try { setZ3WorkerConfig(z3); } catch (_) {} }
+      if (z3 && typeof z3 === 'object') { 
+        try { 
+          setZ3WorkerConfig(z3); 
+        } catch (err) {
+          console.error('Prewarm failed to set Z3 config:', err);
+        } 
+      }
       if (!core) core = new SimulatorCore();
       postMessage({ op: 'prewarm:ok' });
       return;
@@ -35,7 +41,12 @@ self.onmessage = async (e) => {
     if (op === 'start') {
       canceled = false;
       const { elements, simOptions = {}, run = {}, z3 = {} } = payload || {};
-      try { setZ3WorkerConfig(z3 || {}); } catch (_) {}
+      try { 
+        setZ3WorkerConfig(z3 || {}); 
+      } catch (configErr) {
+        console.error('Failed to set Z3 worker config:', configErr);
+        // Don't crash, but logging is important
+      }
       if (!core) core = new SimulatorCore();
 
       await core.initialize(elements || {}, { netMode: simOptions.netMode || elements?.netMode });

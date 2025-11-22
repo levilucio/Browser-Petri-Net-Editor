@@ -42,7 +42,7 @@ function createWorker() {
   if (!sharedArrayBufferSupported) {
     throw new Error('SharedArrayBuffer not available. COOP/COEP headers may not be set correctly.');
   }
-  const w = new Worker(new URL('../workers/z3.worker.js', import.meta.url), { type: 'module' });
+  const w = new Worker(new URL('../../workers/z3.worker.js', import.meta.url), { type: 'module' });
   w.onerror = (err) => {
     console.error('Z3 worker error:', err);
   };
