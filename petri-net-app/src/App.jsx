@@ -5,6 +5,7 @@ import PetriNetPanel from './components/PetriNetPanel';
 import SimulationManager from './features/simulation/SimulationManager';
 import SettingsDialog from './components/SettingsDialog';
 import CanvasManager from './features/canvas/CanvasManager';
+import FloatingEditorControls from './components/FloatingEditorControls';
 import { useElementManager } from './features/elements/useElementManager';
 import { useKeyboardShortcuts } from './features/keymap/useKeyboardShortcuts';
 import { useCanvasZoom } from './features/canvas/useCanvasZoom';
@@ -242,6 +243,7 @@ const AppContent = () => {
               {Math.round(zoomLevel * 100)}%
             </button>
           </div>
+          <FloatingEditorControls />
         </div>
         
         {/* Settings Dialog */}
