@@ -322,19 +322,25 @@ const Toolbar = ({
       <div className="hidden lg:block">
         {renderDesktopGroups()}
       </div>
-      <div className="lg:hidden flex items-center justify-between px-1">
-        <div>
+      <div className="lg:hidden flex items-center justify-between gap-3 px-2">
+        <button
+          type="button"
+          className="flex-1 text-left rounded-lg border border-transparent px-2 py-1.5 active:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          onClick={() => setIsMobileMenuOpen(true)}
+        >
           <p className="text-sm font-semibold text-gray-700">Editor Controls</p>
           <p className="text-xs text-gray-500">Tap to open full toolbar</p>
-        </div>
+        </button>
         <button
-          className="p-2 rounded-md border border-gray-200 shadow-sm bg-white"
+          type="button"
+          className="flex items-center gap-2 px-3 py-2 rounded-md border border-gray-200 shadow-sm bg-white font-semibold text-gray-700"
           onClick={() => setIsMobileMenuOpen(true)}
           aria-label="Open toolbar menu"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
+          <span>Menu</span>
         </button>
       </div>
       
