@@ -2,7 +2,7 @@ import React from 'react';
 
 const HistoryButtons = ({ canUndo, canRedo, onUndo, onRedo, buttonStyle }) => {
   return (
-    <div className="flex justify-between">
+    <div className="flex flex-wrap gap-2">
       <button 
         style={{ ...buttonStyle(false), opacity: canUndo ? 1 : 0.5 }}
         onClick={onUndo}

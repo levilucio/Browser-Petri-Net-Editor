@@ -46,6 +46,26 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
   const localContainerRef = useRef(null);
   const selectingRef = useRef({ isSelecting: false, start: null });
   const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(pointer: coarse)');
+    const update = (event) => setIsTouchDevice(event.matches);
+    update(media);
+    if (media.addEventListener) {
+      media.addEventListener('change', update);
+    } else {
+      media.addListener(update);
+    }
+    return () => {
+      if (media.removeEventListener) {
+        media.removeEventListener('change', update);
+      } else {
+        media.removeListener(update);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const container = localContainerRef.current;
@@ -149,9 +169,9 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (e.ctrlKey) {
+    if (e.ctrlKey || e.metaKey) {
       const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
-      handleZoom(delta);
+      handleZoom(delta, { clientX: e.clientX, clientY: e.clientY });
     } else {
       const deltaX = e.deltaX / zoomLevel;
       const deltaY = e.deltaY / zoomLevel;
@@ -208,7 +228,8 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
         height: '100%',
         position: 'relative',
         backgroundColor: '#f0f0f0',
-        overflow: 'hidden', // Use hidden because we are implementing custom scrollbars
+        overflow: 'hidden',
+        touchAction: isTouchDevice ? 'none' : 'auto',
       }}
     >
       <Stage
@@ -292,7 +313,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
         />
         <ArcManager />
       </Stage>
-      {stageDimensions.width > 0 && virtualCanvasDimensions.width > stageDimensions.width / zoomLevel && (
+      {!isTouchDevice && stageDimensions.width > 0 && virtualCanvasDimensions.width > stageDimensions.width / zoomLevel && (
           <CustomScrollbar
               orientation="horizontal"
               contentSize={virtualCanvasDimensions.width}
@@ -301,7 +322,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
               onScroll={(newScroll) => handleScroll('x', newScroll)}
           />
       )}
-      {stageDimensions.height > 0 && virtualCanvasDimensions.height > stageDimensions.height / zoomLevel && (
+      {!isTouchDevice && stageDimensions.height > 0 && virtualCanvasDimensions.height > stageDimensions.height / zoomLevel && (
           <CustomScrollbar
               orientation="vertical"
               contentSize={virtualCanvasDimensions.height}

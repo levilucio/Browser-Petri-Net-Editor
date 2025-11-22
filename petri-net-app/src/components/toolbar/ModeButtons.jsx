@@ -2,7 +2,7 @@ import React from 'react';
 
 const ModeButtons = ({ mode, setMode, buttonStyle }) => {
   return (
-    <div className="flex justify-between">
+    <div className="flex flex-wrap gap-2">
       <button 
         style={{ ...buttonStyle(mode === 'select') }}
         data-testid="toolbar-select"

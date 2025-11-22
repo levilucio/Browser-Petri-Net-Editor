@@ -149,7 +149,7 @@ const AppContent = () => {
 
         {/* Toolbar - fixed at the top */}
         <div 
-          className="fixed top-0 left-0 right-0 z-30 bg-white" 
+          className="fixed top-0 left-0 right-0 z-40 bg-white" 
           onWheel={(e) => e.stopPropagation()}
         >
           <Toolbar 
@@ -175,7 +175,7 @@ const AppContent = () => {
         
         {/* RIGHT SIDE: Side panels with properties and execution controls */}
         <div 
-          className={`fixed w-80 right-0 top-16 bottom-0 z-40 bg-gray-100 shadow-lg pt-4 flex flex-col overflow-hidden transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} lg:translate-x-0`}
+          className={`fixed w-80 right-0 top-16 bottom-0 z-30 bg-gray-100 shadow-lg pt-4 flex flex-col overflow-hidden transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} lg:translate-x-0`}
           onWheel={(e) => e.stopPropagation()}
         >
           {/* Properties panel (scrollable top) */}

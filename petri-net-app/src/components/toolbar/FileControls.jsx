@@ -2,7 +2,7 @@ import React from 'react';
 
 const FileControls = ({ isLoading, onSave, onSaveAs, canSaveAs, onLoad, onClear, buttonStyle }) => {
   return (
-    <div className="flex justify-between">
+    <div className="flex flex-wrap gap-2">
       <button 
         style={{ ...buttonStyle(false), opacity: isLoading ? 0.5 : 1 }}
         onClick={onSave}
