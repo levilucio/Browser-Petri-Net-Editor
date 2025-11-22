@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Petri Net Editor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #4a6da7;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .canvas {
+            width: 800px;
+            height: 500px;
+            border: 1px solid #ccc;
+            background-color: #f5f5f5;
+            margin: 1rem 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #555;
+        }
+        .toolbar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .toolbar button {
+            padding: 0.5rem 1rem;
+            background-color: #4a6da7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .toolbar button:hover {
+            background-color: #3a5d97;
+        }
+        .execution-panel {
+            /* Legacy: retained for static example; app uses SimulationManager */
+            background-color: #f0f0f0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Petri Net Editor</h1>
+    </div>
+    
+    <div class="container">
+        <div class="toolbar">
+            <button>Select</button>
+            <button>Place</button>
+            <button>Transition</button>
+            <button>Arc</button>
+        </div>
+        
+        <div class="canvas">
+            <h2>Petri Net Canvas</h2>
+            <p>This is where your Petri net elements would be displayed.</p>
+            <p>Use the toolbar buttons above to add places, transitions, and arcs.</p>
+        </div>
+        
+        <div class="execution-panel">
+            <h2>Simulation</h2>
+            <p>Current Marking: No places defined</p>
+            <p>Enabled Transitions: No transitions enabled</p>
+        </div>
+    </div>
+    
+    <script>
+        // Simple JavaScript to make the toolbar buttons interactive
+        document.querySelectorAll('.toolbar button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Deselect all buttons
+                document.querySelectorAll('.toolbar button').forEach(btn => {
+                    btn.style.backgroundColor = '#4a6da7';
+                });
+                
+                // Select clicked button
+                this.style.backgroundColor = '#2a4d87';
+                
+                // Update canvas message
+                const canvasMessage = document.querySelector('.canvas p:first-of-type');
+                canvasMessage.textContent = `Mode: ${this.textContent}`;
+            });
+        });
+    </script>
+</body>
+</html>
