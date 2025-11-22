@@ -40,7 +40,9 @@ const Transition = ({
     setElements,
     multiDragRef,
     isIdSelected,
-    setSelection
+    setSelection,
+    mode,
+    arcStart
   } = usePetriNet();
   // netMode provided by context
   
@@ -230,7 +232,13 @@ const Transition = ({
       y={y}
       onClick={(evt) => onSelect(id, evt)}
       onTap={(evt) => onSelect(id, evt)}
-      draggable
+      onTouchEnd={(e) => {
+        // On mobile, when creating an arc, touch end should complete the arc
+        if (mode === 'arc' && arcStart && arcStart.element.id !== id) {
+          onSelect(id, e);
+        }
+      }}
+      draggable={mode !== 'arc' || !arcStart}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}

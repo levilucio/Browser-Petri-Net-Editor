@@ -25,7 +25,9 @@ const Place = ({
     selectedElements,
     setElements,
     multiDragRef,
-    isIdSelected
+    isIdSelected,
+    mode,
+    arcStart
   } = usePetriNet();
 
   // Access UI state from EditorUIContext
@@ -320,12 +322,18 @@ const Place = ({
     <Group
       x={x}
       y={y}
-      draggable={true}
+      draggable={mode !== 'arc' || !arcStart}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onClick={() => onSelect(id)}
       onTap={() => onSelect(id)}
+      onTouchEnd={(e) => {
+        // On mobile, when creating an arc, touch end should complete the arc
+        if (mode === 'arc' && arcStart && arcStart.element.id !== id) {
+          onSelect(id);
+        }
+      }}
       id={id} // Pass id for hit detection in ArcManager
       name='element' // Generic name for easier hit detection
       elementType='place' // Custom attribute for type-specific logic
