@@ -47,6 +47,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
   const selectingRef = useRef({ isSelecting: false, start: null });
   const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const panStateRef = useRef({ active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 });
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -127,9 +128,66 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     }
   };
 
-  const handlePointerMove = () => {
+  const handlePointerMove = (e) => {
     const pos = getVirtualPointerPosition();
     if (!pos) return;
+    
+    // Handle touch panning on background
+    if (isTouchDevice && e && e.evt) {
+      const nativeEvent = e.evt;
+      const touches = nativeEvent.touches || nativeEvent.changedTouches;
+      
+      if (touches && touches.length === 1) {
+        const touch = touches[0];
+        const isBackground = e.target && e.target.name && e.target.name() === 'background';
+        
+        if (isBackground && mode !== 'arc') {
+          const panState = panStateRef.current;
+          // Only proceed if we have valid start position
+          if (panState.startX !== 0 || panState.startY !== 0) {
+            const deltaX = touch.clientX - panState.lastX;
+            const deltaY = touch.clientY - panState.lastY;
+            const totalDeltaX = touch.clientX - panState.startX;
+            const totalDeltaY = touch.clientY - panState.startY;
+            const dragDistance = Math.hypot(totalDeltaX, totalDeltaY);
+            
+            // Activate panning after 10px drag threshold
+            const PAN_THRESHOLD = 10;
+            if (!panState.active && dragDistance > PAN_THRESHOLD) {
+              panStateRef.current = { ...panState, active: true };
+            }
+            
+            if (panState.active) {
+              // Apply pan delta - when dragging right, we want to see content to the left (increase scroll)
+              const panDeltaX = -deltaX / zoomLevel;
+              const panDeltaY = -deltaY / zoomLevel;
+              
+              setCanvasScroll(prev => {
+                const maxScrollX = Math.max(0, virtualCanvasDimensions.width - (stageDimensions.width / zoomLevel));
+                const maxScrollY = Math.max(0, virtualCanvasDimensions.height - (stageDimensions.height / zoomLevel));
+                
+                return {
+                  x: Math.max(0, Math.min(maxScrollX, prev.x + panDeltaX)),
+                  y: Math.max(0, Math.min(maxScrollY, prev.y + panDeltaY))
+                };
+              });
+            }
+            
+            // Update last position
+            panStateRef.current = {
+              ...panState,
+              lastX: touch.clientX,
+              lastY: touch.clientY,
+            };
+            
+            // If panning is active, don't process other move logic
+            if (panState.active) {
+              return;
+            }
+          }
+        }
+      }
+    }
     
     // Handle arc drawing
     if (mode === 'arc' && arcStart) {
@@ -264,12 +322,26 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
           setSelectionRect({ x: start.x, y: start.y, w: 0, h: 0 });
         }}
         onTouchStart={(e) => {
-          if (mode !== 'select') return;
-          if (e.target && e.target.name && e.target.name() !== 'background') return;
-          const start = getVirtualPointerPosition();
-          if (!start) return;
-          selectingRef.current = { isSelecting: true, start };
-          setSelectionRect({ x: start.x, y: start.y, w: 0, h: 0 });
+          const isBackground = e.target && e.target.name && e.target.name() === 'background';
+          const nativeEvent = e.evt;
+          const touches = nativeEvent && (nativeEvent.touches || nativeEvent.changedTouches);
+          
+          if (mode === 'select' && isBackground) {
+            const start = getVirtualPointerPosition();
+            if (!start) return;
+            selectingRef.current = { isSelecting: true, start };
+            setSelectionRect({ x: start.x, y: start.y, w: 0, h: 0 });
+          } else if (isBackground && mode !== 'arc' && touches && touches.length === 1) {
+            // Initialize pan state for background touches (when not in arc mode)
+            const touch = touches[0];
+            panStateRef.current = {
+              active: false,
+              startX: touch.clientX,
+              startY: touch.clientY,
+              lastX: touch.clientX,
+              lastY: touch.clientY,
+            };
+          }
         }}
         onMouseUp={() => {
           if (mode !== 'select') return;
@@ -280,6 +352,9 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
           setSelectionRect(null);
         }}
         onTouchEnd={(e) => {
+          // Reset pan state
+          panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+          
           if (mode === 'select') {
             if (!selectingRef.current.isSelecting || !selectionRect) return;
             const newSelection = buildSelectionFromRect(elements, selectionRect);
