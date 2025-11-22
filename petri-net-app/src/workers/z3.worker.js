@@ -33,6 +33,12 @@ self.onmessage = async (e) => {
     const res = await fn(...(args || []));
     self.postMessage({ id, ok: true, result: res });
   } catch (err) {
+    // Log full error details for easier diagnosis in production builds
+    try {
+      console.error('[z3.worker] error executing op', op, err);
+    } catch (_) {
+      // Ignore logging failures
+    }
     self.postMessage({ id, ok: false, error: String(err?.message || err) });
   }
 };
