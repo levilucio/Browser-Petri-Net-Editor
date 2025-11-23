@@ -149,10 +149,10 @@ const SimulationManager = ({ isMobile = false }) => {
               </button>
               <button
                 onClick={() => setIsExpanded(false)}
-                className="text-gray-500 hover:text-gray-700 rounded-full p-2 hover:bg-gray-100 transition-all"
+                className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100/50 transition-all"
                 title="Minimize"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -213,10 +213,10 @@ const SimulationManager = ({ isMobile = false }) => {
 
             <button
               onClick={() => setIsExpanded(false)}
-              className="text-gray-500 hover:text-gray-700 rounded-full p-2 hover:bg-gray-100 transition-all ml-1"
+              className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100/50 transition-all"
               title="Minimize"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>

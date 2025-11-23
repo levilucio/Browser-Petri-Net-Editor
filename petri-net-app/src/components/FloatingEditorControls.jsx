@@ -44,7 +44,7 @@ const FloatingEditorControls = () => {
   });
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex flex-col items-center">
+    <div className="fixed bottom-32 left-6 z-50 flex flex-col items-center">
       {/* Arc Button */}
       <button
         style={getButtonStyle(mode === 'arc')}
