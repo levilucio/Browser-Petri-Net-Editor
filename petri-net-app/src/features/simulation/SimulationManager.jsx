@@ -92,24 +92,33 @@ const SimulationManager = ({ isMobile = false }) => {
       </div>
     );
 
-    // Collapsed state: show a small toggle button
+    // Drag handle component (reusable)
+    const DragHandle = ({ onClick, className = "" }) => (
+      <button
+        onClick={onClick}
+        className={`flex flex-col items-center justify-center cursor-pointer transition-all hover:opacity-70 ${className}`}
+        title="Tap to expand/collapse"
+      >
+        <div className="flex flex-col gap-1">
+          <div className="w-8 h-0.5 bg-gray-400 rounded-full"></div>
+          <div className="w-8 h-0.5 bg-gray-400 rounded-full"></div>
+          <div className="w-8 h-0.5 bg-gray-400 rounded-full"></div>
+        </div>
+      </button>
+    );
+
+    // Collapsed state: show drag handle
     if (!isExpanded) {
       return (
         <>
           <div 
             data-testid="simulation-manager-mobile" 
-            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40"
+            className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-300 ease-in-out ${mobileOpacity}`}
           >
             {showErrorToast}
-            <button
-              onClick={() => setIsExpanded(true)}
-              className={`bg-white/95 backdrop-blur-md rounded-full p-4 shadow-2xl border border-gray-200/50 transition-all hover:scale-110 ${!canSimulate ? 'opacity-60' : ''}`}
-              title="Open simulation controls"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18V6l8 6-8 6z" clipRule="evenodd" />
-              </svg>
-            </button>
+            <div className={`bg-white/95 backdrop-blur-md rounded-full px-4 py-2 shadow-2xl border border-gray-200/50 flex items-center justify-center ${!canSimulate ? 'opacity-60' : ''}`}>
+              <DragHandle onClick={() => setIsExpanded(true)} />
+            </div>
           </div>
           <CompletionDialog
             stats={completionStats}
@@ -126,36 +135,34 @@ const SimulationManager = ({ isMobile = false }) => {
         <>
           <div 
             data-testid="simulation-manager-mobile" 
-            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40"
+            className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-300 ease-in-out`}
           >
             {showErrorToast}
-            <div className="bg-white/95 backdrop-blur-md rounded-full px-4 py-2 shadow-2xl border border-gray-200/50 flex items-center gap-3">
-              {isRunning && (
-                <div className="flex items-center gap-2 text-green-600">
-                  <span className="w-2 h-2 bg-green-500 rounded-full sim-pulse-strong" />
-                  <span className="text-xs font-medium">Running</span>
-                </div>
-              )}
-              <button
-                data-testid="sim-stop-mobile"
-                className="bg-red-600 text-white rounded-full p-3 hover:bg-red-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = true; } catch (_) {}; stopAllSimulations(); }}
-                disabled={!isAnySimulationRunning}
-                title="Stop simulation"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="7" y="7" width="10" height="10" />
-                </svg>
-              </button>
-              <button
-                onClick={() => setIsExpanded(false)}
-                className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100/50 transition-all"
-                title="Minimize"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 flex flex-col items-center">
+              {/* Drag handle at top */}
+              <div className="w-full flex justify-center pt-2 pb-1">
+                <DragHandle onClick={() => setIsExpanded(false)} />
+              </div>
+              {/* Controls */}
+              <div className="flex items-center gap-3 px-4 pb-2">
+                {isRunning && (
+                  <div className="flex items-center gap-2 text-green-600">
+                    <span className="w-2 h-2 bg-green-500 rounded-full sim-pulse-strong" />
+                    <span className="text-xs font-medium">Running</span>
+                  </div>
+                )}
+                <button
+                  data-testid="sim-stop-mobile"
+                  className="bg-red-600 text-white rounded-full p-3 hover:bg-red-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = true; } catch (_) {}; stopAllSimulations(); }}
+                  disabled={!isAnySimulationRunning}
+                  title="Stop simulation"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="7" y="7" width="10" height="10" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
           <CompletionDialog
@@ -171,55 +178,52 @@ const SimulationManager = ({ isMobile = false }) => {
       <>
         <div 
           data-testid="simulation-manager-mobile" 
-          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-opacity duration-300 ${mobileOpacity}`}
+          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-300 ease-in-out ${mobileOpacity}`}
         >
           {showErrorToast}
-          <div className={`bg-white/95 backdrop-blur-md rounded-full px-3 py-2 shadow-2xl border border-gray-200/50 flex items-center gap-2 ${!canSimulate ? 'opacity-60' : ''}`}>
-            <button
-              data-testid="sim-step-mobile"
-              className="bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-              onClick={stepSimulation}
-              disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
-              title="Step forward"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-              </svg>
-            </button>
+          <div className={`bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 flex flex-col items-center ${!canSimulate ? 'opacity-60' : ''}`}>
+            {/* Drag handle at top */}
+            <div className="w-full flex justify-center pt-2 pb-1">
+              <DragHandle onClick={() => setIsExpanded(false)} />
+            </div>
+            {/* Controls */}
+            <div className="flex items-center gap-2 px-3 pb-2">
+              <button
+                data-testid="sim-step-mobile"
+                className="bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                onClick={stepSimulation}
+                disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
+                title="Step forward"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
 
-            <button
-              data-testid="sim-simulate-mobile"
-              className="bg-green-600 text-white rounded-full p-3 hover:bg-green-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-              onClick={startContinuousSimulation}
-              disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
-              title="Simulate with animation"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18V6l8 6-8 6z" clipRule="evenodd" />
-              </svg>
-            </button>
+              <button
+                data-testid="sim-simulate-mobile"
+                className="bg-green-600 text-white rounded-full p-3 hover:bg-green-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                onClick={startContinuousSimulation}
+                disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
+                title="Simulate with animation"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18V6l8 6-8 6z" clipRule="evenodd" />
+                </svg>
+              </button>
 
-            <button
-              data-testid="sim-run-mobile"
-              className="bg-yellow-600 text-white rounded-full p-3 hover:bg-yellow-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-              onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = false; } catch (_) {}; startRunSimulation(); }}
-              disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
-              title="Run to completion"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            <button
-              onClick={() => setIsExpanded(false)}
-              className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100/50 transition-all"
-              title="Minimize"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+              <button
+                data-testid="sim-run-mobile"
+                className="bg-yellow-600 text-white rounded-full p-3 hover:bg-yellow-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = false; } catch (_) {}; startRunSimulation(); }}
+                disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
+                title="Run to completion"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
         <CompletionDialog
