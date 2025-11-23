@@ -17,6 +17,7 @@ export default function useToolbarActions(params) {
     setIsAdtOpen,
     saveFileHandle,
     setSaveFileHandle,
+    setIsMobileMenuOpen,
   } = params || {};
 
   const handleOpenAdtManager = () => {
@@ -85,6 +86,7 @@ export default function useToolbarActions(params) {
       }
 
       setSuccess?.('Petri net saved.');
+      setIsMobileMenuOpen?.(false);
     } catch (error) {
       console.error('Error saving Petri net:', error);
       setError?.(`Error saving Petri net: ${error.message}`);
@@ -144,6 +146,7 @@ export default function useToolbarActions(params) {
       }
 
       setSuccess?.('Petri net saved.');
+      setIsMobileMenuOpen?.(false);
     } catch (error) {
       console.error('Error saving Petri net:', error);
       setError?.(`Error saving Petri net: ${error.message}`);
@@ -230,6 +233,7 @@ export default function useToolbarActions(params) {
 
         if (updateHistory) updateHistory(safeJson);
         setSuccess?.(`Petri net loaded successfully with ${safeJson.places.length} places, ${safeJson.transitions.length} transitions, and ${safeJson.arcs.length} arcs.`);
+        setIsMobileMenuOpen?.(false);
       } catch (error) {
         console.error('Error loading Petri net:', error);
         setError?.(`Error loading Petri net: ${error.message}`);
@@ -258,6 +262,7 @@ export default function useToolbarActions(params) {
     }
 
     setSuccess?.('Canvas cleared successfully.');
+    setIsMobileMenuOpen?.(false);
   };
 
   return { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager };

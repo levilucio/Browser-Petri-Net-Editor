@@ -51,6 +51,7 @@ const Toolbar = ({
     setIsAdtOpen,
     saveFileHandle,
     setSaveFileHandle,
+    setIsMobileMenuOpen,
   });
   
   // Auto-dismiss success messages after 5 seconds
@@ -292,16 +293,6 @@ const Toolbar = ({
           ADT
         </button>
       </div>
-      <div className="history-tools">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider">History</h3>
-        <HistoryButtons
-          canUndo={canUndo}
-          canRedo={canRedo}
-          onUndo={onUndo}
-          onRedo={onRedo}
-          buttonStyle={mobileButtonStyle}
-        />
-      </div>
       <div className="settings-tools">
         <h3 className="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider">Settings</h3>
         <SettingsButton
@@ -320,18 +311,44 @@ const Toolbar = ({
       <div className="hidden lg:block">
         {renderDesktopGroups()}
       </div>
-      <div className="lg:hidden flex items-center justify-between gap-3 px-2 py-1">
-        <div className="flex-1">
+      <div className="lg:hidden flex items-center gap-3 px-2 py-1">
+        <button
+          type="button"
+          className="flex items-center gap-2 px-3 py-2 rounded-md border border-gray-200 shadow-sm bg-white font-semibold text-gray-700"
+          onClick={() => setIsMobileMenuOpen(true)}
+          aria-label="Open toolbar menu"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <span>Menu</span>
+        </button>
+        
+        {/* Undo/Redo Group */}
+        <div className="flex items-center gap-2 ml-2">
           <button
             type="button"
-            className="flex items-center gap-2 px-3 py-2 rounded-md border border-gray-200 shadow-sm bg-white font-semibold text-gray-700"
-            onClick={() => setIsMobileMenuOpen(true)}
-            aria-label="Open toolbar menu"
+            className={`p-2 rounded-md border border-gray-200 shadow-sm bg-white text-gray-700 transition-all ${!canUndo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 active:scale-95'}`}
+            onClick={onUndo}
+            disabled={!canUndo}
+            title="Undo"
+            aria-label="Undo"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
             </svg>
-            <span>Menu</span>
+          </button>
+          <button
+            type="button"
+            className={`p-2 rounded-md border border-gray-200 shadow-sm bg-white text-gray-700 transition-all ${!canRedo ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-50 active:scale-95'}`}
+            onClick={onRedo}
+            disabled={!canRedo}
+            title="Redo"
+            aria-label="Redo"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 15l6-6m0 0l-6-6m6 6H9a6 6 0 000 12h3" />
+            </svg>
           </button>
         </div>
       </div>
@@ -368,17 +385,8 @@ const Toolbar = ({
           onWheel={(e) => e.stopPropagation()}
         >
           <div className="p-5">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
-              <button
-                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-                aria-label="Close toolbar menu"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
             </div>
             {renderMobileGroups()}
           </div>
