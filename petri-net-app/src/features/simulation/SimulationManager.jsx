@@ -68,12 +68,21 @@ const SimulationManager = ({ isMobile = false }) => {
     dismissCompletionDialog,
   } = usePetriNet();
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const isAnySimulationRunning = isContinuousSimulating || isRunning;
   const canSimulate = isSimulatorReady && enabledTransitionIds.length > 0;
   
   // For mobile: greyed out and transparent when simulation is not possible
   const mobileOpacity = canSimulate ? 'opacity-100' : 'opacity-50';
   const mobileBg = canSimulate ? 'bg-gray-200' : 'bg-gray-100';
+
+  // Auto-expand when simulation starts
+  useEffect(() => {
+    if (isAnySimulationRunning) {
+      setIsExpanded(true);
+    }
+  }, [isAnySimulationRunning]);
 
   if (isMobile) {
     // Show error as a toast-style notification if present
@@ -83,6 +92,34 @@ const SimulationManager = ({ isMobile = false }) => {
       </div>
     );
 
+    // Collapsed state: show a small toggle button
+    if (!isExpanded) {
+      return (
+        <>
+          <div 
+            data-testid="simulation-manager-mobile" 
+            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40"
+          >
+            {showErrorToast}
+            <button
+              onClick={() => setIsExpanded(true)}
+              className={`bg-white/95 backdrop-blur-md rounded-full p-4 shadow-2xl border border-gray-200/50 transition-all hover:scale-110 ${!canSimulate ? 'opacity-60' : ''}`}
+              title="Open simulation controls"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-700" viewBox="0 0 24 24" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18V6l8 6-8 6z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+          <CompletionDialog
+            stats={completionStats}
+            onDismiss={dismissCompletionDialog}
+          />
+        </>
+      );
+    }
+
+    // Expanded state: show full controls
     // When running, show only Stop button
     if (isAnySimulationRunning) {
       return (
@@ -108,6 +145,15 @@ const SimulationManager = ({ isMobile = false }) => {
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                   <rect x="7" y="7" width="10" height="10" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="text-gray-500 hover:text-gray-700 rounded-full p-2 hover:bg-gray-100 transition-all"
+                title="Minimize"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
             </div>
@@ -162,6 +208,16 @@ const SimulationManager = ({ isMobile = false }) => {
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => setIsExpanded(false)}
+              className="text-gray-500 hover:text-gray-700 rounded-full p-2 hover:bg-gray-100 transition-all ml-1"
+              title="Minimize"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
           </div>
