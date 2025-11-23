@@ -86,6 +86,7 @@ const AppContent = () => {
       }
     }, []);
 
+    const { isDragging } = usePetriNet();
     const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll, isSingleFingerPanningActive } = useCanvasZoom({
       MIN_ZOOM,
       MAX_ZOOM,
@@ -95,6 +96,7 @@ const AppContent = () => {
       canvasScroll,
       setCanvasScroll,
       setContainerRef,
+      isDragging,
     });
 
     const { handleDeleteElement, clearAllElements } = useElementManager();

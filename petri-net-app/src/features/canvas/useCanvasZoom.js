@@ -9,6 +9,7 @@ export function useCanvasZoom({
   canvasScroll,
   setCanvasScroll,
   setContainerRef,
+  isDragging = false,
 }) {
   const localCanvasContainerDivRef = useRef(null);
   const programmaticScrollRef = useRef(false);
@@ -232,6 +233,19 @@ export function useCanvasZoom({
         };
       } else if (event.touches.length === 1) {
         // Single finger - set up delayed panning
+        // BUT: Don't activate panning if elements are being dragged
+        if (isDragging) {
+          // Clear any existing pan timer
+          const singlePan = singleFingerPanRef.current;
+          if (singlePan.holdTimer) {
+            clearTimeout(singlePan.holdTimer);
+            singlePan.holdTimer = null;
+          }
+          singlePan.active = false;
+          setIsSingleFingerPanningActive(false);
+          return;
+        }
+        
         const touch = event.touches[0];
         const singlePan = singleFingerPanRef.current;
         
@@ -254,8 +268,11 @@ export function useCanvasZoom({
         
         // Set timer to activate panning after 0.5 seconds
         singlePan.holdTimer = setTimeout(() => {
-          // Only activate if still a single touch and same touch ID
-          if (event.touches.length === 1 && 
+          // Only activate if:
+          // 1. Still a single touch and same touch ID
+          // 2. Elements are NOT being dragged
+          if (!isDragging &&
+              event.touches.length === 1 && 
               event.touches[0].identifier === singlePan.touchId) {
             singlePan.active = true;
             setIsSingleFingerPanningActive(true);
@@ -358,6 +375,21 @@ export function useCanvasZoom({
         return;
       } else if (event.touches.length === 1) {
         // Single finger - check if panning is active (after delay)
+        // BUT: Don't pan if elements are being dragged
+        if (isDragging) {
+          // Cancel panning if dragging starts
+          const singlePan = singleFingerPanRef.current;
+          if (singlePan.holdTimer) {
+            clearTimeout(singlePan.holdTimer);
+            singlePan.holdTimer = null;
+          }
+          if (singlePan.active) {
+            singlePan.active = false;
+            setIsSingleFingerPanningActive(false);
+          }
+          return;
+        }
+        
         const singlePan = singleFingerPanRef.current;
         const touch = event.touches[0];
         
@@ -437,7 +469,7 @@ export function useCanvasZoom({
       container.removeEventListener('touchend', handleTouchEnd);
       container.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [applyPanDelta, clampZoom, handleZoomTo]);
+  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging]);
 
   return { 
     localCanvasContainerDivRef, 

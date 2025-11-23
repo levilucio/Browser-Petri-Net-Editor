@@ -35,6 +35,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
     enabledTransitionIds,
     snapToGrid,
     selectedElements, setSelection,
+    isDragging,
   } = usePetriNet();
 
   const { 
@@ -170,8 +171,13 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
     }
     
     // Update selection rectangle during drag in select mode
-    // Cancel selection if single-finger panning becomes active
-    if (isSingleFingerPanningActive) {
+    // Check double tap state first
+    const doubleTap = doubleTapRef.current;
+    const isTouchSelection = isTouchDevice && doubleTap.isDoubleTapActive;
+    const isMouseSelection = !isTouchDevice;
+    
+    // Cancel selection if single-finger panning becomes active (but not if double tap selection is active)
+    if (isSingleFingerPanningActive && !isTouchSelection) {
       if (selectingRef.current.isSelecting) {
         selectingRef.current = { isSelecting: false, start: null };
         setSelectionRect(null);
@@ -181,18 +187,27 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
     
     // Only update selection rectangle if:
     // 1. In select mode
-    // 2. Selection is active
+    // 2. Selection is active OR double tap is active (for touch)
     // 3. Double tap selection is active (for touch devices) OR mouse is being used
-    const doubleTap = doubleTapRef.current;
-    const isTouchSelection = isTouchDevice && doubleTap.isDoubleTapActive;
-    const isMouseSelection = !isTouchDevice;
-    
-    if (mode === 'select' && 
-        selectingRef.current.isSelecting && 
-        selectingRef.current.start &&
-        (isTouchSelection || isMouseSelection)) {
-      const start = selectingRef.current.start;
-      setSelectionRect({ x: start.x, y: start.y, w: pos.x - start.x, h: pos.y - start.y });
+    if (mode === 'select') {
+      if (isTouchSelection) {
+        // Touch device with double tap active
+        if (!selectingRef.current.isSelecting && doubleTap.secondTap) {
+          // Start selection if it hasn't started yet
+          selectingRef.current = { 
+            isSelecting: true, 
+            start: { x: doubleTap.secondTap.x, y: doubleTap.secondTap.y } 
+          };
+        }
+        if (selectingRef.current.isSelecting && selectingRef.current.start) {
+          const start = selectingRef.current.start;
+          setSelectionRect({ x: start.x, y: start.y, w: pos.x - start.x, h: pos.y - start.y });
+        }
+      } else if (isMouseSelection && selectingRef.current.isSelecting && selectingRef.current.start) {
+        // Mouse selection
+        const start = selectingRef.current.start;
+        setSelectionRect({ x: start.x, y: start.y, w: pos.x - start.x, h: pos.y - start.y });
+      }
     }
 
     // Show snap indicator when grid snapping is enabled and in place/transition mode
