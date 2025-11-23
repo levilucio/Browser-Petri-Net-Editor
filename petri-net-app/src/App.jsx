@@ -219,7 +219,7 @@ const AppContent = () => {
         <div className="fixed top-20 left-0 bottom-0 right-0 lg:right-80 transition-all duration-300">
           {/* Mobile: Add bottom padding for floating simulation bar */}
           <div 
-            className="absolute inset-0 overflow-hidden stage-container bg-gray-200 dark:bg-gray-700 pb-20 lg:pb-0"
+            className="absolute inset-0 overflow-hidden stage-container bg-gray-200 dark:bg-gray-700"
             data-testid="canvas-container"
             ref={localCanvasContainerDivRef}
             onScroll={handleNativeCanvasScroll}
