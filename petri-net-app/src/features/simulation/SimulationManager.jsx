@@ -53,7 +53,7 @@ const CompletionDialog = ({ stats, onDismiss }) => {
   );
 };
 
-const SimulationManager = () => {
+const SimulationManager = ({ isMobile = false }) => {
   const {
     isContinuousSimulating,
     isRunning,
@@ -69,8 +69,108 @@ const SimulationManager = () => {
   } = usePetriNet();
 
   const isAnySimulationRunning = isContinuousSimulating || isRunning;
+  const canSimulate = isSimulatorReady && enabledTransitionIds.length > 0;
+  
+  // For mobile: greyed out and transparent when simulation is not possible
+  const mobileOpacity = canSimulate ? 'opacity-100' : 'opacity-50';
+  const mobileBg = canSimulate ? 'bg-gray-200' : 'bg-gray-100';
 
+  if (isMobile) {
+    return (
+      <div 
+        data-testid="simulation-manager-mobile" 
+        className={`${mobileBg} ${mobileOpacity} transition-opacity duration-300 border-t-2 border-gray-300 shadow-lg`}
+      >
+        <div className="px-3 py-2">
+          <h3 className="text-sm font-semibold mb-2 text-gray-700">Simulation</h3>
+          
+          {simulationError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-2 py-1 rounded mb-2 text-xs">
+              {simulationError}
+            </div>
+          )}
 
+          <div className="bg-white bg-opacity-80 p-2 rounded-lg shadow border border-gray-200">
+            <div className="flex items-center justify-between space-x-2 mb-2">
+              <button
+                data-testid="sim-step-mobile"
+                className="flex-1 h-10 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50 flex flex-col items-center justify-center transition-all shadow-sm text-xs"
+                onClick={stepSimulation}
+                disabled={!isSimulatorReady || isAnySimulationRunning || enabledTransitionIds.length === 0}
+                title="Execute one step forward"
+              >
+                <div style={{ height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                </div>
+                <span className="text-xs font-bold">Step</span>
+              </button>
+
+              <button
+                data-testid="sim-simulate-mobile"
+                className="flex-1 h-10 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 disabled:opacity-50 flex flex-col items-center justify-center transition-all shadow-sm text-xs"
+                onClick={startContinuousSimulation}
+                disabled={!isSimulatorReady || isAnySimulationRunning || enabledTransitionIds.length === 0}
+                title="Simulate with animation"
+              >
+                <div style={{ height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18V6l8 6-8 6z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-xs font-bold">Simulate</span>
+              </button>
+
+              <button
+                data-testid="sim-run-mobile"
+                className="flex-1 h-10 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 disabled:bg-gray-400 disabled:opacity-50 flex flex-col items-center justify-center transition-all shadow-sm text-xs"
+                onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = false; } catch (_) {}; startRunSimulation(); }}
+                disabled={!isSimulatorReady || isAnySimulationRunning || enabledTransitionIds.length === 0}
+                title="Run to completion"
+              >
+                <div style={{ height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span className="text-xs font-bold">Run</span>
+              </button>
+            </div>
+
+            <button
+              data-testid="sim-stop-mobile"
+              className="w-full h-9 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:bg-gray-400 disabled:opacity-50 flex items-center justify-center space-x-2 transition-all shadow-sm text-xs"
+              onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = true; } catch (_) {}; stopAllSimulations(); }}
+              disabled={!isAnySimulationRunning}
+              title="Stop simulation or run"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="7" y="7" width="10" height="10" />
+              </svg>
+              <span className="text-xs font-bold">STOP</span>
+            </button>
+
+            {isRunning && (
+              <div className="mt-2 flex items-center justify-center">
+                <span className="inline-flex items-center space-x-1 text-green-600 text-xs">
+                  <span className="w-3 h-3 bg-green-500 rounded-full sim-pulse-strong" />
+                  <span className="font-medium">Running...</span>
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <CompletionDialog
+          stats={completionStats}
+          onDismiss={dismissCompletionDialog}
+        />
+      </div>
+    );
+  }
+
+  // Desktop version (original)
   return (
     <div data-testid="simulation-manager" className="simulation-manager w-full px-4 py-2 mx-0">
       <h2 className="text-lg font-semibold mb-2">Simulation</h2>

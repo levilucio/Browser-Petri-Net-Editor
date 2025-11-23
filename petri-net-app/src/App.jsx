@@ -217,8 +217,9 @@ const AppContent = () => {
         
         {/* Canvas Area */}
         <div className="fixed top-20 left-0 bottom-0 right-0 lg:right-80 transition-all duration-300">
+          {/* Mobile: Add bottom padding for fixed simulation panel */}
           <div 
-            className="absolute inset-0 overflow-hidden stage-container bg-gray-200 dark:bg-gray-700"
+            className="absolute inset-0 overflow-hidden stage-container bg-gray-200 dark:bg-gray-700 pb-24 lg:pb-0"
             data-testid="canvas-container"
             ref={localCanvasContainerDivRef}
             onScroll={handleNativeCanvasScroll}
@@ -228,6 +229,11 @@ const AppContent = () => {
               ZOOM_STEP={ZOOM_STEP}
               isSingleFingerPanningActive={isSingleFingerPanningActive}
             />
+          </div>
+          
+          {/* Mobile Simulation Panel - Fixed at bottom */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
+            <SimulationManager isMobile={true} />
           </div>
           {/* Zoom controls - hidden on mobile, visible on desktop */}
           <div className="hidden lg:flex fixed top-24 right-[336px] z-10 flex-col space-y-2 pointer-events-auto">
