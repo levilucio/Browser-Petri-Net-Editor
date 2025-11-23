@@ -207,12 +207,6 @@ const AppContent = () => {
           <div className="flex-1 overflow-y-auto pr-2 border-t-2 border-gray-200">
             <PetriNetPanel elements={elements} enabledTransitionIds={enabledTransitionIds} />
           </div>
-          
-          {/* Simulation Manager pinned at bottom */}
-          <div className="border-t-2 border-gray-200 w-full"></div>
-          <div className="mt-auto sticky bottom-0 bg-gray-100">
-            <SimulationManager />
-          </div>
         </div>
         
         {/* Canvas Area */}
