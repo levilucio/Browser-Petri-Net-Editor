@@ -69,6 +69,7 @@ const SimulationManager = ({ isMobile = false }) => {
   } = usePetriNet();
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const isAnySimulationRunning = isContinuousSimulating || isRunning;
   const canSimulate = isSimulatorReady && enabledTransitionIds.length > 0;
@@ -84,6 +85,21 @@ const SimulationManager = ({ isMobile = false }) => {
     }
   }, [isAnySimulationRunning]);
 
+  // Handle smooth collapse animation
+  const handleCollapse = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsExpanded(false);
+      setIsAnimating(false);
+    }, 200); // Match animation duration
+  };
+
+  // Handle expand
+  const handleExpand = () => {
+    setIsAnimating(false);
+    setIsExpanded(true);
+  };
+
   if (isMobile) {
     // Show error as a toast-style notification if present
     const showErrorToast = simulationError && (
@@ -96,52 +112,38 @@ const SimulationManager = ({ isMobile = false }) => {
     const DragHandle = ({ onClick, className = "" }) => (
       <button
         onClick={onClick}
-        className={`flex flex-col items-center justify-center cursor-pointer transition-all hover:opacity-70 ${className}`}
+        className={`flex flex-col items-center justify-center cursor-pointer transition-all hover:opacity-70 py-1 ${className}`}
         title="Tap to expand/collapse"
       >
-        <div className="flex flex-col gap-1">
-          <div className="w-8 h-0.5 bg-gray-400 rounded-full"></div>
-          <div className="w-8 h-0.5 bg-gray-400 rounded-full"></div>
-          <div className="w-8 h-0.5 bg-gray-400 rounded-full"></div>
+        <div className="flex flex-col gap-0.5">
+          <div className="w-6 h-0.5 bg-gray-400 rounded-full"></div>
+          <div className="w-6 h-0.5 bg-gray-400 rounded-full"></div>
+          <div className="w-6 h-0.5 bg-gray-400 rounded-full"></div>
         </div>
       </button>
     );
 
-    // Collapsed state: show drag handle
-    if (!isExpanded) {
-      return (
-        <>
-          <div 
-            data-testid="simulation-manager-mobile" 
-            className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-300 ease-in-out ${mobileOpacity}`}
-          >
-            {showErrorToast}
-            <div className={`bg-white/95 backdrop-blur-md rounded-full px-4 py-2 shadow-2xl border border-gray-200/50 flex items-center justify-center ${!canSimulate ? 'opacity-60' : ''}`}>
-              <DragHandle onClick={() => setIsExpanded(true)} />
+    // Single container approach for smooth animations
+    return (
+      <>
+        <div 
+          data-testid="simulation-manager-mobile" 
+          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-200 ease-out ${mobileOpacity}`}
+        >
+          {showErrorToast}
+          {/* Collapsed state */}
+          {!isExpanded && !isAnimating && (
+            <div className={`bg-white/95 backdrop-blur-md rounded-full px-3 py-1.5 shadow-2xl border border-gray-200/50 flex items-center justify-center transition-all duration-200 ease-out ${!canSimulate ? 'opacity-60' : ''}`}>
+              <DragHandle onClick={handleExpand} />
             </div>
-          </div>
-          <CompletionDialog
-            stats={completionStats}
-            onDismiss={dismissCompletionDialog}
-          />
-        </>
-      );
-    }
-
-    // Expanded state: show full controls
-    // When running, show only Stop button
-    if (isAnySimulationRunning) {
-      return (
-        <>
-          <div 
-            data-testid="simulation-manager-mobile" 
-            className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-300 ease-in-out`}
-          >
-            {showErrorToast}
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 flex flex-col items-center">
+          )}
+          
+          {/* Expanded state - when running */}
+          {(isExpanded || isAnimating) && isAnySimulationRunning && (
+            <div className={`bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 flex flex-col items-center ${isExpanded && !isAnimating ? 'animate-slide-up' : isAnimating ? 'animate-slide-down' : ''}`}>
               {/* Drag handle at top */}
-              <div className="w-full flex justify-center pt-2 pb-1">
-                <DragHandle onClick={() => setIsExpanded(false)} />
+              <div className="w-full flex justify-center pt-1.5 pb-0.5">
+                <DragHandle onClick={handleCollapse} />
               </div>
               {/* Controls */}
               <div className="flex items-center gap-3 px-4 pb-2">
@@ -164,67 +166,55 @@ const SimulationManager = ({ isMobile = false }) => {
                 </button>
               </div>
             </div>
-          </div>
-          <CompletionDialog
-            stats={completionStats}
-            onDismiss={dismissCompletionDialog}
-          />
-        </>
-      );
-    }
+          )}
 
-    // When not running, show control buttons
-    return (
-      <>
-        <div 
-          data-testid="simulation-manager-mobile" 
-          className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 transition-all duration-300 ease-in-out ${mobileOpacity}`}
-        >
-          {showErrorToast}
-          <div className={`bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 flex flex-col items-center ${!canSimulate ? 'opacity-60' : ''}`}>
-            {/* Drag handle at top */}
-            <div className="w-full flex justify-center pt-2 pb-1">
-              <DragHandle onClick={() => setIsExpanded(false)} />
+          {/* Expanded state - when not running */}
+          {(isExpanded || isAnimating) && !isAnySimulationRunning && (
+            <div className={`bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-200/50 flex flex-col items-center ${isExpanded && !isAnimating ? 'animate-slide-up' : isAnimating ? 'animate-slide-down' : ''} ${!canSimulate ? 'opacity-60' : ''}`}>
+              {/* Drag handle at top */}
+              <div className="w-full flex justify-center pt-1.5 pb-0.5">
+                <DragHandle onClick={handleCollapse} />
+              </div>
+              {/* Controls */}
+              <div className="flex items-center gap-2 px-3 pb-2">
+                <button
+                  data-testid="sim-step-mobile"
+                  className="bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  onClick={stepSimulation}
+                  disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
+                  title="Step forward"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                  </svg>
+                </button>
+
+                <button
+                  data-testid="sim-simulate-mobile"
+                  className="bg-green-600 text-white rounded-full p-3 hover:bg-green-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  onClick={startContinuousSimulation}
+                  disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
+                  title="Simulate with animation"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18V6l8 6-8 6z" clipRule="evenodd" />
+                  </svg>
+                </button>
+
+                <button
+                  data-testid="sim-run-mobile"
+                  className="bg-yellow-600 text-white rounded-full p-3 hover:bg-yellow-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = false; } catch (_) {}; startRunSimulation(); }}
+                  disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
+                  title="Run to completion"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
             </div>
-            {/* Controls */}
-            <div className="flex items-center gap-2 px-3 pb-2">
-              <button
-                data-testid="sim-step-mobile"
-                className="bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-                onClick={stepSimulation}
-                disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
-                title="Step forward"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-                </svg>
-              </button>
-
-              <button
-                data-testid="sim-simulate-mobile"
-                className="bg-green-600 text-white rounded-full p-3 hover:bg-green-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-                onClick={startContinuousSimulation}
-                disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
-                title="Simulate with animation"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18V6l8 6-8 6z" clipRule="evenodd" />
-                </svg>
-              </button>
-
-              <button
-                data-testid="sim-run-mobile"
-                className="bg-yellow-600 text-white rounded-full p-3 hover:bg-yellow-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-                onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = false; } catch (_) {}; startRunSimulation(); }}
-                disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
-                title="Run to completion"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          </div>
+          )}
         </div>
         <CompletionDialog
           stats={completionStats}
