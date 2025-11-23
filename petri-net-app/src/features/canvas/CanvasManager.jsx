@@ -11,7 +11,7 @@ import CustomScrollbar from '../../components/CustomScrollbar';
 import SnapIndicator from '../../components/SnapIndicator';
 import { logger } from '../../utils/logger.js';
 
-const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
+const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) => {
   // Get UI state from EditorUIContext
   const {
     stageDimensions, setStageDimensions,
@@ -156,6 +156,15 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
     }
     
     // Update selection rectangle during drag in select mode
+    // Cancel selection if single-finger panning becomes active
+    if (isSingleFingerPanningActive) {
+      if (selectingRef.current.isSelecting) {
+        selectingRef.current = { isSelecting: false, start: null };
+        setSelectionRect(null);
+      }
+      return;
+    }
+    
     if (mode === 'select' && selectingRef.current.isSelecting && selectingRef.current.start) {
       const start = selectingRef.current.start;
       setSelectionRect({ x: start.x, y: start.y, w: pos.x - start.x, h: pos.y - start.y });
@@ -268,6 +277,14 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP }) => {
         }}
         onTouchStart={(e) => {
           const isBackground = e.target && e.target.name && e.target.name() === 'background';
+          
+          // Don't start selection if single-finger panning is active
+          if (isSingleFingerPanningActive) {
+            // Cancel any ongoing selection
+            selectingRef.current = { isSelecting: false, start: null };
+            setSelectionRect(null);
+            return;
+          }
           
           if (mode === 'select' && isBackground) {
             const start = getVirtualPointerPosition();

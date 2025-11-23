@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export function useCanvasZoom({
   MIN_ZOOM,
@@ -14,6 +14,7 @@ export function useCanvasZoom({
   const programmaticScrollRef = useRef(false);
   const pinchStateRef = useRef({ active: false });
   const panStateRef = useRef({ active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 });
+  const [isSingleFingerPanningActive, setIsSingleFingerPanningActive] = useState(false);
   const singleFingerPanRef = useRef({ 
     active: false, 
     startX: 0, 
@@ -257,6 +258,7 @@ export function useCanvasZoom({
           if (event.touches.length === 1 && 
               event.touches[0].identifier === singlePan.touchId) {
             singlePan.active = true;
+            setIsSingleFingerPanningActive(true);
           }
         }, 500); // 0.5 second delay
       } else {
@@ -274,6 +276,7 @@ export function useCanvasZoom({
           holdTimer: null,
           touchId: null
         };
+        setIsSingleFingerPanningActive(false);
         panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
         pinchStateRef.current = { active: false };
       }
@@ -288,6 +291,7 @@ export function useCanvasZoom({
           singleFingerPanRef.current.holdTimer = null;
         }
         singleFingerPanRef.current.active = false;
+        setIsSingleFingerPanningActive(false);
         
         const center = getCenter(event.touches);
         const distance = getDistance(event.touches);
@@ -395,6 +399,7 @@ export function useCanvasZoom({
           holdTimer: null,
           touchId: null
         };
+        setIsSingleFingerPanningActive(false);
         pinchStateRef.current = { active: false };
         panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
       }
@@ -415,6 +420,7 @@ export function useCanvasZoom({
         holdTimer: null,
         touchId: null
       };
+      setIsSingleFingerPanningActive(false);
       
       pinchStateRef.current = { active: false };
       panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
@@ -433,7 +439,12 @@ export function useCanvasZoom({
     };
   }, [applyPanDelta, clampZoom, handleZoomTo]);
 
-  return { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll };
+  return { 
+    localCanvasContainerDivRef, 
+    handleZoom, 
+    handleNativeCanvasScroll,
+    isSingleFingerPanningActive
+  };
 }
 
 export default useCanvasZoom;

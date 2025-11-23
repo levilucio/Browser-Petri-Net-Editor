@@ -86,7 +86,7 @@ const AppContent = () => {
       }
     }, []);
 
-    const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll } = useCanvasZoom({
+    const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll, isSingleFingerPanningActive } = useCanvasZoom({
       MIN_ZOOM,
       MAX_ZOOM,
       zoomLevel,
@@ -221,7 +221,11 @@ const AppContent = () => {
             ref={localCanvasContainerDivRef}
             onScroll={handleNativeCanvasScroll}
           >
-            <CanvasManager handleZoom={handleZoom} ZOOM_STEP={ZOOM_STEP} />
+            <CanvasManager 
+              handleZoom={handleZoom} 
+              ZOOM_STEP={ZOOM_STEP}
+              isSingleFingerPanningActive={isSingleFingerPanningActive}
+            />
           </div>
           {/* Zoom controls - hidden on mobile, visible on desktop */}
           <div className="hidden lg:flex fixed top-24 right-[336px] z-10 flex-col space-y-2 pointer-events-auto">
