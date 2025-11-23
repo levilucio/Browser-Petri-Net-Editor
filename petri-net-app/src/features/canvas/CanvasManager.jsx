@@ -47,6 +47,20 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
   const selectingRef = useRef({ isSelecting: false, start: null });
   const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  
+  // Double tap detection for rectangle selection
+  const doubleTapRef = useRef({
+    firstTap: null, // { time, x, y }
+    secondTap: null, // { time, x, y, touchId }
+    isDoubleTapActive: false,
+    holdTimer: null,
+    resetTimer: null, // Timer to reset first tap if too much time passes
+  });
+  
+  const DOUBLE_TAP_TIME_WINDOW = 300; // ms between taps
+  const DOUBLE_TAP_DISTANCE_THRESHOLD = 50; // pixels - max distance between taps
+  const HOLD_DELAY = 100; // ms to hold after second tap before selection can start
+  const RESET_TIMEOUT = 1000; // ms to reset first tap if no second tap
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -165,7 +179,18 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
       return;
     }
     
-    if (mode === 'select' && selectingRef.current.isSelecting && selectingRef.current.start) {
+    // Only update selection rectangle if:
+    // 1. In select mode
+    // 2. Selection is active
+    // 3. Double tap selection is active (for touch devices) OR mouse is being used
+    const doubleTap = doubleTapRef.current;
+    const isTouchSelection = isTouchDevice && doubleTap.isDoubleTapActive;
+    const isMouseSelection = !isTouchDevice;
+    
+    if (mode === 'select' && 
+        selectingRef.current.isSelecting && 
+        selectingRef.current.start &&
+        (isTouchSelection || isMouseSelection)) {
       const start = selectingRef.current.start;
       setSelectionRect({ x: start.x, y: start.y, w: pos.x - start.x, h: pos.y - start.y });
     }
@@ -283,14 +308,114 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
             // Cancel any ongoing selection
             selectingRef.current = { isSelecting: false, start: null };
             setSelectionRect(null);
+            // Reset double tap state
+            if (doubleTapRef.current.holdTimer) {
+              clearTimeout(doubleTapRef.current.holdTimer);
+            }
+            doubleTapRef.current = {
+              firstTap: null,
+              secondTap: null,
+              isDoubleTapActive: false,
+              holdTimer: null,
+            };
             return;
           }
           
-          if (mode === 'select' && isBackground) {
-            const start = getVirtualPointerPosition();
-            if (!start) return;
-            selectingRef.current = { isSelecting: true, start };
-            setSelectionRect({ x: start.x, y: start.y, w: 0, h: 0 });
+          // Only handle double tap selection in select mode on background
+          if (mode === 'select' && isBackground && e.touches.length === 1) {
+            const touch = e.touches[0];
+            const pos = getVirtualPointerPosition();
+            if (!pos) return;
+            
+            const now = Date.now();
+            const doubleTap = doubleTapRef.current;
+            
+            // Check if this is a second tap (double tap)
+            if (doubleTap.firstTap && 
+                (now - doubleTap.firstTap.time) < DOUBLE_TAP_TIME_WINDOW) {
+              // Check if taps are close enough
+              const distance = Math.hypot(
+                pos.x - doubleTap.firstTap.x,
+                pos.y - doubleTap.firstTap.y
+              );
+              
+              if (distance < DOUBLE_TAP_DISTANCE_THRESHOLD) {
+                // This is a double tap!
+                // Clear reset timer since we got the second tap
+                if (doubleTap.resetTimer) {
+                  clearTimeout(doubleTap.resetTimer);
+                  doubleTap.resetTimer = null;
+                }
+                
+                doubleTap.secondTap = {
+                  time: now,
+                  x: pos.x,
+                  y: pos.y,
+                  touchId: touch.identifier,
+                };
+                doubleTap.isDoubleTapActive = false; // Will be activated after hold
+                
+                // Set timer to activate selection after hold delay
+                const savedTouchId = touch.identifier;
+                const savedPos = { x: pos.x, y: pos.y };
+                doubleTap.holdTimer = setTimeout(() => {
+                  // Activate double tap selection
+                  // The actual position will be updated on the next touch move
+                  doubleTap.isDoubleTapActive = true;
+                  // Start selection at the second tap position
+                  selectingRef.current = { 
+                    isSelecting: true, 
+                    start: savedPos
+                  };
+                  setSelectionRect({ x: savedPos.x, y: savedPos.y, w: 0, h: 0 });
+                }, HOLD_DELAY);
+              } else {
+                // Too far apart, treat as new first tap
+                if (doubleTap.resetTimer) {
+                  clearTimeout(doubleTap.resetTimer);
+                }
+                doubleTap.firstTap = { time: now, x: pos.x, y: pos.y };
+                doubleTap.secondTap = null;
+                doubleTap.isDoubleTapActive = false;
+                doubleTap.resetTimer = setTimeout(() => {
+                  doubleTap.firstTap = null;
+                  doubleTap.resetTimer = null;
+                }, RESET_TIMEOUT);
+              }
+            } else {
+              // First tap or too much time passed
+              doubleTap.firstTap = { time: now, x: pos.x, y: pos.y };
+              doubleTap.secondTap = null;
+              doubleTap.isDoubleTapActive = false;
+              if (doubleTap.holdTimer) {
+                clearTimeout(doubleTap.holdTimer);
+                doubleTap.holdTimer = null;
+              }
+              // Set timer to reset first tap if no second tap comes
+              if (doubleTap.resetTimer) {
+                clearTimeout(doubleTap.resetTimer);
+              }
+              doubleTap.resetTimer = setTimeout(() => {
+                doubleTap.firstTap = null;
+                doubleTap.resetTimer = null;
+              }, RESET_TIMEOUT);
+            }
+          } else {
+            // Not in select mode or not background - reset double tap
+            const doubleTap = doubleTapRef.current;
+            if (doubleTap.holdTimer) {
+              clearTimeout(doubleTap.holdTimer);
+            }
+            if (doubleTap.resetTimer) {
+              clearTimeout(doubleTap.resetTimer);
+            }
+            doubleTapRef.current = {
+              firstTap: null,
+              secondTap: null,
+              isDoubleTapActive: false,
+              holdTimer: null,
+              resetTimer: null,
+            };
           }
           // Two-finger panning is handled in useCanvasZoom hook
         }}
@@ -305,12 +430,45 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
         onTouchEnd={(e) => {
           // Pan state is reset in useCanvasZoom hook
           
+          // Clean up double tap timers if touch ends
+          const doubleTap = doubleTapRef.current;
+          if (doubleTap.holdTimer) {
+            clearTimeout(doubleTap.holdTimer);
+            doubleTap.holdTimer = null;
+          }
+          if (doubleTap.resetTimer) {
+            clearTimeout(doubleTap.resetTimer);
+            doubleTap.resetTimer = null;
+          }
+          
+          // If touch ends before double tap selection activates, reset
+          if (doubleTap.secondTap && !doubleTap.isDoubleTapActive) {
+            doubleTap.firstTap = null;
+            doubleTap.secondTap = null;
+            doubleTap.isDoubleTapActive = false;
+          }
+          
           if (mode === 'select') {
-            if (!selectingRef.current.isSelecting || !selectionRect) return;
+            if (!selectingRef.current.isSelecting || !selectionRect) {
+              // Reset double tap state if selection wasn't completed
+              doubleTap.firstTap = null;
+              doubleTap.secondTap = null;
+              doubleTap.isDoubleTapActive = false;
+              return;
+            }
             const newSelection = buildSelectionFromRect(elements, selectionRect);
             setSelection(newSelection);
             selectingRef.current = { isSelecting: false, start: null };
             setSelectionRect(null);
+            
+            // Reset double tap state after selection completes
+            doubleTap.firstTap = null;
+            doubleTap.secondTap = null;
+            doubleTap.isDoubleTapActive = false;
+            if (doubleTap.resetTimer) {
+              clearTimeout(doubleTap.resetTimer);
+              doubleTap.resetTimer = null;
+            }
           } else if (mode === 'arc' && arcStart) {
             // If touch ends during arc creation, check if it ended on an element
             // If not, clear the temporary arc after a small delay to allow element handlers to complete
