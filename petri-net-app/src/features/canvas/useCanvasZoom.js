@@ -14,6 +14,15 @@ export function useCanvasZoom({
   const programmaticScrollRef = useRef(false);
   const pinchStateRef = useRef({ active: false });
   const panStateRef = useRef({ active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 });
+  const singleFingerPanRef = useRef({ 
+    active: false, 
+    startX: 0, 
+    startY: 0, 
+    lastX: 0, 
+    lastY: 0,
+    holdTimer: null,
+    touchId: null
+  });
   const zoomLevelRef = useRef(zoomLevel);
 
   useEffect(() => {
@@ -188,6 +197,21 @@ export function useCanvasZoom({
 
     const handleTouchStart = (event) => {
       if (event.touches.length === 2) {
+        // Clear single-finger pan state
+        if (singleFingerPanRef.current.holdTimer) {
+          clearTimeout(singleFingerPanRef.current.holdTimer);
+          singleFingerPanRef.current.holdTimer = null;
+        }
+        singleFingerPanRef.current = { 
+          active: false, 
+          startX: 0, 
+          startY: 0, 
+          lastX: 0, 
+          lastY: 0,
+          holdTimer: null,
+          touchId: null
+        };
+        
         const center = getCenter(event.touches);
         const distance = getDistance(event.touches);
         
@@ -206,7 +230,50 @@ export function useCanvasZoom({
           lastY: center.clientY,
         };
       } else if (event.touches.length === 1) {
-        // Single finger - no panning, just reset state
+        // Single finger - set up delayed panning
+        const touch = event.touches[0];
+        const singlePan = singleFingerPanRef.current;
+        
+        // Clear any existing timer
+        if (singlePan.holdTimer) {
+          clearTimeout(singlePan.holdTimer);
+        }
+        
+        // Reset two-finger states
+        panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+        pinchStateRef.current = { active: false };
+        
+        // Initialize single-finger pan state (not active yet)
+        singlePan.startX = touch.clientX;
+        singlePan.startY = touch.clientY;
+        singlePan.lastX = touch.clientX;
+        singlePan.lastY = touch.clientY;
+        singlePan.active = false;
+        singlePan.touchId = touch.identifier;
+        
+        // Set timer to activate panning after 0.5 seconds
+        singlePan.holdTimer = setTimeout(() => {
+          // Only activate if still a single touch and same touch ID
+          if (event.touches.length === 1 && 
+              event.touches[0].identifier === singlePan.touchId) {
+            singlePan.active = true;
+          }
+        }, 500); // 0.5 second delay
+      } else {
+        // No touches or more than 2 - reset everything
+        if (singleFingerPanRef.current.holdTimer) {
+          clearTimeout(singleFingerPanRef.current.holdTimer);
+          singleFingerPanRef.current.holdTimer = null;
+        }
+        singleFingerPanRef.current = { 
+          active: false, 
+          startX: 0, 
+          startY: 0, 
+          lastX: 0, 
+          lastY: 0,
+          holdTimer: null,
+          touchId: null
+        };
         panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
         pinchStateRef.current = { active: false };
       }
@@ -215,6 +282,13 @@ export function useCanvasZoom({
 
     const handleTouchMove = (event) => {
       if (event.touches.length === 2) {
+        // Clear single-finger pan if active
+        if (singleFingerPanRef.current.holdTimer) {
+          clearTimeout(singleFingerPanRef.current.holdTimer);
+          singleFingerPanRef.current.holdTimer = null;
+        }
+        singleFingerPanRef.current.active = false;
+        
         const center = getCenter(event.touches);
         const distance = getDistance(event.touches);
         const pinchState = pinchStateRef.current;
@@ -278,14 +352,70 @@ export function useCanvasZoom({
           };
         }
         return;
+      } else if (event.touches.length === 1) {
+        // Single finger - check if panning is active (after delay)
+        const singlePan = singleFingerPanRef.current;
+        const touch = event.touches[0];
+        
+        // Only pan if the hold timer has completed and panning is active
+        if (singlePan.active && touch.identifier === singlePan.touchId) {
+          const deltaX = touch.clientX - singlePan.lastX;
+          const deltaY = touch.clientY - singlePan.lastY;
+          
+          // Prevent default to stop scrolling/selection
+          event.preventDefault();
+          event.stopPropagation();
+          
+          // Apply pan delta
+          // applyPanDelta does prev.x - deltaX/zoom, so we pass negative deltaX to increase scroll
+          applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
+          
+          // Update last position
+          singlePan.lastX = touch.clientX;
+          singlePan.lastY = touch.clientY;
+        } else {
+          // Panning not active yet - update last position for when it becomes active
+          if (touch.identifier === singlePan.touchId) {
+            singlePan.lastX = touch.clientX;
+            singlePan.lastY = touch.clientY;
+          }
+        }
       } else {
-        // Not two fingers - reset states
+        // No touches or more than 2 - reset states
+        if (singleFingerPanRef.current.holdTimer) {
+          clearTimeout(singleFingerPanRef.current.holdTimer);
+          singleFingerPanRef.current.holdTimer = null;
+        }
+        singleFingerPanRef.current = { 
+          active: false, 
+          startX: 0, 
+          startY: 0, 
+          lastX: 0, 
+          lastY: 0,
+          holdTimer: null,
+          touchId: null
+        };
         pinchStateRef.current = { active: false };
         panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
       }
     };
 
     const handleTouchEnd = () => {
+      // Clear single-finger pan timer and reset state
+      if (singleFingerPanRef.current.holdTimer) {
+        clearTimeout(singleFingerPanRef.current.holdTimer);
+        singleFingerPanRef.current.holdTimer = null;
+      }
+      singleFingerPanRef.current = { 
+        active: false, 
+        startX: 0, 
+        startY: 0, 
+        lastX: 0, 
+        lastY: 0,
+        holdTimer: null,
+        touchId: null
+      };
+      
       pinchStateRef.current = { active: false };
       panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
     };
