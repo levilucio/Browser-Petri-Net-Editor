@@ -186,7 +186,6 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     }
     
     // Track movement during long press hold period (for touch devices)
-    const isSelectionActive = isSelectionActiveRef?.current || false;
     if (isTouchDevice && mode === 'select' && longPressRef.current.touchId !== null) {
       const longPress = longPressRef.current;
       const movementX = pos.x - longPress.startX;
@@ -434,8 +433,8 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
           }
           
           // If touch ends before long press selection activates, reset
-          const isSelectionActive = isSelectionActiveRef?.current || false;
-          if (longPress.touchId !== null && !isSelectionActive) {
+          const currentIsSelectionActive = isSelectionActiveRef?.current || false;
+          if (longPress.touchId !== null && !currentIsSelectionActive) {
             longPressRef.current = {
               touchId: null,
               startX: 0,
