@@ -87,6 +87,7 @@ const AppContent = () => {
     }, []);
 
     const { isDragging } = usePetriNet();
+    const isSelectionActiveRef = useRef(false);
     const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll, isSingleFingerPanningActive } = useCanvasZoom({
       MIN_ZOOM,
       MAX_ZOOM,
@@ -97,6 +98,7 @@ const AppContent = () => {
       setCanvasScroll,
       setContainerRef,
       isDragging,
+      isSelectionActiveRef, // Pass the ref so useCanvasZoom can read it dynamically
     });
 
     const { handleDeleteElement, clearAllElements } = useElementManager();
@@ -219,9 +221,10 @@ const AppContent = () => {
             onScroll={handleNativeCanvasScroll}
           >
             <CanvasManager 
-              handleZoom={handleZoom} 
+              handleZoom={handleZoom}
               ZOOM_STEP={ZOOM_STEP}
               isSingleFingerPanningActive={isSingleFingerPanningActive}
+              isSelectionActiveRef={isSelectionActiveRef}
             />
           </div>
           

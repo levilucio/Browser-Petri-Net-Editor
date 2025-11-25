@@ -11,7 +11,7 @@ import CustomScrollbar from '../../components/CustomScrollbar';
 import SnapIndicator from '../../components/SnapIndicator';
 import { logger } from '../../utils/logger.js';
 
-const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) => {
+const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isSelectionActiveRef }) => {
   // Get UI state from EditorUIContext
   const {
     stageDimensions, setStageDimensions,
@@ -49,19 +49,18 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
   const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   
-  // Double tap detection for rectangle selection
-  const doubleTapRef = useRef({
-    firstTap: null, // { time, x, y }
-    secondTap: null, // { time, x, y, touchId }
-    isDoubleTapActive: false,
+  // Long press detection for rectangle selection
+  const longPressRef = useRef({
+    touchId: null,
+    startX: 0,
+    startY: 0,
+    startTime: 0,
     holdTimer: null,
-    resetTimer: null, // Timer to reset first tap if too much time passes
+    maxMovementDistance: 0, // Track movement during hold
   });
   
-  const DOUBLE_TAP_TIME_WINDOW = 300; // ms between taps
-  const DOUBLE_TAP_DISTANCE_THRESHOLD = 50; // pixels - max distance between taps
-  const HOLD_DELAY = 100; // ms to hold after second tap before selection can start
-  const RESET_TIMEOUT = 1000; // ms to reset first tap if no second tap
+  const LONG_PRESS_DELAY = 400; // ms to hold before selection activates
+  const MOVEMENT_THRESHOLD = 15; // pixels - if moved more than this, cancel selection
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -171,40 +170,52 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
     }
     
     // Update selection rectangle during drag in select mode
-    // Check double tap state first
-    const doubleTap = doubleTapRef.current;
-    const isTouchSelection = isTouchDevice && doubleTap.isDoubleTapActive;
     const isMouseSelection = !isTouchDevice;
     
-    // Cancel selection if single-finger panning becomes active (but not if double tap selection is active)
-    if (isSingleFingerPanningActive && !isTouchSelection) {
+    // Cancel selection if single-finger panning becomes active (but not if selection is already active)
+    const isSelectionActive = isSelectionActiveRef?.current || false;
+    if (isSingleFingerPanningActive && !isSelectionActive) {
       if (selectingRef.current.isSelecting) {
         selectingRef.current = { isSelecting: false, start: null };
         setSelectionRect(null);
+        if (isSelectionActiveRef) {
+          isSelectionActiveRef.current = false;
+        }
       }
       return;
     }
     
+    // Track movement during long press hold period (for touch devices)
+    const isSelectionActive = isSelectionActiveRef?.current || false;
+    if (isTouchDevice && mode === 'select' && longPressRef.current.touchId !== null) {
+      const longPress = longPressRef.current;
+      const movementX = pos.x - longPress.startX;
+      const movementY = pos.y - longPress.startY;
+      const distance = Math.hypot(movementX, movementY);
+      longPress.maxMovementDistance = Math.max(longPress.maxMovementDistance, distance);
+      
+      // If movement exceeds threshold, cancel long press
+      if (distance > MOVEMENT_THRESHOLD && !isSelectionActive) {
+        if (longPress.holdTimer) {
+          clearTimeout(longPress.holdTimer);
+          longPress.holdTimer = null;
+        }
+        longPressRef.current = {
+          touchId: null,
+          startX: 0,
+          startY: 0,
+          startTime: 0,
+          holdTimer: null,
+          maxMovementDistance: 0,
+        };
+      }
+    }
+    
     // Only update selection rectangle if:
     // 1. In select mode
-    // 2. Selection is active OR double tap is active (for touch)
-    // 3. Double tap selection is active (for touch devices) OR mouse is being used
+    // 2. Selection is active (for both touch and mouse)
     if (mode === 'select') {
-      if (isTouchSelection) {
-        // Touch device with double tap active
-        if (!selectingRef.current.isSelecting && doubleTap.secondTap) {
-          // Start selection if it hasn't started yet
-          selectingRef.current = { 
-            isSelecting: true, 
-            start: { x: doubleTap.secondTap.x, y: doubleTap.secondTap.y } 
-          };
-        }
-        if (selectingRef.current.isSelecting && selectingRef.current.start) {
-          const start = selectingRef.current.start;
-          setSelectionRect({ x: start.x, y: start.y, w: pos.x - start.x, h: pos.y - start.y });
-        }
-      } else if (isMouseSelection && selectingRef.current.isSelecting && selectingRef.current.start) {
-        // Mouse selection
+      if (selectingRef.current.isSelecting && selectingRef.current.start) {
         const start = selectingRef.current.start;
         setSelectionRect({ x: start.x, y: start.y, w: pos.x - start.x, h: pos.y - start.y });
       }
@@ -318,118 +329,88 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
         onTouchStart={(e) => {
           const isBackground = e.target && e.target.name && e.target.name() === 'background';
           
-          // Don't start selection if single-finger panning is active
+          // Don't start selection if single-finger panning is already active
           if (isSingleFingerPanningActive) {
             // Cancel any ongoing selection
             selectingRef.current = { isSelecting: false, start: null };
             setSelectionRect(null);
-            // Reset double tap state
-            if (doubleTapRef.current.holdTimer) {
-              clearTimeout(doubleTapRef.current.holdTimer);
+            if (isSelectionActiveRef) {
+              isSelectionActiveRef.current = false;
             }
-            doubleTapRef.current = {
-              firstTap: null,
-              secondTap: null,
-              isDoubleTapActive: false,
+            // Reset long press state
+            if (longPressRef.current.holdTimer) {
+              clearTimeout(longPressRef.current.holdTimer);
+            }
+            longPressRef.current = {
+              touchId: null,
+              startX: 0,
+              startY: 0,
+              startTime: 0,
               holdTimer: null,
+              maxMovementDistance: 0,
             };
             return;
           }
           
-          // Only handle double tap selection in select mode on background
+          // Only handle long press selection in select mode on background
           if (mode === 'select' && isBackground && e.touches.length === 1) {
             const touch = e.touches[0];
             const pos = getVirtualPointerPosition();
             if (!pos) return;
             
-            const now = Date.now();
-            const doubleTap = doubleTapRef.current;
+            const longPress = longPressRef.current;
             
-            // Check if this is a second tap (double tap)
-            if (doubleTap.firstTap && 
-                (now - doubleTap.firstTap.time) < DOUBLE_TAP_TIME_WINDOW) {
-              // Check if taps are close enough
-              const distance = Math.hypot(
-                pos.x - doubleTap.firstTap.x,
-                pos.y - doubleTap.firstTap.y
-              );
-              
-              if (distance < DOUBLE_TAP_DISTANCE_THRESHOLD) {
-                // This is a double tap!
-                // Clear reset timer since we got the second tap
-                if (doubleTap.resetTimer) {
-                  clearTimeout(doubleTap.resetTimer);
-                  doubleTap.resetTimer = null;
+            // Clear any existing timer
+            if (longPress.holdTimer) {
+              clearTimeout(longPress.holdTimer);
+            }
+            
+            // Initialize long press state
+            longPress.touchId = touch.identifier;
+            longPress.startX = pos.x;
+            longPress.startY = pos.y;
+            longPress.startTime = Date.now();
+            longPress.maxMovementDistance = 0;
+            
+            // Set timer to activate selection after hold delay
+            const savedTouchId = touch.identifier;
+            const savedPos = { x: pos.x, y: pos.y };
+            longPress.holdTimer = setTimeout(() => {
+              // Check if still valid (same touch, minimal movement, not panning)
+              // Note: We can't check e.touches here as the event is stale, so we check the ref state
+              const currentIsSelectionActive = isSelectionActiveRef?.current || false;
+              if (longPress.touchId === savedTouchId &&
+                  longPress.maxMovementDistance <= MOVEMENT_THRESHOLD &&
+                  !isSingleFingerPanningActive &&
+                  !currentIsSelectionActive) {
+                // Activate selection
+                if (isSelectionActiveRef) {
+                  isSelectionActiveRef.current = true;
                 }
-                
-                doubleTap.secondTap = {
-                  time: now,
-                  x: pos.x,
-                  y: pos.y,
-                  touchId: touch.identifier,
+                selectingRef.current = { 
+                  isSelecting: true, 
+                  start: savedPos
                 };
-                doubleTap.isDoubleTapActive = false; // Will be activated after hold
+                setSelectionRect({ x: savedPos.x, y: savedPos.y, w: 0, h: 0 });
                 
-                // Set timer to activate selection after hold delay
-                const savedTouchId = touch.identifier;
-                const savedPos = { x: pos.x, y: pos.y };
-                doubleTap.holdTimer = setTimeout(() => {
-                  // Activate double tap selection
-                  // The actual position will be updated on the next touch move
-                  doubleTap.isDoubleTapActive = true;
-                  // Start selection at the second tap position
-                  selectingRef.current = { 
-                    isSelecting: true, 
-                    start: savedPos
-                  };
-                  setSelectionRect({ x: savedPos.x, y: savedPos.y, w: 0, h: 0 });
-                }, HOLD_DELAY);
-              } else {
-                // Too far apart, treat as new first tap
-                if (doubleTap.resetTimer) {
-                  clearTimeout(doubleTap.resetTimer);
+                // Vibrate to indicate selection is now active
+                if (navigator.vibrate) {
+                  navigator.vibrate(10); // Short vibration (10ms)
                 }
-                doubleTap.firstTap = { time: now, x: pos.x, y: pos.y };
-                doubleTap.secondTap = null;
-                doubleTap.isDoubleTapActive = false;
-                doubleTap.resetTimer = setTimeout(() => {
-                  doubleTap.firstTap = null;
-                  doubleTap.resetTimer = null;
-                }, RESET_TIMEOUT);
               }
-            } else {
-              // First tap or too much time passed
-              doubleTap.firstTap = { time: now, x: pos.x, y: pos.y };
-              doubleTap.secondTap = null;
-              doubleTap.isDoubleTapActive = false;
-              if (doubleTap.holdTimer) {
-                clearTimeout(doubleTap.holdTimer);
-                doubleTap.holdTimer = null;
-              }
-              // Set timer to reset first tap if no second tap comes
-              if (doubleTap.resetTimer) {
-                clearTimeout(doubleTap.resetTimer);
-              }
-              doubleTap.resetTimer = setTimeout(() => {
-                doubleTap.firstTap = null;
-                doubleTap.resetTimer = null;
-              }, RESET_TIMEOUT);
-            }
+            }, LONG_PRESS_DELAY);
           } else {
-            // Not in select mode or not background - reset double tap
-            const doubleTap = doubleTapRef.current;
-            if (doubleTap.holdTimer) {
-              clearTimeout(doubleTap.holdTimer);
+            // Not in select mode or not background - reset long press
+            if (longPressRef.current.holdTimer) {
+              clearTimeout(longPressRef.current.holdTimer);
             }
-            if (doubleTap.resetTimer) {
-              clearTimeout(doubleTap.resetTimer);
-            }
-            doubleTapRef.current = {
-              firstTap: null,
-              secondTap: null,
-              isDoubleTapActive: false,
+            longPressRef.current = {
+              touchId: null,
+              startX: 0,
+              startY: 0,
+              startTime: 0,
               holdTimer: null,
-              resetTimer: null,
+              maxMovementDistance: 0,
             };
           }
           // Two-finger panning is handled in useCanvasZoom hook
@@ -445,45 +426,59 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive }) =
         onTouchEnd={(e) => {
           // Pan state is reset in useCanvasZoom hook
           
-          // Clean up double tap timers if touch ends
-          const doubleTap = doubleTapRef.current;
-          if (doubleTap.holdTimer) {
-            clearTimeout(doubleTap.holdTimer);
-            doubleTap.holdTimer = null;
-          }
-          if (doubleTap.resetTimer) {
-            clearTimeout(doubleTap.resetTimer);
-            doubleTap.resetTimer = null;
+          // Clean up long press timers if touch ends
+          const longPress = longPressRef.current;
+          if (longPress.holdTimer) {
+            clearTimeout(longPress.holdTimer);
+            longPress.holdTimer = null;
           }
           
-          // If touch ends before double tap selection activates, reset
-          if (doubleTap.secondTap && !doubleTap.isDoubleTapActive) {
-            doubleTap.firstTap = null;
-            doubleTap.secondTap = null;
-            doubleTap.isDoubleTapActive = false;
+          // If touch ends before long press selection activates, reset
+          const isSelectionActive = isSelectionActiveRef?.current || false;
+          if (longPress.touchId !== null && !isSelectionActive) {
+            longPressRef.current = {
+              touchId: null,
+              startX: 0,
+              startY: 0,
+              startTime: 0,
+              holdTimer: null,
+              maxMovementDistance: 0,
+            };
           }
           
           if (mode === 'select') {
             if (!selectingRef.current.isSelecting || !selectionRect) {
-              // Reset double tap state if selection wasn't completed
-              doubleTap.firstTap = null;
-              doubleTap.secondTap = null;
-              doubleTap.isDoubleTapActive = false;
+              // Reset long press state if selection wasn't completed
+              longPressRef.current = {
+                touchId: null,
+                startX: 0,
+                startY: 0,
+                startTime: 0,
+                holdTimer: null,
+                maxMovementDistance: 0,
+              };
+              if (isSelectionActiveRef) {
+                isSelectionActiveRef.current = false;
+              }
               return;
             }
             const newSelection = buildSelectionFromRect(elements, selectionRect);
             setSelection(newSelection);
             selectingRef.current = { isSelecting: false, start: null };
             setSelectionRect(null);
-            
-            // Reset double tap state after selection completes
-            doubleTap.firstTap = null;
-            doubleTap.secondTap = null;
-            doubleTap.isDoubleTapActive = false;
-            if (doubleTap.resetTimer) {
-              clearTimeout(doubleTap.resetTimer);
-              doubleTap.resetTimer = null;
+            if (isSelectionActiveRef) {
+              isSelectionActiveRef.current = false;
             }
+            
+            // Reset long press state after selection completes
+            longPressRef.current = {
+              touchId: null,
+              startX: 0,
+              startY: 0,
+              startTime: 0,
+              holdTimer: null,
+              maxMovementDistance: 0,
+            };
           } else if (mode === 'arc' && arcStart) {
             // If touch ends during arc creation, check if it ended on an element
             // If not, clear the temporary arc after a small delay to allow element handlers to complete

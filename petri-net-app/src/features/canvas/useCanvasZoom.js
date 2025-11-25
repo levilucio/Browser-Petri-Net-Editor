@@ -10,6 +10,7 @@ export function useCanvasZoom({
   setCanvasScroll,
   setContainerRef,
   isDragging = false,
+  isSelectionActiveRef = null, // Ref to check if selection is active (read dynamically)
 }) {
   const localCanvasContainerDivRef = useRef(null);
   const programmaticScrollRef = useRef(false);
@@ -23,7 +24,8 @@ export function useCanvasZoom({
     lastX: 0, 
     lastY: 0,
     holdTimer: null,
-    touchId: null
+    touchId: null,
+    maxMovementDistance: 0, // Track maximum movement during hold period
   });
   const zoomLevelRef = useRef(zoomLevel);
 
@@ -233,8 +235,9 @@ export function useCanvasZoom({
         };
       } else if (event.touches.length === 1) {
         // Single finger - set up delayed panning
-        // BUT: Don't activate panning if elements are being dragged
-        if (isDragging) {
+        // BUT: Don't activate panning if elements are being dragged or selection is active
+        const isSelectionActive = isSelectionActiveRef?.current || false;
+        if (isDragging || isSelectionActive) {
           // Clear any existing pan timer
           const singlePan = singleFingerPanRef.current;
           if (singlePan.holdTimer) {
@@ -265,19 +268,32 @@ export function useCanvasZoom({
         singlePan.lastY = touch.clientY;
         singlePan.active = false;
         singlePan.touchId = touch.identifier;
+        singlePan.maxMovementDistance = 0; // Reset movement tracking
         
-        // Set timer to activate panning after 0.5 seconds
+        // Set timer to check movement and activate panning after 250ms
         singlePan.holdTimer = setTimeout(() => {
           // Only activate if:
           // 1. Still a single touch and same touch ID
           // 2. Elements are NOT being dragged
+          // 3. Selection is NOT active
+          // 4. Movement exceeds threshold (user is dragging, not selecting)
+          const MOVEMENT_THRESHOLD = 15; // pixels - if moved more than this, it's panning intent
+          const currentIsSelectionActive = isSelectionActiveRef?.current || false;
+          
           if (!isDragging &&
+              !currentIsSelectionActive &&
               event.touches.length === 1 && 
-              event.touches[0].identifier === singlePan.touchId) {
+              event.touches[0].identifier === singlePan.touchId &&
+              singlePan.maxMovementDistance > MOVEMENT_THRESHOLD) {
             singlePan.active = true;
             setIsSingleFingerPanningActive(true);
+            
+            // Vibrate to indicate panning is now active
+            if (navigator.vibrate) {
+              navigator.vibrate(10); // Short vibration (10ms)
+            }
           }
-        }, 500); // 0.5 second delay
+        }, 250); // 250ms delay
       } else {
         // No touches or more than 2 - reset everything
         if (singleFingerPanRef.current.holdTimer) {
@@ -375,9 +391,10 @@ export function useCanvasZoom({
         return;
       } else if (event.touches.length === 1) {
         // Single finger - check if panning is active (after delay)
-        // BUT: Don't pan if elements are being dragged
-        if (isDragging) {
-          // Cancel panning if dragging starts
+        // BUT: Don't pan if elements are being dragged or selection is active
+        const isSelectionActive = isSelectionActiveRef?.current || false;
+        if (isDragging || isSelectionActive) {
+          // Cancel panning if dragging starts or selection is active
           const singlePan = singleFingerPanRef.current;
           if (singlePan.holdTimer) {
             clearTimeout(singlePan.holdTimer);
@@ -392,6 +409,14 @@ export function useCanvasZoom({
         
         const singlePan = singleFingerPanRef.current;
         const touch = event.touches[0];
+        
+        // Track movement distance during hold period (before panning activates)
+        if (touch.identifier === singlePan.touchId && !singlePan.active) {
+          const movementX = touch.clientX - singlePan.startX;
+          const movementY = touch.clientY - singlePan.startY;
+          const distance = Math.hypot(movementX, movementY);
+          singlePan.maxMovementDistance = Math.max(singlePan.maxMovementDistance, distance);
+        }
         
         // Only pan if the hold timer has completed and panning is active
         if (singlePan.active && touch.identifier === singlePan.touchId) {
@@ -469,7 +494,7 @@ export function useCanvasZoom({
       container.removeEventListener('touchend', handleTouchEnd);
       container.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging]);
+  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef]);
 
   return { 
     localCanvasContainerDivRef, 
