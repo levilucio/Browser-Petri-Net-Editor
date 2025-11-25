@@ -57,9 +57,10 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     startTime: 0,
     holdTimer: null,
     maxMovementDistance: 0, // Track movement during hold
+    isActive: false, // Track if long press is still active
   });
   
-  const LONG_PRESS_DELAY = 400; // ms to hold before selection activates
+  const LONG_PRESS_DELAY = 500; // ms to hold before selection activates
   const MOVEMENT_THRESHOLD = 15; // pixels - if moved more than this, cancel selection
 
   useEffect(() => {
@@ -193,8 +194,8 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
       const distance = Math.hypot(movementX, movementY);
       longPress.maxMovementDistance = Math.max(longPress.maxMovementDistance, distance);
       
-      // If movement exceeds threshold, cancel long press
-      if (distance > MOVEMENT_THRESHOLD && !isSelectionActive) {
+      // If movement exceeds threshold, cancel long press (but only if selection hasn't activated yet)
+      if (distance > MOVEMENT_THRESHOLD && !isSelectionActive && !selectingRef.current.isSelecting) {
         if (longPress.holdTimer) {
           clearTimeout(longPress.holdTimer);
           longPress.holdTimer = null;
@@ -206,6 +207,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
           startTime: 0,
           holdTimer: null,
           maxMovementDistance: 0,
+          isActive: false,
         };
       }
     }
@@ -347,6 +349,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
               startTime: 0,
               holdTimer: null,
               maxMovementDistance: 0,
+              isActive: false,
             };
             return;
           }
@@ -370,18 +373,24 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
             longPress.startY = pos.y;
             longPress.startTime = Date.now();
             longPress.maxMovementDistance = 0;
+            longPress.isActive = true;
             
             // Set timer to activate selection after hold delay
             const savedTouchId = touch.identifier;
             const savedPos = { x: pos.x, y: pos.y };
+            const savedLongPressRef = longPressRef;
             longPress.holdTimer = setTimeout(() => {
               // Check if still valid (same touch, minimal movement, not panning)
-              // Note: We can't check e.touches here as the event is stale, so we check the ref state
+              const longPressState = savedLongPressRef.current;
               const currentIsSelectionActive = isSelectionActiveRef?.current || false;
-              if (longPress.touchId === savedTouchId &&
-                  longPress.maxMovementDistance <= MOVEMENT_THRESHOLD &&
+              
+              // Check if touch is still active and conditions are met
+              if (longPressState.isActive &&
+                  longPressState.touchId === savedTouchId &&
+                  longPressState.maxMovementDistance <= MOVEMENT_THRESHOLD &&
                   !isSingleFingerPanningActive &&
-                  !currentIsSelectionActive) {
+                  !currentIsSelectionActive &&
+                  !selectingRef.current.isSelecting) {
                 // Activate selection
                 if (isSelectionActiveRef) {
                   isSelectionActiveRef.current = true;
@@ -392,9 +401,9 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
                 };
                 setSelectionRect({ x: savedPos.x, y: savedPos.y, w: 0, h: 0 });
                 
-                // Vibrate to indicate selection is now active
+                // Vibrate twice to indicate selection is now active (double vibration)
                 if (navigator.vibrate) {
-                  navigator.vibrate(10); // Short vibration (10ms)
+                  navigator.vibrate([10, 50, 10]); // Two short vibrations with gap
                 }
               }
             }, LONG_PRESS_DELAY);
@@ -410,6 +419,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
               startTime: 0,
               holdTimer: null,
               maxMovementDistance: 0,
+              isActive: false,
             };
           }
           // Two-finger panning is handled in useCanvasZoom hook
@@ -442,6 +452,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
               startTime: 0,
               holdTimer: null,
               maxMovementDistance: 0,
+              isActive: false,
             };
           }
           
@@ -455,6 +466,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
                 startTime: 0,
                 holdTimer: null,
                 maxMovementDistance: 0,
+                isActive: false,
               };
               if (isSelectionActiveRef) {
                 isSelectionActiveRef.current = false;
@@ -477,6 +489,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
               startTime: 0,
               holdTimer: null,
               maxMovementDistance: 0,
+              isActive: false,
             };
           } else if (mode === 'arc' && arcStart) {
             // If touch ends during arc creation, check if it ended on an element

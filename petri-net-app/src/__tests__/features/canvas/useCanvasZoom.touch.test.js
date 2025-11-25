@@ -1,0 +1,426 @@
+import { renderHook, act } from '@testing-library/react';
+import { useCanvasZoom } from '../../../features/canvas/useCanvasZoom';
+
+// Mock requestAnimationFrame
+global.requestAnimationFrame = (cb) => setTimeout(cb, 16);
+global.cancelAnimationFrame = (id) => clearTimeout(id);
+
+describe('useCanvasZoom - Touch Device Functionality', () => {
+  let container;
+  let setZoomLevel;
+  let setCanvasScroll;
+  let setContainerRef;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    container = document.createElement('div');
+    container.style.width = '800px';
+    container.style.height = '600px';
+    document.body.appendChild(container);
+
+    setZoomLevel = jest.fn((fn) => {
+      if (typeof fn === 'function') {
+        return fn(1);
+      }
+      return fn;
+    });
+    setCanvasScroll = jest.fn();
+    setContainerRef = jest.fn();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    document.body.removeChild(container);
+    jest.clearAllMocks();
+  });
+
+  const createTouchEvent = (type, touches, changedTouches = touches) => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    event.touches = touches;
+    event.changedTouches = changedTouches;
+    event.preventDefault = jest.fn();
+    event.stopPropagation = jest.fn();
+    return event;
+  };
+
+  const createTouch = (id, clientX, clientY) => ({
+    identifier: id,
+    clientX,
+    clientY,
+    target: container,
+  });
+
+  test('handles two-finger pinch-to-zoom gesture', () => {
+    const { result } = renderHook(() =>
+      useCanvasZoom({
+        MIN_ZOOM: 0.1,
+        MAX_ZOOM: 3,
+        zoomLevel: 1,
+        setZoomLevel,
+        virtualCanvasDimensions: { width: 2000, height: 2000 },
+        canvasScroll: { x: 0, y: 0 },
+        setCanvasScroll,
+        setContainerRef: (ref) => {
+          setContainerRef(ref);
+          if (ref) {
+            container = ref;
+          }
+        },
+        isDragging: false,
+        isSelectionActiveRef: { current: false },
+      })
+    );
+
+    act(() => {
+      // Set the container ref manually since the hook uses it
+      if (result.current.localCanvasContainerDivRef.current) {
+        container = result.current.localCanvasContainerDivRef.current;
+      } else {
+        // Create a mock container if ref isn't set
+        const mockContainer = document.createElement('div');
+        mockContainer.style.width = '800px';
+        mockContainer.style.height = '600px';
+        result.current.localCanvasContainerDivRef.current = mockContainer;
+        container = mockContainer;
+        document.body.appendChild(container);
+      }
+      // Wait for useEffect to attach listeners
+      jest.advanceTimersByTime(0);
+    });
+
+    // Start two-finger gesture
+    const touch1 = createTouch(1, 100, 100);
+    const touch2 = createTouch(2, 200, 100);
+    const startEvent = createTouchEvent('touchstart', [touch1, touch2]);
+    
+    act(() => {
+      container.dispatchEvent(startEvent);
+    });
+
+    // Move fingers apart (pinch out - zoom in) - distance increases significantly
+    const touch1Move = createTouch(1, 50, 100);  // Move further apart
+    const touch2Move = createTouch(2, 250, 100);
+    const moveEvent = createTouchEvent('touchmove', [touch1Move, touch2Move]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent);
+      jest.advanceTimersByTime(100);
+    });
+
+    // Verify zoom was called (distance increased significantly, so zoom should increase)
+    // Note: The zoom threshold is 5%, so we need a significant distance change
+    expect(setZoomLevel).toHaveBeenCalled();
+    expect(moveEvent.preventDefault).toHaveBeenCalled();
+
+    // Move fingers apart (pinch out - zoom in)
+    const touch1Move2 = createTouch(1, 90, 100);
+    const touch2Move2 = createTouch(2, 210, 100);
+    const moveEvent2 = createTouchEvent('touchmove', [touch1Move2, touch2Move2]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent2);
+      jest.advanceTimersByTime(100);
+    });
+
+    expect(setZoomLevel).toHaveBeenCalledTimes(2);
+    expect(moveEvent2.preventDefault).toHaveBeenCalled();
+  });
+
+  test('handles two-finger pan gesture', () => {
+    const { result } = renderHook(() =>
+      useCanvasZoom({
+        MIN_ZOOM: 0.1,
+        MAX_ZOOM: 3,
+        zoomLevel: 1,
+        setZoomLevel,
+        virtualCanvasDimensions: { width: 2000, height: 2000 },
+        canvasScroll: { x: 0, y: 0 },
+        setCanvasScroll,
+        setContainerRef: (ref) => {
+          setContainerRef(ref);
+          if (ref) {
+            container = ref;
+          }
+        },
+        isDragging: false,
+        isSelectionActiveRef: { current: false },
+      })
+    );
+
+    act(() => {
+      if (!result.current.localCanvasContainerDivRef.current) {
+        const mockContainer = document.createElement('div');
+        mockContainer.style.width = '800px';
+        mockContainer.style.height = '600px';
+        result.current.localCanvasContainerDivRef.current = mockContainer;
+        document.body.appendChild(mockContainer);
+      }
+      container = result.current.localCanvasContainerDivRef.current;
+      // Wait for useEffect to attach listeners
+      jest.advanceTimersByTime(0);
+    });
+
+    // Start two-finger gesture with constant distance (pan, not zoom)
+    const touch1 = createTouch(1, 100, 100);
+    const touch2 = createTouch(2, 200, 100);
+    const startEvent = createTouchEvent('touchstart', [touch1, touch2]);
+    
+    act(() => {
+      container.dispatchEvent(startEvent);
+    });
+
+    // Move both fingers together maintaining distance (pan)
+    // Distance stays ~100px (within 5% threshold), so it's a pan gesture
+    const touch1Move = createTouch(1, 150, 150);
+    const touch2Move = createTouch(2, 250, 150); // Still 100px apart
+    const moveEvent = createTouchEvent('touchmove', [touch1Move, touch2Move]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent);
+      jest.advanceTimersByTime(100);
+    });
+
+    // Pan should trigger scroll update after threshold (5px movement)
+    // Note: Pan activates after 5px movement, so we need to move enough
+    expect(setCanvasScroll).toHaveBeenCalled();
+    expect(moveEvent.preventDefault).toHaveBeenCalled();
+  });
+
+  test('handles single-finger pan with delay and movement threshold', () => {
+    const { result } = renderHook(() =>
+      useCanvasZoom({
+        MIN_ZOOM: 0.1,
+        MAX_ZOOM: 3,
+        zoomLevel: 1,
+        setZoomLevel,
+        virtualCanvasDimensions: { width: 2000, height: 2000 },
+        canvasScroll: { x: 0, y: 0 },
+        setCanvasScroll,
+        setContainerRef: (ref) => {
+          setContainerRef(ref);
+          if (ref) {
+            container = ref;
+          }
+        },
+        isDragging: false,
+        isSelectionActiveRef: { current: false },
+      })
+    );
+
+    act(() => {
+      if (!result.current.localCanvasContainerDivRef.current) {
+        const mockContainer = document.createElement('div');
+        mockContainer.style.width = '800px';
+        mockContainer.style.height = '600px';
+        result.current.localCanvasContainerDivRef.current = mockContainer;
+        document.body.appendChild(mockContainer);
+      }
+      container = result.current.localCanvasContainerDivRef.current;
+      // Wait for useEffect to attach listeners
+      jest.advanceTimersByTime(0);
+    });
+
+    // Start single-finger touch
+    const touch1 = createTouch(1, 100, 100);
+    const startEvent = createTouchEvent('touchstart', [touch1]);
+    
+    act(() => {
+      container.dispatchEvent(startEvent);
+    });
+
+    // Move finger significantly (exceeds 15px threshold) BEFORE the 250ms delay
+    const touch1Move = createTouch(1, 130, 130); // 42px movement - exceeds threshold
+    const moveEvent = createTouchEvent('touchmove', [touch1Move]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent);
+      // Advance time to trigger the hold timer check (250ms)
+      jest.advanceTimersByTime(250);
+    });
+
+    // After delay and movement threshold, pan should activate
+    expect(result.current.isSingleFingerPanningActive).toBe(true);
+
+    // Continue moving - should pan
+    const touch1Move2 = createTouch(1, 140, 140);
+    const moveEvent2 = createTouchEvent('touchmove', [touch1Move2]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent2);
+    });
+
+    expect(setCanvasScroll).toHaveBeenCalled();
+    expect(moveEvent2.preventDefault).toHaveBeenCalled();
+  });
+
+  test('does not activate single-finger pan if movement is below threshold', () => {
+    const { result } = renderHook(() =>
+      useCanvasZoom({
+        MIN_ZOOM: 0.1,
+        MAX_ZOOM: 3,
+        zoomLevel: 1,
+        setZoomLevel,
+        virtualCanvasDimensions: { width: 2000, height: 2000 },
+        canvasScroll: { x: 0, y: 0 },
+        setCanvasScroll,
+        setContainerRef: (ref) => {
+          setContainerRef(ref);
+          if (ref) {
+            container = ref;
+          }
+        },
+        isDragging: false,
+        isSelectionActiveRef: { current: false },
+      })
+    );
+
+    act(() => {
+      if (!result.current.localCanvasContainerDivRef.current) {
+        const mockContainer = document.createElement('div');
+        mockContainer.style.width = '800px';
+        mockContainer.style.height = '600px';
+        result.current.localCanvasContainerDivRef.current = mockContainer;
+        document.body.appendChild(mockContainer);
+      }
+      container = result.current.localCanvasContainerDivRef.current;
+    });
+
+    // Start single-finger touch
+    const touch1 = createTouch(1, 100, 100);
+    const startEvent = createTouchEvent('touchstart', [touch1]);
+    
+    act(() => {
+      container.dispatchEvent(startEvent);
+    });
+
+    // Move finger slightly (below 15px threshold)
+    const touch1Move = createTouch(1, 110, 110); // ~14px movement
+    const moveEvent = createTouchEvent('touchmove', [touch1Move]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent);
+      jest.advanceTimersByTime(250); // Wait for hold timer
+    });
+
+    // Pan should not activate if movement is below threshold
+    expect(result.current.isSingleFingerPanningActive).toBe(false);
+  });
+
+  test('cancels single-finger pan when dragging starts', () => {
+    const { result, rerender } = renderHook(
+      ({ isDragging }) =>
+        useCanvasZoom({
+          MIN_ZOOM: 0.1,
+          MAX_ZOOM: 3,
+          zoomLevel: 1,
+          setZoomLevel,
+          virtualCanvasDimensions: { width: 2000, height: 2000 },
+          canvasScroll: { x: 0, y: 0 },
+          setCanvasScroll,
+          setContainerRef: (ref) => {
+          setContainerRef(ref);
+          if (ref) {
+            container = ref;
+          }
+        },
+          isDragging,
+          isSelectionActiveRef: { current: false },
+        }),
+      { initialProps: { isDragging: false } }
+    );
+
+    act(() => {
+      if (!result.current.localCanvasContainerDivRef.current) {
+        const mockContainer = document.createElement('div');
+        mockContainer.style.width = '800px';
+        mockContainer.style.height = '600px';
+        result.current.localCanvasContainerDivRef.current = mockContainer;
+        document.body.appendChild(mockContainer);
+      }
+      container = result.current.localCanvasContainerDivRef.current;
+    });
+
+    // Start single-finger touch and move
+    const touch1 = createTouch(1, 100, 100);
+    const startEvent = createTouchEvent('touchstart', [touch1]);
+    
+    act(() => {
+      container.dispatchEvent(startEvent);
+    });
+
+    const touch1Move = createTouch(1, 120, 120);
+    const moveEvent = createTouchEvent('touchmove', [touch1Move]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent);
+      jest.advanceTimersByTime(250);
+    });
+
+    // Now set isDragging to true
+    rerender({ isDragging: true });
+
+    // Try to move again - should not pan
+    const touch1Move2 = createTouch(1, 140, 140);
+    const moveEvent2 = createTouchEvent('touchmove', [touch1Move2]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent2);
+    });
+
+    // Pan should be cancelled
+    expect(result.current.isSingleFingerPanningActive).toBe(false);
+  });
+
+  test('clears touch state on touchend', () => {
+    const { result } = renderHook(() =>
+      useCanvasZoom({
+        MIN_ZOOM: 0.1,
+        MAX_ZOOM: 3,
+        zoomLevel: 1,
+        setZoomLevel,
+        virtualCanvasDimensions: { width: 2000, height: 2000 },
+        canvasScroll: { x: 0, y: 0 },
+        setCanvasScroll,
+        setContainerRef: (ref) => {
+          setContainerRef(ref);
+          if (ref) {
+            container = ref;
+          }
+        },
+        isDragging: false,
+        isSelectionActiveRef: { current: false },
+      })
+    );
+
+    act(() => {
+      if (!result.current.localCanvasContainerDivRef.current) {
+        const mockContainer = document.createElement('div');
+        mockContainer.style.width = '800px';
+        mockContainer.style.height = '600px';
+        result.current.localCanvasContainerDivRef.current = mockContainer;
+        document.body.appendChild(mockContainer);
+      }
+      container = result.current.localCanvasContainerDivRef.current;
+    });
+
+    // Start two-finger gesture
+    const touch1 = createTouch(1, 100, 100);
+    const touch2 = createTouch(2, 200, 100);
+    const startEvent = createTouchEvent('touchstart', [touch1, touch2]);
+    
+    act(() => {
+      container.dispatchEvent(startEvent);
+    });
+
+    // End touch
+    const endEvent = createTouchEvent('touchend', [], [touch1, touch2]);
+    
+    act(() => {
+      container.dispatchEvent(endEvent);
+    });
+
+    // State should be cleared
+    expect(result.current.isSingleFingerPanningActive).toBe(false);
+  });
+});
+
