@@ -1,5 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+const PAN_ACTIVATION_DELAY = 250; // ms
+const PAN_MOVEMENT_THRESHOLD = 15; // px between touch start and current point
+
+const createSingleFingerPanState = () => ({
+  active: false,
+  touchId: null,
+  startX: 0,
+  startY: 0,
+  lastX: 0,
+  lastY: 0,
+});
+
+const createPanIntentState = () => ({
+  phase: 'idle', // idle | pending | active | cancelled
+  touchId: null,
+  startX: 0,
+  startY: 0,
+  lastX: 0,
+  lastY: 0,
+  moveExceededThreshold: false, // true when movement > threshold
+  timerId: null,
+});
+
 export function useCanvasZoom({
   MIN_ZOOM,
   MAX_ZOOM,
@@ -16,17 +39,10 @@ export function useCanvasZoom({
   const programmaticScrollRef = useRef(false);
   const pinchStateRef = useRef({ active: false });
   const panStateRef = useRef({ active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 });
+  const [touchContainer, setTouchContainer] = useState(null);
   const [isSingleFingerPanningActive, setIsSingleFingerPanningActive] = useState(false);
-  const singleFingerPanRef = useRef({ 
-    active: false, 
-    startX: 0, 
-    startY: 0, 
-    lastX: 0, 
-    lastY: 0,
-    holdTimer: null,
-    touchId: null,
-    maxMovementDistance: 0, // Track maximum movement during hold period
-  });
+  const singleFingerPanRef = useRef(createSingleFingerPanState());
+  const panIntentRef = useRef(createPanIntentState());
   const zoomLevelRef = useRef(zoomLevel);
 
   useEffect(() => {
@@ -177,13 +193,21 @@ export function useCanvasZoom({
   }, [canvasScroll, localCanvasContainerDivRef]);
 
   useEffect(() => {
-    if (localCanvasContainerDivRef.current && setContainerRef) {
-      setContainerRef(localCanvasContainerDivRef.current);
+    const container = localCanvasContainerDivRef.current;
+    if (container && setContainerRef) {
+      setContainerRef(container);
     }
   }, [localCanvasContainerDivRef, setContainerRef]);
 
   useEffect(() => {
     const container = localCanvasContainerDivRef.current;
+    if (container !== touchContainer) {
+      setTouchContainer(container || null);
+    }
+  }, [touchContainer]);
+
+  useEffect(() => {
+    const container = touchContainer;
     if (!container) return;
 
     const getDistance = (touches) => {
@@ -199,158 +223,151 @@ export function useCanvasZoom({
       };
     };
 
+    const clearPanIntent = () => {
+      const intent = panIntentRef.current;
+      if (intent.timerId) {
+        clearTimeout(intent.timerId);
+      }
+      panIntentRef.current = createPanIntentState();
+      setIsSingleFingerPanningActive(false);
+    };
+
+    const clearSingleFingerPan = () => {
+      singleFingerPanRef.current = createSingleFingerPanState();
+    };
+
+    const resetSingleFingerFlow = () => {
+      clearPanIntent();
+      clearSingleFingerPan();
+    };
+
+    const schedulePanIntent = (touch) => {
+      clearPanIntent();
+      const touchId = touch.identifier;
+      const startX = touch.clientX;
+      const startY = touch.clientY;
+
+      panIntentRef.current = {
+        phase: 'pending',
+        touchId,
+        startX,
+        startY,
+        lastX: startX,
+        lastY: startY,
+        moveExceededThreshold: false,
+        timerId: setTimeout(() => {
+          const intent = panIntentRef.current;
+          const selectionActive = isSelectionActiveRef?.current || false;
+
+          if (
+            intent.phase !== 'pending' ||
+            intent.touchId !== touchId ||
+            selectionActive ||
+            isDragging ||
+            !intent.moveExceededThreshold
+          ) {
+            // Pan didn't activate - cancel it
+            panIntentRef.current = { ...intent, phase: 'cancelled', timerId: null };
+            return;
+          }
+
+          // Pan activates - movement exceeded threshold
+          panIntentRef.current = { ...intent, phase: 'active', timerId: null };
+          setIsSingleFingerPanningActive(true);
+          const singlePan = singleFingerPanRef.current;
+          singlePan.active = true;
+          singlePan.touchId = touchId;
+          singlePan.startX = intent.startX;
+          singlePan.startY = intent.startY;
+          singlePan.lastX = intent.lastX;
+          singlePan.lastY = intent.lastY;
+
+          if (navigator.vibrate) {
+            navigator.vibrate(10); // short vibration to indicate pan activation
+          }
+        }, PAN_ACTIVATION_DELAY),
+      };
+    };
+
     const handleTouchStart = (event) => {
       if (event.touches.length === 2) {
-        // Clear single-finger pan state
-        if (singleFingerPanRef.current.holdTimer) {
-          clearTimeout(singleFingerPanRef.current.holdTimer);
-          singleFingerPanRef.current.holdTimer = null;
-        }
-        singleFingerPanRef.current = { 
-          active: false, 
-          startX: 0, 
-          startY: 0, 
-          lastX: 0, 
-          lastY: 0,
-          holdTimer: null,
-          touchId: null
-        };
-        
+        resetSingleFingerFlow();
+
         const center = getCenter(event.touches);
         const distance = getDistance(event.touches);
-        
-        // Initialize both pinch and pan state for two-finger gestures
+
         pinchStateRef.current = {
-          active: false, // Will be activated if distance changes significantly
+          active: false,
           startDistance: distance,
           startZoom: zoomLevelRef.current,
           lastCenter: center,
         };
         panStateRef.current = {
-          active: false, // Will be activated if distance stays relatively constant
+          active: false,
           startX: center.clientX,
           startY: center.clientY,
           lastX: center.clientX,
           lastY: center.clientY,
         };
-      } else if (event.touches.length === 1) {
-        // Single finger - set up delayed panning
-        // BUT: Don't activate panning if elements are being dragged or selection is active
-        const isSelectionActive = isSelectionActiveRef?.current || false;
-        if (isDragging || isSelectionActive) {
-          // Clear any existing pan timer
-          const singlePan = singleFingerPanRef.current;
-          if (singlePan.holdTimer) {
-            clearTimeout(singlePan.holdTimer);
-            singlePan.holdTimer = null;
-          }
-          singlePan.active = false;
-          setIsSingleFingerPanningActive(false);
+        return;
+      }
+
+      if (event.touches.length === 1) {
+        panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+        pinchStateRef.current = { active: false };
+
+        const selectionActive = isSelectionActiveRef?.current || false;
+        if (isDragging || selectionActive) {
+          resetSingleFingerFlow();
           return;
         }
-        
+
         const touch = event.touches[0];
-        const singlePan = singleFingerPanRef.current;
-        
-        // Clear any existing timer
-        if (singlePan.holdTimer) {
-          clearTimeout(singlePan.holdTimer);
-        }
-        
-        // Reset two-finger states
-        panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
-        pinchStateRef.current = { active: false };
-        
-        // Initialize single-finger pan state (not active yet)
-        singlePan.startX = touch.clientX;
-        singlePan.startY = touch.clientY;
-        singlePan.lastX = touch.clientX;
-        singlePan.lastY = touch.clientY;
-        singlePan.active = false;
-        singlePan.touchId = touch.identifier;
-        singlePan.maxMovementDistance = 0; // Reset movement tracking
-        
-        // Set timer to check movement and activate panning after 250ms
-        singlePan.holdTimer = setTimeout(() => {
-          // Only activate if:
-          // 1. Still a single touch and same touch ID
-          // 2. Elements are NOT being dragged
-          // 3. Selection is NOT active
-          // 4. Movement exceeds threshold (user is dragging, not selecting)
-          const MOVEMENT_THRESHOLD = 15; // pixels - if moved more than this, it's panning intent
-          const currentIsSelectionActive = isSelectionActiveRef?.current || false;
-          
-          if (!isDragging &&
-              !currentIsSelectionActive &&
-              event.touches.length === 1 && 
-              event.touches[0].identifier === singlePan.touchId &&
-              singlePan.maxMovementDistance > MOVEMENT_THRESHOLD) {
-            singlePan.active = true;
-            setIsSingleFingerPanningActive(true);
-            
-            // Vibrate to indicate panning is now active
-            if (navigator.vibrate) {
-              navigator.vibrate(10); // Short vibration (10ms)
-            }
-          }
-        }, 250); // 250ms delay
-      } else {
-        // No touches or more than 2 - reset everything
-        if (singleFingerPanRef.current.holdTimer) {
-          clearTimeout(singleFingerPanRef.current.holdTimer);
-          singleFingerPanRef.current.holdTimer = null;
-        }
-        singleFingerPanRef.current = { 
-          active: false, 
-          startX: 0, 
-          startY: 0, 
-          lastX: 0, 
-          lastY: 0,
-          holdTimer: null,
-          touchId: null
+        singleFingerPanRef.current = {
+          active: false,
+          touchId: touch.identifier,
+          startX: touch.clientX,
+          startY: touch.clientY,
+          lastX: touch.clientX,
+          lastY: touch.clientY,
         };
-        setIsSingleFingerPanningActive(false);
-        panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
-        pinchStateRef.current = { active: false };
+
+        schedulePanIntent(touch);
+        return;
       }
-      // Don't prevent default initially - let taps work, we'll prevent on move if panning/zooming
+
+      // No touches or more than two - reset everything
+      resetSingleFingerFlow();
+      pinchStateRef.current = { active: false };
+      panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
     };
 
     const handleTouchMove = (event) => {
       if (event.touches.length === 2) {
-        // Clear single-finger pan if active
-        if (singleFingerPanRef.current.holdTimer) {
-          clearTimeout(singleFingerPanRef.current.holdTimer);
-          singleFingerPanRef.current.holdTimer = null;
-        }
-        singleFingerPanRef.current.active = false;
-        setIsSingleFingerPanningActive(false);
-        
+        resetSingleFingerFlow();
+
         const center = getCenter(event.touches);
         const distance = getDistance(event.touches);
         const pinchState = pinchStateRef.current;
-        
-        // Calculate distance change ratio
-        const distanceRatio = pinchState.startDistance > 0 
-          ? distance / pinchState.startDistance 
+
+        const distanceRatio = pinchState.startDistance > 0
+          ? distance / pinchState.startDistance
           : 1;
         const distanceChange = Math.abs(distanceRatio - 1);
-        
-        // Threshold to distinguish zoom (distance changing) from pan (distance constant)
-        const ZOOM_THRESHOLD = 0.05; // 5% change in distance = zoom gesture
-        
+
+        const ZOOM_THRESHOLD = 0.05;
+
         if (distanceChange > ZOOM_THRESHOLD) {
-          // Distance is changing significantly = pinch zoom
           if (!pinchState.active) {
             pinchStateRef.current = { ...pinchState, active: true };
           }
-          
+
           event.preventDefault();
           event.stopPropagation();
-          
+
           const targetZoom = clampZoom(pinchState.startZoom * distanceRatio);
           handleZoomTo(targetZoom, center);
-          
+
           pinchStateRef.current = {
             ...pinchState,
             active: true,
@@ -359,126 +376,83 @@ export function useCanvasZoom({
             lastCenter: center,
           };
         } else {
-          // Distance is relatively constant = two-finger pan
           const panState = panStateRef.current;
-          const deltaX = center.clientX - panState.lastX;
-          const deltaY = center.clientY - panState.lastY;
-          const totalDeltaX = center.clientX - panState.startX;
-          const totalDeltaY = center.clientY - panState.startY;
+          const nextPanState = { ...panState };
+          const deltaX = center.clientX - nextPanState.lastX;
+          const deltaY = center.clientY - nextPanState.lastY;
+          const totalDeltaX = center.clientX - nextPanState.startX;
+          const totalDeltaY = center.clientY - nextPanState.startY;
           const dragDistance = Math.hypot(totalDeltaX, totalDeltaY);
-          
-          // Activate panning after small threshold
+
           const PAN_THRESHOLD = 5;
-          if (!panState.active && dragDistance > PAN_THRESHOLD) {
-            panStateRef.current = { ...panState, active: true };
+          if (!nextPanState.active && dragDistance > PAN_THRESHOLD) {
+            nextPanState.active = true;
           }
-          
-          if (panState.active) {
+
+          if (nextPanState.active) {
             event.preventDefault();
             event.stopPropagation();
-            // Apply pan delta using center point movement
-            // applyPanDelta does prev.x - deltaX/zoom, so we pass negative deltaX to increase scroll
             applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
           }
-          
-          // Update pan state
+
           panStateRef.current = {
-            ...panState,
+            ...nextPanState,
             lastX: center.clientX,
             lastY: center.clientY,
           };
         }
         return;
-      } else if (event.touches.length === 1) {
-        // Single finger - check if panning is active (after delay)
-        // BUT: Don't pan if elements are being dragged or selection is active
-        const isSelectionActive = isSelectionActiveRef?.current || false;
-        if (isDragging || isSelectionActive) {
-          // Cancel panning if dragging starts or selection is active
-          const singlePan = singleFingerPanRef.current;
-          if (singlePan.holdTimer) {
-            clearTimeout(singlePan.holdTimer);
-            singlePan.holdTimer = null;
-          }
-          if (singlePan.active) {
-            singlePan.active = false;
-            setIsSingleFingerPanningActive(false);
-          }
+      }
+
+      if (event.touches.length === 1) {
+        const selectionActive = isSelectionActiveRef?.current || false;
+        if (isDragging || selectionActive) {
+          resetSingleFingerFlow();
           return;
         }
-        
-        const singlePan = singleFingerPanRef.current;
+
         const touch = event.touches[0];
-        
-        // Track movement distance during hold period (before panning activates)
-        if (touch.identifier === singlePan.touchId && !singlePan.active) {
-          const movementX = touch.clientX - singlePan.startX;
-          const movementY = touch.clientY - singlePan.startY;
-          const distance = Math.hypot(movementX, movementY);
-          singlePan.maxMovementDistance = Math.max(singlePan.maxMovementDistance, distance);
+        const panIntent = panIntentRef.current;
+
+        if (panIntent.phase === 'pending' && touch.identifier === panIntent.touchId) {
+          const distance = Math.hypot(
+            touch.clientX - panIntent.startX,
+            touch.clientY - panIntent.startY
+          );
+
+          panIntentRef.current = {
+            ...panIntent,
+            moveExceededThreshold: panIntent.moveExceededThreshold || distance > PAN_MOVEMENT_THRESHOLD,
+            lastX: touch.clientX,
+            lastY: touch.clientY,
+          };
         }
-        
-        // Only pan if the hold timer has completed and panning is active
+
+        const singlePan = singleFingerPanRef.current;
         if (singlePan.active && touch.identifier === singlePan.touchId) {
           const deltaX = touch.clientX - singlePan.lastX;
           const deltaY = touch.clientY - singlePan.lastY;
-          
-          // Prevent default to stop scrolling/selection
+
           event.preventDefault();
           event.stopPropagation();
-          
-          // Apply pan delta
-          // applyPanDelta does prev.x - deltaX/zoom, so we pass negative deltaX to increase scroll
           applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
-          
-          // Update last position
+
           singlePan.lastX = touch.clientX;
           singlePan.lastY = touch.clientY;
-        } else {
-          // Panning not active yet - update last position for when it becomes active
-          if (touch.identifier === singlePan.touchId) {
-            singlePan.lastX = touch.clientX;
-            singlePan.lastY = touch.clientY;
-          }
+        } else if (touch.identifier === singlePan.touchId && panIntent.phase === 'pending') {
+          singlePan.lastX = touch.clientX;
+          singlePan.lastY = touch.clientY;
         }
-      } else {
-        // No touches or more than 2 - reset states
-        if (singleFingerPanRef.current.holdTimer) {
-          clearTimeout(singleFingerPanRef.current.holdTimer);
-          singleFingerPanRef.current.holdTimer = null;
-        }
-        singleFingerPanRef.current = { 
-          active: false, 
-          startX: 0, 
-          startY: 0, 
-          lastX: 0, 
-          lastY: 0,
-          holdTimer: null,
-          touchId: null
-        };
-        setIsSingleFingerPanningActive(false);
-        pinchStateRef.current = { active: false };
-        panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+        return;
       }
+
+      resetSingleFingerFlow();
+      pinchStateRef.current = { active: false };
+      panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
     };
 
     const handleTouchEnd = () => {
-      // Clear single-finger pan timer and reset state
-      if (singleFingerPanRef.current.holdTimer) {
-        clearTimeout(singleFingerPanRef.current.holdTimer);
-        singleFingerPanRef.current.holdTimer = null;
-      }
-      singleFingerPanRef.current = { 
-        active: false, 
-        startX: 0, 
-        startY: 0, 
-        lastX: 0, 
-        lastY: 0,
-        holdTimer: null,
-        touchId: null
-      };
-      setIsSingleFingerPanningActive(false);
-      
+      resetSingleFingerFlow();
       pinchStateRef.current = { active: false };
       panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
     };
@@ -494,13 +468,14 @@ export function useCanvasZoom({
       container.removeEventListener('touchend', handleTouchEnd);
       container.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef]);
+  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef, touchContainer]);
 
   return { 
     localCanvasContainerDivRef, 
     handleZoom, 
     handleNativeCanvasScroll,
-    isSingleFingerPanningActive
+    isSingleFingerPanningActive,
+    panIntentRef, // Export so CanvasManager can check if pan activated
   };
 }
 

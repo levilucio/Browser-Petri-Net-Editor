@@ -8,6 +8,7 @@ jest.mock('../../workers/worker-factory', () => ({
 
 jest.mock('../../utils/z3-remote', () => ({
   setZ3WorkerConfig: jest.fn(),
+  isSharedArrayBufferAvailable: jest.fn(() => true),
 }));
 
 jest.mock('../../features/simulation/simulation-utils.js', () => {

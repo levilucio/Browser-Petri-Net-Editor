@@ -179,107 +179,184 @@ test.describe('Touch Device Interactions', () => {
 
   test.describe('Long Press Selection', () => {
     test('should activate selection after long press on background', async ({ page }) => {
+      // Create a place to target with selection
+      await page.getByTestId('toolbar-place').click();
+      await clickStage(page, { x: 200, y: 200 });
+      await page.waitForTimeout(300);
+
       // Switch to select mode
       await page.getByTestId('toolbar-select').click();
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(200);
 
-      const canvas = page.locator('.canvas-container').first();
-      const boundingBox = await canvas.boundingBox();
-      if (!boundingBox) {
-        throw new Error('Canvas not found');
-      }
-
-      const centerX = boundingBox.x + boundingBox.width / 2;
-      const centerY = boundingBox.y + boundingBox.height / 2;
-
-      // Simulate long press (400ms hold)
-      await page.touchscreen.tap(centerX, centerY);
-      
-      // Hold for long press delay (400ms) plus a bit more
-      await page.waitForTimeout(500);
-
-      // Verify selection rectangle appears (if we can detect it)
-      // The selection should be active after long press
-      const hasSelection = await page.evaluate(() => {
-        // Check if selection rectangle is visible in the DOM
-        const selectionRect = document.querySelector('[data-testid="selection-rect"]');
-        return selectionRect !== null;
-      });
-
-      // Note: Selection rectangle might not have a test ID
-      // For now, we verify the gesture was processed without errors
-      expect(await canvas.isVisible()).toBe(true);
-    });
-
-    test('should cancel long press if finger moves too much', async ({ page }) => {
-      await page.getByTestId('toolbar-select').click();
-      await page.waitForTimeout(300);
-
-      const canvas = page.locator('.canvas-container').first();
-      const boundingBox = await canvas.boundingBox();
-      if (!boundingBox) {
-        throw new Error('Canvas not found');
-      }
-
-      const startX = boundingBox.x + boundingBox.width / 2;
-      const startY = boundingBox.y + boundingBox.height / 2;
-
-      // Start touch and immediately move significantly (exceeds 15px threshold)
-      await page.evaluate(({ x, y }) => {
+      await page.evaluate(async () => {
         const container = document.querySelector('.canvas-container');
-        if (!container) return;
+        const stageCanvas = document.querySelector('.konvajs-content canvas');
+        const target = stageCanvas || container;
+        if (!target || !container) return;
+        const rect = target.getBoundingClientRect();
 
-        const touch = new Touch({
-          identifier: 1,
-          target: container,
-          clientX: x,
-          clientY: y,
-          radiusX: 2.5,
-          radiusY: 2.5,
-          rotationAngle: 10,
-          force: 0.5,
+        const relStart = { x: 160, y: 160 };
+        const relEnd = { x: 260, y: 260 };
+
+        const toAbsolute = ({ x, y }) => ({
+          clientX: rect.left + x,
+          clientY: rect.top + y,
         });
 
-        const touchStartEvent = new TouchEvent('touchstart', {
-          cancelable: true,
-          bubbles: true,
-          touches: [touch],
-          targetTouches: [touch],
-          changedTouches: [touch],
-        });
-
-        container.dispatchEvent(touchStartEvent);
-
-        // Move significantly (exceeds threshold)
-        setTimeout(() => {
-          const touchMove = new Touch({
+        const createTouch = ({ clientX, clientY }) => {
+          if (typeof Touch === 'function') {
+            return new Touch({
+              identifier: 1,
+              target,
+              clientX,
+              clientY,
+              radiusX: 2.5,
+              radiusY: 2.5,
+              rotationAngle: 0,
+              force: 0.5,
+            });
+          }
+          return {
             identifier: 1,
-            target: container,
-            clientX: x + 30, // 30px movement exceeds 15px threshold
-            clientY: y + 30,
+            target,
+            clientX,
+            clientY,
             radiusX: 2.5,
             radiusY: 2.5,
-            rotationAngle: 10,
+            rotationAngle: 0,
             force: 0.5,
-          });
+          };
+        };
 
-          const touchMoveEvent = new TouchEvent('touchmove', {
+        const startAbs = toAbsolute(relStart);
+        const endAbs = toAbsolute(relEnd);
+        const startTouch = createTouch(startAbs);
+
+        target.dispatchEvent(
+          new TouchEvent('touchstart', {
             cancelable: true,
             bubbles: true,
-            touches: [touchMove],
-            targetTouches: [touchMove],
-            changedTouches: [touchMove],
-          });
+            touches: [startTouch],
+            targetTouches: [startTouch],
+            changedTouches: [startTouch],
+          })
+        );
 
-          container.dispatchEvent(touchMoveEvent);
-        }, 50);
-      }, { x: startX, y: startY });
+        // Hold for the long press (500ms) plus buffer
+        await new Promise((resolve) => setTimeout(resolve, 560));
 
-      // Wait for long press delay
-      await page.waitForTimeout(500);
+        const dragTouch = createTouch(endAbs);
+        target.dispatchEvent(
+          new TouchEvent('touchmove', {
+            cancelable: true,
+            bubbles: true,
+            touches: [dragTouch],
+            targetTouches: [dragTouch],
+            changedTouches: [dragTouch],
+          })
+        );
 
-      // Selection should be cancelled due to movement
-      expect(await canvas.isVisible()).toBe(true);
+        await new Promise((resolve) => setTimeout(resolve, 60));
+
+        target.dispatchEvent(
+          new TouchEvent('touchend', {
+            cancelable: true,
+            bubbles: true,
+            touches: [],
+            targetTouches: [],
+            changedTouches: [dragTouch],
+          })
+        );
+      });
+
+      await page.waitForTimeout(400);
+      const selectedCount = await page.evaluate(() => {
+        return window.__PETRI_NET_STATE__?.selectedElements?.length ?? 0;
+      });
+      expect(selectedCount).toBeGreaterThan(0);
+    });
+
+    test('should cancel long press if finger moves too much before delay', async ({ page }) => {
+      await page.getByTestId('toolbar-select').click();
+      await page.waitForTimeout(200);
+
+      await page.evaluate(async () => {
+        const container = document.querySelector('.canvas-container');
+        const stageCanvas = document.querySelector('.konvajs-content canvas');
+        const target = stageCanvas || container;
+        if (!target) return;
+        const rect = target.getBoundingClientRect();
+
+        const startPoint = { x: rect.left + 200, y: rect.top + 200 };
+        const movePoint = { x: startPoint.x + 40, y: startPoint.y + 40 };
+
+        const createTouch = ({ clientX, clientY }) => {
+          if (typeof Touch === 'function') {
+            return new Touch({
+              identifier: 1,
+              target,
+              clientX,
+              clientY,
+              radiusX: 2.5,
+              radiusY: 2.5,
+              rotationAngle: 0,
+              force: 0.5,
+            });
+          }
+          return {
+            identifier: 1,
+            target,
+            clientX,
+            clientY,
+            radiusX: 2.5,
+            radiusY: 2.5,
+            rotationAngle: 0,
+            force: 0.5,
+          };
+        };
+
+        const startTouch = createTouch(startPoint);
+        target.dispatchEvent(
+          new TouchEvent('touchstart', {
+            cancelable: true,
+            bubbles: true,
+            touches: [startTouch],
+            targetTouches: [startTouch],
+            changedTouches: [startTouch],
+          })
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, 60));
+
+        const moveTouch = createTouch(movePoint);
+        target.dispatchEvent(
+          new TouchEvent('touchmove', {
+            cancelable: true,
+            bubbles: true,
+            touches: [moveTouch],
+            targetTouches: [moveTouch],
+            changedTouches: [moveTouch],
+          })
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, 520));
+
+        target.dispatchEvent(
+          new TouchEvent('touchend', {
+            cancelable: true,
+            bubbles: true,
+            touches: [],
+            targetTouches: [],
+            changedTouches: [moveTouch],
+          })
+        );
+      });
+
+      await page.waitForTimeout(200);
+      const selectedCount = await page.evaluate(() => {
+        return window.__PETRI_NET_STATE__?.selectedElements?.length ?? 0;
+      });
+      expect(selectedCount).toBe(0);
     });
   });
 
@@ -436,4 +513,5 @@ test.describe('Touch Device Interactions', () => {
     });
   });
 });
+
 

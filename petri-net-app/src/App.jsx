@@ -88,7 +88,7 @@ const AppContent = () => {
 
     const { isDragging } = usePetriNet();
     const isSelectionActiveRef = useRef(false);
-    const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll, isSingleFingerPanningActive } = useCanvasZoom({
+    const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll, isSingleFingerPanningActive, panIntentRef } = useCanvasZoom({
       MIN_ZOOM,
       MAX_ZOOM,
       zoomLevel,
@@ -209,6 +209,11 @@ const AppContent = () => {
           <div className="flex-1 overflow-y-auto pr-2 border-t-2 border-gray-200">
             <PetriNetPanel elements={elements} enabledTransitionIds={enabledTransitionIds} />
           </div>
+
+          {/* Simulation Manager - Desktop only (hidden on mobile) */}
+          <div className="hidden lg:block border-t-2 border-gray-200 mt-auto sticky bottom-0 bg-gray-100">
+            <SimulationManager />
+          </div>
         </div>
         
         {/* Canvas Area */}
@@ -225,6 +230,7 @@ const AppContent = () => {
               ZOOM_STEP={ZOOM_STEP}
               isSingleFingerPanningActive={isSingleFingerPanningActive}
               isSelectionActiveRef={isSelectionActiveRef}
+              panIntentRef={panIntentRef}
             />
           </div>
           

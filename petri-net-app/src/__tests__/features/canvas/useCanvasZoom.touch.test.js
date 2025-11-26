@@ -10,6 +10,7 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
   let setZoomLevel;
   let setCanvasScroll;
   let setContainerRef;
+  let canvasScrollState;
 
   beforeEach(() => {
     jest.useFakeTimers();
@@ -24,7 +25,15 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
       }
       return fn;
     });
-    setCanvasScroll = jest.fn();
+    canvasScrollState = { x: 0, y: 0 };
+    setCanvasScroll = jest.fn((updater) => {
+      if (typeof updater === 'function') {
+        canvasScrollState = updater(canvasScrollState);
+      } else if (updater && typeof updater === 'object') {
+        canvasScrollState = updater;
+      }
+      return canvasScrollState;
+    });
     setContainerRef = jest.fn();
   });
 
@@ -50,43 +59,39 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
     target: container,
   });
 
-  test('handles two-finger pinch-to-zoom gesture', () => {
-    const { result } = renderHook(() =>
-      useCanvasZoom({
-        MIN_ZOOM: 0.1,
-        MAX_ZOOM: 3,
-        zoomLevel: 1,
-        setZoomLevel,
-        virtualCanvasDimensions: { width: 2000, height: 2000 },
-        canvasScroll: { x: 0, y: 0 },
-        setCanvasScroll,
-        setContainerRef: (ref) => {
-          setContainerRef(ref);
-          if (ref) {
-            container = ref;
-          }
-        },
-        isDragging: false,
-        isSelectionActiveRef: { current: false },
-      })
-    );
+const buildHookProps = (override = {}) => ({
+  MIN_ZOOM: 0.1,
+  MAX_ZOOM: 3,
+  zoomLevel: 1,
+  setZoomLevel,
+  virtualCanvasDimensions: { width: 2000, height: 2000 },
+  canvasScroll: { x: 0, y: 0 },
+  setCanvasScroll,
+  setContainerRef,
+  isDragging: false,
+  isSelectionActiveRef: { current: false },
+  ...override,
+});
 
-    act(() => {
-      // Set the container ref manually since the hook uses it
-      if (result.current.localCanvasContainerDivRef.current) {
-        container = result.current.localCanvasContainerDivRef.current;
-      } else {
-        // Create a mock container if ref isn't set
-        const mockContainer = document.createElement('div');
-        mockContainer.style.width = '800px';
-        mockContainer.style.height = '600px';
-        result.current.localCanvasContainerDivRef.current = mockContainer;
-        container = mockContainer;
-        document.body.appendChild(container);
-      }
-      // Wait for useEffect to attach listeners
-      jest.advanceTimersByTime(0);
-    });
+const renderZoomHook = (override = {}) => {
+  const props = buildHookProps(override);
+  const hook = renderHook((hookProps) => useCanvasZoom(hookProps), { initialProps: props });
+  return { ...hook, props };
+};
+
+const attachContainer = (result, rerender, props) => {
+  act(() => {
+    result.current.localCanvasContainerDivRef.current = container;
+  });
+  act(() => rerender(props));
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
+};
+
+  test('handles two-finger pinch-to-zoom gesture', () => {
+    const { result, rerender, props } = renderZoomHook();
+    attachContainer(result, rerender, props);
 
     // Start two-finger gesture
     const touch1 = createTouch(1, 100, 100);
@@ -127,38 +132,8 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
   });
 
   test('handles two-finger pan gesture', () => {
-    const { result } = renderHook(() =>
-      useCanvasZoom({
-        MIN_ZOOM: 0.1,
-        MAX_ZOOM: 3,
-        zoomLevel: 1,
-        setZoomLevel,
-        virtualCanvasDimensions: { width: 2000, height: 2000 },
-        canvasScroll: { x: 0, y: 0 },
-        setCanvasScroll,
-        setContainerRef: (ref) => {
-          setContainerRef(ref);
-          if (ref) {
-            container = ref;
-          }
-        },
-        isDragging: false,
-        isSelectionActiveRef: { current: false },
-      })
-    );
-
-    act(() => {
-      if (!result.current.localCanvasContainerDivRef.current) {
-        const mockContainer = document.createElement('div');
-        mockContainer.style.width = '800px';
-        mockContainer.style.height = '600px';
-        result.current.localCanvasContainerDivRef.current = mockContainer;
-        document.body.appendChild(mockContainer);
-      }
-      container = result.current.localCanvasContainerDivRef.current;
-      // Wait for useEffect to attach listeners
-      jest.advanceTimersByTime(0);
-    });
+    const { result, rerender, props } = renderZoomHook();
+    attachContainer(result, rerender, props);
 
     // Start two-finger gesture with constant distance (pan, not zoom)
     const touch1 = createTouch(1, 100, 100);
@@ -180,45 +155,25 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
       jest.advanceTimersByTime(100);
     });
 
+    // Second move to apply pan delta after activation
+    const touch1Move2 = createTouch(1, 120, 120);
+    const touch2Move2 = createTouch(2, 220, 120);
+    const moveEvent2 = createTouchEvent('touchmove', [touch1Move2, touch2Move2]);
+    
+    act(() => {
+      container.dispatchEvent(moveEvent2);
+      jest.advanceTimersByTime(50);
+    });
+
     // Pan should trigger scroll update after threshold (5px movement)
     // Note: Pan activates after 5px movement, so we need to move enough
-    expect(setCanvasScroll).toHaveBeenCalled();
+    expect(canvasScrollState).not.toEqual({ x: 0, y: 0 });
     expect(moveEvent.preventDefault).toHaveBeenCalled();
   });
 
   test('handles single-finger pan with delay and movement threshold', () => {
-    const { result } = renderHook(() =>
-      useCanvasZoom({
-        MIN_ZOOM: 0.1,
-        MAX_ZOOM: 3,
-        zoomLevel: 1,
-        setZoomLevel,
-        virtualCanvasDimensions: { width: 2000, height: 2000 },
-        canvasScroll: { x: 0, y: 0 },
-        setCanvasScroll,
-        setContainerRef: (ref) => {
-          setContainerRef(ref);
-          if (ref) {
-            container = ref;
-          }
-        },
-        isDragging: false,
-        isSelectionActiveRef: { current: false },
-      })
-    );
-
-    act(() => {
-      if (!result.current.localCanvasContainerDivRef.current) {
-        const mockContainer = document.createElement('div');
-        mockContainer.style.width = '800px';
-        mockContainer.style.height = '600px';
-        result.current.localCanvasContainerDivRef.current = mockContainer;
-        document.body.appendChild(mockContainer);
-      }
-      container = result.current.localCanvasContainerDivRef.current;
-      // Wait for useEffect to attach listeners
-      jest.advanceTimersByTime(0);
-    });
+    const { result, rerender, props } = renderZoomHook();
+    attachContainer(result, rerender, props);
 
     // Start single-finger touch
     const touch1 = createTouch(1, 100, 100);
@@ -254,36 +209,8 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
   });
 
   test('does not activate single-finger pan if movement is below threshold', () => {
-    const { result } = renderHook(() =>
-      useCanvasZoom({
-        MIN_ZOOM: 0.1,
-        MAX_ZOOM: 3,
-        zoomLevel: 1,
-        setZoomLevel,
-        virtualCanvasDimensions: { width: 2000, height: 2000 },
-        canvasScroll: { x: 0, y: 0 },
-        setCanvasScroll,
-        setContainerRef: (ref) => {
-          setContainerRef(ref);
-          if (ref) {
-            container = ref;
-          }
-        },
-        isDragging: false,
-        isSelectionActiveRef: { current: false },
-      })
-    );
-
-    act(() => {
-      if (!result.current.localCanvasContainerDivRef.current) {
-        const mockContainer = document.createElement('div');
-        mockContainer.style.width = '800px';
-        mockContainer.style.height = '600px';
-        result.current.localCanvasContainerDivRef.current = mockContainer;
-        document.body.appendChild(mockContainer);
-      }
-      container = result.current.localCanvasContainerDivRef.current;
-    });
+    const { result, rerender, props } = renderZoomHook();
+    attachContainer(result, rerender, props);
 
     // Start single-finger touch
     const touch1 = createTouch(1, 100, 100);
@@ -307,38 +234,12 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
   });
 
   test('cancels single-finger pan when dragging starts', () => {
+    const initialProps = buildHookProps({ isDragging: false });
     const { result, rerender } = renderHook(
-      ({ isDragging }) =>
-        useCanvasZoom({
-          MIN_ZOOM: 0.1,
-          MAX_ZOOM: 3,
-          zoomLevel: 1,
-          setZoomLevel,
-          virtualCanvasDimensions: { width: 2000, height: 2000 },
-          canvasScroll: { x: 0, y: 0 },
-          setCanvasScroll,
-          setContainerRef: (ref) => {
-          setContainerRef(ref);
-          if (ref) {
-            container = ref;
-          }
-        },
-          isDragging,
-          isSelectionActiveRef: { current: false },
-        }),
-      { initialProps: { isDragging: false } }
+      (hookProps) => useCanvasZoom(hookProps),
+      { initialProps }
     );
-
-    act(() => {
-      if (!result.current.localCanvasContainerDivRef.current) {
-        const mockContainer = document.createElement('div');
-        mockContainer.style.width = '800px';
-        mockContainer.style.height = '600px';
-        result.current.localCanvasContainerDivRef.current = mockContainer;
-        document.body.appendChild(mockContainer);
-      }
-      container = result.current.localCanvasContainerDivRef.current;
-    });
+    attachContainer(result, rerender, initialProps);
 
     // Start single-finger touch and move
     const touch1 = createTouch(1, 100, 100);
@@ -357,7 +258,8 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
     });
 
     // Now set isDragging to true
-    rerender({ isDragging: true });
+    const draggingProps = buildHookProps({ isDragging: true });
+    rerender(draggingProps);
 
     // Try to move again - should not pan
     const touch1Move2 = createTouch(1, 140, 140);
@@ -372,36 +274,8 @@ describe('useCanvasZoom - Touch Device Functionality', () => {
   });
 
   test('clears touch state on touchend', () => {
-    const { result } = renderHook(() =>
-      useCanvasZoom({
-        MIN_ZOOM: 0.1,
-        MAX_ZOOM: 3,
-        zoomLevel: 1,
-        setZoomLevel,
-        virtualCanvasDimensions: { width: 2000, height: 2000 },
-        canvasScroll: { x: 0, y: 0 },
-        setCanvasScroll,
-        setContainerRef: (ref) => {
-          setContainerRef(ref);
-          if (ref) {
-            container = ref;
-          }
-        },
-        isDragging: false,
-        isSelectionActiveRef: { current: false },
-      })
-    );
-
-    act(() => {
-      if (!result.current.localCanvasContainerDivRef.current) {
-        const mockContainer = document.createElement('div');
-        mockContainer.style.width = '800px';
-        mockContainer.style.height = '600px';
-        result.current.localCanvasContainerDivRef.current = mockContainer;
-        document.body.appendChild(mockContainer);
-      }
-      container = result.current.localCanvasContainerDivRef.current;
-    });
+    const { result, rerender, props } = renderZoomHook();
+    attachContainer(result, rerender, props);
 
     // Start two-finger gesture
     const touch1 = createTouch(1, 100, 100);

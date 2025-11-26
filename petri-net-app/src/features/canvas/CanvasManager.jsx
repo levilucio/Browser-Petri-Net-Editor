@@ -11,7 +11,7 @@ import CustomScrollbar from '../../components/CustomScrollbar';
 import SnapIndicator from '../../components/SnapIndicator';
 import { logger } from '../../utils/logger.js';
 
-const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isSelectionActiveRef }) => {
+const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isSelectionActiveRef, panIntentRef }) => {
   // Get UI state from EditorUIContext
   const {
     stageDimensions, setStageDimensions,
@@ -49,19 +49,76 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   
-  // Long press detection for rectangle selection
-  const longPressRef = useRef({
+  const createSelectionIntentState = () => ({
+    phase: 'idle', // idle | pending | active | cancelled
     touchId: null,
     startX: 0,
     startY: 0,
-    startTime: 0,
-    holdTimer: null,
-    maxMovementDistance: 0, // Track movement during hold
-    isActive: false, // Track if long press is still active
+    origin: null,
+    timerId: null,
+    movedBeyondThreshold: false, // true when movement > threshold
   });
   
-  const LONG_PRESS_DELAY = 500; // ms to hold before selection activates
+  const selectionIntentRef = useRef(createSelectionIntentState());
+  
+  const SELECTION_DELAY = 500; // ms to hold before selection activates
   const MOVEMENT_THRESHOLD = 15; // pixels - if moved more than this, cancel selection
+  
+  const cancelSelectionIntent = useCallback(() => {
+    const intent = selectionIntentRef.current;
+    if (intent.timerId) {
+      clearTimeout(intent.timerId);
+    }
+    selectionIntentRef.current = createSelectionIntentState();
+    if (isSelectionActiveRef) {
+      isSelectionActiveRef.current = false;
+    }
+  }, [isSelectionActiveRef]);
+  
+  const startSelectionIntent = useCallback((touch, origin) => {
+    cancelSelectionIntent();
+    const touchId = touch.identifier;
+    const originPoint = { ...origin };
+    
+    selectionIntentRef.current = {
+      phase: 'pending',
+      touchId,
+      startX: originPoint.x,
+      startY: originPoint.y,
+      origin: originPoint,
+      movedBeyondThreshold: false,
+      timerId: setTimeout(() => {
+        const intent = selectionIntentRef.current;
+        const panIntent = panIntentRef?.current;
+        
+        // Check if pan already activated - if so, cancel selection
+        const panActivated = panIntent?.phase === 'active';
+        
+        if (
+          intent.phase !== 'pending' ||
+          intent.touchId !== touchId ||
+          intent.movedBeyondThreshold ||
+          panActivated
+        ) {
+          // Selection didn't activate - cancel it
+          selectionIntentRef.current = { ...intent, phase: 'cancelled', timerId: null };
+          return;
+        }
+        
+        // Selection activates - no movement and pan didn't activate
+        selectionIntentRef.current = { ...intent, phase: 'active', timerId: null };
+        if (isSelectionActiveRef) {
+          isSelectionActiveRef.current = true;
+        }
+        selectingRef.current = { isSelecting: true, start: originPoint };
+        setSelectionRect({ x: originPoint.x, y: originPoint.y, w: 0, h: 0 });
+        
+        if (navigator.vibrate) {
+          navigator.vibrate([10, 50, 10]); // double vibration to indicate selection activation
+        }
+      }, SELECTION_DELAY),
+    };
+  }, [cancelSelectionIntent, isSelectionActiveRef, SELECTION_DELAY, setSelectionRect, panIntentRef]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -81,6 +138,20 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
       }
     };
   }, []);
+
+  useEffect(() => {
+    // When pan becomes active, cancel any pending selection
+    const panIntent = panIntentRef?.current;
+    if (panIntent?.phase === 'active' && selectionIntentRef.current.phase === 'pending') {
+      cancelSelectionIntent();
+    }
+  }, [isSingleFingerPanningActive, cancelSelectionIntent, panIntentRef]);
+
+  useEffect(() => {
+    return () => {
+      cancelSelectionIntent();
+    };
+  }, [cancelSelectionIntent]);
 
   useEffect(() => {
     const container = localContainerRef.current;
@@ -172,49 +243,40 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     
     // Update selection rectangle during drag in select mode
     const isMouseSelection = !isTouchDevice;
-    
-    // Cancel selection if single-finger panning becomes active (but not if selection is already active)
     const isSelectionActive = isSelectionActiveRef?.current || false;
-    if (isSingleFingerPanningActive && !isSelectionActive) {
+    const panIntent = panIntentRef?.current;
+    
+    // If pan is active and selection is not active, cancel selection
+    if (panIntent?.phase === 'active' && !isSelectionActive) {
       if (selectingRef.current.isSelecting) {
         selectingRef.current = { isSelecting: false, start: null };
         setSelectionRect(null);
-        if (isSelectionActiveRef) {
-          isSelectionActiveRef.current = false;
-        }
+        cancelSelectionIntent();
       }
       return;
     }
     
-    // Track movement during long press hold period (for touch devices)
-    if (isTouchDevice && mode === 'select' && longPressRef.current.touchId !== null) {
-      const longPress = longPressRef.current;
-      const movementX = pos.x - longPress.startX;
-      const movementY = pos.y - longPress.startY;
-      const distance = Math.hypot(movementX, movementY);
-      longPress.maxMovementDistance = Math.max(longPress.maxMovementDistance, distance);
-      
-      // If movement exceeds threshold, cancel long press (but only if selection hasn't activated yet)
-      if (distance > MOVEMENT_THRESHOLD && !isSelectionActive && !selectingRef.current.isSelecting) {
-        if (longPress.holdTimer) {
-          clearTimeout(longPress.holdTimer);
-          longPress.holdTimer = null;
+    if (isTouchDevice && mode === 'select') {
+      const selectionIntent = selectionIntentRef.current;
+      if (selectionIntent.phase === 'pending' && selectionIntent.origin) {
+        const movementX = pos.x - selectionIntent.startX;
+        const movementY = pos.y - selectionIntent.startY;
+        const distance = Math.hypot(movementX, movementY);
+        
+        // Update movedBeyondThreshold if movement exceeds threshold
+        if (distance > MOVEMENT_THRESHOLD) {
+          selectionIntentRef.current = {
+            ...selectionIntent,
+            movedBeyondThreshold: true,
+          };
+          // Cancel selection if movement exceeded threshold
+          if (!selectingRef.current.isSelecting) {
+            cancelSelectionIntent();
+          }
         }
-        longPressRef.current = {
-          touchId: null,
-          startX: 0,
-          startY: 0,
-          startTime: 0,
-          holdTimer: null,
-          maxMovementDistance: 0,
-          isActive: false,
-        };
       }
     }
     
-    // Only update selection rectangle if:
-    // 1. In select mode
-    // 2. Selection is active (for both touch and mouse)
     if (mode === 'select') {
       if (selectingRef.current.isSelecting && selectingRef.current.start) {
         const start = selectingRef.current.start;
@@ -330,97 +392,25 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
         onTouchStart={(e) => {
           const isBackground = e.target && e.target.name && e.target.name() === 'background';
           
-          // Don't start selection if single-finger panning is already active
-          if (isSingleFingerPanningActive) {
+          // Don't start selection if pan intent is already active
+          const panIntent = panIntentRef?.current;
+          if (panIntent?.phase === 'active') {
             // Cancel any ongoing selection
             selectingRef.current = { isSelecting: false, start: null };
             setSelectionRect(null);
-            if (isSelectionActiveRef) {
-              isSelectionActiveRef.current = false;
-            }
-            // Reset long press state
-            if (longPressRef.current.holdTimer) {
-              clearTimeout(longPressRef.current.holdTimer);
-            }
-            longPressRef.current = {
-              touchId: null,
-              startX: 0,
-              startY: 0,
-              startTime: 0,
-              holdTimer: null,
-              maxMovementDistance: 0,
-              isActive: false,
-            };
+            cancelSelectionIntent();
             return;
           }
           
-          // Only handle long press selection in select mode on background
+          // Only handle hold selection in select mode on background
           if (mode === 'select' && isBackground && e.touches.length === 1) {
             const touch = e.touches[0];
             const pos = getVirtualPointerPosition();
             if (!pos) return;
             
-            const longPress = longPressRef.current;
-            
-            // Clear any existing timer
-            if (longPress.holdTimer) {
-              clearTimeout(longPress.holdTimer);
-            }
-            
-            // Initialize long press state
-            longPress.touchId = touch.identifier;
-            longPress.startX = pos.x;
-            longPress.startY = pos.y;
-            longPress.startTime = Date.now();
-            longPress.maxMovementDistance = 0;
-            longPress.isActive = true;
-            
-            // Set timer to activate selection after hold delay
-            const savedTouchId = touch.identifier;
-            const savedPos = { x: pos.x, y: pos.y };
-            const savedLongPressRef = longPressRef;
-            longPress.holdTimer = setTimeout(() => {
-              // Check if still valid (same touch, minimal movement, not panning)
-              const longPressState = savedLongPressRef.current;
-              const currentIsSelectionActive = isSelectionActiveRef?.current || false;
-              
-              // Check if touch is still active and conditions are met
-              if (longPressState.isActive &&
-                  longPressState.touchId === savedTouchId &&
-                  longPressState.maxMovementDistance <= MOVEMENT_THRESHOLD &&
-                  !isSingleFingerPanningActive &&
-                  !currentIsSelectionActive &&
-                  !selectingRef.current.isSelecting) {
-                // Activate selection
-                if (isSelectionActiveRef) {
-                  isSelectionActiveRef.current = true;
-                }
-                selectingRef.current = { 
-                  isSelecting: true, 
-                  start: savedPos
-                };
-                setSelectionRect({ x: savedPos.x, y: savedPos.y, w: 0, h: 0 });
-                
-                // Vibrate twice to indicate selection is now active (double vibration)
-                if (navigator.vibrate) {
-                  navigator.vibrate([10, 50, 10]); // Two short vibrations with gap
-                }
-              }
-            }, LONG_PRESS_DELAY);
+            startSelectionIntent(touch, pos);
           } else {
-            // Not in select mode or not background - reset long press
-            if (longPressRef.current.holdTimer) {
-              clearTimeout(longPressRef.current.holdTimer);
-            }
-            longPressRef.current = {
-              touchId: null,
-              startX: 0,
-              startY: 0,
-              startTime: 0,
-              holdTimer: null,
-              maxMovementDistance: 0,
-              isActive: false,
-            };
+            cancelSelectionIntent();
           }
           // Two-finger panning is handled in useCanvasZoom hook
         }}
@@ -434,63 +424,20 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
         }}
         onTouchEnd={(e) => {
           // Pan state is reset in useCanvasZoom hook
-          
-          // Clean up long press timers if touch ends
-          const longPress = longPressRef.current;
-          if (longPress.holdTimer) {
-            clearTimeout(longPress.holdTimer);
-            longPress.holdTimer = null;
-          }
-          
-          // If touch ends before long press selection activates, reset
-          const currentIsSelectionActive = isSelectionActiveRef?.current || false;
-          if (longPress.touchId !== null && !currentIsSelectionActive) {
-            longPressRef.current = {
-              touchId: null,
-              startX: 0,
-              startY: 0,
-              startTime: 0,
-              holdTimer: null,
-              maxMovementDistance: 0,
-              isActive: false,
-            };
+          if (selectionIntentRef.current.phase === 'pending') {
+            cancelSelectionIntent();
           }
           
           if (mode === 'select') {
             if (!selectingRef.current.isSelecting || !selectionRect) {
-              // Reset long press state if selection wasn't completed
-              longPressRef.current = {
-                touchId: null,
-                startX: 0,
-                startY: 0,
-                startTime: 0,
-                holdTimer: null,
-                maxMovementDistance: 0,
-                isActive: false,
-              };
-              if (isSelectionActiveRef) {
-                isSelectionActiveRef.current = false;
-              }
+              cancelSelectionIntent();
               return;
             }
             const newSelection = buildSelectionFromRect(elements, selectionRect);
             setSelection(newSelection);
             selectingRef.current = { isSelecting: false, start: null };
             setSelectionRect(null);
-            if (isSelectionActiveRef) {
-              isSelectionActiveRef.current = false;
-            }
-            
-            // Reset long press state after selection completes
-            longPressRef.current = {
-              touchId: null,
-              startX: 0,
-              startY: 0,
-              startTime: 0,
-              holdTimer: null,
-              maxMovementDistance: 0,
-              isActive: false,
-            };
+            cancelSelectionIntent();
           } else if (mode === 'arc' && arcStart) {
             // If touch ends during arc creation, check if it ended on an element
             // If not, clear the temporary arc after a small delay to allow element handlers to complete

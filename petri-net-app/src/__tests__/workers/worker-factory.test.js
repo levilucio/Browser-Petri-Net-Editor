@@ -6,7 +6,6 @@ describe('createSimulationWorker', () => {
   const originalWorker = global.Worker;
   const originalNodeEnv = process.env.NODE_ENV;
   const originalWorkerId = process.env.JEST_WORKER_ID;
-  const originalFunction = global.Function;
 
   afterEach(() => {
     global.window = originalWindow;
@@ -17,7 +16,6 @@ describe('createSimulationWorker', () => {
     } else {
       process.env.JEST_WORKER_ID = originalWorkerId;
     }
-    global.Function = originalFunction;
   });
 
   test('returns null when window is undefined', () => {
@@ -40,34 +38,36 @@ describe('createSimulationWorker', () => {
     expect(createSimulationWorker()).toBeNull();
   });
 
-  test('uses primary worker factory when environment allows', () => {
-    global.window = originalWindow;
+  test('creates worker via module URL when environment allows', () => {
+    global.window = originalWindow || {};
     process.env.NODE_ENV = 'development';
     delete process.env.JEST_WORKER_ID;
 
-    const workerInstance = { kind: 'primary' };
+    const workerInstance = { kind: 'vite-worker' };
     global.Worker = jest.fn(() => workerInstance);
-    global.Function = jest.fn(() => jest.fn(() => workerInstance));
 
     const result = createSimulationWorker();
-    expect(global.Function).toHaveBeenCalled();
+
+    expect(global.Worker).toHaveBeenCalledTimes(1);
+    const [urlArg, optionsArg] = global.Worker.mock.calls[0];
+    expect(urlArg).toBeInstanceOf(URL);
+    expect(urlArg.toString()).toContain('/src/workers/simulation.worker.js');
+    expect(optionsArg).toEqual({ type: 'module' });
     expect(result).toBe(workerInstance);
   });
 
-  test('falls back to absolute worker path when primary creation fails', () => {
-    global.window = originalWindow;
+  test('returns null when worker construction throws', () => {
+    global.window = originalWindow || {};
     process.env.NODE_ENV = 'development';
     delete process.env.JEST_WORKER_ID;
 
-    const fallbackInstance = { kind: 'fallback' };
-    global.Worker = jest.fn(() => fallbackInstance);
-    global.Function = jest.fn(() => {
-      throw new Error('factory failure');
+    const error = new Error('constructor failure');
+    global.Worker = jest.fn(() => {
+      throw error;
     });
 
     const result = createSimulationWorker();
-    expect(global.Worker).toHaveBeenCalledWith('/src/workers/simulation.worker.js', { type: 'module' });
-    expect(result).toBe(fallbackInstance);
+    expect(result).toBeNull();
   });
 });
 

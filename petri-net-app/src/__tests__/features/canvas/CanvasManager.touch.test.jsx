@@ -1,8 +1,9 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 import CanvasManager from '../../../features/canvas/CanvasManager';
 
-// Mock all dependencies
+// Shared mocks and helpers ---------------------------------------------------
 const mockSetMode = jest.fn();
 const mockSetArcStart = jest.fn();
 const mockSetTempArcEnd = jest.fn();
@@ -19,30 +20,49 @@ const mockSetSnapIndicator = jest.fn();
 const mockHandleZoom = jest.fn();
 const mockSnapToGrid = jest.fn((x, y) => ({ x, y }));
 
-// Mock Konva components
+const mockStageEventHandlers = {
+  onTouchStart: null,
+  onTouchMove: null,
+  onTouchEnd: null,
+};
+
+let pointerPosition = { x: 0, y: 0 };
+const setStagePointer = ({ x, y }) => {
+  pointerPosition = { x, y };
+};
+
+const mockStageApi = {
+  getPointerPosition: () => ({ ...pointerPosition }),
+  getAbsoluteTransform: () => ({
+    copy: () => ({
+      invert: () => {},
+      point: ({ x, y }) => ({ x, y }),
+    }),
+  }),
+  getIntersection: jest.fn(() => null),
+};
+
+// Mock Konva components ------------------------------------------------------
 jest.mock('react-konva', () => {
   const React = require('react');
-  const MockStage = React.forwardRef(({ children, onTouchStart, ...props }, ref) => {
-    const handleTouchStart = (e) => {
-      // Mock Konva's getPointerPosition
-      e.target.getStage = () => ({
-        getPointerPosition: () => ({ x: 200, y: 200 }),
-        getAbsoluteTransform: () => ({
-          copy: () => ({
-            invert: () => {},
-            point: (p) => ({ x: p.x, y: p.y }),
-          }),
-        }),
-      });
-      if (onTouchStart) onTouchStart(e);
-    };
+  const MockStage = React.forwardRef(({
+    children,
+    onTouchStart,
+    onTouchMove,
+    onTouchEnd,
+    ...props
+  }, _ref) => {
+    mockStageEventHandlers.onTouchStart = onTouchStart;
+    mockStageEventHandlers.onTouchMove = onTouchMove;
+    mockStageEventHandlers.onTouchEnd = onTouchEnd;
+
     return (
       <div
         data-testid="stage"
-        ref={ref}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
         {...props}
-        onTouchStart={handleTouchStart}
-        name={() => 'background'}
       >
         {children}
       </div>
@@ -84,7 +104,7 @@ jest.mock('../../../contexts/EditorUIContext', () => ({
     setCanvasScroll: mockSetCanvasScroll,
     zoomLevel: 1,
     setContainerRef: mockSetContainerRef,
-    stageRef: { current: null },
+    stageRef: { current: mockStageApi },
     gridSize: 10,
     gridSnappingEnabled: false,
     snapIndicator: { visible: false, position: null, elementType: null },
@@ -130,6 +150,22 @@ jest.mock('../../../components/SnapIndicator', () => {
   };
 });
 
+const createTouchPayload = ({ x = 200, y = 200, identifier = 1 }) => ({
+  target: { name: () => 'background' },
+  touches: [{ identifier, clientX: x, clientY: y }],
+  changedTouches: [{ identifier, clientX: x, clientY: y }],
+  preventDefault: jest.fn(),
+  stopPropagation: jest.fn(),
+});
+
+const fireStageTouch = (handler, payload) => {
+  if (typeof handler !== 'function') {
+    throw new Error('Stage handler not registered');
+  }
+  setStagePointer({ x: payload.touches[0].clientX, y: payload.touches[0].clientY });
+  act(() => handler(payload));
+};
+
 describe('CanvasManager - Touch Device Functionality', () => {
   let matchMediaMock;
   let originalMatchMedia;
@@ -137,6 +173,10 @@ describe('CanvasManager - Touch Device Functionality', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.clearAllMocks();
+    mockStageEventHandlers.onTouchStart = null;
+    mockStageEventHandlers.onTouchMove = null;
+    mockStageEventHandlers.onTouchEnd = null;
+    pointerPosition = { x: 0, y: 0 };
 
     // Mock window.matchMedia for touch device detection
     originalMatchMedia = window.matchMedia;
@@ -159,22 +199,6 @@ describe('CanvasManager - Touch Device Functionality', () => {
   afterEach(() => {
     jest.useRealTimers();
     window.matchMedia = originalMatchMedia;
-  });
-
-  const createTouchEvent = (type, touches) => {
-    const event = new Event(type, { bubbles: true, cancelable: true });
-    event.touches = touches;
-    event.changedTouches = touches;
-    event.preventDefault = jest.fn();
-    event.stopPropagation = jest.fn();
-    return event;
-  };
-
-  const createTouch = (id, clientX, clientY) => ({
-    identifier: id,
-    clientX,
-    clientY,
-    target: { name: () => 'background' },
   });
 
   test('detects touch device using matchMedia', () => {
@@ -216,37 +240,18 @@ describe('CanvasManager - Touch Device Functionality', () => {
       />
     );
 
-    const stage = screen.getByTestId('stage');
+    const startPayload = createTouchPayload({ x: 240, y: 260 });
+    fireStageTouch(mockStageEventHandlers.onTouchStart, startPayload);
 
-    // Simulate touch start on background
-    const touch = createTouch(1, 200, 200);
-    const touchStartEvent = createTouchEvent('touchstart', [touch]);
-    
-    // Mock the stage's getPointerPosition
-    Object.defineProperty(touchStartEvent, 'target', {
-      value: {
-        name: () => 'background',
-        getStage: () => ({
-          getPointerPosition: () => ({ x: 200, y: 200 }),
-          getAbsoluteTransform: () => ({
-            copy: () => ({
-              invert: () => {},
-              point: (p) => ({ x: p.x, y: p.y }),
-            }),
-          }),
-        }),
-      },
-      writable: true,
+    act(() => {
+      jest.advanceTimersByTime(500);
     });
 
-    stage.dispatchEvent(touchStartEvent);
+    const endPayload = createTouchPayload({ x: 260, y: 280 });
+    fireStageTouch(mockStageEventHandlers.onTouchEnd, endPayload);
 
-    // Wait for long press delay (400ms)
-    jest.advanceTimersByTime(400);
-
-    // Verify selection was activated
     await waitFor(() => {
-      expect(mockSetSelection).toHaveBeenCalled();
+      expect(mockSetSelection).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -267,60 +272,23 @@ describe('CanvasManager - Touch Device Functionality', () => {
       />
     );
 
-    const stage = screen.getByTestId('stage');
+    const startPayload = createTouchPayload({ x: 150, y: 150 });
+    fireStageTouch(mockStageEventHandlers.onTouchStart, startPayload);
 
-    // Start touch
-    const touch = createTouch(1, 200, 200);
-    const touchStartEvent = createTouchEvent('touchstart', [touch]);
-    
-    Object.defineProperty(touchStartEvent, 'target', {
-      value: {
-        name: () => 'background',
-        getStage: () => ({
-          getPointerPosition: () => ({ x: 200, y: 200 }),
-          getAbsoluteTransform: () => ({
-            copy: () => ({
-              invert: () => {},
-              point: (p) => ({ x: p.x, y: p.y }),
-            }),
-          }),
-        }),
-      },
-      writable: true,
+    const movePayload = createTouchPayload({ x: 190, y: 190 });
+    fireStageTouch(mockStageEventHandlers.onTouchMove, movePayload);
+
+    act(() => {
+      jest.advanceTimersByTime(500);
     });
 
-    stage.dispatchEvent(touchStartEvent);
+    if (mockStageEventHandlers.onTouchEnd) {
+      fireStageTouch(mockStageEventHandlers.onTouchEnd, movePayload);
+    }
 
-    // Move touch significantly (exceeds 15px threshold)
-    const touchMove = createTouch(1, 220, 220); // 28px movement
-    const touchMoveEvent = createTouchEvent('touchmove', [touchMove]);
-    
-    Object.defineProperty(touchMoveEvent, 'target', {
-      value: {
-        name: () => 'background',
-        getStage: () => ({
-          getPointerPosition: () => ({ x: 220, y: 220 }),
-          getAbsoluteTransform: () => ({
-            copy: () => ({
-              invert: () => {},
-              point: (p) => ({ x: p.x, y: p.y }),
-            }),
-          }),
-        }),
-      },
-      writable: true,
-    });
-
-    stage.dispatchEvent(touchMoveEvent);
-
-    // Wait for long press delay
-    jest.advanceTimersByTime(400);
-
-    // Selection should not be activated due to movement
     await waitFor(() => {
-      // The selection should not have been called, or if it was, it should have been cancelled
-      // This depends on the implementation, but movement should prevent selection
-    }, { timeout: 100 });
+      expect(mockSetSelection).not.toHaveBeenCalled();
+    });
   });
 
   test('does not show scrollbars on touch devices', () => {
@@ -368,4 +336,5 @@ describe('CanvasManager - Touch Device Functionality', () => {
     expect(screen.getByTestId('stage')).toBeInTheDocument();
   });
 });
+
 
