@@ -88,7 +88,7 @@ const AppContent = () => {
 
     const { isDragging } = usePetriNet();
     const isSelectionActiveRef = useRef(false);
-    const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll, isSingleFingerPanningActive, panIntentRef } = useCanvasZoom({
+    const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll, isSingleFingerPanningActive, activateSingleFingerPan } = useCanvasZoom({
       MIN_ZOOM,
       MAX_ZOOM,
       zoomLevel,
@@ -230,7 +230,7 @@ const AppContent = () => {
               ZOOM_STEP={ZOOM_STEP}
               isSingleFingerPanningActive={isSingleFingerPanningActive}
               isSelectionActiveRef={isSelectionActiveRef}
-              panIntentRef={panIntentRef}
+              activateSingleFingerPan={activateSingleFingerPan}
             />
           </div>
           

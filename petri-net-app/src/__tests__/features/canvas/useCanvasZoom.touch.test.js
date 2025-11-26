@@ -173,7 +173,7 @@ const attachContainer = (result, rerender, props) => {
     expect(moveEvent.preventDefault).toHaveBeenCalled();
   });
 
-  test('handles single-finger pan with delay and movement threshold', () => {
+  test('handles single-finger pan when activated programmatically', () => {
     const { result, rerender, props } = renderZoomHook();
     attachContainer(result, rerender, props);
 
@@ -185,32 +185,28 @@ const attachContainer = (result, rerender, props) => {
       container.dispatchEvent(startEvent);
     });
 
-    // Move finger significantly (exceeds 15px threshold) BEFORE the 250ms delay
-    const touch1Move = createTouch(1, 130, 130); // 42px movement - exceeds threshold
-    const moveEvent = createTouchEvent('touchmove', [touch1Move]);
-    
+    // Pan is now activated by CanvasManager calling activateSingleFingerPan
+    // Simulate that call
     act(() => {
-      container.dispatchEvent(moveEvent);
-      // Advance time to trigger the hold timer check (250ms)
-      jest.advanceTimersByTime(250);
+      result.current.activateSingleFingerPan();
     });
 
-    // After delay and movement threshold, pan should activate
+    // Pan should now be active
     expect(result.current.isSingleFingerPanningActive).toBe(true);
 
     // Continue moving - should pan
-    const touch1Move2 = createTouch(1, 140, 140);
-    const moveEvent2 = createTouchEvent('touchmove', [touch1Move2]);
+    const touch1Move = createTouch(1, 140, 140);
+    const moveEvent = createTouchEvent('touchmove', [touch1Move]);
     
     act(() => {
-      container.dispatchEvent(moveEvent2);
+      container.dispatchEvent(moveEvent);
     });
 
     expect(setCanvasScroll).toHaveBeenCalled();
-    expect(moveEvent2.preventDefault).toHaveBeenCalled();
+    expect(moveEvent.preventDefault).toHaveBeenCalled();
   });
 
-  test('does not activate single-finger pan if movement is below threshold', () => {
+  test('single-finger pan is not active until explicitly activated', () => {
     const { result, rerender, props } = renderZoomHook();
     attachContainer(result, rerender, props);
 
@@ -222,16 +218,16 @@ const attachContainer = (result, rerender, props) => {
       container.dispatchEvent(startEvent);
     });
 
-    // Move finger slightly (below 15px threshold)
-    const touch1Move = createTouch(1, 110, 110); // ~14px movement
+    // Move finger - but pan not activated yet
+    const touch1Move = createTouch(1, 130, 130);
     const moveEvent = createTouchEvent('touchmove', [touch1Move]);
     
     act(() => {
       container.dispatchEvent(moveEvent);
-      jest.advanceTimersByTime(250); // Wait for hold timer
+      jest.advanceTimersByTime(250);
     });
 
-    // Pan should not activate if movement is below threshold
+    // Pan should NOT be active since activateSingleFingerPan wasn't called
     expect(result.current.isSingleFingerPanningActive).toBe(false);
   });
 
@@ -243,7 +239,7 @@ const attachContainer = (result, rerender, props) => {
     );
     attachContainer(result, rerender, initialProps);
 
-    // Start single-finger touch and move
+    // Start single-finger touch
     const touch1 = createTouch(1, 100, 100);
     const startEvent = createTouchEvent('touchstart', [touch1]);
     
@@ -251,27 +247,26 @@ const attachContainer = (result, rerender, props) => {
       container.dispatchEvent(startEvent);
     });
 
-    const touch1Move = createTouch(1, 120, 120);
-    const moveEvent = createTouchEvent('touchmove', [touch1Move]);
-    
+    // Activate pan
     act(() => {
-      container.dispatchEvent(moveEvent);
-      jest.advanceTimersByTime(250);
+      result.current.activateSingleFingerPan();
     });
+
+    expect(result.current.isSingleFingerPanningActive).toBe(true);
 
     // Now set isDragging to true
     const draggingProps = buildHookProps({ isDragging: true });
     rerender(draggingProps);
 
-    // Try to move again - should not pan
-    const touch1Move2 = createTouch(1, 140, 140);
-    const moveEvent2 = createTouchEvent('touchmove', [touch1Move2]);
+    // Try to move again - should clear pan since dragging
+    const touch1Move = createTouch(1, 140, 140);
+    const moveEvent = createTouchEvent('touchmove', [touch1Move]);
     
     act(() => {
-      container.dispatchEvent(moveEvent2);
+      container.dispatchEvent(moveEvent);
     });
 
-    // Pan should be cancelled
+    // Pan should be cancelled because isDragging is true
     expect(result.current.isSingleFingerPanningActive).toBe(false);
   });
 

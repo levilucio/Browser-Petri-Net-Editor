@@ -28,4 +28,6 @@ module.exports = {
       statements: 60,
     },
   },
+  forceExit: true, // Force Jest to exit after tests complete (helps with tool timeouts)
+  detectOpenHandles: false, // Disable open handles detection for faster exit
 };

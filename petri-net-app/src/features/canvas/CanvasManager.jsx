@@ -11,7 +11,7 @@ import CustomScrollbar from '../../components/CustomScrollbar';
 import SnapIndicator from '../../components/SnapIndicator';
 import { logger } from '../../utils/logger.js';
 
-const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isSelectionActiveRef, panIntentRef }) => {
+const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isSelectionActiveRef, activateSingleFingerPan }) => {
   // Get UI state from EditorUIContext
   const {
     stageDimensions, setStageDimensions,
@@ -49,81 +49,128 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   
-  const createSelectionIntentState = () => ({
-    phase: 'idle', // idle | pending | active | cancelled
+  // Unified touch gesture state - manages both pan and selection detection
+  const touchGestureRef = useRef({
+    active: false,
     touchId: null,
-    startX: 0,
+    startX: 0,  // screen coordinates
     startY: 0,
-    origin: null,
-    timerId: null,
-    movedBeyondThreshold: false, // true when movement > threshold
+    startVirtualX: 0,  // virtual canvas coordinates
+    startVirtualY: 0,
+    maxMovement: 0,
+    startTime: 0,
+    selectionTimerId: null,
+    gestureDecided: false,  // true once we've decided pan vs selection
+    gestureType: null,  // 'pan' | 'selection' | null
   });
   
-  const selectionIntentRef = useRef(createSelectionIntentState());
-  
   const SELECTION_DELAY = 500; // ms to hold before selection activates
-  const MOVEMENT_THRESHOLD = 20; // Increased threshold for stability
+  const PAN_DELAY = 250; // ms before pan can activate
+  const MOVEMENT_THRESHOLD = 20; // pixels - movement beyond this triggers pan
   
-  const cancelSelectionIntent = useCallback(() => {
-    const intent = selectionIntentRef.current;
-    if (intent.timerId) {
-      clearTimeout(intent.timerId);
+  const clearTouchGesture = useCallback(() => {
+    const gesture = touchGestureRef.current;
+    if (gesture.selectionTimerId) {
+      clearTimeout(gesture.selectionTimerId);
     }
-    selectionIntentRef.current = createSelectionIntentState();
+    touchGestureRef.current = {
+      active: false,
+      touchId: null,
+      startX: 0,
+      startY: 0,
+      startVirtualX: 0,
+      startVirtualY: 0,
+      maxMovement: 0,
+      startTime: 0,
+      selectionTimerId: null,
+      gestureDecided: false,
+      gestureType: null,
+    };
     if (isSelectionActiveRef) {
       isSelectionActiveRef.current = false;
     }
   }, [isSelectionActiveRef]);
   
-  const startSelectionIntent = useCallback((touch, origin) => {
-    cancelSelectionIntent();
-    const touchId = touch.identifier;
-    const originPoint = { ...origin };
+  const startTouchGesture = useCallback((touch, virtualPos) => {
+    clearTouchGesture();
     
-    selectionIntentRef.current = {
-      phase: 'pending',
-      touchId,
-      startX: originPoint.x,
-      startY: originPoint.y,
-      origin: originPoint,
-      movedBeyondThreshold: false,
-      timerId: setTimeout(() => {
-        const intent = selectionIntentRef.current;
-        const panIntent = panIntentRef?.current;
-        
-        // Check if pan already activated - if so, cancel selection
-        const panActivated = panIntent?.phase === 'active';
-        
-        // Debug conditions
-        const isCancelled = intent.phase !== 'pending';
-        const touchMismatch = intent.touchId !== touchId;
-        const movedTooMuch = intent.movedBeyondThreshold;
-        
-        if (isCancelled || touchMismatch || movedTooMuch || panActivated) {
-          if (intent.phase === 'pending') {
-             selectionIntentRef.current = { ...intent, phase: 'cancelled', timerId: null };
-          }
-          return;
+    const gesture = touchGestureRef.current;
+    gesture.active = true;
+    gesture.touchId = touch.identifier;
+    gesture.startX = touch.clientX;
+    gesture.startY = touch.clientY;
+    gesture.startVirtualX = virtualPos.x;
+    gesture.startVirtualY = virtualPos.y;
+    gesture.maxMovement = 0;
+    gesture.startTime = Date.now();
+    gesture.gestureDecided = false;
+    gesture.gestureType = null;
+    
+    // Set timer to activate selection at 500ms if we haven't moved much
+    gesture.selectionTimerId = setTimeout(() => {
+      const g = touchGestureRef.current;
+      
+      // If gesture already decided (e.g., pan activated), skip
+      if (g.gestureDecided || !g.active) {
+        return;
+      }
+      
+      // If we moved too much, don't activate selection
+      if (g.maxMovement > MOVEMENT_THRESHOLD) {
+        return;
+      }
+      
+      // Activate selection!
+      g.gestureDecided = true;
+      g.gestureType = 'selection';
+      g.selectionTimerId = null;
+      
+      if (isSelectionActiveRef) {
+        isSelectionActiveRef.current = true;
+      }
+      selectingRef.current = { 
+        isSelecting: true, 
+        start: { x: g.startVirtualX, y: g.startVirtualY } 
+      };
+      setSelectionRect({ x: g.startVirtualX, y: g.startVirtualY, w: 0, h: 0 });
+      
+      // Double vibration to indicate selection activated
+      if (navigator.vibrate) {
+        try {
+          navigator.vibrate([10, 50, 10]);
+        } catch (e) {
+          // Ignore
         }
-        
-        // Selection activates - no movement and pan didn't activate
-        if (isSelectionActiveRef) {
-          isSelectionActiveRef.current = true;
-        }
-        selectionIntentRef.current = { ...intent, phase: 'active', timerId: null };
-        selectingRef.current = { isSelecting: true, start: originPoint };
-        setSelectionRect({ x: originPoint.x, y: originPoint.y, w: 0, h: 0 });
-        
-        if (navigator.vibrate) {
-          try {
-            navigator.vibrate([10, 50, 10]); // double vibration to indicate selection activation
-          } catch (e) {
-            // Ignore
-          }
-        }
-      }, SELECTION_DELAY),
-    };
-  }, [cancelSelectionIntent, isSelectionActiveRef, SELECTION_DELAY, setSelectionRect, panIntentRef]);
+      }
+    }, SELECTION_DELAY);
+  }, [clearTouchGesture, isSelectionActiveRef, setSelectionRect]);
+  
+  // Check if we should activate pan based on movement
+  const checkPanActivation = useCallback(() => {
+    const gesture = touchGestureRef.current;
+    if (!gesture.active || gesture.gestureDecided) return;
+    
+    const elapsed = Date.now() - gesture.startTime;
+    
+    // Only activate pan if:
+    // 1. At least PAN_DELAY ms have passed
+    // 2. Movement exceeds threshold
+    if (elapsed >= PAN_DELAY && gesture.maxMovement > MOVEMENT_THRESHOLD) {
+      gesture.gestureDecided = true;
+      gesture.gestureType = 'pan';
+      
+      // Clear selection timer since we're panning
+      if (gesture.selectionTimerId) {
+        clearTimeout(gesture.selectionTimerId);
+        gesture.selectionTimerId = null;
+      }
+      
+      // Tell useCanvasZoom to activate panning
+      if (activateSingleFingerPan) {
+        activateSingleFingerPan();
+      }
+    }
+  }, [activateSingleFingerPan]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -145,18 +192,10 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   }, []);
 
   useEffect(() => {
-    // When pan becomes active, cancel any pending selection
-    const panIntent = panIntentRef?.current;
-    if (panIntent?.phase === 'active' && selectionIntentRef.current.phase === 'pending') {
-      cancelSelectionIntent();
-    }
-  }, [isSingleFingerPanningActive, cancelSelectionIntent, panIntentRef]);
-
-  useEffect(() => {
     return () => {
-      cancelSelectionIntent();
+      clearTouchGesture();
     };
-  }, [cancelSelectionIntent]);
+  }, [clearTouchGesture]);
 
   useEffect(() => {
     const container = localContainerRef.current;
@@ -247,38 +286,22 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     }
     
     // Update selection rectangle during drag in select mode
-    const isMouseSelection = !isTouchDevice;
     const isSelectionActive = isSelectionActiveRef?.current || false;
-    const panIntent = panIntentRef?.current;
     
-    // If pan is active and selection is not active, cancel selection
-    if (panIntent?.phase === 'active' && !isSelectionActive) {
-      if (selectingRef.current.isSelecting) {
-        selectingRef.current = { isSelecting: false, start: null };
-        setSelectionRect(null);
-        cancelSelectionIntent();
-      }
-      return;
-    }
-    
+    // Track movement for touch gesture detection
     if (isTouchDevice && mode === 'select') {
-      const selectionIntent = selectionIntentRef.current;
-      if (selectionIntent.phase === 'pending' && selectionIntent.origin) {
-        const movementX = pos.x - selectionIntent.startX;
-        const movementY = pos.y - selectionIntent.startY;
+      const gesture = touchGestureRef.current;
+      if (gesture.active && !gesture.gestureDecided) {
+        // Calculate movement from start position (use screen coordinates for consistency)
+        // We need to get current screen position - but we only have virtual pos here
+        // So we'll track max movement in virtual coordinates instead
+        const movementX = pos.x - gesture.startVirtualX;
+        const movementY = pos.y - gesture.startVirtualY;
         const distance = Math.hypot(movementX, movementY);
+        gesture.maxMovement = Math.max(gesture.maxMovement, distance);
         
-        // Update movedBeyondThreshold if movement exceeds threshold
-        if (distance > MOVEMENT_THRESHOLD) {
-          selectionIntentRef.current = {
-            ...selectionIntent,
-            movedBeyondThreshold: true,
-          };
-          // Cancel selection if movement exceeded threshold
-          if (!selectingRef.current.isSelecting) {
-            cancelSelectionIntent();
-          }
-        }
+        // Check if we should activate pan
+        checkPanActivation();
       }
     }
     
@@ -397,26 +420,16 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
         onTouchStart={(e) => {
           const isBackground = e.target && e.target.name && e.target.name() === 'background';
           
-          // Don't start selection if pan intent is already active
-          const panIntent = panIntentRef?.current;
-          if (panIntent?.phase === 'active') {
-            // Cancel any ongoing selection
-            selectingRef.current = { isSelecting: false, start: null };
-            setSelectionRect(null);
-            cancelSelectionIntent();
-            return;
-          }
-          
-          // Only handle hold selection in select mode on background
+          // Only handle single-finger touch gestures in select mode on background
           if (mode === 'select' && isBackground && e.touches.length === 1) {
             const touch = e.touches[0];
             const pos = getVirtualPointerPosition();
             if (!pos) return;
             
-            startSelectionIntent(touch, pos);
+            startTouchGesture(touch, pos);
           } else {
-            // If we touch something else (e.g. an element), we still want to cancel any pending selection
-            cancelSelectionIntent();
+            // If we touch something else (e.g. an element), clear any gesture
+            clearTouchGesture();
           }
           // Two-finger panning is handled in useCanvasZoom hook
         }}
@@ -429,24 +442,20 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
           setSelectionRect(null);
         }}
         onTouchEnd={(e) => {
-          // Pan state is reset in useCanvasZoom hook
-          if (selectionIntentRef.current.phase === 'pending') {
-            // If we lift the finger while pending, it means we held > 250ms but < 500ms
-            // AND we haven't moved enough to trigger pan (otherwise pan intent would have cancelled us).
-            // But since we are lifting, we should just cancel.
-            cancelSelectionIntent();
-          }
-
+          // Handle touch end for selection mode
           if (mode === 'select') {
-            if (!selectingRef.current.isSelecting || !selectionRect) {
-              cancelSelectionIntent();
-              return;
+            const gesture = touchGestureRef.current;
+            
+            // If selection was activated and we have a selection rect, finalize it
+            if (selectingRef.current.isSelecting && selectionRect) {
+              const newSelection = buildSelectionFromRect(elements, selectionRect);
+              setSelection(newSelection);
+              selectingRef.current = { isSelecting: false, start: null };
+              setSelectionRect(null);
             }
-            const newSelection = buildSelectionFromRect(elements, selectionRect);
-            setSelection(newSelection);
-            selectingRef.current = { isSelecting: false, start: null };
-            setSelectionRect(null);
-            cancelSelectionIntent();
+            
+            // Clear the gesture state
+            clearTouchGesture();
           } else if (mode === 'arc' && arcStart) {
             // If touch ends during arc creation, check if it ended on an element
             // If not, clear the temporary arc after a small delay to allow element handlers to complete

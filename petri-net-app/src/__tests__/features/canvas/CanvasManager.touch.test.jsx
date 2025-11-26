@@ -216,6 +216,7 @@ describe('CanvasManager - Touch Device Functionality', () => {
         ZOOM_STEP={0.1}
         isSingleFingerPanningActive={false}
         isSelectionActiveRef={{ current: false }}
+        activateSingleFingerPan={jest.fn()}
       />
     );
 
@@ -237,6 +238,7 @@ describe('CanvasManager - Touch Device Functionality', () => {
         ZOOM_STEP={0.1}
         isSingleFingerPanningActive={false}
         isSelectionActiveRef={{ current: false }}
+        activateSingleFingerPan={jest.fn()}
       />
     );
 
@@ -269,6 +271,7 @@ describe('CanvasManager - Touch Device Functionality', () => {
         ZOOM_STEP={0.1}
         isSingleFingerPanningActive={false}
         isSelectionActiveRef={{ current: false }}
+        activateSingleFingerPan={jest.fn()}
       />
     );
 
@@ -305,6 +308,7 @@ describe('CanvasManager - Touch Device Functionality', () => {
         ZOOM_STEP={0.1}
         isSingleFingerPanningActive={false}
         isSelectionActiveRef={{ current: false }}
+        activateSingleFingerPan={jest.fn()}
       />
     );
 
@@ -327,6 +331,7 @@ describe('CanvasManager - Touch Device Functionality', () => {
         ZOOM_STEP={0.1}
         isSingleFingerPanningActive={false}
         isSelectionActiveRef={{ current: false }}
+        activateSingleFingerPan={jest.fn()}
       />
     );
 
