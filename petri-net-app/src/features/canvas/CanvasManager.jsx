@@ -250,6 +250,14 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     if (e.target.name() !== 'background') {
       return;
     }
+    
+    // In select mode, clicking empty canvas clears selection
+    if (mode === 'select') {
+      setSelection([]);
+      setSelectedElement(null);
+      return;
+    }
+    
     const pos = getVirtualPointerPosition();
     if (pos) {
       handleCreateElement(pos);
@@ -261,6 +269,14 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     if (e.target.name() !== 'background') {
       return;
     }
+    
+    // In select mode, tapping empty canvas clears selection
+    if (mode === 'select') {
+      setSelection([]);
+      setSelectedElement(null);
+      return;
+    }
+    
     const pos = getVirtualPointerPosition();
     if (pos) {
       handleCreateElement(pos);
