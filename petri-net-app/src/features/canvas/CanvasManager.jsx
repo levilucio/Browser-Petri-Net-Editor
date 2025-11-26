@@ -48,6 +48,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   const selectingRef = useRef({ isSelecting: false, start: null });
   const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
   const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const justCompletedSelectionRef = useRef(false); // Prevents tap from clearing selection right after rectangle select
   
   // Unified touch gesture state - manages both pan and selection detection
   const touchGestureRef = useRef({
@@ -65,7 +66,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   });
   
   const SELECTION_DELAY = 500; // ms to hold before selection activates
-  const PAN_DELAY = 250; // ms before pan can activate
+  const PAN_DELAY = 150; // ms before pan can activate
   const MOVEMENT_THRESHOLD = 20; // pixels - movement beyond this triggers pan
   
   const clearTouchGesture = useCallback(() => {
@@ -267,6 +268,11 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   const handleStageTap = (e) => {
     // Handle tap on touch devices (works like click but more reliable for touch)
     if (e.target.name() !== 'background') {
+      return;
+    }
+    
+    // Skip if we just completed a rectangle selection (prevents clearing it immediately)
+    if (justCompletedSelectionRef.current) {
       return;
     }
     
@@ -498,6 +504,12 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
               setSelection(newSelection);
               selectingRef.current = { isSelecting: false, start: null };
               setSelectionRect(null);
+              
+              // Prevent the subsequent tap event from clearing the selection
+              justCompletedSelectionRef.current = true;
+              setTimeout(() => {
+                justCompletedSelectionRef.current = false;
+              }, 100);
             }
           }
           
