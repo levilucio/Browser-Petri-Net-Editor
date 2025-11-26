@@ -81,8 +81,10 @@ const renderZoomHook = (override = {}) => {
 
 const attachContainer = (result, rerender, props) => {
   act(() => {
-    result.current.localCanvasContainerDivRef.current = container;
+    // Call the callback ref directly
+    result.current.localCanvasContainerDivRef(container);
   });
+  // Rerender to process the state update triggered by the callback ref
   act(() => rerender(props));
   act(() => {
     jest.advanceTimersByTime(0);

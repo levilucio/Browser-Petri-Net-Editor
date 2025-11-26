@@ -62,7 +62,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   const selectionIntentRef = useRef(createSelectionIntentState());
   
   const SELECTION_DELAY = 500; // ms to hold before selection activates
-  const MOVEMENT_THRESHOLD = 15; // pixels - if moved more than this, cancel selection
+  const MOVEMENT_THRESHOLD = 20; // Increased threshold for stability
   
   const cancelSelectionIntent = useCallback(() => {
     const intent = selectionIntentRef.current;
@@ -94,27 +94,32 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
         // Check if pan already activated - if so, cancel selection
         const panActivated = panIntent?.phase === 'active';
         
-        if (
-          intent.phase !== 'pending' ||
-          intent.touchId !== touchId ||
-          intent.movedBeyondThreshold ||
-          panActivated
-        ) {
-          // Selection didn't activate - cancel it
-          selectionIntentRef.current = { ...intent, phase: 'cancelled', timerId: null };
+        // Debug conditions
+        const isCancelled = intent.phase !== 'pending';
+        const touchMismatch = intent.touchId !== touchId;
+        const movedTooMuch = intent.movedBeyondThreshold;
+        
+        if (isCancelled || touchMismatch || movedTooMuch || panActivated) {
+          if (intent.phase === 'pending') {
+             selectionIntentRef.current = { ...intent, phase: 'cancelled', timerId: null };
+          }
           return;
         }
         
         // Selection activates - no movement and pan didn't activate
-        selectionIntentRef.current = { ...intent, phase: 'active', timerId: null };
         if (isSelectionActiveRef) {
           isSelectionActiveRef.current = true;
         }
+        selectionIntentRef.current = { ...intent, phase: 'active', timerId: null };
         selectingRef.current = { isSelecting: true, start: originPoint };
         setSelectionRect({ x: originPoint.x, y: originPoint.y, w: 0, h: 0 });
         
         if (navigator.vibrate) {
-          navigator.vibrate([10, 50, 10]); // double vibration to indicate selection activation
+          try {
+            navigator.vibrate([10, 50, 10]); // double vibration to indicate selection activation
+          } catch (e) {
+            // Ignore
+          }
         }
       }, SELECTION_DELAY),
     };
@@ -410,6 +415,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
             
             startSelectionIntent(touch, pos);
           } else {
+            // If we touch something else (e.g. an element), we still want to cancel any pending selection
             cancelSelectionIntent();
           }
           // Two-finger panning is handled in useCanvasZoom hook
@@ -425,9 +431,12 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
         onTouchEnd={(e) => {
           // Pan state is reset in useCanvasZoom hook
           if (selectionIntentRef.current.phase === 'pending') {
+            // If we lift the finger while pending, it means we held > 250ms but < 500ms
+            // AND we haven't moved enough to trigger pan (otherwise pan intent would have cancelled us).
+            // But since we are lifting, we should just cancel.
             cancelSelectionIntent();
           }
-          
+
           if (mode === 'select') {
             if (!selectingRef.current.isSelecting || !selectionRect) {
               cancelSelectionIntent();

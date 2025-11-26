@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const PAN_ACTIVATION_DELAY = 250; // ms
-const PAN_MOVEMENT_THRESHOLD = 15; // px between touch start and current point
+const PAN_MOVEMENT_THRESHOLD = 20; // px between touch start and current point
 
 const createSingleFingerPanState = () => ({
   active: false,
@@ -35,11 +35,22 @@ export function useCanvasZoom({
   isDragging = false,
   isSelectionActiveRef = null, // Ref to check if selection is active (read dynamically)
 }) {
+  // Use state to track the container element, ensuring effects run when it changes
+  const [containerEl, setContainerEl] = useState(null);
   const localCanvasContainerDivRef = useRef(null);
+  
+  // Callback ref to handle container updates robustly
+  const refCallback = useCallback((node) => {
+    localCanvasContainerDivRef.current = node;
+    setContainerEl(node);
+    if (setContainerRef) {
+      setContainerRef(node);
+    }
+  }, [setContainerRef]);
+
   const programmaticScrollRef = useRef(false);
   const pinchStateRef = useRef({ active: false });
   const panStateRef = useRef({ active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 });
-  const [touchContainer, setTouchContainer] = useState(null);
   const [isSingleFingerPanningActive, setIsSingleFingerPanningActive] = useState(false);
   const singleFingerPanRef = useRef(createSingleFingerPanState());
   const panIntentRef = useRef(createPanIntentState());
@@ -193,21 +204,8 @@ export function useCanvasZoom({
   }, [canvasScroll, localCanvasContainerDivRef]);
 
   useEffect(() => {
-    const container = localCanvasContainerDivRef.current;
-    if (container && setContainerRef) {
-      setContainerRef(container);
-    }
-  }, [localCanvasContainerDivRef, setContainerRef]);
-
-  useEffect(() => {
-    const container = localCanvasContainerDivRef.current;
-    if (container !== touchContainer) {
-      setTouchContainer(container || null);
-    }
-  }, [touchContainer]);
-
-  useEffect(() => {
-    const container = touchContainer;
+    // We use containerEl state to trigger this effect when the container mounts/updates
+    const container = containerEl;
     if (!container) return;
 
     const getDistance = (touches) => {
@@ -283,7 +281,11 @@ export function useCanvasZoom({
           singlePan.lastY = intent.lastY;
 
           if (navigator.vibrate) {
-            navigator.vibrate(10); // short vibration to indicate pan activation
+            try {
+                navigator.vibrate(10); // short vibration to indicate pan activation
+            } catch (e) {
+                // Ignore vibration errors
+            }
           }
         }, PAN_ACTIVATION_DELAY),
       };
@@ -468,10 +470,10 @@ export function useCanvasZoom({
       container.removeEventListener('touchend', handleTouchEnd);
       container.removeEventListener('touchcancel', handleTouchEnd);
     };
-  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef, touchContainer]);
+  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef, containerEl]);
 
   return { 
-    localCanvasContainerDivRef, 
+    localCanvasContainerDivRef: refCallback, 
     handleZoom, 
     handleNativeCanvasScroll,
     isSingleFingerPanningActive,
