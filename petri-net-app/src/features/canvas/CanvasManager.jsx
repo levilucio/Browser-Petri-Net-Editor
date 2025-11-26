@@ -91,7 +91,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     }
   }, [isSelectionActiveRef]);
   
-  const startTouchGesture = useCallback((touch, virtualPos) => {
+  const startTouchGesture = useCallback((touch, virtualPos, isSelectMode) => {
     clearTouchGesture();
     
     const gesture = touchGestureRef.current;
@@ -106,47 +106,57 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     gesture.gestureDecided = false;
     gesture.gestureType = null;
     
-    // Set timer to activate selection at 500ms if we haven't moved much
-    gesture.selectionTimerId = setTimeout(() => {
-      const g = touchGestureRef.current;
-      
-      // If gesture already decided (e.g., pan activated), skip
-      if (g.gestureDecided || !g.active) {
-        return;
-      }
-      
-      // If we moved too much, don't activate selection
-      if (g.maxMovement > MOVEMENT_THRESHOLD) {
-        return;
-      }
-      
-      // Activate selection!
-      g.gestureDecided = true;
-      g.gestureType = 'selection';
-      g.selectionTimerId = null;
-      
-      if (isSelectionActiveRef) {
-        isSelectionActiveRef.current = true;
-      }
-      selectingRef.current = { 
-        isSelecting: true, 
-        start: { x: g.startVirtualX, y: g.startVirtualY } 
-      };
-      setSelectionRect({ x: g.startVirtualX, y: g.startVirtualY, w: 0, h: 0 });
-      
-      // Double vibration to indicate selection activated
-      if (navigator.vibrate) {
-        try {
-          navigator.vibrate([10, 50, 10]);
-        } catch (e) {
-          // Ignore
+    console.log('[TouchGesture] Started:', { touchId: touch.identifier, startX: touch.clientX, startY: touch.clientY, isSelectMode });
+    
+    // Only set selection timer in select mode
+    if (isSelectMode) {
+      // Set timer to activate selection at 500ms if we haven't moved much
+      gesture.selectionTimerId = setTimeout(() => {
+        const g = touchGestureRef.current;
+        
+        console.log('[TouchGesture] Timer fired:', { active: g.active, gestureDecided: g.gestureDecided, maxMovement: g.maxMovement });
+        
+        // If gesture already decided (e.g., pan activated), skip
+        if (g.gestureDecided || !g.active) {
+          console.log('[TouchGesture] Selection cancelled - gesture already decided or inactive');
+          return;
         }
-      }
-    }, SELECTION_DELAY);
+        
+        // If we moved too much, don't activate selection
+        if (g.maxMovement > MOVEMENT_THRESHOLD) {
+          console.log('[TouchGesture] Selection cancelled - moved too much:', g.maxMovement);
+          return;
+        }
+        
+        // Activate selection!
+        console.log('[TouchGesture] Selection ACTIVATED!');
+        g.gestureDecided = true;
+        g.gestureType = 'selection';
+        g.selectionTimerId = null;
+        
+        if (isSelectionActiveRef) {
+          isSelectionActiveRef.current = true;
+        }
+        selectingRef.current = { 
+          isSelecting: true, 
+          start: { x: g.startVirtualX, y: g.startVirtualY } 
+        };
+        setSelectionRect({ x: g.startVirtualX, y: g.startVirtualY, w: 0, h: 0 });
+        
+        // Double vibration to indicate selection activated
+        if (navigator.vibrate) {
+          try {
+            navigator.vibrate([10, 50, 10]);
+          } catch (e) {
+            // Ignore
+          }
+        }
+      }, SELECTION_DELAY);
+    }
   }, [clearTouchGesture, isSelectionActiveRef, setSelectionRect]);
   
   // Check if we should activate pan based on movement
-  const checkPanActivation = useCallback(() => {
+  const checkPanActivation = useCallback((currentTouch) => {
     const gesture = touchGestureRef.current;
     if (!gesture.active || gesture.gestureDecided) return;
     
@@ -288,22 +298,9 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     // Update selection rectangle during drag in select mode
     const isSelectionActive = isSelectionActiveRef?.current || false;
     
-    // Track movement for touch gesture detection
-    if (isTouchDevice && mode === 'select') {
-      const gesture = touchGestureRef.current;
-      if (gesture.active && !gesture.gestureDecided) {
-        // Calculate movement from start position (use screen coordinates for consistency)
-        // We need to get current screen position - but we only have virtual pos here
-        // So we'll track max movement in virtual coordinates instead
-        const movementX = pos.x - gesture.startVirtualX;
-        const movementY = pos.y - gesture.startVirtualY;
-        const distance = Math.hypot(movementX, movementY);
-        gesture.maxMovement = Math.max(gesture.maxMovement, distance);
-        
-        // Check if we should activate pan
-        checkPanActivation();
-      }
-    }
+    // Track movement for touch gesture detection - using native touch events
+    // Note: Konva's onTouchMove doesn't give us screen coordinates directly,
+    // so movement tracking is done in onTouchMove handler below
     
     if (mode === 'select') {
       if (selectingRef.current.isSelecting && selectingRef.current.start) {
@@ -408,7 +405,30 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
         onClick={handleStageClick}
         onTap={handleStageTap}
         onMouseMove={handlePointerMove}
-        onTouchMove={handlePointerMove}
+        onTouchMove={(e) => {
+          // Get touches from native event (Konva wraps it in evt) or directly from e (for tests)
+          const touches = (e.evt && e.evt.touches) || e.touches;
+          
+          // Track movement for touch gesture detection using screen coordinates
+          if (isTouchDevice) {
+            const gesture = touchGestureRef.current;
+            if (gesture.active && !gesture.gestureDecided && touches && touches.length === 1) {
+              const touch = touches[0];
+              const movementX = touch.clientX - gesture.startX;
+              const movementY = touch.clientY - gesture.startY;
+              const distance = Math.hypot(movementX, movementY);
+              gesture.maxMovement = Math.max(gesture.maxMovement, distance);
+              
+              console.log('[TouchGesture] Move:', { distance, maxMovement: gesture.maxMovement, gestureDecided: gesture.gestureDecided });
+              
+              // Check if we should activate pan
+              checkPanActivation();
+            }
+          }
+          
+          // Continue with regular pointer move handling
+          handlePointerMove(e);
+        }}
         onMouseDown={(e) => {
           if (mode !== 'select') return;
           if (e.target && e.target.name && e.target.name() !== 'background') return;
@@ -420,15 +440,25 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
         onTouchStart={(e) => {
           const isBackground = e.target && e.target.name && e.target.name() === 'background';
           
-          // Only handle single-finger touch gestures in select mode on background
-          if (mode === 'select' && isBackground && e.touches.length === 1) {
-            const touch = e.touches[0];
+          // Get touches from native event (Konva wraps it in evt) or directly from e (for tests)
+          const touches = (e.evt && e.evt.touches) || e.touches;
+          
+          // Handle single-finger touch gestures
+          if (touches && touches.length === 1) {
+            const touch = touches[0];
             const pos = getVirtualPointerPosition();
             if (!pos) return;
             
-            startTouchGesture(touch, pos);
+            // In select mode on background: start gesture for potential selection
+            // In other modes on background: start gesture for potential pan
+            if (isBackground) {
+              startTouchGesture(touch, pos, mode === 'select');
+            } else {
+              // Touching an element, clear any gesture
+              clearTouchGesture();
+            }
           } else {
-            // If we touch something else (e.g. an element), clear any gesture
+            // Multi-touch or no touches - clear gesture
             clearTouchGesture();
           }
           // Two-finger panning is handled in useCanvasZoom hook
@@ -442,10 +472,10 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
           setSelectionRect(null);
         }}
         onTouchEnd={(e) => {
+          console.log('[TouchGesture] TouchEnd');
+          
           // Handle touch end for selection mode
           if (mode === 'select') {
-            const gesture = touchGestureRef.current;
-            
             // If selection was activated and we have a selection rect, finalize it
             if (selectingRef.current.isSelecting && selectionRect) {
               const newSelection = buildSelectionFromRect(elements, selectionRect);
@@ -453,10 +483,12 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
               selectingRef.current = { isSelecting: false, start: null };
               setSelectionRect(null);
             }
-            
-            // Clear the gesture state
-            clearTouchGesture();
-          } else if (mode === 'arc' && arcStart) {
+          }
+          
+          // Clear the gesture state in all modes
+          clearTouchGesture();
+          
+          if (mode === 'arc' && arcStart) {
             // If touch ends during arc creation, check if it ended on an element
             // If not, clear the temporary arc after a small delay to allow element handlers to complete
             setTimeout(() => {

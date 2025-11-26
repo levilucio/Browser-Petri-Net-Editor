@@ -330,24 +330,23 @@ export function useCanvasZoom({
         const touch = event.touches[0];
         const singlePan = singleFingerPanRef.current;
         
-        // Track position for potential panning
-        if (touch.identifier === singlePan.touchId) {
-          singlePan.lastX = touch.clientX;
-          singlePan.lastY = touch.clientY;
+        if (touch.identifier !== singlePan.touchId) {
+          return;
         }
         
         // If panning is active, apply pan delta
-        if (singlePan.active && touch.identifier === singlePan.touchId) {
+        if (singlePan.active) {
           const deltaX = touch.clientX - singlePan.lastX;
           const deltaY = touch.clientY - singlePan.lastY;
 
           event.preventDefault();
           event.stopPropagation();
           applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
-
-          singlePan.lastX = touch.clientX;
-          singlePan.lastY = touch.clientY;
         }
+        
+        // Always track position for when panning activates
+        singlePan.lastX = touch.clientX;
+        singlePan.lastY = touch.clientY;
         return;
       }
 
