@@ -66,7 +66,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   });
   
   const SELECTION_DELAY = 500; // ms to hold before selection activates
-  const PAN_DELAY = 100; // ms before pan can activate
+  const PAN_DELAY = 50; // ms before pan can activate
   const MOVEMENT_THRESHOLD = 20; // pixels - movement beyond this triggers pan
   
   const clearTouchGesture = useCallback(() => {
