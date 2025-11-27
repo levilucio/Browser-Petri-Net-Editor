@@ -258,6 +258,16 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     };
   }, [clearTouchGesture]);
 
+  // Clear touch gesture state when isDragging changes
+  // This prevents stale gesture state when transitioning between element drag and canvas pan
+  useEffect(() => {
+    // When dragging ends (isDragging becomes false), clear any pending gesture state
+    // to ensure a clean slate for the next touch interaction
+    if (!isDragging) {
+      clearTouchGesture();
+    }
+  }, [isDragging, clearTouchGesture]);
+
   useEffect(() => {
     const container = localContainerRef.current;
     if (!container) {

@@ -539,15 +539,18 @@ export function useCanvasZoom({
     };
   }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef, containerEl, calculateVelocity, startInertiaAnimation, stopInertiaAnimation]);
 
-  // Stop inertia and clear pan state when dragging starts (element was selected during pan)
-  // This prevents crashes from stale state when transitioning from pan to element drag
+  // Clear pan state when isDragging changes
+  // This prevents crashes from stale state when transitioning between element drag and canvas pan
   useEffect(() => {
-    if (isDragging) {
-      stopInertiaAnimation();
-      velocityHistoryRef.current = [];
-      singleFingerPanRef.current = createSingleFingerPanState();
-      setIsSingleFingerPanningActive(false);
-    }
+    // Stop inertia and clear state both when dragging starts AND ends
+    // When dragging starts: prevents stale pan state from interfering with element drag
+    // When dragging ends: ensures clean state for the next pan gesture
+    stopInertiaAnimation();
+    velocityHistoryRef.current = [];
+    singleFingerPanRef.current = createSingleFingerPanState();
+    setIsSingleFingerPanningActive(false);
+    pinchStateRef.current = { active: false };
+    panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
   }, [isDragging, stopInertiaAnimation]);
 
   // Function to activate single-finger panning from CanvasManager
