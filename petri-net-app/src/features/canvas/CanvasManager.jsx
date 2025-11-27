@@ -50,6 +50,12 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const justCompletedSelectionRef = useRef(false); // Prevents tap from clearing selection right after rectangle select
   
+  // Inertia/momentum scrolling for mouse wheel
+  const wheelVelocityHistoryRef = useRef([]);
+  const wheelInertiaAnimationRef = useRef(null);
+  const wheelInertiaTimeoutRef = useRef(null);
+  const MAX_WHEEL_VELOCITY_HISTORY = 3;
+  
   // Unified touch gesture state - manages both pan and selection detection
   const touchGestureRef = useRef({
     active: false,
@@ -61,18 +67,25 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     maxMovement: 0,
     startTime: 0,
     selectionTimerId: null,
+    gestureStartTimerId: null,  // Timer to delay starting gesture detection
     gestureDecided: false,  // true once we've decided pan vs selection
     gestureType: null,  // 'pan' | 'selection' | null
+    isQuickTap: false,  // true if this is likely a quick tap (not a gesture)
   });
   
   const SELECTION_DELAY = 500; // ms to hold before selection activates
-  const PAN_DELAY = 50; // ms before pan can activate
+  const PAN_DELAY = 25; // ms before pan can activate
   const MOVEMENT_THRESHOLD = 20; // pixels - movement beyond this triggers pan
+  const TAP_THRESHOLD = 10; // pixels - movement below this is considered a tap
+  const GESTURE_START_DELAY = 50; // ms - delay before starting gesture detection
   
   const clearTouchGesture = useCallback(() => {
     const gesture = touchGestureRef.current;
     if (gesture.selectionTimerId) {
       clearTimeout(gesture.selectionTimerId);
+    }
+    if (gesture.gestureStartTimerId) {
+      clearTimeout(gesture.gestureStartTimerId);
     }
     touchGestureRef.current = {
       active: false,
@@ -84,8 +97,10 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
       maxMovement: 0,
       startTime: 0,
       selectionTimerId: null,
+      gestureStartTimerId: null,
       gestureDecided: false,
       gestureType: null,
+      isQuickTap: false,
     };
     if (isSelectionActiveRef) {
       isSelectionActiveRef.current = false;
@@ -106,60 +121,89 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     gesture.startTime = Date.now();
     gesture.gestureDecided = false;
     gesture.gestureType = null;
+    gesture.isQuickTap = true; // Assume it's a quick tap until proven otherwise
     
     console.log('[TouchGesture] Started:', { touchId: touch.identifier, startX: touch.clientX, startY: touch.clientY, isSelectMode });
     
-    // Only set selection timer in select mode
-    if (isSelectMode) {
-      // Set timer to activate selection at 500ms if we haven't moved much
-      gesture.selectionTimerId = setTimeout(() => {
-        const g = touchGestureRef.current;
-        
-        console.log('[TouchGesture] Timer fired:', { active: g.active, gestureDecided: g.gestureDecided, maxMovement: g.maxMovement });
-        
-        // If gesture already decided (e.g., pan activated), skip
-        if (g.gestureDecided || !g.active) {
-          console.log('[TouchGesture] Selection cancelled - gesture already decided or inactive');
-          return;
-        }
-        
-        // If we moved too much, don't activate selection
-        if (g.maxMovement > MOVEMENT_THRESHOLD) {
-          console.log('[TouchGesture] Selection cancelled - moved too much:', g.maxMovement);
-          return;
-        }
-        
-        // Activate selection!
-        console.log('[TouchGesture] Selection ACTIVATED!');
-        g.gestureDecided = true;
-        g.gestureType = 'selection';
-        g.selectionTimerId = null;
-        
-        if (isSelectionActiveRef) {
-          isSelectionActiveRef.current = true;
-        }
-        selectingRef.current = { 
-          isSelecting: true, 
-          start: { x: g.startVirtualX, y: g.startVirtualY } 
-        };
-        setSelectionRect({ x: g.startVirtualX, y: g.startVirtualY, w: 0, h: 0 });
-        
-        // Double vibration to indicate selection activated
-        if (navigator.vibrate) {
-          try {
-            navigator.vibrate([10, 50, 10]);
-          } catch (e) {
-            // Ignore
+    // Delay starting gesture detection to allow quick taps to complete
+    gesture.gestureStartTimerId = setTimeout(() => {
+      const g = touchGestureRef.current;
+      
+      // If touch already ended or moved significantly, don't start gesture detection
+      if (!g.active || g.gestureDecided) {
+        return;
+      }
+      
+      // If we moved beyond tap threshold, it's not a quick tap - start gesture detection
+      if (g.maxMovement > TAP_THRESHOLD) {
+        g.isQuickTap = false;
+        // Movement already detected, pan will activate on next move check
+        return;
+      }
+      
+      // Touch is held but hasn't moved - start selection timer if in select mode
+      if (isSelectMode) {
+        g.isQuickTap = false;
+        // Set timer to activate selection at 500ms if we haven't moved much
+        g.selectionTimerId = setTimeout(() => {
+          const g2 = touchGestureRef.current;
+          
+          console.log('[TouchGesture] Timer fired:', { active: g2.active, gestureDecided: g2.gestureDecided, maxMovement: g2.maxMovement });
+          
+          // If gesture already decided (e.g., pan activated), skip
+          if (g2.gestureDecided || !g2.active) {
+            console.log('[TouchGesture] Selection cancelled - gesture already decided or inactive');
+            return;
           }
-        }
-      }, SELECTION_DELAY);
-    }
+          
+          // If we moved too much, don't activate selection
+          if (g2.maxMovement > MOVEMENT_THRESHOLD) {
+            console.log('[TouchGesture] Selection cancelled - moved too much:', g2.maxMovement);
+            return;
+          }
+          
+          // Activate selection!
+          console.log('[TouchGesture] Selection ACTIVATED!');
+          g2.gestureDecided = true;
+          g2.gestureType = 'selection';
+          g2.selectionTimerId = null;
+          
+          if (isSelectionActiveRef) {
+            isSelectionActiveRef.current = true;
+          }
+          selectingRef.current = { 
+            isSelecting: true, 
+            start: { x: g2.startVirtualX, y: g2.startVirtualY } 
+          };
+          setSelectionRect({ x: g2.startVirtualX, y: g2.startVirtualY, w: 0, h: 0 });
+          
+          // Double vibration to indicate selection activated
+          if (navigator.vibrate) {
+            try {
+              navigator.vibrate([10, 50, 10]);
+            } catch (e) {
+              // Ignore
+            }
+          }
+        }, SELECTION_DELAY - GESTURE_START_DELAY); // Adjust delay since we already waited
+      }
+    }, GESTURE_START_DELAY);
   }, [clearTouchGesture, isSelectionActiveRef, setSelectionRect]);
   
   // Check if we should activate pan based on movement
   const checkPanActivation = useCallback((currentTouch) => {
     const gesture = touchGestureRef.current;
     if (!gesture.active || gesture.gestureDecided) return;
+    
+    // If it's still a quick tap (hasn't moved much), don't activate pan
+    if (gesture.isQuickTap && gesture.maxMovement <= TAP_THRESHOLD) {
+      return;
+    }
+    
+    // Mark as not a quick tap once we move beyond threshold
+    if (gesture.maxMovement > TAP_THRESHOLD) {
+      gesture.isQuickTap = false;
+    }
     
     const elapsed = Date.now() - gesture.startTime;
     
@@ -174,6 +218,12 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
       if (gesture.selectionTimerId) {
         clearTimeout(gesture.selectionTimerId);
         gesture.selectionTimerId = null;
+      }
+      
+      // Clear gesture start timer
+      if (gesture.gestureStartTimerId) {
+        clearTimeout(gesture.gestureStartTimerId);
+        gesture.gestureStartTimerId = null;
       }
       
       // Tell useCanvasZoom to activate panning
@@ -249,6 +299,11 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
 
   const handleStageClick = (e) => {
     if (e.target.name() !== 'background') {
+      return;
+    }
+    
+    // Skip if we just completed a rectangle selection (prevents clearing it immediately)
+    if (justCompletedSelectionRef.current) {
       return;
     }
     
@@ -351,16 +406,128 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     }
   };
 
+  // Calculate wheel velocity and start inertia
+  const calculateWheelVelocity = useCallback(() => {
+    const history = wheelVelocityHistoryRef.current;
+    if (history.length < 2) {
+      return { vx: 0, vy: 0 };
+    }
+
+    // Use the last two samples
+    const [first, second] = history.slice(-2);
+    const dt = second.time - first.time;
+    
+    if (dt <= 0) {
+      return { vx: 0, vy: 0 };
+    }
+
+    const vx = (second.deltaX - first.deltaX) / dt;
+    const vy = (second.deltaY - first.deltaY) / dt;
+
+    return { vx, vy };
+  }, []);
+
+  // Start wheel inertia animation
+  const startWheelInertia = useCallback((initialVx, initialVy) => {
+    // Cancel any existing animation
+    if (wheelInertiaAnimationRef.current) {
+      cancelAnimationFrame(wheelInertiaAnimationRef.current);
+    }
+    if (wheelInertiaTimeoutRef.current) {
+      clearTimeout(wheelInertiaTimeoutRef.current);
+    }
+
+    const DECELERATION = 0.95;
+    const MIN_VELOCITY = 0.01;
+    const FRAME_TIME = 16;
+
+    let vx = initialVx / zoomLevel; // Convert to virtual coordinates
+    let vy = initialVy / zoomLevel;
+    let lastTime = performance.now();
+
+    const animate = (currentTime) => {
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
+
+      // Apply deceleration
+      vx *= Math.pow(DECELERATION, deltaTime / FRAME_TIME);
+      vy *= Math.pow(DECELERATION, deltaTime / FRAME_TIME);
+
+      // Check if we should stop
+      const speed = Math.hypot(vx, vy);
+      if (speed < MIN_VELOCITY) {
+        wheelInertiaAnimationRef.current = null;
+        return;
+      }
+
+      // Apply pan delta
+      setCanvasScroll(prev => {
+        if (!virtualCanvasDimensions || !stageDimensions) return prev;
+        
+        const maxScrollX = Math.max(0, virtualCanvasDimensions.width - (stageDimensions.width / zoomLevel));
+        const maxScrollY = Math.max(0, virtualCanvasDimensions.height - (stageDimensions.height / zoomLevel));
+        
+        return {
+          x: Math.max(0, Math.min(maxScrollX, prev.x + vx * deltaTime)),
+          y: Math.max(0, Math.min(maxScrollY, prev.y + vy * deltaTime))
+        };
+      });
+
+      // Continue animation
+      wheelInertiaAnimationRef.current = requestAnimationFrame(animate);
+    };
+
+    wheelInertiaAnimationRef.current = requestAnimationFrame(animate);
+  }, [zoomLevel, setCanvasScroll, virtualCanvasDimensions, stageDimensions]);
+
+  // Stop wheel inertia
+  const stopWheelInertia = useCallback(() => {
+    if (wheelInertiaAnimationRef.current) {
+      cancelAnimationFrame(wheelInertiaAnimationRef.current);
+      wheelInertiaAnimationRef.current = null;
+    }
+    if (wheelInertiaTimeoutRef.current) {
+      clearTimeout(wheelInertiaTimeoutRef.current);
+      wheelInertiaTimeoutRef.current = null;
+    }
+    wheelVelocityHistoryRef.current = [];
+  }, []);
+
   const handleWheelEvent = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (e.ctrlKey || e.metaKey) {
+      // Zoom - no inertia
+      stopWheelInertia();
       const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
       handleZoom(delta, { clientX: e.clientX, clientY: e.clientY });
     } else {
+      // Pan - track velocity for inertia
       const deltaX = e.deltaX / zoomLevel;
       const deltaY = e.deltaY / zoomLevel;
+
+      // Track velocity
+      const now = performance.now();
+      wheelVelocityHistoryRef.current.push({
+        deltaX: e.deltaX,
+        deltaY: e.deltaY,
+        time: now
+      });
+      if (wheelVelocityHistoryRef.current.length > MAX_WHEEL_VELOCITY_HISTORY) {
+        wheelVelocityHistoryRef.current.shift();
+      }
+
+      // Clear any existing timeout
+      if (wheelInertiaTimeoutRef.current) {
+        clearTimeout(wheelInertiaTimeoutRef.current);
+      }
+
+      // Stop any ongoing inertia animation
+      if (wheelInertiaAnimationRef.current) {
+        cancelAnimationFrame(wheelInertiaAnimationRef.current);
+        wheelInertiaAnimationRef.current = null;
+      }
 
       setCanvasScroll(prev => {
         if (!virtualCanvasDimensions || !stageDimensions) return prev;
@@ -373,8 +540,19 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
           y: Math.max(0, Math.min(maxScrollY, prev.y + deltaY))
         };
       });
+
+      // Start inertia after wheel stops (150ms delay)
+      wheelInertiaTimeoutRef.current = setTimeout(() => {
+        const velocity = calculateWheelVelocity();
+        const speed = Math.hypot(velocity.vx, velocity.vy);
+        
+        if (speed > 0.1) {
+          startWheelInertia(velocity.vx, velocity.vy);
+        }
+        wheelInertiaTimeoutRef.current = null;
+      }, 150);
     }
-  }, [ZOOM_STEP, handleZoom, setCanvasScroll, zoomLevel, virtualCanvasDimensions, stageDimensions]);
+  }, [ZOOM_STEP, handleZoom, setCanvasScroll, zoomLevel, virtualCanvasDimensions, stageDimensions, calculateWheelVelocity, startWheelInertia, stopWheelInertia]);
 
   useEffect(() => {
     const container = localContainerRef.current;
@@ -390,8 +568,10 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
 
     return () => {
       document.removeEventListener('wheel', wheelListener);
+      // Clean up inertia animation on unmount
+      stopWheelInertia();
     };
-  }, [handleWheelEvent]);
+  }, [handleWheelEvent, stopWheelInertia]);
 
   const handleScroll = useCallback((axis, newScrollValue) => {
     setCanvasScroll(prev => {
@@ -441,7 +621,12 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
               const distance = Math.hypot(movementX, movementY);
               gesture.maxMovement = Math.max(gesture.maxMovement, distance);
               
-              console.log('[TouchGesture] Move:', { distance, maxMovement: gesture.maxMovement, gestureDecided: gesture.gestureDecided });
+              // Mark as not a quick tap once we move beyond threshold
+              if (gesture.maxMovement > TAP_THRESHOLD) {
+                gesture.isQuickTap = false;
+              }
+              
+              console.log('[TouchGesture] Move:', { distance, maxMovement: gesture.maxMovement, gestureDecided: gesture.gestureDecided, isQuickTap: gesture.isQuickTap });
               
               // Check if we should activate pan
               checkPanActivation();
@@ -492,12 +677,27 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
           setSelection(newSelection);
           selectingRef.current = { isSelecting: false, start: null };
           setSelectionRect(null);
+          
+          // Prevent the subsequent click event from clearing the selection
+          justCompletedSelectionRef.current = true;
+          setTimeout(() => {
+            justCompletedSelectionRef.current = false;
+          }, 100);
         }}
         onTouchEnd={(e) => {
           console.log('[TouchGesture] TouchEnd');
           
-          // Handle touch end for selection mode
-          if (mode === 'select') {
+          const gesture = touchGestureRef.current;
+          const wasQuickTap = gesture.isQuickTap && gesture.maxMovement <= TAP_THRESHOLD;
+          
+          // If it was a quick tap, clear gesture early to let onTap handle it
+          // But continue with other touch end logic (arc handling, etc.)
+          if (wasQuickTap) {
+            clearTouchGesture();
+          }
+          
+          // Handle touch end for selection mode (only if not a quick tap)
+          if (mode === 'select' && !wasQuickTap) {
             // If selection was activated and we have a selection rect, finalize it
             if (selectingRef.current.isSelecting && selectionRect) {
               const newSelection = buildSelectionFromRect(elements, selectionRect);
@@ -513,8 +713,10 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
             }
           }
           
-          // Clear the gesture state in all modes
-          clearTouchGesture();
+          // Clear the gesture state if not already cleared
+          if (!wasQuickTap) {
+            clearTouchGesture();
+          }
           
           if (mode === 'arc' && arcStart) {
             // If touch ends during arc creation, check if it ended on an element

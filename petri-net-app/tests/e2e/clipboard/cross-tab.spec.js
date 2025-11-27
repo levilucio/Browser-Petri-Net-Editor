@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, getPetriNetState, clickStage } from '../../helpers.js';
+import { waitForAppReady, getPetriNetState, clickStage, getVisibleToolbarButton } from '../../helpers.js';
 
 test.describe('Clipboard - Cross-tab shared clipboard', () => {
   test('copy in tab A, paste in tab B (same origin); APN mismatch blocks paste', async ({ browser }) => {
@@ -15,15 +15,18 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     await waitForAppReady(pageB);
 
     // Tab A: Create a place, transition, and arc through the UI
-    await pageA.getByTestId('toolbar-place').click();
+    const placeButtonA = await getVisibleToolbarButton(pageA, 'toolbar-place');
+    await placeButtonA.click();
     await clickStage(pageA, { x: 100, y: 100 });
     await pageA.waitForTimeout(300);
 
-    await pageA.getByTestId('toolbar-transition').click();
+    const transitionButtonA = await getVisibleToolbarButton(pageA, 'toolbar-transition');
+    await transitionButtonA.click();
     await clickStage(pageA, { x: 200, y: 100 });
     await pageA.waitForTimeout(300);
 
-    await pageA.getByTestId('toolbar-arc').click();
+    const arcButtonA = await getVisibleToolbarButton(pageA, 'toolbar-arc');
+    await arcButtonA.click();
     await clickStage(pageA, { x: 100, y: 100 }); // from place
     await clickStage(pageA, { x: 200, y: 100 }); // to transition
     await pageA.waitForTimeout(300);
@@ -35,7 +38,8 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     expect(stateA.arcs.length).toBe(1);
 
     // Select all elements manually (Ctrl+A not implemented)
-    await pageA.getByTestId('toolbar-select').click();
+    const selectButtonA = await getVisibleToolbarButton(pageA, 'toolbar-select');
+    await selectButtonA.click();
     await pageA.waitForTimeout(300);
     
     const isMac = await pageA.evaluate(() => navigator.platform.toUpperCase().includes('MAC'));
@@ -86,7 +90,8 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
 
     // Paste on B (PT mode)
     await pageB.bringToFront();
-    await pageB.getByTestId('toolbar-select').click();
+    const selectButtonB = await getVisibleToolbarButton(pageB, 'toolbar-select');
+    await selectButtonB.click();
     await clickStage(pageB, { x: 200, y: 220 });
     const attemptPaste = async () => {
       if (isMac) {
@@ -109,7 +114,20 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     const pageC = await context.newPage();
     await pageC.goto('/');
     await waitForAppReady(pageC);
-    await pageC.getByTestId('toolbar-settings').click();
+    
+    // On mobile, settings is in the menu drawer, so we need to open it first
+    const isMobile = await pageC.evaluate(() => window.matchMedia('(pointer: coarse)').matches);
+    if (isMobile) {
+      // Open the mobile menu
+      const menuButton = pageC.getByRole('button', { name: /Menu/i }).or(pageC.locator('button:has-text("Menu")'));
+      await menuButton.waitFor({ state: 'visible' });
+      await menuButton.click();
+      await pageC.waitForTimeout(300); // Wait for drawer animation
+    }
+    
+    // Get the visible settings button (there may be two - one for desktop, one for mobile)
+    const settingsButton = await getVisibleToolbarButton(pageC, 'toolbar-settings');
+    await settingsButton.click();
     const apnRadio = pageC.locator('input[type="radio"][name="netMode"][value="algebraic-int"]');
     await apnRadio.check();
     await pageC.getByTestId('settings-save').click();

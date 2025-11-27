@@ -3,10 +3,16 @@
 /**
  * Wait until the application UI is ready for interaction.
  * Ensures toolbar and Konva stage are visible.
+ * On desktop, waits for toolbar-place in the toolbar.
+ * On mobile, waits for toolbar-place in FloatingEditorControls.
  * @param {import('@playwright/test').Page} page
  */
 export async function waitForAppReady(page) {
-	await page.waitForSelector('[data-testid="toolbar-place"]', { state: 'visible' });
+	// Wait for toolbar-place button to be visible
+	// There may be 2 (desktop and mobile), so we use the helper to get the visible one
+	const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+	await placeButton.waitFor({ state: 'visible' });
+	
 	// Prefer Konva content; fall back to stage container if needed
 	try {
 		await page.waitForSelector('.konvajs-content', { state: 'visible' });
@@ -45,6 +51,32 @@ export async function waitForState(page, predicate, options) {
 		await page.waitForTimeout(interval);
 	}
 	throw new Error('State condition not met within timeout');
+}
+
+/**
+ * Get a visible toolbar button by test ID.
+ * Handles cases where there may be multiple buttons (desktop and mobile).
+ * @param {import('@playwright/test').Page} page
+ * @param {string} testId
+ * @returns {Promise<import('@playwright/test').Locator>}
+ */
+export async function getVisibleToolbarButton(page, testId) {
+	const buttons = page.locator(`[data-testid="${testId}"]`);
+	const count = await buttons.count();
+	
+	// Try to find a visible one
+	for (let i = 0; i < count; i++) {
+		const button = buttons.nth(i);
+		const isVisible = await button.isVisible().catch(() => false);
+		if (isVisible) {
+			return button;
+		}
+	}
+	
+	// Fallback: return first and wait for it to be visible
+	const button = buttons.first();
+	await button.waitFor({ state: 'visible' });
+	return button;
 }
 
 /**

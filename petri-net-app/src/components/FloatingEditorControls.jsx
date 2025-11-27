@@ -50,6 +50,7 @@ const FloatingEditorControls = () => {
         style={getButtonStyle(mode === 'arc')}
         onClick={() => setMode('arc')}
         title="Arc Tool"
+        data-testid="toolbar-arc"
         className="active:scale-95"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -62,6 +63,7 @@ const FloatingEditorControls = () => {
         style={getButtonStyle(mode === 'transition')}
         onClick={() => setMode('transition')}
         title="Transition Tool"
+        data-testid="toolbar-transition"
         className="active:scale-95"
       >
         <div style={{ width: '11px', height: '26px', backgroundColor: 'currentColor' }} />
@@ -72,6 +74,7 @@ const FloatingEditorControls = () => {
         style={getButtonStyle(mode === 'place')}
         onClick={() => setMode('place')}
         title="Place Tool"
+        data-testid="toolbar-place"
         className="active:scale-95"
       >
         <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid currentColor', backgroundColor: 'transparent' }} />
@@ -82,6 +85,7 @@ const FloatingEditorControls = () => {
         style={getButtonStyle(mode === 'select')}
         onClick={() => setMode('select')}
         title="Select Tool"
+        data-testid="toolbar-select"
         className="active:scale-95"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

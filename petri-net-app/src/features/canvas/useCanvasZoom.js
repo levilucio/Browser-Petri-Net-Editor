@@ -40,6 +40,11 @@ export function useCanvasZoom({
   const [isSingleFingerPanningActive, setIsSingleFingerPanningActive] = useState(false);
   const singleFingerPanRef = useRef(createSingleFingerPanState());
   const zoomLevelRef = useRef(zoomLevel);
+  
+  // Inertia/momentum scrolling state
+  const inertiaAnimationRef = useRef(null);
+  const velocityHistoryRef = useRef([]); // Array of {x, y, time} for velocity calculation
+  const MAX_VELOCITY_HISTORY = 5; // Keep last 5 samples for velocity calculation
 
   useEffect(() => {
     zoomLevelRef.current = zoomLevel;
@@ -129,6 +134,80 @@ export function useCanvasZoom({
     [setCanvasScroll, virtualCanvasDimensions]
   );
 
+  // Calculate velocity from recent history
+  const calculateVelocity = useCallback(() => {
+    const history = velocityHistoryRef.current;
+    if (history.length < 2) {
+      return { vx: 0, vy: 0 };
+    }
+
+    // Use the last two samples for velocity calculation
+    const recent = history.slice(-2);
+    const [first, second] = recent;
+    const dt = second.time - first.time;
+    
+    if (dt <= 0) {
+      return { vx: 0, vy: 0 };
+    }
+
+    // Velocity in pixels per millisecond
+    const vx = (second.x - first.x) / dt;
+    const vy = (second.y - first.y) / dt;
+
+    return { vx, vy };
+  }, []);
+
+  // Start inertia animation with deceleration
+  const startInertiaAnimation = useCallback((initialVx, initialVy) => {
+    // Cancel any existing animation
+    if (inertiaAnimationRef.current) {
+      cancelAnimationFrame(inertiaAnimationRef.current);
+    }
+
+    const DECELERATION = 0.95; // Deceleration factor per frame (0.95 = 5% reduction per frame)
+    const MIN_VELOCITY = 0.01; // Stop when velocity is below this threshold
+    const FRAME_TIME = 16; // Approximate frame time in ms (60fps)
+
+    let vx = initialVx;
+    let vy = initialVy;
+    let lastTime = performance.now();
+
+    const animate = (currentTime) => {
+      const deltaTime = currentTime - lastTime;
+      lastTime = currentTime;
+
+      // Apply deceleration
+      vx *= Math.pow(DECELERATION, deltaTime / FRAME_TIME);
+      vy *= Math.pow(DECELERATION, deltaTime / FRAME_TIME);
+
+      // Check if we should stop
+      const speed = Math.hypot(vx, vy);
+      if (speed < MIN_VELOCITY) {
+        inertiaAnimationRef.current = null;
+        return;
+      }
+
+      // Apply pan delta based on velocity
+      const deltaX = vx * deltaTime;
+      const deltaY = vy * deltaTime;
+      applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
+
+      // Continue animation
+      inertiaAnimationRef.current = requestAnimationFrame(animate);
+    };
+
+    inertiaAnimationRef.current = requestAnimationFrame(animate);
+  }, [applyPanDelta]);
+
+  // Stop inertia animation
+  const stopInertiaAnimation = useCallback(() => {
+    if (inertiaAnimationRef.current) {
+      cancelAnimationFrame(inertiaAnimationRef.current);
+      inertiaAnimationRef.current = null;
+    }
+    velocityHistoryRef.current = [];
+  }, []);
+
   const applyZoom = useCallback(
     (computeNextZoom, focalPoint) => {
       setZoomLevel((prevZoom) => {
@@ -212,6 +291,9 @@ export function useCanvasZoom({
     };
 
     const handleTouchStart = (event) => {
+      // Stop any ongoing inertia animation
+      stopInertiaAnimation();
+
       if (event.touches.length === 2) {
         clearSingleFingerPan();
 
@@ -231,6 +313,8 @@ export function useCanvasZoom({
           lastX: center.clientX,
           lastY: center.clientY,
         };
+        // Reset velocity history
+        velocityHistoryRef.current = [];
         return;
       }
 
@@ -249,6 +333,8 @@ export function useCanvasZoom({
           lastX: touch.clientX,
           lastY: touch.clientY,
         };
+        // Reset velocity history
+        velocityHistoryRef.current = [];
         return;
       }
 
@@ -256,6 +342,7 @@ export function useCanvasZoom({
       clearSingleFingerPan();
       pinchStateRef.current = { active: false };
       panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+      velocityHistoryRef.current = [];
     };
 
     const handleTouchMove = (event) => {
@@ -309,6 +396,18 @@ export function useCanvasZoom({
             event.preventDefault();
             event.stopPropagation();
             applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
+            
+            // Track velocity for inertia
+            const now = performance.now();
+            velocityHistoryRef.current.push({
+              x: center.clientX,
+              y: center.clientY,
+              time: now
+            });
+            // Keep only recent history
+            if (velocityHistoryRef.current.length > MAX_VELOCITY_HISTORY) {
+              velocityHistoryRef.current.shift();
+            }
           }
 
           panStateRef.current = {
@@ -342,6 +441,18 @@ export function useCanvasZoom({
           event.preventDefault();
           event.stopPropagation();
           applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
+          
+          // Track velocity for inertia
+          const now = performance.now();
+          velocityHistoryRef.current.push({
+            x: touch.clientX,
+            y: touch.clientY,
+            time: now
+          });
+          // Keep only recent history
+          if (velocityHistoryRef.current.length > MAX_VELOCITY_HISTORY) {
+            velocityHistoryRef.current.shift();
+          }
         }
         
         // Always track position for when panning activates
@@ -356,9 +467,22 @@ export function useCanvasZoom({
     };
 
     const handleTouchEnd = () => {
+      // Check if we should start inertia animation
+      const panWasActive = panStateRef.current.active || singleFingerPanRef.current.active;
+      if (panWasActive && velocityHistoryRef.current.length >= 2) {
+        const velocity = calculateVelocity();
+        const speed = Math.hypot(velocity.vx, velocity.vy);
+        
+        // Only start inertia if velocity is significant (threshold: 0.1 px/ms)
+        if (speed > 0.1) {
+          startInertiaAnimation(velocity.vx, velocity.vy);
+        }
+      }
+
       clearSingleFingerPan();
       pinchStateRef.current = { active: false };
       panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+      // Don't clear velocity history immediately - let inertia use it
     };
 
     container.addEventListener('touchstart', handleTouchStart, { passive: false });
@@ -371,8 +495,10 @@ export function useCanvasZoom({
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', handleTouchEnd);
       container.removeEventListener('touchcancel', handleTouchEnd);
+      // Clean up inertia animation on unmount
+      stopInertiaAnimation();
     };
-  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef, containerEl]);
+  }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef, containerEl, calculateVelocity, startInertiaAnimation, stopInertiaAnimation]);
 
   // Function to activate single-finger panning from CanvasManager
   const activateSingleFingerPan = useCallback(() => {
