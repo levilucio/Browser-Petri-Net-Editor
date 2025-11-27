@@ -78,6 +78,9 @@ test.describe('Batch run completion dialog', () => {
     const dialog = page.locator('.bg-white.rounded-lg.shadow-xl.p-6');
     await dialog.waitFor({ state: 'visible', timeout: 10000 });
     
+    // Wait for stats to be populated (wait for "Transitions Fired:" text to appear)
+    await page.getByText(/Transitions Fired:/).waitFor({ state: 'visible', timeout: 10000 });
+    
     const dialogText = await dialog.innerText();
     
     // Extract transitions fired
@@ -131,6 +134,9 @@ test.describe('Batch run completion dialog', () => {
     // Find the completion dialog and extract stats
     const dialog = page.locator('.bg-white.rounded-lg.shadow-xl.p-6');
     await dialog.waitFor({ state: 'visible', timeout: 10000 });
+    
+    // Wait for stats to be populated (wait for "Transitions Fired:" text to appear)
+    await page.getByText(/Transitions Fired:/).waitFor({ state: 'visible', timeout: 10000 });
     
     const dialogText = await dialog.innerText();
     

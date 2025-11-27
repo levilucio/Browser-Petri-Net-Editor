@@ -142,17 +142,21 @@ export function useCanvasZoom({
     }
 
     // Use the last two samples for velocity calculation
-    const recent = history.slice(-2);
-    const [first, second] = recent;
-    const dt = second.time - first.time;
+    // If we have more samples, use a weighted average for better accuracy
+    const recent = history.slice(-Math.min(history.length, 3));
+    const [first, ...rest] = recent;
+    const last = recent[recent.length - 1];
     
-    if (dt <= 0) {
+    // Calculate velocity from first to last sample
+    const dt = last.time - first.time;
+    
+    if (dt <= 0 || dt > 500) { // Ignore if time difference is too large (stale data)
       return { vx: 0, vy: 0 };
     }
 
     // Velocity in pixels per millisecond
-    const vx = (second.x - first.x) / dt;
-    const vy = (second.y - first.y) / dt;
+    const vx = (last.x - first.x) / dt;
+    const vy = (last.y - first.y) / dt;
 
     return { vx, vy };
   }, []);
@@ -286,6 +290,7 @@ export function useCanvasZoom({
     };
 
     const clearSingleFingerPan = () => {
+      // Don't clear velocity history here - let inertia use it
       singleFingerPanRef.current = createSingleFingerPanState();
       setIsSingleFingerPanningActive(false);
     };
@@ -423,6 +428,7 @@ export function useCanvasZoom({
         const selectionActive = isSelectionActiveRef?.current || false;
         if (isDragging || selectionActive) {
           clearSingleFingerPan();
+          velocityHistoryRef.current = []; // Clear velocity to prevent stale inertia
           return;
         }
 
@@ -441,8 +447,11 @@ export function useCanvasZoom({
           event.preventDefault();
           event.stopPropagation();
           applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
-          
-          // Track velocity for inertia
+        }
+        
+        // Track velocity for inertia whenever we have movement (even before pan activates)
+        // This ensures we capture velocity even during the activation delay
+        if (singlePan.touchId !== null && (singlePan.lastX !== 0 || singlePan.lastY !== 0)) {
           const now = performance.now();
           velocityHistoryRef.current.push({
             x: touch.clientX,
@@ -466,29 +475,59 @@ export function useCanvasZoom({
       panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
     };
 
-    const handleTouchEnd = () => {
+    const handleTouchEnd = (event) => {
       // Check if we should start inertia animation
       const panWasActive = panStateRef.current.active || singleFingerPanRef.current.active;
-      if (panWasActive && velocityHistoryRef.current.length >= 2) {
-        const velocity = calculateVelocity();
+      
+      // Calculate velocity before clearing state
+      // Also check if we have velocity history even if pan wasn't marked active
+      // (this can happen if pan was just starting or if state check fails)
+      let velocity = { vx: 0, vy: 0 };
+      const hasVelocityHistory = velocityHistoryRef.current.length >= 2;
+      
+      if (hasVelocityHistory) {
+        velocity = calculateVelocity();
         const speed = Math.hypot(velocity.vx, velocity.vy);
         
-        // Only start inertia if velocity is significant (threshold: 0.1 px/ms)
-        if (speed > 0.1) {
+        console.log('[Inertia] Touch end:', { 
+          panWasActive, 
+          historyLength: velocityHistoryRef.current.length,
+          velocity: { vx: velocity.vx, vy: velocity.vy },
+          speed,
+          panStateActive: panStateRef.current.active,
+          singlePanActive: singleFingerPanRef.current.active
+        });
+        
+        // Lower threshold to 0.05 px/ms to catch slower gestures
+        // 0.05 px/ms = 50 px/s, which is reasonable for a pan gesture
+        // Also start inertia if we have significant velocity even if pan wasn't marked active
+        // (this handles edge cases where pan state might not be set correctly)
+        if (speed > 0.05 && (panWasActive || speed > 0.2)) {
+          console.log('[Inertia] Starting animation with velocity:', { vx: velocity.vx, vy: velocity.vy, speed });
           startInertiaAnimation(velocity.vx, velocity.vy);
+        } else {
+          console.log('[Inertia] Speed too low, not starting:', speed);
         }
+      } else {
+        console.log('[Inertia] Not starting:', { panWasActive, historyLength: velocityHistoryRef.current.length });
       }
 
       clearSingleFingerPan();
       pinchStateRef.current = { active: false };
       panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
       // Don't clear velocity history immediately - let inertia use it
+      // Clear it after a delay to allow inertia to start
+      setTimeout(() => {
+        if (!inertiaAnimationRef.current) {
+          velocityHistoryRef.current = [];
+        }
+      }, 100);
     };
 
     container.addEventListener('touchstart', handleTouchStart, { passive: false });
     container.addEventListener('touchmove', handleTouchMove, { passive: false });
-    container.addEventListener('touchend', handleTouchEnd, { passive: true });
-    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: false });
+    container.addEventListener('touchcancel', handleTouchEnd, { passive: false });
 
     return () => {
       container.removeEventListener('touchstart', handleTouchStart);
@@ -499,6 +538,17 @@ export function useCanvasZoom({
       stopInertiaAnimation();
     };
   }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef, containerEl, calculateVelocity, startInertiaAnimation, stopInertiaAnimation]);
+
+  // Stop inertia and clear pan state when dragging starts (element was selected during pan)
+  // This prevents crashes from stale state when transitioning from pan to element drag
+  useEffect(() => {
+    if (isDragging) {
+      stopInertiaAnimation();
+      velocityHistoryRef.current = [];
+      singleFingerPanRef.current = createSingleFingerPanState();
+      setIsSingleFingerPanningActive(false);
+    }
+  }, [isDragging, stopInertiaAnimation]);
 
   // Function to activate single-finger panning from CanvasManager
   const activateSingleFingerPan = useCallback(() => {

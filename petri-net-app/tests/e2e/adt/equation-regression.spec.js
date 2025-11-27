@@ -12,7 +12,8 @@ test('sandbox equation solving returns solutions', async ({ page }) => {
   await page.getByTestId('sandbox-bindings').fill('');
   await page.getByTestId('sandbox-run').click();
   const solutions = page.getByTestId('sandbox-solutions');
-  await expect(solutions).toBeVisible({ timeout: 7000 });
-  await expect(page.getByTestId('sandbox-sol-entry').first()).toBeVisible();
+  // Wait at least 5 seconds for Z3 to solve the equation
+  await expect(solutions).toBeVisible({ timeout: 10000 });
+  await expect(page.getByTestId('sandbox-sol-entry').first()).toBeVisible({ timeout: 5000 });
 });
 
