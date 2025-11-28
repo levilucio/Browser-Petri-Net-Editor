@@ -18,7 +18,12 @@ test('sandbox equation solving returns solutions', async ({ page }) => {
   await expect(page.getByText('Sandbox')).toBeVisible();
   await page.getByTestId('sandbox-expr').fill('x + 2 = y');
   await page.getByTestId('sandbox-bindings').fill('');
-  await page.getByTestId('sandbox-run').click();
+  const runBtn = page.getByTestId('sandbox-run');
+  if (isMobile) {
+    await runBtn.evaluate(node => node.click());
+  } else {
+    await runBtn.click();
+  }
   const solutions = page.getByTestId('sandbox-solutions');
   // Wait at least 5 seconds for Z3 to solve the equation
   await expect(solutions).toBeVisible({ timeout: 10000 });

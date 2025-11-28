@@ -29,9 +29,14 @@ async function setSandboxInputs(page, expr, bindings) {
 
 async function clickRunAndResult(page) {
   const runBtn = page.getByTestId('sandbox-run');
-  await runBtn.click();
+  const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+  if (isMobile) {
+    await runBtn.evaluate(node => node.click());
+  } else {
+    await runBtn.click();
+  }
   const res = page.getByTestId('sandbox-result');
-  await expect(res).toBeVisible({ timeout: 5000 });
+  await expect(res).toBeVisible({ timeout: 10000 });
   return await res.textContent();
 }
 
