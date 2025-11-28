@@ -208,6 +208,14 @@ const Place = ({
       y: e.target.y(),
     };
     
+    // Flush any pending multi-drag updates FIRST (uses multiDragRef data)
+    // This ensures all selected elements are updated before we clear the ref
+    flushMultiDragUpdate();
+    
+    // IMPORTANT: Clear multiDragRef AFTER flush but BEFORE state updates
+    // This prevents any lingering RAF callbacks from using stale data
+    multiDragRef.current = null;
+    
     // Set dragging state to false when drag ends
     setIsDragging(false);
     
@@ -217,13 +225,9 @@ const Place = ({
       position: null,
       elementType: null
     });
-    
-    // Flush any pending multi-drag updates before finalizing
-    flushMultiDragUpdate();
 
     // The onChange handler (from useElementManager) expects the new virtual position
     onChange(newVirtualPos);
-    multiDragRef.current = null;
   };
 
   const renderTokens = () => {

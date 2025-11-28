@@ -66,15 +66,32 @@ async function waitForCompletionDialog(page, timeout = 180000) {
   // Use a more lenient check that allows for partial matches
   try {
     await page.waitForFunction(() => {
-      const bodyText = document.body.innerText || document.body.textContent || '';
-      return bodyText.includes('Simulation Complete') && bodyText.includes('Transitions Fired:');
+      try {
+        const bodyText = document.body.innerText || document.body.textContent || '';
+        return bodyText.includes('Simulation Complete') && bodyText.includes('Transitions Fired:');
+      } catch {
+        // Page might be closing/crashed
+        return false;
+      }
     }, { timeout: isMobile ? timeout : 30000 }); // Longer timeout for mobile
   } catch (error) {
-    // Debug: log what's actually in the page
-    const bodyText = await page.evaluate(() => document.body.innerText || document.body.textContent || '');
-    const hasComplete = bodyText.includes('Simulation Complete');
-    const hasTransitions = bodyText.includes('Transitions Fired:');
-    throw new Error(`Completion dialog text not found after ${timeout}ms. Has 'Simulation Complete': ${hasComplete}, Has 'Transitions Fired:': ${hasTransitions}. Page text snippet: ${bodyText.substring(0, 1000)}`);
+    // Check if page is still alive before trying to evaluate
+    try {
+      // Debug: log what's actually in the page
+      const bodyText = await page.evaluate(() => {
+        try {
+          return document.body.innerText || document.body.textContent || '';
+        } catch {
+          return '[Page closed or crashed]';
+        }
+      });
+      const hasComplete = bodyText.includes('Simulation Complete');
+      const hasTransitions = bodyText.includes('Transitions Fired:');
+      throw new Error(`Completion dialog text not found after ${timeout}ms. Has 'Simulation Complete': ${hasComplete}, Has 'Transitions Fired:': ${hasTransitions}. Page text snippet: ${bodyText.substring(0, 1000)}`);
+    } catch (evalError) {
+      // Page was closed/crashed during evaluation
+      throw new Error(`Page closed or crashed while waiting for completion dialog after ${timeout}ms. This may indicate the simulation timed out or the browser ran out of resources.`);
+    }
   }
   
   // Step 3: Try to find and access the dialog (with fallback if visibility check fails)
@@ -292,19 +309,36 @@ test.describe('Batch run completion dialog', () => {
     expect(transitions).toBe(3240);
 
     // Extract duration - be more flexible with regex to handle different text formats
-    let durationMatch = /Duration:\s*([^\n\r]+?)(?:\n|$)/i.exec(dialogText);
+    // On mobile, text might be concatenated like "Duration:9sTransitions" without spaces/newlines
+    // We need to match just the duration value (e.g., "9s", "5s", "1m 2s", "35000ms")
+    // and stop before the next word (Transitions, OK, etc.)
+    
+    // First try: match duration after "Duration:" with lookahead to stop at capital letter or "OK"
+    let durationMatch = /Duration:\s*([0-9]+(?:m\s*)?[0-9]*s|[0-9]+ms)(?=[A-Z]|OK|$|\n)/i.exec(dialogText);
     if (!durationMatch) {
-      // Try without the colon and newline
-      durationMatch = /Duration\s+([0-9]+(?:m\s*)?[0-9]*s|[0-9]+ms)/i.exec(dialogText);
+      // Second try: match duration after "Duration:" (without lookahead, but capture only the pattern)
+      durationMatch = /Duration:\s*([0-9]+(?:m\s*)?[0-9]*s|[0-9]+ms)/i.exec(dialogText);
+    }
+    if (!durationMatch) {
+      // Third try: match duration with optional colon/space
+      durationMatch = /Duration[:\s]+([0-9]+(?:m\s*)?[0-9]*s|[0-9]+ms)/i.exec(dialogText);
     }
     let durationText = durationMatch ? durationMatch[1].trim() : '';
+    
+    // Clean up: if we accidentally captured extra text, extract just the duration part
+    if (durationText && !/^([0-9]+(?:m\s*)?[0-9]*s|[0-9]+ms)$/.test(durationText)) {
+      // Extract just the duration pattern from what we captured
+      const cleanedMatch = /^([0-9]+(?:m\s*)?[0-9]*s|[0-9]+ms)/.exec(durationText);
+      durationText = cleanedMatch ? cleanedMatch[1].trim() : durationText;
+    }
     
     // If still no match, try to find any duration-like text after "Duration"
     if (!durationText) {
       const durationIndex = dialogText.toLowerCase().indexOf('duration');
       if (durationIndex >= 0) {
         const afterDuration = dialogText.substring(durationIndex + 8).trim();
-        const durationLikeMatch = /([0-9]+(?:m\s*)?[0-9]*s|[0-9]+ms)/.exec(afterDuration);
+        // Match duration pattern, stopping at next capital letter
+        const durationLikeMatch = /^([0-9]+(?:m\s*)?[0-9]*s|[0-9]+ms)/.exec(afterDuration);
         durationText = durationLikeMatch ? durationLikeMatch[1].trim() : '';
       }
     }

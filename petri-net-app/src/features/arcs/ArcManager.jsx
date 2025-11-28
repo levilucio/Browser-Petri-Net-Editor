@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Layer, Arrow, Line, Circle, Group, Text } from 'react-konva';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import { useElementManager } from '../elements/useElementManager';
@@ -34,7 +34,6 @@ const ArcManager = () => {
     gridSnappingEnabled,
     snapToGrid,
     simulationSettings,
-    isDragging,
   } = usePetriNet();
   const netMode = simulationSettings?.netMode || 'pt';
 
@@ -144,48 +143,35 @@ const ArcManager = () => {
     return fallbackPoints;
   };
 
-  // Memoize arc calculations to prevent excessive recalculations
-  // This is especially important on touch devices where drag events fire frequently
-  // During drag, RAF updates cause frequent state changes, but we can optimize by
-  // memoizing the arc calculations based on the actual element positions
-  const arcRenderData = useMemo(() => {
-    if (!elements?.arcs) return [];
-    
-    return elements.arcs.map(arc => {
-      if (!arc || !arc.source || !arc.target) return null;
-      
-      const source = getElementById(arc.source);
-      const target = getElementById(arc.target);
-
-      if (!source || !target) return null;
-
-      const virtualPoints = getAdjustedPoints(
-        { ...source, type: getArcSourceType(arc) },
-        { ...target, type: getArcTargetType(arc) },
-        Array.isArray(arc.anglePoints) ? arc.anglePoints : []
-      );
-
-      return {
-        arc,
-        source,
-        target,
-        virtualPoints,
-      };
-    }).filter(Boolean);
-  }, [
-    // Depend on the actual element data - React will handle the comparison
-    // This allows updates during drag while still providing memoization benefits
-    elements,
-  ]);
-
   return [
     <Layer key="arcs-layer">
           {/* Render existing arcs */}
-          {arcRenderData.map(({ arc, source, target, virtualPoints }) => {
+          {elements?.arcs?.map(arc => {
+            if (!arc || !arc.source || !arc.target) return null;
+            
+            const source = getElementById(arc.source);
+            const target = getElementById(arc.target);
+
+            if (!source || !target) return null;
+
+        const virtualPoints = getAdjustedPoints(
+          { ...source, type: getArcSourceType(arc) },
+          { ...target, type: getArcTargetType(arc) },
+          Array.isArray(arc.anglePoints) ? arc.anglePoints : []
+        );
+
+        // Additional guard: ensure virtualPoints is valid before proceeding
+        if (!virtualPoints || virtualPoints.length < 4) return null;
+        
+        // Guard: ensure all virtualPoints are finite numbers
+        if (!virtualPoints.every(v => Number.isFinite(v))) return null;
 
         // Midpoint of the arc to position labels
         const midX = (virtualPoints[0] + virtualPoints[virtualPoints.length - 2]) / 2;
         const midY = (virtualPoints[1] + virtualPoints[virtualPoints.length - 1]) / 2;
+        
+        // Guard: ensure midpoint is valid
+        if (!Number.isFinite(midX) || !Number.isFinite(midY)) return null;
         const weightOffset = 8; // closer to the arc
         const labelOffset = 14; // vertical offset from the arc (opposite side)
 
