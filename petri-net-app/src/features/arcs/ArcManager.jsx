@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Layer, Arrow, Line, Circle, Group, Text } from 'react-konva';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import { useElementManager } from '../elements/useElementManager';
@@ -34,6 +34,7 @@ const ArcManager = () => {
     gridSnappingEnabled,
     snapToGrid,
     simulationSettings,
+    isDragging,
   } = usePetriNet();
   const netMode = simulationSettings?.netMode || 'pt';
 
@@ -143,22 +144,44 @@ const ArcManager = () => {
     return fallbackPoints;
   };
 
+  // Memoize arc calculations to prevent excessive recalculations
+  // This is especially important on touch devices where drag events fire frequently
+  // During drag, RAF updates cause frequent state changes, but we can optimize by
+  // memoizing the arc calculations based on the actual element positions
+  const arcRenderData = useMemo(() => {
+    if (!elements?.arcs) return [];
+    
+    return elements.arcs.map(arc => {
+      if (!arc || !arc.source || !arc.target) return null;
+      
+      const source = getElementById(arc.source);
+      const target = getElementById(arc.target);
+
+      if (!source || !target) return null;
+
+      const virtualPoints = getAdjustedPoints(
+        { ...source, type: getArcSourceType(arc) },
+        { ...target, type: getArcTargetType(arc) },
+        Array.isArray(arc.anglePoints) ? arc.anglePoints : []
+      );
+
+      return {
+        arc,
+        source,
+        target,
+        virtualPoints,
+      };
+    }).filter(Boolean);
+  }, [
+    // Depend on the actual element data - React will handle the comparison
+    // This allows updates during drag while still providing memoization benefits
+    elements,
+  ]);
+
   return [
     <Layer key="arcs-layer">
           {/* Render existing arcs */}
-          {elements?.arcs?.map(arc => {
-            if (!arc || !arc.source || !arc.target) return null;
-            
-            const source = getElementById(arc.source);
-            const target = getElementById(arc.target);
-
-            if (!source || !target) return null;
-
-        const virtualPoints = getAdjustedPoints(
-          { ...source, type: getArcSourceType(arc) },
-          { ...target, type: getArcTargetType(arc) },
-          Array.isArray(arc.anglePoints) ? arc.anglePoints : []
-        );
+          {arcRenderData.map(({ arc, source, target, virtualPoints }) => {
 
         // Midpoint of the arc to position labels
         const midX = (virtualPoints[0] + virtualPoints[virtualPoints.length - 2]) / 2;
@@ -183,46 +206,46 @@ const ArcManager = () => {
         const weightMetrics = measureText(weightText, weightFontSize, { padding: 4, maxWidth: 80 });
         const bindingMetrics = measureText(bindingText, bindingFontSize, { padding: 6, maxWidth: 240 });
 
-        const startX = virtualPoints[0];
-        const startY = virtualPoints[1];
-        const endX = virtualPoints[virtualPoints.length - 2];
-        const endY = virtualPoints[virtualPoints.length - 1];
+            const startX = virtualPoints[0];
+            const startY = virtualPoints[1];
+            const endX = virtualPoints[virtualPoints.length - 2];
+            const endY = virtualPoints[virtualPoints.length - 1];
 
-        const dirX = endX - startX;
-        const dirY = endY - startY;
-        const dirLength = Math.hypot(dirX, dirY);
-        let normalX = 0;
-        let normalY = -1;
-        if (dirLength > 1e-3) {
-          normalX = -dirY / dirLength;
-          normalY = dirX / dirLength;
-        }
+            const dirX = endX - startX;
+            const dirY = endY - startY;
+            const dirLength = Math.hypot(dirX, dirY);
+            let normalX = 0;
+            let normalY = -1;
+            if (dirLength > 1e-3) {
+              normalX = -dirY / dirLength;
+              normalY = dirX / dirLength;
+            }
 
-        const weightBase = 6;
-        const labelBase = 9;
-        const bindingGap = 8;
-        const bindingScale = 0.66;
+            const weightBase = 6;
+            const labelBase = 9;
+            const bindingGap = 8;
+            const bindingScale = 0.66;
 
-        const normalXAbs = Math.abs(normalX);
-        const normalYAbs = Math.abs(normalY);
+            const normalXAbs = Math.abs(normalX);
+            const normalYAbs = Math.abs(normalY);
 
-        const computeClearance = (width, fontSize, margin = 4) =>
-          (width / 2) * normalXAbs + (fontSize / 2) * normalYAbs + margin;
+            const computeClearance = (width, fontSize, margin = 4) =>
+              (width / 2) * normalXAbs + (fontSize / 2) * normalYAbs + margin;
 
-        const weightWidth = computeTextWidth(weightMetrics, weightFontSize);
-        const labelWidth = computeTextWidth(labelMetrics, labelFontSize);
-        const bindingWidth = computeTextWidth(bindingMetrics, bindingFontSize);
+            const weightWidth = computeTextWidth(weightMetrics, weightFontSize);
+            const labelWidth = computeTextWidth(labelMetrics, labelFontSize);
+            const bindingWidth = computeTextWidth(bindingMetrics, bindingFontSize);
 
-        const weightDistance = Math.max(weightBase, computeClearance(weightWidth, weightFontSize));
-        const labelDistance = Math.max(labelBase, computeClearance(labelWidth, labelFontSize));
-        const bindingDistance = Math.max(labelDistance + bindingGap, computeClearance(bindingWidth, bindingFontSize, 6) * bindingScale);
+            const weightDistance = Math.max(weightBase, computeClearance(weightWidth, weightFontSize));
+            const labelDistance = Math.max(labelBase, computeClearance(labelWidth, labelFontSize));
+            const bindingDistance = Math.max(labelDistance + bindingGap, computeClearance(bindingWidth, bindingFontSize, 6) * bindingScale);
 
-        const weightAnchorX = midX - normalX * weightDistance;
-        const weightAnchorY = midY - normalY * weightDistance;
-        const labelAnchorX = midX + normalX * labelDistance;
-        const labelAnchorY = midY + normalY * labelDistance;
-        const bindingAnchorX = midX + normalX * bindingDistance;
-        const bindingAnchorY = midY + normalY * bindingDistance;
+            const weightAnchorX = midX - normalX * weightDistance;
+            const weightAnchorY = midY - normalY * weightDistance;
+            const labelAnchorX = midX + normalX * labelDistance;
+            const labelAnchorY = midY + normalY * labelDistance;
+            const bindingAnchorX = midX + normalX * bindingDistance;
+            const bindingAnchorY = midY + normalY * bindingDistance;
 
         if (
           !isFiniteNumber(weightAnchorX) || !isFiniteNumber(weightAnchorY) ||
