@@ -72,7 +72,6 @@ export const PetriNetProvider = ({ children }) => {
   const [isDragging, setIsDragging] = useState(false);
   const prevModeRef = useRef(mode);
   const multiDragRef = useRef(null); // holds { baseId, startPositions: Map(id -> { type, x, y }) }
-  const dragCooldownRef = useRef(0); // Global timestamp of last drag end for cooldown enforcement
   const clipboardRef = useRef(null); // holds last copied selection payload
   const instanceIdRef = useRef(uuidv4());
   const isShiftPressedRef = useRef(false);
@@ -348,7 +347,6 @@ export const PetriNetProvider = ({ children }) => {
       selectedElements, setSelectedElements,
       isIdSelected, clearSelection, setSelection,
       multiDragRef,
-      dragCooldownRef, // Global cooldown timestamp for preventing rapid successive drags
       clipboardRef,
       setClipboard: setSharedClipboard,
       getClipboard: getSharedClipboard,

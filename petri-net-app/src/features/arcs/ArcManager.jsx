@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Layer, Arrow, Line, Circle, Group, Text } from 'react-konva';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import { useElementManager } from '../elements/useElementManager';
@@ -44,9 +44,18 @@ const ArcManager = () => {
     handleDeleteAnglePoint,
   } = useArcManager();
 
+  // OPTIMIZATION: Build lookup maps once per render instead of O(n) search per arc
+  // For large nets (1000+ elements), this reduces element lookup from O(n) to O(1)
+  const elementById = useMemo(() => {
+    const map = new Map();
+    (elements.places || []).forEach(p => map.set(p.id, p));
+    (elements.transitions || []).forEach(t => map.set(t.id, t));
+    return map;
+  }, [elements.places, elements.transitions]);
+
   const getElementById = (id) => {
     if (!id || typeof id !== 'string') return null;
-    return elements.places.find(p => p.id === id) || elements.transitions.find(t => t.id === id);
+    return elementById.get(id) || null;
   };
 
   const computePlaceRadius = (place) => {
