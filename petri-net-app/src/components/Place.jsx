@@ -1,13 +1,13 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useRef } from 'react';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 import { Circle, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import { useEditorUI } from '../contexts/EditorUIContext';
 import { computeAlgebraicPlaceVisuals } from '../utils/place-layout.js';
 
-// Cooldown period after drag ends before another drag can start (ms)
-// This prevents race conditions when rapidly switching between elements
-const DRAG_COOLDOWN_MS = 500;
+// Minimum time between state updates during drag (ms)
+// This throttles arc redraws during vigorous shaking to prevent crashes
+const DRAG_THROTTLE_MS = 50; // ~20fps max to prevent crashes
 
 const Place = ({
   id,
@@ -29,7 +29,6 @@ const Place = ({
     selectedElements,
     setElements,
     multiDragRef,
-    dragCooldownRef,
     isIdSelected,
     mode,
     arcStart
@@ -42,6 +41,10 @@ const Place = ({
   } = useEditorUI();
 
   const baseRadius = 30;
+  
+  // Throttle state updates during drag to prevent crashes from vigorous shaking
+  const lastDragUpdateRef = useRef(0);
+  
   const isAlgebraicNet = netMode === 'algebraic-int' || Array.isArray(valueTokens);
 
   const algebraicVisuals = useMemo(() => {
@@ -75,18 +78,7 @@ const Place = ({
     return { startPositions, startArcPoints };
   }, [elements]);
 
-  const handleDragStart = (e) => {
-    // Check GLOBAL cooldown - if ANY drag just ended, block this drag entirely
-    const timeSinceLastDrag = performance.now() - dragCooldownRef.current;
-    if (timeSinceLastDrag < DRAG_COOLDOWN_MS) {
-      // Block the drag entirely during cooldown by stopping propagation
-      // and not updating any state
-      if (e && e.target && typeof e.target.stopDrag === 'function') {
-        e.target.stopDrag();
-      }
-      return;
-    }
-    
+  const handleDragStart = () => {
     // IMPORTANT: If a previous drag's snapshot still exists, clear it first
     // This prevents race conditions when rapidly switching between elements
     if (multiDragRef.current !== null) {
@@ -151,6 +143,14 @@ const Place = ({
       return;
     }
     
+    // THROTTLE: Skip state update if not enough time has passed
+    // This prevents crashes from vigorous shaking causing too many arc redraws
+    const now = performance.now();
+    if (now - lastDragUpdateRef.current < DRAG_THROTTLE_MS) {
+      return;
+    }
+    lastDragUpdateRef.current = now;
+    
     // Update lastDelta BEFORE setElements to prevent concurrent updates with same delta
     snapshot.lastDelta = { dx: deltaX, dy: deltaY };
 
@@ -166,9 +166,6 @@ const Place = ({
   };
 
   const handleDragEnd = (e) => {
-    // Record GLOBAL cooldown timestamp - blocks ALL element drags for DRAG_COOLDOWN_MS
-    dragCooldownRef.current = performance.now();
-    
     // When drag ends, the new position is in the parent's coordinate system (virtual coordinates)
     const newVirtualPos = {
       x: e.target.x(),
@@ -305,11 +302,17 @@ const Place = ({
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onClick={() => onSelect(id)}
-      onTap={() => onSelect(id)}
+      onTap={(e) => {
+        // Prevent double firing if onTouchEnd already handled this event
+        if (e.evt && e.evt._handledByTouchEnd) return;
+        onSelect(id);
+      }}
       onTouchEnd={(e) => {
         // On mobile, when creating an arc, touch end should complete the arc
         if (mode === 'arc' && arcStart && arcStart.element.id !== id) {
           onSelect(id);
+          // Mark event as handled to prevent onTap from firing and starting a new arc
+          if (e.evt) e.evt._handledByTouchEnd = true;
         }
       }}
       id={id} // Pass id for hit detection in ArcManager

@@ -133,7 +133,11 @@ export async function clickStage(page, position) {
 	if (await stage.count()) {
 		await stage.first().scrollIntoViewIfNeeded().catch(() => {});
 		await page.waitForTimeout(150); // allow scroll to settle
-		await stage.first().click({ position, force: isMobile });
+		if (isMobile) {
+			await stage.first().tap({ position, force: true });
+		} else {
+			await stage.first().click({ position });
+		}
 		return;
 	}
 	const container = page.locator('.stage-container');
