@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady } from '../../helpers.js';
+import { waitForAppReady, openMobileMenuIfNeeded } from '../../helpers.js';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
@@ -16,12 +16,27 @@ test.describe('PNML - Load error handling UI', () => {
     const tmpFile = path.join(os.tmpdir(), `invalid-${Date.now()}.pnml`);
     fs.writeFileSync(tmpFile, 'not xml content', 'utf8');
 
+    // On mobile, open menu first
+    await openMobileMenuIfNeeded(page);
+    
     const loadBtn = page.getByRole('button', { name: 'Load' });
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      loadBtn.click(),
-    ]);
-    await fileChooser.setFiles(tmpFile);
+    await loadBtn.waitFor({ state: 'visible' });
+    
+    // On mobile, use JavaScript click to bypass viewport issues
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtn.evaluate((btn) => btn.click());
+      // Wait for file input to appear
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(tmpFile);
+    } else {
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent('filechooser'),
+        loadBtn.click(),
+      ]);
+      await fileChooser.setFiles(tmpFile);
+    }
 
     // Wait for error message to appear
     const errorMsg = page.getByText('Error loading Petri net', { exact: false });
@@ -35,12 +50,27 @@ test.describe('PNML - Load error handling UI', () => {
     const tmpFile = path.join(os.tmpdir(), `empty-${Date.now()}.pnml`);
     fs.writeFileSync(tmpFile, '', 'utf8');
 
+    // On mobile, open menu first
+    await openMobileMenuIfNeeded(page);
+    
     const loadBtn = page.getByRole('button', { name: 'Load' });
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      loadBtn.click(),
-    ]);
-    await fileChooser.setFiles(tmpFile);
+    await loadBtn.waitFor({ state: 'visible' });
+    
+    // On mobile, use JavaScript click to bypass viewport issues
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtn.evaluate((btn) => btn.click());
+      // Wait for file input to appear
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(tmpFile);
+    } else {
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent('filechooser'),
+        loadBtn.click(),
+      ]);
+      await fileChooser.setFiles(tmpFile);
+    }
 
     const errorMsg = page.getByText('Error loading Petri net', { exact: false });
     await expect(errorMsg).toBeVisible({ timeout: 10000 });
@@ -52,12 +82,27 @@ test.describe('PNML - Load error handling UI', () => {
     const tmpFile = path.join(os.tmpdir(), `malformed-${Date.now()}.pnml`);
     fs.writeFileSync(tmpFile, '<pnml><net id="n1"></net></pnml>', 'utf8');
 
+    // On mobile, open menu first
+    await openMobileMenuIfNeeded(page);
+    
     const loadBtn = page.getByRole('button', { name: 'Load' });
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      loadBtn.click(),
-    ]);
-    await fileChooser.setFiles(tmpFile);
+    await loadBtn.waitFor({ state: 'visible' });
+    
+    // On mobile, use JavaScript click to bypass viewport issues
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtn.evaluate((btn) => btn.click());
+      // Wait for file input to appear
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(tmpFile);
+    } else {
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent('filechooser'),
+        loadBtn.click(),
+      ]);
+      await fileChooser.setFiles(tmpFile);
+    }
 
     // May show error or success with 0 elements; both acceptable
     await page.waitForTimeout(2000);

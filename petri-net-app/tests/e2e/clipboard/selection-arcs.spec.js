@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, getPetriNetState, clickStage } from '../../helpers.js';
+import { waitForAppReady, getPetriNetState, clickStage, getVisibleToolbarButton } from '../../helpers.js';
 
 test.describe('Clipboard - Selection determines arc inclusion and delete removes incident arcs', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,19 +10,23 @@ test.describe('Clipboard - Selection determines arc inclusion and delete removes
 
   test('arcs copied only when both endpoints selected; delete removes incident arcs', async ({ page }) => {
     // P1 -> T1, P2 -> T1
-    await page.getByTestId('toolbar-place').click();
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+    await placeButton.click();
     await clickStage(page, { x: 120, y: 200 }); // P1
     await clickStage(page, { x: 120, y: 300 }); // P2
-    await page.getByTestId('toolbar-transition').click();
+    const transitionButton = await getVisibleToolbarButton(page, 'toolbar-transition');
+    await transitionButton.click();
     await clickStage(page, { x: 280, y: 250 }); // T1
-    await page.getByTestId('toolbar-arc').click();
+    const arcButton = await getVisibleToolbarButton(page, 'toolbar-arc');
+    await arcButton.click();
     await clickStage(page, { x: 120, y: 200 }); // P1->T1
     await clickStage(page, { x: 280, y: 250 });
-    await page.getByTestId('toolbar-arc').click();
+    await arcButton.click();
     await clickStage(page, { x: 120, y: 300 }); // P2->T1
     await clickStage(page, { x: 280, y: 250 });
 
-    await page.getByTestId('toolbar-select').click();
+    const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+    await selectButton.click();
 
     // Select only T1 and copy; paste -> expect 0 arcs added
     await clickStage(page, { x: 280, y: 250 });

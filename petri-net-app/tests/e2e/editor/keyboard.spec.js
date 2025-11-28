@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, getPetriNetState, waitForState, clickStage } from '../../helpers.js';
+import { waitForAppReady, getPetriNetState, waitForState, clickStage, getVisibleToolbarButton } from '../../helpers.js';
 
 test.describe('Editor keyboard shortcuts', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,7 +10,7 @@ test.describe('Editor keyboard shortcuts', () => {
 
 test('Ctrl+C / Ctrl+V duplicates selected node; Delete removes it', async ({ page }) => {
     // Add two places
-    const placeBtn = page.getByTestId('toolbar-place');
+    const placeBtn = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeBtn.click();
     await clickStage(page, { x: 200, y: 200 });
     await clickStage(page, { x: 320, y: 200 });
@@ -19,7 +19,7 @@ test('Ctrl+C / Ctrl+V duplicates selected node; Delete removes it', async ({ pag
     const beforePlaces = before.places.length || 0;
 
     // Select one place by click in select mode
-    const selectBtn = page.getByTestId('toolbar-select');
+    const selectBtn = await getVisibleToolbarButton(page, 'toolbar-select');
     await selectBtn.click();
     await clickStage(page, { x: 200, y: 200 });
     // Allow selection state to propagate before copy
@@ -71,7 +71,7 @@ test('Ctrl+C / Ctrl+V duplicates selected node; Delete removes it', async ({ pag
 
   test('Backspace deletes a single selected node', async ({ page }) => {
     // Add one place
-    const placeBtn = page.getByTestId('toolbar-place');
+    const placeBtn = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeBtn.click();
     await clickStage(page, { x: 260, y: 240 });
     await waitForState(page, s => (s.places?.length || 0) >= 1);
@@ -79,7 +79,7 @@ test('Ctrl+C / Ctrl+V duplicates selected node; Delete removes it', async ({ pag
     const beforePlaces = before.places.length || 0;
 
     // Select and delete
-    const selectBtn = page.getByTestId('toolbar-select');
+    const selectBtn = await getVisibleToolbarButton(page, 'toolbar-select');
     await selectBtn.click();
     await clickStage(page, { x: 260, y: 240 });
     await page.keyboard.press('Backspace');

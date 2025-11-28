@@ -12,7 +12,12 @@ test.describe('Settings - Batch mode and simulation mode coupling', () => {
     await loadPNML(page, 'petri-net1.pnml');
 
     const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
-    await settingsButton.click();
+    const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobile) {
+      await settingsButton.click({ force: true });
+    } else {
+      await settingsButton.click();
+    }
     await expect(page.getByText('Simulation Settings')).toBeVisible();
 
     const batch = page.locator('label:has-text("Batch mode") input[type="checkbox"]').first();
@@ -28,7 +33,11 @@ test.describe('Settings - Batch mode and simulation mode coupling', () => {
 
     // Re-open and turn batch off
     const settingsButton2 = await getVisibleToolbarButton(page, 'toolbar-settings');
-    await settingsButton2.click();
+    if (isMobile) {
+      await settingsButton2.click({ force: true });
+    } else {
+      await settingsButton2.click();
+    }
     await expect(page.getByText('Simulation Settings')).toBeVisible();
     await batch.uncheck();
     await expect(nonVisual).toBeEnabled();

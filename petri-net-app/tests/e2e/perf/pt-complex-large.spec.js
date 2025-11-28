@@ -1,11 +1,11 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, loadPNML, getPetriNetState } from '../../helpers.js';
+import { waitForAppReady, loadPNML, getPetriNetState, waitForSimulationManager, getVisibleSimulationButton } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 120000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
-    const step = document.querySelector('[data-testid="sim-step"]');
+    const step = document.querySelector('[data-testid="sim-step"]') || document.querySelector('[data-testid="sim-step-mobile"]');
     const stepEnabled = step && !step.hasAttribute('disabled');
     const panel = document.querySelector('[data-testid="enabled-transitions"]');
     const buttons = panel ? panel.querySelectorAll('button').length : 0;
@@ -25,7 +25,7 @@ test.describe('Perf - PT complex large net', () => {
     const before = await getPetriNetState(page);
     const beforeTokenSum = before.places.reduce((sum, p) => sum + (p.tokens || 0), 0);
     
-    const stepButton = page.getByTestId('sim-step');
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
     await expect(stepButton).toBeEnabled();
     await stepButton.click();
 

@@ -2,11 +2,12 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { waitForSimulationManager, openMobileMenuIfNeeded, getVisibleToolbarButton, getVisibleSimulationButton } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 120000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
-    const step = document.querySelector('[data-testid="sim-step"]');
+    const step = document.querySelector('[data-testid="sim-step"]') || document.querySelector('[data-testid="sim-step-mobile"]');
     const stepEnabled = step && !step.hasAttribute('disabled');
     const panel = document.querySelector('[data-testid="enabled-transitions"]');
     const buttons = panel ? panel.querySelectorAll('button').length : 0;
@@ -45,27 +46,44 @@ test.describe('Batch run completion dialog', () => {
 
     await page.goto('/');
 
+    // Load file with mobile-friendly method
+    await openMobileMenuIfNeeded(page);
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net-algebraic-large.pnml');
     const loadButton = page.getByRole('button', { name: 'Load' });
     await loadButton.waitFor({ state: 'visible' });
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      loadButton.click(),
-    ]);
-    await fileChooser.setFiles(pnmlPath);
+    
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadButton.evaluate((btn) => btn.click());
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(pnmlPath);
+    } else {
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent('filechooser'),
+        loadButton.click(),
+      ]);
+      await fileChooser.setFiles(pnmlPath);
+    }
 
     await waitSimulatorReady(page, 120_000);
 
     // Enable batch mode in settings
-    await page.getByTestId('toolbar-settings').first().click();
+    const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
+    const isMobileCheck = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileCheck) {
+      await settingsButton.evaluate(node => node.click());
+    } else {
+      await settingsButton.click();
+    }
     const batchCheckbox = page.locator('label:has-text("Batch mode") input[type="checkbox"]').first();
     await batchCheckbox.check();
     await page.getByTestId('settings-save').click();
 
     await waitSimulatorReady(page, 120_000);
 
-    const runButton = page.getByTestId('sim-run');
-    const stopButton = page.getByTestId('sim-stop');
+    const runButton = await getVisibleSimulationButton(page, 'sim-run');
+    const stopButton = page.locator('[data-testid="sim-stop"], [data-testid="sim-stop-mobile"]').first();
     await runButton.click();
 
     await expect(stopButton).toBeEnabled({ timeout: 30_000 });
@@ -102,27 +120,44 @@ test.describe('Batch run completion dialog', () => {
 
     await page.goto('/');
 
+    // Load file with mobile-friendly method
+    await openMobileMenuIfNeeded(page);
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net-algebraic-very-large.pnml');
     const loadButton = page.getByRole('button', { name: 'Load' });
     await loadButton.waitFor({ state: 'visible' });
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      loadButton.click(),
-    ]);
-    await fileChooser.setFiles(pnmlPath);
+    
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadButton.evaluate((btn) => btn.click());
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(pnmlPath);
+    } else {
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent('filechooser'),
+        loadButton.click(),
+      ]);
+      await fileChooser.setFiles(pnmlPath);
+    }
 
     await waitSimulatorReady(page, 120_000);
 
     // Enable batch mode in settings
-    await page.getByTestId('toolbar-settings').first().click();
+    const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
+    const isMobileCheck = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileCheck) {
+      await settingsButton.evaluate(node => node.click());
+    } else {
+      await settingsButton.click();
+    }
     const batchCheckbox = page.locator('label:has-text("Batch mode") input[type="checkbox"]').first();
     await batchCheckbox.check();
     await page.getByTestId('settings-save').click();
 
     await waitSimulatorReady(page, 120_000);
 
-    const runButton = page.getByTestId('sim-run');
-    const stopButton = page.getByTestId('sim-stop');
+    const runButton = await getVisibleSimulationButton(page, 'sim-run');
+    const stopButton = page.locator('[data-testid="sim-stop"], [data-testid="sim-stop-mobile"]').first();
     await runButton.click();
 
     await expect(stopButton).toBeEnabled({ timeout: 30_000 });

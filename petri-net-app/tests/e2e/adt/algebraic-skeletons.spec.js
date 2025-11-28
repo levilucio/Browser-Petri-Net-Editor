@@ -1,12 +1,13 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, loadPNML } from '../../helpers.js';
+import { waitForAppReady, loadPNML, waitForSimulationManager, getVisibleSimulationButton } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 60000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
-    const step = document.querySelector('[data-testid="sim-step"]');
-    const run = document.querySelector('[data-testid="sim-run"]');
+    // Check for both desktop and mobile button test IDs
+    const step = document.querySelector('[data-testid="sim-step"]') || document.querySelector('[data-testid="sim-step-mobile"]');
+    const run = document.querySelector('[data-testid="sim-run"]') || document.querySelector('[data-testid="sim-run-mobile"]');
     const stepEnabled = step && !step.hasAttribute('disabled');
     const runEnabled = run && !run.hasAttribute('disabled');
     const panel = document.querySelector('[data-testid="enabled-transitions"]');
@@ -16,7 +17,7 @@ async function waitSimulatorReady(page, timeout = 60000) {
 }
 
 async function waitSimulatorInitialized(page, timeout = 60000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
     const state = /** @type {any} */ (window).__PETRI_NET_STATE__;
     const core = /** @type {any} */ (window).__PETRI_NET_SIM_CORE__;
@@ -59,7 +60,8 @@ async function runToCompletion(page, maxSteps = 10) {
   for (let i = 0; i < maxSteps; i += 1) {
     const enabled = await getEnabledCount(page);
     if (!enabled) break;
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
     await page.waitForTimeout(75);
   }
 }
@@ -191,7 +193,8 @@ test.describe('Algebraic skeleton error handling', () => {
   test('guard-never net exposes no enabled transitions', async ({ page }) => {
     await loadSkeletonNet(page, 'petri-net-algebraic-guard-never.pnml', { requireEnabled: false });
 
-    await expect(page.getByTestId('sim-step')).toBeDisabled();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await expect(stepButton).toBeDisabled();
     expect(await getEnabledCount(page)).toBe(0);
 
     const p2Tokens = await readPlaceTokens(page, 'P2');
@@ -203,7 +206,8 @@ test.describe('Algebraic skeleton error handling', () => {
   test('binding mismatch net reports not enabled error', async ({ page }) => {
     await loadSkeletonNet(page, 'petri-net-algebraic-binding-mismatch.pnml', { requireEnabled: false });
 
-    await expect(page.getByTestId('sim-step')).toBeDisabled();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await expect(stepButton).toBeDisabled();
     const errorMessage = await page.evaluate(async () => {
       const core = /** @type {any} */ (window).__PETRI_NET_SIM_CORE__;
       try {
@@ -224,7 +228,8 @@ test.describe('Algebraic skeleton error handling', () => {
   test('invalid head usage surfaces descriptive error', async ({ page }) => {
     await loadSkeletonNet(page, 'petri-net-algebraic-invalid-head.pnml', { requireEnabled: false });
 
-    await expect(page.getByTestId('sim-step')).toBeDisabled();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await expect(stepButton).toBeDisabled();
 
     const fireResult = await page.evaluate(async () => {
       const core = /** @type {any} */ (window).__PETRI_NET_SIM_CORE__;

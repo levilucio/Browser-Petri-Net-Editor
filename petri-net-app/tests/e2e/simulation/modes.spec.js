@@ -1,16 +1,28 @@
 /// <reference path="../../types/global.d.ts" />
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, getVisibleToolbarButton } from '../../helpers.js';
+import { waitForAppReady, getVisibleToolbarButton, clickStage } from '../../helpers.js';
 
 async function openSettings(page) {
   const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
-  await settingsButton.click();
+  const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+  if (isMobile) {
+    await settingsButton.evaluate(node => node.click());
+  } else {
+    await settingsButton.click();
+  }
   await expect(page.getByText('Simulation Settings')).toBeVisible();
 }
 
 async function clearCanvas(page) {
-  await page.getByRole('button', { name: 'Clear' }).click();
+  const clearBtn = page.getByRole('button', { name: 'Clear' });
+  // On mobile, use force click in case the button is partially obscured
+  const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+  if (isMobile) {
+    await clearBtn.click({ force: true });
+  } else {
+    await clearBtn.click();
+  }
   await page.waitForTimeout(200);
   const counts = await page.evaluate(() => {
     const s = /** @type {any} */ (window).__PETRI_NET_STATE__ || { places: [], transitions: [], arcs: [] };
@@ -39,7 +51,7 @@ test.describe('Settings: net type switching rules', () => {
     // Create a PT net element (place)
     const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
-    await page.locator('.konvajs-content').click({ position: { x: 120, y: 120 } });
+    await clickStage(page, { x: 120, y: 120 });
     // Open settings
     await openSettings(page);
     const ptRadio = page.locator('input[type="radio"][name="netMode"][value="pt"]');
@@ -58,7 +70,7 @@ test.describe('Settings: net type switching rules', () => {
     // Add at least one element to the canvas so mode becomes locked
     const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
-    await page.locator('.konvajs-content').click({ position: { x: 150, y: 150 } });
+    await clickStage(page, { x: 150, y: 150 });
     // Open settings
     await openSettings(page);
     const ptRadio = page.locator('input[type="radio"][name="netMode"][value="pt"]');

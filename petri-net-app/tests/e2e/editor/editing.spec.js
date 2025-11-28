@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, getPetriNetState, waitForState, clickStage } from '../../helpers.js';
+import { waitForAppReady, getPetriNetState, waitForState, clickStage, getVisibleToolbarButton } from '../../helpers.js';
 
 test.describe('Petri Net Editor', () => {
   test.beforeEach(async ({ page }) => {
@@ -11,8 +11,7 @@ test.describe('Petri Net Editor', () => {
 
   test('should add a place to the canvas', async ({ page }) => {
     // Find the place button in the toolbar
-    const placeButton = page.locator('[data-testid="toolbar-place"]');
-    await expect(placeButton).toBeVisible();
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
 
     // Get the canvas element
     const canvas = page.locator('[data-testid="canvas"]');
@@ -40,6 +39,13 @@ test.describe('Petri Net Editor', () => {
   });
 
   test('should toggle grid snapping', async ({ page }) => {
+    // Skip on mobile as grid snap toggle is hidden
+    const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobile) {
+      test.skip();
+      return;
+    }
+    
     // Find and click the grid snap toggle
     const gridSnapToggle = page.locator('[data-testid="grid-snap-toggle"]');
     await expect(gridSnapToggle).toBeVisible();
@@ -69,8 +75,7 @@ test.describe('Petri Net Editor', () => {
 
   test('should create place, transition, arc and then delete the arc', async ({ page }) => {
     // Step 1: Add a place
-    const placeButton = page.locator('[data-testid="toolbar-place"]');
-    await expect(placeButton).toBeVisible();
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
     await page.waitForTimeout(300);
     
@@ -86,8 +91,7 @@ test.describe('Petri Net Editor', () => {
     expect(placesCount).toBeGreaterThan(0);
     
     // Step 2: Add a transition
-    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
-    await expect(transitionButton).toBeVisible();
+    const transitionButton = await getVisibleToolbarButton(page, 'toolbar-transition');
     await transitionButton.click();
     await page.waitForTimeout(300);
     
@@ -103,8 +107,7 @@ test.describe('Petri Net Editor', () => {
     expect(transitionsCount).toBeGreaterThan(0);
     
     // Step 3: Create an arc from place to transition
-    const arcButton = page.locator('[data-testid="toolbar-arc"]');
-    await expect(arcButton).toBeVisible();
+    const arcButton = await getVisibleToolbarButton(page, 'toolbar-arc');
     await arcButton.click();
     await page.waitForTimeout(300);
     
@@ -125,8 +128,7 @@ test.describe('Petri Net Editor', () => {
     
     // Step 4: Select and delete the arc
     // First, switch to select mode
-    const selectButton = page.locator('[data-testid="toolbar-select"]');
-    await expect(selectButton).toBeVisible();
+    const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
     await selectButton.click();
     await page.waitForTimeout(300);
     
@@ -186,30 +188,26 @@ test.describe('Petri Net Editor', () => {
 
   test('should select all elements with Ctrl+A', async ({ page }) => {
     // Create a place
-    const placeButton = page.locator('[data-testid="toolbar-place"]');
-    await expect(placeButton).toBeVisible();
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
     await clickStage(page, { x: 100, y: 100 });
     await page.waitForTimeout(300);
 
     // Create a transition
-    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
-    await expect(transitionButton).toBeVisible();
+    const transitionButton = await getVisibleToolbarButton(page, 'toolbar-transition');
     await transitionButton.click();
     await clickStage(page, { x: 200, y: 100 });
     await page.waitForTimeout(300);
 
     // Create an arc
-    const arcButton = page.locator('[data-testid="toolbar-arc"]');
-    await expect(arcButton).toBeVisible();
+    const arcButton = await getVisibleToolbarButton(page, 'toolbar-arc');
     await arcButton.click();
     await clickStage(page, { x: 100, y: 100 }); // from place
     await clickStage(page, { x: 200, y: 100 }); // to transition
     await page.waitForTimeout(300);
 
     // Switch to select mode and press Ctrl+A
-    const selectButton = page.locator('[data-testid="toolbar-select"]');
-    await expect(selectButton).toBeVisible();
+    const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
     await selectButton.click();
     await page.waitForTimeout(200);
 
@@ -235,8 +233,7 @@ test.describe('Petri Net Editor', () => {
 
   test('should create a transition with two places and delete the transition with its arcs', async ({ page }) => {
     // Step 1: Add a transition in the middle
-    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
-    await expect(transitionButton).toBeVisible();
+    const transitionButton = await getVisibleToolbarButton(page, 'toolbar-transition');
     await transitionButton.click();
     await waitForState(page, (s) => true); // ensure state is readable
     
@@ -245,8 +242,7 @@ test.describe('Petri Net Editor', () => {
     await waitForState(page, (s) => (s.transitions?.length || 0) === 1);
     
     // Step 2: Add first place on the left
-    const placeButton = page.locator('[data-testid="toolbar-place"]');
-    await expect(placeButton).toBeVisible();
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
     await waitForState(page, (s) => true);
     
@@ -268,8 +264,7 @@ test.describe('Petri Net Editor', () => {
     expect(transitionsCount2).toBe(1);
     
     // Step 4: Create an arc from transition to first place
-    const arcButton = page.getByTestId('toolbar-arc');
-    await expect(arcButton).toBeVisible();
+    const arcButton = await getVisibleToolbarButton(page, 'toolbar-arc');
     await arcButton.click();
     await waitForState(page, (s) => true);
     
@@ -297,8 +292,7 @@ test.describe('Petri Net Editor', () => {
     expect(arcsCount2).toBe(2);
     
     // Step 6: Select and delete the transition
-    const selectButton = page.getByTestId('toolbar-select');
-    await expect(selectButton).toBeVisible();
+    const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
     await selectButton.click();
     await waitForState(page, (s) => true);
     

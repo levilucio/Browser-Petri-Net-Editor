@@ -1,5 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, getVisibleToolbarButton } from '../../helpers.js';
 
 async function getPetriNetState(page, retries = 10, delay = 500) {
   let attempt = 0;
@@ -19,12 +20,18 @@ async function getPetriNetState(page, retries = 10, delay = 500) {
 test.describe('Undo/Redo Functionality', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="toolbar-place"]', { state: 'visible' });
+    await waitForAppReady(page);
   });
 
   test('should undo and redo place creation', async ({ page }) => {
-    const placeButton = page.locator('[data-testid="toolbar-place"]');
-    await expect(placeButton).toBeVisible();
+    // Skip on mobile as undo/redo buttons are hidden
+    const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobile) {
+      test.skip();
+      return;
+    }
+    
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
     await page.waitForTimeout(1000);
     await page.mouse.click(200, 200);
@@ -50,8 +57,7 @@ test.describe('Undo/Redo Functionality', () => {
   });
 
   test('should undo and redo using keyboard shortcuts', async ({ page }) => {
-    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
-    await expect(transitionButton).toBeVisible();
+    const transitionButton = await getVisibleToolbarButton(page, 'toolbar-transition');
     await transitionButton.click();
     await page.waitForTimeout(1000);
     await page.mouse.click(300, 200);
@@ -69,17 +75,17 @@ test.describe('Undo/Redo Functionality', () => {
   });
 
   test('should undo and redo multiple actions in sequence', async ({ page }) => {
-    const placeButton = page.locator('[data-testid="toolbar-place"]');
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
     await page.waitForTimeout(1000);
     await page.mouse.click(200, 200);
     await page.waitForTimeout(1000);
-    const transitionButton = page.locator('[data-testid="toolbar-transition"]');
+    const transitionButton = await getVisibleToolbarButton(page, 'toolbar-transition');
     await transitionButton.click();
     await page.waitForTimeout(1000);
     await page.mouse.click(300, 200);
     await page.waitForTimeout(1000);
-    const arcButton = page.locator('[data-testid="toolbar-arc"]');
+    const arcButton = await getVisibleToolbarButton(page, 'toolbar-arc');
     await arcButton.click();
     await page.waitForTimeout(1000);
     await page.mouse.click(200, 200);
@@ -109,10 +115,17 @@ test.describe('Undo/Redo Functionality', () => {
   });
 
   test('should disable undo button when no actions to undo', async ({ page }) => {
+    // Skip on mobile as undo/redo buttons are hidden
+    const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobile) {
+      test.skip();
+      return;
+    }
+    
     const undoButton = page.locator('button[title="Undo (Ctrl+Z)"]');
-    await page.waitForSelector('button[title="Undo (Ctrl+Z)"]', { state: 'visible' });
+    await undoButton.waitFor({ state: 'visible' });
     await expect(undoButton).toBeDisabled();
-    const placeButton = page.locator('[data-testid="toolbar-place"]');
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
     await page.waitForTimeout(300);
     await page.mouse.click(200, 200);
@@ -124,10 +137,17 @@ test.describe('Undo/Redo Functionality', () => {
   });
 
   test('should disable redo button when no actions to redo', async ({ page }) => {
+    // Skip on mobile as undo/redo buttons are hidden
+    const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobile) {
+      test.skip();
+      return;
+    }
+    
     const redoButton = page.locator('button[title="Redo (Ctrl+Y)"]');
-    await page.waitForSelector('button[title="Redo (Ctrl+Y)"]', { state: 'visible' });
+    await redoButton.waitFor({ state: 'visible' });
     await expect(redoButton).toBeDisabled();
-    const placeButton = page.locator('[data-testid="toolbar-place"]');
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
     await placeButton.click();
     await page.waitForTimeout(500);
     await page.mouse.click(200, 200);

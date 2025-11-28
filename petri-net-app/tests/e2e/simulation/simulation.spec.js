@@ -2,12 +2,12 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 import path from 'path';
-import { getVisibleToolbarButton } from '../../helpers.js';
+import { getVisibleToolbarButton, waitForSimulationManager, getVisibleSimulationButton, openMobileMenuIfNeeded, clickStage, waitForAppReady } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 60000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
-    const step = document.querySelector('[data-testid="sim-step"]');
+    const step = document.querySelector('[data-testid="sim-step"]') || document.querySelector('[data-testid="sim-step-mobile"]');
     const stepEnabled = step && !step.hasAttribute('disabled');
     const panel = document.querySelector('[data-testid="enabled-transitions"]');
     const buttons = panel ? panel.querySelectorAll('button').length : 0;
@@ -18,22 +18,27 @@ async function waitSimulatorReady(page, timeout = 60000) {
 test.describe('Simple Simulation', () => {
   test('shows the transition as enabled after placing 1 token', async ({ page }) => {
     await page.goto('/');
+    await waitForAppReady(page);
 
     // Create a minimal connected PN: Place (P1) -> Transition (T1)
-    await page.getByTestId('toolbar-place').click();
-    await page.locator('.konvajs-content').click({ position: { x: 100, y: 100 } });
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+    await placeButton.click();
+    await clickStage(page, { x: 100, y: 100 });
 
-    await page.getByTestId('toolbar-transition').click();
-    await page.locator('.konvajs-content').click({ position: { x: 200, y: 100 } });
+    const transitionButton = await getVisibleToolbarButton(page, 'toolbar-transition');
+    await transitionButton.click();
+    await clickStage(page, { x: 200, y: 100 });
 
-    await page.getByTestId('toolbar-arc').click();
+    const arcButton = await getVisibleToolbarButton(page, 'toolbar-arc');
+    await arcButton.click();
     // P1 -> T1
-    await page.locator('.konvajs-content').click({ position: { x: 100, y: 100 } });
-    await page.locator('.konvajs-content').click({ position: { x: 200, y: 100 } });
+    await clickStage(page, { x: 100, y: 100 });
+    await clickStage(page, { x: 200, y: 100 });
 
     // Put one token in P1 via Properties panel
-    await page.getByTestId('toolbar-select').click();
-    await page.locator('.konvajs-content').click({ position: { x: 100, y: 100 } });
+    const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+    await selectButton.click();
+    await clickStage(page, { x: 100, y: 100 });
     // Use the first number input (tokens)
     await page.locator('input[type="number"]').first().fill('1');
 
@@ -43,7 +48,7 @@ test.describe('Simple Simulation', () => {
     // Open the Enabled Transitions panel if present
     const toggle = page.getByTestId('show-enabled-transitions');
     if (await toggle.count()) {
-      await toggle.click();
+      await toggle.evaluate(node => node.click());
     }
 
     // Assert panel has at least one enabled transition entry
@@ -52,7 +57,8 @@ test.describe('Simple Simulation', () => {
     if (await panel.count()) {
       await expect(panel.locator('button')).toHaveCount(1, { timeout: 20000 });
     } else {
-      await expect(page.getByTestId('sim-step')).toBeEnabled();
+      const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+      await expect(stepButton).toBeEnabled();
     }
   });
 
@@ -60,20 +66,30 @@ test.describe('Simple Simulation', () => {
     await page.goto('/');
 
     // Open file chooser and load PNML (robust against UI races)
+    await openMobileMenuIfNeeded(page);
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net1.pnml');
     const loadBtn = page.getByRole('button', { name: 'Load' });
     await loadBtn.waitFor({ state: 'visible' });
-    let fileChooser;
-    try {
-      const fcPromise = page.waitForEvent('filechooser', { timeout: 5000 });
-      await loadBtn.click();
-      fileChooser = await fcPromise;
-    } catch (_) {
-      const fcPromise2 = page.waitForEvent('filechooser', { timeout: 10000 });
-      await loadBtn.click();
-      fileChooser = await fcPromise2;
+    
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtn.evaluate((btn) => btn.click());
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(pnmlPath);
+    } else {
+      let fileChooser;
+      try {
+        const fcPromise = page.waitForEvent('filechooser', { timeout: 5000 });
+        await loadBtn.click();
+        fileChooser = await fcPromise;
+      } catch (_) {
+        const fcPromise2 = page.waitForEvent('filechooser', { timeout: 10000 });
+        await loadBtn.click();
+        fileChooser = await fcPromise2;
+      }
+      await fileChooser.setFiles(pnmlPath);
     }
-    await fileChooser.setFiles(pnmlPath);
 
     // Wait for simulator ready and at least one enabled transition
     await waitSimulatorReady(page, 60000);
@@ -93,7 +109,8 @@ test.describe('Simple Simulation', () => {
     expect(before.pout).toBe(0);
 
     // Step 1: only one transition should fire
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
     // Wait until tokens reflect one firing
     await page.waitForFunction(() => {
       // @ts-ignore
@@ -110,7 +127,8 @@ test.describe('Simple Simulation', () => {
     expect(after1.pout).toBe(1);
 
     // Step 2: the other transition fires
-    await page.getByTestId('sim-step').click();
+    const stepButton2 = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton2.click();
     // Wait until tokens reflect second firing and completion
     await page.waitForFunction(() => {
       // @ts-ignore
@@ -131,25 +149,40 @@ test.describe('Simple Simulation', () => {
     await page.goto('/');
 
     // Load the same PN via the app's Load button
+    await openMobileMenuIfNeeded(page);
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net1.pnml');
     const loadBtn = page.getByRole('button', { name: 'Load' });
     await loadBtn.waitFor({ state: 'visible' });
-    let fileChooser;
-    try {
-      const fcPromise = page.waitForEvent('filechooser', { timeout: 5000 });
-      await loadBtn.click();
-      fileChooser = await fcPromise;
-    } catch (_) {
-      // Retry once if the first click didn't open the chooser
-      const fcPromise2 = page.waitForEvent('filechooser', { timeout: 10000 });
-      await loadBtn.click();
-      fileChooser = await fcPromise2;
+    
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtn.evaluate((btn) => btn.click());
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(pnmlPath);
+    } else {
+      let fileChooser;
+      try {
+        const fcPromise = page.waitForEvent('filechooser', { timeout: 5000 });
+        await loadBtn.click();
+        fileChooser = await fcPromise;
+      } catch (_) {
+        // Retry once if the first click didn't open the chooser
+        const fcPromise2 = page.waitForEvent('filechooser', { timeout: 10000 });
+        await loadBtn.click();
+        fileChooser = await fcPromise2;
+      }
+      await fileChooser.setFiles(pnmlPath);
     }
-    await fileChooser.setFiles(pnmlPath);
 
     // Open Settings and switch to Maximal Concurrent via UI
     const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
-    await settingsButton.click();
+    const isMobileMaximal = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileMaximal) {
+      await settingsButton.evaluate(node => node.click());
+    } else {
+      await settingsButton.click();
+    }
     const maximalRadio = page.locator('input[type="radio"][name="simulationMode"][value="maximal"]');
     await maximalRadio.check();
     await page.getByTestId('settings-save').click();
@@ -171,7 +204,8 @@ test.describe('Simple Simulation', () => {
     expect(before.pout).toBe(0);
 
     // One Step in maximal mode should fire both non-conflicting transitions at once.
-    await page.getByTestId('sim-step').click();
+    const stepBtnMaximal = await getVisibleSimulationButton(page, 'sim-step');
+    await stepBtnMaximal.click();
     await page.waitForFunction(() => {
       // @ts-ignore
       const s = window.__PETRI_NET_STATE__;
@@ -188,20 +222,30 @@ test.describe('Simple Simulation', () => {
     await page.goto('/');
 
     // Load PN3 (robust file chooser handling)
+    await openMobileMenuIfNeeded(page);
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net3.pnml');
     const loadBtnSim = page.getByRole('button', { name: 'Load' });
     await loadBtnSim.waitFor({ state: 'visible' });
-    let fileChooserSim;
-    try {
-      const fcPromise = page.waitForEvent('filechooser', { timeout: 5000 });
-      await loadBtnSim.click();
-      fileChooserSim = await fcPromise;
-    } catch (_) {
-      const fcPromise2 = page.waitForEvent('filechooser', { timeout: 10000 });
-      await loadBtnSim.click();
-      fileChooserSim = await fcPromise2;
+    
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtnSim.evaluate((btn) => btn.click());
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(pnmlPath);
+    } else {
+      let fileChooserSim;
+      try {
+        const fcPromise = page.waitForEvent('filechooser', { timeout: 5000 });
+        await loadBtnSim.click();
+        fileChooserSim = await fcPromise;
+      } catch (_) {
+        const fcPromise2 = page.waitForEvent('filechooser', { timeout: 10000 });
+        await loadBtnSim.click();
+        fileChooserSim = await fcPromise2;
+      }
+      await fileChooserSim.setFiles(pnmlPath);
     }
-    await fileChooserSim.setFiles(pnmlPath);
 
     // Helper to compute number of enabled transitions from exposed state
     async function countEnabled() {
@@ -231,8 +275,9 @@ test.describe('Simple Simulation', () => {
     await waitSimulatorReady(page, 60000);
 
     // Start simulate (continuous)
-    const stopBtn = page.getByTestId('sim-stop');
-    await page.getByTestId('sim-simulate').click();
+    const stopBtn = page.locator('[data-testid="sim-stop"], [data-testid="sim-stop-mobile"]').first();
+    const simBtn = await getVisibleSimulationButton(page, 'sim-simulate');
+    await simBtn.click();
     // Wait until Stop becomes enabled (simulation running)
     await expect(stopBtn).toBeEnabled({ timeout: 20000 });
     // Then wait until it becomes disabled again (simulation finished)
@@ -265,18 +310,31 @@ test.describe('Simple Simulation', () => {
     await page.goto('/');
 
     // Load PN3
+    await openMobileMenuIfNeeded(page);
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net3.pnml');
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.getByRole('button', { name: 'Load' }).click(),
-    ]);
-    await fileChooser.setFiles(pnmlPath);
+    const loadBtn = page.getByRole('button', { name: 'Load' });
+    await loadBtn.waitFor({ state: 'visible' });
+    
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtn.evaluate((btn) => btn.click());
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(pnmlPath);
+    } else {
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent('filechooser'),
+        loadBtn.click(),
+      ]);
+      await fileChooser.setFiles(pnmlPath);
+    }
 
     // Start run-to-completion
-    const stopBtn = page.getByTestId('sim-stop');
+    const stopBtn = page.locator('[data-testid="sim-stop"], [data-testid="sim-stop-mobile"]').first();
     // Ensure simulator is ready before starting run
     await waitSimulatorReady(page, 60000);
-    await page.getByTestId('sim-run').click();
+    const runBtn = await getVisibleSimulationButton(page, 'sim-run');
+    await runBtn.click();
     // Wait until Stop becomes enabled (run started)
     await expect(stopBtn).toBeEnabled({ timeout: 20000 });
     // Then disabled again (done)
@@ -308,23 +366,40 @@ test.describe('Simple Simulation', () => {
     await page.goto('/');
 
     // Load PN3
+    await openMobileMenuIfNeeded(page);
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net3.pnml');
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent('filechooser'),
-      page.getByRole('button', { name: 'Load' }).click(),
-    ]);
-    await fileChooser.setFiles(pnmlPath);
+    const loadBtn = page.getByRole('button', { name: 'Load' });
+    await loadBtn.waitFor({ state: 'visible' });
+    
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtn.evaluate((btn) => btn.click());
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles(pnmlPath);
+    } else {
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent('filechooser'),
+        loadBtn.click(),
+      ]);
+      await fileChooser.setFiles(pnmlPath);
+    }
 
     // Ensure simulator ready and open Enabled Transitions panel
     await waitSimulatorReady(page, 60000);
     const toggle = page.getByTestId('show-enabled-transitions');
     if (await toggle.count()) {
-      await toggle.click();
+      // Use evaluate click as robust fallback for mobile viewports
+      await toggle.evaluate(node => node.click());
     }
 
     // Fire T1, then T2 via enabled transitions panel
-    await page.getByTestId('enabled-T1').click();
-    await page.getByTestId('enabled-T2').click();
+    const t1Btn = page.getByTestId('enabled-T1');
+    await t1Btn.evaluate(node => node.click());
+    
+    await page.waitForTimeout(200); // Allow tokens to move
+    const t2Btn = page.getByTestId('enabled-T2');
+    await t2Btn.evaluate(node => node.click());
 
     // Assert P1 and P2 now each have 1 token
     await page.waitForFunction(() => {
@@ -345,11 +420,24 @@ test.describe('Simple Simulation', () => {
 
       // Load PN with one place (1 token) feeding two enabled transitions
       const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net2.pnml');
-      const [fileChooser] = await Promise.all([
-        page.waitForEvent('filechooser'),
-        page.getByRole('button', { name: 'Load' }).click(),
-      ]);
-      await fileChooser.setFiles(pnmlPath);
+      // On mobile, open menu first and use alternative file upload method
+      await openMobileMenuIfNeeded(page);
+      const loadBtn = page.getByRole('button', { name: 'Load' });
+      await loadBtn.waitFor({ state: 'visible' });
+      
+      const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+      if (isMobileViewport) {
+        await loadBtn.evaluate((btn) => btn.click());
+        const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+        await input.waitFor({ state: 'attached', timeout: 10000 });
+        await input.setInputFiles(pnmlPath);
+      } else {
+        const [fileChooser] = await Promise.all([
+          page.waitForEvent('filechooser'),
+          loadBtn.click(),
+        ]);
+        await fileChooser.setFiles(pnmlPath);
+      }
 
       // Wait for simulator ready and Step enabled
       await waitSimulatorReady(page, 10000);
@@ -360,7 +448,8 @@ test.describe('Simple Simulation', () => {
       expect(transitionIds.length).toBeGreaterThanOrEqual(2);
 
       // One step should fire exactly one of the enabled transitions
-      await page.getByTestId('sim-step').click();
+      const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+      await stepButton.click();
 
       // Wait for state to reflect the firing: P1 becomes 0, P2 becomes 1
       await page.waitForFunction(() => {

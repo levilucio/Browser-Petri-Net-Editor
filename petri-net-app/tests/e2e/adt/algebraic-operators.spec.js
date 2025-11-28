@@ -1,12 +1,13 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, loadPNML } from '../../helpers.js';
+import { waitForAppReady, loadPNML, waitForSimulationManager, getVisibleSimulationButton } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 60000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
-    const step = document.querySelector('[data-testid="sim-step"]');
-    const run = document.querySelector('[data-testid="sim-run"]');
+    // Check for both desktop and mobile button test IDs
+    const step = document.querySelector('[data-testid="sim-step"]') || document.querySelector('[data-testid="sim-step-mobile"]');
+    const run = document.querySelector('[data-testid="sim-run"]') || document.querySelector('[data-testid="sim-run-mobile"]');
     const stepEnabled = step && !step.hasAttribute('disabled');
     const runEnabled = run && !run.hasAttribute('disabled');
     const panel = document.querySelector('[data-testid="enabled-transitions"]');
@@ -16,7 +17,7 @@ async function waitSimulatorReady(page, timeout = 60000) {
 }
 
 async function waitSimulatorInitialized(page, timeout = 60000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
     const state = /** @type {any} */ (window).__PETRI_NET_STATE__;
     const core = /** @type {any} */ (window).__PETRI_NET_SIM_CORE__;
@@ -50,7 +51,8 @@ async function loadNet(page, filename, { requireEnabled = true } = {}) {
 test.describe('Algebraic operator coverage', () => {
   test('int operators produce expected values in P2 and comparisons in P3', async ({ page }) => {
     await loadNet(page, 'petri-net-algebraic-int-ops.pnml');
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
 
     await page.waitForFunction(() => {
       const state = /** @type {any} */ (window).__PETRI_NET_STATE__;
@@ -70,7 +72,8 @@ test.describe('Algebraic operator coverage', () => {
 
   test('bool operators resolve logical constructs', async ({ page }) => {
     await loadNet(page, 'petri-net-algebraic-bool-ops.pnml');
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
 
     await page.waitForFunction(() => {
       const state = /** @type {any} */ (window).__PETRI_NET_STATE__;
@@ -90,7 +93,8 @@ test.describe('Algebraic operator coverage', () => {
 
   test('pair operators expose components and comparisons', async ({ page }) => {
     await loadNet(page, 'petri-net-algebraic-pair-ops.pnml');
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
 
     await page.waitForFunction(() => {
       const state = /** @type {any} */ (window).__PETRI_NET_STATE__;
@@ -110,7 +114,8 @@ test.describe('Algebraic operator coverage', () => {
 
   test('string operators cover concat/substring/length predicates', async ({ page }) => {
     await loadNet(page, 'petri-net-algebraic-string-ops.pnml');
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
 
     await page.waitForFunction(() => {
       const state = /** @type {any} */ (window).__PETRI_NET_STATE__;
@@ -130,7 +135,8 @@ test.describe('Algebraic operator coverage', () => {
 
   test('list operators evaluate structural functions and predicates', async ({ page }) => {
     await loadNet(page, 'petri-net-algebraic-list-ops.pnml');
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
 
     await page.waitForFunction(() => {
       const state = /** @type {any} */ (window).__PETRI_NET_STATE__;
@@ -164,12 +170,18 @@ test.describe('Algebraic error handling scenarios', () => {
     await loadNet(page, 'petri-net-algebraic-invalid-binding.pnml', { requireEnabled: false });
 
     // Confirm simulator exposes no enabled transitions
-    const stepButton = page.getByTestId('sim-step');
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
     await expect(stepButton).toBeDisabled();
 
     const toggle = page.getByTestId('show-enabled-transitions');
     if (await toggle.count()) {
-      await toggle.click();
+      // On mobile, the button might be outside viewport - use JavaScript click
+      const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+      if (isMobileViewport) {
+        await toggle.evaluate((btn) => btn.click());
+      } else {
+        await toggle.click();
+      }
       const panel = page.getByTestId('enabled-transitions');
       await expect(panel).toBeVisible();
       await expect(panel).toContainText('No enabled transitions');
@@ -195,11 +207,18 @@ test.describe('Algebraic error handling scenarios', () => {
   test('unsatisfied guard leaves output places empty', async ({ page }) => {
     await loadNet(page, 'petri-net-algebraic-guard-unsat.pnml', { requireEnabled: false });
 
-    await expect(page.getByTestId('sim-step')).toBeDisabled();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await expect(stepButton).toBeDisabled();
 
     const toggle = page.getByTestId('show-enabled-transitions');
     if (await toggle.count()) {
-      await toggle.click();
+      // On mobile, the button might be outside viewport - use JavaScript click
+      const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+      if (isMobileViewport) {
+        await toggle.evaluate((btn) => btn.click());
+      } else {
+        await toggle.click();
+      }
       const panel = page.getByTestId('enabled-transitions');
       await expect(panel).toBeVisible();
       await expect(panel).toContainText('No enabled transitions');

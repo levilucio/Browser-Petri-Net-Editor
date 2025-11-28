@@ -1,10 +1,11 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, getVisibleToolbarButton, clickStage } from '../../helpers.js';
 
 test.describe('Large Scale Petri Net Creation', () => {
   test('should create 30 places and 30 transitions without UI overlap', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="toolbar-place"]', { state: 'visible' });
+    await waitForAppReady(page);
 
     // If the Enabled Transitions panel is open, close it to avoid intercepting clicks
     const panel = page.getByTestId('enabled-transitions');
@@ -17,23 +18,23 @@ test.describe('Large Scale Petri Net Creation', () => {
     }
 
     // Create 30 places in a grid (6x5) using safe left-side area
-    await page.getByTestId('toolbar-place').click();
-    const stage = page.locator('.konvajs-content');
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+    await placeButton.click();
     for (let i = 0; i < 30; i++) {
       const x = 60 + (i % 6) * 60;
       const y = 80 + Math.floor(i / 6) * 40;
-      await stage.click({ position: { x, y } });
+      await clickStage(page, { x, y });
       if ((i + 1) % 10 === 0) await page.waitForTimeout(60);
     }
 
     // Create 100 transitions in another grid
-    await page.getByTestId('toolbar-transition').click();
+    const transitionButton = await getVisibleToolbarButton(page, 'toolbar-transition');
     // Create 30 transitions in a separate band (6x5), avoiding right panels
-    await page.getByTestId('toolbar-transition').click();
+    await transitionButton.click();
     for (let i = 0; i < 30; i++) {
       const x = 420 + (i % 6) * 40;
       const y = 120 + Math.floor(i / 6) * 36;
-      await stage.click({ position: { x, y } });
+      await clickStage(page, { x, y });
       if ((i + 1) % 10 === 0) await page.waitForTimeout(60);
     }
 

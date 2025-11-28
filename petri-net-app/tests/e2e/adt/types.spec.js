@@ -3,22 +3,18 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
+import { loadPNML, waitForSimulationManager, getVisibleSimulationButton, waitForAppReady, openMobileMenuIfNeeded } from '../../helpers.js';
 
 async function loadPnmlViaHiddenInput(page, relativePath) {
   await page.goto('/');
-  const loadBtn = page.getByRole('button', { name: 'Load' });
-  await loadBtn.waitFor({ state: 'visible' });
-  await loadBtn.click();
-  const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
-  await input.waitFor({ state: 'attached', timeout: 10000 });
-  await input.setInputFiles(relativePath);
+  await loadPNML(page, relativePath.replace('tests/test-inputs/', ''));
 }
 
 async function waitSimulatorReady(page, timeout = 60000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
-    const step = document.querySelector('[data-testid="sim-step"]');
-    const run = document.querySelector('[data-testid="sim-run"]');
+    const step = document.querySelector('[data-testid="sim-step"]') || document.querySelector('[data-testid="sim-step-mobile"]');
+    const run = document.querySelector('[data-testid="sim-run"]') || document.querySelector('[data-testid="sim-run-mobile"]');
     const stepEnabled = step && !step.hasAttribute('disabled');
     const runEnabled = run && !run.hasAttribute('disabled');
     const panel = document.querySelector('[data-testid="enabled-transitions"]');
@@ -31,7 +27,8 @@ test.describe('ADT Types (String/List/Pair)', () => {
   test('petri-net10: String concat produces helloworld! in P2', async ({ page }) => {
     await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net10.pnml');
     await waitSimulatorReady(page);
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
     await page.waitForFunction(() => {
       const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return false;
@@ -51,26 +48,39 @@ test.describe('ADT Types (String/List/Pair)', () => {
 
   test('petri-net11: Transition should not fire with non-matching guard', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('[data-testid="toolbar-place"]', { state: 'visible' });
+    await waitForAppReady(page);
 
     const pnmlPath = path.resolve(process.cwd(), 'tests', 'test-inputs', 'petri-net11.pnml');
     let pnmlContent = fs.readFileSync(pnmlPath, 'utf-8');
     pnmlContent = pnmlContent.replace("['hello']", "['world']");
 
+    // On mobile, open menu first
+    await openMobileMenuIfNeeded(page);
     const loadBtn = page.getByRole('button', { name: 'Load' });
     await loadBtn.waitFor({ state: 'visible' });
-    await loadBtn.click();
+    
+    const isMobileViewport = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileViewport) {
+      await loadBtn.evaluate((btn) => btn.click());
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles({
+        name: 'petri-net11-modified.pnml',
+        mimeType: 'application/xml',
+        buffer: Buffer.from(pnmlContent, 'utf-8'),
+      });
+    } else {
+      await loadBtn.click();
+      const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
+      await input.waitFor({ state: 'attached', timeout: 10000 });
+      await input.setInputFiles({
+        name: 'petri-net11-modified.pnml',
+        mimeType: 'application/xml',
+        buffer: Buffer.from(pnmlContent, 'utf-8'),
+      });
+    }
 
-    const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
-    await input.waitFor({ state: 'attached', timeout: 10000 });
-
-    await input.setInputFiles({
-      name: 'petri-net11-modified.pnml',
-      mimeType: 'application/xml',
-      buffer: Buffer.from(pnmlContent, 'utf-8'),
-    });
-
-    await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout: 60000 });
+    await waitForSimulationManager(page, 60000);
     const enabled = await page.evaluate(() => { const w = /** @type {any} */ (window); return (w.__ENABLED_TRANSITIONS__ || []).length; });
     expect(enabled).toBe(0);
   });
@@ -78,7 +88,8 @@ test.describe('ADT Types (String/List/Pair)', () => {
   test('PN12: tail(x) length 3 in P2', async ({ page }) => {
     await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net12.pnml');
     await waitSimulatorReady(page);
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
     await page.waitForFunction(() => {
       const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return false;
@@ -92,7 +103,8 @@ test.describe('ADT Types (String/List/Pair)', () => {
   test('PN16: produces [2,3] in P2', async ({ page }) => {
     await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net16.pnml');
     await waitSimulatorReady(page);
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
     const p2Tokens = await page.waitForFunction(() => {
       const s = /** @type {any} */ (window).__PETRI_NET_STATE__;
       if (!s) return null;
@@ -109,7 +121,8 @@ test.describe('ADT Types (String/List/Pair)', () => {
     await waitSimulatorReady(page);
     const initialEnabled = await page.evaluate(() => { const w = /** @type {any} */ (window); return (w.__ENABLED_TRANSITIONS__ || []); });
     expect(initialEnabled).toContain('t1');
-    await page.getByTestId('sim-step').click();
+    const stepButton = await getVisibleSimulationButton(page, 'sim-step');
+    await stepButton.click();
     await page.waitForTimeout(500);
     const finalInfo = await page.evaluate(() => {
       const s = /** @type {any} */ (window).__PETRI_NET_STATE__;

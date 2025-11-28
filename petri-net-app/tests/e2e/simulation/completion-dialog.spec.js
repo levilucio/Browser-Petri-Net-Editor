@@ -1,11 +1,11 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, loadPNML, enableBatchMode, readCompletionStats } from '../../helpers.js';
+import { waitForAppReady, loadPNML, enableBatchMode, readCompletionStats, waitForSimulationManager, getVisibleSimulationButton } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 120000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
-    const step = document.querySelector('[data-testid="sim-step"]');
+    const step = document.querySelector('[data-testid="sim-step"]') || document.querySelector('[data-testid="sim-step-mobile"]');
     const stepEnabled = step && !step.hasAttribute('disabled');
     const panel = document.querySelector('[data-testid="enabled-transitions"]');
     const buttons = panel ? panel.querySelectorAll('button').length : 0;
@@ -24,8 +24,8 @@ test.describe('Simulation - Completion dialog content and formatting', () => {
     await enableBatchMode(page);
     await waitSimulatorReady(page, 120000);
 
-    const runButton = page.getByTestId('sim-run');
-    const stopButton = page.getByTestId('sim-stop');
+    const runButton = await getVisibleSimulationButton(page, 'sim-run');
+    const stopButton = page.locator('[data-testid="sim-stop"], [data-testid="sim-stop-mobile"]').first();
     await runButton.click();
 
     await expect(stopButton).toBeEnabled({ timeout: 30000 });
@@ -53,8 +53,8 @@ test.describe('Simulation - Completion dialog content and formatting', () => {
     await enableBatchMode(page);
     await waitSimulatorReady(page, 120000);
 
-    const runButton = page.getByTestId('sim-run');
-    const stopButton = page.getByTestId('sim-stop');
+    const runButton = await getVisibleSimulationButton(page, 'sim-run');
+    const stopButton = page.locator('[data-testid="sim-stop"], [data-testid="sim-stop-mobile"]').first();
     await runButton.click();
 
     await expect(stopButton).toBeEnabled({ timeout: 30000 });

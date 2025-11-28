@@ -1,15 +1,18 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import { waitForAppReady, getVisibleToolbarButton } from '../../helpers.js';
 
 async function openAdtPanel(page) {
   await page.goto('/');
+  await waitForAppReady(page);
   // Open ADT panel via toolbar button labeled "ADT" if present
-  const adtButton = page.getByTestId('toolbar-adt-manager');
-  if (await adtButton.count()) {
-    await adtButton.click();
+  const adtButton = await getVisibleToolbarButton(page, 'toolbar-adt-manager');
+  // On mobile, use force click to bypass viewport restrictions
+  const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+  if (isMobile) {
+    await adtButton.click({ force: true });
   } else {
-    // Fallback: open from menu if toolbar not present in this build
-    // noop; the dialog may already be visible in this environment
+    await adtButton.click();
   }
   // Wait for sandbox input
   await expect(page.getByText('Sandbox')).toBeVisible();

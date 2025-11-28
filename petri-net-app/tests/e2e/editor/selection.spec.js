@@ -1,18 +1,15 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
+import { loadPNML, waitForSimulationManager, getVisibleToolbarButton } from '../../helpers.js';
 
 async function loadPnmlViaHiddenInput(page, relativePath) {
   await page.goto('/');
-  const loadBtn = page.getByRole('button', { name: 'Load' });
-  await loadBtn.waitFor({ state: 'visible' });
-  await loadBtn.click();
-  const input = page.locator('input[type="file"][accept=".pnml,.xml"]');
-  await input.waitFor({ state: 'attached', timeout: 10000 });
-  await input.setInputFiles(relativePath);
+  // Use the helper function that handles mobile viewports
+  await loadPNML(page, relativePath.replace('tests/test-inputs/', ''));
 }
 
 async function waitAppReady(page, timeout = 30000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => !!window.__PETRI_NET_STATE__, { timeout });
 }
 
@@ -30,7 +27,8 @@ test('Shift+click selects P5 then Backspace deletes P5 and its arc', async ({ pa
   expect(pre.p5).toBeTruthy();
 
   // Select mode
-  await page.getByTestId('toolbar-select').click();
+  const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+  await selectButton.click();
 
   // Shift+click P5 center
   const container = page.locator('.stage-container').first();
@@ -62,7 +60,8 @@ test('Shift+click selects P5 then Backspace deletes P5 and its arc', async ({ pa
 test('rectangle selection selects nodes whose centers are inside', async ({ page }) => {
   await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net13.pnml');
   await waitAppReady(page);
-  await page.getByTestId('toolbar-select').click();
+  const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+  await selectButton.click();
 
   const container = page.locator('.stage-container').first();
   const box = await container.boundingBox();
@@ -79,7 +78,8 @@ test('rectangle selection selects nodes whose centers are inside', async ({ page
 test('multi-drag keeps topology while dragging and on drop', async ({ page }) => {
   await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net13.pnml');
   await waitAppReady(page);
-  await page.getByTestId('toolbar-select').click();
+  const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+  await selectButton.click();
 
   const container = page.locator('.stage-container').first();
   const box = await container.boundingBox();
@@ -103,7 +103,8 @@ test('multi-drag keeps topology while dragging and on drop', async ({ page }) =>
 test('copy, paste, then delete with Backspace', async ({ page }) => {
   await loadPnmlViaHiddenInput(page, 'tests/test-inputs/petri-net13.pnml');
   await waitAppReady(page);
-  await page.getByTestId('toolbar-select').click();
+  const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+  await selectButton.click();
 
   const container = page.locator('.stage-container').first();
   const box = await container.boundingBox();

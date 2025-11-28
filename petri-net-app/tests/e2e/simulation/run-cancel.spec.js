@@ -1,11 +1,11 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, loadPNML, getVisibleToolbarButton } from '../../helpers.js';
+import { waitForAppReady, loadPNML, getVisibleToolbarButton, waitForSimulationManager, getVisibleSimulationButton } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 120000) {
-  await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
+  await waitForSimulationManager(page, timeout);
   await page.waitForFunction(() => {
-    const step = document.querySelector('[data-testid="sim-step"]');
+    const step = document.querySelector('[data-testid="sim-step"]') || document.querySelector('[data-testid="sim-step-mobile"]');
     const stepEnabled = step && !step.hasAttribute('disabled');
     const panel = document.querySelector('[data-testid="enabled-transitions"]');
     const buttons = panel ? panel.querySelectorAll('button').length : 0;
@@ -24,15 +24,20 @@ test.describe('Simulation - Run and Cancel', () => {
 
     // Enable batch mode
     const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
-    await settingsButton.click();
+    const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobile) {
+      await settingsButton.evaluate(node => node.click());
+    } else {
+      await settingsButton.click();
+    }
     await expect(page.getByText('Simulation Settings')).toBeVisible();
     const batchCheckbox = page.locator('label:has-text("Batch mode") input[type="checkbox"]').first();
     await batchCheckbox.check();
     await page.getByTestId('settings-save').click();
     await waitSimulatorReady(page, 120000);
 
-    const runButton = page.getByTestId('sim-run');
-    const stopButton = page.getByTestId('sim-stop');
+    const runButton = await getVisibleSimulationButton(page, 'sim-run');
+    const stopButton = page.locator('[data-testid="sim-stop"], [data-testid="sim-stop-mobile"]').first();
     await runButton.click();
 
     await expect(stopButton).toBeEnabled({ timeout: 30000 });

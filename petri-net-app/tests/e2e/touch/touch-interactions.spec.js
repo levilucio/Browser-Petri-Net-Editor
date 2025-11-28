@@ -20,6 +20,23 @@ test.describe('Touch Device Interactions', () => {
       const isMobileProject = browserName === 'chromium' && page.context()._options?.isMobile;
       if (!hasTouch && !isMobileProject) {
         test.skip();
+        return;
+      }
+      
+      // Check if Touch constructor is available (not in Safari)
+      const hasTouchConstructor = await page.evaluate(() => {
+        try {
+          // Safari throws "Illegal constructor" when using Touch constructor
+          new Touch({ identifier: 1, target: document.body, clientX: 0, clientY: 0 });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      if (!hasTouchConstructor) {
+        test.skip();
+        return;
       }
 
       const canvas = page.locator('.canvas-container').first();
@@ -132,6 +149,22 @@ test.describe('Touch Device Interactions', () => {
       const isMobileProject = browserName === 'chromium' && page.context()._options?.isMobile;
       if (!hasTouch && !isMobileProject) {
         test.skip();
+        return;
+      }
+      
+      // Check if Touch constructor is available (not in Safari)
+      const hasTouchConstructor = await page.evaluate(() => {
+        try {
+          new Touch({ identifier: 1, target: document.body, clientX: 0, clientY: 0 });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      if (!hasTouchConstructor) {
+        test.skip();
+        return;
       }
 
       const canvas = page.locator('.canvas-container').first();
@@ -225,6 +258,21 @@ test.describe('Touch Device Interactions', () => {
 
   test.describe('Two-Finger Pan', () => {
     test('should pan canvas with two-finger drag', async ({ page }) => {
+      // Check if Touch constructor is available (not in Safari)
+      const hasTouchConstructor = await page.evaluate(() => {
+        try {
+          new Touch({ identifier: 1, target: document.body, clientX: 0, clientY: 0 });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      if (!hasTouchConstructor) {
+        test.skip();
+        return;
+      }
+
       const canvas = page.locator('.canvas-container').first();
       
       // Create a place first to have something on canvas
@@ -327,6 +375,21 @@ test.describe('Touch Device Interactions', () => {
 
   test.describe('Long Press Selection', () => {
     test('should activate selection after long press on background', async ({ page }) => {
+      // Check if Touch constructor is available (not in Safari)
+      const hasTouchConstructor = await page.evaluate(() => {
+        try {
+          new Touch({ identifier: 1, target: document.body, clientX: 0, clientY: 0 });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      if (!hasTouchConstructor) {
+        test.skip();
+        return;
+      }
+
       // Create a place to target with selection
       const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
       await placeButton.click();
@@ -427,6 +490,21 @@ test.describe('Touch Device Interactions', () => {
     });
 
     test('should cancel long press if finger moves too much before delay', async ({ page }) => {
+      // Check if Touch constructor is available (not in Safari)
+      const hasTouchConstructor = await page.evaluate(() => {
+        try {
+          new Touch({ identifier: 1, target: document.body, clientX: 0, clientY: 0 });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      if (!hasTouchConstructor) {
+        test.skip();
+        return;
+      }
+
       const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
       await selectButton.click();
       await page.waitForTimeout(200);
@@ -513,6 +591,21 @@ test.describe('Touch Device Interactions', () => {
 
   test.describe('Single-Finger Pan', () => {
     test('should pan canvas with single finger after delay and movement', async ({ page }) => {
+      // Check if Touch constructor is available (not in Safari)
+      const hasTouchConstructor = await page.evaluate(() => {
+        try {
+          new Touch({ identifier: 1, target: document.body, clientX: 0, clientY: 0 });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      if (!hasTouchConstructor) {
+        test.skip();
+        return;
+      }
+
       const canvas = page.locator('.canvas-container').first();
       
       const boundingBox = await canvas.boundingBox();
