@@ -125,7 +125,8 @@ export async function loadPNML(page, filename) {
  * @param {import('@playwright/test').Page} page
  */
 export async function enableBatchMode(page) {
-  await page.getByTestId('toolbar-settings').click();
+  const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
+  await settingsButton.click();
   const batchCheckbox = page.locator('label:has-text("Batch mode") input[type="checkbox"]').first();
   await batchCheckbox.check();
   await page.getByTestId('settings-save').click();
@@ -148,8 +149,12 @@ export async function waitStopCycle(page, expect) {
  * @param {import('@playwright/test').Page} page
  */
 export async function readCompletionStats(page) {
-  const dialog = page.locator('.bg-white.rounded-lg.shadow-xl.p-6');
+  const dialog = page.locator('.bg-white.rounded-lg.shadow-xl.p-6').first();
   await dialog.waitFor({ state: 'visible', timeout: 10000 });
+  
+  // Wait for stats to be populated (wait for "Transitions Fired:" text to appear)
+  await page.getByText(/Transitions Fired:/).first().waitFor({ state: 'visible', timeout: 10000 });
+  
   const text = await dialog.innerText();
   const tMatch = /Transitions Fired:\s*([0-9,]+)/.exec(text);
   const transitions = tMatch ? Number.parseInt(tMatch[1].replace(/,/g, ''), 10) : 0;

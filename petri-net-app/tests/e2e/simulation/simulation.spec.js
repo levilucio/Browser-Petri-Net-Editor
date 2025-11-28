@@ -2,6 +2,7 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
 import path from 'path';
+import { getVisibleToolbarButton } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 60000) {
   await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
@@ -147,7 +148,8 @@ test.describe('Simple Simulation', () => {
     await fileChooser.setFiles(pnmlPath);
 
     // Open Settings and switch to Maximal Concurrent via UI
-    await page.getByTestId('toolbar-settings').click();
+    const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
+    await settingsButton.click();
     const maximalRadio = page.locator('input[type="radio"][name="simulationMode"][value="maximal"]');
     await maximalRadio.check();
     await page.getByTestId('settings-save').click();

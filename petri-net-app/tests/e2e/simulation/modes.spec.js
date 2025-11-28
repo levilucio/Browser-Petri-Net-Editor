@@ -1,10 +1,11 @@
 /// <reference path="../../types/global.d.ts" />
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady } from '../../helpers.js';
+import { waitForAppReady, getVisibleToolbarButton } from '../../helpers.js';
 
 async function openSettings(page) {
-  await page.getByTestId('toolbar-settings').click();
+  const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
+  await settingsButton.click();
   await expect(page.getByText('Simulation Settings')).toBeVisible();
 }
 
@@ -36,7 +37,8 @@ test.describe('Settings: net type switching rules', () => {
 
   test('Canvas has P/T net: net type radios are disabled (locked)', async ({ page }) => {
     // Create a PT net element (place)
-    await page.getByTestId('toolbar-place').click();
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+    await placeButton.click();
     await page.locator('.konvajs-content').click({ position: { x: 120, y: 120 } });
     // Open settings
     await openSettings(page);
@@ -54,7 +56,8 @@ test.describe('Settings: net type switching rules', () => {
     await apnRadio.check();
     await page.getByTestId('settings-save').click();
     // Add at least one element to the canvas so mode becomes locked
-    await page.getByTestId('toolbar-place').click();
+    const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+    await placeButton.click();
     await page.locator('.konvajs-content').click({ position: { x: 150, y: 150 } });
     // Open settings
     await openSettings(page);

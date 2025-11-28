@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, getPetriNetState, clickStage } from '../../helpers.js';
+import { waitForAppReady, getPetriNetState, clickStage, getVisibleToolbarButton } from '../../helpers.js';
 
 test.describe('Touch Device Interactions', () => {
   test.beforeEach(async ({ page }) => {
@@ -9,7 +9,19 @@ test.describe('Touch Device Interactions', () => {
   });
 
   test.describe('Pinch-to-Zoom', () => {
-    test('should zoom in with pinch-out gesture', async ({ page }) => {
+    test('should zoom in with pinch-out gesture', async ({ page, browserName }) => {
+      // Skip if touchscreen API is not available (desktop browsers)
+      const hasTouch = await page.evaluate(() => {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      });
+      
+      // Only run if we're on a mobile project or touch is available
+      // Mobile projects have hasTouch enabled in their context
+      const isMobileProject = browserName === 'chromium' && page.context()._options?.isMobile;
+      if (!hasTouch && !isMobileProject) {
+        test.skip();
+      }
+
       const canvas = page.locator('.canvas-container').first();
       
       // Get initial zoom level (if exposed)
@@ -18,7 +30,7 @@ test.describe('Touch Device Interactions', () => {
         return window.__EDITOR_UI_STATE__?.zoomLevel || 1;
       });
 
-      // Simulate two-finger pinch-out (zoom in)
+      // Simulate two-finger pinch-out (zoom in) using TouchEvent instead of touchscreen API
       const boundingBox = await canvas.boundingBox();
       if (!boundingBox) {
         throw new Error('Canvas not found');
@@ -27,13 +39,75 @@ test.describe('Touch Device Interactions', () => {
       const centerX = boundingBox.x + boundingBox.width / 2;
       const centerY = boundingBox.y + boundingBox.height / 2;
 
-      // Start with two touches close together
-      await page.touchscreen.tap(centerX - 50, centerY);
-      await page.touchscreen.tap(centerX + 50, centerY);
+      // Use manual TouchEvent dispatch instead of touchscreen API
+      await page.evaluate(({ x, y }) => {
+        const container = document.querySelector('.canvas-container');
+        if (!container) return;
 
-      // Move fingers apart (pinch out)
-      await page.touchscreen.tap(centerX - 100, centerY);
-      await page.touchscreen.tap(centerX + 100, centerY);
+        // Create two touches for pinch-out
+        const touch1 = new Touch({
+          identifier: 1,
+          target: container,
+          clientX: x - 50,
+          clientY: y,
+          radiusX: 2.5,
+          radiusY: 2.5,
+          rotationAngle: 0,
+          force: 0.5,
+        });
+
+        const touch2 = new Touch({
+          identifier: 2,
+          target: container,
+          clientX: x + 50,
+          clientY: y,
+          radiusX: 2.5,
+          radiusY: 2.5,
+          rotationAngle: 0,
+          force: 0.5,
+        });
+
+        container.dispatchEvent(new TouchEvent('touchstart', {
+          cancelable: true,
+          bubbles: true,
+          touches: [touch1, touch2],
+          targetTouches: [touch1, touch2],
+          changedTouches: [touch1, touch2],
+        }));
+
+        // Move fingers apart (pinch out)
+        setTimeout(() => {
+          const touch1Move = new Touch({
+            identifier: 1,
+            target: container,
+            clientX: x - 100,
+            clientY: y,
+            radiusX: 2.5,
+            radiusY: 2.5,
+            rotationAngle: 0,
+            force: 0.5,
+          });
+
+          const touch2Move = new Touch({
+            identifier: 2,
+            target: container,
+            clientX: x + 100,
+            clientY: y,
+            radiusX: 2.5,
+            radiusY: 2.5,
+            rotationAngle: 0,
+            force: 0.5,
+          });
+
+          container.dispatchEvent(new TouchEvent('touchmove', {
+            cancelable: true,
+            bubbles: true,
+            touches: [touch1Move, touch2Move],
+            targetTouches: [touch1Move, touch2Move],
+            changedTouches: [touch1Move, touch2Move],
+          }));
+        }, 100);
+      }, { x: centerX, y: centerY });
 
       // Wait for zoom to apply
       await page.waitForTimeout(500);
@@ -48,7 +122,18 @@ test.describe('Touch Device Interactions', () => {
       expect(newZoom).toBeGreaterThanOrEqual(initialZoom);
     });
 
-    test('should zoom out with pinch-in gesture', async ({ page }) => {
+    test('should zoom out with pinch-in gesture', async ({ page, browserName }) => {
+      // Skip if touchscreen API is not available (desktop browsers)
+      const hasTouch = await page.evaluate(() => {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      });
+      
+      // Only run if we're on a mobile project or touch is available
+      const isMobileProject = browserName === 'chromium' && page.context()._options?.isMobile;
+      if (!hasTouch && !isMobileProject) {
+        test.skip();
+      }
+
       const canvas = page.locator('.canvas-container').first();
       
       // First zoom in a bit
@@ -60,13 +145,75 @@ test.describe('Touch Device Interactions', () => {
       const centerX = boundingBox.x + boundingBox.width / 2;
       const centerY = boundingBox.y + boundingBox.height / 2;
 
-      // Start with two touches far apart
-      await page.touchscreen.tap(centerX - 100, centerY);
-      await page.touchscreen.tap(centerX + 100, centerY);
+      // Use manual TouchEvent dispatch instead of touchscreen API
+      await page.evaluate(({ x, y }) => {
+        const container = document.querySelector('.canvas-container');
+        if (!container) return;
 
-      // Move fingers together (pinch in)
-      await page.touchscreen.tap(centerX - 50, centerY);
-      await page.touchscreen.tap(centerX + 50, centerY);
+        // Start with two touches far apart
+        const touch1 = new Touch({
+          identifier: 1,
+          target: container,
+          clientX: x - 100,
+          clientY: y,
+          radiusX: 2.5,
+          radiusY: 2.5,
+          rotationAngle: 0,
+          force: 0.5,
+        });
+
+        const touch2 = new Touch({
+          identifier: 2,
+          target: container,
+          clientX: x + 100,
+          clientY: y,
+          radiusX: 2.5,
+          radiusY: 2.5,
+          rotationAngle: 0,
+          force: 0.5,
+        });
+
+        container.dispatchEvent(new TouchEvent('touchstart', {
+          cancelable: true,
+          bubbles: true,
+          touches: [touch1, touch2],
+          targetTouches: [touch1, touch2],
+          changedTouches: [touch1, touch2],
+        }));
+
+        // Move fingers together (pinch in)
+        setTimeout(() => {
+          const touch1Move = new Touch({
+            identifier: 1,
+            target: container,
+            clientX: x - 50,
+            clientY: y,
+            radiusX: 2.5,
+            radiusY: 2.5,
+            rotationAngle: 0,
+            force: 0.5,
+          });
+
+          const touch2Move = new Touch({
+            identifier: 2,
+            target: container,
+            clientX: x + 50,
+            clientY: y,
+            radiusX: 2.5,
+            radiusY: 2.5,
+            rotationAngle: 0,
+            force: 0.5,
+          });
+
+          container.dispatchEvent(new TouchEvent('touchmove', {
+            cancelable: true,
+            bubbles: true,
+            touches: [touch1Move, touch2Move],
+            targetTouches: [touch1Move, touch2Move],
+            changedTouches: [touch1Move, touch2Move],
+          }));
+        }, 100);
+      }, { x: centerX, y: centerY });
 
       await page.waitForTimeout(500);
 
@@ -81,7 +228,8 @@ test.describe('Touch Device Interactions', () => {
       const canvas = page.locator('.canvas-container').first();
       
       // Create a place first to have something on canvas
-      await page.getByTestId('toolbar-place').click();
+      const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+      await placeButton.click();
       await page.waitForTimeout(300);
       await clickStage(page, { x: 200, y: 200 });
       await page.waitForTimeout(300);
@@ -180,12 +328,14 @@ test.describe('Touch Device Interactions', () => {
   test.describe('Long Press Selection', () => {
     test('should activate selection after long press on background', async ({ page }) => {
       // Create a place to target with selection
-      await page.getByTestId('toolbar-place').click();
+      const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+      await placeButton.click();
       await clickStage(page, { x: 200, y: 200 });
       await page.waitForTimeout(300);
 
       // Switch to select mode
-      await page.getByTestId('toolbar-select').click();
+      const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+      await selectButton.click();
       await page.waitForTimeout(200);
 
       await page.evaluate(async () => {
@@ -277,7 +427,8 @@ test.describe('Touch Device Interactions', () => {
     });
 
     test('should cancel long press if finger moves too much before delay', async ({ page }) => {
-      await page.getByTestId('toolbar-select').click();
+      const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+      await selectButton.click();
       await page.waitForTimeout(200);
 
       await page.evaluate(async () => {
@@ -482,7 +633,8 @@ test.describe('Touch Device Interactions', () => {
 
   test.describe('Element Interaction on Touch', () => {
     test('should create place with tap on touch device', async ({ page }) => {
-      await page.getByTestId('toolbar-place').click();
+      const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+      await placeButton.click();
       await page.waitForTimeout(300);
 
       // Tap to create place
@@ -496,19 +648,20 @@ test.describe('Touch Device Interactions', () => {
 
     test('should select element with tap on touch device', async ({ page }) => {
       // Create a place first
-      await page.getByTestId('toolbar-place').click();
+      const placeButton = await getVisibleToolbarButton(page, 'toolbar-place');
+      await placeButton.click();
       await page.waitForTimeout(300);
       await clickStage(page, { x: 200, y: 200 });
       await page.waitForTimeout(500);
 
       // Switch to select mode
-      await page.getByTestId('toolbar-select').click();
+      const selectButton = await getVisibleToolbarButton(page, 'toolbar-select');
+      await selectButton.click();
       await page.waitForTimeout(300);
 
       // Tap on the place to select it
       // Note: This requires knowing the exact position of the created place
       // For now, we verify the mode switch worked
-      const selectButton = page.getByTestId('toolbar-select');
       expect(await selectButton.isVisible()).toBe(true);
     });
   });

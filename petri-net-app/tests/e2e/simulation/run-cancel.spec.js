@@ -1,6 +1,6 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, loadPNML } from '../../helpers.js';
+import { waitForAppReady, loadPNML, getVisibleToolbarButton } from '../../helpers.js';
 
 async function waitSimulatorReady(page, timeout = 120000) {
   await expect(page.getByTestId('simulation-manager')).toBeVisible({ timeout });
@@ -23,7 +23,9 @@ test.describe('Simulation - Run and Cancel', () => {
     await waitSimulatorReady(page, 120000);
 
     // Enable batch mode
-    await page.getByTestId('toolbar-settings').click();
+    const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
+    await settingsButton.click();
+    await expect(page.getByText('Simulation Settings')).toBeVisible();
     const batchCheckbox = page.locator('label:has-text("Batch mode") input[type="checkbox"]').first();
     await batchCheckbox.check();
     await page.getByTestId('settings-save').click();
@@ -40,7 +42,7 @@ test.describe('Simulation - Run and Cancel', () => {
     await expect(stopButton).toBeDisabled({ timeout: 10000 });
 
     // Assert no completion dialog appeared
-    const dialog = page.getByText('Simulation Complete');
+    const dialog = page.getByText('Simulation Complete').first();
     await expect(dialog).not.toBeVisible({ timeout: 2000 });
   });
 });
