@@ -41,6 +41,12 @@ export function useCanvasZoom({
   const singleFingerPanRef = useRef(createSingleFingerPanState());
   const zoomLevelRef = useRef(zoomLevel);
   
+  // Ref to track isDragging synchronously (avoids race conditions with async state updates)
+  const isDraggingRef = useRef(false);
+  // Ref to prevent pan from starting immediately after drag ends (allows RAF callbacks to complete)
+  const dragEndTimestampRef = useRef(0);
+  const DRAG_END_COOLDOWN_MS = 100; // Wait 100ms after drag ends before allowing pan
+  
   // Inertia/momentum scrolling state
   const inertiaAnimationRef = useRef(null);
   const velocityHistoryRef = useRef([]); // Array of {x, y, time} for velocity calculation
@@ -49,6 +55,15 @@ export function useCanvasZoom({
   useEffect(() => {
     zoomLevelRef.current = zoomLevel;
   }, [zoomLevel]);
+
+  // Update isDraggingRef synchronously when prop changes
+  useEffect(() => {
+    isDraggingRef.current = isDragging;
+    // Record timestamp when dragging ends to enforce cooldown
+    if (!isDragging) {
+      dragEndTimestampRef.current = performance.now();
+    }
+  }, [isDragging]);
 
   const clampZoom = useCallback(
     (value) => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, value)),
@@ -327,6 +342,17 @@ export function useCanvasZoom({
         panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
         pinchStateRef.current = { active: false };
 
+        // Check isDragging synchronously via ref and cooldown period
+        const timeSinceDragEnd = performance.now() - dragEndTimestampRef.current;
+        const isInCooldown = timeSinceDragEnd < DRAG_END_COOLDOWN_MS;
+        
+        // Don't start pan tracking if dragging or in cooldown
+        if (isDraggingRef.current || isInCooldown) {
+          clearSingleFingerPan();
+          velocityHistoryRef.current = [];
+          return;
+        }
+
         // Single-finger pan/selection decision is now handled by CanvasManager
         // We just track the touch position for when panning is activated
         const touch = event.touches[0];
@@ -426,7 +452,13 @@ export function useCanvasZoom({
 
       if (event.touches.length === 1) {
         const selectionActive = isSelectionActiveRef?.current || false;
-        if (isDragging || selectionActive) {
+        
+        // Check isDragging synchronously via ref (avoids race condition with async state)
+        // Also enforce cooldown period after drag ends to allow RAF callbacks to complete
+        const timeSinceDragEnd = performance.now() - dragEndTimestampRef.current;
+        const isInCooldown = timeSinceDragEnd < DRAG_END_COOLDOWN_MS;
+        
+        if (isDraggingRef.current || isInCooldown || selectionActive) {
           clearSingleFingerPan();
           velocityHistoryRef.current = []; // Clear velocity to prevent stale inertia
           return;
@@ -551,6 +583,12 @@ export function useCanvasZoom({
     setIsSingleFingerPanningActive(false);
     pinchStateRef.current = { active: false };
     panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+    
+    // Update ref immediately for synchronous checks in touch handlers
+    isDraggingRef.current = isDragging;
+    if (!isDragging) {
+      dragEndTimestampRef.current = performance.now();
+    }
   }, [isDragging, stopInertiaAnimation]);
 
   // Function to activate single-finger panning from CanvasManager

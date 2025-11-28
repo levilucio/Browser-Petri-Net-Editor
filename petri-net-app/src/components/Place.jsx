@@ -97,12 +97,24 @@ const Place = ({
 
   const flushMultiDragUpdate = useCallback(() => {
     const scheduler = dragSchedulerRef.current;
-    if (typeof window !== 'undefined' && typeof window.cancelAnimationFrame === 'function' && scheduler.rafId !== null) {
-      window.cancelAnimationFrame(scheduler.rafId);
+    
+    // Cancel RAF more aggressively to prevent conflicts with pan
+    if (typeof window !== 'undefined' && typeof window.cancelAnimationFrame === 'function') {
+      if (scheduler.rafId !== null) {
+        window.cancelAnimationFrame(scheduler.rafId);
+        scheduler.rafId = null;
+      }
     }
-    if (scheduler.pending || scheduler.rafId !== null) {
+    
+    // Run immediately and clear pending flag
+    if (scheduler.pending) {
+      scheduler.pending = false;
       runMultiDragUpdate();
     }
+    
+    // Reset scheduler state to prevent stale updates
+    scheduler.delta = { dx: 0, dy: 0 };
+    scheduler.lastApplied = { dx: 0, dy: 0 };
   }, [runMultiDragUpdate]);
   const isAlgebraicNet = netMode === 'algebraic-int' || Array.isArray(valueTokens);
 
