@@ -7,7 +7,7 @@ import { computeAlgebraicPlaceVisuals } from '../utils/place-layout.js';
 
 // Cooldown period after drag ends before another drag can start (ms)
 // This prevents race conditions when rapidly switching between elements
-const DRAG_COOLDOWN_MS = 50;
+const DRAG_COOLDOWN_MS = 500;
 
 const Place = ({
   id,

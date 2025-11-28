@@ -57,7 +57,8 @@ async function waitForCompletionDialog(page, timeout = 180000) {
 test.describe('Simulation - Completion dialog content and formatting', () => {
   test('algebraic large net: dialog shows formatted transitions and duration', async ({ page, browserName }) => {
     // Skip on Mobile Safari - large simulations cause browser crashes due to resource constraints
-    if (browserName === 'webkit' && page.context()._options?.isMobile) {
+    const isMobileSafari = browserName === 'webkit' && await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileSafari) {
       test.skip();
       return;
     }
@@ -80,7 +81,50 @@ test.describe('Simulation - Completion dialog content and formatting', () => {
     // Use robust completion dialog wait
     await waitForCompletionDialog(page, 120000);
 
-    const stats = await readCompletionStats(page);
+    // Extract stats - try multiple methods for mobile compatibility
+    const stats = await page.evaluate(() => {
+      // Find the dialog
+      const dialog = document.querySelector('.bg-white.rounded-lg.shadow-xl.p-6');
+      if (!dialog) return null;
+      
+      // Get all text from dialog
+      const text = dialog.innerText || dialog.textContent || '';
+      
+      // Extract transitions
+      const transMatch = /Transitions Fired[:\s]+([0-9,]+)/.exec(text);
+      const transitions = transMatch ? Number.parseInt(transMatch[1].replace(/,/g, ''), 10) : 0;
+      
+      // Extract duration - try multiple patterns
+      let durationMs = Number.POSITIVE_INFINITY;
+      
+      // Pattern 1: "Duration:" followed by value on same or next line
+      const durMatch = /Duration[:\s]+([0-9]+\.?[0-9]*)\s*(ms|s|m)/.exec(text);
+      if (durMatch) {
+        const value = Number.parseFloat(durMatch[1]);
+        const unit = durMatch[2];
+        if (Number.isFinite(value)) {
+          if (unit === 'ms') durationMs = value;
+          else if (unit === 's') durationMs = value * 1000;
+          else if (unit === 'm') durationMs = value * 60000;
+        }
+      }
+      
+      // Pattern 2: "Duration:" followed by "Xm Ys" format
+      if (!Number.isFinite(durationMs)) {
+        const durMatch2 = /Duration[:\s]+(?:([0-9]+)m\s*)?(?:([0-9]+)s)?/.exec(text);
+        if (durMatch2) {
+          const minutes = durMatch2[1] ? Number.parseInt(durMatch2[1], 10) : 0;
+          const seconds = durMatch2[2] ? Number.parseInt(durMatch2[2], 10) : 0;
+          if (Number.isFinite(minutes) || Number.isFinite(seconds)) {
+            durationMs = minutes * 60000 + seconds * 1000;
+          }
+        }
+      }
+      
+      return { transitions, durationMs };
+    });
+    
+    expect(stats).not.toBeNull();
     expect(stats.transitions).toBe(2432);
     // Allow up to 35 seconds for CI/slower machines with variable performance
     expect(stats.durationMs).toBeLessThanOrEqual(35000);
@@ -92,7 +136,8 @@ test.describe('Simulation - Completion dialog content and formatting', () => {
 
   test('algebraic very large net: dialog shows correct stats under 10s', async ({ page, browserName }) => {
     // Skip on Mobile Safari - very large simulations cause browser crashes due to resource constraints
-    if (browserName === 'webkit' && page.context()._options?.isMobile) {
+    const isMobileSafari = browserName === 'webkit' && await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
+    if (isMobileSafari) {
       test.skip();
       return;
     }
@@ -115,7 +160,50 @@ test.describe('Simulation - Completion dialog content and formatting', () => {
     // Use robust completion dialog wait
     await waitForCompletionDialog(page, 120000);
 
-    const stats = await readCompletionStats(page);
+    // Extract stats - try multiple methods for mobile compatibility
+    const stats = await page.evaluate(() => {
+      // Find the dialog
+      const dialog = document.querySelector('.bg-white.rounded-lg.shadow-xl.p-6');
+      if (!dialog) return null;
+      
+      // Get all text from dialog
+      const text = dialog.innerText || dialog.textContent || '';
+      
+      // Extract transitions
+      const transMatch = /Transitions Fired[:\s]+([0-9,]+)/.exec(text);
+      const transitions = transMatch ? Number.parseInt(transMatch[1].replace(/,/g, ''), 10) : 0;
+      
+      // Extract duration - try multiple patterns
+      let durationMs = Number.POSITIVE_INFINITY;
+      
+      // Pattern 1: "Duration:" followed by value on same or next line
+      const durMatch = /Duration[:\s]+([0-9]+\.?[0-9]*)\s*(ms|s|m)/.exec(text);
+      if (durMatch) {
+        const value = Number.parseFloat(durMatch[1]);
+        const unit = durMatch[2];
+        if (Number.isFinite(value)) {
+          if (unit === 'ms') durationMs = value;
+          else if (unit === 's') durationMs = value * 1000;
+          else if (unit === 'm') durationMs = value * 60000;
+        }
+      }
+      
+      // Pattern 2: "Duration:" followed by "Xm Ys" format
+      if (!Number.isFinite(durationMs)) {
+        const durMatch2 = /Duration[:\s]+(?:([0-9]+)m\s*)?(?:([0-9]+)s)?/.exec(text);
+        if (durMatch2) {
+          const minutes = durMatch2[1] ? Number.parseInt(durMatch2[1], 10) : 0;
+          const seconds = durMatch2[2] ? Number.parseInt(durMatch2[2], 10) : 0;
+          if (Number.isFinite(minutes) || Number.isFinite(seconds)) {
+            durationMs = minutes * 60000 + seconds * 1000;
+          }
+        }
+      }
+      
+      return { transitions, durationMs };
+    });
+    
+    expect(stats).not.toBeNull();
     expect(stats.transitions).toBe(3240);
     // Allow up to 25 seconds for CI/slower machines with variable performance
     expect(stats.durationMs).toBeLessThan(25000);

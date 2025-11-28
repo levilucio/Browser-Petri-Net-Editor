@@ -6,7 +6,7 @@ import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection
 
 // Cooldown period after drag ends before another drag can start (ms)
 // This prevents race conditions when rapidly switching between elements
-const DRAG_COOLDOWN_MS = 50;
+const DRAG_COOLDOWN_MS = 500;
 
 const GUARD_FONT_SIZE = 11;
 const GUARD_CHAR_FACTOR = 0.48;
