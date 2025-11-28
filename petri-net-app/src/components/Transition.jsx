@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { Rect, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import { useEditorUI } from '../contexts/EditorUIContext';
@@ -43,15 +43,13 @@ const Transition = ({
     selectedElements,
     setElements,
     multiDragRef,
+    dragCooldownRef,
     isIdSelected,
     setSelection,
     mode,
     arcStart
   } = usePetriNet();
   // netMode provided by context
-  
-  // Track when the last drag ended to enforce cooldown
-  const lastDragEndRef = useRef(0);
   
   const buildDragSnapshot = useCallback((selectedNodeIds) => {
     const startPositions = new Map();
@@ -75,20 +73,22 @@ const Transition = ({
     return { startPositions, startArcPoints };
   }, [elements]);
 
-  const handleDragStart = () => {
+  const handleDragStart = (e) => {
+    // Check GLOBAL cooldown - if ANY drag just ended, block this drag entirely
+    const timeSinceLastDrag = performance.now() - dragCooldownRef.current;
+    if (timeSinceLastDrag < DRAG_COOLDOWN_MS) {
+      // Block the drag entirely during cooldown by stopping propagation
+      // and not updating any state
+      if (e && e.target && typeof e.target.stopDrag === 'function') {
+        e.target.stopDrag();
+      }
+      return;
+    }
+    
     // IMPORTANT: If a previous drag's snapshot still exists, clear it first
     // This prevents race conditions when rapidly switching between elements
     if (multiDragRef.current !== null) {
       multiDragRef.current = null;
-    }
-    
-    // Check cooldown - if another drag just ended, wait for state to settle
-    const timeSinceLastDrag = performance.now() - lastDragEndRef.current;
-    if (timeSinceLastDrag < DRAG_COOLDOWN_MS) {
-      // Skip snapshot creation during cooldown - the drag will still happen
-      // but we won't try to update other elements, avoiding race conditions
-      setIsDragging(true);
-      return;
     }
     
     // Set dragging state to true when drag starts
@@ -164,8 +164,8 @@ const Transition = ({
   };
 
   const handleDragEnd = (e) => {
-    // Record when this drag ended for cooldown enforcement
-    lastDragEndRef.current = performance.now();
+    // Record GLOBAL cooldown timestamp - blocks ALL element drags for DRAG_COOLDOWN_MS
+    dragCooldownRef.current = performance.now();
     
     // When drag ends, the new position is in the parent's coordinate system (virtual coordinates)
     const newVirtualPos = {

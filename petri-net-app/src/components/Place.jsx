@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useRef } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 import { Circle, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
@@ -29,6 +29,7 @@ const Place = ({
     selectedElements,
     setElements,
     multiDragRef,
+    dragCooldownRef,
     isIdSelected,
     mode,
     arcStart
@@ -41,10 +42,6 @@ const Place = ({
   } = useEditorUI();
 
   const baseRadius = 30;
-  
-  // Track when the last drag ended to enforce cooldown
-  const lastDragEndRef = useRef(0);
-  
   const isAlgebraicNet = netMode === 'algebraic-int' || Array.isArray(valueTokens);
 
   const algebraicVisuals = useMemo(() => {
@@ -78,20 +75,22 @@ const Place = ({
     return { startPositions, startArcPoints };
   }, [elements]);
 
-  const handleDragStart = () => {
+  const handleDragStart = (e) => {
+    // Check GLOBAL cooldown - if ANY drag just ended, block this drag entirely
+    const timeSinceLastDrag = performance.now() - dragCooldownRef.current;
+    if (timeSinceLastDrag < DRAG_COOLDOWN_MS) {
+      // Block the drag entirely during cooldown by stopping propagation
+      // and not updating any state
+      if (e && e.target && typeof e.target.stopDrag === 'function') {
+        e.target.stopDrag();
+      }
+      return;
+    }
+    
     // IMPORTANT: If a previous drag's snapshot still exists, clear it first
     // This prevents race conditions when rapidly switching between elements
     if (multiDragRef.current !== null) {
       multiDragRef.current = null;
-    }
-    
-    // Check cooldown - if another drag just ended, wait for state to settle
-    const timeSinceLastDrag = performance.now() - lastDragEndRef.current;
-    if (timeSinceLastDrag < DRAG_COOLDOWN_MS) {
-      // Skip snapshot creation during cooldown - the drag will still happen
-      // but we won't try to update other elements, avoiding race conditions
-      setIsDragging(true);
-      return;
     }
     
     // Set dragging state to true when drag starts
@@ -167,8 +166,8 @@ const Place = ({
   };
 
   const handleDragEnd = (e) => {
-    // Record when this drag ended for cooldown enforcement
-    lastDragEndRef.current = performance.now();
+    // Record GLOBAL cooldown timestamp - blocks ALL element drags for DRAG_COOLDOWN_MS
+    dragCooldownRef.current = performance.now();
     
     // When drag ends, the new position is in the parent's coordinate system (virtual coordinates)
     const newVirtualPos = {

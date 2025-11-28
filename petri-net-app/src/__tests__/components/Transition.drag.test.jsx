@@ -20,6 +20,7 @@ jest.mock('../../contexts/PetriNetContext', () => ({
     selectedElements: [],
     setElements: jest.fn(),
     multiDragRef: { current: null },
+    dragCooldownRef: { current: 0 }, // Global cooldown ref
     isIdSelected: () => false,
     setSelection: mockSetSelection,
   }),
