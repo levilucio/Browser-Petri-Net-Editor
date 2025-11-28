@@ -8,10 +8,10 @@ test('sandbox equation solving returns solutions', async ({ page }) => {
   
   // getVisibleToolbarButton will automatically open mobile menu if needed
   const adtButton = await getVisibleToolbarButton(page, 'toolbar-adt-manager');
-  // On mobile, use force click to bypass viewport restrictions
+  // On mobile, use evaluate to bypass viewport restrictions
   const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
   if (isMobile) {
-    await adtButton.click({ force: true });
+    await adtButton.evaluate(node => node.click());
   } else {
     await adtButton.click();
   }

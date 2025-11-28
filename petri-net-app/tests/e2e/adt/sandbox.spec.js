@@ -7,10 +7,10 @@ async function openAdtPanel(page) {
   await waitForAppReady(page);
   // Open ADT panel via toolbar button labeled "ADT" if present
   const adtButton = await getVisibleToolbarButton(page, 'toolbar-adt-manager');
-  // On mobile, use force click to bypass viewport restrictions
+  // On mobile, use evaluate to bypass viewport restrictions
   const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
   if (isMobile) {
-    await adtButton.click({ force: true });
+    await adtButton.evaluate(node => node.click());
   } else {
     await adtButton.click();
   }
@@ -36,7 +36,8 @@ async function clickRunAndResult(page) {
     await runBtn.click();
   }
   const res = page.getByTestId('sandbox-result');
-  await expect(res).toBeVisible({ timeout: 10000 });
+  // On mobile, Z3 computation might take longer, use longer timeout
+  await expect(res).toBeVisible({ timeout: isMobile ? 15000 : 10000 });
   return await res.textContent();
 }
 

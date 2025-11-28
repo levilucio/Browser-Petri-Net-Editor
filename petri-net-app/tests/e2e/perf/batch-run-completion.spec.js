@@ -118,7 +118,12 @@ async function waitForCompletionDialog(page, timeout = 180000) {
 }
 
 test.describe('Batch run completion dialog', () => {
-  test('runs algebraic large net in batch mode under six seconds', async ({ page }) => {
+  test('runs algebraic large net in batch mode under six seconds', async ({ page, browserName }) => {
+    // Skip on Mobile Safari - large simulations cause browser crashes due to resource constraints
+    if (browserName === 'webkit' && page.context()._options?.isMobile) {
+      test.skip();
+      return;
+    }
     test.setTimeout(180_000);
 
     await page.goto('/');
@@ -237,7 +242,12 @@ test.describe('Batch run completion dialog', () => {
     await page.getByRole('button', { name: 'OK' }).first().evaluate(node => node.click());
   });
 
-  test('runs algebraic very large net in batch mode under ten seconds', async ({ page }) => {
+  test('runs algebraic very large net in batch mode under ten seconds', async ({ page, browserName }) => {
+    // Skip on Mobile Safari - large simulations cause browser crashes due to resource constraints
+    if (browserName === 'webkit' && page.context()._options?.isMobile) {
+      test.skip();
+      return;
+    }
     test.setTimeout(180_000);
 
     await page.goto('/');

@@ -14,7 +14,7 @@ test.describe('Settings - Batch mode and simulation mode coupling', () => {
     const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
     const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
     if (isMobile) {
-      await settingsButton.click({ force: true });
+      await settingsButton.evaluate(node => node.click());
     } else {
       await settingsButton.click();
     }
@@ -34,7 +34,7 @@ test.describe('Settings - Batch mode and simulation mode coupling', () => {
     // Re-open and turn batch off
     const settingsButton2 = await getVisibleToolbarButton(page, 'toolbar-settings');
     if (isMobile) {
-      await settingsButton2.click({ force: true });
+      await settingsButton2.evaluate(node => node.click());
     } else {
       await settingsButton2.click();
     }

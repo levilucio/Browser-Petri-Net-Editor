@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 import { Circle, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
@@ -37,85 +37,6 @@ const Place = ({
   } = useEditorUI();
 
   const baseRadius = 30;
-  const dragSchedulerRef = useRef({
-    pending: false,
-    rafId: null,
-    delta: { dx: 0, dy: 0 },
-    lastApplied: { dx: 0, dy: 0 },
-  });
-
-  const runMultiDragUpdate = useCallback(() => {
-    const scheduler = dragSchedulerRef.current;
-    scheduler.pending = false;
-    scheduler.rafId = null;
-
-    if (!multiDragRef.current || !multiDragRef.current.startPositions) {
-      return;
-    }
-
-    setElements(prev => {
-      if (!multiDragRef.current || !multiDragRef.current.startPositions) {
-        return prev;
-      }
-      const snapshot = multiDragRef.current;
-      const next = applyMultiDragDeltaFromSnapshot(prev, snapshot, scheduler.delta, { gridSnappingEnabled, snapToGrid });
-      scheduler.lastApplied = { ...scheduler.delta };
-      return next;
-    });
-  }, [gridSnappingEnabled, snapToGrid, setElements, multiDragRef]);
-
-  const scheduleMultiDragUpdate = useCallback((delta) => {
-    const scheduler = dragSchedulerRef.current;
-    const sameAsPending = scheduler.pending &&
-      scheduler.delta &&
-      scheduler.delta.dx === delta.dx &&
-      scheduler.delta.dy === delta.dy;
-    if (sameAsPending) {
-      return;
-    }
-
-    const sameAsLastApplied = !scheduler.pending &&
-      scheduler.lastApplied &&
-      scheduler.lastApplied.dx === delta.dx &&
-      scheduler.lastApplied.dy === delta.dy;
-    if (sameAsLastApplied) {
-      return;
-    }
-
-    scheduler.delta = delta;
-
-    if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
-      runMultiDragUpdate();
-      return;
-    }
-
-    if (!scheduler.pending) {
-      scheduler.pending = true;
-      scheduler.rafId = window.requestAnimationFrame(runMultiDragUpdate);
-    }
-  }, [runMultiDragUpdate]);
-
-  const flushMultiDragUpdate = useCallback(() => {
-    const scheduler = dragSchedulerRef.current;
-    
-    // Cancel RAF more aggressively to prevent conflicts with pan
-    if (typeof window !== 'undefined' && typeof window.cancelAnimationFrame === 'function') {
-      if (scheduler.rafId !== null) {
-        window.cancelAnimationFrame(scheduler.rafId);
-        scheduler.rafId = null;
-      }
-    }
-    
-    // Run immediately and clear pending flag
-    if (scheduler.pending) {
-      scheduler.pending = false;
-      runMultiDragUpdate();
-    }
-    
-    // Reset scheduler state to prevent stale updates
-    scheduler.delta = { dx: 0, dy: 0 };
-    scheduler.lastApplied = { dx: 0, dy: 0 };
-  }, [runMultiDragUpdate]);
   const isAlgebraicNet = netMode === 'algebraic-int' || Array.isArray(valueTokens);
 
   const algebraicVisuals = useMemo(() => {
@@ -152,8 +73,6 @@ const Place = ({
   const handleDragStart = () => {
     // Set dragging state to true when drag starts
     setIsDragging(true);
-    const scheduler = dragSchedulerRef.current;
-    scheduler.lastApplied = { dx: 0, dy: 0 };
 
     const alreadySelected = isIdSelected(id, 'place');
     let selectedNodeIds;
@@ -171,7 +90,7 @@ const Place = ({
     }
 
     const snapshot = buildDragSnapshot(selectedNodeIds);
-    multiDragRef.current = { baseId: id, ...snapshot };
+    multiDragRef.current = { baseId: id, lastDelta: { dx: 0, dy: 0 }, ...snapshot };
   };
 
   const handleDragMove = (e) => {
@@ -192,12 +111,21 @@ const Place = ({
     }
 
     // Apply multi-drag delta to other selected nodes and keep arcs attached visually
-    if (multiDragRef.current && multiDragRef.current.startPositions && multiDragRef.current.baseId === id) {
-      const start = multiDragRef.current.startPositions.get(id);
+    const snapshot = multiDragRef.current;
+    if (snapshot && snapshot.startPositions && snapshot.baseId === id) {
+      const start = snapshot.startPositions.get(id);
       if (!start) return;
       const deltaX = currentPos.x - start.x;
       const deltaY = currentPos.y - start.y;
-      scheduleMultiDragUpdate({ dx: deltaX, dy: deltaY });
+      const lastDelta = snapshot.lastDelta || { dx: 0, dy: 0 };
+      if (lastDelta.dx === deltaX && lastDelta.dy === deltaY) {
+        return;
+      }
+      snapshot.lastDelta = { dx: deltaX, dy: deltaY };
+
+      setElements(prev => {
+        return applyMultiDragDeltaFromSnapshot(prev, snapshot, { dx: deltaX, dy: deltaY }, { gridSnappingEnabled, snapToGrid });
+      });
     }
   };
 
@@ -208,12 +136,7 @@ const Place = ({
       y: e.target.y(),
     };
     
-    // Flush any pending multi-drag updates FIRST (uses multiDragRef data)
-    // This ensures all selected elements are updated before we clear the ref
-    flushMultiDragUpdate();
-    
-    // IMPORTANT: Clear multiDragRef AFTER flush but BEFORE state updates
-    // This prevents any lingering RAF callbacks from using stale data
+    // Clear snapshot tracking now that drag movement is complete
     multiDragRef.current = null;
     
     // Set dragging state to false when drag ends
