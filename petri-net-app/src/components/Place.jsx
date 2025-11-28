@@ -5,9 +5,23 @@ import { usePetriNet } from '../contexts/PetriNetContext';
 import { useEditorUI } from '../contexts/EditorUIContext';
 import { computeAlgebraicPlaceVisuals } from '../utils/place-layout.js';
 
-// Minimum time between state updates during drag (ms)
-// This throttles arc redraws during vigorous shaking to prevent crashes
-const DRAG_THROTTLE_MS = 50; // ~20fps max to prevent crashes
+// Detect touch device - touch events fire much more frequently than mouse
+const IS_TOUCH_DEVICE = typeof window !== 'undefined' && 
+  ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
+// Get dynamic throttle based on element count and device type
+// Touch devices need more aggressive throttling due to higher event rates (120-240Hz vs 60Hz)
+const getThrottleMs = (elementCount) => {
+  if (IS_TOUCH_DEVICE) {
+    // Mobile: more aggressive throttling
+    if (elementCount > 500) return 200;  // 5fps for very large nets
+    if (elementCount > 100) return 150;  // ~7fps for large nets
+    return 100;                          // 10fps for small nets
+  }
+  // Desktop: lighter throttling
+  if (elementCount > 500) return 100;    // 10fps for very large nets
+  return 50;                             // 20fps for normal nets
+};
 
 const Place = ({
   id,
@@ -145,8 +159,11 @@ const Place = ({
     
     // THROTTLE: Skip state update if not enough time has passed
     // This prevents crashes from vigorous shaking causing too many arc redraws
+    // Use dynamic throttle based on element count and device type
+    const elementCount = (elements.places?.length || 0) + (elements.transitions?.length || 0);
+    const throttleMs = getThrottleMs(elementCount);
     const now = performance.now();
-    if (now - lastDragUpdateRef.current < DRAG_THROTTLE_MS) {
+    if (now - lastDragUpdateRef.current < throttleMs) {
       return;
     }
     lastDragUpdateRef.current = now;
