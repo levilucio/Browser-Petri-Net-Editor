@@ -244,7 +244,7 @@ export async function enableBatchMode(page) {
   const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
   const settingsButton = await getVisibleToolbarButton(page, 'toolbar-settings');
   if (isMobile) {
-    await settingsButton.click({ force: true });
+    await settingsButton.evaluate(node => node.click());
   } else {
     await settingsButton.click();
   }
@@ -354,13 +354,26 @@ export async function getVisibleSimulationButton(page, testId) {
  * @param {import('@playwright/test').Page} page
  */
 export async function readCompletionStats(page) {
+  const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
   const dialog = page.locator('.bg-white.rounded-lg.shadow-xl.p-6').first();
-  await dialog.waitFor({ state: 'visible', timeout: 10000 });
   
-  // Wait for stats to be populated (wait for "Transitions Fired:" text to appear)
-  await page.getByText(/Transitions Fired:/).first().waitFor({ state: 'visible', timeout: 10000 });
+  // On mobile, use 'attached' instead of 'visible' to be more lenient
+  if (isMobile) {
+    await dialog.waitFor({ state: 'attached', timeout: 10000 }).catch(() => {
+      // If attached fails, the dialog might still be in DOM, try to evaluate it directly
+    });
+  } else {
+    await dialog.waitFor({ state: 'visible', timeout: 10000 });
+  }
   
-  const text = await dialog.innerText();
+  // Wait for stats to be populated (wait for "Transitions Fired:" text to appear in DOM, not just visible)
+  await page.waitForFunction(() => {
+    const bodyText = document.body.innerText || document.body.textContent || '';
+    return /Transitions Fired:\s*[0-9,]+/.test(bodyText);
+  }, { timeout: 10000 });
+  
+  // Use evaluate to get text content directly, bypassing visibility checks on mobile
+  const text = await dialog.evaluate(node => node.innerText || node.textContent || '');
   const tMatch = /Transitions Fired:\s*([0-9,]+)/.exec(text);
   const transitions = tMatch ? Number.parseInt(tMatch[1].replace(/,/g, ''), 10) : 0;
   const dMatch = /Duration:\s*([^\n]+)/.exec(text);

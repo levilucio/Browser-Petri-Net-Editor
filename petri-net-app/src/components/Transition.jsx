@@ -1,8 +1,12 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Rect, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import { useEditorUI } from '../contexts/EditorUIContext';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
+
+// Cooldown period after drag ends before another drag can start (ms)
+// This prevents race conditions when rapidly switching between elements
+const DRAG_COOLDOWN_MS = 50;
 
 const GUARD_FONT_SIZE = 11;
 const GUARD_CHAR_FACTOR = 0.48;
@@ -46,6 +50,9 @@ const Transition = ({
   } = usePetriNet();
   // netMode provided by context
   
+  // Track when the last drag ended to enforce cooldown
+  const lastDragEndRef = useRef(0);
+  
   const buildDragSnapshot = useCallback((selectedNodeIds) => {
     const startPositions = new Map();
     elements.places.forEach(p => {
@@ -69,6 +76,21 @@ const Transition = ({
   }, [elements]);
 
   const handleDragStart = () => {
+    // IMPORTANT: If a previous drag's snapshot still exists, clear it first
+    // This prevents race conditions when rapidly switching between elements
+    if (multiDragRef.current !== null) {
+      multiDragRef.current = null;
+    }
+    
+    // Check cooldown - if another drag just ended, wait for state to settle
+    const timeSinceLastDrag = performance.now() - lastDragEndRef.current;
+    if (timeSinceLastDrag < DRAG_COOLDOWN_MS) {
+      // Skip snapshot creation during cooldown - the drag will still happen
+      // but we won't try to update other elements, avoiding race conditions
+      setIsDragging(true);
+      return;
+    }
+    
     // Set dragging state to true when drag starts
     setIsDragging(true);
 
@@ -107,25 +129,44 @@ const Transition = ({
       e.target.position({ x: snappedPos.x, y: snappedPos.y });
       currentPos = snappedPos;
     }
+    
+    // Apply multi-drag delta to other selected nodes and keep arcs attached visually
     const snapshot = multiDragRef.current;
-    if (snapshot && snapshot.startPositions && snapshot.baseId === id) {
-      const start = snapshot.startPositions.get(id);
-      if (!start) return;
-      const deltaX = currentPos.x - start.x;
-      const deltaY = currentPos.y - start.y;
-      const lastDelta = snapshot.lastDelta || { dx: 0, dy: 0 };
-      if (lastDelta.dx === deltaX && lastDelta.dy === deltaY) {
-        return;
-      }
-      snapshot.lastDelta = { dx: deltaX, dy: deltaY };
-
-      setElements(prev => {
-        return applyMultiDragDeltaFromSnapshot(prev, snapshot, { dx: deltaX, dy: deltaY }, { gridSnappingEnabled, snapToGrid });
-      });
+    // Guard: only process if snapshot exists, has valid data, and belongs to THIS element
+    if (!snapshot || !snapshot.startPositions || snapshot.baseId !== id) {
+      return;
     }
+    
+    const start = snapshot.startPositions.get(id);
+    if (!start) return;
+    
+    const deltaX = currentPos.x - start.x;
+    const deltaY = currentPos.y - start.y;
+    const lastDelta = snapshot.lastDelta || { dx: 0, dy: 0 };
+    
+    // Skip if delta hasn't changed
+    if (lastDelta.dx === deltaX && lastDelta.dy === deltaY) {
+      return;
+    }
+    
+    // Update lastDelta BEFORE setElements to prevent concurrent updates with same delta
+    snapshot.lastDelta = { dx: deltaX, dy: deltaY };
+
+    // Capture delta in closure to ensure correct values in async callback
+    const capturedDelta = { dx: deltaX, dy: deltaY };
+    setElements(prev => {
+      // Double-check snapshot is still valid inside callback
+      if (!snapshot || !snapshot.startPositions) {
+        return prev;
+      }
+      return applyMultiDragDeltaFromSnapshot(prev, snapshot, capturedDelta, { gridSnappingEnabled, snapToGrid });
+    });
   };
 
   const handleDragEnd = (e) => {
+    // Record when this drag ended for cooldown enforcement
+    lastDragEndRef.current = performance.now();
+    
     // When drag ends, the new position is in the parent's coordinate system (virtual coordinates)
     const newVirtualPos = {
       x: e.target.x(),

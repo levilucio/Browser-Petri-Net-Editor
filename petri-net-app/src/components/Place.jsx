@@ -1,9 +1,13 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useRef } from 'react';
 import { applyMultiDragDeltaFromSnapshot } from '../features/selection/selection-utils';
 import { Circle, Text, Group } from 'react-konva';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import { useEditorUI } from '../contexts/EditorUIContext';
 import { computeAlgebraicPlaceVisuals } from '../utils/place-layout.js';
+
+// Cooldown period after drag ends before another drag can start (ms)
+// This prevents race conditions when rapidly switching between elements
+const DRAG_COOLDOWN_MS = 50;
 
 const Place = ({
   id,
@@ -37,6 +41,10 @@ const Place = ({
   } = useEditorUI();
 
   const baseRadius = 30;
+  
+  // Track when the last drag ended to enforce cooldown
+  const lastDragEndRef = useRef(0);
+  
   const isAlgebraicNet = netMode === 'algebraic-int' || Array.isArray(valueTokens);
 
   const algebraicVisuals = useMemo(() => {
@@ -71,6 +79,21 @@ const Place = ({
   }, [elements]);
 
   const handleDragStart = () => {
+    // IMPORTANT: If a previous drag's snapshot still exists, clear it first
+    // This prevents race conditions when rapidly switching between elements
+    if (multiDragRef.current !== null) {
+      multiDragRef.current = null;
+    }
+    
+    // Check cooldown - if another drag just ended, wait for state to settle
+    const timeSinceLastDrag = performance.now() - lastDragEndRef.current;
+    if (timeSinceLastDrag < DRAG_COOLDOWN_MS) {
+      // Skip snapshot creation during cooldown - the drag will still happen
+      // but we won't try to update other elements, avoiding race conditions
+      setIsDragging(true);
+      return;
+    }
+    
     // Set dragging state to true when drag starts
     setIsDragging(true);
 
@@ -112,24 +135,41 @@ const Place = ({
 
     // Apply multi-drag delta to other selected nodes and keep arcs attached visually
     const snapshot = multiDragRef.current;
-    if (snapshot && snapshot.startPositions && snapshot.baseId === id) {
-      const start = snapshot.startPositions.get(id);
-      if (!start) return;
-      const deltaX = currentPos.x - start.x;
-      const deltaY = currentPos.y - start.y;
-      const lastDelta = snapshot.lastDelta || { dx: 0, dy: 0 };
-      if (lastDelta.dx === deltaX && lastDelta.dy === deltaY) {
-        return;
-      }
-      snapshot.lastDelta = { dx: deltaX, dy: deltaY };
-
-      setElements(prev => {
-        return applyMultiDragDeltaFromSnapshot(prev, snapshot, { dx: deltaX, dy: deltaY }, { gridSnappingEnabled, snapToGrid });
-      });
+    // Guard: only process if snapshot exists, has valid data, and belongs to THIS element
+    if (!snapshot || !snapshot.startPositions || snapshot.baseId !== id) {
+      return;
     }
+    
+    const start = snapshot.startPositions.get(id);
+    if (!start) return;
+    
+    const deltaX = currentPos.x - start.x;
+    const deltaY = currentPos.y - start.y;
+    const lastDelta = snapshot.lastDelta || { dx: 0, dy: 0 };
+    
+    // Skip if delta hasn't changed
+    if (lastDelta.dx === deltaX && lastDelta.dy === deltaY) {
+      return;
+    }
+    
+    // Update lastDelta BEFORE setElements to prevent concurrent updates with same delta
+    snapshot.lastDelta = { dx: deltaX, dy: deltaY };
+
+    // Capture delta in closure to ensure correct values in async callback
+    const capturedDelta = { dx: deltaX, dy: deltaY };
+    setElements(prev => {
+      // Double-check snapshot is still valid inside callback
+      if (!snapshot || !snapshot.startPositions) {
+        return prev;
+      }
+      return applyMultiDragDeltaFromSnapshot(prev, snapshot, capturedDelta, { gridSnappingEnabled, snapToGrid });
+    });
   };
 
   const handleDragEnd = (e) => {
+    // Record when this drag ended for cooldown enforcement
+    lastDragEndRef.current = performance.now();
+    
     // When drag ends, the new position is in the parent's coordinate system (virtual coordinates)
     const newVirtualPos = {
       x: e.target.x(),

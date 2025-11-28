@@ -147,31 +147,33 @@ const ArcManager = () => {
     <Layer key="arcs-layer">
           {/* Render existing arcs */}
           {elements?.arcs?.map(arc => {
-            if (!arc || !arc.source || !arc.target) return null;
-            
-            const source = getElementById(arc.source);
-            const target = getElementById(arc.target);
+            // Wrap in try-catch to prevent any errors from crashing the entire app
+            try {
+              if (!arc || !arc.source || !arc.target) return null;
+              
+              const source = getElementById(arc.source);
+              const target = getElementById(arc.target);
 
-            if (!source || !target) return null;
+              if (!source || !target) return null;
 
-        const virtualPoints = getAdjustedPoints(
-          { ...source, type: getArcSourceType(arc) },
-          { ...target, type: getArcTargetType(arc) },
-          Array.isArray(arc.anglePoints) ? arc.anglePoints : []
-        );
+          const virtualPoints = getAdjustedPoints(
+            { ...source, type: getArcSourceType(arc) },
+            { ...target, type: getArcTargetType(arc) },
+            Array.isArray(arc.anglePoints) ? arc.anglePoints : []
+          );
 
-        // Additional guard: ensure virtualPoints is valid before proceeding
-        if (!virtualPoints || virtualPoints.length < 4) return null;
-        
-        // Guard: ensure all virtualPoints are finite numbers
-        if (!virtualPoints.every(v => Number.isFinite(v))) return null;
+          // Additional guard: ensure virtualPoints is valid before proceeding
+          if (!virtualPoints || virtualPoints.length < 4) return null;
+          
+          // Guard: ensure all virtualPoints are finite numbers
+          if (!virtualPoints.every(v => Number.isFinite(v))) return null;
 
-        // Midpoint of the arc to position labels
-        const midX = (virtualPoints[0] + virtualPoints[virtualPoints.length - 2]) / 2;
-        const midY = (virtualPoints[1] + virtualPoints[virtualPoints.length - 1]) / 2;
-        
-        // Guard: ensure midpoint is valid
-        if (!Number.isFinite(midX) || !Number.isFinite(midY)) return null;
+          // Midpoint of the arc to position labels
+          const midX = (virtualPoints[0] + virtualPoints[virtualPoints.length - 2]) / 2;
+          const midY = (virtualPoints[1] + virtualPoints[virtualPoints.length - 1]) / 2;
+          
+          // Guard: ensure midpoint is valid
+          if (!Number.isFinite(midX) || !Number.isFinite(midY)) return null;
         const weightOffset = 8; // closer to the arc
         const labelOffset = 14; // vertical offset from the arc (opposite side)
 
@@ -310,6 +312,11 @@ const ArcManager = () => {
             )}
           </Group>
         );
+            } catch (err) {
+              // Log error but don't crash - skip rendering this arc
+              console.warn('[ArcManager] Error rendering arc:', arc?.id, err);
+              return null;
+            }
       })}
 
       {/* Render temporary arc for creation */}
