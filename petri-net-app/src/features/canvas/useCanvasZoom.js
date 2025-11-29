@@ -460,14 +460,33 @@ export function useCanvasZoom({
         const timeSinceDragEnd = performance.now() - dragEndTimestampRef.current;
         const isInCooldown = timeSinceDragEnd < DRAG_END_COOLDOWN_MS;
         
-        if (isDraggingRef.current || isInCooldown || selectionActive) {
-          clearSingleFingerPan();
-          velocityHistoryRef.current = []; // Clear velocity to prevent stale inertia
-          return;
-        }
-
         const touch = event.touches[0];
         const singlePan = singleFingerPanRef.current;
+        
+        // Always track velocity for inertia, even during dragging or selection
+        // This ensures inertia works on mobile where gesture states may not sync perfectly
+        if (singlePan.touchId !== null && touch.identifier === singlePan.touchId) {
+          const now = performance.now();
+          velocityHistoryRef.current.push({
+            x: touch.clientX,
+            y: touch.clientY,
+            time: now
+          });
+          // Keep only recent history
+          if (velocityHistoryRef.current.length > MAX_VELOCITY_HISTORY) {
+            velocityHistoryRef.current.shift();
+          }
+          
+          // Always track position
+          singlePan.lastX = touch.clientX;
+          singlePan.lastY = touch.clientY;
+        }
+        
+        // Block panning during dragging, cooldown, or selection
+        if (isDraggingRef.current || isInCooldown || selectionActive) {
+          clearSingleFingerPan();
+          return;
+        }
         
         if (touch.identifier !== singlePan.touchId) {
           return;
@@ -484,24 +503,6 @@ export function useCanvasZoom({
           applyPanDelta(deltaX, deltaY, zoomLevelRef.current);
         }
         
-        // Track velocity for inertia whenever we have movement (even before pan activates)
-        // This ensures we capture velocity even during the activation delay
-        if (singlePan.touchId !== null && (singlePan.lastX !== 0 || singlePan.lastY !== 0)) {
-          const now = performance.now();
-          velocityHistoryRef.current.push({
-            x: touch.clientX,
-            y: touch.clientY,
-            time: now
-          });
-          // Keep only recent history
-          if (velocityHistoryRef.current.length > MAX_VELOCITY_HISTORY) {
-            velocityHistoryRef.current.shift();
-          }
-        }
-        
-        // Always track position for when panning activates
-        singlePan.lastX = touch.clientX;
-        singlePan.lastY = touch.clientY;
         return;
       }
 
@@ -512,11 +513,10 @@ export function useCanvasZoom({
 
     const handleTouchEnd = (event) => {
       // Check if we should start inertia animation
+      // On mobile, pan state might not always be set correctly, so we rely more on velocity
       const panWasActive = panStateRef.current.active || singleFingerPanRef.current.active;
       
       // Calculate velocity before clearing state
-      // Also check if we have velocity history even if pan wasn't marked active
-      // (this can happen if pan was just starting or if state check fails)
       let velocity = { vx: 0, vy: 0 };
       const hasVelocityHistory = velocityHistoryRef.current.length >= 2;
       
@@ -524,27 +524,15 @@ export function useCanvasZoom({
         velocity = calculateVelocity();
         const speed = Math.hypot(velocity.vx, velocity.vy);
         
-        console.log('[Inertia] Touch end:', { 
-          panWasActive, 
-          historyLength: velocityHistoryRef.current.length,
-          velocity: { vx: velocity.vx, vy: velocity.vy },
-          speed,
-          panStateActive: panStateRef.current.active,
-          singlePanActive: singleFingerPanRef.current.active
-        });
+        // More lenient inertia trigger for mobile:
+        // - If velocity > 0.03 px/ms (30 px/s), start inertia regardless of pan state
+        // - This handles cases where touch gesture detection might not set pan active correctly
+        // - 0.03 px/ms is a reasonable threshold for intentional pan gestures
+        const MIN_INERTIA_SPEED = 0.03;
         
-        // Lower threshold to 0.05 px/ms to catch slower gestures
-        // 0.05 px/ms = 50 px/s, which is reasonable for a pan gesture
-        // Also start inertia if we have significant velocity even if pan wasn't marked active
-        // (this handles edge cases where pan state might not be set correctly)
-        if (speed > 0.05 && (panWasActive || speed > 0.2)) {
-          console.log('[Inertia] Starting animation with velocity:', { vx: velocity.vx, vy: velocity.vy, speed });
+        if (speed > MIN_INERTIA_SPEED) {
           startInertiaAnimation(velocity.vx, velocity.vy);
-        } else {
-          console.log('[Inertia] Speed too low, not starting:', speed);
         }
-      } else {
-        console.log('[Inertia] Not starting:', { panWasActive, historyLength: velocityHistoryRef.current.length });
       }
 
       clearSingleFingerPan();

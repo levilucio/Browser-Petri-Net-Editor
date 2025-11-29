@@ -54,10 +54,10 @@ const Toolbar = ({
     setIsMobileMenuOpen,
   });
   
-  // Auto-dismiss success messages after 5 seconds
+  // Auto-dismiss success messages after 2 seconds
   useEffect(() => {
     if (!success) return;
-    const timeoutId = setTimeout(() => setSuccess(null), 5000);
+    const timeoutId = setTimeout(() => setSuccess(null), 2000);
     return () => clearTimeout(timeoutId);
   }, [success]);
   

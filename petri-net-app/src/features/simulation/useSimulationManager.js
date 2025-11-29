@@ -155,6 +155,7 @@ const useSimulationManager = (
       stepSimulation,
       refreshEnabledTransitions,
       setSimulationError,
+      simulationSettings,
     }),
     [
       simulatorCore,
@@ -165,6 +166,7 @@ const useSimulationManager = (
       stepSimulation,
       refreshEnabledTransitions,
       setSimulationError,
+      simulationSettings,
     ]
   );
 

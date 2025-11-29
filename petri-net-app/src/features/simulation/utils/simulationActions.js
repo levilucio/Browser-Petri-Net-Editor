@@ -127,6 +127,7 @@ export const createStartContinuousSimulation = ({
   stepSimulation,
   refreshEnabledTransitions,
   setSimulationError,
+  simulationSettings = {},
 }) => async () => {
   if (isContinuousSimulatingRef.current || isRunningRef.current) return;
   try {
@@ -139,11 +140,14 @@ export const createStartContinuousSimulation = ({
     const ids = normalizeTransitionIds(enabled);
     setEnabledTransitionIds(ids);
 
+    // Use configurable animation delay, fallback to default
+    const animationDelay = simulationSettings.animationDelayMs ?? DEFAULT_DELAY_MS;
+
     while (isContinuousSimulatingRef.current) {
       await stepSimulation();
       const stillEnabled = await refreshEnabledTransitions();
       if (!stillEnabled || stillEnabled.length === 0) break;
-      await delay(DEFAULT_DELAY_MS);
+      await delay(animationDelay);
     }
   } catch (error) {
     console.error('Error starting continuous simulation:', error);

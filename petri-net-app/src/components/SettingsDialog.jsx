@@ -5,6 +5,8 @@ import Z3SettingsDialog from './Z3SettingsDialog.jsx';
 
 const DEFAULT_MAX_STEPS = 200000;
 
+const DEFAULT_ANIMATION_DELAY = 1000;
+
 const SettingsDialog = ({ isOpen, onClose }) => {
   const { simulatorCore, simulationSettings, handleSaveSettings, elements, z3Settings, setZ3Settings } = usePetriNet();
   const [simulationMode, setSimulationMode] = useState('single');
@@ -17,6 +19,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const [useNonVisualRun, setUseNonVisualRun] = useState(false);
   const [batchMode, setBatchMode] = useState(false);
   const [showInferredTypes, setShowInferredTypes] = useState(false);
+  const [animationDelayMs, setAnimationDelayMs] = useState(DEFAULT_ANIMATION_DELAY);
 
   useEffect(() => {
     if (isOpen) {
@@ -45,6 +48,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       const initialNonVisual = Boolean(initialBatch || simulationSettings?.useNonVisualRun);
       setUseNonVisualRun(initialNonVisual);
       setShowInferredTypes(Boolean(simulationSettings?.showInferredTypes));
+      setAnimationDelayMs(simulationSettings?.animationDelayMs ?? DEFAULT_ANIMATION_DELAY);
 
       // If batch mode is enabled, default to maximal concurrent mode
       if (initialBatch && simulationMode !== 'maximal') {
@@ -93,6 +97,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       useNonVisualRun: finalUseNonVisual,
       batchMode,
       showInferredTypes,
+      animationDelayMs,
     });
     onClose?.();
   };
@@ -207,6 +212,32 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 Batch mode forces non-visual execution and reuses the simulation worker after the first run.
               </p>
             )}
+          </div>
+
+          {/* Animation Speed */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Animation Speed (Simulation Mode)
+            </label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span>Fast (200ms)</span>
+                <span className="font-medium text-gray-700">{animationDelayMs}ms</span>
+                <span>Slow (2s)</span>
+              </div>
+              <input
+                type="range"
+                min={200}
+                max={2000}
+                step={100}
+                value={animationDelayMs}
+                onChange={(e) => setAnimationDelayMs(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              />
+              <p className="text-xs text-gray-600">
+                Time between transition firings during visual simulation (Play button).
+              </p>
+            </div>
           </div>
 
           <div>
