@@ -74,10 +74,10 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   });
   
   const SELECTION_DELAY = 500; // ms to hold before selection activates
-  const PAN_DELAY = 25; // ms before pan can activate
-  const MOVEMENT_THRESHOLD = 20; // pixels - movement beyond this triggers pan
+  const PAN_DELAY = 0; // Start panning immediately when swipe detected (like laptop touchpad)
+  const MOVEMENT_THRESHOLD = 10; // pixels - reduced threshold for faster pan activation
   const TAP_THRESHOLD = 10; // pixels - movement below this is considered a tap
-  const GESTURE_START_DELAY = 50; // ms - delay before starting gesture detection
+  const GESTURE_START_DELAY = 0; // Start gesture detection immediately (like laptop touchpad)
   
   const clearTouchGesture = useCallback(() => {
     const gesture = touchGestureRef.current;

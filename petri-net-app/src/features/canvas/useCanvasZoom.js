@@ -183,8 +183,8 @@ export function useCanvasZoom({
       cancelAnimationFrame(inertiaAnimationRef.current);
     }
 
-    const DECELERATION = 0.95; // Deceleration factor per frame (0.95 = 5% reduction per frame)
-    const MIN_VELOCITY = 0.01; // Stop when velocity is below this threshold
+    const DECELERATION = 0.985; // Deceleration factor per frame (0.985 = slower deceleration for longer inertia on mobile)
+    const MIN_VELOCITY = 0.005; // Lower threshold to allow inertia to continue longer
     const FRAME_TIME = 16; // Approximate frame time in ms (60fps)
 
     let vx = initialVx;
@@ -600,15 +600,7 @@ export function useCanvasZoom({
     if (singlePan.touchId !== null && !singlePan.active) {
       singlePan.active = true;
       setIsSingleFingerPanningActive(true);
-      
-      // Single vibration to indicate pan activated
-      if (navigator.vibrate) {
-        try {
-          navigator.vibrate(10);
-        } catch (e) {
-          // Ignore
-        }
-      }
+      // No vibration - pan activates silently like laptop touchpad
     }
   }, []);
 
