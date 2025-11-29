@@ -9,17 +9,8 @@ import { computeAlgebraicPlaceVisuals } from '../utils/place-layout.js';
 const IS_TOUCH_DEVICE = typeof window !== 'undefined' && 
   ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
-// Get dynamic throttle based on element count and device type
-// Touch devices need MUCH more aggressive throttling due to higher event rates (120-240Hz vs 60Hz)
-// and lower CPU power compared to desktop
+// Get dynamic throttle based on element count (desktop only)
 const getThrottleMs = (elementCount) => {
-  if (IS_TOUCH_DEVICE) {
-    // Mobile: very aggressive throttling (4x more than desktop)
-    if (elementCount > 500) return 800;  // ~1.25fps for very large nets
-    if (elementCount > 100) return 600;  // ~1.7fps for large nets
-    return 400;                          // 2.5fps for small nets
-  }
-  // Desktop: lighter throttling
   if (elementCount > 500) return 100;    // 10fps for very large nets
   return 50;                             // 20fps for normal nets
 };
@@ -158,9 +149,14 @@ const Place = ({
       return;
     }
     
-    // THROTTLE: Skip state update if not enough time has passed
-    // This prevents crashes from vigorous shaking causing too many arc redraws
-    // Use dynamic throttle based on element count and device type
+    // TOUCH DEVICES: Skip arc redraws entirely during drag to prevent crashes
+    // Arcs will snap to correct position when drag ends
+    if (IS_TOUCH_DEVICE) {
+      snapshot.lastDelta = { dx: deltaX, dy: deltaY };
+      return;
+    }
+    
+    // DESKTOP ONLY: Throttle state updates to prevent performance issues
     const elementCount = (elements.places?.length || 0) + (elements.transitions?.length || 0);
     const throttleMs = getThrottleMs(elementCount);
     const now = performance.now();
