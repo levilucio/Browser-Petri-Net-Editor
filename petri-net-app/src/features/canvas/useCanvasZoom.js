@@ -207,9 +207,10 @@ export function useCanvasZoom({
       }
 
       // Apply pan delta based on velocity
+      // Use positive delta to match the reversed panning direction
       const deltaX = vx * deltaTime;
       const deltaY = vy * deltaTime;
-      applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
+      applyPanDelta(deltaX, deltaY, zoomLevelRef.current);
 
       // Continue animation
       inertiaAnimationRef.current = requestAnimationFrame(animate);
@@ -426,7 +427,8 @@ export function useCanvasZoom({
           if (nextPanState.active) {
             event.preventDefault();
             event.stopPropagation();
-            applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
+            // Use positive delta to match laptop touchpad "natural" scrolling direction
+            applyPanDelta(deltaX, deltaY, zoomLevelRef.current);
             
             // Track velocity for inertia
             const now = performance.now();
@@ -478,7 +480,8 @@ export function useCanvasZoom({
 
           event.preventDefault();
           event.stopPropagation();
-          applyPanDelta(-deltaX, -deltaY, zoomLevelRef.current);
+          // Use positive delta to match laptop touchpad "natural" scrolling direction
+          applyPanDelta(deltaX, deltaY, zoomLevelRef.current);
         }
         
         // Track velocity for inertia whenever we have movement (even before pan activates)
