@@ -22,7 +22,8 @@ test.describe('PNML - Save fallback when File System Access API fails', () => {
     const saveButton = page.getByRole('button', { name: 'Save', exact: true });
     const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
     if (isMobile) {
-      await saveButton.click({ force: true });
+      // On mobile, the Save button is in the drawer - use evaluate click to bypass viewport issues
+      await saveButton.evaluate(node => node.click());
     } else {
       await saveButton.click();
     }

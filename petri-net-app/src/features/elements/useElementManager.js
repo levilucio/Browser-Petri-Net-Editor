@@ -21,6 +21,8 @@ export const useElementManager = () => {
     tempArcEnd, setTempArcEnd, 
     snapToGrid,
     isShiftPressedRef,
+    pasteMode,
+    setPasteMode,
   } = usePetriNet();
 
   const { handleCompleteArc } = useArcManager();
@@ -83,6 +85,11 @@ export const useElementManager = () => {
       type = b;
     }
 
+    // Cancel paste mode when clicking on an element
+    if (pasteMode && typeof setPasteMode === 'function') {
+      setPasteMode(false);
+    }
+    
     if (mode === 'select' || mode === 'arc_angle') {
       const isShift = !!(evt && (evt.evt?.shiftKey || (evt.evt?.getModifierState && evt.evt.getModifierState('Shift')))) || !!(isShiftPressedRef && isShiftPressedRef.current);
       if (isShift) {

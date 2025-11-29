@@ -21,6 +21,8 @@ export function useKeyboardShortcuts(ctx) {
     setArcStart,
     setTempArcEnd,
     setSelectedElement,
+    pasteMode,
+    setPasteMode,
   } = ctx;
 
   useEffect(() => {
@@ -94,6 +96,11 @@ export function useKeyboardShortcuts(ctx) {
         if ((e.key === 's' || e.key === 'S') && typeof setMode === 'function') { e.preventDefault(); setMode('select'); return; }
         if (e.key === 'Escape') {
           e.preventDefault();
+          // Cancel paste mode first if active
+          if (pasteMode && typeof setPasteMode === 'function') {
+            setPasteMode(false);
+            return;
+          }
           if (typeof setMode === 'function') setMode('select');
           if (typeof setArcStart === 'function' && arcStart) setArcStart(null);
           if (typeof setTempArcEnd === 'function') setTempArcEnd(null);

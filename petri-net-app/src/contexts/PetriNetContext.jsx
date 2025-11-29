@@ -33,6 +33,7 @@ export const PetriNetProvider = ({ children }) => {
   const [mode, setMode] = useState('select'); // select, place, transition, arc
   const [arcStart, setArcStart] = useState(null); // For arc creation
   const [tempArcEnd, setTempArcEnd] = useState(null); // For visual feedback during arc creation
+  const [pasteMode, setPasteMode] = useState(false); // For mobile paste mode
   
   // Settings dialog state
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
@@ -137,11 +138,16 @@ export const PetriNetProvider = ({ children }) => {
       updateHistory(elements);
     }
     
+    // Cancel paste mode when mode changes
+    if (prevModeRef.current !== mode && pasteMode) {
+      setPasteMode(false);
+    }
+    
     // Update the previous mode reference
     prevModeRef.current = mode;
     
     return () => debouncedAddStateRef.current.cancel();
-  }, [elements, isDragging, mode]);
+  }, [elements, isDragging, mode, pasteMode, setPasteMode]);
 
   useEffect(() => {
     const current = Boolean(simulationSettings?.showInferredTypes);
@@ -313,6 +319,7 @@ export const PetriNetProvider = ({ children }) => {
       mode, setMode,
       arcStart, setArcStart,
       tempArcEnd, setTempArcEnd,
+      pasteMode, setPasteMode,
       isDragging, setIsDragging, // Expose dragging state to optimize performance
       isContinuousSimulating,
       isRunning,

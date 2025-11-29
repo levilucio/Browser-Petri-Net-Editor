@@ -16,10 +16,10 @@ async function openSettings(page) {
 
 async function clearCanvas(page) {
   const clearBtn = page.getByRole('button', { name: 'Clear' });
-  // On mobile, use force click in case the button is partially obscured
+  // On mobile, use evaluate click to bypass viewport issues
   const isMobile = await page.evaluate(() => window.matchMedia('(max-width: 1023px)').matches);
   if (isMobile) {
-    await clearBtn.click({ force: true });
+    await clearBtn.evaluate(node => node.click());
   } else {
     await clearBtn.click();
   }

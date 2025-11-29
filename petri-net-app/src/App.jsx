@@ -6,6 +6,7 @@ import SimulationManager from './features/simulation/SimulationManager';
 import SettingsDialog from './components/SettingsDialog';
 import CanvasManager from './features/canvas/CanvasManager';
 import FloatingEditorControls from './components/FloatingEditorControls';
+import FloatingActionBar from './components/FloatingActionBar';
 import { useElementManager } from './features/elements/useElementManager';
 import { useKeyboardShortcuts } from './features/keymap/useKeyboardShortcuts';
 import { useCanvasZoom } from './features/canvas/useCanvasZoom';
@@ -129,6 +130,7 @@ const AppContent = () => {
     ]);
 
     // Keyboard shortcuts: consolidate via useKeyboardShortcuts
+    const { pasteMode, setPasteMode } = usePetriNet();
     useKeyboardShortcuts({
       elements,
       setElements,
@@ -149,6 +151,8 @@ const AppContent = () => {
       setTempArcEnd,
       setSelectedElement,
       isShiftPressedRef,
+      pasteMode,
+      setPasteMode,
     });
 
     return (
@@ -270,6 +274,7 @@ const AppContent = () => {
             </button>
           </div>
           <FloatingEditorControls />
+          <FloatingActionBar />
         </div>
         
         {/* Settings Dialog */}

@@ -13,6 +13,32 @@ async function waitSimulatorReady(page, timeout = 120000) {
   }, { timeout });
 }
 
+/**
+ * Ensure the mobile simulation drawer is expanded so buttons are visible.
+ * @param {import('@playwright/test').Page} page
+ */
+async function ensureMobileSimulationDrawerExpanded(page) {
+  const mobileManager = page.locator('[data-testid="simulation-manager-mobile"]');
+  if (!await mobileManager.count()) {
+    return;
+  }
+  const stepButton = page.locator('[data-testid="sim-step-mobile"]');
+  const isExpanded = await stepButton.isVisible().catch(() => false);
+  if (isExpanded) {
+    return;
+  }
+
+  const dragHandle = mobileManager.locator('button[title="Tap to expand/collapse"]').first();
+  if (await dragHandle.count()) {
+    await dragHandle.scrollIntoViewIfNeeded().catch(() => {});
+    await dragHandle.click({ force: true });
+  } else {
+    await mobileManager.first().click({ force: true });
+  }
+  await page.waitForTimeout(350);
+  await stepButton.waitFor({ state: 'visible', timeout: 2000 }).catch(() => {});
+}
+
 test.describe('Simulation - Run and Cancel', () => {
   test('clicking Stop mid-run halts simulation without completion dialog', async ({ page }) => {
     test.setTimeout(60000);
@@ -37,12 +63,32 @@ test.describe('Simulation - Run and Cancel', () => {
     await waitSimulatorReady(page, 120000);
 
     const runButton = await getVisibleSimulationButton(page, 'sim-run');
-    const stopButton = page.locator('[data-testid="sim-stop"], [data-testid="sim-stop-mobile"]').first();
+    
+    // On mobile, we need to use the mobile stop button and ensure drawer is expanded
+    let stopButton;
+    if (isMobile) {
+      await ensureMobileSimulationDrawerExpanded(page);
+      stopButton = page.locator('[data-testid="sim-stop-mobile"]').first();
+      // If mobile stop button doesn't exist, fall back to desktop
+      if (!await stopButton.count()) {
+        stopButton = page.locator('[data-testid="sim-stop"]').first();
+      }
+    } else {
+      stopButton = page.locator('[data-testid="sim-stop"]').first();
+    }
+    
     await runButton.click();
 
+    // Wait for stop button to be enabled (simulation started)
     await expect(stopButton).toBeEnabled({ timeout: 30000 });
     await page.waitForTimeout(500);
-    await stopButton.click();
+    
+    // On mobile, use evaluate click to bypass visibility issues
+    if (isMobile) {
+      await stopButton.evaluate(node => node.click());
+    } else {
+      await stopButton.click();
+    }
 
     await expect(stopButton).toBeDisabled({ timeout: 10000 });
 

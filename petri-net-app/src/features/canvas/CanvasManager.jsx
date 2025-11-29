@@ -10,6 +10,8 @@ import { buildSelectionFromRect } from '../selection/selection-utils';
 import CustomScrollbar from '../../components/CustomScrollbar';
 import SnapIndicator from '../../components/SnapIndicator';
 import { logger } from '../../utils/logger.js';
+import { remapIdsForPaste } from '../selection/clipboard-utils';
+import { v4 as uuidv4 } from 'uuid';
 
 const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isSelectionActiveRef, activateSingleFingerPan }) => {
   // Get UI state from EditorUIContext
@@ -31,11 +33,15 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     arcStart, setArcStart,
     tempArcEnd, setTempArcEnd,
     selectedElement, setSelectedElement,
-    elements,
+    elements, setElements,
     enabledTransitionIds,
     snapToGrid,
     selectedElements, setSelection,
     isDragging,
+    pasteMode, setPasteMode,
+    getClipboard,
+    netMode,
+    onClipboardMismatch,
   } = usePetriNet();
 
   const { 
@@ -317,6 +323,58 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
       return;
     }
     
+    // Handle paste mode - paste at clicked location
+    if (pasteMode) {
+      const pos = getVirtualPointerPosition();
+      if (pos) {
+        const localMode = netMode || 'pt';
+        const clipEntry = typeof getClipboard === 'function' ? getClipboard() : null;
+        if (!clipEntry) {
+          setPasteMode(false);
+          return;
+        }
+        const payload = clipEntry.payload || clipEntry;
+        if (!payload) {
+          setPasteMode(false);
+          return;
+        }
+        const clipboardMode = clipEntry.netMode || localMode;
+        if (clipboardMode && localMode && clipboardMode !== localMode) {
+          if (typeof onClipboardMismatch === 'function') {
+            onClipboardMismatch(clipboardMode, localMode, clipEntry);
+          } else {
+            console.warn(`Blocked paste: shared clipboard contains ${clipboardMode} net, editor mode is ${localMode}.`);
+          }
+          setPasteMode(false);
+          return;
+        }
+        
+        // Calculate offset from clipboard's original position to tap position
+        // Use first element's position as reference
+        let offsetX = 40;
+        let offsetY = 40;
+        if (payload.places && payload.places.length > 0) {
+          offsetX = pos.x - payload.places[0].x;
+          offsetY = pos.y - payload.places[0].y;
+        } else if (payload.transitions && payload.transitions.length > 0) {
+          offsetX = pos.x - payload.transitions[0].x;
+          offsetY = pos.y - payload.transitions[0].y;
+        }
+        
+        const { newPlaces, newTransitions, newArcs, newSelection } = remapIdsForPaste(payload, uuidv4, { x: offsetX, y: offsetY });
+        setElements(prev => ({
+          ...prev,
+          places: [...prev.places, ...newPlaces],
+          transitions: [...prev.transitions, ...newTransitions],
+          arcs: [...prev.arcs, ...newArcs],
+        }));
+        // Immediately transfer selection to the freshly pasted elements
+        setSelection(newSelection);
+        setPasteMode(false);
+      }
+      return;
+    }
+    
     // In select mode, clicking empty canvas clears selection
     if (mode === 'select') {
       setSelection([]);
@@ -338,6 +396,58 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     
     // Skip if we just completed a rectangle selection (prevents clearing it immediately)
     if (justCompletedSelectionRef.current) {
+      return;
+    }
+    
+    // Handle paste mode - paste at tapped location
+    if (pasteMode) {
+      const pos = getVirtualPointerPosition();
+      if (pos) {
+        const localMode = netMode || 'pt';
+        const clipEntry = typeof getClipboard === 'function' ? getClipboard() : null;
+        if (!clipEntry) {
+          setPasteMode(false);
+          return;
+        }
+        const payload = clipEntry.payload || clipEntry;
+        if (!payload) {
+          setPasteMode(false);
+          return;
+        }
+        const clipboardMode = clipEntry.netMode || localMode;
+        if (clipboardMode && localMode && clipboardMode !== localMode) {
+          if (typeof onClipboardMismatch === 'function') {
+            onClipboardMismatch(clipboardMode, localMode, clipEntry);
+          } else {
+            console.warn(`Blocked paste: shared clipboard contains ${clipboardMode} net, editor mode is ${localMode}.`);
+          }
+          setPasteMode(false);
+          return;
+        }
+        
+        // Calculate offset from clipboard's original position to tap position
+        // Use first element's position as reference
+        let offsetX = 40;
+        let offsetY = 40;
+        if (payload.places && payload.places.length > 0) {
+          offsetX = pos.x - payload.places[0].x;
+          offsetY = pos.y - payload.places[0].y;
+        } else if (payload.transitions && payload.transitions.length > 0) {
+          offsetX = pos.x - payload.transitions[0].x;
+          offsetY = pos.y - payload.transitions[0].y;
+        }
+        
+        const { newPlaces, newTransitions, newArcs, newSelection } = remapIdsForPaste(payload, uuidv4, { x: offsetX, y: offsetY });
+        setElements(prev => ({
+          ...prev,
+          places: [...prev.places, ...newPlaces],
+          transitions: [...prev.transitions, ...newTransitions],
+          arcs: [...prev.arcs, ...newArcs],
+        }));
+        // Immediately transfer selection to the freshly pasted elements
+        setSelection(newSelection);
+        setPasteMode(false);
+      }
       return;
     }
     
