@@ -135,28 +135,43 @@ const FloatingActionBar = () => {
     setPasteMode(true);
   };
 
-  // Calculate bottom position: FloatingEditorControls is at bottom-32 (128px)
-  // We want to place action bar above it, accounting for button height (44px) + margin (8px)
-  // So we need bottom-32 + 44 + 8 = bottom-52 (208px from bottom)
+  // Position near top-left, below the toolbar (which has minHeight: 70px)
+  // Using top-24 (96px) to give space below toolbar
   return (
     <>
-      {/* Paste mode indicator overlay */}
+      {/* Paste mode indicator - top notification bar style */}
       {pasteMode && (
-        <div className="fixed inset-0 z-40 bg-blue-500/10 flex items-center justify-center">
-          <div className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
-            <span className="text-sm font-medium">Tap on canvas to paste</span>
-            <button
-              onClick={() => setPasteMode(false)}
-              className="ml-2 px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-sm font-medium transition-colors"
-              title="Cancel paste"
+        <div 
+          className="fixed left-0 right-0 z-50 flex justify-center"
+          style={{ top: '72px' }}
+        >
+          <div 
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: '0.25rem',
+              backgroundColor: '#dbeafe', // blue-100
+              color: '#1d4ed8', // blue-700
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontSize: '0.875rem',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              maxWidth: '90%',
+            }}
+          >
+            <span>Tap on canvas to paste</span>
+            <button 
+              onClick={() => setPasteMode(false)} 
+              style={{ marginLeft: '1rem', fontWeight: '600' }}
             >
-              Cancel
+              ×
             </button>
           </div>
         </div>
       )}
       
-      <div className="fixed bottom-52 left-6 z-50 flex flex-col items-center">
+      {/* Action buttons - positioned near top-left, below toolbar */}
+      <div className="fixed top-24 left-4 z-50 flex flex-col items-center">
         {/* Paste button - shown when clipboard has content */}
         {hasClipboard && (
           <button
@@ -173,37 +188,38 @@ const FloatingActionBar = () => {
           </button>
         )}
 
-      {/* Copy/Cut buttons - shown when elements selected */}
-      {hasSelection && (
-        <>
-          <button
-            style={getButtonStyle(false)}
-            onClick={handleCopy}
-            title="Copy"
-            data-testid="floating-action-copy"
-            className="active:scale-95"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-            </svg>
-          </button>
-          <button
-            style={getButtonStyle(false, true)}
-            onClick={handleCut}
-            title="Cut (replaces delete)"
-            data-testid="floating-action-cut"
-            className="active:scale-95"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="9" cy="9" r="2" />
-              <circle cx="9" cy="15" r="2" />
-              <path d="M13 17h5a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-5" />
-              <line x1="6" y1="12" x2="11" y2="12" />
-            </svg>
-          </button>
-        </>
-      )}
+        {/* Copy/Cut buttons - shown when elements selected */}
+        {hasSelection && (
+          <>
+            <button
+              style={getButtonStyle(false)}
+              onClick={handleCopy}
+              title="Copy"
+              data-testid="floating-action-copy"
+              className="active:scale-95"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            </button>
+            <button
+              style={getButtonStyle(false, true)}
+              onClick={handleCut}
+              title="Cut (replaces delete)"
+              data-testid="floating-action-cut"
+              className="active:scale-95"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="6" cy="6" r="3" />
+                <circle cx="6" cy="18" r="3" />
+                <line x1="20" y1="4" x2="8.12" y2="15.88" />
+                <line x1="14.47" y1="14.48" x2="20" y2="20" />
+                <line x1="8.12" y1="8.12" x2="12" y2="12" />
+              </svg>
+            </button>
+          </>
+        )}
       </div>
     </>
   );
