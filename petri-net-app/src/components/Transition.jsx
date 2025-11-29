@@ -9,13 +9,14 @@ const IS_TOUCH_DEVICE = typeof window !== 'undefined' &&
   ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
 // Get dynamic throttle based on element count and device type
-// Touch devices need more aggressive throttling due to higher event rates (120-240Hz vs 60Hz)
+// Touch devices need MUCH more aggressive throttling due to higher event rates (120-240Hz vs 60Hz)
+// and lower CPU power compared to desktop
 const getThrottleMs = (elementCount) => {
   if (IS_TOUCH_DEVICE) {
-    // Mobile: more aggressive throttling
-    if (elementCount > 500) return 200;  // 5fps for very large nets
-    if (elementCount > 100) return 150;  // ~7fps for large nets
-    return 100;                          // 10fps for small nets
+    // Mobile: very aggressive throttling (4x more than desktop)
+    if (elementCount > 500) return 800;  // ~1.25fps for very large nets
+    if (elementCount > 100) return 600;  // ~1.7fps for large nets
+    return 400;                          // 2.5fps for small nets
   }
   // Desktop: lighter throttling
   if (elementCount > 500) return 100;    // 10fps for very large nets
