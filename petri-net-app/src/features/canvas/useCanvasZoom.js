@@ -50,7 +50,7 @@ export function useCanvasZoom({
   // Inertia/momentum scrolling state
   const inertiaAnimationRef = useRef(null);
   const velocityHistoryRef = useRef([]); // Array of {x, y, time} for velocity calculation
-  const MAX_VELOCITY_HISTORY = 5; // Keep last 5 samples for velocity calculation
+  const MAX_VELOCITY_HISTORY = 12; // Keep last ~10-12 samples (~100-200ms) for better velocity averaging
 
   useEffect(() => {
     zoomLevelRef.current = zoomLevel;
@@ -156,31 +156,20 @@ export function useCanvasZoom({
       return { vx: 0, vy: 0 };
     }
 
-    const lastIndex = history.length - 1;
-    const last = history[lastIndex];
+    // Use the oldest and newest samples in our limited history
+    // This gives an average velocity over the recorded window (~100-200ms)
+    const last = history[history.length - 1];
+    const first = history[0];
 
-    // Find a previous sample with a reasonable time difference (avoid zero dt)
-    let prevIndex = lastIndex - 1;
-    let prev = history[prevIndex];
+    const dt = last.time - first.time;
 
-    while (prevIndex >= 0 && last.time - prev.time < 8) {
-      prevIndex -= 1;
-      prev = history[prevIndex];
-    }
-
-    if (!prev || prevIndex < 0) {
+    // Ignore extremely short or long intervals
+    if (dt <= 10 || dt > 300) {
       return { vx: 0, vy: 0 };
     }
 
-    const dt = last.time - prev.time;
-
-    // Ignore extremely long gaps (user stopped for too long)
-    if (dt <= 0 || dt > 350) {
-      return { vx: 0, vy: 0 };
-    }
-
-    const vx = (last.x - prev.x) / dt;
-    const vy = (last.y - prev.y) / dt;
+    const vx = (last.x - first.x) / dt;
+    const vy = (last.y - first.y) / dt;
 
     return { vx, vy };
   }, []);
