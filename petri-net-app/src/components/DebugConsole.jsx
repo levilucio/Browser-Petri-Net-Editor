@@ -4,6 +4,7 @@ const DebugConsole = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [logs, setLogs] = useState([]);
   const [isEnabled, setIsEnabled] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
   const logsEndRef = useRef(null);
   const originalConsole = useRef({});
 
@@ -78,6 +79,44 @@ const DebugConsole = () => {
     setLogs([]);
   };
 
+  const copyToClipboard = async () => {
+    if (logs.length === 0) return;
+
+    // Format logs as readable text
+    const formattedLogs = logs.map(log => {
+      return `[${log.timestamp}] ${log.level.toUpperCase()}: ${log.message}`;
+    }).join('\n');
+
+    // Add header with summary
+    const header = `Debug Console Logs\nGenerated: ${new Date().toLocaleString()}\nTotal Messages: ${logs.length}\n\n`;
+    const fullText = header + formattedLogs;
+
+    try {
+      // Use Clipboard API if available
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(fullText);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = fullText;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      }
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+      // Show error feedback
+      alert('Failed to copy to clipboard. Please try selecting the text manually.');
+    }
+  };
+
   const getLogColor = (level) => {
     switch (level) {
       case 'error': return 'text-red-600 bg-red-50 border-red-200';
@@ -117,6 +156,20 @@ const DebugConsole = () => {
           <div className="flex items-center justify-between p-2 bg-purple-600 text-white rounded-t-lg">
             <h3 className="text-sm font-semibold">Debug Console</h3>
             <div className="flex items-center gap-2">
+              <button
+                onClick={copyToClipboard}
+                disabled={logs.length === 0}
+                className={`px-2 py-1 rounded text-xs active:opacity-80 transition-all ${
+                  copySuccess 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : logs.length === 0
+                    ? 'bg-gray-500 opacity-50 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+                title="Copy All Logs to Clipboard"
+              >
+                {copySuccess ? '✓ Copied!' : '📋 Copy'}
+              </button>
               <button
                 onClick={clearLogs}
                 className="px-2 py-1 bg-purple-700 hover:bg-purple-800 rounded text-xs active:bg-purple-900"
