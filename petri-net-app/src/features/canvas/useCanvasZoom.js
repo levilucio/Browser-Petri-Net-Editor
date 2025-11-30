@@ -117,6 +117,11 @@ export function useCanvasZoom({
         !Number.isFinite(zoomValue) ||
         zoomValue <= 0
       ) {
+        console.log('[Inertia] applyPanDelta blocked:', { 
+          hasContainer: !!localCanvasContainerDivRef.current, 
+          hasVirtualDims: !!virtualCanvasDimensions,
+          zoomValue 
+        });
         return;
       }
       const container = localCanvasContainerDivRef.current;
@@ -208,6 +213,11 @@ export function useCanvasZoom({
       const deltaTime = currentTime - lastTime;
       lastTime = currentTime;
 
+      // Log first few frames for debugging
+      if (frameCount <= 3) {
+        console.log('[Inertia] Frame', frameCount, ':', { deltaTime: deltaTime.toFixed(1), vx: vx.toFixed(4), vy: vy.toFixed(4) });
+      }
+
       // Apply deceleration
       vx *= Math.pow(DECELERATION, deltaTime / FRAME_TIME);
       vy *= Math.pow(DECELERATION, deltaTime / FRAME_TIME);
@@ -224,6 +234,12 @@ export function useCanvasZoom({
       // Use positive delta to match the reversed panning direction
       const deltaX = vx * deltaTime;
       const deltaY = vy * deltaTime;
+      
+      // Log when actually applying delta
+      if (frameCount <= 3) {
+        console.log('[Inertia] Applying delta:', { deltaX: deltaX.toFixed(2), deltaY: deltaY.toFixed(2), zoom: zoomLevelRef.current });
+      }
+      
       applyPanDelta(deltaX, deltaY, zoomLevelRef.current);
 
       // Continue animation
