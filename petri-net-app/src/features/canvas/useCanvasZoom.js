@@ -209,9 +209,12 @@ export function useCanvasZoom({
     let frameCount = 0;
 
     const animate = (currentTime) => {
+      console.log('[Inertia] animate() called, lastTime:', lastTime, 'currentTime:', currentTime?.toFixed(0));
+      
       // Initialize lastTime on first frame to avoid negative deltaTime issues
       if (lastTime === null) {
         lastTime = currentTime;
+        console.log('[Inertia] First frame - initializing timing');
         // Request next frame - first frame just initializes timing
         inertiaAnimationRef.current = requestAnimationFrame(animate);
         return;
@@ -267,6 +270,7 @@ export function useCanvasZoom({
   // Stop inertia animation (does NOT clear velocity history - that's separate)
   const stopInertiaAnimation = useCallback(() => {
     if (inertiaAnimationRef.current) {
+      console.log('[Inertia] Stopping animation (RAF ID:', inertiaAnimationRef.current, ')');
       cancelAnimationFrame(inertiaAnimationRef.current);
       inertiaAnimationRef.current = null;
     }
