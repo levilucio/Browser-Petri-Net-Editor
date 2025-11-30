@@ -165,6 +165,17 @@ export function useCanvasZoom({
 
     // Ignore extremely short or long intervals
     if (dt <= 10 || dt > 300) {
+      // Fallback: try using just the last two samples if the full window is too short/long
+      if (history.length >= 2) {
+        const lastTwo = history.slice(-2);
+        const dt2 = lastTwo[1].time - lastTwo[0].time;
+        if (dt2 > 0 && dt2 <= 100) {
+          return {
+            vx: (lastTwo[1].x - lastTwo[0].x) / dt2,
+            vy: (lastTwo[1].y - lastTwo[0].y) / dt2
+          };
+        }
+      }
       return { vx: 0, vy: 0 };
     }
 
@@ -181,6 +192,8 @@ export function useCanvasZoom({
       cancelAnimationFrame(inertiaAnimationRef.current);
     }
 
+    console.log('[Inertia] Animation starting with velocity:', { vx: initialVx.toFixed(4), vy: initialVy.toFixed(4) });
+
     const DECELERATION = 0.985; // Deceleration factor per frame (0.985 = slower deceleration for longer inertia on mobile)
     const MIN_VELOCITY = 0.005; // Lower threshold to allow inertia to continue longer
     const FRAME_TIME = 16; // Approximate frame time in ms (60fps)
@@ -188,8 +201,10 @@ export function useCanvasZoom({
     let vx = initialVx;
     let vy = initialVy;
     let lastTime = performance.now();
+    let frameCount = 0;
 
     const animate = (currentTime) => {
+      frameCount++;
       const deltaTime = currentTime - lastTime;
       lastTime = currentTime;
 
@@ -200,6 +215,7 @@ export function useCanvasZoom({
       // Check if we should stop
       const speed = Math.hypot(vx, vy);
       if (speed < MIN_VELOCITY) {
+        console.log('[Inertia] Animation stopped after', frameCount, 'frames, final speed:', speed.toFixed(4));
         inertiaAnimationRef.current = null;
         return;
       }
@@ -215,6 +231,7 @@ export function useCanvasZoom({
     };
 
     inertiaAnimationRef.current = requestAnimationFrame(animate);
+    console.log('[Inertia] Animation frame requested');
   }, [applyPanDelta]);
 
   // Stop inertia animation
@@ -508,7 +525,6 @@ export function useCanvasZoom({
 
     const handleTouchEnd = (event) => {
       // Check if we should start inertia animation
-      // On mobile, pan state might not always be set correctly, so we rely more on velocity
       const panWasActive = panStateRef.current.active || singleFingerPanRef.current.active;
       
       // Calculate velocity before clearing state
@@ -519,15 +535,26 @@ export function useCanvasZoom({
         velocity = calculateVelocity();
         const speed = Math.hypot(velocity.vx, velocity.vy);
         
-        // More lenient inertia trigger for mobile:
-        // - If velocity > 0.03 px/ms (30 px/s), start inertia regardless of pan state
-        // - This handles cases where touch gesture detection might not set pan active correctly
-        // - 0.03 px/ms is a reasonable threshold for intentional pan gestures
-        const MIN_INERTIA_SPEED = 0.02;
+        // Very lenient threshold for mobile - 0.01 px/ms = 10 px/s
+        // This should catch even slow swipes
+        const MIN_INERTIA_SPEED = 0.01;
+        
+        console.log('[Inertia] Touch end:', {
+          historyLength: velocityHistoryRef.current.length,
+          velocity: { vx: velocity.vx.toFixed(4), vy: velocity.vy.toFixed(4) },
+          speed: speed.toFixed(4),
+          panWasActive,
+          willStart: speed > MIN_INERTIA_SPEED
+        });
         
         if (speed > MIN_INERTIA_SPEED) {
+          console.log('[Inertia] Starting animation');
           startInertiaAnimation(velocity.vx, velocity.vy);
+        } else {
+          console.log('[Inertia] Speed too low:', speed, '<', MIN_INERTIA_SPEED);
         }
+      } else {
+        console.log('[Inertia] No velocity history:', velocityHistoryRef.current.length);
       }
 
       clearSingleFingerPan();
@@ -560,11 +587,14 @@ export function useCanvasZoom({
   // Clear pan state when isDragging changes
   // This prevents crashes from stale state when transitioning between element drag and canvas pan
   useEffect(() => {
-    // Stop inertia and clear state both when dragging starts AND ends
+    // Only stop inertia when dragging STARTS (not when it ends)
     // When dragging starts: prevents stale pan state from interfering with element drag
-    // When dragging ends: ensures clean state for the next pan gesture
-    stopInertiaAnimation();
-    velocityHistoryRef.current = [];
+    // When dragging ends: allow inertia to continue if it was already running
+    if (isDragging) {
+      stopInertiaAnimation();
+      velocityHistoryRef.current = [];
+    }
+    
     singleFingerPanRef.current = createSingleFingerPanState();
     setIsSingleFingerPanningActive(false);
     pinchStateRef.current = { active: false };

@@ -4,7 +4,7 @@ import { parseArithmetic } from '../utils/arith-parser';
 import { evaluateArithmeticWithBindings, solveEquation, parseBooleanExpr, evaluateBooleanWithBindings } from '../utils/z3-arith';
 import { formatToken } from '../utils/token-format';
 
-const sectionTitle = 'text-xs font-semibold text-gray-600 uppercase tracking-wider';
+const sectionTitle = 'text-sm sm:text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2';
 
 export default function AdtDialog({ isOpen, onClose }) {
   const reg = useAdtRegistry();
@@ -117,31 +117,40 @@ export default function AdtDialog({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-      <div className="bg-white rounded shadow-lg w-[1000px] max-h-[85vh] overflow-y-auto p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">ADT Manager - Available Types and Operations</h3>
-          <button className="px-2 py-1 bg-gray-200 rounded" onClick={onClose}>Close</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 p-2 sm:p-4">
+      <div className="bg-white rounded-lg sm:rounded shadow-lg w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-[1000px] overflow-y-auto p-3 sm:p-4">
+        <div className="flex items-center justify-between mb-3 sticky top-0 bg-white pb-2 border-b -mx-3 sm:-mx-4 px-3 sm:px-4 z-10">
+          <h3 className="text-base sm:text-lg font-semibold pr-2">ADT Manager</h3>
+          <button 
+            className="px-3 py-2 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 rounded text-sm font-medium flex-shrink-0 transition-colors" 
+            onClick={onClose}
+          >
+            Close
+          </button>
         </div>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           <div>
             <div className={sectionTitle}>Available Data Types</div>
             {preview.map((t) => (
-              <div key={t.name} className="mt-3 p-3 border rounded bg-gray-50">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="font-semibold text-lg">{t.name}</div>
-                  {t.__readonly && <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">Built-in</span>}
+              <div key={t.name} className="mt-3 p-3 sm:p-4 border rounded bg-gray-50 space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="font-semibold text-base sm:text-lg">{t.name}</div>
+                  {t.__readonly && <span className="text-xs sm:text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded flex-shrink-0">Built-in</span>}
                 </div>
                 
-                <div className="mb-3">
-                  <div className="text-sm font-semibold mb-2 text-gray-700">Operations</div>
-                  <div className="space-y-1">
+                <div>
+                  <div className="text-sm sm:text-sm font-semibold mb-2 text-gray-700">Operations</div>
+                  <div className="space-y-2">
                     {(t.operations || []).map((op, idx) => (
-                      <div key={idx} className="text-sm font-mono bg-white p-2 rounded border">
-                        <span className="text-blue-600 font-semibold">{op.name}</span>
-                        <span className="text-gray-600">({op.params ? op.params.map((p, i) => `${p.type} ${String.fromCharCode(97 + i)}`).join(', ') : 'no params'})</span>
-                        <span className="text-gray-500"> → </span>
-                        <span className="text-green-600 font-semibold">{op.result}</span>
+                      <div key={idx} className="text-xs sm:text-sm font-mono bg-white p-2 sm:p-3 rounded border">
+                        <div className="flex flex-wrap items-baseline gap-1 break-words">
+                          <span className="text-blue-600 font-semibold">{op.name}</span>
+                          <span className="text-gray-600">
+                            ({op.params ? op.params.map((p, i) => `${p.type} ${String.fromCharCode(97 + i)}`).join(', ') : 'no params'})
+                          </span>
+                          <span className="text-gray-500"> → </span>
+                          <span className="text-green-600 font-semibold">{op.result}</span>
+                        </div>
                       </div>
                     ))}
                     {(!t.operations || t.operations.length === 0) && (
@@ -151,12 +160,12 @@ export default function AdtDialog({ isOpen, onClose }) {
                 </div>
                 
                 <div>
-                  <div className="text-sm font-semibold mb-2 text-gray-700">Axioms</div>
-                  <div className="space-y-1">
+                  <div className="text-sm sm:text-sm font-semibold mb-2 text-gray-700">Axioms</div>
+                  <div className="space-y-2">
                     {(t.axioms || []).map((ax, idx) => (
-                      <div key={idx} className="text-sm font-mono bg-white p-2 rounded border">
+                      <div key={idx} className="text-xs sm:text-sm font-mono bg-white p-2 sm:p-3 rounded border break-all">
                         <span className="text-purple-600 font-semibold">{ax.name ? ax.name + ': ' : ''}</span>
-                        <span className="text-gray-800">{ax.equation}</span>
+                        <span className="text-gray-800 break-words">{ax.equation}</span>
                       </div>
                     ))}
                     {(!t.axioms || t.axioms.length === 0) && (
@@ -171,13 +180,13 @@ export default function AdtDialog({ isOpen, onClose }) {
           <div>
             <div className={sectionTitle}>Interactive Tools</div>
 
-            <div className="mt-3 p-3 border rounded bg-gray-50">
-              <div className="text-sm font-semibold mb-3 text-gray-700">Sandbox</div>
+            <div className="mt-3 p-3 sm:p-4 border rounded bg-gray-50">
+              <div className="text-sm sm:text-sm font-semibold mb-3 text-gray-700">Sandbox</div>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs text-gray-700 mb-1">Expression or Equation</label>
+                  <label className="block text-xs sm:text-xs text-gray-700 mb-1">Expression or Equation</label>
                   <input
-                    className="w-full border rounded p-2 text-sm font-mono"
+                    className="w-full border rounded p-2 sm:p-2 text-sm font-mono"
                     placeholder="Enter an expression (e.g., x + 2*y) or equation with '=' (e.g., x + y = 7)"
                     value={sandboxInput}
                     onChange={(e) => setSandboxInput(e.target.value)}
@@ -185,30 +194,38 @@ export default function AdtDialog({ isOpen, onClose }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-700 mb-1">Variable Bindings</label>
+                  <label className="block text-xs sm:text-xs text-gray-700 mb-1">Variable Bindings</label>
                   <input
-                    className="w-full border rounded p-2 text-sm font-mono"
+                    className="w-full border rounded p-2 sm:p-2 text-sm font-mono"
                     placeholder='{"x":3, "y":4} or x=3, y=4'
                     value={bindingsInput}
                     onChange={(e) => setBindingsInput(e.target.value)}
                     data-testid="sandbox-bindings"
                   />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <button className="px-3 py-1 bg-blue-600 text-white rounded text-sm" onClick={handleRunSandbox} data-testid="sandbox-run">Run</button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button 
+                    className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium active:bg-blue-700 transition-colors" 
+                    onClick={handleRunSandbox} 
+                    data-testid="sandbox-run"
+                  >
+                    Run
+                  </button>
                   {termResult !== null && (
-                    <span className="text-sm" data-testid="sandbox-result">Result: <span className="font-mono bg-green-100 px-2 py-1 rounded">{formatToken(termResult)}</span></span>
+                    <span className="text-sm" data-testid="sandbox-result">
+                      Result: <span className="font-mono bg-green-100 px-2 py-1 rounded">{formatToken(termResult)}</span>
+                    </span>
                   )}
                 </div>
                 {sandboxError && (
-                  <div className="p-2 text-red-700 bg-red-100 border border-red-200 rounded text-sm whitespace-pre-wrap">{sandboxError}</div>
+                  <div className="p-2 sm:p-3 text-red-700 bg-red-100 border border-red-200 rounded text-xs sm:text-sm whitespace-pre-wrap break-words">{sandboxError}</div>
                 )}
                 {solutions && solutions.length > 0 && (
                   <div className="text-sm" data-testid="sandbox-solutions">
                     <div className="font-semibold mb-2 text-gray-700">Solutions (up to 5):</div>
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {solutions.map((s, idx) => (
-                        <div key={idx} className="font-mono bg-white p-2 rounded border" data-testid="sandbox-sol-entry">{JSON.stringify(s)}</div>
+                        <div key={idx} className="font-mono bg-white p-2 sm:p-3 rounded border break-all text-xs sm:text-sm" data-testid="sandbox-sol-entry">{JSON.stringify(s)}</div>
                       ))}
                     </div>
                   </div>
@@ -216,9 +233,9 @@ export default function AdtDialog({ isOpen, onClose }) {
               </div>
             </div>
             
-            <div className="mt-4 p-3 border rounded bg-blue-50">
-              <div className="text-sm font-semibold mb-2 text-blue-800">Usage Notes</div>
-              <div className="text-xs text-blue-700 space-y-1">
+            <div className="mt-4 p-3 sm:p-4 border rounded bg-blue-50">
+              <div className="text-sm sm:text-sm font-semibold mb-2 text-blue-800">Usage Notes</div>
+              <div className="text-xs sm:text-xs text-blue-700 space-y-1.5">
                 <div>• Int operations: +(Int a, Int b), *(Int a, Int b), ==(Int a, Int b), etc.</div>
                 <div>• Bool operations: and(Bool a, Bool b), or(Bool a, Bool b), not(Bool a)</div>
                 <div>• Pair operations: fst(Pair p), snd(Pair p), ==(Pair a, Pair b)</div>
