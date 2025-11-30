@@ -327,6 +327,8 @@ export function useCanvasZoom({
     };
 
     const handleTouchStart = (event) => {
+      console.log('[Inertia] handleTouchStart called:', { touchCount: event.touches.length });
+      
       // Stop any ongoing inertia animation
       stopInertiaAnimation();
 
@@ -362,26 +364,35 @@ export function useCanvasZoom({
         const timeSinceDragEnd = performance.now() - dragEndTimestampRef.current;
         const isInCooldown = timeSinceDragEnd < DRAG_END_COOLDOWN_MS;
         
-        // Don't start pan tracking if dragging or in cooldown
-        if (isDraggingRef.current || isInCooldown) {
-          clearSingleFingerPan();
-          velocityHistoryRef.current = [];
-          return;
-        }
-
-        // Single-finger pan/selection decision is now handled by CanvasManager
-        // We just track the touch position for when panning is activated
         const touch = event.touches[0];
-        singleFingerPanRef.current = {
-          active: false,
-          touchId: touch.identifier,
-          startX: touch.clientX,
-          startY: touch.clientY,
-          lastX: touch.clientX,
-          lastY: touch.clientY,
-        };
-        // Reset velocity history
-        velocityHistoryRef.current = [];
+        
+        // Always initialize touch tracking for velocity, even if we can't pan yet
+        // This ensures velocity is captured from the start of the gesture
+        if (!isDraggingRef.current && !isInCooldown) {
+          singleFingerPanRef.current = {
+            active: false,
+            touchId: touch.identifier,
+            startX: touch.clientX,
+            startY: touch.clientY,
+            lastX: touch.clientX,
+            lastY: touch.clientY,
+          };
+          // Don't reset velocity history - keep any existing data
+          // velocityHistoryRef.current = [];
+          console.log('[Inertia] TouchStart tracked:', { touchId: touch.identifier });
+        } else {
+          // Even if we can't pan, still track the touch for velocity
+          singleFingerPanRef.current = {
+            active: false,
+            touchId: touch.identifier,
+            startX: touch.clientX,
+            startY: touch.clientY,
+            lastX: touch.clientX,
+            lastY: touch.clientY,
+          };
+          console.log('[Inertia] TouchStart (blocked but tracking):', { touchId: touch.identifier, isDragging: isDraggingRef.current, isInCooldown });
+        }
+        
         return;
       }
 
@@ -393,6 +404,8 @@ export function useCanvasZoom({
     };
 
     const handleTouchMove = (event) => {
+      console.log('[Inertia] handleTouchMove called:', { touchCount: event.touches.length });
+      
       if (event.touches.length === 2) {
         clearSingleFingerPan();
 
@@ -480,7 +493,17 @@ export function useCanvasZoom({
         const touch = event.touches[0];
         const singlePan = singleFingerPanRef.current;
         
-        if (singlePan.touchId !== null && touch.identifier === singlePan.touchId) {
+        // Always track velocity if we have a touch, even if touchId doesn't match yet
+        // This handles cases where touchId might not be set or synced properly
+        if (singlePan.touchId === null) {
+          // If touchId not set, try to match with current touch
+          singlePan.touchId = touch.identifier;
+          singlePan.lastX = touch.clientX;
+          singlePan.lastY = touch.clientY;
+        }
+        
+        // Track velocity for any single touch movement
+        if (touch.identifier === singlePan.touchId || singlePan.touchId === null) {
           const now = performance.now();
           velocityHistoryRef.current.push({
             x: touch.clientX,
@@ -490,14 +513,27 @@ export function useCanvasZoom({
           if (velocityHistoryRef.current.length > MAX_VELOCITY_HISTORY) {
             velocityHistoryRef.current.shift();
           }
+          console.log('[Inertia] Velocity tracked:', { 
+            touchId: touch.identifier, 
+            panTouchId: singlePan.touchId,
+            historyLength: velocityHistoryRef.current.length,
+            x: touch.clientX,
+            y: touch.clientY
+          });
+        } else {
+          console.log('[Inertia] Touch ID mismatch:', { 
+            touchId: touch.identifier, 
+            panTouchId: singlePan.touchId 
+          });
         }
         
         if (isDraggingRef.current || isInCooldown || selectionActive) {
-          clearSingleFingerPan();
+          // Don't clear velocity history here - we want to track it even during selection
+          // clearSingleFingerPan();
           return;
         }
         
-        if (touch.identifier !== singlePan.touchId) {
+        if (touch.identifier !== singlePan.touchId && singlePan.touchId !== null) {
           return;
         }
         

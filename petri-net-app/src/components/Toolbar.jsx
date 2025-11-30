@@ -28,7 +28,8 @@ const Toolbar = ({
   stopSimulation,
   clearCanvas,
   onOpenSettings,
-  resetEditor
+  resetEditor,
+  debugConsoleRef
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -251,9 +252,9 @@ const Toolbar = ({
   );
 
   const renderMobileGroups = () => (
-    <div className="flex flex-col space-y-6">
+    <div className="flex flex-col space-y-5">
       <div className="file-operations">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider">File</h3>
+        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">File</h3>
         <FileControls
           isLoading={isLoading}
           onSave={handleSave}
@@ -265,7 +266,7 @@ const Toolbar = ({
         />
       </div>
       <div className="editing-tools">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider">Editing</h3>
+        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Editing</h3>
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -280,7 +281,7 @@ const Toolbar = ({
         {/* ModeButtons removed - now available as floating controls on canvas */}
       </div>
       <div className="adt-tools">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider">ADT Manager</h3>
+        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">ADT Manager</h3>
         <button
           style={mobileButtonStyle(false)}
           onClick={() => {
@@ -294,7 +295,7 @@ const Toolbar = ({
         </button>
       </div>
       <div className="settings-tools">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2 uppercase tracking-wider">Settings</h3>
+        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Settings</h3>
         <SettingsButton
           onOpenSettings={() => {
             setIsMobileMenuOpen(false);
@@ -302,6 +303,22 @@ const Toolbar = ({
           }}
           buttonStyle={mobileButtonStyle}
         />
+      </div>
+      <div className="debug-tools">
+        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Developer</h3>
+        <button
+          style={mobileButtonStyle(false)}
+          onClick={() => {
+            setIsMobileMenuOpen(false);
+            if (debugConsoleRef?.current) {
+              debugConsoleRef.current.open();
+            }
+          }}
+          title="Open Debug Console"
+          data-testid="debug-console-mobile"
+        >
+          🐛 Debug Console
+        </button>
       </div>
     </div>
   );
@@ -381,12 +398,12 @@ const Toolbar = ({
         />
         {/* Left-side drawer */}
         <div 
-          className={`fixed w-80 left-0 top-16 bottom-0 z-50 bg-white shadow-2xl overflow-y-auto transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} pointer-events-auto`}
+          className={`fixed w-72 left-0 top-16 bottom-0 z-50 bg-gradient-to-b from-gray-50 to-white backdrop-blur-sm shadow-2xl overflow-y-auto transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} pointer-events-auto border-r border-gray-200`}
           onWheel={(e) => e.stopPropagation()}
         >
-          <div className="p-5">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+          <div className="p-4">
+            <div className="mb-6 border-b border-gray-200 pb-3">
+              <h2 className="text-xl font-bold text-gray-800">Menu</h2>
             </div>
             {renderMobileGroups()}
           </div>

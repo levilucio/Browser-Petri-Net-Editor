@@ -90,6 +90,7 @@ const AppContent = () => {
 
     const { isDragging } = usePetriNet();
     const isSelectionActiveRef = useRef(false);
+    const debugConsoleRef = useRef(null);
     const { localCanvasContainerDivRef, handleZoom, handleNativeCanvasScroll, isSingleFingerPanningActive, activateSingleFingerPan } = useCanvasZoom({
       MIN_ZOOM,
       MAX_ZOOM,
@@ -276,7 +277,7 @@ const AppContent = () => {
           </div>
           <FloatingEditorControls />
           <FloatingActionBar />
-          <DebugConsole />
+          <DebugConsole ref={debugConsoleRef} />
         </div>
         
         {/* Settings Dialog */}

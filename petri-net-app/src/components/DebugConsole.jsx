@@ -1,12 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 
-const DebugConsole = () => {
+const DebugConsole = forwardRef((props, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [logs, setLogs] = useState([]);
   const [isEnabled, setIsEnabled] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const logsEndRef = useRef(null);
   const originalConsole = useRef({});
+
+  // Expose methods to parent components
+  useImperativeHandle(ref, () => ({
+    enable: () => setIsEnabled(true),
+    disable: () => setIsEnabled(false),
+    toggle: () => setIsEnabled(prev => !prev),
+    isEnabled: () => isEnabled,
+    open: () => { setIsEnabled(true); setIsOpen(true); },
+    close: () => setIsOpen(false),
+  }));
 
   const scrollToBottom = () => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -216,7 +226,9 @@ const DebugConsole = () => {
       )}
     </>
   );
-};
+});
+
+DebugConsole.displayName = 'DebugConsole';
 
 export default DebugConsole;
 
