@@ -156,22 +156,31 @@ export function useCanvasZoom({
       return { vx: 0, vy: 0 };
     }
 
-    // Use the last two samples for velocity calculation
-    // If we have more samples, use a weighted average for better accuracy
-    const recent = history.slice(-Math.min(history.length, 3));
-    const [first, ...rest] = recent;
-    const last = recent[recent.length - 1];
-    
-    // Calculate velocity from first to last sample
-    const dt = last.time - first.time;
-    
-    if (dt <= 0 || dt > 500) { // Ignore if time difference is too large (stale data)
+    const lastIndex = history.length - 1;
+    const last = history[lastIndex];
+
+    // Find a previous sample with a reasonable time difference (avoid zero dt)
+    let prevIndex = lastIndex - 1;
+    let prev = history[prevIndex];
+
+    while (prevIndex >= 0 && last.time - prev.time < 8) {
+      prevIndex -= 1;
+      prev = history[prevIndex];
+    }
+
+    if (!prev || prevIndex < 0) {
       return { vx: 0, vy: 0 };
     }
 
-    // Velocity in pixels per millisecond
-    const vx = (last.x - first.x) / dt;
-    const vy = (last.y - first.y) / dt;
+    const dt = last.time - prev.time;
+
+    // Ignore extremely long gaps (user stopped for too long)
+    if (dt <= 0 || dt > 350) {
+      return { vx: 0, vy: 0 };
+    }
+
+    const vx = (last.x - prev.x) / dt;
+    const vy = (last.y - prev.y) / dt;
 
     return { vx, vy };
   }, []);
@@ -525,7 +534,7 @@ export function useCanvasZoom({
         // - If velocity > 0.03 px/ms (30 px/s), start inertia regardless of pan state
         // - This handles cases where touch gesture detection might not set pan active correctly
         // - 0.03 px/ms is a reasonable threshold for intentional pan gestures
-        const MIN_INERTIA_SPEED = 0.03;
+        const MIN_INERTIA_SPEED = 0.02;
         
         if (speed > MIN_INERTIA_SPEED) {
           startInertiaAnimation(velocity.vx, velocity.vy);
