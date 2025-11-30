@@ -90,35 +90,107 @@ const Toolbar = ({
     };
   }, [mobileQuery]);
 
-  const createButtonStyle = (variant = 'desktop') => (isSelected) => ({
-    padding: '0.375rem 0.5rem',
-    borderRadius: '0.25rem',
-    backgroundColor: isSelected ? '#4338ca' : 'white',
-    color: isSelected ? 'rgba(255, 255, 255, 0.85)' : 'rgba(31, 41, 55, 0.7)',
-    border: isSelected ? '1px solid #3730a3' : '1px solid #d1d5db',
-    borderBottom: isSelected ? '2px solid #312e81' : '2px solid #9ca3af',
-    margin: variant === 'mobile' ? '0 0 0.5rem 0' : '0 0.125rem',
-    minWidth: variant === 'mobile' ? '100%' : '80px',
-    width: variant === 'mobile' ? '100%' : '80px',
-    fontSize: '0.75rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.15s ease-in-out',
-    textAlign: 'center',
-    height: '32px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: isSelected
-      ? 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)'
-      : 'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0, 0, 0, 0.1)',
-    position: 'relative',
-    top: '0',
-    transform: isSelected ? 'translateY(1px)' : 'translateY(0)',
-    textShadow: isSelected
-      ? '0 -1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.15)'
-      : '0 1px 0 rgba(255, 255, 255, 0.5), 0 -1px 0 rgba(0, 0, 0, 0.2)',
-  });
+  const createButtonStyle = (variant = 'desktop') => (isSelected, buttonType = 'default') => {
+    // For mobile/touch devices, use gradient styling with button types
+    if (variant === 'mobile') {
+      const colorSchemes = {
+        file: {
+          gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          hover: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+          shadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+          hoverShadow: '0 6px 20px rgba(102, 126, 234, 0.5)',
+        },
+        settings: {
+          gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+          hover: 'linear-gradient(135deg, #e879f9 0%, #ef4444 100%)',
+          shadow: '0 4px 15px rgba(245, 87, 108, 0.4)',
+          hoverShadow: '0 6px 20px rgba(245, 87, 108, 0.5)',
+        },
+        adt: {
+          gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+          hover: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
+          shadow: '0 4px 15px rgba(79, 172, 254, 0.4)',
+          hoverShadow: '0 6px 20px rgba(79, 172, 254, 0.5)',
+        },
+        debug: {
+          gradient: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+          hover: 'linear-gradient(135deg, #9333ea 0%, #db2777 100%)',
+          shadow: '0 4px 15px rgba(168, 85, 247, 0.4)',
+          hoverShadow: '0 6px 20px rgba(168, 85, 247, 0.5)',
+        },
+        default: {
+          gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          hover: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)',
+          shadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
+          hoverShadow: '0 6px 20px rgba(102, 126, 234, 0.4)',
+        },
+      };
+
+      const scheme = colorSchemes[buttonType] || colorSchemes.default;
+
+      return {
+        padding: '0.875rem 1.25rem',
+        borderRadius: '0.75rem',
+        background: isSelected ? scheme.gradient : 'white',
+        color: isSelected ? 'white' : '#374151',
+        border: 'none',
+        margin: '0 0 0.75rem 0',
+        minWidth: '100%',
+        width: '100%',
+        fontSize: '0.875rem',
+        fontWeight: 600,
+        cursor: 'pointer',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        textAlign: 'center',
+        height: '48px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        boxShadow: isSelected
+          ? `${scheme.shadow}, inset 0 2px 4px rgba(255, 255, 255, 0.2)`
+          : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
+        position: 'relative',
+        overflow: 'hidden',
+        // Store scheme for hover effects
+        '--scheme-gradient': scheme.gradient,
+        '--scheme-hover': scheme.hover,
+        '--scheme-shadow': scheme.shadow,
+        '--scheme-hover-shadow': scheme.hoverShadow,
+      };
+    }
+
+    // Desktop styling remains unchanged
+    return {
+      padding: '0.375rem 0.5rem',
+      borderRadius: '0.25rem',
+      backgroundColor: isSelected ? '#4338ca' : 'white',
+      color: isSelected ? 'rgba(255, 255, 255, 0.85)' : 'rgba(31, 41, 55, 0.7)',
+      border: isSelected ? '1px solid #3730a3' : '1px solid #d1d5db',
+      borderBottom: isSelected ? '2px solid #312e81' : '2px solid #9ca3af',
+      margin: '0 0.125rem',
+      minWidth: '80px',
+      width: '80px',
+      fontSize: '0.75rem',
+      fontWeight: 600,
+      cursor: 'pointer',
+      transition: 'all 0.15s ease-in-out',
+      textAlign: 'center',
+      height: '32px',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: isSelected
+        ? 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1)'
+        : 'inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0, 0, 0, 0.1)',
+      position: 'relative',
+      top: '0',
+      transform: isSelected ? 'translateY(1px)' : 'translateY(0)',
+      textShadow: isSelected
+        ? '0 -1px 1px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.15)'
+        : '0 1px 0 rgba(255, 255, 255, 0.5), 0 -1px 0 rgba(0, 0, 0, 0.2)',
+    };
+  };
 
   const desktopButtonStyle = useMemo(() => createButtonStyle('desktop'), []);
   const mobileButtonStyle = useMemo(() => createButtonStyle('mobile'), []);
@@ -283,7 +355,8 @@ const Toolbar = ({
       <div className="adt-tools">
         <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">ADT Manager</h3>
         <button
-          style={mobileButtonStyle(false)}
+          className="menu-button-hover"
+          style={mobileButtonStyle(false, 'adt')}
           onClick={() => {
             setIsMobileMenuOpen(false);
             handleOpenAdtManager();
@@ -291,7 +364,10 @@ const Toolbar = ({
           title="Open ADT Manager"
           data-testid="toolbar-adt-manager-mobile"
         >
-          ADT
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          ADT Manager
         </button>
       </div>
       <div className="settings-tools">
@@ -307,24 +383,55 @@ const Toolbar = ({
       <div className="debug-tools">
         <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Developer</h3>
         <button
-          style={mobileButtonStyle(false)}
+          className="menu-button-hover"
+          style={mobileButtonStyle(false, 'debug')}
           onClick={() => {
-            setIsMobileMenuOpen(false);
             if (debugConsoleRef?.current) {
-              debugConsoleRef.current.open();
+              const currentlyEnabled = debugConsoleRef.current.isEnabled();
+              if (currentlyEnabled) {
+                debugConsoleRef.current.disable();
+              } else {
+                debugConsoleRef.current.enable();
+              }
             }
+            setIsMobileMenuOpen(false);
           }}
-          title="Open Debug Console"
+          title={debugConsoleRef?.current?.isEnabled() ? "Deactivate Debug Console" : "Activate Debug Console"}
           data-testid="debug-console-mobile"
         >
-          🐛 Debug Console
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
+          {debugConsoleRef?.current?.isEnabled() ? 'Deactivate debug' : 'Activate debug'}
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="toolbar-container flex flex-col p-2 bg-gray-50 border-b border-gray-200 shadow-sm" style={{ minHeight: '70px' }}>
+    <>
+      <style>{`
+        .menu-button-hover {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .menu-button-hover:active {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: var(--scheme-hover-shadow, 0 6px 20px rgba(0, 0, 0, 0.15)) !important;
+        }
+        .menu-button-hover:active:not([style*="gradient"]) {
+          background: var(--scheme-hover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)) !important;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .menu-button-hover:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: var(--scheme-hover-shadow, 0 6px 20px rgba(0, 0, 0, 0.15)) !important;
+          }
+          .menu-button-hover:hover:not([style*="gradient"]) {
+            background: var(--scheme-hover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)) !important;
+          }
+        }
+      `}</style>
+      <div className="toolbar-container flex flex-col p-2 bg-gray-50 border-b border-gray-200 shadow-sm" style={{ minHeight: '70px' }}>
       <div className="hidden lg:block">
         {renderDesktopGroups()}
       </div>
@@ -410,6 +517,7 @@ const Toolbar = ({
         </div>
       </div>
     </div>
+    </>
   );
 };
 

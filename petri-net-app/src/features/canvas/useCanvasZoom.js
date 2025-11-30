@@ -351,8 +351,9 @@ export function useCanvasZoom({
           lastX: center.clientX,
           lastY: center.clientY,
         };
-        // Reset velocity history
-        velocityHistoryRef.current = [];
+        // Don't clear velocity history here - it might be needed if user lifts one finger
+        // Only clear if we're actually starting a new two-finger gesture
+        // velocityHistoryRef.current = [];
         return;
       }
 
@@ -366,9 +367,14 @@ export function useCanvasZoom({
         
         const touch = event.touches[0];
         
-        // Always initialize touch tracking for velocity, even if we can't pan yet
-        // This ensures velocity is captured from the start of the gesture
-        if (!isDraggingRef.current && !isInCooldown) {
+        // Check if this is a new touch (different identifier) or continuation
+        const isNewTouch = singleFingerPanRef.current.touchId === null || 
+                           singleFingerPanRef.current.touchId !== touch.identifier;
+        
+        // Only clear velocity history if this is a completely new touch gesture
+        // Don't clear if we're just continuing the same touch
+        if (isNewTouch && !isDraggingRef.current && !isInCooldown) {
+          // New touch - start fresh but only if not in cooldown/dragging
           singleFingerPanRef.current = {
             active: false,
             touchId: touch.identifier,
@@ -377,11 +383,15 @@ export function useCanvasZoom({
             lastX: touch.clientX,
             lastY: touch.clientY,
           };
-          // Don't reset velocity history - keep any existing data
-          // velocityHistoryRef.current = [];
-          console.log('[Inertia] TouchStart tracked:', { touchId: touch.identifier });
+          // Don't clear velocity history here - it might be from a previous gesture that just ended
+          console.log('[Inertia] TouchStart tracked (new):', { touchId: touch.identifier });
+        } else if (!isNewTouch) {
+          // Same touch continuing - just update position
+          singleFingerPanRef.current.lastX = touch.clientX;
+          singleFingerPanRef.current.lastY = touch.clientY;
+          console.log('[Inertia] TouchStart (continuing):', { touchId: touch.identifier });
         } else {
-          // Even if we can't pan, still track the touch for velocity
+          // New touch but blocked - still track it
           singleFingerPanRef.current = {
             active: false,
             touchId: touch.identifier,
@@ -560,23 +570,42 @@ export function useCanvasZoom({
     };
 
     const handleTouchEnd = (event) => {
+      console.log('[Inertia] handleTouchEnd called:', { 
+        remainingTouches: event.touches?.length || 0,
+        changedTouches: event.changedTouches?.length || 0,
+        velocityHistoryLength: velocityHistoryRef.current.length
+      });
+      
+      // Only process if this is the end of a single-finger touch
+      // If there are still touches remaining, don't process inertia yet
+      if (event.touches && event.touches.length > 0) {
+        console.log('[Inertia] Touch end but other touches still active, skipping');
+        return;
+      }
+      
       // Check if we should start inertia animation
       const panWasActive = panStateRef.current.active || singleFingerPanRef.current.active;
       
-      // Calculate velocity before clearing state
+      // Calculate velocity BEFORE clearing any state
+      // Make a copy of the history to prevent race conditions
+      const velocityHistorySnapshot = [...velocityHistoryRef.current];
       let velocity = { vx: 0, vy: 0 };
-      const hasVelocityHistory = velocityHistoryRef.current.length >= 2;
+      const hasVelocityHistory = velocityHistorySnapshot.length >= 2;
       
       if (hasVelocityHistory) {
+        // Temporarily restore history for calculation
+        const originalHistory = velocityHistoryRef.current;
+        velocityHistoryRef.current = velocityHistorySnapshot;
         velocity = calculateVelocity();
+        velocityHistoryRef.current = originalHistory;
+        
         const speed = Math.hypot(velocity.vx, velocity.vy);
         
         // Very lenient threshold for mobile - 0.01 px/ms = 10 px/s
-        // This should catch even slow swipes
         const MIN_INERTIA_SPEED = 0.01;
         
         console.log('[Inertia] Touch end:', {
-          historyLength: velocityHistoryRef.current.length,
+          historyLength: velocityHistorySnapshot.length,
           velocity: { vx: velocity.vx.toFixed(4), vy: velocity.vy.toFixed(4) },
           speed: speed.toFixed(4),
           panWasActive,
@@ -590,7 +619,7 @@ export function useCanvasZoom({
           console.log('[Inertia] Speed too low:', speed, '<', MIN_INERTIA_SPEED);
         }
       } else {
-        console.log('[Inertia] No velocity history:', velocityHistoryRef.current.length);
+        console.log('[Inertia] No velocity history:', velocityHistorySnapshot.length);
       }
 
       clearSingleFingerPan();

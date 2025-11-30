@@ -16,7 +16,7 @@ const DebugConsole = forwardRef((props, ref) => {
     isEnabled: () => isEnabled,
     open: () => { setIsEnabled(true); setIsOpen(true); },
     close: () => setIsOpen(false),
-  }));
+  }), [isEnabled]);
 
   const scrollToBottom = () => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -136,16 +136,9 @@ const DebugConsole = forwardRef((props, ref) => {
     }
   };
 
+  // Don't show floating button when not enabled - it's controlled from the menu
   if (!isEnabled) {
-    return (
-      <button
-        onClick={() => setIsEnabled(true)}
-        className="fixed bottom-4 right-4 z-[100] bg-purple-600 text-white px-4 py-3 rounded-full shadow-lg text-sm font-medium active:bg-purple-700"
-        title="Enable Debug Console"
-      >
-        🐛 Debug
-      </button>
-    );
+    return null;
   }
 
   return (
