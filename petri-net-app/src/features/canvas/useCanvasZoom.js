@@ -460,11 +460,11 @@ export function useCanvasZoom({
         const timeSinceDragEnd = performance.now() - dragEndTimestampRef.current;
         const isInCooldown = timeSinceDragEnd < DRAG_END_COOLDOWN_MS;
         
+        // Track velocity FIRST (before any blocking checks) for mobile inertia
+        // This ensures velocity is captured even when gesture state isn't perfectly synced
         const touch = event.touches[0];
         const singlePan = singleFingerPanRef.current;
         
-        // Always track velocity for inertia, even during dragging or selection
-        // This ensures inertia works on mobile where gesture states may not sync perfectly
         if (singlePan.touchId !== null && touch.identifier === singlePan.touchId) {
           const now = performance.now();
           velocityHistoryRef.current.push({
@@ -472,17 +472,11 @@ export function useCanvasZoom({
             y: touch.clientY,
             time: now
           });
-          // Keep only recent history
           if (velocityHistoryRef.current.length > MAX_VELOCITY_HISTORY) {
             velocityHistoryRef.current.shift();
           }
-          
-          // Always track position
-          singlePan.lastX = touch.clientX;
-          singlePan.lastY = touch.clientY;
         }
         
-        // Block panning during dragging, cooldown, or selection
         if (isDraggingRef.current || isInCooldown || selectionActive) {
           clearSingleFingerPan();
           return;
@@ -503,6 +497,9 @@ export function useCanvasZoom({
           applyPanDelta(deltaX, deltaY, zoomLevelRef.current);
         }
         
+        // Always track position for when panning activates
+        singlePan.lastX = touch.clientX;
+        singlePan.lastY = touch.clientY;
         return;
       }
 
