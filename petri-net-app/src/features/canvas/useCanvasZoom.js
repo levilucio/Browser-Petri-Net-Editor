@@ -205,13 +205,27 @@ export function useCanvasZoom({
 
     let vx = initialVx;
     let vy = initialVy;
-    let lastTime = performance.now();
+    let lastTime = null; // Will be initialized on first frame to avoid negative deltaTime
     let frameCount = 0;
 
     const animate = (currentTime) => {
+      // Initialize lastTime on first frame to avoid negative deltaTime issues
+      if (lastTime === null) {
+        lastTime = currentTime;
+        // Request next frame - first frame just initializes timing
+        inertiaAnimationRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      
       frameCount++;
       const deltaTime = currentTime - lastTime;
       lastTime = currentTime;
+      
+      // Skip if deltaTime is invalid (shouldn't happen after first frame fix)
+      if (deltaTime <= 0 || deltaTime > 100) {
+        inertiaAnimationRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
       // Log first few frames for debugging
       if (frameCount <= 3) {
