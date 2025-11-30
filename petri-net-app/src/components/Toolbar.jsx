@@ -129,24 +129,24 @@ const Toolbar = ({
       const scheme = colorSchemes[buttonType] || colorSchemes.default;
 
       return {
-        padding: '0.875rem 1.25rem',
-        borderRadius: '0.75rem',
+        padding: '0.5rem 1rem',
+        borderRadius: '0.5rem',
         background: isSelected ? scheme.gradient : 'white',
         color: isSelected ? 'white' : '#374151',
         border: 'none',
-        margin: '0 0 0.75rem 0',
+        margin: '0 0 0.5rem 0',
         minWidth: '100%',
         width: '100%',
-        fontSize: '0.875rem',
+        fontSize: '0.8125rem',
         fontWeight: 600,
         cursor: 'pointer',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'all 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
         textAlign: 'center',
-        height: '48px',
+        height: '36px',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '0.5rem',
+        gap: '0.375rem',
         boxShadow: isSelected
           ? `${scheme.shadow}, inset 0 2px 4px rgba(255, 255, 255, 0.2)`
           : '0 2px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08)',
@@ -335,6 +335,7 @@ const Toolbar = ({
           onLoad={handleLoad}
           onClear={handleClear}
           buttonStyle={mobileButtonStyle}
+          isMobile={true}
         />
       </div>
       <div className="editing-tools">
@@ -364,7 +365,7 @@ const Toolbar = ({
           title="Open ADT Manager"
           data-testid="toolbar-adt-manager-mobile"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           ADT Manager
@@ -378,6 +379,7 @@ const Toolbar = ({
             onOpenSettings();
           }}
           buttonStyle={mobileButtonStyle}
+          isMobile={true}
         />
       </div>
       <div className="debug-tools">
@@ -399,8 +401,8 @@ const Toolbar = ({
           title={debugConsoleRef?.current?.isEnabled() ? "Deactivate Debug Console" : "Activate Debug Console"}
           data-testid="debug-console-mobile"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           {debugConsoleRef?.current?.isEnabled() ? 'Deactivate debug' : 'Activate debug'}
         </button>
@@ -412,22 +414,17 @@ const Toolbar = ({
     <>
       <style>{`
         .menu-button-hover {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .menu-button-hover:active {
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: var(--scheme-hover-shadow, 0 6px 20px rgba(0, 0, 0, 0.15)) !important;
-        }
-        .menu-button-hover:active:not([style*="gradient"]) {
-          background: var(--scheme-hover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)) !important;
+          transform: scale(0.95) !important;
+          filter: brightness(0.9);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
         }
         @media (hover: hover) and (pointer: fine) {
           .menu-button-hover:hover {
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-1px) scale(1.01);
             box-shadow: var(--scheme-hover-shadow, 0 6px 20px rgba(0, 0, 0, 0.15)) !important;
-          }
-          .menu-button-hover:hover:not([style*="gradient"]) {
-            background: var(--scheme-hover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)) !important;
           }
         }
       `}</style>

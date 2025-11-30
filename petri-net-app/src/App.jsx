@@ -192,6 +192,7 @@ const AppContent = () => {
             simulationSettings={simulationSettings}
             setSimulationSettings={setSimulationSettings}
             resetEditor={resetEditor}
+            debugConsoleRef={debugConsoleRef}
           />
         </div>
         
