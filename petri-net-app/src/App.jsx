@@ -7,6 +7,7 @@ import SettingsDialog from './components/SettingsDialog';
 import CanvasManager from './features/canvas/CanvasManager';
 import FloatingEditorControls from './components/FloatingEditorControls';
 import FloatingActionBar from './components/FloatingActionBar';
+import DebugConsole from './components/DebugConsole';
 import { useElementManager } from './features/elements/useElementManager';
 import { useKeyboardShortcuts } from './features/keymap/useKeyboardShortcuts';
 import { useCanvasZoom } from './features/canvas/useCanvasZoom';
@@ -275,6 +276,7 @@ const AppContent = () => {
           </div>
           <FloatingEditorControls />
           <FloatingActionBar />
+          <DebugConsole />
         </div>
         
         {/* Settings Dialog */}

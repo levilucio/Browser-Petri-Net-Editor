@@ -232,18 +232,6 @@ export default function AdtDialog({ isOpen, onClose }) {
                 )}
               </div>
             </div>
-            
-            <div className="mt-4 p-3 sm:p-4 border rounded bg-blue-50">
-              <div className="text-sm sm:text-sm font-semibold mb-2 text-blue-800">Usage Notes</div>
-              <div className="text-xs sm:text-xs text-blue-700 space-y-1.5">
-                <div>• Int operations: +(Int a, Int b), *(Int a, Int b), ==(Int a, Int b), etc.</div>
-                <div>• Bool operations: and(Bool a, Bool b), or(Bool a, Bool b), not(Bool a)</div>
-                <div>• Pair operations: fst(Pair p), snd(Pair p), ==(Pair a, Pair b)</div>
-                <div>• Pair literals: (value1, value2)</div>
-                <div>• All operations support pattern matching and deconstruction</div>
-                <div>• Parameter names (a, b, c, ...) are automatically assigned for display</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
