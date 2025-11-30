@@ -692,26 +692,43 @@ export function useCanvasZoom({
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', handleTouchEnd);
       container.removeEventListener('touchcancel', handleTouchEnd);
-      // Clean up inertia animation on unmount
-      stopInertiaAnimation();
+      // NOTE: Don't stop animation here - this cleanup runs on every effect re-run
+      // Animation will be stopped by the unmount-only effect below
     };
   }, [applyPanDelta, clampZoom, handleZoomTo, isDragging, isSelectionActiveRef, containerEl, calculateVelocity, startInertiaAnimation, stopInertiaAnimation]);
 
+  // Separate effect to clean up animation ONLY on actual component unmount
+  useEffect(() => {
+    return () => {
+      if (inertiaAnimationRef.current) {
+        cancelAnimationFrame(inertiaAnimationRef.current);
+        inertiaAnimationRef.current = null;
+      }
+    };
+  }, []);
+
+  // Track previous isDragging value to detect changes
+  const prevIsDraggingRef = useRef(isDragging);
+  
   // Clear pan state when isDragging changes
   // This prevents crashes from stale state when transitioning between element drag and canvas pan
   useEffect(() => {
-    // Only stop inertia when dragging STARTS (not when it ends)
-    // When dragging starts: prevents stale pan state from interfering with element drag
-    // When dragging ends: allow inertia to continue if it was already running
-    if (isDragging) {
-      stopInertiaAnimation();
-      // Don't clear velocity history here - let it persist for the next gesture
+    const prevIsDragging = prevIsDraggingRef.current;
+    prevIsDraggingRef.current = isDragging;
+    
+    // Only act when isDragging actually CHANGES, not on every render
+    if (prevIsDragging === isDragging) {
+      return;
     }
     
-    singleFingerPanRef.current = createSingleFingerPanState();
-    setIsSingleFingerPanningActive(false);
-    pinchStateRef.current = { active: false };
-    panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+    // Only stop inertia and reset state when dragging STARTS
+    if (isDragging) {
+      stopInertiaAnimation();
+      singleFingerPanRef.current = createSingleFingerPanState();
+      setIsSingleFingerPanningActive(false);
+      pinchStateRef.current = { active: false };
+      panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
+    }
     
     // Update ref immediately for synchronous checks in touch handlers
     isDraggingRef.current = isDragging;
@@ -724,6 +741,7 @@ export function useCanvasZoom({
   const activateSingleFingerPan = useCallback(() => {
     const singlePan = singleFingerPanRef.current;
     if (singlePan.touchId !== null && !singlePan.active) {
+      console.log('[Inertia] activateSingleFingerPan called - activating pan');
       singlePan.active = true;
       setIsSingleFingerPanningActive(true);
       // Stop any ongoing inertia when user starts a new pan gesture
