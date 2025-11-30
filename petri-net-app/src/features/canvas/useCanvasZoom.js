@@ -363,8 +363,9 @@ export function useCanvasZoom({
     const handleTouchStart = (event) => {
       console.log('[Inertia] handleTouchStart called:', { touchCount: event.touches.length });
       
-      // Stop any ongoing inertia animation (but don't clear velocity history yet)
-      stopInertiaAnimation();
+      // DON'T stop inertia animation here - let it continue until user actually moves
+      // This allows inertia to run even if user quickly touches screen again
+      // Inertia will be stopped in handleTouchMove when actual panning starts
       
       // Only clear velocity history if there's been a significant gap since last touch activity
       // This prevents clearing during multi-finger gestures or rapid interactions
@@ -505,6 +506,8 @@ export function useCanvasZoom({
           const PAN_THRESHOLD = 5;
           if (!nextPanState.active && dragDistance > PAN_THRESHOLD) {
             nextPanState.active = true;
+            // Stop inertia when user starts a new pan gesture
+            stopInertiaAnimation();
           }
 
           if (nextPanState.active) {
@@ -723,9 +726,11 @@ export function useCanvasZoom({
     if (singlePan.touchId !== null && !singlePan.active) {
       singlePan.active = true;
       setIsSingleFingerPanningActive(true);
+      // Stop any ongoing inertia when user starts a new pan gesture
+      stopInertiaAnimation();
       // No vibration - pan activates silently like laptop touchpad
     }
-  }, []);
+  }, [stopInertiaAnimation]);
 
   return { 
     localCanvasContainerDivRef: refCallback, 
