@@ -234,13 +234,13 @@ export function useCanvasZoom({
     console.log('[Inertia] Animation frame requested');
   }, [applyPanDelta]);
 
-  // Stop inertia animation
+  // Stop inertia animation (does NOT clear velocity history - that's separate)
   const stopInertiaAnimation = useCallback(() => {
     if (inertiaAnimationRef.current) {
       cancelAnimationFrame(inertiaAnimationRef.current);
       inertiaAnimationRef.current = null;
     }
-    velocityHistoryRef.current = [];
+    // Don't clear velocity history here - it might be needed for the next gesture
   }, []);
 
   const applyZoom = useCallback(
@@ -329,8 +329,19 @@ export function useCanvasZoom({
     const handleTouchStart = (event) => {
       console.log('[Inertia] handleTouchStart called:', { touchCount: event.touches.length });
       
-      // Stop any ongoing inertia animation
+      // Stop any ongoing inertia animation (but don't clear velocity history yet)
       stopInertiaAnimation();
+      
+      // Only clear velocity history if there's been a significant gap since last touch activity
+      // This prevents clearing during multi-finger gestures or rapid interactions
+      const now = performance.now();
+      const lastVelocityEntry = velocityHistoryRef.current[velocityHistoryRef.current.length - 1];
+      const timeSinceLastVelocity = lastVelocityEntry ? (now - lastVelocityEntry.time) : Infinity;
+      if (timeSinceLastVelocity > 500) {
+        // More than 500ms since last touch move - this is a new gesture, clear old data
+        velocityHistoryRef.current = [];
+        console.log('[Inertia] Cleared stale velocity history (gap:', timeSinceLastVelocity.toFixed(0), 'ms)');
+      }
 
       if (event.touches.length === 2) {
         clearSingleFingerPan();
@@ -410,7 +421,7 @@ export function useCanvasZoom({
       clearSingleFingerPan();
       pinchStateRef.current = { active: false };
       panStateRef.current = { active: false, startX: 0, startY: 0, lastX: 0, lastY: 0 };
-      velocityHistoryRef.current = [];
+      // Don't clear velocity history here either - might be valid from previous gesture
     };
 
     const handleTouchMove = (event) => {
@@ -657,7 +668,7 @@ export function useCanvasZoom({
     // When dragging ends: allow inertia to continue if it was already running
     if (isDragging) {
       stopInertiaAnimation();
-      velocityHistoryRef.current = [];
+      // Don't clear velocity history here - let it persist for the next gesture
     }
     
     singleFingerPanRef.current = createSingleFingerPanState();
