@@ -146,16 +146,17 @@ const SimulationManager = ({ isMobile = false }) => {
                 <DragHandle onClick={handleCollapse} />
               </div>
               {/* Controls */}
-              <div className="flex items-center gap-3 px-4 pb-2">
+              <div className="flex items-center gap-3 px-4 pb-3">
                 {isRunning && (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <span className="w-2 h-2 bg-green-500 rounded-full sim-pulse-strong" />
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <span className="w-2 h-2 bg-gray-500 rounded-full sim-pulse-strong" />
                     <span className="text-xs font-medium">Running</span>
                   </div>
                 )}
                 <button
                   data-testid="sim-stop-mobile"
-                  className="bg-red-600 text-white rounded-full p-3 hover:bg-red-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-white text-red-500 border-2 border-red-300 rounded-full p-3 hover:bg-red-50 hover:border-red-400 active:scale-90 active:bg-red-100 transition-all duration-100 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                   onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = true; } catch (_) {}; stopAllSimulations(); }}
                   disabled={!isAnySimulationRunning}
                   title="Stop simulation"
@@ -176,10 +177,11 @@ const SimulationManager = ({ isMobile = false }) => {
                 <DragHandle onClick={handleCollapse} />
               </div>
               {/* Controls */}
-              <div className="flex items-center gap-2 px-3 pb-2">
+              <div className="flex items-center gap-3 px-4 pb-3">
                 <button
                   data-testid="sim-step-mobile"
-                  className="bg-blue-600 text-white rounded-full p-3 hover:bg-blue-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  className="bg-white text-gray-600 border-2 border-gray-300 rounded-full p-3 hover:bg-gray-50 hover:border-gray-400 active:scale-90 active:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-100 shadow-md"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                   onClick={stepSimulation}
                   disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
                   title="Step forward"
@@ -191,7 +193,8 @@ const SimulationManager = ({ isMobile = false }) => {
 
                 <button
                   data-testid="sim-simulate-mobile"
-                  className="bg-green-600 text-white rounded-full p-3 hover:bg-green-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  className="bg-white text-gray-600 border-2 border-gray-300 rounded-full p-3 hover:bg-gray-50 hover:border-gray-400 active:scale-90 active:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-100 shadow-md"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                   onClick={startContinuousSimulation}
                   disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
                   title="Simulate with animation"
@@ -203,7 +206,8 @@ const SimulationManager = ({ isMobile = false }) => {
 
                 <button
                   data-testid="sim-run-mobile"
-                  className="bg-yellow-600 text-white rounded-full p-3 hover:bg-yellow-700 disabled:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  className="bg-white text-gray-600 border-2 border-gray-300 rounded-full p-3 hover:bg-gray-50 hover:border-gray-400 active:scale-90 active:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-100 shadow-md"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                   onClick={() => { try { window.__PETRI_NET_CANCEL_RUN__ = false; } catch (_) {}; startRunSimulation(); }}
                   disabled={!isSimulatorReady || enabledTransitionIds.length === 0}
                   title="Run to completion"

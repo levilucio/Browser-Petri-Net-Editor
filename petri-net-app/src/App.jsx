@@ -196,6 +196,12 @@ const AppContent = () => {
           />
         </div>
         
+        {/* RIGHT SIDE: Backdrop overlay for mobile - closes sidebar on tap */}
+        <div 
+          className={`lg:hidden fixed inset-0 z-20 bg-black transition-opacity duration-300 ease-in-out ${isSidebarOpen ? 'opacity-40 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+          onClick={() => setIsSidebarOpen(false)}
+        />
+        
         {/* RIGHT SIDE: Side panels with properties and execution controls */}
         <div 
           className={`fixed w-80 right-0 top-16 bottom-0 z-30 bg-gray-100/90 backdrop-blur-sm shadow-lg pt-4 flex flex-col overflow-hidden transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} lg:translate-x-0`}

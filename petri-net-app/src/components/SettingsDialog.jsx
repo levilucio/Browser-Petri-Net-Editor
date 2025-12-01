@@ -152,11 +152,6 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                   </label>
                 </div>
               </div>
-              {!limitIterations && (
-                <div className="text-xs text-gray-600">
-                  Default runs allow up to 200,000 steps when this option is unchecked.
-                </div>
-              )}
             </div>
           </div>
 
@@ -207,37 +202,6 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 <strong>Batch mode</strong> - Always headless, keeps background worker active
               </span>
             </label>
-            {batchMode && (
-              <p className="text-xs text-gray-600 mt-1">
-                Batch mode forces non-visual execution and reuses the simulation worker after the first run.
-              </p>
-            )}
-          </div>
-
-          {/* Animation Speed */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Animation Speed (Simulation Mode)
-            </label>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>Fast (200ms)</span>
-                <span className="font-medium text-gray-700">{animationDelayMs}ms</span>
-                <span>Slow (2s)</span>
-              </div>
-              <input
-                type="range"
-                min={200}
-                max={2000}
-                step={100}
-                value={animationDelayMs}
-                onChange={(e) => setAnimationDelayMs(Number(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-              <p className="text-xs text-gray-600">
-                Time between transition firings during visual simulation (Play button).
-              </p>
-            </div>
           </div>
 
           <div>
@@ -253,9 +217,6 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                 <strong>Show inferred variable types</strong> – Display automatically inferred types in guards and bindings
               </span>
             </label>
-            <p className="text-xs text-gray-600 mt-1">
-              When off, only manually annotated types remain visible so expressions stay concise.
-            </p>
           </div>
 
           <div>
@@ -332,6 +293,29 @@ const SettingsDialog = ({ isOpen, onClose }) => {
                   Net type is locked while the canvas has elements. Clear the canvas to switch.
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Animation Speed - at the bottom */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Animation Speed (Simulation Mode)
+            </label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span>Fast (200ms)</span>
+                <span className="font-medium text-gray-700">{animationDelayMs}ms</span>
+                <span>Slow (2s)</span>
+              </div>
+              <input
+                type="range"
+                min={200}
+                max={2000}
+                step={100}
+                value={animationDelayMs}
+                onChange={(e) => setAnimationDelayMs(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              />
             </div>
           </div>
 

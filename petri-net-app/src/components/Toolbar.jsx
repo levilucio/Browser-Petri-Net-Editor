@@ -414,12 +414,13 @@ const Toolbar = ({
     <>
       <style>{`
         .menu-button-hover {
-          transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.1s ease-out;
+          -webkit-tap-highlight-color: transparent;
         }
         .menu-button-hover:active {
-          transform: scale(0.95) !important;
-          filter: brightness(0.9);
-          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+          transform: scale(0.88) !important;
+          filter: brightness(0.8);
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1) !important;
         }
         @media (hover: hover) and (pointer: fine) {
           .menu-button-hover:hover {
