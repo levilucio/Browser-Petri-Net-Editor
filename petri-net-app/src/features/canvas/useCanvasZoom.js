@@ -199,7 +199,7 @@ export function useCanvasZoom({
 
     console.log('[Inertia] Animation starting with velocity:', { vx: initialVx.toFixed(4), vy: initialVy.toFixed(4) });
 
-    const DECELERATION = 0.985; // Deceleration factor per frame (0.985 = slower deceleration for longer inertia on mobile)
+    const DECELERATION = 0.965; // Deceleration factor per frame (lower = more friction, stops faster)
     const MIN_VELOCITY = 0.005; // Lower threshold to allow inertia to continue longer
     const FRAME_TIME = 16; // Approximate frame time in ms (60fps)
 
@@ -363,9 +363,9 @@ export function useCanvasZoom({
     const handleTouchStart = (event) => {
       console.log('[Inertia] handleTouchStart called:', { touchCount: event.touches.length });
       
-      // DON'T stop inertia animation here - let it continue until user actually moves
-      // This allows inertia to run even if user quickly touches screen again
-      // Inertia will be stopped in handleTouchMove when actual panning starts
+      // Stop inertia animation immediately when user touches screen
+      // This gives user control to stop the automated panning with a simple tap
+      stopInertiaAnimation();
       
       // Only clear velocity history if there's been a significant gap since last touch activity
       // This prevents clearing during multi-finger gestures or rapid interactions
