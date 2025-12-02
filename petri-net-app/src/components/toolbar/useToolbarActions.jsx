@@ -265,7 +265,87 @@ export default function useToolbarActions(params) {
     setIsMobileMenuOpen?.(false);
   };
 
-  return { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager };
+  const handleLoadExample = async (filename) => {
+    try {
+      setIsLoading?.(true);
+      setError?.(null);
+      setSuccess?.(null);
+
+      // Fetch the example file from the public/examples folder
+      const response = await fetch(`/examples/${filename}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load example file: ${response.statusText}`);
+      }
+
+      const fileContent = await response.text();
+
+      if (!fileContent || String(fileContent).trim() === '') {
+        throw new Error('The example file is empty');
+      }
+
+      if (!String(fileContent).includes('<pnml') && !String(fileContent).includes('<PNML')) {
+        throw new Error('The file does not appear to be a valid PNML file');
+      }
+
+      const petriNetJsonPromise = importFromPNML(fileContent);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Operation timed out. The file may be too large or invalid.')), 10000);
+      });
+      const petriNetJson = await Promise.race([petriNetJsonPromise, timeoutPromise]);
+
+      if (!petriNetJson || typeof petriNetJson !== 'object') {
+        throw new Error('Invalid data structure in the imported file');
+      }
+
+      const safeJson = {
+        places: Array.isArray(petriNetJson.places) ? petriNetJson.places : [],
+        transitions: Array.isArray(petriNetJson.transitions) ? petriNetJson.transitions : [],
+        arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : []
+      };
+
+      const validArcs = (safeJson.arcs || []).filter(arc => {
+        if (arc.source === 'undefined' || arc.target === 'undefined' || !arc.source || !arc.target) return false;
+        const sourceExists = safeJson.places.some(p => p.id === arc.source) || safeJson.transitions.some(t => t.id === arc.source);
+        const targetExists = safeJson.places.some(p => p.id === arc.target) || safeJson.transitions.some(t => t.id === arc.target);
+        return sourceExists && targetExists;
+      });
+      safeJson.arcs = validArcs.map(arc => {
+        if (!arc.type || (arc.type !== 'place-to-transition' && arc.type !== 'transition-to-place')) {
+          const sourceIsPlace = safeJson.places.some(p => p.id === arc.source);
+          const targetIsPlace = safeJson.places.some(p => p.id === arc.target);
+          if (sourceIsPlace && !targetIsPlace) return { ...arc, type: 'place-to-transition' };
+          if (!sourceIsPlace && targetIsPlace) return { ...arc, type: 'transition-to-place' };
+          return { ...arc, type: 'place-to-transition' };
+        }
+        return arc;
+      });
+
+      // Force simulator reset when loading a new net
+      if (forceSimulatorReset) forceSimulatorReset();
+      setElements?.(safeJson);
+
+      const storedMode = safeJson.netMode;
+      if (storedMode) {
+        setSimulationSettings?.(prev => ({ ...(prev || {}), netMode: storedMode }));
+      } else {
+        try {
+          const importedMode = detectNetModeFromContent(safeJson);
+          setSimulationSettings?.(prev => ({ ...(prev || {}), netMode: importedMode }));
+        } catch (_) {}
+      }
+
+      if (updateHistory) updateHistory(safeJson);
+      setSuccess?.(`Example "${filename}" loaded successfully with ${safeJson.places.length} places, ${safeJson.transitions.length} transitions, and ${safeJson.arcs.length} arcs.`);
+      setIsMobileMenuOpen?.(false);
+    } catch (error) {
+      console.error('Error loading example:', error);
+      setError?.(`Error loading example: ${error.message}`);
+    } finally {
+      setIsLoading?.(false);
+    }
+  };
+
+  return { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager, handleLoadExample };
 }
 
 

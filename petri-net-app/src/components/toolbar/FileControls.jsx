@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FileControls = ({ isLoading, onSave, onSaveAs, canSaveAs, onLoad, onClear, buttonStyle, isMobile = false }) => {
+const FileControls = ({ isLoading, onSave, onSaveAs, canSaveAs, onLoad, onClear, onExamples, buttonStyle, isMobile = false }) => {
   return (
     <div className={isMobile ? "flex flex-col gap-2" : "flex flex-wrap gap-2"}>
       <button 
@@ -19,9 +19,9 @@ const FileControls = ({ isLoading, onSave, onSaveAs, canSaveAs, onLoad, onClear,
       </button>
       <button
         className={isMobile ? "menu-button-hover" : ""}
-        style={{ ...buttonStyle(false, isMobile ? 'file' : undefined), opacity: isLoading || !canSaveAs ? 0.5 : 1 }}
+        style={{ ...buttonStyle(false, isMobile ? 'file' : undefined), opacity: isLoading ? 0.5 : 1 }}
         onClick={onSaveAs}
-        disabled={isLoading || !canSaveAs}
+        disabled={isLoading}
         title="Save As (choose location and filename)"
       >
         {isMobile && (
@@ -44,6 +44,20 @@ const FileControls = ({ isLoading, onSave, onSaveAs, canSaveAs, onLoad, onClear,
           </svg>
         )}
         Load
+      </button>
+      <button 
+        className={isMobile ? "menu-button-hover" : ""}
+        style={{ ...buttonStyle(false, isMobile ? 'file' : undefined), opacity: isLoading ? 0.5 : 1 }}
+        onClick={onExamples}
+        disabled={isLoading}
+        title="Load example Petri net"
+      >
+        {isMobile && (
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        )}
+        Examples
       </button>
       <button 
         className={isMobile ? "menu-button-hover" : ""}

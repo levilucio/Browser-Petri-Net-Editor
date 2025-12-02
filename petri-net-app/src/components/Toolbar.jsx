@@ -4,6 +4,7 @@ import ModeButtons from './toolbar/ModeButtons.jsx';
 import HistoryButtons from './toolbar/HistoryButtons.jsx';
 import SettingsButton from './toolbar/SettingsButton.jsx';
 import AdtDialog from './AdtDialog';
+import ExamplesDialog from './ExamplesDialog';
 import useToolbarActions from './toolbar/useToolbarActions';
 import { usePetriNet } from '../contexts/PetriNetContext';
 
@@ -35,11 +36,12 @@ const Toolbar = ({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isAdtOpen, setIsAdtOpen] = useState(false);
+  const [isExamplesOpen, setIsExamplesOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Handlers moved to hook for clarity
   const { saveFileHandle, setSaveFileHandle } = (() => { try { return usePetriNet(); } catch (_) { return { saveFileHandle: null, setSaveFileHandle: () => {} }; } })();
 
-  const { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager } = useToolbarActions({
+  const { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager, handleLoadExample } = useToolbarActions({
     elements,
     setElements,
     updateHistory,
@@ -54,6 +56,14 @@ const Toolbar = ({
     setSaveFileHandle,
     setIsMobileMenuOpen,
   });
+
+  const handleOpenExamples = () => {
+    setIsExamplesOpen(true);
+  };
+
+  const handleSelectExample = (filename) => {
+    handleLoadExample(filename);
+  };
   
   // Auto-dismiss success messages after 2 seconds
   useEffect(() => {
@@ -227,8 +237,9 @@ const Toolbar = ({
             isLoading={isLoading} 
             onSave={handleSave} 
             onSaveAs={handleSaveAs}
-            canSaveAs={!!saveFileHandle}
+            canSaveAs={true}
             onLoad={handleLoad} 
+            onExamples={handleOpenExamples}
             onClear={handleClear} 
             buttonStyle={desktopButtonStyle} 
           />
@@ -331,8 +342,9 @@ const Toolbar = ({
           isLoading={isLoading}
           onSave={handleSave}
           onSaveAs={handleSaveAs}
-          canSaveAs={!!saveFileHandle}
+          canSaveAs={true}
           onLoad={handleLoad}
+          onExamples={handleOpenExamples}
           onClear={handleClear}
           buttonStyle={mobileButtonStyle}
           isMobile={true}
@@ -479,6 +491,13 @@ const Toolbar = ({
       {isAdtOpen && (
         <AdtDialog isOpen={isAdtOpen} onClose={() => setIsAdtOpen(false)} />
       )}
+
+      {/* Examples Dialog */}
+      <ExamplesDialog 
+        isOpen={isExamplesOpen} 
+        onClose={() => setIsExamplesOpen(false)} 
+        onSelectExample={handleSelectExample}
+      />
 
       {/* Messages */}
       {error && (
