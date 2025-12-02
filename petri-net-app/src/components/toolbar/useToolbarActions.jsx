@@ -272,7 +272,9 @@ export default function useToolbarActions(params) {
       setSuccess?.(null);
 
       // Fetch the example file from the public/examples folder
-      const response = await fetch(`/examples/${filename}`);
+      // Use URL constructor to handle relative paths correctly on all devices
+      const exampleUrl = new URL(`./examples/${filename}`, window.location.href).href;
+      const response = await fetch(exampleUrl);
       if (!response.ok) {
         throw new Error(`Failed to load example file: ${response.statusText}`);
       }

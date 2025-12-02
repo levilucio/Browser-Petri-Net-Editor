@@ -59,6 +59,7 @@ const Toolbar = ({
 
   const handleOpenExamples = () => {
     setIsExamplesOpen(true);
+    setIsMobileMenuOpen(false);
   };
 
   const handleSelectExample = (filename) => {
