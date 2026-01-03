@@ -4,7 +4,7 @@
 This guide walks new and experienced users through the Petri Net Editor. You will:
 - Understand the core theory behind Place/Transition (P/T) Petri nets and Algebraic Petri Nets (APNs).
 - Learn every editor feature required to build, simulate, and export nets.
-- Follow step-by-step examples supported by screenshots to reproduce complete modeling workflows.
+- Follow step-by-step examples to reproduce complete modeling workflows.
 
 The guide assumes no prior knowledge of Petri nets. Readers familiar with the formalism may skip directly to the interface sections.
 
@@ -25,7 +25,7 @@ The guide assumes no prior knowledge of Petri nets. Readers familiar with the fo
    npm install
    npm run dev
    ```
-2. Navigate to `http://localhost:5173/`.
+2. Navigate to `http://localhost:3000/` (or the URL printed by Vite).
 3. To build a production bundle:
    ```powershell
    npm run build
@@ -57,18 +57,22 @@ Example mental model: A printer queue with places for `Jobs Waiting` and `Printe
 - **Concurrency**: independent transitions that can fire without interfering with each other.
 
 ### 2. Interface Overview (P/T Mode)
+The editor has three main areas:
 
-![Toolbar Overview](images/user-guide/pt-toolbar-overview.png)
-1. **File** – Save, Save As, Load, Clear canvas.
-2. **Editing** – Snap to Grid toggle plus mode buttons (Select, Place, Transition, Arc).
-3. **ADT Manager** – Opens the Algebraic Data Type dialog. Safe to ignore while modeling P/T nets.
-4. **History** – Undo and Redo.
-5. **Settings** – Opens simulation settings dialog.
+1. **Top toolbar**
+   - **File**: Save, Save As, Load, Examples, Clear
+   - **Editing**: Snap-to-grid and tool selection (Select / Place / Transition / Arc)
+   - **ADT Manager**: open the Algebraic Data Type dialog (mainly used for Algebraic nets)
+   - **History**: Undo / Redo
+   - **Settings**: open Simulation Settings (simulation mode, net type, limits, etc.)
 
-![Workspace Layout](images/user-guide/pt-layout.png)
-- **Canvas** (center): draw and edit net elements.
-- **Properties Panel** (right): edit selected place/transition/arc attributes.
-- **Simulation Panel** (bottom-right): execute nets using Step, Simulate, Run, Stop.
+2. **Canvas (center)**: draw and edit net elements.
+3. **Right sidebar**
+   - **Properties** (top): edit the selected place/transition/arc.
+   - **Petri Net** (middle): inspect the current marking and the enabled transition list.
+   - **Simulation** (bottom on desktop): Step / Simulate / Run / Stop.
+
+On touch devices, the toolbar collapses into a **Menu** button and the editor provides floating on-canvas controls for editing and simulation.
 
 ### 3. Building Your First P/T Net
 
@@ -77,14 +81,10 @@ Example mental model: A printer queue with places for `Jobs Waiting` and `Printe
 2. Click on the canvas to add a place; names default to `P1`, `P2`, etc.
 3. With **Snap to Grid** enabled, positioning aligns to 20×20 px increments.
 
-![Adding Places](images/user-guide/pt-add-places.png)
-
 #### 3.2 Add Transitions
 1. Activate the **Transition** tool.
 2. Click the desired location on the canvas.
 3. Drag to reposition using the **Select** tool.
-
-![Adding Transitions](images/user-guide/pt-add-transitions.png)
 
 #### 3.3 Connect with Arcs
 1. Switch to the **Arc** tool.
@@ -92,20 +92,16 @@ Example mental model: A printer queue with places for `Jobs Waiting` and `Printe
 3. Press `Esc` to cancel an in-progress arc.
 4. To edit arc waypoints, select the arc and drag the control points.
 
-![Drawing Arcs](images/user-guide/pt-draw-arcs.png)
-
 #### 3.4 Configure Tokens and Weights
 1. Select a place to open properties.
 2. Adjust **Initial Tokens** (0–20) and optional name.
 3. Select an arc to edit the **Weight** (integer ≥ 1).
 
-![Editing Properties](images/user-guide/pt-properties.png)
-
 ### 4. Editing and Layout Tools
 - **Multi-select**: drag a selection box or hold `Shift` and click items. Move them together.
 - **Keyboard shortcuts**: `Ctrl+C`, `Ctrl+V`, and `Ctrl+D` duplicate patterns quickly.
 - **Undo/Redo**: toolbar buttons or `Ctrl+Z` / `Ctrl+Y`.
-- **Zoom & Pan**: mouse wheel zoom; hold spacebar to pan with drag (or use trackpad gestures).
+- **Zoom & Pan**: mouse wheel / trackpad zoom; use the canvas scroll/pan gestures (especially on touch devices).
 - **Copy/Paste between tabs**: copy a sub-net from one browser tab and paste into another.
 
 ### 5. Managing Net Files
@@ -116,12 +112,13 @@ Example mental model: A printer queue with places for `Jobs Waiting` and `Printe
 
 ### 6. Inspecting Enabled Transitions
 - The canvas highlights enabled transitions with a glowing outline.
-- The **Enabled Transitions** list in the simulation panel displays clickable entries for manual firing.
+- The **Enabled Transitions** list is available in the **Petri Net** panel (right sidebar) and displays clickable entries for manual firing.
 - Hovering an entry reveals bindings (for APNs) or token requirements (for P/T nets).
 
 ### 7. Simulating P/T Nets
-
-![Simulation Controls](images/user-guide/pt-simulation-panel.png)
+Simulation controls are available:
+- On **desktop**: in the right sidebar under **Simulation**.
+- On **touch devices**: as a floating control at the bottom of the screen.
 
 - **Step**: fire one transition (single mode) or a maximal conflict-free set (maximal concurrent mode).
 - **Simulate**: continuous animation with per-step delay; click **Stop** to pause.
@@ -162,7 +159,7 @@ Algebraic Petri Nets extend P/T nets by letting places hold structured tokens an
 - Transitions declare **guards** (Boolean conditions) and **actions** (term rewriting) evaluated through the **Z3 solver**.
 - Markings become multisets of structured values rather than simple integers.
 
-Switch to APN mode via **Settings → Net Type → Algebraic (Integer)** (net must be empty). The toolbar and canvas remain the same, but properties panels now expose type-specific fields.
+Switch to APN mode via **Settings → Net Type → Algebraic (Integer)** (the net must be empty; switching is locked when the canvas has content). The toolbar and canvas remain the same, but the properties panels expose type-specific fields.
 
 ### 11. Built-in Algebraic Data Types and Operations
 
@@ -218,13 +215,7 @@ Custom ADTs can be imported via the ADT Manager (see section 14).
    - Inspect the **Enabled Transition** entry to view selected `sku`, `stockQty`, `reqQty`.
    - Use **Run (Non-Visual)** to process large order batches.
 
-![APN Example Canvas](images/user-guide/apn-order-workflow.png)
-![APN Transition Properties](images/user-guide/apn-transition-properties.png)
-
 ### 14. ADT Manager and Equation Sandbox
-
-![ADT Manager](images/user-guide/apn-adt-manager.png)
-
 - Open via the **ADT** button in the toolbar.
 - **Available Data Types**: browse built-in operations and axioms.
 - **Sandbox**:
@@ -242,9 +233,7 @@ Custom ADTs can be imported via the ADT Manager (see section 14).
 - **Simulation Mode**: maximal concurrency is ideal for data-parallel transitions (e.g., processing independent orders).
 
 ### 16. Z3 Solver Configuration
-
-![Z3 Settings](images/user-guide/apn-z3-settings.png)
-
+Open **Settings** and click **Z3 Settings**.
 - **Pool size**: number of persistent web workers (0 = on-demand). Batch mode raises pool to 8 automatically.
 - **idleTimeoutMs**: shrink pool when idle; increase for frequent short runs.
 - **Pre-warm**: spawn workers as soon as algebraic mode activates to reduce first-run latency.
@@ -266,22 +255,7 @@ Custom ADTs can be imported via the ADT Manager (see section 14).
 - **ADT XML**: list of `<type>` entries, each with `<operation>` and optional `<axioms>` (see `docs/STRING_ADT_USAGE.md` for schema details).
 
 ### Appendix B – Screenshot Checklist
-
-| ID | Relative Path | Description | Capture Notes |
-|----|---------------|-------------|---------------|
-| PT-01 | `images/user-guide/pt-toolbar-overview.png` | Toolbar groups in P/T mode | Capture after loading default P/T canvas. |
-| PT-02 | `images/user-guide/pt-layout.png` | Canvas, properties, simulation panels labeled | Use an empty net with panels visible. |
-| PT-03 | `images/user-guide/pt-add-places.png` | Demonstrating place creation | Include cursor over canvas. |
-| PT-04 | `images/user-guide/pt-add-transitions.png` | Transition placement and selection | Highlight selected transition. |
-| PT-05 | `images/user-guide/pt-draw-arcs.png` | Arc creation in progress | Show arc preview line before completion. |
-| PT-06 | `images/user-guide/pt-properties.png` | Properties panel with place token editing | Ensure tokens and weights fields visible. |
-| PT-07 | `images/user-guide/pt-simulation-panel.png` | Simulation panel with buttons enabled | Use a net with at least one enabled transition. |
-| APN-01 | `images/user-guide/apn-order-workflow.png` | Complete APN example net | Show colored bindings and guards. |
-| APN-02 | `images/user-guide/apn-transition-properties.png` | Transition properties for APN (bindings, guard, action) | Select the key transition. |
-| APN-03 | `images/user-guide/apn-adt-manager.png` | ADT Manager dialog | Expand at least one type and the sandbox. |
-| APN-04 | `images/user-guide/apn-z3-settings.png` | Z3 Settings dialog | Open via Settings → Z3 Settings. |
-
-> **How to capture**: open the dev server (`npm run dev`), zoom the browser to 90–100%, hide unrelated panels, and use the OS screenshot tool. Save each image using the file paths provided above within the `docs/images/user-guide/` directory.
+Screenshots are currently not tracked in this repository. If you want to add them later, prefer keeping them under `docs/images/` and referencing them from this guide.
 
 ### Appendix C – Keyboard Shortcuts
 - `Ctrl + Z` / `Ctrl + Y`: Undo / Redo.

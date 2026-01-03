@@ -23,6 +23,9 @@ This guide helps developers understand the structure, key patterns, and testing 
   - `src/features/elements/ElementManager.jsx` and `src/features/arcs/ArcManager.jsx` – render shapes and bind events to handlers from the managers.
 - **Composition-based UI**:
   - `src/App.jsx` composes: `Toolbar`, `PropertiesPanel`, `PetriNetPanel`, `SimulationManager`, and `CanvasManager` under the `PetriNetProvider`.
+- **Desktop vs touch UI**:
+  - On desktop, editing tools are shown directly in `Toolbar`.
+  - On touch devices, the toolbar collapses into a menu and editing actions are provided via `FloatingEditorControls` / `FloatingActionBar` overlays.
 - **State exposure for e2e**: For Playwright tests, the app exposes limited globals (e.g., `window.__PETRI_NET_STATE__`, `window.__PETRI_NET_SIM_CORE__`, and the current `__PETRI_NET_MODE__`) from `src/App.jsx`.
 
 ### Canvas and Interaction Model
@@ -48,6 +51,9 @@ This guide helps developers understand the structure, key patterns, and testing 
 - Modes:
   - `single`: randomly selects one enabled transition to fire on step.
   - `maximal`: computes a maximal non-conflicting set of enabled transitions and fires them concurrently.
+- UI placement:
+  - Desktop simulation controls render in the right sidebar via `src/features/simulation/SimulationManager.jsx`.
+  - Mobile simulation controls render as a floating panel (same component with `isMobile=true`).
 - Testing hooks:
   - `window.__PETRI_NET_SIM_CORE__` – bound to the active core instance for E2E control when needed.
   - `window.__PETRI_NET_STATE__` – current places/transitions/arcs for assertions (exposed in `App.jsx`).
@@ -135,6 +141,7 @@ This guide helps developers understand the structure, key patterns, and testing 
 
 - Start dev server:
   - Windows PowerShell: `Set-Location -Path .\petri-net-app; npm run dev`
+- Note: `petri-net-app/package.json` runs `symex:bundle:pt` automatically via `predev`/`prebuild` to bundle the P/T symbolic checker for browser use. The bundle is generated under `petri-net-app/public/py/` (created on demand) as `symex_engine_pt.zip` plus a small `symex_engine_pt.meta.json`.
 - Run E2E tests:
   - `npm run test:e2e` (Playwright)
   - Targeted: `npm run test:e2e -- tests/simulation.spec.js` or with `-g "pattern"`
