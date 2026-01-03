@@ -131,6 +131,19 @@ const AppContent = () => {
       simulatorCore,
     ]);
 
+    // Desktop debug console toggle is controlled via Settings (dev builds only).
+    // Note: The DebugConsole component now directly receives the enabled prop,
+    // so this useEffect is only for debugging (can be removed after confirming).
+    useEffect(() => {
+      if (!import.meta.env.DEV) return;
+      const enabled = Boolean(simulationSettings?.debugConsoleEnabled);
+      console.log('[App] debugConsoleEnabled setting changed:', enabled);
+      // Temporary visible debug - show alert on first enable
+      if (enabled) {
+        console.log('%c[App] Debug console ENABLED - button should appear at bottom-right', 'color: green; font-weight: bold');
+      }
+    }, [simulationSettings?.debugConsoleEnabled]);
+
     // Keyboard shortcuts: consolidate via useKeyboardShortcuts
     const { pasteMode, setPasteMode } = usePetriNet();
     useKeyboardShortcuts({
@@ -284,7 +297,7 @@ const AppContent = () => {
           </div>
           <FloatingEditorControls />
           <FloatingActionBar />
-          <DebugConsole ref={debugConsoleRef} />
+          <DebugConsole ref={debugConsoleRef} enabled={Boolean(simulationSettings?.debugConsoleEnabled)} />
         </div>
         
         {/* Settings Dialog */}

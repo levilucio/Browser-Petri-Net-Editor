@@ -45,6 +45,7 @@ export const PetriNetProvider = ({ children }) => {
     batchMode: false,
     showInferredTypes: false,
     animationDelayMs: 1000, // Animation delay between firings in simulation mode (200-2000ms)
+    debugConsoleEnabled: false, // Dev-only UI; actual enabling is handled in App.jsx
   });
   const [z3Settings, setZ3Settings] = useState({
     poolSize: 1, // Ensure at least one Z3 worker is available by default
@@ -256,6 +257,8 @@ export const PetriNetProvider = ({ children }) => {
       useNonVisualRun: false,
       batchMode: false,
       showInferredTypes: false,
+      animationDelayMs: 1000,
+      debugConsoleEnabled: false,
     });
     
     // Reset canvas state (via EditorUIContext)
