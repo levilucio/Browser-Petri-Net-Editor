@@ -145,8 +145,10 @@ const ValidationDialog = ({ isOpen, onClose }) => {
   // Uses the same format as existing files in pn_examples/bench and pn_examples/pt
   const buildPnmlWithProperties = useCallback(() => {
     // Export current net to PNML - merge elements with netMode from simulationSettings
+    // Exclude properties from elements to avoid duplication - we'll add them from state
+    const { properties: _, ...elementsWithoutProperties } = elements || {};
     const petriNetJson = {
-      ...elements,
+      ...elementsWithoutProperties,
       netMode: simulationSettings?.netMode || 'pt',
     };
     const basePnml = generatePNML(petriNetJson);
