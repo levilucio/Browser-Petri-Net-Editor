@@ -1,0 +1,131 @@
+name: Deploy Petri Net Editor (prod + staging) to GitHub Pages
+
+on:
+  push:
+    branches: ["master"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Browser-Petri-Net-Editor
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # Fetch symbolic-execution master HEAD for engine bundling at build time
+      - name: Checkout symbolic-execution (master)
+        uses: actions/checkout@v4
+        with:
+          repository: levilucio/symbolic-execution
+          ref: master
+          fetch-depth: 1
+          path: symex-src
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: petri-net-app/package-lock.json
+
+      - name: Install dependencies
+        working-directory: petri-net-app
+        run: npm ci
+
+      - name: Bundle symex_engine (PT) zip from symbolic-execution@master
+        working-directory: petri-net-app
+        run: |
+          python - <<'PY'
+          import os, json, time, zipfile
+          from pathlib import Path
+
+          app_dir = Path.cwd()
+          out_dir = app_dir / "public" / "py"
+          out_dir.mkdir(parents=True, exist_ok=True)
+          out_zip = out_dir / "symex_engine_pt.zip"
+          out_meta = out_dir / "symex_engine_pt.meta.json"
+
+          engine_root = Path(os.environ["GITHUB_WORKSPACE"]) / "symex-src" / "symbolic-execution-engine" / "src" / "symex_engine"
+          must_dirs = ["core", "petri_net"]
+          ignore_dirs = {"__pycache__"}
+
+          files = []
+          # top-level __init__.py
+          files.append(engine_root / "__init__.py")
+          for d in must_dirs:
+            base = engine_root / d
+            for p in base.rglob("*"):
+              if p.is_dir() and p.name in ignore_dirs:
+                continue
+              if p.is_file() and (p.suffix == ".py") and ("__pycache__" not in p.parts):
+                files.append(p)
+
+          # Stable ordering for reproducible zip content ordering
+          files = sorted(set(files), key=lambda p: str(p))
+
+          with zipfile.ZipFile(out_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+            for p in files:
+              rel = p.relative_to(engine_root)
+              z.write(p, arcname=f"symex_engine/{rel.as_posix()}")
+
+          meta = {
+            "kind": "symex_engine_pt_bundle",
+            "engine_src_dir": str(engine_root),
+            "out_zip": str(out_zip),
+            "file_count": len(files),
+            "bundled_at_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+          }
+          out_meta.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+          print(f"[symex:bundle:pt] wrote {out_zip} (files={len(files)})")
+          PY
+
+      - name: Build production
+        working-directory: petri-net-app
+        env:
+          VITE_RELEASE_CHANNEL: production
+        run: npx vite build --outDir dist
+
+      - name: Build staging
+        working-directory: petri-net-app
+        env:
+          VITE_RELEASE_CHANNEL: staging
+        run: npx vite build --outDir dist-staging
+
+      - name: Merge staging into dist/staging
+        working-directory: petri-net-app
+        run: |
+          rm -rf dist/staging
+          mkdir -p dist/staging
+          cp -R dist-staging/* dist/staging/
+          rm -rf dist-staging
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: petri-net-app/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
