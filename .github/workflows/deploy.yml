@@ -1,10 +1,14 @@
 name: Deploy to GitHub Pages
 
+# DISABLED: This workflow has been replaced by .github/workflows/pages.yml
+# which uses the newer GitHub Pages deployment actions and properly handles
+# the symbolic-execution repository checkout.
 on:
-  push:
-    branches:
-      - master
-      - main
+  # push:
+  #   branches:
+  #     - master
+  #     - main
+  workflow_dispatch:  # Keep workflow_dispatch so it can be manually triggered if needed
 
 permissions:
   contents: write
