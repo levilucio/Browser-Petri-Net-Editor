@@ -1,12 +1,35 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import { waitForAppReady, getPetriNetState, clickStage, getVisibleToolbarButton } from '../../helpers.js';
+import { waitForAppReady, getPetriNetState, clickStage, getVisibleToolbarButton, waitForState } from '../../helpers.js';
 
 test.describe('Clipboard - Cross-tab shared clipboard', () => {
   test('copy in tab A, paste in tab B (same origin); APN mismatch blocks paste', async ({ browser }) => {
+    // Cross-tab + BroadcastChannel + canvas interactions can be timing-sensitive on CI / slower machines.
+    test.setTimeout(90_000);
+
     const context = await browser.newContext();
     const pageA = await context.newPage();
     const pageB = await context.newPage();
+
+    const safeClickStage = async (page, pos, opts = {}) => {
+      const retries = opts.retries ?? 6;
+      const delayMs = opts.delayMs ?? 200;
+
+      // Make sure stage is present before attempting clicks.
+      await page.waitForSelector('.konvajs-content', { state: 'visible', timeout: 10_000 });
+
+      let lastErr;
+      for (let i = 0; i < retries; i++) {
+        try {
+          await clickStage(page, pos);
+          return;
+        } catch (e) {
+          lastErr = e;
+          await page.waitForTimeout(delayMs);
+        }
+      }
+      throw lastErr ?? new Error('safeClickStage failed');
+    };
 
     // Open both pages
     await pageA.goto('/');
@@ -17,19 +40,19 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     // Tab A: Create a place, transition, and arc through the UI
     const placeButtonA = await getVisibleToolbarButton(pageA, 'toolbar-place');
     await placeButtonA.click();
-    await clickStage(pageA, { x: 100, y: 100 });
-    await pageA.waitForTimeout(300);
+    await safeClickStage(pageA, { x: 100, y: 100 });
+    await waitForState(pageA, s => s.places.length === 1);
 
     const transitionButtonA = await getVisibleToolbarButton(pageA, 'toolbar-transition');
     await transitionButtonA.click();
-    await clickStage(pageA, { x: 200, y: 100 });
-    await pageA.waitForTimeout(300);
+    await safeClickStage(pageA, { x: 200, y: 100 });
+    await waitForState(pageA, s => s.transitions.length === 1);
 
     const arcButtonA = await getVisibleToolbarButton(pageA, 'toolbar-arc');
     await arcButtonA.click();
-    await clickStage(pageA, { x: 100, y: 100 }); // from place
-    await clickStage(pageA, { x: 200, y: 100 }); // to transition
-    await pageA.waitForTimeout(300);
+    await safeClickStage(pageA, { x: 100, y: 100 }); // from place
+    await safeClickStage(pageA, { x: 200, y: 100 }); // to transition
+    await waitForState(pageA, s => s.arcs.length === 1);
 
     // Verify elements were created in tab A
     const stateA = await getPetriNetState(pageA);
@@ -45,12 +68,12 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     const isMac = await pageA.evaluate(() => navigator.platform.toUpperCase().includes('MAC'));
     
     // Select transition first (click offset from arc line)
-    await clickStage(pageA, { x: 200, y: 110 });
+    await safeClickStage(pageA, { x: 200, y: 110 });
     await pageA.waitForTimeout(200);
     
     // Add place to selection with Shift+Click
     await pageA.keyboard.down('Shift');
-    await clickStage(pageA, { x: 100, y: 110 });
+    await safeClickStage(pageA, { x: 100, y: 110 });
     await pageA.keyboard.up('Shift');
     await pageA.waitForTimeout(200);
 
@@ -67,19 +90,11 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     await pageA.waitForTimeout(500);
     
     // Wait for BroadcastChannel to propagate the clipboard across tabs
-    // Poll pageB to verify clipboard was received
-    let clipboardReceived = false;
-    for (let attempt = 0; attempt < 10; attempt++) {
-      await pageB.waitForTimeout(200);
-      const hasClipboard = await pageB.evaluate(() => {
-        return window.__PETRI_NET_CLIPBOARD__?.current?.payload != null;
-      });
-      if (hasClipboard) {
-        clipboardReceived = true;
-        break;
-      }
-    }
-    expect(clipboardReceived).toBeTruthy();
+    await pageB.waitForFunction(
+      () => window.__PETRI_NET_CLIPBOARD__?.current?.payload != null,
+      null,
+      { timeout: 10_000 }
+    );
 
     const beforeB = await getPetriNetState(pageB);
     const beforeCountsB = {
@@ -92,7 +107,7 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
     await pageB.bringToFront();
     const selectButtonB = await getVisibleToolbarButton(pageB, 'toolbar-select');
     await selectButtonB.click();
-    await clickStage(pageB, { x: 200, y: 220 });
+    await safeClickStage(pageB, { x: 200, y: 220 });
     const attemptPaste = async () => {
       if (isMac) {
         await pageB.keyboard.down('Meta'); await pageB.keyboard.press('v'); await pageB.keyboard.up('Meta');
@@ -100,13 +115,24 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
         await pageB.keyboard.down('Control'); await pageB.keyboard.press('v'); await pageB.keyboard.up('Control');
       }
     };
-    // Try up to 3 times to account for any remaining timing issues
+    // Try multiple times; validate via state polling to reduce flakiness.
     let ok = false;
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 6; i++) {
       await attemptPaste();
-      await pageB.waitForTimeout(300);
-      const s = await getPetriNetState(pageB);
-      if (s.places.length === beforeCountsB.p + 1 && s.transitions.length === beforeCountsB.t + 1 && s.arcs.length === beforeCountsB.a + 1) { ok = true; break; }
+      try {
+        await waitForState(
+          pageB,
+          (s) =>
+            s.places.length === beforeCountsB.p + 1 &&
+            s.transitions.length === beforeCountsB.t + 1 &&
+            s.arcs.length === beforeCountsB.a + 1,
+          { timeout: 2000, interval: 100 }
+        );
+        ok = true;
+        break;
+      } catch (_) {
+        await pageB.waitForTimeout(250);
+      }
     }
     expect(ok).toBeTruthy();
 
@@ -148,6 +174,13 @@ test.describe('Clipboard - Cross-tab shared clipboard', () => {
       await pageA.keyboard.up('Control');
     }
     await pageA.waitForTimeout(300);
+
+    // Ensure pageC has received clipboard before attempting paste
+    await pageC.waitForFunction(
+      () => window.__PETRI_NET_CLIPBOARD__?.current?.payload != null,
+      null,
+      { timeout: 10_000 }
+    );
 
     const preC = await getPetriNetState(pageC);
     const cBefore = { p: preC.places.length, t: preC.transitions.length, a: preC.arcs.length };

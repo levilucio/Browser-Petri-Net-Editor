@@ -23,6 +23,7 @@ const DEFAULT_MAX_STEPS = 200000;
 
 // Create a wrapper component that provides the context
 const AppContent = () => {
+    const releaseChannel = import.meta.env.VITE_RELEASE_CHANNEL;
     const ZOOM_STEP = 0.1;
     // Get UI state from EditorUIContext
     const {
@@ -172,6 +173,13 @@ const AppContent = () => {
 
     return (
       <div ref={appRef} className="app-container h-screen max-h-screen overflow-hidden" tabIndex={-1}>
+        {releaseChannel === 'staging' && (
+          <div className="fixed top-2 left-2 z-[60] pointer-events-none">
+            <div className="px-2 py-1 rounded bg-orange-600 text-white text-xs font-bold tracking-wide shadow">
+              STAGING
+            </div>
+          </div>
+        )}
         {/* Mobile Sidebar Toggle */}
         <button
           className="fixed top-2.5 right-2 z-50 p-2 bg-white rounded-md shadow-md lg:hidden"
