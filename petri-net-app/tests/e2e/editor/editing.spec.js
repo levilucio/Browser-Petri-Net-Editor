@@ -64,13 +64,14 @@ test.describe('Petri Net Editor', () => {
     }
   });
 
-  test('Save as button is disabled before first save', async ({ page }) => {
+  test('Save and Save as buttons are enabled on initial load', async ({ page }) => {
     await page.goto('/');
     // locate Save and Save as by their button text
     const saveButton = page.getByRole('button', { name: /^Save$/ });
     const saveAsButton = page.getByRole('button', { name: /^Save as$/ });
+    // Both buttons should be enabled - Save as can always choose a new location
     await expect(saveButton).toBeEnabled();
-    await expect(saveAsButton).toBeDisabled();
+    await expect(saveAsButton).toBeEnabled();
   });
 
   test('should create place, transition, arc and then delete the arc', async ({ page }) => {

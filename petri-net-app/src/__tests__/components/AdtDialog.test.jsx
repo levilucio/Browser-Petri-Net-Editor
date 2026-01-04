@@ -72,12 +72,12 @@ beforeEach(() => {
 describe('AdtDialog', () => {
   test('renders nothing when closed', () => {
     render(<AdtDialog isOpen={false} onClose={jest.fn()} />);
-    expect(screen.queryByText('ADT Manager - Available Types and Operations')).toBeNull();
+    expect(screen.queryByText('ADT Manager')).toBeNull();
   });
 
   test('displays registry preview when open', () => {
     render(<AdtDialog isOpen onClose={jest.fn()} />);
-    expect(screen.getByText('ADT Manager - Available Types and Operations')).toBeInTheDocument();
+    expect(screen.getByText('ADT Manager')).toBeInTheDocument();
     const intHeader = screen.getByText((content, element) => element?.tagName === 'DIV' && element.className.includes('font-semibold') && content === 'Int');
     const boolHeader = screen.getByText((content, element) => element?.tagName === 'DIV' && element.className.includes('font-semibold') && content === 'Bool');
     expect(intHeader).toBeInTheDocument();

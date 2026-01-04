@@ -3,6 +3,7 @@ import { createLayoutOptions, shouldAutoLayout } from './position-utils.js';
 import { parsePlaces } from './parsers/places.js';
 import { parseTransitions } from './parsers/transitions.js';
 import { parseArcs } from './parsers/arcs.js';
+import { parseProperties, resolvePropertyPlaceIds } from './parsers/properties.js';
 
 export function parsePNML(pnmlString) {
   const result = { places: [], transitions: [], arcs: [] };
@@ -40,6 +41,13 @@ export function parsePNML(pnmlString) {
       placeIds: result.places.map(p => p.id),
       transitionIds: result.transitions.map(t => t.id),
     });
+
+    // Parse properties from toolspecific section
+    const rawProperties = parseProperties(netElement, PNML_NS);
+    if (rawProperties.length > 0) {
+      // Resolve place names to IDs
+      result.properties = resolvePropertyPlaceIds(rawProperties, result.places);
+    }
 
     return result;
   } catch (error) {

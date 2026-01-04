@@ -1,85 +1,55 @@
 # Petri Net Editor and Simulator
 
-A visual editor and simulator for Petri nets built with React, React-Konva, and a Pyodide-backed simulator. The app runs entirely in the browser and supports PNML import/export.
+A visual editor and simulator for Petri nets built with **React** + **react-konva**. The app runs entirely in the browser and supports PNML import/export.
 
-## Project Overview
+## Project Structure (current)
 
-This application allows users to:
-- Create and edit Petri nets visually
-- Add places, transitions, and arcs
-- Set token counts and firing rules
-- Simulate Petri net execution
-
-## Project Structure
+This repository is a monorepo-style folder with the actual webapp in `petri-net-app/`:
 
 ```
-petri-net-editor/
-├── petri-net-app/           # Main application directory
-│   ├── public/              # Static assets
-│   ├── src/                 # Source code
-│   │   ├── components/      # React components
-│   │   │   ├── Arc.jsx      # Arc component
-│   │   │   ├── EnabledTransitionsPanel.jsx # Enabled transitions panel (if present)
-│   │   │   ├── Place.jsx    # Place component
-│   │   │   ├── PropertiesPanel.jsx # Properties panel
-│   │   │   ├── Toolbar.jsx  # Toolbar component
-│   │   │   └── Transition.jsx # Transition component
-│   │   ├── App.jsx          # Main application component
-│   │   ├── index.css        # Global styles
-│   │   └── main.jsx         # Entry point
-│   ├── index.html           # HTML entry point
-│   ├── package.json         # Dependencies and scripts
-│   └── vite.config.js       # Vite configuration
-└── docs/                    # Documentation
-    ├── developer-guide.md   # Developer guide
-    └── user-guide.md        # User guide
+Browser-Petri-Net-Editor/
+├── petri-net-app/              # Vite + React app
+│   ├── public/                 # Static assets (PNML examples, Z3 wasm/js, etc.)
+│   ├── src/                    # App source (components/, features/, contexts/, utils/, workers/)
+│   ├── tests/                  # Playwright E2E tests
+│   ├── tools/                  # Build utilities (node/ + python/)
+│   ├── index.html
+│   ├── server.cjs
+│   ├── vite.config.js
+│   ├── jest.config.cjs
+│   └── package.json
+├── docs/
+│   ├── developer-guide.md
+│   └── user-guide.md
+└── README.md
 ```
 
 ## Development Setup
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or later)
-- npm (comes with Node.js)
+- **Node.js** (installed) + **npm**
 
-### Installation
+### Install
 
-1. Clone the repository
-2. Open a terminal and navigate to the project directory
-3. Navigate to the application directory:
-   ```
-   cd petri-net-app
-   ```
-4. Install dependencies:
-   ```
-   npm install
-   ```
-5. Start the development server:
-   ```
-   npm run dev
-   ```
-6. Open your browser and navigate to http://localhost:3000
+```powershell
+Set-Location -Path .\petri-net-app
+npm install
+```
 
-### Alternative Setup (Without npm)
+### Run (dev server)
 
-If you're having issues with npm, you can run the application using a simple HTTP server:
+```powershell
+Set-Location -Path .\petri-net-app
+npm run dev
+```
 
-1. Navigate to the project directory
-2. Start a simple HTTP server in the `petri-net-app/public` directory
-3. Open the `index.html` file in your browser
-
-## Usage
-
-1. Use the toolbar to select the editing mode (Select, Place, Transition, Arc)
-2. Click on the canvas to add places and transitions
-3. Use arc mode to connect places to transitions or transitions to places
-4. Select elements to edit their properties in the properties panel
-5. Use the simulation panel to step, simulate, or run the Petri net
+Open `http://localhost:3000`.
 
 ## Documentation
 
-- User Guide: [docs/user-guide.md](docs/user-guide.md)
-- Developer Guide: [docs/developer-guide.md](docs/developer-guide.md)
+- User Guide: `docs/user-guide.md`
+- Developer Guide: `docs/developer-guide.md`
 
 ## License
 

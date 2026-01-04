@@ -1,29 +1,41 @@
-import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
 
-const DebugConsole = forwardRef((props, ref) => {
+const DebugConsole = forwardRef(({ enabled: enabledProp }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const [logs, setLogs] = useState([]);
   const [isEnabled, setIsEnabled] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isPtSmokeRunning, setIsPtSmokeRunning] = useState(false);
   const logsEndRef = useRef(null);
   const originalConsole = useRef({});
+
+  const enabled = typeof enabledProp === 'boolean' ? enabledProp : isEnabled;
+
+  // DEBUG: log prop value on each render (remove after confirming)
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      // Use the actual console.log (not our wrapped version)
+      const realLog = originalConsole.current.log || console.log;
+      realLog('[DebugConsole] enabledProp=', enabledProp, 'enabled=', enabled);
+    }
+  }, [enabledProp, enabled]);
 
   // Expose methods to parent components
   useImperativeHandle(ref, () => ({
     enable: () => setIsEnabled(true),
     disable: () => setIsEnabled(false),
     toggle: () => setIsEnabled(prev => !prev),
-    isEnabled: () => isEnabled,
+    isEnabled: () => enabled,
     open: () => { setIsEnabled(true); setIsOpen(true); },
     close: () => setIsOpen(false),
-  }), [isEnabled]);
+  }), [enabled]);
 
   const scrollToBottom = () => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   useEffect(() => {
-    if (!isEnabled) return;
+    if (!enabled) return;
 
     // Store original console methods
     originalConsole.current = {
@@ -77,7 +89,7 @@ const DebugConsole = forwardRef((props, ref) => {
       console.warn = originalConsole.current.warn;
       console.info = originalConsole.current.info;
     };
-  }, [isEnabled]);
+  }, [enabled]);
 
   useEffect(() => {
     if (isOpen) {
@@ -88,6 +100,43 @@ const DebugConsole = forwardRef((props, ref) => {
   const clearLogs = () => {
     setLogs([]);
   };
+
+  const isDev = import.meta.env.DEV;
+
+  const runPtValidationSmokeTest = useCallback(async () => {
+    if (!isDev) return;
+    if (isPtSmokeRunning) return;
+
+    setIsPtSmokeRunning(true);
+    try {
+      console.info('[PT Validation] Smoke test: fetching example PNML...');
+      const resp = await fetch('/examples/petri-net-PT.pnml', { cache: 'no-cache' });
+      if (!resp.ok) throw new Error(`Failed to fetch example PNML (${resp.status})`);
+      const pnml = await resp.text();
+      console.info('[PT Validation] Example fetched. Starting validation worker...');
+
+      // Dynamic import to keep this dev-only hook low impact on production builds.
+      const mod = await import('../features/validation/pt-validation-client.js');
+      const out = await mod.ptValidatePnml(pnml, { mode: 'exact', maxNodes: 50000, maxSteps: 200000 });
+
+      if (out?.canceled) {
+        console.warn('[PT Validation] Smoke test canceled.');
+        return;
+      }
+
+      const results = out?.results || null;
+      console.info('[PT Validation] Smoke test done:', {
+        elapsedMs: out?.elapsedMs,
+        schema_version: results?.schema_version,
+        stats: results?.stats,
+        properties: results?.properties,
+      });
+    } catch (err) {
+      console.error('[PT Validation] Smoke test failed:', String(err?.message || err));
+    } finally {
+      setIsPtSmokeRunning(false);
+    }
+  }, [isDev, isPtSmokeRunning]);
 
   const copyToClipboard = async () => {
     if (logs.length === 0) return;
@@ -137,24 +186,24 @@ const DebugConsole = forwardRef((props, ref) => {
   };
 
   // Don't show floating button when not enabled - it's controlled from the menu
-  if (!isEnabled) {
+  if (!enabled) {
     return null;
   }
 
   return (
     <>
-      {/* Toggle Button */}
+      {/* Toggle Button - on desktop (lg:), position to the left of the sidebar (w-80 = 320px) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 z-[100] bg-purple-600 text-white px-4 py-3 rounded-full shadow-lg text-sm font-medium active:bg-purple-700 flex items-center gap-2"
+        className="fixed bottom-4 right-4 lg:right-[340px] z-[100] bg-purple-600 text-white px-4 py-3 rounded-full shadow-lg text-sm font-medium active:bg-purple-700 flex items-center gap-2"
         title={isOpen ? "Hide Console" : "Show Console"}
       >
         🐛 {isOpen ? 'Hide' : 'Show'}
       </button>
 
-      {/* Console Panel */}
+      {/* Console Panel - on desktop, position to the left of the sidebar */}
       {isOpen && (
-        <div className="fixed bottom-20 right-4 z-[99] w-[calc(100vw-2rem)] sm:w-96 max-w-md h-64 sm:h-80 bg-white border-2 border-purple-300 rounded-lg shadow-2xl flex flex-col">
+        <div className="fixed bottom-20 right-4 lg:right-[340px] z-[99] w-[calc(100vw-2rem)] sm:w-96 max-w-md h-64 sm:h-80 bg-white border-2 border-purple-300 rounded-lg shadow-2xl flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-2 bg-purple-600 text-white rounded-t-lg">
             <h3 className="text-sm font-semibold">Debug Console</h3>
@@ -213,7 +262,21 @@ const DebugConsole = forwardRef((props, ref) => {
 
           {/* Footer */}
           <div className="p-2 bg-gray-100 border-t text-xs text-gray-600">
-            {logs.length} message{logs.length !== 1 ? 's' : ''}
+            <div className="flex items-center justify-between gap-2">
+              <span>{logs.length} message{logs.length !== 1 ? 's' : ''}</span>
+              {isDev && (
+                <button
+                  onClick={runPtValidationSmokeTest}
+                  disabled={isPtSmokeRunning}
+                  className={`px-2 py-1 rounded text-xs font-semibold transition-colors ${
+                    isPtSmokeRunning ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  }`}
+                  title="Runs PT validation on public/examples/petri-net-PT.pnml and prints results"
+                >
+                  {isPtSmokeRunning ? 'PT validate…' : 'PT validate example'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

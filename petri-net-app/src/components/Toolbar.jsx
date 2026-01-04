@@ -5,6 +5,7 @@ import HistoryButtons from './toolbar/HistoryButtons.jsx';
 import SettingsButton from './toolbar/SettingsButton.jsx';
 import AdtDialog from './AdtDialog';
 import ExamplesDialog from './ExamplesDialog';
+import ValidationDialog from './ValidationDialog';
 import useToolbarActions from './toolbar/useToolbarActions';
 import { usePetriNet } from '../contexts/PetriNetContext';
 
@@ -37,6 +38,7 @@ const Toolbar = ({
   const [success, setSuccess] = useState(null);
   const [isAdtOpen, setIsAdtOpen] = useState(false);
   const [isExamplesOpen, setIsExamplesOpen] = useState(false);
+  const [isValidationOpen, setIsValidationOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Handlers moved to hook for clarity
   const { saveFileHandle, setSaveFileHandle } = (() => { try { return usePetriNet(); } catch (_) { return { saveFileHandle: null, setSaveFileHandle: () => {} }; } })();
@@ -301,7 +303,32 @@ const Toolbar = ({
           </div>
         </div>
 
-        {/* Visual separator between ADT Manager and History */}
+        {/* Visual separator between ADT Manager and Validation */}
+        <div className="h-full" style={{ 
+          borderRight: '1px solid rgba(180, 180, 190, 0.9)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
+          margin: '0 12px',
+          height: '50px',
+          alignSelf: 'center',
+          opacity: 0.85
+        }}></div>
+
+        {/* Validation Group (P/T nets only) */}
+        <div className="validation-tools p-2">
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Validation</h3>
+          <div className="flex justify-between">
+            <button
+              style={desktopButtonStyle(false)}
+              onClick={() => setIsValidationOpen(true)}
+              title="P/T Net Validation - Define and check properties"
+              data-testid="toolbar-validation"
+            >
+              Validate
+            </button>
+          </div>
+        </div>
+
+        {/* Visual separator between Validation and History */}
         <div className="h-full" style={{ 
           borderRight: '1px solid rgba(180, 180, 190, 0.9)',
           borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
@@ -384,6 +411,24 @@ const Toolbar = ({
           ADT Manager
         </button>
       </div>
+      <div className="validation-tools">
+        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Validation</h3>
+        <button
+          className="menu-button-hover"
+          style={mobileButtonStyle(false, 'adt')}
+          onClick={() => {
+            setIsMobileMenuOpen(false);
+            setIsValidationOpen(true);
+          }}
+          title="P/T Net Validation"
+          data-testid="toolbar-validation-mobile"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Validate Net
+        </button>
+      </div>
       <div className="settings-tools">
         <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Settings</h3>
         <SettingsButton
@@ -401,23 +446,21 @@ const Toolbar = ({
           className="menu-button-hover"
           style={mobileButtonStyle(false, 'debug')}
           onClick={() => {
-            if (debugConsoleRef?.current) {
-              const currentlyEnabled = debugConsoleRef.current.isEnabled();
-              if (currentlyEnabled) {
-                debugConsoleRef.current.disable();
-              } else {
-                debugConsoleRef.current.enable();
+            try {
+              const cur = Boolean(simulationSettings?.debugConsoleEnabled);
+              if (typeof setSimulationSettings === 'function') {
+                setSimulationSettings((prev) => ({ ...(prev || {}), debugConsoleEnabled: !cur }));
               }
-            }
+            } catch (_) {}
             setIsMobileMenuOpen(false);
           }}
-          title={debugConsoleRef?.current?.isEnabled() ? "Deactivate Debug Console" : "Activate Debug Console"}
+          title={simulationSettings?.debugConsoleEnabled ? "Deactivate Debug Console" : "Activate Debug Console"}
           data-testid="debug-console-mobile"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          {debugConsoleRef?.current?.isEnabled() ? 'Deactivate debug' : 'Activate debug'}
+          {simulationSettings?.debugConsoleEnabled ? 'Deactivate debug' : 'Activate debug'}
         </button>
       </div>
     </div>
@@ -492,6 +535,12 @@ const Toolbar = ({
       {isAdtOpen && (
         <AdtDialog isOpen={isAdtOpen} onClose={() => setIsAdtOpen(false)} />
       )}
+
+      {/* Validation Dialog */}
+      <ValidationDialog 
+        isOpen={isValidationOpen} 
+        onClose={() => setIsValidationOpen(false)} 
+      />
 
       {/* Examples Dialog */}
       <ExamplesDialog 

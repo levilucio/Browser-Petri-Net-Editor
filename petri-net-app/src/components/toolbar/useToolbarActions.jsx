@@ -197,7 +197,11 @@ export default function useToolbarActions(params) {
         const safeJson = {
           places: Array.isArray(petriNetJson.places) ? petriNetJson.places : [],
           transitions: Array.isArray(petriNetJson.transitions) ? petriNetJson.transitions : [],
-          arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : []
+          arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : [],
+          // Include properties if present (for validation dialog)
+          ...(Array.isArray(petriNetJson.properties) && petriNetJson.properties.length > 0
+            ? { properties: petriNetJson.properties }
+            : {}),
         };
 
         const validArcs = (safeJson.arcs || []).filter(arc => {
@@ -232,7 +236,9 @@ export default function useToolbarActions(params) {
         }
 
         if (updateHistory) updateHistory(safeJson);
-        setSuccess?.(`Petri net loaded successfully with ${safeJson.places.length} places, ${safeJson.transitions.length} transitions, and ${safeJson.arcs.length} arcs.`);
+        const propCount = safeJson.properties?.length || 0;
+        const propMsg = propCount > 0 ? ` and ${propCount} properties` : '';
+        setSuccess?.(`Petri net loaded successfully with ${safeJson.places.length} places, ${safeJson.transitions.length} transitions, ${safeJson.arcs.length} arcs${propMsg}.`);
         setIsMobileMenuOpen?.(false);
       } catch (error) {
         console.error('Error loading Petri net:', error);
@@ -302,7 +308,11 @@ export default function useToolbarActions(params) {
       const safeJson = {
         places: Array.isArray(petriNetJson.places) ? petriNetJson.places : [],
         transitions: Array.isArray(petriNetJson.transitions) ? petriNetJson.transitions : [],
-        arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : []
+        arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : [],
+        // Include properties if present (for validation dialog)
+        ...(Array.isArray(petriNetJson.properties) && petriNetJson.properties.length > 0
+          ? { properties: petriNetJson.properties }
+          : {}),
       };
 
       const validArcs = (safeJson.arcs || []).filter(arc => {
@@ -337,7 +347,9 @@ export default function useToolbarActions(params) {
       }
 
       if (updateHistory) updateHistory(safeJson);
-      setSuccess?.(`Example "${filename}" loaded successfully with ${safeJson.places.length} places, ${safeJson.transitions.length} transitions, and ${safeJson.arcs.length} arcs.`);
+      const propCount = safeJson.properties?.length || 0;
+      const propMsg = propCount > 0 ? ` and ${propCount} properties` : '';
+      setSuccess?.(`Example "${filename}" loaded successfully with ${safeJson.places.length} places, ${safeJson.transitions.length} transitions, ${safeJson.arcs.length} arcs${propMsg}.`);
       setIsMobileMenuOpen?.(false);
     } catch (error) {
       console.error('Error loading example:', error);

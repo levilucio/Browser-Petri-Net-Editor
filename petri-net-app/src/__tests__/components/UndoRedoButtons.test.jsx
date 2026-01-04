@@ -2,6 +2,10 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Toolbar from '../../components/Toolbar';
 
+// Toolbar renders ValidationDialog, which requires PetriNetProvider context.
+// These tests only cover Undo/Redo button behaviors, so we stub it out.
+jest.mock('../../components/ValidationDialog', () => () => null);
+
 describe('Undo/Redo Buttons', () => {
   // Mock functions for undo and redo
   const mockHandleUndo = jest.fn();

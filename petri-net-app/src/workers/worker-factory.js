@@ -15,4 +15,20 @@ export function createSimulationWorker() {
   }
 }
 
+export function createPtValidationWorker() {
+  try {
+    if (typeof window === 'undefined') return null;
+    if (typeof Worker === 'undefined') return null;
+    // Avoid creating workers during Jest tests
+    if (typeof process !== 'undefined' && process.env && (process.env.JEST_WORKER_ID || process.env.NODE_ENV === 'test')) {
+      return null;
+    }
+
+    return new Worker(new URL('./pt-validation.worker.js', import.meta.url), { type: 'module' });
+  } catch (err) {
+    console.error('Failed to create pt validation worker:', err);
+    return null;
+  }
+}
+
 

@@ -174,6 +174,14 @@ const attachContainer = (result, rerender, props) => {
   });
 
   test('handles single-finger pan when activated programmatically', () => {
+    // useCanvasZoom enforces a 100ms cooldown after any drag ends; in tests, performance.now
+    // doesn't advance with fake timers, so we control it explicitly.
+    const origNow = global.performance?.now;
+    let now = 1000;
+    if (global.performance && typeof global.performance.now === 'function') {
+      global.performance.now = jest.fn(() => now);
+    }
+
     const { result, rerender, props } = renderZoomHook();
     attachContainer(result, rerender, props);
 
@@ -199,11 +207,19 @@ const attachContainer = (result, rerender, props) => {
     const moveEvent = createTouchEvent('touchmove', [touch1Move]);
     
     act(() => {
+      // Advance "time" beyond the DRAG_END_COOLDOWN_MS so panning isn't blocked.
+      now = 1200;
       container.dispatchEvent(moveEvent);
+      // Touch handlers are throttled via rAF/timeouts; flush pending work.
+      jest.advanceTimersByTime(50);
     });
 
     expect(setCanvasScroll).toHaveBeenCalled();
     expect(moveEvent.preventDefault).toHaveBeenCalled();
+
+    if (global.performance && origNow) {
+      global.performance.now = origNow;
+    }
   });
 
   test('single-finger pan is not active until explicitly activated', () => {

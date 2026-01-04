@@ -9,6 +9,7 @@ const DEFAULT_ANIMATION_DELAY = 1000;
 
 const SettingsDialog = ({ isOpen, onClose }) => {
   const { simulatorCore, simulationSettings, handleSaveSettings, elements, z3Settings, setZ3Settings } = usePetriNet();
+  const isDev = import.meta.env.DEV;
   const [simulationMode, setSimulationMode] = useState('single');
   const [isLoading, setIsLoading] = useState(false);
   const [maxIterations, setMaxIterations] = useState(DEFAULT_MAX_STEPS);
@@ -20,6 +21,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
   const [batchMode, setBatchMode] = useState(false);
   const [showInferredTypes, setShowInferredTypes] = useState(false);
   const [animationDelayMs, setAnimationDelayMs] = useState(DEFAULT_ANIMATION_DELAY);
+  const [debugConsoleEnabled, setDebugConsoleEnabled] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -49,6 +51,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       setUseNonVisualRun(initialNonVisual);
       setShowInferredTypes(Boolean(simulationSettings?.showInferredTypes));
       setAnimationDelayMs(simulationSettings?.animationDelayMs ?? DEFAULT_ANIMATION_DELAY);
+      setDebugConsoleEnabled(Boolean(simulationSettings?.debugConsoleEnabled));
 
       // If batch mode is enabled, default to maximal concurrent mode
       if (initialBatch && simulationMode !== 'maximal') {
@@ -98,6 +101,7 @@ const SettingsDialog = ({ isOpen, onClose }) => {
       batchMode,
       showInferredTypes,
       animationDelayMs,
+      debugConsoleEnabled: Boolean(debugConsoleEnabled),
     });
     onClose?.();
   };
@@ -318,6 +322,24 @@ const SettingsDialog = ({ isOpen, onClose }) => {
               />
             </div>
           </div>
+
+          {/* Developer (dev builds only) */}
+          {isDev && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Developer</label>
+              <label className="flex items-center text-sm">
+                <input
+                  type="checkbox"
+                  checked={debugConsoleEnabled}
+                  onChange={(e) => setDebugConsoleEnabled(e.target.checked)}
+                  className="mr-2"
+                />
+                <span className="text-sm">
+                  <strong>Enable Debug Console</strong> – Show the on-page debug console toggle
+                </span>
+              </label>
+            </div>
+          )}
 
           {isLoading && (
             <div className="text-center text-sm text-gray-600">
