@@ -53,6 +53,9 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: true,
+    timeout: 120 * 1000, // 2 minutes timeout
+    stdout: 'pipe',
+    stderr: 'pipe',
     env: { PW_NO_OPEN: '1' }
   },
 });

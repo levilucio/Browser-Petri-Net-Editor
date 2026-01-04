@@ -210,6 +210,75 @@ export function generatePNML(petriNetJson) {
       pageElement.appendChild(arcElement);
     });
 
+    // ---------------------------------------------------------------------
+    // Browser-Petri-Net-Editor toolspecific: PT validation properties
+    //
+    // Persist properties inside PNML using:
+    // <toolspecific tool="Browser-Petri-Net-Editor" version="1"><properties>...</properties></toolspecific>
+    //
+    // This mirrors the schema consumed by src/utils/pnml/parsers/properties.js
+    // and used by the PT validation engine (symex_engine.petri_net).
+    // ---------------------------------------------------------------------
+    const properties = Array.isArray(petriNetJson.properties) ? petriNetJson.properties : [];
+    if (properties.length > 0) {
+      const toolspecificEl = xmlDoc.createElement('toolspecific');
+      toolspecificEl.setAttribute('tool', 'Browser-Petri-Net-Editor');
+      toolspecificEl.setAttribute('version', '1');
+
+      const propertiesEl = xmlDoc.createElement('properties');
+
+      for (const prop of properties) {
+        if (!prop || typeof prop !== 'object') continue;
+        const type = String(prop.type || 'invariant');
+        const validTypes = new Set(['invariant', 'exists_coverable', 'exists_deadlock']);
+        if (!validTypes.has(type)) continue;
+
+        const propEl = xmlDoc.createElement('property');
+        propEl.setAttribute('id', String(prop.id || ''));
+        propEl.setAttribute('name', String(prop.name || prop.id || ''));
+        propEl.setAttribute('type', type);
+        propEl.setAttribute('severity', String(prop.severity || 'error'));
+
+        if (type !== 'exists_deadlock') {
+          const preds = Array.isArray(prop.predicates) ? prop.predicates : [];
+          const predicateEl = xmlDoc.createElement('predicate');
+
+          const mkCmp = (pred) => {
+            const op = (pred && pred.op === 'le') ? 'le' : 'ge';
+            const placeId = String(pred?.placeId || '');
+            const k = Number.isFinite(Number(pred?.value)) ? String(Number(pred.value) | 0) : '0';
+            const cmpEl = xmlDoc.createElement(op);
+            cmpEl.setAttribute('place', placeId);
+            cmpEl.setAttribute('k', k);
+            return cmpEl;
+          };
+
+          if (preds.length === 1) {
+            predicateEl.appendChild(mkCmp(preds[0]));
+          } else if (preds.length > 1) {
+            const andEl = xmlDoc.createElement('and');
+            for (const pred of preds) {
+              andEl.appendChild(mkCmp(pred));
+            }
+            predicateEl.appendChild(andEl);
+          } else {
+            // Keep schema valid even if UI created an empty predicate list.
+            predicateEl.appendChild(mkCmp({ placeId: '', op: 'ge', value: 0 }));
+          }
+
+          propEl.appendChild(predicateEl);
+        }
+
+        propertiesEl.appendChild(propEl);
+      }
+
+      // Only attach if at least one valid property was emitted.
+      if (propertiesEl.childNodes && propertiesEl.childNodes.length > 0) {
+        toolspecificEl.appendChild(propertiesEl);
+        netElement.appendChild(toolspecificEl);
+      }
+    }
+
     if (apnUsed) {
       pnmlElement.setAttribute('xmlns:apn', APN_NS);
     }

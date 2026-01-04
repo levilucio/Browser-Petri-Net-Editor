@@ -36,7 +36,7 @@ const STATUS_DISPLAY = {
 };
 
 const ValidationDialog = ({ isOpen, onClose }) => {
-  const { elements, simulationSettings } = usePetriNet();
+  const { elements, setElements, simulationSettings } = usePetriNet();
   
   // Properties state: array of user-defined properties
   const [properties, setProperties] = useState([]);
@@ -62,6 +62,9 @@ const ValidationDialog = ({ isOpen, onClose }) => {
       if (elements?.properties && Array.isArray(elements.properties) && elements.properties.length > 0) {
         // Convert loaded properties to dialog format (already compatible from parser)
         setProperties(elements.properties);
+      } else {
+        // Important: avoid keeping stale properties from a previous net/session.
+        setProperties([]);
       }
       
       // Pre-warm the worker
@@ -70,6 +73,19 @@ const ValidationDialog = ({ isOpen, onClose }) => {
       });
     }
   }, [isOpen, elements?.properties]);
+
+  // Persist properties into global net state so Save/SaveAs roundtrips them in PNML.
+  const persistPropertiesToNet = useCallback(() => {
+    try {
+      if (!setElements) return;
+      setElements(prev => {
+        const base = prev && typeof prev === 'object' ? prev : {};
+        return { ...base, properties: Array.isArray(properties) ? properties : [] };
+      });
+    } catch (err) {
+      console.warn('[ValidationDialog] Failed to persist properties to net state:', err);
+    }
+  }, [setElements, properties]);
   
   // Add a new property
   const addProperty = useCallback((type) => {
@@ -156,10 +172,11 @@ const ValidationDialog = ({ isOpen, onClose }) => {
       
       // Build predicate content - each condition is <ge place="..." k="..."/> or <le .../>
       const conditions = prop.predicates.map(pred => {
-        const place = places.find(p => p.id === pred.placeId);
-        const placeName = place?.name || place?.id || pred.placeId;
+        // IMPORTANT: the Python PNML parser expects PNML place *ids*, not display names.
+        // The UI stores placeId as the PNML place id (see <select value={place.id}> below).
+        const placeId = pred.placeId || '';
         const opTag = pred.op === 'le' ? 'le' : 'ge'; // Default to ge
-        return `<${opTag} place="${escapeXml(placeName)}" k="${pred.value}"/>`;
+        return `<${opTag} place="${escapeXml(placeId)}" k="${pred.value}"/>`;
       });
       
       // Wrap in <and> if multiple conditions, otherwise just the single condition
@@ -202,6 +219,8 @@ const ValidationDialog = ({ isOpen, onClose }) => {
     setValidationResults(null);
     
     try {
+      // Persist before validating so the app state stays consistent with what we validate/save.
+      persistPropertiesToNet();
       const pnml = buildPnmlWithProperties();
       console.log('[ValidationDialog] Starting validation with mode:', mode, 'maxNodes:', maxNodes);
       
@@ -215,7 +234,12 @@ const ValidationDialog = ({ isOpen, onClose }) => {
     } finally {
       setIsValidating(false);
     }
-  }, [buildPnmlWithProperties, mode, maxNodes]);
+  }, [buildPnmlWithProperties, mode, maxNodes, persistPropertiesToNet]);
+
+  const handleClose = useCallback(() => {
+    persistPropertiesToNet();
+    onClose?.();
+  }, [persistPropertiesToNet, onClose]);
   
   if (!isOpen) return null;
   
@@ -234,7 +258,7 @@ const ValidationDialog = ({ isOpen, onClose }) => {
             <p className="text-gray-500 text-sm">Please switch to P/T net mode in Settings to use this feature.</p>
           </div>
           <div className="flex justify-end mt-4">
-            <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+            <button onClick={handleClose} className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
               Close
             </button>
           </div>
@@ -249,7 +273,7 @@ const ValidationDialog = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-semibold">P/T Net Validation</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl font-bold">×</button>
+          <button onClick={handleClose} className="text-gray-500 hover:text-gray-700 text-2xl font-bold">×</button>
         </div>
         
         {/* Content */}
@@ -454,7 +478,7 @@ const ValidationDialog = ({ isOpen, onClose }) => {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
             >
               Close

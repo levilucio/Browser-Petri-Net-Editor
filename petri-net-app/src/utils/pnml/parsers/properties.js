@@ -13,6 +13,14 @@ function stripNs(tagName) {
   return idx >= 0 ? tagName.slice(idx + 1) : tagName;
 }
 
+function elementChildren(el) {
+  if (!el) return [];
+  // Prefer .children when available, but fall back to childNodes for XML DOMs (JSDOM quirks).
+  // We only want element nodes (nodeType === 1).
+  const kids = el.children ? Array.from(el.children) : Array.from(el.childNodes || []).filter((n) => n && n.nodeType === 1);
+  return kids;
+}
+
 /**
  * Parse a single predicate element (ge, le, and, or, not)
  * Returns an array of { placeId, op, value } for simple predicates,
@@ -36,7 +44,7 @@ function parsePredicate(elem) {
   if (tag === 'and') {
     // Conjunction: collect all child predicates
     const results = [];
-    for (const child of elem.children) {
+    for (const child of elementChildren(elem)) {
       results.push(...parsePredicate(child));
     }
     return results;
@@ -46,7 +54,7 @@ function parsePredicate(elem) {
     // Disjunction: for now, treat as AND (simplified; OR not fully supported in UI)
     console.warn('[PNML Properties] <or> predicates are not fully supported, treating as AND');
     const results = [];
-    for (const child of elem.children) {
+    for (const child of elementChildren(elem)) {
       results.push(...parsePredicate(child));
     }
     return results;
@@ -92,10 +100,10 @@ function parseProperty(propElem) {
   
   // Find <predicate> child
   let predicates = [];
-  for (const child of propElem.children) {
+  for (const child of elementChildren(propElem)) {
     if (stripNs(child.tagName).toLowerCase() === 'predicate') {
       // Parse the predicate content (first child of <predicate>)
-      for (const predChild of child.children) {
+      for (const predChild of elementChildren(child)) {
         predicates.push(...parsePredicate(predChild));
       }
       break;
@@ -120,10 +128,20 @@ function parseProperty(propElem) {
 export function parseProperties(netElement, PNML_NS) {
   const properties = [];
   
-  // Find toolspecific elements
-  const toolspecificElements = Array.from(netElement.children).filter(
-    child => stripNs(child.tagName).toLowerCase() === 'toolspecific'
-  );
+  // Find toolspecific elements.
+  // Use a namespace-agnostic search because PNML files in the wild (and in our repo)
+  // sometimes reset namespaces with `xmlns=""`, and JSDOM XML parsing can be quirky
+  // with `.children` on namespaced XML nodes.
+  let toolspecificElements = [];
+  try {
+    if (typeof netElement?.getElementsByTagNameNS === 'function') {
+      toolspecificElements = Array.from(netElement.getElementsByTagNameNS('*', 'toolspecific') || []);
+    } else if (typeof netElement?.getElementsByTagName === 'function') {
+      toolspecificElements = Array.from(netElement.getElementsByTagName('toolspecific') || []);
+    }
+  } catch (_) {
+    toolspecificElements = [];
+  }
   
   for (const ts of toolspecificElements) {
     const tool = ts.getAttribute('tool');
@@ -134,15 +152,22 @@ export function parseProperties(netElement, PNML_NS) {
       continue;
     }
     
-    // Find <properties> element
-    const propsElem = Array.from(ts.children).find(
-      child => stripNs(child.tagName).toLowerCase() === 'properties'
-    );
+    // Find <properties> element (namespace-agnostic)
+    let propsElem = null;
+    try {
+      if (typeof ts.getElementsByTagNameNS === 'function') {
+        propsElem = ts.getElementsByTagNameNS('*', 'properties')?.[0] || null;
+      } else if (typeof ts.getElementsByTagName === 'function') {
+        propsElem = ts.getElementsByTagName('properties')?.[0] || null;
+      }
+    } catch (_) {
+      propsElem = null;
+    }
     
     if (!propsElem) continue;
     
     // Parse each <property> element
-    for (const propElem of propsElem.children) {
+    for (const propElem of elementChildren(propsElem)) {
       if (stripNs(propElem.tagName).toLowerCase() === 'property') {
         const prop = parseProperty(propElem);
         if (prop) {

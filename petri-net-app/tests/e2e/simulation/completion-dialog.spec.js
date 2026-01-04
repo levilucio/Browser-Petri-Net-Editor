@@ -109,7 +109,7 @@ async function waitForCompletionDialog(page, timeout = 180000) {
   // Step 4: Wait for stats text to be present (more reliable than waiting for visibility)
   await page.waitForFunction(() => {
     const bodyText = document.body.innerText || '';
-    return /Transitions Fired:\s*[0-9,]+/.test(bodyText);
+    return /Transitions Fired:\s*[0-9.,]+/.test(bodyText);
   }, { timeout: 20000 });
   
   return dialog;
@@ -159,9 +159,9 @@ test.describe('Simulation - Completion dialog content and formatting', () => {
       });
     }
     
-    // Extract transitions fired
-    const transitionsMatch = /Transitions Fired:\s*([0-9,]+)/.exec(dialogText);
-    const transitions = transitionsMatch ? Number.parseInt(transitionsMatch[1].replace(/,/g, ''), 10) : Number.NaN;
+    // Extract transitions fired - handle both comma and period as thousands separators
+    const transitionsMatch = /Transitions Fired:\s*([0-9.,]+)/.exec(dialogText);
+    const transitions = transitionsMatch ? Number.parseInt(transitionsMatch[1].replace(/[,.]/g, ''), 10) : Number.NaN;
     expect(transitions).toBe(2432);
 
     // Extract duration - be more flexible with regex to handle different text formats
@@ -257,9 +257,9 @@ test.describe('Simulation - Completion dialog content and formatting', () => {
       });
     }
     
-    // Extract transitions fired
-    const transitionsMatch = /Transitions Fired:\s*([0-9,]+)/.exec(dialogText);
-    const transitions = transitionsMatch ? Number.parseInt(transitionsMatch[1].replace(/,/g, ''), 10) : Number.NaN;
+    // Extract transitions fired - handle both comma and period as thousands separators
+    const transitionsMatch = /Transitions Fired:\s*([0-9.,]+)/.exec(dialogText);
+    const transitions = transitionsMatch ? Number.parseInt(transitionsMatch[1].replace(/[,.]/g, ''), 10) : Number.NaN;
     expect(transitions).toBe(3240);
 
     // Extract duration - be more flexible with regex to handle different text formats

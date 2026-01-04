@@ -132,6 +132,93 @@ describe('PNML Parser (real)', () => {
     expect(xml).toContain('arc-1');
     expect(xml).toContain('arc-2');
   });
+
+  test('parsePNML extracts Browser-Petri-Net-Editor properties from <toolspecific>', () => {
+    const pnmlWithProps = `
+    <pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+      <net xmlns="" id="net1" type="http://www.pnml.org/version-2009/grammar/ptnet" netMode="pt">
+        <name><text>Petri Net</text></name>
+        <toolspecific tool="Browser-Petri-Net-Editor" version="1">
+          <properties>
+            <property id="p_dead" name="Deadlock exists" type="exists_deadlock" severity="error"/>
+            <property id="p_cov" name="Cover p1&gt;=1" type="exists_coverable" severity="error">
+              <predicate><ge place="place-1" k="1"/></predicate>
+            </property>
+            <property id="p_inv" name="Invariant p1&lt;=2 AND p1&gt;=0" type="invariant" severity="error">
+              <predicate>
+                <and>
+                  <le place="place-1" k="2"/>
+                  <ge place="place-1" k="0"/>
+                </and>
+              </predicate>
+            </property>
+          </properties>
+        </toolspecific>
+        <page id="page1">
+          <place id="place-1"><name><text>P1</text></name><graphics><position x="10" y="10"/></graphics><initialMarking><text>1</text></initialMarking></place>
+          <transition id="t1"><name><text>T1</text></name><graphics><position x="20" y="20"/></graphics></transition>
+          <arc id="a1" source="place-1" target="t1"><inscription><text>1</text></inscription></arc>
+          <arc id="a2" source="t1" target="place-1"><inscription><text>1</text></inscription></arc>
+        </page>
+      </net>
+    </pnml>`;
+
+    const result = parsePNML(pnmlWithProps);
+    expect(Array.isArray(result.properties)).toBe(true);
+    expect(result.properties).toHaveLength(3);
+
+    const dead = result.properties.find(p => p.id === 'p_dead');
+    expect(dead).toBeTruthy();
+    expect(dead.type).toBe('exists_deadlock');
+    expect(dead.predicates).toEqual([]);
+
+    const cov = result.properties.find(p => p.id === 'p_cov');
+    expect(cov.type).toBe('exists_coverable');
+    expect(cov.predicates).toEqual([{ placeId: 'place-1', placeName: 'place-1', op: 'ge', value: 1 }]);
+
+    const inv = result.properties.find(p => p.id === 'p_inv');
+    expect(inv.type).toBe('invariant');
+    expect(inv.predicates).toEqual([
+      { placeId: 'place-1', placeName: 'place-1', op: 'le', value: 2 },
+      { placeId: 'place-1', placeName: 'place-1', op: 'ge', value: 0 },
+    ]);
+  });
+
+  test('generatePNML emits <toolspecific> properties and roundtrips through parsePNML', () => {
+    const net = {
+      netMode: 'pt',
+      places: [
+        { id: 'place-1', name: 'P1', x: 100, y: 100, tokens: 1 },
+      ],
+      transitions: [
+        { id: 't1', name: 'T1', x: 200, y: 100 },
+      ],
+      arcs: [
+        { id: 'a1', source: 'place-1', target: 't1', weight: 1 },
+        { id: 'a2', source: 't1', target: 'place-1', weight: 1 },
+      ],
+      properties: [
+        { id: 'dead', name: 'Deadlock exists', type: 'exists_deadlock', severity: 'error', predicates: [] },
+        { id: 'cov', name: 'Cover P1>=2', type: 'exists_coverable', severity: 'error', predicates: [{ placeId: 'place-1', op: 'ge', value: 2 }] },
+        { id: 'inv', name: 'P1<=3', type: 'invariant', severity: 'error', predicates: [{ placeId: 'place-1', op: 'le', value: 3 }] },
+      ],
+    };
+
+    const xml = generatePNML(net);
+    expect(xml).toContain('<toolspecific');
+    expect(xml).toContain('tool="Browser-Petri-Net-Editor"');
+    expect(xml).toContain('<properties>');
+    expect(xml).toContain('type="exists_deadlock"');
+    expect(xml).toContain('<ge place="place-1" k="2"');
+    expect(xml).toContain('<le place="place-1" k="3"');
+
+    const parsed = parsePNML(xml);
+    expect(parsed.properties).toHaveLength(3);
+    const parsedCov = parsed.properties.find(p => p.id === 'cov');
+    expect(parsedCov.predicates[0].placeId).toBe('place-1');
+    expect(parsedCov.predicates[0].op).toBe('ge');
+    expect(parsedCov.predicates[0].value).toBe(2);
+  });
 });
 
 
