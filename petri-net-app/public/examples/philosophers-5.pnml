@@ -1,0 +1,189 @@
+<pnml xmlns="http://www.pnml.org/version-2009/grammar/pnml">
+  <net xmlns="" id="philosophers_5" type="http://www.pnml.org/version-2009/grammar/ptnet" netMode="pt">
+    <name><text>Dining Philosophers (5)</text></name>
+    <toolspecific tool="Browser-Petri-Net-Editor" version="1">
+      <properties>
+        <!-- Deadlock detection: classic dining philosophers CAN deadlock -->
+        <property id="deadlock_check" name="Check for deadlock" type="exists_deadlock" severity="error"/>
+        
+        <!-- At least one philosopher can eat -->
+        <property id="some_eating" name="Some philosopher eating" type="exists_coverable" severity="warning">
+          <predicate>
+            <ge place="eating_0" k="1"/>
+          </predicate>
+        </property>
+        
+        <!-- All philosophers eating simultaneously (impossible with 5 forks for 5 philosophers) -->
+        <property id="all_eating" name="All philosophers eating" type="exists_coverable" severity="error">
+          <predicate>
+            <and>
+              <ge place="eating_0" k="1"/>
+              <ge place="eating_1" k="1"/>
+              <ge place="eating_2" k="1"/>
+              <ge place="eating_3" k="1"/>
+              <ge place="eating_4" k="1"/>
+            </and>
+          </predicate>
+        </property>
+        
+        <!-- Invariant: fork_0 always non-negative -->
+        <property id="fork_conservation" name="Fork conservation (fork_0 always available or in use)" type="invariant" severity="error">
+          <predicate>
+            <ge place="fork_0" k="0"/>
+          </predicate>
+        </property>
+      </properties>
+    </toolspecific>
+    <page id="page1">
+      <!-- 
+        Dining Philosophers with 5 philosophers in a regular pentagon.
+        Each philosopher has identical local layout pattern, rotated to face center.
+        
+        Pentagon center: (600, 550), cluster radius: 350
+        Philosophers at angles: 0° (top), 72°, 144°, 216°, 288° clockwise from top
+        Forks at midpoint angles: 36°, 108°, 180°, 252°, 324°
+        
+        EXPANDED local pattern per philosopher (minimum arc distance ~96px):
+          thinking: (0, +140)
+          hungry: (0, +50)
+          has_left: (0, -50)
+          eating: (0, -140)
+          get_hungry: (-85, +95)
+          take_left: (-85, 0)
+          take_right: (+85, -95)
+          release: (+85, +95)
+      -->
+      
+      <!-- ==================== FORKS (between adjacent philosophers) ==================== -->
+      <place id="fork_0"><name><text>fork_0</text></name><graphics><position x="806" y="267"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="fork_1"><name><text>fork_1</text></name><graphics><position x="933" y="658"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="fork_2"><name><text>fork_2</text></name><graphics><position x="600" y="900"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="fork_3"><name><text>fork_3</text></name><graphics><position x="267" y="658"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="fork_4"><name><text>fork_4</text></name><graphics><position x="394" y="267"/></graphics><initialMarking><text>1</text></initialMarking></place>
+
+      <!-- ==================== PHILOSOPHER 0 (top, θ=0°) ==================== -->
+      <place id="thinking_0"><name><text>think_0</text></name><graphics><position x="600" y="60"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="hungry_0"><name><text>hungry_0</text></name><graphics><position x="600" y="150"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="has_left_0"><name><text>hasL_0</text></name><graphics><position x="600" y="250"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="eating_0"><name><text>eat_0</text></name><graphics><position x="600" y="340"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <transition id="get_hungry_0"><name><text>getH_0</text></name><graphics><position x="515" y="105"/></graphics></transition>
+      <transition id="take_left_0"><name><text>takeL_0</text></name><graphics><position x="515" y="200"/></graphics></transition>
+      <transition id="take_right_0"><name><text>takeR_0</text></name><graphics><position x="685" y="295"/></graphics></transition>
+      <transition id="release_0"><name><text>rel_0</text></name><graphics><position x="685" y="105"/></graphics></transition>
+
+      <!-- ==================== PHILOSOPHER 1 (top-right, θ=72°) ==================== -->
+      <place id="thinking_1"><name><text>think_1</text></name><graphics><position x="1066" y="399"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="hungry_1"><name><text>hungry_1</text></name><graphics><position x="981" y="427"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="has_left_1"><name><text>hasL_1</text></name><graphics><position x="885" y="457"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="eating_1"><name><text>eat_1</text></name><graphics><position x="800" y="485"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <transition id="get_hungry_1"><name><text>getH_1</text></name><graphics><position x="997" y="332"/></graphics></transition>
+      <transition id="take_left_1"><name><text>takeL_1</text></name><graphics><position x="907" y="361"/></graphics></transition>
+      <transition id="take_right_1"><name><text>takeR_1</text></name><graphics><position x="869" y="552"/></graphics></transition>
+      <transition id="release_1"><name><text>rel_1</text></name><graphics><position x="1049" y="494"/></graphics></transition>
+
+      <!-- ==================== PHILOSOPHER 2 (bottom-right, θ=144°) ==================== -->
+      <place id="thinking_2"><name><text>think_2</text></name><graphics><position x="888" y="946"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="hungry_2"><name><text>hungry_2</text></name><graphics><position x="835" y="873"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="has_left_2"><name><text>hasL_2</text></name><graphics><position x="777" y="793"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="eating_2"><name><text>eat_2</text></name><graphics><position x="724" y="720"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <transition id="get_hungry_2"><name><text>getH_2</text></name><graphics><position x="931" y="860"/></graphics></transition>
+      <transition id="take_left_2"><name><text>takeL_2</text></name><graphics><position x="875" y="783"/></graphics></transition>
+      <transition id="take_right_2"><name><text>takeR_2</text></name><graphics><position x="681" y="806"/></graphics></transition>
+      <transition id="release_2"><name><text>rel_2</text></name><graphics><position x="793" y="960"/></graphics></transition>
+
+      <!-- ==================== PHILOSOPHER 3 (bottom-left, θ=216°) ==================== -->
+      <place id="thinking_3"><name><text>think_3</text></name><graphics><position x="312" y="946"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="hungry_3"><name><text>hungry_3</text></name><graphics><position x="365" y="873"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="has_left_3"><name><text>hasL_3</text></name><graphics><position x="423" y="793"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="eating_3"><name><text>eat_3</text></name><graphics><position x="476" y="720"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <transition id="get_hungry_3"><name><text>getH_3</text></name><graphics><position x="269" y="860"/></graphics></transition>
+      <transition id="take_left_3"><name><text>takeL_3</text></name><graphics><position x="325" y="783"/></graphics></transition>
+      <transition id="take_right_3"><name><text>takeR_3</text></name><graphics><position x="519" y="806"/></graphics></transition>
+      <transition id="release_3"><name><text>rel_3</text></name><graphics><position x="407" y="960"/></graphics></transition>
+
+      <!-- ==================== PHILOSOPHER 4 (top-left, θ=288°) ==================== -->
+      <place id="thinking_4"><name><text>think_4</text></name><graphics><position x="134" y="399"/></graphics><initialMarking><text>1</text></initialMarking></place>
+      <place id="hungry_4"><name><text>hungry_4</text></name><graphics><position x="219" y="427"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="has_left_4"><name><text>hasL_4</text></name><graphics><position x="315" y="457"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <place id="eating_4"><name><text>eat_4</text></name><graphics><position x="400" y="485"/></graphics><initialMarking><text>0</text></initialMarking></place>
+      <transition id="get_hungry_4"><name><text>getH_4</text></name><graphics><position x="151" y="494"/></graphics></transition>
+      <transition id="take_left_4"><name><text>takeL_4</text></name><graphics><position x="241" y="523"/></graphics></transition>
+      <transition id="take_right_4"><name><text>takeR_4</text></name><graphics><position x="383" y="390"/></graphics></transition>
+      <transition id="release_4"><name><text>rel_4</text></name><graphics><position x="203" y="332"/></graphics></transition>
+
+      <!-- ==================== ARCS ==================== -->
+      
+      <!-- Philosopher 0: left fork = fork_4, right fork = fork_0 -->
+      <arc id="a_think0_getH0" source="thinking_0" target="get_hungry_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_getH0_hungry0" source="get_hungry_0" target="hungry_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hungry0_takeL0" source="hungry_0" target="take_left_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork4_takeL0" source="fork_4" target="take_left_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeL0_hasL0" source="take_left_0" target="has_left_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hasL0_takeR0" source="has_left_0" target="take_right_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork0_takeR0" source="fork_0" target="take_right_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeR0_eat0" source="take_right_0" target="eating_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_eat0_rel0" source="eating_0" target="release_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel0_think0" source="release_0" target="thinking_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel0_fork4" source="release_0" target="fork_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel0_fork0" source="release_0" target="fork_0"><inscription><text>1</text></inscription></arc>
+
+      <!-- Philosopher 1: left fork = fork_0, right fork = fork_1 -->
+      <arc id="a_think1_getH1" source="thinking_1" target="get_hungry_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_getH1_hungry1" source="get_hungry_1" target="hungry_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hungry1_takeL1" source="hungry_1" target="take_left_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork0_takeL1" source="fork_0" target="take_left_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeL1_hasL1" source="take_left_1" target="has_left_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hasL1_takeR1" source="has_left_1" target="take_right_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork1_takeR1" source="fork_1" target="take_right_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeR1_eat1" source="take_right_1" target="eating_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_eat1_rel1" source="eating_1" target="release_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel1_think1" source="release_1" target="thinking_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel1_fork0" source="release_1" target="fork_0"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel1_fork1" source="release_1" target="fork_1"><inscription><text>1</text></inscription></arc>
+
+      <!-- Philosopher 2: left fork = fork_1, right fork = fork_2 -->
+      <arc id="a_think2_getH2" source="thinking_2" target="get_hungry_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_getH2_hungry2" source="get_hungry_2" target="hungry_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hungry2_takeL2" source="hungry_2" target="take_left_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork1_takeL2" source="fork_1" target="take_left_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeL2_hasL2" source="take_left_2" target="has_left_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hasL2_takeR2" source="has_left_2" target="take_right_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork2_takeR2" source="fork_2" target="take_right_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeR2_eat2" source="take_right_2" target="eating_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_eat2_rel2" source="eating_2" target="release_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel2_think2" source="release_2" target="thinking_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel2_fork1" source="release_2" target="fork_1"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel2_fork2" source="release_2" target="fork_2"><inscription><text>1</text></inscription></arc>
+
+      <!-- Philosopher 3: left fork = fork_2, right fork = fork_3 -->
+      <arc id="a_think3_getH3" source="thinking_3" target="get_hungry_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_getH3_hungry3" source="get_hungry_3" target="hungry_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hungry3_takeL3" source="hungry_3" target="take_left_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork2_takeL3" source="fork_2" target="take_left_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeL3_hasL3" source="take_left_3" target="has_left_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hasL3_takeR3" source="has_left_3" target="take_right_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork3_takeR3" source="fork_3" target="take_right_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeR3_eat3" source="take_right_3" target="eating_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_eat3_rel3" source="eating_3" target="release_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel3_think3" source="release_3" target="thinking_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel3_fork2" source="release_3" target="fork_2"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel3_fork3" source="release_3" target="fork_3"><inscription><text>1</text></inscription></arc>
+
+      <!-- Philosopher 4: left fork = fork_3, right fork = fork_4 -->
+      <arc id="a_think4_getH4" source="thinking_4" target="get_hungry_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_getH4_hungry4" source="get_hungry_4" target="hungry_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hungry4_takeL4" source="hungry_4" target="take_left_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork3_takeL4" source="fork_3" target="take_left_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeL4_hasL4" source="take_left_4" target="has_left_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_hasL4_takeR4" source="has_left_4" target="take_right_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_fork4_takeR4" source="fork_4" target="take_right_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_takeR4_eat4" source="take_right_4" target="eating_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_eat4_rel4" source="eating_4" target="release_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel4_think4" source="release_4" target="thinking_4"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel4_fork3" source="release_4" target="fork_3"><inscription><text>1</text></inscription></arc>
+      <arc id="a_rel4_fork4" source="release_4" target="fork_4"><inscription><text>1</text></inscription></arc>
+
+    </page>
+  </net>
+</pnml>
+

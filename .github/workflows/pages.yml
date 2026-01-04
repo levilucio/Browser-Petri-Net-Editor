@@ -1,4 +1,4 @@
-name: Deploy Petri Net Editor (prod + staging) to GitHub Pages
+name: Deploy Petri Net Editor (staging) to GitHub Pages
 
 on:
   push:
@@ -90,25 +90,11 @@ jobs:
           print(f"[symex:bundle:pt] wrote {out_zip} (files={len(files)})")
           PY
 
-      - name: Build production
-        working-directory: petri-net-app
-        env:
-          VITE_RELEASE_CHANNEL: production
-        run: npx vite build --outDir dist
-
       - name: Build staging
         working-directory: petri-net-app
         env:
           VITE_RELEASE_CHANNEL: staging
-        run: npx vite build --outDir dist-staging
-
-      - name: Merge staging into dist/staging
-        working-directory: petri-net-app
-        run: |
-          rm -rf dist/staging
-          mkdir -p dist/staging
-          cp -R dist-staging/* dist/staging/
-          rm -rf dist-staging
+        run: npx vite build --outDir dist
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
