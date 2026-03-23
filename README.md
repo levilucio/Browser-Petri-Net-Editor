@@ -21,6 +21,29 @@ Unlike a simple diagramming tool, this editor aims to combine **formal modeling*
 - **Z3-backed algebraic reasoning** in the browser for guard evaluation and symbolic terms
 - **Unit and E2E test coverage** with Jest and Playwright
 
+## Demo
+
+Animated preview:
+
+![Demo of the Browser Petri Net Editor](docs/media/demo.gif)
+
+Additional assets:
+- MP4: [docs/media/demo.mp4](docs/media/demo.mp4)
+
+## Screenshots
+
+### Editor overview
+
+![Editor overview](docs/images/editor-overview.png)
+
+### Creating a place
+
+![Place creation](docs/images/place-creation.png)
+
+### Simple Petri net on the canvas
+
+![Simple Petri net](docs/images/simple-net.png)
+
 ## Why this project is interesting
 
 Petri nets are a compact formalism for representing concurrency, synchronization, and state transitions.
