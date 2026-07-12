@@ -1,4 +1,4 @@
-name: Deploy Petri Net Editor (staging) to GitHub Pages
+name: Deploy Petri Net Editor to GitHub Pages
 
 on:
   push:
@@ -23,15 +23,6 @@ jobs:
         with:
           fetch-depth: 1
 
-      # Fetch symbolic-execution master HEAD for engine bundling at build time
-      - name: Checkout symbolic-execution (master)
-        uses: actions/checkout@v4
-        with:
-          repository: levilucio/symbolic-execution
-          ref: master
-          fetch-depth: 1
-          path: symex-src
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -43,57 +34,11 @@ jobs:
         working-directory: petri-net-app
         run: npm ci
 
-      - name: Bundle symex_engine (PT) zip from symbolic-execution@master
+      # The PT symbolic-execution engine bundle is vendored in the repo at
+      # petri-net-app/public/py/symex_engine_pt.zip and served from Vite's
+      # public dir, so the build no longer depends on an external repo checkout.
+      - name: Build
         working-directory: petri-net-app
-        run: |
-          python - <<'PY'
-          import os, json, time, zipfile
-          from pathlib import Path
-
-          app_dir = Path.cwd()
-          out_dir = app_dir / "public" / "py"
-          out_dir.mkdir(parents=True, exist_ok=True)
-          out_zip = out_dir / "symex_engine_pt.zip"
-          out_meta = out_dir / "symex_engine_pt.meta.json"
-
-          engine_root = Path(os.environ["GITHUB_WORKSPACE"]) / "symex-src" / "symbolic-execution-engine" / "src" / "symex_engine"
-          must_dirs = ["core", "petri_net"]
-          ignore_dirs = {"__pycache__"}
-
-          files = []
-          # top-level __init__.py
-          files.append(engine_root / "__init__.py")
-          for d in must_dirs:
-            base = engine_root / d
-            for p in base.rglob("*"):
-              if p.is_dir() and p.name in ignore_dirs:
-                continue
-              if p.is_file() and (p.suffix == ".py") and ("__pycache__" not in p.parts):
-                files.append(p)
-
-          # Stable ordering for reproducible zip content ordering
-          files = sorted(set(files), key=lambda p: str(p))
-
-          with zipfile.ZipFile(out_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-            for p in files:
-              rel = p.relative_to(engine_root)
-              z.write(p, arcname=f"symex_engine/{rel.as_posix()}")
-
-          meta = {
-            "kind": "symex_engine_pt_bundle",
-            "engine_src_dir": str(engine_root),
-            "out_zip": str(out_zip),
-            "file_count": len(files),
-            "bundled_at_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-          }
-          out_meta.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-          print(f"[symex:bundle:pt] wrote {out_zip} (files={len(files)})")
-          PY
-
-      - name: Build staging
-        working-directory: petri-net-app
-        env:
-          VITE_RELEASE_CHANNEL: staging
         run: npx vite build --outDir dist
 
       - name: Configure Pages

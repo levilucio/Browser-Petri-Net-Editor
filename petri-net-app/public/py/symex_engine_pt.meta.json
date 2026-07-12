@@ -1,0 +1,8 @@
+{
+  "kind": "symex_engine_pt_bundle",
+  "engine_source": "symex_engine (core + petri_net)",
+  "out_zip": "public/py/symex_engine_pt.zip",
+  "file_count": 27,
+  "bundled_at_iso": "2026-07-12T15:22:50.095Z",
+  "note": "Vendored PT symbolic-execution engine bundle. Regenerate with tools/node/build-symex-pt-zip.cjs."
+}

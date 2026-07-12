@@ -100,6 +100,20 @@ function latestMtimeMs(files) {
 }
 
 async function main() {
+  // When the engine source is not available (e.g. CI or a checkout without the
+  // sibling engine repo), fall back to the vendored bundle committed in the repo.
+  if (!fs.existsSync(ENGINE_SYMEX_DIR)) {
+    if (fs.existsSync(OUT_ZIP) && fs.statSync(OUT_ZIP).size > 0) {
+      console.log(
+        `[symex:bundle:pt] Engine source not found; using vendored bundle ${path.relative(APP_DIR, OUT_ZIP)}.`
+      );
+      return;
+    }
+    fail(
+      `Engine source directory not found and no vendored bundle present: ${ENGINE_SYMEX_DIR}`
+    );
+  }
+
   const files = collectEngineFiles();
   if (files.length === 0) fail('No files collected to bundle.');
 
