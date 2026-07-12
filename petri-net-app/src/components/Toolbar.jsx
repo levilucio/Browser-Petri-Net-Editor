@@ -232,9 +232,9 @@ const Toolbar = ({
   });
 
   const renderDesktopGroups = () => (
-    <div className="hidden lg:flex items-start">
+    <div className="hidden lg:flex items-start flex-wrap gap-y-2">
         {/* File Operations Group */}
-        <div className="file-operations p-2">
+        <div className="file-operations p-2 flex-shrink-0">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">File</h3>
           <FileControls 
             isLoading={isLoading} 
@@ -259,7 +259,7 @@ const Toolbar = ({
         }}></div>
         
         {/* Editing Tools Group */}
-        <div className="editing-tools p-2">
+        <div className="editing-tools p-2 flex-shrink-0">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Editing</h3>
           <div className="flex items-center flex-wrap gap-2">
             {/* Grid Snapping Toggle */}
@@ -289,7 +289,7 @@ const Toolbar = ({
         }}></div>
         
         {/* ADT Manager Group */}
-        <div className="adt-tools p-2">
+        <div className="adt-tools p-2 flex-shrink-0">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">ADT Manager</h3>
           <div className="flex justify-between">
             <button
@@ -314,7 +314,7 @@ const Toolbar = ({
         }}></div>
 
         {/* Validation Group (P/T nets only) */}
-        <div className="validation-tools p-2">
+        <div className="validation-tools p-2 flex-shrink-0">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Validation</h3>
           <div className="flex justify-between">
             <button
@@ -339,7 +339,7 @@ const Toolbar = ({
         }}></div>
 
         {/* History Group */}
-        <div className="history-tools p-2">
+        <div className="history-tools p-2 flex-shrink-0">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">History</h3>
           <HistoryButtons canUndo={canUndo} canRedo={canRedo} onUndo={onUndo} onRedo={onRedo} buttonStyle={desktopButtonStyle} />
         </div>
@@ -355,7 +355,7 @@ const Toolbar = ({
         }}></div>
         
         {/* Settings Group */}
-        <div className="settings-tools p-2 ml-auto">
+        <div className="settings-tools p-2 flex-shrink-0">
           <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Settings</h3>
           <SettingsButton onOpenSettings={onOpenSettings} buttonStyle={desktopButtonStyle} />
         </div>

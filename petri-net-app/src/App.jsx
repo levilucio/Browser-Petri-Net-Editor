@@ -23,7 +23,6 @@ const DEFAULT_MAX_STEPS = 200000;
 
 // Create a wrapper component that provides the context
 const AppContent = () => {
-    const releaseChannel = import.meta.env.VITE_RELEASE_CHANNEL;
     const ZOOM_STEP = 0.1;
     // Get UI state from EditorUIContext
     const {
@@ -73,6 +72,20 @@ const AppContent = () => {
     } = usePetriNet();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Measure the toolbar height so layout offsets adapt when the toolbar
+    // wraps onto multiple rows on narrower (e.g. laptop) screens.
+    const toolbarRef = useRef(null);
+    const [toolbarHeight, setToolbarHeight] = useState(80);
+    useEffect(() => {
+      const node = toolbarRef.current;
+      if (!node || typeof ResizeObserver === 'undefined') return;
+      const updateHeight = () => setToolbarHeight(node.offsetHeight);
+      updateHeight();
+      const observer = new ResizeObserver(updateHeight);
+      observer.observe(node);
+      return () => observer.disconnect();
+    }, []);
 
     // Check for SharedArrayBuffer availability (required for Z3 workers)
     useEffect(() => {
@@ -173,13 +186,6 @@ const AppContent = () => {
 
     return (
       <div ref={appRef} className="app-container h-screen max-h-screen overflow-hidden" tabIndex={-1}>
-        {releaseChannel === 'staging' && (
-          <div className="fixed top-2 left-2 z-[60] pointer-events-none">
-            <div className="px-2 py-1 rounded bg-orange-600 text-white text-xs font-bold tracking-wide shadow">
-              STAGING
-            </div>
-          </div>
-        )}
         {/* Mobile Sidebar Toggle */}
         <button
           className="fixed top-2.5 right-2 z-50 p-2 bg-white rounded-md shadow-md lg:hidden"
@@ -192,6 +198,7 @@ const AppContent = () => {
 
         {/* Toolbar - fixed at the top */}
         <div 
+          ref={toolbarRef}
           className="fixed top-0 left-0 right-0 z-40 bg-white" 
           onWheel={(e) => e.stopPropagation()}
         >
@@ -225,7 +232,8 @@ const AppContent = () => {
         
         {/* RIGHT SIDE: Side panels with properties and execution controls */}
         <div 
-          className={`fixed w-80 right-0 top-16 bottom-0 z-30 bg-gray-100/90 backdrop-blur-sm shadow-lg pt-4 flex flex-col overflow-hidden transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} lg:translate-x-0`}
+          className={`fixed w-80 right-0 bottom-0 z-30 bg-gray-100/90 backdrop-blur-sm shadow-lg pt-4 flex flex-col overflow-hidden transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} lg:translate-x-0`}
+          style={{ top: toolbarHeight }}
           onWheel={(e) => e.stopPropagation()}
         >
           {/* Properties panel (scrollable top) */}
@@ -251,7 +259,7 @@ const AppContent = () => {
         </div>
         
         {/* Canvas Area */}
-        <div className="fixed top-20 left-0 bottom-0 right-0 lg:right-80 transition-all duration-300">
+        <div className="fixed left-0 bottom-0 right-0 lg:right-80 transition-all duration-300" style={{ top: toolbarHeight }}>
           {/* Mobile: Add bottom padding for floating simulation bar */}
           <div 
             className="absolute inset-0 overflow-hidden stage-container bg-gray-200 dark:bg-gray-700"
@@ -273,7 +281,7 @@ const AppContent = () => {
             <SimulationManager isMobile={true} />
           </div>
           {/* Zoom controls - hidden on mobile, visible on desktop */}
-          <div className="hidden lg:flex fixed top-24 right-[336px] z-10 flex-col space-y-2 pointer-events-auto">
+          <div className="hidden lg:flex fixed right-[336px] z-10 flex-col space-y-2 pointer-events-auto" style={{ top: toolbarHeight + 16 }}>
             <button 
               className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100 focus:outline-none"
               onClick={() => handleZoom(ZOOM_STEP)}
