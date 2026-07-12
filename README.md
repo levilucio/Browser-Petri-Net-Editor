@@ -21,15 +21,6 @@ Unlike a simple diagramming tool, this editor aims to combine **formal modeling*
 - **Z3-backed algebraic reasoning** in the browser for guard evaluation and symbolic terms
 - **Unit and E2E test coverage** with Jest and Playwright
 
-## Demo
-
-Animated preview:
-
-![Demo of the Browser Petri Net Editor](docs/media/demo.gif)
-
-Additional assets:
-- MP4: [docs/media/demo.mp4](docs/media/demo.mp4)
-
 ## Screenshots
 
 ### Editor overview
