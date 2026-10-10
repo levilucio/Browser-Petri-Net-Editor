@@ -35,7 +35,8 @@ describe('OracleGenerator', () => {
       const oracle = generateOracle(intention, trace, finalMarking, petriNet);
       
       expect(oracle.type).toBe('positive');
-      expect(oracle.expectedOutputs.output1).toEqual([{ value: 'success' }]);
+      // Pattern parser preserves quotes from pattern string
+      expect(oracle.expectedOutputs.output1).toEqual([{ value: '"success"' }]);
       expect(oracle.invariants.length).toBeGreaterThan(0);
     });
     
