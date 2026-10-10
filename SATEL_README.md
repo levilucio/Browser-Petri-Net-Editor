@@ -8,6 +8,19 @@ Implementation of SATEL (Semi-Automatic Testing Language) concepts for algebraic
 
 > Interactive documentation with examples, reduction hypotheses explanation, and thesis mapping.
 
+## 📺 Media & Videos
+
+<p align="center">
+  <img src="docs/media/demo.gif" alt="SATEL Demo" width="800">
+</p>
+
+*Quick demo of the Petri net editor (6 seconds). See the [live demo](https://levilucio.github.io/Browser-Petri-Net-Editor/satel-demo.html) for complete SATEL walkthrough.*
+
+**Available Media**:
+- **[Demo Video](docs/media/demo.mp4)** - MP4 format (186KB)
+- **[Demo GIF](docs/media/demo.gif)** - Animated preview (415KB)
+- **[Video Scripts](docs/videos/VIDEO_SCRIPTS.md)** - 3 detailed scripts for extended recordings (2-3 minutes each)
+
 ## Overview
 
 This implementation adapts the thesis's test intention concepts from CO-OPN object-oriented specifications to flat **Algebraic Petri Nets (APNs)**. It provides:
