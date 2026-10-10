@@ -2,6 +2,12 @@
 
 Implementation of SATEL (Semi-Automatic Testing Language) concepts for algebraic Petri nets, based on Levi Lucio's PhD thesis (Geneva, 2009).
 
+## 🌐 Live Demo
+
+**[View SATEL Demo Page](https://levilucio.github.io/Browser-Petri-Net-Editor/satel-demo.html)** (GitHub Pages)
+
+> Interactive documentation with examples, reduction hypotheses explanation, and thesis mapping.
+
 ## Overview
 
 This implementation adapts the thesis's test intention concepts from CO-OPN object-oriented specifications to flat **Algebraic Petri Nets (APNs)**. It provides:
