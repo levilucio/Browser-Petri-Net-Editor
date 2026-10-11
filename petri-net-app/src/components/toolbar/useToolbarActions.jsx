@@ -277,6 +277,37 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      // Special case: Manufacturing Workflow loads from JS object
+      if (filename === 'manufacturing-workflow') {
+        const { manufacturingNet } = await import('../../satel/examples/manufacturing/net.js');
+        const { manufacturingIntentions } = await import('../../satel/examples/manufacturing/intentions.js');
+        
+        // Convert to the format expected by the app
+        const safeJson = {
+          places: manufacturingNet.places || [],
+          transitions: manufacturingNet.transitions || [],
+          arcs: manufacturingNet.arcs || [],
+        };
+        
+        // Store intentions in localStorage for SatelPanel to pick up
+        try {
+          localStorage.setItem('satel-test-intentions', JSON.stringify(manufacturingIntentions));
+        } catch (e) {
+          console.warn('Could not store test intentions:', e);
+        }
+        
+        setElements(safeJson);
+        setSimulationSettings({
+          ...simulationSettings,
+          netMode: 'algebraic-int',
+        });
+        setSuccess?.(`Loaded Manufacturing Workflow example with ${manufacturingIntentions.length} test intentions`);
+        setIsMobileMenuOpen?.(false);
+        setIsLoading?.(false);
+        return;
+      }
+
+      // Standard PNML loading
       // Fetch the example file from the public/examples folder
       // Use URL constructor to handle relative paths correctly on all devices
       const exampleUrl = new URL(`./examples/${filename}`, window.location.href).href;

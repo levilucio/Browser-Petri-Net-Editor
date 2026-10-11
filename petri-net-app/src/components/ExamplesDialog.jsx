@@ -7,6 +7,7 @@ const EXAMPLES = [
   { filename: 'petri-net-algebraic3.pnml', displayName: 'Algebraic Net 3' },
   { filename: 'petri-net-XL.pnml', displayName: 'Petri Net XL' },
   { filename: 'philosophers-5.pnml', displayName: 'Dining Philosophers (5)' },
+  { filename: 'manufacturing-workflow', displayName: 'Manufacturing Workflow (SATEL)', isSpecial: true },
 ];
 
 export default function ExamplesDialog({ isOpen, onClose, onSelectExample }) {

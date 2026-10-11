@@ -23,6 +23,25 @@ const SatelPanel = ({ isOpen, onClose }) => {
 
   const isAlgebraicMode = simulationSettings?.netMode === 'algebraic-int';
 
+  // Load test intentions from localStorage when panel opens (for Manufacturing example)
+  useEffect(() => {
+    if (isOpen && isAlgebraicMode) {
+      try {
+        const stored = localStorage.getItem('satel-test-intentions');
+        if (stored) {
+          const intentions = JSON.parse(stored);
+          if (Array.isArray(intentions) && intentions.length > 0) {
+            setTestIntentions(intentions);
+            // Clear after loading so it doesn't interfere with other nets
+            localStorage.removeItem('satel-test-intentions');
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load stored test intentions:', e);
+      }
+    }
+  }, [isOpen, isAlgebraicMode]);
+
   // Extract I/O interface from current net
   const ioInterface = useMemo(() => {
     if (!isAlgebraicMode) return null;
