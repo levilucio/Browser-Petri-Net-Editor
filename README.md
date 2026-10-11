@@ -23,7 +23,13 @@ Unlike a simple diagramming tool, this editor aims to combine **formal modeling*
 - **Unit and E2E test coverage** with Jest and Playwright
 - **Production-grade examples** including manufacturing workflow control systems
 
-## Screenshots
+## Screenshots & Demo
+
+### SATEL Testing Demo
+
+https://user-images.githubusercontent.com/satel-demo.mp4
+
+*35-second demonstration of SATEL testing features: opening the panel, viewing test intentions, generating and executing tests. [Direct link to video](docs/assets/satel-demo.mp4)*
 
 ### Editor overview
 
@@ -61,7 +67,9 @@ This project includes an implementation of **SATEL** (Semi-Automatic Testing Lan
 - **Reduction hypotheses**: Uniformity, regularity, and axiom-based test reduction
 - **Integrated UI**: Create, edit, and execute tests directly in the editor
 
-See [SATEL_README.md](SATEL_README.md) for detailed documentation and [Demo Video](docs/videos/VIDEO_PLACEHOLDER.md) for a walkthrough.
+**📺 [Watch the Demo Video](docs/assets/satel-demo.mp4)** - 35-second walkthrough of SATEL features
+
+See [SATEL_README.md](SATEL_README.md) for detailed documentation.
 
 ## Repository layout
 

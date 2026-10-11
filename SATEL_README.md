@@ -10,18 +10,18 @@ Implementation of SATEL (Semi-Automatic Testing Language) concepts for algebraic
 
 > Use SATEL directly in the main editor by clicking the **SATEL** button in the toolbar (Algebraic mode only).
 
-## 📺 Media & Videos
+## 📺 Demo Video
 
-<p align="center">
-  <img src="docs/media/demo.gif" alt="SATEL Demo" width="800">
-</p>
+**[Watch: SATEL Testing Demo (35 seconds, 849 KB)](../docs/assets/satel-demo.mp4)**
 
-*Quick demo of the Petri net editor (6 seconds). See the [live demo](https://levilucio.github.io/Browser-Petri-Net-Editor/satel-demo.html) for complete SATEL walkthrough.*
+The demo shows:
+- Opening the SATEL panel from the toolbar
+- Viewing test intentions (including "Basic Transition Firing")
+- Checking the I/O Interface validation
+- Test suite generation and execution
+- Results display with "All tests passed!" confirmation
 
-**Available Media**:
-- **[Demo Video](docs/media/demo.mp4)** - MP4 format (186KB)
-- **[Demo GIF](docs/media/demo.gif)** - Animated preview (415KB)
-- **[Video Scripts](docs/videos/VIDEO_SCRIPTS.md)** - 3 detailed scripts for extended recordings (2-3 minutes each)
+For a detailed walkthrough script, see [docs/videos/SATEL_DEMO_SCRIPT.md](../docs/videos/SATEL_DEMO_SCRIPT.md).
 
 ## Overview
 
