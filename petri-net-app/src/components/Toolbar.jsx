@@ -30,6 +30,7 @@ const Toolbar = ({
   stopSimulation,
   clearCanvas,
   onOpenSettings,
+  onOpenSatelPanel,
   resetEditor,
   debugConsoleRef
 }) => {
@@ -313,10 +314,10 @@ const Toolbar = ({
           opacity: 0.85
         }}></div>
 
-        {/* Validation Group (P/T nets only) */}
+        {/* Testing & Validation Group */}
         <div className="validation-tools p-2 flex-shrink-0">
-          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Validation</h3>
-          <div className="flex justify-between">
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Testing</h3>
+          <div className="flex gap-2">
             <button
               style={desktopButtonStyle(false)}
               onClick={() => setIsValidationOpen(true)}
@@ -325,6 +326,16 @@ const Toolbar = ({
             >
               Validate
             </button>
+            {onOpenSatelPanel && (
+              <button
+                style={desktopButtonStyle(false)}
+                onClick={onOpenSatelPanel}
+                title="SATEL Testing - Test intentions for algebraic nets"
+                data-testid="toolbar-satel"
+              >
+                SATEL
+              </button>
+            )}
           </div>
         </div>
 
@@ -412,7 +423,7 @@ const Toolbar = ({
         </button>
       </div>
       <div className="validation-tools">
-        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Validation</h3>
+        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Testing & Validation</h3>
         <button
           className="menu-button-hover"
           style={mobileButtonStyle(false, 'adt')}
@@ -428,6 +439,23 @@ const Toolbar = ({
           </svg>
           Validate Net
         </button>
+        {onOpenSatelPanel && (
+          <button
+            className="menu-button-hover"
+            style={mobileButtonStyle(false, 'adt')}
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              onOpenSatelPanel();
+            }}
+            title="SATEL Testing (Algebraic Nets)"
+            data-testid="toolbar-satel-mobile"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+            SATEL Testing
+          </button>
+        )}
       </div>
       <div className="settings-tools">
         <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Settings</h3>
