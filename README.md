@@ -29,7 +29,7 @@ Unlike a simple diagramming tool, this editor aims to combine **formal modeling*
 
 https://user-images.githubusercontent.com/satel-demo.mp4
 
-*40-second demonstration of SATEL testing features: opening the panel, switching tabs, viewing test intentions, editing, and showing results. [Direct link to video](docs/assets/satel-demo.mp4)*
+*55-second demonstration of SATEL testing features: opening the panel, switching tabs, creating test intentions, generating tests, executing, and showing pass/fail results. [Direct link to video](docs/assets/satel-demo.mp4)*
 
 ### Editor overview
 
@@ -67,7 +67,7 @@ This project includes an implementation of **SATEL** (Semi-Automatic Testing Lan
 - **Reduction hypotheses**: Uniformity, regularity, and axiom-based test reduction
 - **Integrated UI**: Create, edit, and execute tests directly in the editor
 
-**📺 [Watch the Demo Video](docs/assets/satel-demo.mp4)** - 40-second walkthrough of SATEL features
+**📺 [Watch the Demo Video](docs/assets/satel-demo.mp4)** - 55-second walkthrough of SATEL features
 
 See [SATEL_README.md](SATEL_README.md) for detailed documentation.
 

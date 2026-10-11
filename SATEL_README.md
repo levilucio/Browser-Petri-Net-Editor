@@ -12,7 +12,7 @@ Implementation of SATEL (Semi-Automatic Testing Language) concepts for algebraic
 
 ## 📺 Demo Video
 
-**[Watch: SATEL Testing Demo (40 seconds, 792 KB)](../docs/assets/satel-demo.mp4)**
+**[Watch: SATEL Testing Demo (55 seconds, 1.1 MB)](../docs/assets/satel-demo.mp4)**
 
 The demo shows:
 - Opening the SATEL panel from the toolbar
