@@ -64,6 +64,7 @@ const SatelPanel = ({ isOpen, onClose }) => {
     setError(null);
     
     try {
+      console.log('[SATEL] Starting test generation with', testIntentions.length, 'intentions');
       const simulator = new AlgebraicSimulator();
       const petriNet = {
         places: elements.places,
@@ -72,23 +73,79 @@ const SatelPanel = ({ isOpen, onClose }) => {
         mode: 'algebraic'
       };
 
-      const suite = await generateTestSuite(
-        testIntentions,
-        petriNet,
-        simulator,
-        {
-          maxStates: 1000,
-          maxDepth: 50,
-          maxPathsPerIntention: 100,
-          applyReduction: true
-        }
-      );
+      console.log('[SATEL] Petri net:', petriNet.places.length, 'places,', petriNet.transitions.length, 'transitions');
+      
+      // Check if we're in demo mode (Z3 not available)
+      const demoMode = window.location.search.includes('satel-demo=true');
+      
+      let suite;
+      if (demoMode) {
+        console.log('[SATEL] Demo mode: generating mock test suite');
+        // Create mock test suite for demo purposes
+        suite = {
+          metadata: {
+            generatedAt: new Date().toISOString(),
+            intentionCount: testIntentions.length,
+            totalTestCases: testIntentions.length * 3,
+            coverageAnalysis: {
+              transitionCoverage: 0.85,
+              pathCoverage: 0.75
+            }
+          },
+          testCases: testIntentions.flatMap((intention, idx) => [
+            {
+              id: `tc-${idx}-1`,
+              intentionId: intention.id,
+              intentionName: intention.name,
+              path: [`receiveOrder`, `scheduleJob`, `startCutting`],
+              initialMarking: {},
+              inputBindings: {},
+              expectedOutput: {},
+              oracleType: 'positive'
+            },
+            {
+              id: `tc-${idx}-2`,
+              intentionId: intention.id,
+              intentionName: intention.name,
+              path: [`completeAssembly`, `qualityCheck`, `passQualityCheck`],
+              initialMarking: {},
+              inputBindings: {},
+              expectedOutput: {},
+              oracleType: 'positive'
+            },
+            {
+              id: `tc-${idx}-3`,
+              intentionId: intention.id,
+              intentionName: intention.name,
+              path: [`failQualityCheck`, `rework`, `qualityCheck`],
+              initialMarking: {},
+              inputBindings: {},
+              expectedOutput: {},
+              oracleType: 'negative'
+            }
+          ])
+        };
+      } else {
+        suite = await generateTestSuite(
+          testIntentions,
+          petriNet,
+          simulator,
+          {
+            maxStates: 1000,
+            maxDepth: 50,
+            maxPathsPerIntention: 100,
+            applyReduction: true
+          }
+        );
+      }
 
+      console.log('[SATEL] Test suite generated:', suite);
       setTestSuite(suite);
       setActiveTab('results');
+      console.log('[SATEL] Switched to results tab');
     } catch (err) {
+      console.error('[SATEL] Test generation error:', err);
       setError(`Failed to generate tests: ${err.message}`);
-      console.error('Test generation error:', err);
     } finally {
       setIsGenerating(false);
     }
@@ -104,15 +161,44 @@ const SatelPanel = ({ isOpen, onClose }) => {
     setError(null);
 
     try {
-      const simulator = new AlgebraicSimulator();
-      const petriNet = {
-        places: elements.places,
-        transitions: elements.transitions,
-        arcs: elements.arcs,
-        mode: 'algebraic'
-      };
-
-      const results = await executeTestSuite(testSuite, petriNet, simulator);
+      const demoMode = window.location.search.includes('satel-demo=true');
+      
+      let results;
+      if (demoMode) {
+        console.log('[SATEL] Demo mode: generating mock test results');
+        // Create mock test results for demo
+        const passedCount = Math.floor(testSuite.testCases.length * 0.87);
+        results = {
+          summary: {
+            total: testSuite.testCases.length,
+            passed: passedCount,
+            failed: testSuite.testCases.length - passedCount,
+            executionTimeMs: 1500
+          },
+          testCaseResults: testSuite.testCases.map((tc, idx) => ({
+            testCaseId: tc.id,
+            intentionName: tc.intentionName,
+            status: idx < passedCount ? 'passed' : 'failed',
+            executionTimeMs: 50 + Math.random() * 100,
+            oracleResult: idx < passedCount ? 'pass' : 'fail',
+            actualOutput: {},
+            coverageContribution: {
+              transitions: ['t1', 't2'],
+              paths: 1
+            }
+          }))
+        };
+      } else {
+        const simulator = new AlgebraicSimulator();
+        const petriNet = {
+          places: elements.places,
+          transitions: elements.transitions,
+          arcs: elements.arcs,
+          mode: 'algebraic'
+        };
+        results = await executeTestSuite(testSuite, petriNet, simulator);
+      }
+      
       setTestResults(results);
     } catch (err) {
       setError(`Failed to execute tests: ${err.message}`);
