@@ -4,9 +4,11 @@ Implementation of SATEL (Semi-Automatic Testing Language) concepts for algebraic
 
 ## 🌐 Live Demo
 
-**[View SATEL Demo Page](https://levilucio.github.io/Browser-Petri-Net-Editor/satel-demo.html)** (GitHub Pages)
+**[View SATEL Integrated Editor](https://levilucio.github.io/Browser-Petri-Net-Editor/)** - Main editor with SATEL panel
 
-> Interactive documentation with examples, reduction hypotheses explanation, and thesis mapping.
+**[View SATEL Demo Page](https://levilucio.github.io/Browser-Petri-Net-Editor/satel-demo.html)** - Interactive documentation (GitHub Pages)
+
+> Use SATEL directly in the main editor by clicking the **SATEL** button in the toolbar (Algebraic mode only).
 
 ## 📺 Media & Videos
 
@@ -34,25 +36,44 @@ This implementation adapts the thesis's test intention concepts from CO-OPN obje
 
 ## Quick Start
 
+### Using the Integrated UI
+
+1. **Open the Editor**: Navigate to https://levilucio.github.io/Browser-Petri-Net-Editor/
+2. **Switch to Algebraic Mode**: Settings → Net Mode → Algebraic (Integer)
+3. **Load an Example**: File → Examples → Manufacturing Workflow (or Banking, Drink Vending)
+4. **Open SATEL Panel**: Click **SATEL** button in toolbar (Testing section)
+5. **Explore the Interface**:
+   - **Test Intentions** tab: View, create, edit test specifications
+   - **I/O Interface** tab: Verify input/output marking
+   - **Results** tab: Generate and execute tests
+6. **Run Tests**: Click **Generate Test Suite** → **Execute Tests**
+
+### Using the API Programmatically
+
 ```javascript
 import { AlgebraicSimulator } from './features/simulation/algebraic-simulator';
 import { generateTestSuite, executeTestSuite } from './satel';
-import { drinkVendingNet } from './satel/examples/drinkVending/net';
-import { drinkVendingIntentions } from './satel/examples/drinkVending/intentions';
+import { manufacturingNet } from './satel/examples/manufacturing/net';
+import { manufacturingIntentions } from './satel/examples/manufacturing/intentions';
 
 const simulator = new AlgebraicSimulator();
 
 // Generate test suite from intentions
 const testSuite = await generateTestSuite(
-  drinkVendingIntentions,
-  drinkVendingNet,
-  simulator
+  manufacturingIntentions,
+  manufacturingNet,
+  simulator,
+  {
+    maxStates: 1000,
+    maxDepth: 50,
+    applyReduction: true
+  }
 );
 
 console.log(`Generated ${testSuite.testCases.length} test cases`);
 
 // Execute tests
-const results = await executeTestSuite(testSuite, drinkVendingNet, simulator);
+const results = await executeTestSuite(testSuite, manufacturingNet, simulator);
 console.log(`Passed: ${results.passed}/${results.totalTests}`);
 ```
 
@@ -80,7 +101,37 @@ satel/
 
 ## Examples
 
-### 1. Drink Vending Machine
+### 1. Manufacturing Workflow Control System (NEW - Production-Grade)
+
+**Location**: `satel/examples/manufacturing/`
+
+Realistic manufacturing line with multi-stage production, resource management, quality control, and error handling.
+
+**System Features**:
+- 16 places (inputs, internal states, outputs)
+- 18 transitions (production stages, resource allocation, error handling)
+- 3-stage production pipeline: Cutting → Assembly → Quality Check
+- Resource management: Materials (100 units), Workers (5), Machines (3)
+- Quality control with rework loops (max 2 attempts before rejection)
+- Concurrent job execution (up to 3 simultaneous jobs)
+- Comprehensive error handling (material/worker/machine shortages)
+
+**Test Coverage**:
+- 15 test intentions organized in 7 categories
+- Happy path, resource constraints, quality control, concurrency
+- Edge cases: min/max quantities, invalid inputs
+- System invariants: resource conservation
+
+**Why This Example**:
+- Demonstrates production-grade complexity
+- Shows realistic control system modeling
+- Multiple concurrent resource dependencies
+- State-dependent transitions with feedback loops
+- Rich typed token structures
+
+See [`satel/examples/manufacturing/README.md`](petri-net-app/src/satel/examples/manufacturing/README.md) for detailed documentation.
+
+### 2. Drink Vending Machine
 
 Classic example from thesis Chapter 1. System accepts coins, allows drink selection, dispenses drinks with change or error messages.
 
@@ -98,7 +149,7 @@ Classic example from thesis Chapter 1. System accepts coins, allows drink select
 
 See `satel/examples/drinkVending/README.md` for details.
 
-### 2. Banking Server
+### 3. Banking Server
 
 Simplified banking with login, deposit, withdraw, logout operations.
 
@@ -316,27 +367,34 @@ This implementation adapts the following thesis concepts to APNs:
 ## What's Implemented vs. Deferred
 
 ### ✅ Implemented
-- I/O interface for APNs (stimulations/observations)
-- Test intention language (syntax + semantics)
-- Test generation from intentions
-- Reachability graph exploration (state space)
-- Oracle generation (positive/negative)
-- HML-style event sequences
-- Reduction hypotheses (uniformity, regularity, axiom-based)
-- Test execution and validation
-- Drink vending machine example (thesis Ch. 1)
-- Banking server example
-- Automated tests (34 tests, all passing)
-- Complete API documentation
+- **I/O interface** for APNs (stimulations/observations)
+- **Test intention language** (syntax + semantics)
+- **Test generation** from intentions
+- **Reachability graph exploration** (state space)
+- **Oracle generation** (positive/negative)
+- **HML-style event sequences**
+- **Reduction hypotheses** (uniformity, regularity, axiom-based)
+- **Test execution and validation**
+- **Integrated UI**: SATEL panel in main editor with three tabs
+  - Test Intentions: Create, edit, view intentions
+  - I/O Interface: Verify input/output marking
+  - Results: Generate and execute tests with live results
+- **Examples**:
+  - Manufacturing workflow (production-grade, 15 test intentions)
+  - Drink vending machine (thesis Ch. 1)
+  - Banking server
+- **Automated tests** (34 tests, all passing)
+- **Complete API documentation**
 
 ### ⏸️ Deferred
 - Full CO-OPN class/context hierarchy (out of scope)
 - CoopnBuilder integration (out of scope)
 - BGM decomposition in full generality (thesis notes it's unfinished)
-- UI integration (basic implementation, not full editor integration)
+- Advanced UI features (intention templates, test coverage visualization)
 - More complex reactive workflow examples
 - Parallel/choice/loop path pattern evaluation (basic structure in place)
 - Constraint solver integration for complex guards
+- Video demonstration (see docs/videos/ for scripts and placeholder)
 
 ## Future Work
 
