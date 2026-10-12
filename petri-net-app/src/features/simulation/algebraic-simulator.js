@@ -5,9 +5,9 @@
  */
 
 import { BaseSimulator } from './BaseSimulator.js';
-import { parseArithmetic, parsePattern, matchPattern } from '../../utils/arith-parser';
-import { getTokensForPlace } from '../../utils/token-utils';
-import { evaluatePatternLiteral } from '../../utils/ast-eval';
+import { parseArithmetic, parsePattern, matchPattern } from '../../utils/arith-parser.js';
+import { getTokensForPlace } from '../../utils/token-utils.js';
+import { evaluatePatternLiteral } from '../../utils/ast-eval.js';
 import { ensureOutputBindingsTypeCompatible } from './type-check';
 import { allowedOps } from './ops/registry';
 import { buildGuardCache, buildBindingCache } from './cache';

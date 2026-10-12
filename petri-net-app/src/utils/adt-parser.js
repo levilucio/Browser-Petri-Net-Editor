@@ -4,6 +4,89 @@
  */
 
 /**
+ * Build ADT Registry from Petri net ADT definitions
+ * @param {Object} petriNet - Petri net with adtDefinitions field
+ * @returns {Object} Registry with getType(sortName) method
+ */
+export function buildAdtRegistry(petriNet) {
+  if (!petriNet || !petriNet.adtDefinitions) {
+    return null;
+  }
+  
+  const parsed = parseADTDefinitions(petriNet.adtDefinitions);
+  const typeMap = new Map();
+  
+  for (const adt of parsed.adts || []) {
+    typeMap.set(adt.name, adt);
+  }
+  
+  return {
+    getType(sortName) {
+      return typeMap.get(sortName) || null;
+    },
+    getAllTypes() {
+      return Array.from(typeMap.values());
+    }
+  };
+}
+
+/**
+ * Parse ADT definitions (adt-definitions XML format)
+ * @param {string} xmlString - ADT definitions XML
+ * @returns {{ adts: Array<{ name: string, constructors: Array<{ name: string, params: Array }> }> }}
+ */
+export function parseADTDefinitions(xmlString) {
+  const result = { adts: [] };
+  
+  try {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+    const parserError = xmlDoc.getElementsByTagName('parsererror')[0];
+    if (parserError) {
+      throw new Error(parserError.textContent || 'Invalid XML');
+    }
+    
+    const root = xmlDoc.getElementsByTagName('adt-definitions')[0];
+    if (!root) return result;
+    
+    const adtElements = root.getElementsByTagName('adt');
+    for (const adtEl of Array.from(adtElements)) {
+      const name = adtEl.getAttribute('name');
+      const constructors = [];
+      
+      const ctorElements = adtEl.getElementsByTagName('constructor');
+      for (const ctorEl of Array.from(ctorElements)) {
+        const ctorName = ctorEl.getAttribute('name');
+        const params = [];
+        
+        const paramElements = ctorEl.getElementsByTagName('parameter');
+        for (const paramEl of Array.from(paramElements)) {
+          params.push({
+            name: paramEl.getAttribute('name'),
+            type: paramEl.getAttribute('type')
+          });
+        }
+        
+        constructors.push({
+          name: ctorName,
+          params,
+          arity: params.length
+        });
+      }
+      
+      result.adts.push({
+        name,
+        constructors
+      });
+    }
+  } catch (err) {
+    console.error('Failed to parse ADT definitions:', err);
+  }
+  
+  return result;
+}
+
+/**
  * Parse ADT XML string into JSON structure
  * @param {string} xmlString
  * @returns {{ types: Array<{ name: string, operations: Array<{ name: string, arity: number, result: string }>, axioms: Array<{ name: string, equation: string }> }> }}
