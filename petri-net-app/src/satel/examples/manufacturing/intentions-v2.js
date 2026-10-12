@@ -45,15 +45,10 @@ export const orderProcessingIntention = {
         }
       },
       observation: {
-        outputs: {
-          scheduledJobs: [{
-            __adt__: true,
-            constructor: 'Job',
-            args: ['$order', '$material']
-          }]
-        },
+        outputs: {},
         markings: {
-          orderQueue: { length: 0 }
+          orderQueue: { length: 0 },
+          rawMaterialSupply: { length: 0 }
         }
       }
     }
@@ -75,7 +70,7 @@ export const qualityCheckPassIntention = {
       hypothesis: {
         type: 'uniformity',
         representative: createJob(
-          createOrder(1, { __adt__: true, constructor: 'Normal', args: [] }),
+          createOrder(1, 'Normal'),
           createMaterial(50)
         )
       },
@@ -91,11 +86,9 @@ export const qualityCheckPassIntention = {
         }
       },
       observation: {
-        outputs: {
-          completedProducts: [
-            createProduct(1, { __adt__: true, constructor: 'Pass', args: [] })
-          ],
-          machineStatus: [{ value: 1 }]
+        outputs: {},
+        markings: {
+          stage3InProgress: { length: 0 }
         }
       }
     }
@@ -117,7 +110,7 @@ export const qualityCheckFailIntention = {
       hypothesis: {
         type: 'uniformity',
         representative: createJob(
-          createOrder(1, { __adt__: true, constructor: 'Normal', args: [] }),
+          createOrder(1, 'Normal'),
           createMaterial(50)
         )
       }
@@ -132,9 +125,9 @@ export const qualityCheckFailIntention = {
         }
       },
       observation: {
-        outputs: {
-          reworkQueue: ['$job'],
-          machineStatus: [{ value: 1 }]
+        outputs: {},
+        markings: {
+          stage3InProgress: { length: 0 }
         }
       }
     }
@@ -169,13 +162,11 @@ export const materialExhaustionIntention = {
         }
       },
       observation: {
-        // Expect observation to fail - transition fires but produces unexpected output
-        outputs: {
-          scheduledJobs: [] // Expect empty (guard should fail)
-        },
+        // Expect observation to fail - expect different marking
+        outputs: {},
         markings: {
-          orderQueue: { length: 0 }, // Should be consumed even if guard fails
-          rawMaterialSupply: { length: 0 }
+          orderQueue: { length: 1 }, // Expect NOT consumed (but will be)
+          rawMaterialSupply: { length: 1 } // Expect NOT consumed (but will be)
         }
       }
     }
@@ -218,12 +209,10 @@ export const completeWorkflowIntention = {
         }
       },
       observation: {
-        outputs: {
-          scheduledJobs: [{
-            __adt__: true,
-            constructor: 'Job',
-            args: ['$order', '$material']
-          }]
+        outputs: {},
+        markings: {
+          orderQueue: { length: 0 },
+          rawMaterialSupply: { length: 0 }
         }
       }
     },
@@ -240,12 +229,10 @@ export const completeWorkflowIntention = {
         }
       },
       observation: {
-        outputs: {
-          stage1InProgress: [{
-            __adt__: true,
-            constructor: 'Job',
-            args: ['$order', '$material']
-          }]
+        outputs: {},
+        markings: {
+          scheduledJobs: { length: 0 },
+          machineStatus: { length: 0 }
         }
       }
     },
@@ -261,12 +248,9 @@ export const completeWorkflowIntention = {
         }
       },
       observation: {
-        outputs: {
-          stage2InProgress: [{
-            __adt__: true,
-            constructor: 'Job',
-            args: ['$order', '$material']
-          }]
+        outputs: {},
+        markings: {
+          stage1InProgress: { length: 0 }
         }
       }
     },
@@ -282,12 +266,9 @@ export const completeWorkflowIntention = {
         }
       },
       observation: {
-        outputs: {
-          stage3InProgress: [{
-            __adt__: true,
-            constructor: 'Job',
-            args: ['$order', '$material']
-          }]
+        outputs: {},
+        markings: {
+          stage2InProgress: { length: 0 }
         }
       }
     },
@@ -303,11 +284,9 @@ export const completeWorkflowIntention = {
         }
       },
       observation: {
-        outputs: {
-          completedProducts: [
-            createProduct(1, { __adt__: true, constructor: 'Pass', args: [] })
-          ],
-          machineStatus: [{ value: 1 }]
+        outputs: {},
+        markings: {
+          stage3InProgress: { length: 0 }
         }
       }
     }

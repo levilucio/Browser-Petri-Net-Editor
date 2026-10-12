@@ -90,10 +90,12 @@ describe('Manufacturing V2 Intentions', () => {
     expect(results.testResults).toBeDefined();
     expect(results.testResults).toHaveLength(suite.testCases.length);
     
-    // Each result should have a verdict
+    // Each result should have a verdict - NO 'error' verdicts allowed
     for (const result of results.testResults) {
       expect(result.verdict).toBeDefined();
-      expect(['pass', 'fail', 'error']).toContain(result.verdict);
+      expect(['pass', 'fail']).toContain(result.verdict);
+      // Explicitly forbid 'error' verdicts
+      expect(result.verdict).not.toBe('error');
     }
   }, 10000);
   
@@ -110,6 +112,9 @@ describe('Manufacturing V2 Intentions', () => {
     const results = await executeTestSuite(suite, manufacturingNet, simulator);
     
     for (const result of results.testResults) {
+      // Positive test MUST pass
+      expect(result.verdict).toBe('pass');
+      
       // Should have pair results
       expect(result.pairResults).toBeDefined();
       expect(result.pairResults.length).toBeGreaterThan(0);
@@ -136,15 +141,24 @@ describe('Manufacturing V2 Intentions', () => {
       const results = await executeTestSuite(suite, manufacturingNet, simulator);
       
       for (const result of results.testResults) {
-        // Negative test should not have 'error' verdict
-        // (errors should be reported as such, not as passes)
-        if (result.verdict === 'pass') {
-          // If it passed, it should be due to observation failure, not error
-          const hasObservationFailure = result.pairResults?.some(
-            pr => !pr.success && pr.phase === 'observation'
-          );
-          expect(hasObservationFailure || result.verdict === 'pass').toBeTruthy();
-        }
+        // Negative test MUST pass via observation failure (not error)
+        expect(result.verdict).toBe('pass');
+        
+        // Must have observation failure
+        const hasObservationFailure = result.pairResults?.some(
+          pr => !pr.success && pr.phase === 'observation'
+        );
+        expect(hasObservationFailure).toBe(true);
+        
+        // Must NOT have errors (like transition_not_enabled or firing_failed)
+        const hasError = result.pairResults?.some(
+          pr => pr.reason && (
+            pr.reason.includes('error') || 
+            pr.reason === 'transition_not_enabled_after_injection' ||
+            pr.reason === 'firing_failed'
+          )
+        );
+        expect(hasError).toBe(false);
       }
     }
   }, 10000);

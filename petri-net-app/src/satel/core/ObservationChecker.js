@@ -149,7 +149,7 @@ async function executePair(pair, simulator) {
 }
 
 /**
- * Execute stimulation: inject input tokens and fire transition with explicit binding
+ * Execute stimulation: inject input tokens and fire transition
  */
 async function executeStimulation(stimulation, simulator, marking) {
   const { transition, inputs } = stimulation;
@@ -159,14 +159,26 @@ async function executeStimulation(stimulation, simulator, marking) {
     for (const [placeId, tokens] of Object.entries(inputs)) {
       const place = simulator.petriNet.places.find(p => p.id === placeId);
       if (place) {
-        // Set tokens (overwrite, don't append - this is the stimulation initial state)
-        place.valueTokens = tokens.map(token => 
-          typeof token === 'object' ? token : { value: token }
-        );
+        // Set tokens - ensure proper format
+        place.valueTokens = tokens.map(token => {
+          // If already an object with value or ADT structure, use as-is
+          if (typeof token === 'object' && token !== null) {
+            return token;
+          }
+          // Primitive: wrap in value object
+          return { value: token };
+        });
+        // Update token count
+        place.tokens = place.valueTokens.length;
       }
     }
     
-    // 2. Build explicit binding from injected tokens
+    // 1b. Clear enabled transition cache if it exists (algebraic simulator)
+    if (simulator._enabledCache) {
+      simulator._enabledCache.clear();
+    }
+    
+    // 2. Check transition exists
     const transitionDef = simulator.petriNet.transitions.find(t => t.id === transition);
     if (!transitionDef) {
       return {
@@ -176,43 +188,37 @@ async function executeStimulation(stimulation, simulator, marking) {
       };
     }
     
-    // 3. Get input arcs for this transition
-    const inputArcs = simulator.petriNet.arcs?.filter(a => a.target === transition) || [];
-    
-    // 4. Build binding from input tokens
-    const explicitBinding = {};
-    for (const arc of inputArcs) {
-      const place = simulator.petriNet.places.find(p => p.id === arc.source);
-      if (place && place.valueTokens && place.valueTokens.length > 0) {
-        // For now, use first token (TODO: pattern matching)
-        const token = place.valueTokens[0];
-        // Extract variables from arc inscription if any
-        // For simple case, just ensure tokens are available
+    // 3. Try to fire the transition
+    // The simulator will handle binding internally
+    try {
+      // Check if enabled first
+      const enabled = await simulator.getEnabledTransitions();
+      
+      if (!enabled.includes(transition)) {
+        // Not enabled - this could be due to guards or missing tokens
+        return {
+          success: false,
+          reason: 'transition_not_enabled_after_injection',
+          transition,
+          enabledTransitions: enabled
+        };
       }
-    }
-    
-    // 5. Check if transition is enabled with current marking
-    const enabled = await simulator.getEnabledTransitions();
-    if (!enabled.includes(transition)) {
+      
+      // Fire the transition
+      await simulator.fireTransition(transition);
+      
+      return { success: true };
+    } catch (fireErr) {
       return {
         success: false,
-        reason: 'transition_not_enabled_after_injection',
-        transition
+        reason: 'firing_failed',
+        error: fireErr.message
       };
     }
-    
-    // 6. Fire with explicit binding if we have one, otherwise normal fire
-    if (Object.keys(explicitBinding).length > 0) {
-      await simulator.fireTransitionSpecific(transition, { explicitBinding });
-    } else {
-      await simulator.fireTransition(transition);
-    }
-    
-    return { success: true };
   } catch (err) {
     return {
       success: false,
-      reason: 'firing_failed',
+      reason: 'stimulation_setup_failed',
       error: err.message
     };
   }
