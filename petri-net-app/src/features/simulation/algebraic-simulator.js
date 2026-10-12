@@ -8,13 +8,13 @@ import { BaseSimulator } from './BaseSimulator.js';
 import { parseArithmetic, parsePattern, matchPattern } from '../../utils/arith-parser.js';
 import { getTokensForPlace } from '../../utils/token-utils.js';
 import { evaluatePatternLiteral } from '../../utils/ast-eval.js';
-import { ensureOutputBindingsTypeCompatible } from './type-check';
-import { allowedOps } from './ops/registry';
-import { buildGuardCache, buildBindingCache } from './cache';
-import { findSatisfyingAssignment } from './assignment';
-import { consumeTokens, produceTokens } from './token-io';
-import { extractVariablesFromPattern, extractVariablesFromExpression, checkForUnboundVariables as checkUnbound } from './guard-utils';
-import { getCurrentStateNormalized } from './state-normalizer';
+import { ensureOutputBindingsTypeCompatible } from './type-check.js';
+import { allowedOps } from './ops/registry.js';
+import { buildGuardCache, buildBindingCache } from './cache.js';
+import { findSatisfyingAssignment } from './assignment.js';
+import { consumeTokens, produceTokens } from './token-io.js';
+import { extractVariablesFromPattern, extractVariablesFromExpression, checkForUnboundVariables as checkUnbound } from './guard-utils.js';
+import { getCurrentStateNormalized } from './state-normalizer.js';
 import {
   evaluateAction,
   evaluateArithmeticWithBindings,

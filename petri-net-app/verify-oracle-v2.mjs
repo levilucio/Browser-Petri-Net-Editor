@@ -67,7 +67,56 @@ try {
   }
   
   console.log('\n' + '='.repeat(60));
-  console.log('✅ V2 Oracle test passed!');
+  
+  // ASSERTIONS
+  let assertionsFailed = 0;
+  
+  // Assert: some test cases were generated
+  if (suite.testCases.length === 0) {
+    console.error('❌ ASSERTION FAILED: No test cases generated');
+    assertionsFailed++;
+  } else {
+    console.log(`✓ Generated ${suite.testCases.length} test cases`);
+  }
+  
+  // Assert: execution produced results
+  if (!results.testResults || results.testResults.length === 0) {
+    console.error('❌ ASSERTION FAILED: No execution results');
+    assertionsFailed++;
+  } else {
+    console.log(`✓ Executed ${results.testResults.length} test cases`);
+  }
+  
+  // Assert: statistics are present
+  if (!results.statistics) {
+    console.error('❌ ASSERTION FAILED: No statistics in results');
+    assertionsFailed++;
+  } else {
+    console.log(`✓ Statistics: ${results.statistics.passed} pass, ${results.statistics.failed} fail, ${results.statistics.errors} errors`);
+  }
+  
+  // Assert: at least one test passed or failed (not all errors)
+  if (results.statistics && results.statistics.errors === results.statistics.total) {
+    console.error('❌ ASSERTION FAILED: All tests errored (none passed or failed meaningfully)');
+    assertionsFailed++;
+  } else {
+    console.log(`✓ Tests executed meaningfully (not all errors)`);
+  }
+  
+  // Assert: per-test verdicts are present
+  for (const result of results.testResults) {
+    if (!result.verdict) {
+      console.error(`❌ ASSERTION FAILED: Test ${result.testCaseId} has no verdict`);
+      assertionsFailed++;
+    }
+  }
+  
+  if (assertionsFailed > 0) {
+    console.log(`\n❌ ${assertionsFailed} assertion(s) failed`);
+    process.exit(1);
+  }
+  
+  console.log('\n✅ All assertions passed!');
   
 } catch (err) {
   console.error('\n❌ Error:', err.message);
