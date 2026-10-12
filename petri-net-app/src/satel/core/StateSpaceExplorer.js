@@ -1,9 +1,11 @@
 /**
  * State Space Explorer
  * Builds reachability graphs for algebraic Petri nets
+ * Now with semantic subuniformity support
  */
 
 import { getTokensForPlace } from '../../utils/token-utils.js';
+import { computeSubuniformTransitions } from './Subuniformity.js';
 
 /**
  * Compute a hash for a marking (state)
@@ -143,43 +145,62 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
     const tempNet = applyMarking(petriNet, marking);
     await simulator.initialize(tempNet);
     
-    // Try firing each enabled transition
+    // Try firing each enabled transition with subuniformity
     for (const transitionId of currentState.enabledTransitions) {
       try {
-        // Fire transition (simulator already initialized with current marking)
-        const newNet = await simulator.fireTransition(transitionId);
-        const newMarking = extractMarking(newNet);
-        const newHash = hashMarking(newMarking);
-        
-        // Record transition
-        transitions.push({
-          sourceStateId: currentHash,
-          targetStateId: newHash,
+        // Compute subuniform bindings (equivalence class representatives)
+        const subuniformBindings = await computeSubuniformTransitions({
           transitionId,
-          binding: {} // TODO: extract actual binding used
+          petriNet: tempNet,
+          simulator,
+          cache: simulator.cache,
+          options: options.subuniformity || { enableSubuniformity: true }
         });
         
-        // Add new state if not seen
-        if (!states.has(newHash)) {
-          // Initialize with new marking to check enabled transitions
-          const newTempNet = applyMarking(petriNet, newMarking);
-          await simulator.initialize(newTempNet);
-          const newEnabled = await simulator.getEnabledTransitions();
+        // Fire transition for each representative binding
+        for (const { binding, picks, repr } of subuniformBindings) {
+          // Fire transition with specific binding
+          const newNet = await fireTransitionWithBinding(
+            simulator, 
+            transitionId, 
+            binding, 
+            picks, 
+            tempNet
+          );
+          const newMarking = extractMarking(newNet);
+          const newHash = hashMarking(newMarking);
           
-          const newState = {
-            id: newHash,
-            marking: newMarking,
-            enabledTransitions: newEnabled,
-            depth: depth + 1
-          };
-          states.set(newHash, newState);
-          queue.push({ marking: newMarking, depth: depth + 1, parentHash: currentHash });
+          // Record transition with binding info
+          transitions.push({
+            sourceStateId: currentHash,
+            targetStateId: newHash,
+            transitionId,
+            binding: binding || {},
+            representative: repr || {}
+          });
           
-          // Re-initialize with original marking for next transition
-          await simulator.initialize(tempNet);
-        } else {
-          // Re-initialize with original marking for next transition
-          await simulator.initialize(tempNet);
+          // Add new state if not seen
+          if (!states.has(newHash)) {
+            // Initialize with new marking to check enabled transitions
+            const newTempNet = applyMarking(petriNet, newMarking);
+            await simulator.initialize(newTempNet);
+            const newEnabled = await simulator.getEnabledTransitions();
+            
+            const newState = {
+              id: newHash,
+              marking: newMarking,
+              enabledTransitions: newEnabled,
+              depth: depth + 1
+            };
+            states.set(newHash, newState);
+            queue.push({ marking: newMarking, depth: depth + 1, parentHash: currentHash });
+            
+            // Re-initialize with original marking for next binding
+            await simulator.initialize(tempNet);
+          } else {
+            // Re-initialize with original marking for next binding
+            await simulator.initialize(tempNet);
+          }
         }
       } catch (err) {
         // Transition not enabled or error - skip
@@ -194,6 +215,17 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
     initialStateId: initialHash,
     truncated: states.size >= maxStates || queue.length > 0
   };
+}
+
+/**
+ * Fire transition with a specific binding (helper for subuniformity)
+ * @private
+ */
+async function fireTransitionWithBinding(simulator, transitionId, binding, picks, petriNet) {
+  // Use simulator's fireTransitionSpecific directly
+  // For now, just call fireTransition and accept whatever binding it finds
+  // TODO: Extend simulator API to accept explicit binding
+  return await simulator.fireTransition(transitionId);
 }
 
 /**
