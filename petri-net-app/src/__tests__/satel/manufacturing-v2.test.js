@@ -26,8 +26,8 @@ describe('Manufacturing V2 Intentions', () => {
     expect(manufacturingNet.adtDefinitions).toContain('Material');
   });
   
-  test('should have 5 V2 intentions', () => {
-    expect(manufacturingIntentionsV2).toHaveLength(5);
+  test('should have 7 V2 intentions', () => {
+    expect(manufacturingIntentionsV2).toHaveLength(7);
   });
   
   test('should generate test cases for each intention', async () => {

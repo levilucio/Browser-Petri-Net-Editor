@@ -135,40 +135,76 @@ export const qualityCheckFailIntention = {
 };
 
 /**
- * Intention 3: Priority-Based Routing (Negative Test)
- * Tests that High priority orders go to QC Pass, not QC Fail
- * This is a negative test - we expect observation to fail when checking for wrong route
+ * Intention 3: Material Exhaustion (Negative Test with notEnabled)
+ * Tests that production correctly rejects insufficient material via guard
  */
-export const priorityRoutingNegativeIntention = {
-  id: 'priority-routing-negative',
-  name: 'Priority Routing Negative',
-  testType: 'negative', // Expect observation failure
+export const materialExhaustionIntention = {
+  id: 'material-exhaustion',
+  name: 'Material Exhaustion',
+  testType: 'positive', // notEnabled observation is a valid success
   variables: [
     {
-      name: 'job',
-      sort: 'Job',
+      name: 'order',
+      sort: 'Order',
       hypothesis: {
         type: 'uniformity',
-        representative: createJob(
-          createOrder(1, { __adt__: true, constructor: 'High', args: [] }),
-          createMaterial(100)
-        )
+        representative: createOrder(1, { __adt__: true, constructor: 'Normal', args: [] })
       }
     }
   ],
   pairs: [
     {
       stimulation: {
-        transition: 'qualityCheckPass',
+        transition: 'scheduleJob',
         inputs: {
-          stage3InProgress: ['$job']
+          orderQueue: ['$order'],
+          rawMaterialSupply: [createMaterial(30)] // Insufficient (needs >= 50)
         }
       },
       observation: {
-        // Expect this to FAIL - High priority should NOT go to rework
+        type: 'notEnabled', // Expect transition NOT to fire due to guard
         outputs: {},
+        markings: {}
+      }
+    }
+  ]
+};
+
+/**
+ * Intention 3b: Material Sufficient (Positive Variant)
+ * Tests that production works with sufficient material
+ */
+export const materialSufficientIntention = {
+  id: 'material-sufficient',
+  name: 'Material Sufficient',
+  testType: 'positive',
+  variables: [
+    {
+      name: 'order',
+      sort: 'Order',
+      hypothesis: {
+        type: 'uniformity',
+        representative: createOrder(2, { __adt__: true, constructor: 'Normal', args: [] })
+      }
+    }
+  ],
+  pairs: [
+    {
+      stimulation: {
+        transition: 'scheduleJob',
+        inputs: {
+          orderQueue: ['$order'],
+          rawMaterialSupply: [createMaterial(100)] // Sufficient
+        }
+      },
+      observation: {
+        outputs: {
+          scheduledJobs: [createJob('$order', createMaterial(100))]
+        },
         markings: {
-          reworkQueue: { length: 1 } // Wrong! Should go to completedProducts
+          orderQueue: { length: 0 },
+          rawMaterialSupply: { length: 0 },
+          scheduledJobs: { length: 1 }
         }
       }
     }
@@ -179,9 +215,8 @@ export const priorityRoutingNegativeIntention = {
  * Intention 4: Complete Production Workflow
  * Full flow: order → schedule → stage1 → stage2 → stage3 → QC pass → complete
  * 
- * NOTE: This tests the full workflow by executing transitions sequentially,
- * relying on simulator state to chain produced tokens between transitions.
- * Each transition fires after the previous one has produced its output tokens.
+ * Tokens stay in marking between pairs. Only initial injection at start.
+ * Each subsequent stimulation fires on tokens produced by previous step.
  */
 export const completeWorkflowIntention = {
   id: 'complete-workflow',
@@ -206,6 +241,7 @@ export const completeWorkflowIntention = {
     }
   ],
   pairs: [
+    // Pair 1: Schedule job from order and material
     {
       stimulation: {
         transition: 'scheduleJob',
@@ -215,16 +251,128 @@ export const completeWorkflowIntention = {
         }
       },
       observation: {
-        outputs: {},
+        outputs: {
+          scheduledJobs: [createJob('$order', '$material')]
+        },
         markings: {
           orderQueue: { length: 0 },
           rawMaterialSupply: { length: 0 },
-          scheduledJobs: { length: 1 } // Job produced
+          scheduledJobs: { length: 1 }
         }
       }
     },
-    // Simplified workflow: just test initial scheduling
-    // The full workflow will be tested separately once we have proper token chaining support
+    // Pair 2: Start stage 1 (fires on Job from scheduledJobs)
+    {
+      stimulation: {
+        transition: 'startStage1',
+        inputs: {} // No injection - use tokens from previous step
+      },
+      observation: {
+        outputs: {
+          stage1InProgress: [createJob('$order', '$material')]
+        },
+        markings: {
+          scheduledJobs: { length: 0 },
+          stage1InProgress: { length: 1 }
+        }
+      }
+    },
+    // Pair 3: Complete stage 1
+    {
+      stimulation: {
+        transition: 'completeStage1',
+        inputs: {} // Fires on Job from stage1InProgress
+      },
+      observation: {
+        outputs: {
+          stage2InProgress: [createJob('$order', '$material')]
+        },
+        markings: {
+          stage1InProgress: { length: 0 },
+          stage2InProgress: { length: 1 }
+        }
+      }
+    },
+    // Pair 4: Complete stage 2
+    {
+      stimulation: {
+        transition: 'completeStage2',
+        inputs: {} // Fires on Job from stage2InProgress
+      },
+      observation: {
+        outputs: {
+          stage3InProgress: [createJob('$order', '$material')]
+        },
+        markings: {
+          stage2InProgress: { length: 0 },
+          stage3InProgress: { length: 1 }
+        }
+      }
+    },
+    // Pair 5: Quality check pass (High priority)
+    {
+      stimulation: {
+        transition: 'qualityCheckPass',
+        inputs: {} // Fires on Job from stage3InProgress
+      },
+      observation: {
+        outputs: {
+          completedProducts: [createProduct(1, 'Pass')]
+        },
+        markings: {
+          stage3InProgress: { length: 0 },
+          completedProducts: { length: 1 }
+        }
+      }
+    }
+  ]
+};
+
+/**
+ * Intention 5: Priority-Based Quality Check (Subuniformity)
+ * Tests that High priority goes through qualityCheckPass, Normal goes to qualityCheckFail
+ * Uses subuniformity to generate multiple cases with distinct routing
+ */
+export const priorityQualityCheckIntention = {
+  id: 'priority-quality-check',
+  name: 'Priority-Based Quality Check',
+  testType: 'positive',
+  variables: [
+    {
+      name: 'pri',
+      sort: 'Priority',
+      hypothesis: {
+        type: 'subuniformity',
+        source: 'constructors' // Generates High, Normal, Low
+      },
+      description: 'Order priority'
+    }
+  ],
+  pairs: [
+    // Test qualityCheckPass transition
+    // Only High priority should fire this
+    {
+      stimulation: {
+        transition: 'qualityCheckPass',
+        inputs: {
+          stage3InProgress: [
+            createJob(
+              createOrder(1, '$pri'),
+              createMaterial(100)
+            )
+          ]
+        }
+      },
+      observation: {
+        outputs: {
+          completedProducts: [createProduct(1, 'Pass')]
+        },
+        markings: {
+          stage3InProgress: { length: 0 },
+          completedProducts: { length: 1 }
+        }
+      }
+    }
   ]
 };
 
@@ -233,6 +381,8 @@ export const manufacturingIntentionsV2 = [
   orderProcessingIntention,
   qualityCheckPassIntention,
   qualityCheckFailIntention,
-  priorityRoutingNegativeIntention,
-  completeWorkflowIntention
+  materialExhaustionIntention,
+  materialSufficientIntention,
+  completeWorkflowIntention,
+  priorityQualityCheckIntention
 ];

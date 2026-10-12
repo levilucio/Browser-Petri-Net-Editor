@@ -480,15 +480,22 @@ export function instantiateTerm(term, instantiation) {
  * Instantiate stimulation/observation pair
  */
 export function instantiatePair(pair, instantiation) {
+  const obs = {
+    outputs: instantiateObject(pair.observation.outputs, instantiation),
+    markings: pair.observation.markings // Markings don't have variables
+  };
+  
+  // Preserve observation type if present (e.g., 'notEnabled')
+  if (pair.observation.type) {
+    obs.type = pair.observation.type;
+  }
+  
   return {
     stimulation: {
       transition: pair.stimulation.transition,
       inputs: instantiateObject(pair.stimulation.inputs, instantiation)
     },
-    observation: {
-      outputs: instantiateObject(pair.observation.outputs, instantiation),
-      markings: pair.observation.markings // Markings don't have variables
-    }
+    observation: obs
   };
 }
 

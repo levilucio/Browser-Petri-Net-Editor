@@ -151,6 +151,69 @@ export class AlgebraicSimulator extends BaseSimulator {
     this._enabledCache.clear();
   }
 
+  /**
+   * Public API: Invalidate enabled transition cache
+   * Use after manually changing marking or injecting tokens
+   */
+  invalidateEnabledCache() {
+    this._clearEnabledCache();
+  }
+
+  /**
+   * Public API: Inject tokens into a place
+   * @param {string} placeId - Place identifier
+   * @param {Array} tokens - Tokens to inject
+   */
+  injectTokens(placeId, tokens) {
+    const place = this.petriNet.places.find(p => p.id === placeId);
+    if (!place) {
+      throw new Error(`Place not found: ${placeId}`);
+    }
+    
+    if (!Array.isArray(place.valueTokens)) {
+      place.valueTokens = [];
+    }
+    
+    place.valueTokens.push(...tokens);
+    place.tokens = place.valueTokens.length;
+    
+    // Invalidate cache for transitions connected to this place
+    this._invalidateEnabledCache(new Set([placeId]));
+  }
+
+  /**
+   * Public API: Set marking for a place
+   * @param {string} placeId - Place identifier
+   * @param {Array} tokens - New tokens (replaces existing)
+   */
+  setPlaceMarking(placeId, tokens) {
+    const place = this.petriNet.places.find(p => p.id === placeId);
+    if (!place) {
+      throw new Error(`Place not found: ${placeId}`);
+    }
+    
+    place.valueTokens = Array.isArray(tokens) ? [...tokens] : [];
+    place.tokens = place.valueTokens.length;
+    
+    // Invalidate cache for transitions connected to this place
+    this._invalidateEnabledCache(new Set([placeId]));
+  }
+
+  /**
+   * Public API: Fire transition with explicit binding
+   * @param {string} transitionId - Transition to fire
+   * @param {Object} binding - Variable bindings
+   * @param {Object} picks - Token picks (which tokens to consume)
+   * @returns {Promise<Object>} New state after firing
+   */
+  async fireWithBinding(transitionId, binding, picks) {
+    return this.fireTransitionSpecific(transitionId, {
+      skipEnabledCheck: false,
+      explicitBinding: binding,
+      explicitPicks: picks
+    });
+  }
+
   async updateSpecific(petriNet) {
     // Rebuild caches if guards or bindings changed
     const incomingSignature = computeCacheSignature(petriNet);

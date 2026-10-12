@@ -111,7 +111,31 @@ async function executePair(pair, simulator) {
   // 1. Get current marking
   const initialMarking = getCurrentMarking(simulator);
   
-  // 2. Execute stimulation
+  // 2. Check if this is a 'notEnabled' observation (expects transition NOT to fire)
+  if (observation.type === 'notEnabled') {
+    const stimResult = await checkNotEnabled(stimulation, simulator);
+    
+    if (stimResult.success) {
+      // Transition is correctly not enabled - observation passes
+      return {
+        success: true,
+        phase: 'complete',
+        observationType: 'notEnabled',
+        transition: stimulation.transition,
+        reason: stimResult.reason
+      };
+    } else {
+      // Transition fired when it should not have
+      return {
+        success: false,
+        phase: 'observation',
+        reason: 'transition_fired_unexpectedly',
+        transition: stimulation.transition
+      };
+    }
+  }
+  
+  // 3. Execute stimulation
   const stimResult = await executeStimulation(stimulation, simulator, initialMarking);
   
   if (!stimResult.success) {
@@ -123,11 +147,12 @@ async function executePair(pair, simulator) {
     };
   }
   
-  // 3. Get new marking after stimulation
+  // 4. Get new marking and produced tokens after stimulation
   const newMarking = getCurrentMarking(simulator);
+  const producedTokens = stimResult.producedTokens || {};
   
-  // 4. Check observation
-  const obsResult = checkObservation(observation, newMarking);
+  // 5. Check observation
+  const obsResult = checkObservation(observation, newMarking, producedTokens);
   
   if (!obsResult.success) {
     return {
@@ -144,8 +169,61 @@ async function executePair(pair, simulator) {
     success: true,
     phase: 'complete',
     transition: stimulation.transition,
-    tokensProduced: Object.keys(observation.outputs).length
+    producedTokens,
+    tokensProduced: Object.keys(producedTokens).length
   };
+}
+
+/**
+ * Check if transition is NOT enabled (for notEnabled observations)
+ */
+async function checkNotEnabled(stimulation, simulator) {
+  const { transition, inputs } = stimulation;
+  
+  try {
+    // 1. Inject input tokens into places
+    for (const [placeId, tokens] of Object.entries(inputs)) {
+      const place = simulator.petriNet.places.find(p => p.id === placeId);
+      if (place) {
+        place.valueTokens = tokens.map(token => {
+          if (typeof token === 'object' && token !== null) {
+            return token;
+          }
+          return { value: token };
+        });
+        place.tokens = place.valueTokens.length;
+      }
+    }
+    
+    // 2. Invalidate cache
+    if (typeof simulator.invalidateEnabledCache === 'function') {
+      simulator.invalidateEnabledCache();
+    }
+    
+    // 3. Check if transition is enabled
+    const enabled = await simulator.getEnabledTransitions();
+    
+    if (!enabled.includes(transition)) {
+      // Transition is NOT enabled - this is what we expect
+      return {
+        success: true,
+        reason: 'transition_correctly_not_enabled',
+        enabledTransitions: enabled
+      };
+    } else {
+      // Transition IS enabled - this violates the notEnabled observation
+      return {
+        success: false,
+        reason: 'transition_unexpectedly_enabled'
+      };
+    }
+  } catch (err) {
+    return {
+      success: false,
+      reason: 'check_failed',
+      error: err.message
+    };
+  }
 }
 
 /**
@@ -155,27 +233,29 @@ async function executeStimulation(stimulation, simulator, marking) {
   const { transition, inputs } = stimulation;
   
   try {
-    // 1. Inject input tokens into places
-    for (const [placeId, tokens] of Object.entries(inputs)) {
-      const place = simulator.petriNet.places.find(p => p.id === placeId);
-      if (place) {
-        // Set tokens - ensure proper format
-        place.valueTokens = tokens.map(token => {
-          // If already an object with value or ADT structure, use as-is
-          if (typeof token === 'object' && token !== null) {
-            return token;
-          }
-          // Primitive: wrap in value object
-          return { value: token };
-        });
-        // Update token count
-        place.tokens = place.valueTokens.length;
+    // 1. Inject input tokens into places (if any specified)
+    if (inputs && Object.keys(inputs).length > 0) {
+      for (const [placeId, tokens] of Object.entries(inputs)) {
+        const place = simulator.petriNet.places.find(p => p.id === placeId);
+        if (place) {
+          // Set tokens - ensure proper format
+          place.valueTokens = tokens.map(token => {
+            // If already an object with value or ADT structure, use as-is
+            if (typeof token === 'object' && token !== null) {
+              return token;
+            }
+            // Primitive: wrap in value object
+            return { value: token };
+          });
+          // Update token count
+          place.tokens = place.valueTokens.length;
+        }
       }
-    }
-    
-    // 1b. Clear enabled transition cache if it exists (algebraic simulator)
-    if (simulator._enabledCache) {
-      simulator._enabledCache.clear();
+      
+      // Invalidate enabled transition cache after injection
+      if (typeof simulator.invalidateEnabledCache === 'function') {
+        simulator.invalidateEnabledCache();
+      }
     }
     
     // 2. Check transition exists
@@ -188,8 +268,22 @@ async function executeStimulation(stimulation, simulator, marking) {
       };
     }
     
-    // 3. Try to fire the transition
-    // The simulator will handle binding internally
+    // 3. Capture output arcs to track produced tokens
+    const outputArcs = simulator.petriNet.arcs.filter(
+      a => (a.sourceId === transition || a.source === transition) && (a.targetType === 'place' || !a.targetType)
+    );
+    
+    // 4. Get places before firing to compare after
+    const placesBefore = {};
+    for (const arc of outputArcs) {
+      const placeId = arc.targetId || arc.target;
+      const place = simulator.petriNet.places.find(p => p.id === placeId);
+      if (place && Array.isArray(place.valueTokens)) {
+        placesBefore[placeId] = place.valueTokens.length;
+      }
+    }
+    
+    // 5. Try to fire the transition
     try {
       // Check if enabled first
       const enabled = await simulator.getEnabledTransitions();
@@ -207,7 +301,22 @@ async function executeStimulation(stimulation, simulator, marking) {
       // Fire the transition
       await simulator.fireTransition(transition);
       
-      return { success: true };
+      // 6. Track produced tokens
+      const producedTokens = {};
+      for (const arc of outputArcs) {
+        const placeId = arc.targetId || arc.target;
+        const place = simulator.petriNet.places.find(p => p.id === placeId);
+        if (place && Array.isArray(place.valueTokens)) {
+          const beforeCount = placesBefore[placeId] || 0;
+          const afterCount = place.valueTokens.length;
+          if (afterCount > beforeCount) {
+            // Get newly produced tokens
+            producedTokens[placeId] = place.valueTokens.slice(beforeCount);
+          }
+        }
+      }
+      
+      return { success: true, producedTokens };
     } catch (fireErr) {
       return {
         success: false,
@@ -227,12 +336,13 @@ async function executeStimulation(stimulation, simulator, marking) {
 /**
  * Check observation: verify output tokens and markings
  */
-function checkObservation(observation, marking) {
+function checkObservation(observation, marking, producedTokens = {}) {
   const { outputs, markings } = observation;
   
-  // 1. Check output tokens
+  // 1. Check output tokens (use produced tokens from this firing, not marking)
   for (const [place, expectedTokens] of Object.entries(outputs)) {
-    const actualTokens = marking[place] || [];
+    // Use actually produced tokens if available, otherwise fall back to marking
+    const actualTokens = producedTokens[place] || marking[place] || [];
     
     if (!tokensMatch(actualTokens, expectedTokens)) {
       return {
