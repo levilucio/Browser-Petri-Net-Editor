@@ -1,12 +1,20 @@
 /**
  * Test Generator
  * Generates concrete test cases from test intentions
+ * Supports both V1 (PathEvent) and V2 (StimObs pairs) formats
  */
 
 import { buildReachabilityGraph, findMatchingPaths } from './StateSpaceExplorer.js';
 import { generateOracle } from './OracleGenerator.js';
 import { applyReduction } from './ReductionEngine.js';
 import { buildAdtRegistry } from '../../utils/adt-parser.js';
+import { 
+  instantiateVariables, 
+  cartesianProduct, 
+  filterByGuards,
+  instantiatePair 
+} from './VariableInstantiator.js';
+import { validateIntention } from './IntentionSchema.js';
 
 /**
  * Generate test suite from test intentions
@@ -116,7 +124,62 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
 }
 
 /**
- * Generate test cases from a single test intention
+ * Detect if intention is V2 format (has variables and pairs)
+ */
+function isV2Intention(intention) {
+  return intention.variables && intention.pairs;
+}
+
+/**
+ * Generate test cases from V2 intention (stimulation/observation pairs)
+ * @private
+ */
+async function generateTestCasesFromIntentionV2(intention, petriNet, simulator, options = {}) {
+  const adtRegistry = options.adtRegistry || buildAdtRegistry(petriNet);
+  
+  // Validate schema
+  try {
+    validateIntention(intention);
+  } catch (err) {
+    console.error(`Invalid V2 intention ${intention.id}:`, err.message);
+    return [];
+  }
+  
+  // 1. Generate representatives per variable per hypothesis
+  const instantiations = instantiateVariables(intention, petriNet, adtRegistry);
+  
+  // 2. Cartesian product
+  let combinations = cartesianProduct(instantiations);
+  
+  if (options.profileMode) {
+    console.log(`[V2] Intention '${intention.name}': ${combinations.length} instantiation combinations`);
+  }
+  
+  // 3. Generate one test case per combination
+  const testCases = [];
+  for (const inst of combinations) {
+    // Instantiate all pairs
+    const instantiatedPairs = intention.pairs.map(pair => 
+      instantiatePair(pair, inst)
+    );
+    
+    testCases.push({
+      id: `${intention.id}-${testCases.length + 1}`,
+      intentionId: intention.id,
+      intentionName: intention.name,
+      testType: intention.testType,
+      instantiation: inst,
+      pairs: instantiatedPairs,
+      expectedTrace: [], // Not used for V2
+      oracle: { type: 'v2', pairs: instantiatedPairs }
+    });
+  }
+  
+  return testCases;
+}
+
+/**
+ * Generate test cases from a single test intention (V1 or V2 format)
  * @param {Object} testIntention - Test intention
  * @param {Object} petriNet - Petri net
  * @param {Object} simulator - Simulator instance
@@ -124,6 +187,12 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
  * @returns {Promise<Array>} Array of test cases
  */
 async function generateTestCasesFromIntention(testIntention, petriNet, simulator, options = {}) {
+  // Detect format
+  if (isV2Intention(testIntention)) {
+    return await generateTestCasesFromIntentionV2(testIntention, petriNet, simulator, options);
+  }
+  
+  // V1 format (legacy)
   const testCases = [];
   
   // Use shared graph if available (major optimization)
