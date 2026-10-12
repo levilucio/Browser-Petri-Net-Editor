@@ -43,6 +43,12 @@ function containsOperationCall(text, ops) {
 
 export function buildBindingCache(petriNet, parsePattern, parseArithmetic, parseBooleanExpr, allowedOps) {
   const bindingAstsByArc = new Map();
+  // Import term parser for ADT constructor support
+  const parseTerm = (text) => {
+    // Dynamic import handled at call site
+    throw new Error('parseTerm should be provided as parameter');
+  };
+  
   for (const a of (petriNet.arcs || [])) {
     const key = a.id;
     const bindings = Array.isArray(a.bindings) ? a.bindings : (a.binding ? [a.binding] : []);
@@ -67,6 +73,26 @@ export function buildBindingCache(petriNet, parsePattern, parseArithmetic, parse
             return isAllowedFuncall(node.left) && isAllowedFuncall(node.right);
           default:
             return true;
+        }
+      };
+
+      // Check if this looks like an ADT constructor call (uppercase identifier followed by parens)
+      const isAdtConstructor = (text) => {
+        const match = text.trim().match(/^([A-Z][A-Za-z0-9_]*)\s*\(/);
+        return !!match;
+      };
+
+      // Try term parser for ADT constructors
+      const tryTermParser = () => {
+        if (!isAdtConstructor(text)) return false;
+        try {
+          // Use inline term parser
+          const { parseTerm } = require('../../utils/term-parser.js');
+          const ast = parseTerm(text);
+          asts.push({ kind: 'term', ast });
+          return true;
+        } catch (_) {
+          return false;
         }
       };
 
@@ -96,12 +122,16 @@ export function buildBindingCache(petriNet, parsePattern, parseArithmetic, parse
       };
 
       let handled = false;
-      if (preferArithmetic) {
-        handled = tryArithmetic();
-        if (!handled) handled = tryPattern();
-      } else {
-        handled = tryPattern();
-        if (!handled) handled = tryArithmetic();
+      // Try term parser first for ADT constructors
+      handled = tryTermParser();
+      if (!handled) {
+        if (preferArithmetic) {
+          handled = tryArithmetic();
+          if (!handled) handled = tryPattern();
+        } else {
+          handled = tryPattern();
+          if (!handled) handled = tryArithmetic();
+        }
       }
 
       if (handled) continue;

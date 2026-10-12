@@ -368,7 +368,9 @@ export class AlgebraicSimulator extends BaseSimulator {
     // Evaluate action to define new variables
     if (t.action && t.action.trim()) {
       try {
-        const actionResult = evaluateAction(t.action, env, parseArithmetic);
+        // Use term parser for ADT constructor support
+        const { evaluateActionWithTermParser } = await import('../../utils/term-parser.js');
+        const actionResult = evaluateActionWithTermParser(t.action, env);
         // Merge action results into environment for output arc evaluation
         Object.assign(env, actionResult);
       } catch (err) {
@@ -394,15 +396,6 @@ export class AlgebraicSimulator extends BaseSimulator {
         parseArithmetic,
       }
     );
-
-    // Apply transition action if provided: action like "y = x + 1, z = x - 1"
-    if (t.action && typeof t.action === 'string') {
-      try {
-        const assignments = evaluateAction(t.action, env, parseArithmetic);
-        // No direct store for variables; actions only affect produced token expressions above.
-        // If future semantics require, we could apply assignments to outputs here.
-      } catch (_) { /* ignore action errors */ }
-    }
 
     // Invalidate enabled cache for transitions connected to changed places
     this._invalidateEnabledCache(changedPlaces);

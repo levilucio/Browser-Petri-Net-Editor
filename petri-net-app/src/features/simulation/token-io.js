@@ -44,6 +44,10 @@ export function produceTokens(outputArcs, bindingAstsByArc, env, placesById, eva
           const { kind, ast } = astObj;
           if (ast && (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar')) {
             v = (env || {})[ast.name];
+          } else if (kind === 'term') {
+            // Use term parser for ADT constructors
+            const { evaluateTerm } = require('../../utils/term-parser.js');
+            v = evaluateTerm(ast, env);
           } else if (kind === 'arith') {
             v = evaluateArithmeticWithBindings(ast, env);
           } else if (kind === 'bool') {
