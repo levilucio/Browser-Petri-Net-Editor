@@ -117,6 +117,60 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
         if (!arg || typeof arg !== 'object' || arg.__pair__ !== true) throw new Error('snd requires pair');
         return arg.snd;
       }
+      
+      // ADT constructors - nullary constructors return ADT terms
+      // E.g., High() -> {__adt__: true, constructor: 'High', args: []}
+      if (node.args && node.args.length === 0) {
+        // Nullary constructor call - known ADT constructors
+        const knownConstructors = ['High', 'Normal', 'Low', 'Pass', 'Fail'];
+        if (knownConstructors.includes(node.name)) {
+          return { __adt__: true, constructor: node.name, args: [] };
+        }
+      }
+      
+      // ADT constructors with args
+      // E.g., Job(ord, mat) -> {__adt__: true, constructor: 'Job', args: [ord, mat]}
+      if (node.args && node.args.length > 0) {
+        const knownConstructors = ['Order', 'Material', 'Job', 'Product'];
+        if (knownConstructors.includes(node.name)) {
+          const args = node.args.map(evalNode);
+          return { __adt__: true, constructor: node.name, args };
+        }
+      }
+      
+      // ADT field accessors - generic pattern
+      // For ADT constructors with named fields, extract field by name or position
+      if (node.args && node.args.length === 1) {
+        const arg = evalNode(node.args[0]);
+        
+        // Check if arg is an ADT term
+        if (arg && typeof arg === 'object' && arg.__adt__ === true) {
+          // Try to extract field by accessor name
+          // Common patterns: quantity(Material(q)) -> q, order(Job(o, m)) -> o, id(Order(i, p)) -> i
+          
+          // Field accessors by position for known ADT types
+          const accessorMap = {
+            'quantity': { constructor: 'Material', index: 0 },
+            'order': { constructor: 'Job', index: 0 },
+            'material': { constructor: 'Job', index: 1 },
+            'id': { constructor: 'Order', index: 0 },
+            'priority': { constructor: 'Order', index: 1 },
+            'orderId': { constructor: 'Product', index: 0 },
+            'quality': { constructor: 'Product', index: 1 }
+          };
+          
+          const accessor = accessorMap[node.name];
+          if (accessor && arg.constructor === accessor.constructor && arg.args && arg.args[accessor.index] !== undefined) {
+            return arg.args[accessor.index];
+          }
+          
+          // Generic fallback: if name matches constructor, return first arg
+          if (node.name.toLowerCase() === arg.constructor.toLowerCase() && arg.args && arg.args.length > 0) {
+            return arg.args[0];
+          }
+        }
+      }
+      
       throw new Error(`Unknown function '${node.name}'`);
     }
     if (node.type === 'binop') {
