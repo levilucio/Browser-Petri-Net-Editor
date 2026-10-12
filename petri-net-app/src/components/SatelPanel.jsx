@@ -166,15 +166,15 @@ const SatelPanel = ({ isOpen, onClose }) => {
           ])
         };
       } else {
-        // Real generation with reduced limits to prevent freezing
-        console.log('[SATEL] Real mode: using reduced generation limits');
+        // Real generation with optimized settings
+        console.log('[SATEL] Real mode: using optimized generation with shared graph caching');
         
         const limits = {
-          maxStates: 200,  // Reduced from 1000
-          maxDepth: 20,    // Reduced from 50
-          maxPathsPerIntention: 10,  // Reduced from 100
+          maxStates: 300,  // Increased from 200 (graph is cached now)
+          maxDepth: 25,    // Increased from 20  
+          maxPathsPerIntention: 15,  // Increased from 10
           applyReduction: true,
-          timeout: 60000  // 60 second timeout
+          timeout: 90000  // 90 second timeout (more generous now that it's faster)
         };
         
         // Set overall timeout
@@ -184,54 +184,33 @@ const SatelPanel = ({ isOpen, onClose }) => {
         }, limits.timeout);
         setGenerationTimeout(timeoutId);
         
-        // Use synchronous generation with chunked processing
+        // Use optimized generation with shared graph caching
         const { generateTestSuite } = await import('../satel/index.js');
         const { AlgebraicSimulator } = await import('../features/simulation/algebraic-simulator.js');
         const simulator = new AlgebraicSimulator();
         
-        // Process intentions in chunks to allow UI updates
-        const testCases = [];
-        for (let i = 0; i < testIntentions.length; i++) {
+        // Progress callback for real-time updates
+        const progressCallback = (progress) => {
           setGenerationProgress({
-            current: i + 1,
-            total: testIntentions.length,
-            message: `Processing ${testIntentions[i].name || `intention ${i + 1}`}`
+            current: progress.current || 0,
+            total: progress.total || testIntentions.length,
+            message: progress.message || 'Processing...'
           });
-          
-          // Yield to UI
-          await new Promise(resolve => setTimeout(resolve, 0));
-          
-          try {
-            const intention = testIntentions[i];
-            const cases = await generateTestSuite(
-              [intention],  // Process one at a time
-              petriNet,
-              simulator,
-              limits
-            );
-            if (cases && cases.testCases) {
-              testCases.push(...cases.testCases);
-            }
-          } catch (err) {
-            console.warn(`Failed to generate tests for intention ${i}:`, err.message);
+        };
+        
+        // Generate entire suite (uses shared graph caching internally)
+        suite = await generateTestSuite(
+          testIntentions,
+          petriNet,
+          simulator,
+          {
+            ...limits,
+            onProgress: progressCallback
           }
-        }
+        );
         
         clearTimeout(timeoutId);
         setGenerationTimeout(null);
-        
-        suite = {
-          id: `suite-${Date.now()}`,
-          name: 'Generated Test Suite',
-          description: `Generated from ${testIntentions.length} test intention(s)`,
-          testCases: testCases,
-          statistics: {
-            intentionsProcessed: testIntentions.length,
-            casesGenerated: testCases.length,
-            casesAfterReduction: testCases.length,
-            generationTime: 0
-          }
-        };
       }
 
       console.log('[SATEL] Test suite generated:', suite);

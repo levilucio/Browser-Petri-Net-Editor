@@ -139,14 +139,14 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
     const currentHash = hashMarking(marking);
     const currentState = states.get(currentHash);
     
+    // OPTIMIZATION: Initialize simulator once per state exploration
+    const tempNet = applyMarking(petriNet, marking);
+    await simulator.initialize(tempNet);
+    
     // Try firing each enabled transition
     for (const transitionId of currentState.enabledTransitions) {
       try {
-        // Create a temporary net with current marking
-        const tempNet = applyMarking(petriNet, marking);
-        await simulator.initialize(tempNet);
-        
-        // Fire transition
+        // Fire transition (simulator already initialized with current marking)
         const newNet = await simulator.fireTransition(transitionId);
         const newMarking = extractMarking(newNet);
         const newHash = hashMarking(newMarking);
@@ -161,7 +161,11 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
         
         // Add new state if not seen
         if (!states.has(newHash)) {
+          // Initialize with new marking to check enabled transitions
+          const newTempNet = applyMarking(petriNet, newMarking);
+          await simulator.initialize(newTempNet);
           const newEnabled = await simulator.getEnabledTransitions();
+          
           const newState = {
             id: newHash,
             marking: newMarking,
@@ -170,6 +174,12 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
           };
           states.set(newHash, newState);
           queue.push({ marking: newMarking, depth: depth + 1, parentHash: currentHash });
+          
+          // Re-initialize with original marking for next transition
+          await simulator.initialize(tempNet);
+        } else {
+          // Re-initialize with original marking for next transition
+          await simulator.initialize(tempNet);
         }
       } catch (err) {
         // Transition not enabled or error - skip
@@ -217,34 +227,52 @@ export function findMatchingPaths(graph, pathPattern, options = {}) {
 }
 
 /**
- * Find paths matching a sequence pattern (DFS)
+ * Find paths matching a sequence pattern (DFS with early termination)
  * @private
  */
 function findSequencePaths(graph, currentStateId, remainingEvents, currentPath, paths, maxPaths) {
+  // OPTIMIZATION: Early termination when enough paths found
   if (paths.length >= maxPaths) {
-    return; // Found enough paths
+    return true; // Signal to stop searching
   }
   
   if (remainingEvents.length === 0) {
     // Matched entire sequence
     paths.push([...currentPath]);
-    return;
+    return paths.length >= maxPaths; // Stop if we hit limit
   }
   
   const nextEvent = remainingEvents[0];
   const restEvents = remainingEvents.slice(1);
   
+  // OPTIMIZATION: Cache transition lookups by source state
+  if (!graph._transitionsBySource) {
+    graph._transitionsBySource = new Map();
+    for (const t of graph.transitions) {
+      if (!graph._transitionsBySource.has(t.sourceStateId)) {
+        graph._transitionsBySource.set(t.sourceStateId, []);
+      }
+      graph._transitionsBySource.get(t.sourceStateId).push(t);
+    }
+  }
+  
   // Find transitions from current state matching next event
-  const matchingTransitions = graph.transitions.filter(t =>
-    t.sourceStateId === currentStateId &&
+  const candidateTransitions = graph._transitionsBySource.get(currentStateId) || [];
+  const matchingTransitions = candidateTransitions.filter(t =>
     transitionMatchesEvent(t, nextEvent, graph)
   );
   
   for (const transition of matchingTransitions) {
     currentPath.push(transition);
-    findSequencePaths(graph, transition.targetStateId, restEvents, currentPath, paths, maxPaths);
+    const shouldStop = findSequencePaths(graph, transition.targetStateId, restEvents, currentPath, paths, maxPaths);
     currentPath.pop();
+    
+    if (shouldStop) {
+      return true; // Propagate stop signal
+    }
   }
+  
+  return false;
 }
 
 /**

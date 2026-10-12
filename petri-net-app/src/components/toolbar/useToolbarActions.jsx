@@ -280,7 +280,7 @@ export default function useToolbarActions(params) {
       // Special case: Manufacturing Workflow loads from JS object
       if (filename === 'manufacturing-workflow') {
         const { manufacturingNet } = await import('../../satel/examples/manufacturing/net.js');
-        const { manufacturingIntentionsQuick } = await import('../../satel/examples/manufacturing/intentions.js');
+        const { manufacturingIntentions } = await import('../../satel/examples/manufacturing/intentions.js');
         
         // Convert to the format expected by the app
         const safeJson = {
@@ -289,10 +289,9 @@ export default function useToolbarActions(params) {
           arcs: manufacturingNet.arcs || [],
         };
         
-        // Store quick intentions (5 core tests) in localStorage for SatelPanel to pick up
-        // Full suite (15 tests) available by editing intentions.js
+        // Store full test intentions (15) - now fast with optimized generation
         try {
-          localStorage.setItem('satel-test-intentions', JSON.stringify(manufacturingIntentionsQuick));
+          localStorage.setItem('satel-test-intentions', JSON.stringify(manufacturingIntentions));
         } catch (e) {
           console.warn('Could not store test intentions:', e);
         }
@@ -302,7 +301,7 @@ export default function useToolbarActions(params) {
           ...simulationSettings,
           netMode: 'algebraic-int',
         });
-        setSuccess?.(`Loaded Manufacturing Workflow with ${manufacturingIntentionsQuick.length} quick test intentions (reduced for browser performance)`);
+        setSuccess?.(`Loaded Manufacturing Workflow with ${manufacturingIntentions.length} test intentions (optimized generation)`);
         setIsMobileMenuOpen?.(false);
         setIsLoading?.(false);
         return;

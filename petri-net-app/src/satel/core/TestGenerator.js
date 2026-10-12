@@ -21,23 +21,62 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
     intentionsProcessed: 0,
     casesGenerated: 0,
     casesAfterReduction: 0,
-    generationTime: 0
+    generationTime: 0,
+    timing: {
+      exploration: 0,
+      pathFinding: 0,
+      oracleGen: 0,
+      reduction: 0
+    }
   };
   
   const startTime = Date.now();
   
-  for (const intention of testIntentions) {
+  // OPTIMIZATION: Build reachability graph once and reuse for all intentions
+  // This is the biggest time saver since all intentions share the same Petri net
+  const graphStart = Date.now();
+  const sharedGraph = options.disableGraphCaching ? null : await buildReachabilityGraph(petriNet, simulator, {
+    maxStates: options.maxStates || 1000,
+    maxDepth: options.maxDepth || 50,
+    signal: options.signal,
+    onProgress: options.onProgress
+  });
+  const graphTime = Date.now() - graphStart;
+  
+  if (options.profileMode && sharedGraph) {
+    console.log(`[PROFILE] Shared reachability graph: ${graphTime}ms (${sharedGraph.states.size} states, ${sharedGraph.transitions.length} transitions)`);
+    console.log(`[PROFILE] This graph will be reused for all ${testIntentions.length} intentions\n`);
+  }
+  
+  for (let i = 0; i < testIntentions.length; i++) {
+    const intention = testIntentions[i];
+    
     try {
+      const intentionStart = Date.now();
+      
+      // Update progress
+      if (options.onProgress) {
+        options.onProgress({
+          current: i + 1,
+          total: testIntentions.length,
+          message: `Processing: ${intention.name || intention.id}`
+        });
+      }
+      
       const cases = await generateTestCasesFromIntention(
         intention,
         petriNet,
         simulator,
-        options
+        { ...options, sharedGraph }
       );
       
       testCases.push(...cases);
       statistics.intentionsProcessed++;
       statistics.casesGenerated += cases.length;
+      
+      if (options.profileMode) {
+        console.log(`[PROFILE] Intention '${intention.name}': ${Date.now() - intentionStart}ms, ${cases.length} cases`);
+      }
     } catch (err) {
       console.error(`Failed to generate tests for intention '${intention.id}':`, err);
     }
@@ -74,30 +113,52 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
 async function generateTestCasesFromIntention(testIntention, petriNet, simulator, options = {}) {
   const testCases = [];
   
-  // Build reachability graph
-  const graph = await buildReachabilityGraph(petriNet, simulator, {
-    maxStates: options.maxStates || 1000,
-    maxDepth: options.maxDepth || 50,
-    signal: options.signal,
-    onProgress: options.onProgress
-  });
+  // Use shared graph if available (major optimization)
+  let graph;
+  let graphTime = 0;
+  
+  if (options.sharedGraph) {
+    // Reuse pre-computed graph (saves ~95% of time per intention)
+    graph = options.sharedGraph;
+  } else {
+    // Build reachability graph for this intention only
+    const graphStart = Date.now();
+    graph = await buildReachabilityGraph(petriNet, simulator, {
+      maxStates: options.maxStates || 1000,
+      maxDepth: options.maxDepth || 50,
+      signal: options.signal,
+      onProgress: options.onProgress
+    });
+    graphTime = Date.now() - graphStart;
+  }
   
   if (graph.truncated) {
     console.warn(`Reachability graph truncated for intention '${testIntention.id}'`);
   }
   
   // Find paths matching the intention's path pattern
+  const pathStart = Date.now();
   const matchingPaths = findMatchingPaths(graph, testIntention.pathPattern, {
     maxPaths: options.maxPathsPerIntention || 100
   });
+  const pathTime = Date.now() - pathStart;
+  
+  if (options.profileMode && !options.sharedGraph) {
+    console.log(`  [PROFILE]   Graph: ${graphTime}ms (${graph.states.size} states), Paths: ${pathTime}ms (${matchingPaths.length} found)`);
+  } else if (options.profileMode) {
+    console.log(`  [PROFILE]   Paths: ${pathTime}ms (${matchingPaths.length} found from cached graph)`);
+  }
   
   if (matchingPaths.length === 0) {
     console.warn(`No matching paths found for intention '${testIntention.id}'`);
     return [];
   }
   
-  // Generate a test case for each matching path
-  for (let i = 0; i < matchingPaths.length; i++) {
+  // Generate a test case for each matching path (limit to avoid explosion)
+  const oracleStart = Date.now();
+  const maxCases = Math.min(matchingPaths.length, options.maxPathsPerIntention || 100);
+  
+  for (let i = 0; i < maxCases; i++) {
     const path = matchingPaths[i];
     
     try {
@@ -113,6 +174,11 @@ async function generateTestCasesFromIntention(testIntention, petriNet, simulator
     } catch (err) {
       console.error(`Failed to generate test case from path ${i}:`, err);
     }
+  }
+  const oracleTime = Date.now() - oracleStart;
+  
+  if (options.profileMode) {
+    console.log(`  [PROFILE]   Oracle gen: ${oracleTime}ms for ${testCases.length} cases`);
   }
   
   return testCases;
