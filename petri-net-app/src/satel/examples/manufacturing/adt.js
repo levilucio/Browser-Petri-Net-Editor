@@ -52,10 +52,15 @@ export const manufacturingADTs = `
 
 // Helper functions for creating ADT values
 export function createOrder(id, priority = 'Normal') {
+  // Priority must be a constructor (High or Normal), not a string
+  const priorityAdt = typeof priority === 'string' 
+    ? { __adt__: true, constructor: priority, args: [] }
+    : priority;
+  
   return {
     __adt__: true,
     constructor: 'Order',
-    args: [id, priority]
+    args: [id, priorityAdt]
   };
 }
 
@@ -76,9 +81,14 @@ export function createJob(order, material) {
 }
 
 export function createProduct(orderId, quality = 'Pass') {
+  // Quality must be a constructor (Pass or Fail), not a string
+  const qualityAdt = typeof quality === 'string'
+    ? { __adt__: true, constructor: quality, args: [] }
+    : quality;
+  
   return {
     __adt__: true,
     constructor: 'Product',
-    args: [orderId, quality]
+    args: [orderId, qualityAdt]
   };
 }

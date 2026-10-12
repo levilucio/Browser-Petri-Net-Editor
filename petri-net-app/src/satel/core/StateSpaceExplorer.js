@@ -73,7 +73,7 @@ function applyMarking(petriNet, marking) {
  * @returns {Promise<Object>} Reachability graph
  */
 export async function buildReachabilityGraph(petriNet, simulator, options = {}) {
-  const maxStates = options.maxStates || 1000;
+  const maxStates = options.maxStates ?? 1000;
   const maxDepth = options.maxDepth || 50;
   const signal = options.signal;
   const onProgress = options.onProgress;

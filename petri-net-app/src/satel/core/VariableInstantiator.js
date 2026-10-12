@@ -263,33 +263,98 @@ function generateRegularityTerms(variable, petriNet, adtRegistry, bounds) {
 }
 
 /**
- * Enumerate ADT terms up to a depth bound
+ * Enumerate distinct ADT terms up to a depth bound
+ * Uses BFS to generate terms level by level, ensuring variety
  */
 function enumerateTermsToDepth(adt, adtRegistry, maxDepth, maxCount) {
   const terms = [];
+  const termsByDepth = new Map();  // depth -> [terms]
   
-  // BFS enumeration by depth
-  for (let d = 0; d <= maxDepth && terms.length < maxCount; d++) {
+  // Initialize depth 0 with nullary constructors and base primitives
+  termsByDepth.set(0, []);
+  
+  for (const ctor of adt.constructors) {
+    if (ctor.arity === 0) {
+      terms.push({ __adt__: true, constructor: ctor.name, args: [] });
+      termsByDepth.get(0).push({ __adt__: true, constructor: ctor.name, args: [] });
+      if (terms.length >= maxCount) return terms;
+    }
+  }
+  
+  // Build terms at each depth level
+  for (let d = 1; d <= maxDepth && terms.length < maxCount; d++) {
+    termsByDepth.set(d, []);
+    
     for (const ctor of adt.constructors) {
       if (terms.length >= maxCount) break;
+      if (ctor.arity === 0) continue;  // Already handled at depth 0
       
-      if (d === 0) {
-        // Only nullary constructors at depth 0
-        if (ctor.arity === 0) {
-          terms.push({ __adt__: true, constructor: ctor.name, args: [] });
-        }
-      } else {
-        // Generate terms at depth d
-        if (ctor.arity > 0) {
-          // For simplicity, use depth-1 terms for all args
-          const args = ctor.params?.map(p => generateArbitraryGroundTerm(p.type, adtRegistry)) || [];
-          terms.push({ __adt__: true, constructor: ctor.name, args });
-        }
+      // Generate all combinations of args from previous depths
+      const argCombos = generateArgCombinations(ctor.params, d - 1, termsByDepth, adtRegistry);
+      
+      for (const args of argCombos) {
+        if (terms.length >= maxCount) break;
+        const term = { __adt__: true, constructor: ctor.name, args };
+        terms.push(term);
+        termsByDepth.get(d).push(term);
       }
     }
   }
   
   return terms.slice(0, maxCount);
+}
+
+/**
+ * Generate arg combinations for a constructor at given max depth
+ */
+function generateArgCombinations(params, maxArgDepth, termsByDepth, adtRegistry) {
+  if (!params || params.length === 0) return [[]];
+  
+  // For each parameter, get available terms up to maxArgDepth
+  const argChoices = params.map(param => {
+    const paramType = param.type;
+    
+    // Collect terms for this parameter type from all depths <= maxArgDepth
+    const choices = [];
+    for (let d = 0; d <= maxArgDepth; d++) {
+      const termsAtD = termsByDepth.get(d) || [];
+      for (const t of termsAtD) {
+        // Check if term matches parameter type (simplified - just check constructor sort)
+        if (paramType === 'Nat' || paramType === 'Int') {
+          choices.push(d);  // Use depth as a primitive value
+        } else if (paramType === 'Bool') {
+          choices.push(d % 2 === 0);
+        } else if (t && t.constructor) {
+          // For ADT types, include if constructor name matches or is compatible
+          choices.push(t);
+        }
+      }
+    }
+    
+    // If no choices, generate a minimal term
+    if (choices.length === 0) {
+      choices.push(generateArbitraryGroundTerm(paramType, adtRegistry));
+    }
+    
+    // Limit choices to avoid explosion
+    return choices.slice(0, 3);
+  });
+  
+  // Generate Cartesian product of arg choices (limited)
+  function product(arrays, index = 0) {
+    if (index >= arrays.length) return [[]];
+    const rest = product(arrays, index + 1);
+    const result = [];
+    for (const val of arrays[index].slice(0, 2)) {  // Limit to 2 per param
+      for (const partial of rest.slice(0, 2)) {
+        result.push([val, ...partial]);
+        if (result.length >= 4) return result;  // Limit combinations
+      }
+    }
+    return result;
+  }
+  
+  return product(argChoices);
 }
 
 /**
@@ -342,7 +407,8 @@ export async function filterByGuards(combinations, guards, petriNet) {
     return combinations;
   }
   
-  const { evaluateBooleanExpression } = await import('../../utils/arith-parser.js');
+  const { parseBooleanExpr, evaluateBooleanWithBindings } = await import('../../utils/z3-arith.js');
+  const { parseArithmetic } = await import('../../utils/arith-parser.js');
   
   const filtered = [];
   for (const inst of combinations) {
@@ -356,8 +422,9 @@ export async function filterByGuards(combinations, guards, petriNet) {
           bindings[varName] = value;
         }
         
-        // Evaluate guard expression
-        const result = evaluateBooleanExpression(guardStr, bindings);
+        // Parse and evaluate guard expression
+        const guardAst = parseBooleanExpr(guardStr);
+        const result = evaluateBooleanWithBindings(guardAst, bindings, parseArithmetic);
         
         if (!result) {
           allGuardsSatisfied = false;

@@ -52,7 +52,7 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
   // This is the biggest time saver since all intentions share the same Petri net
   const graphStart = Date.now();
   const sharedGraph = options.disableGraphCaching ? null : await buildReachabilityGraph(petriNet, simulator, {
-    maxStates: options.maxStates || 1000,
+    maxStates: options.maxStates ?? 1000,
     maxDepth: options.maxDepth || 50,
     signal: options.signal,
     onProgress: options.onProgress,
@@ -217,7 +217,7 @@ async function generateTestCasesFromIntention(testIntention, petriNet, simulator
     // Build reachability graph for this intention only
     const graphStart = Date.now();
     graph = await buildReachabilityGraph(petriNet, simulator, {
-      maxStates: options.maxStates || 1000,
+      maxStates: options.maxStates ?? 1000,
       maxDepth: options.maxDepth || 50,
       signal: options.signal,
       adtRegistry, // Pass ADT registry

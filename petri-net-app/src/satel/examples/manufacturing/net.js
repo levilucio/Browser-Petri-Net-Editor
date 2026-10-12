@@ -1,5 +1,9 @@
 /**
- * Simplified Manufacturing Net with Correct ADT Bindings
+ * Manufacturing Workflow with Real ADT Guards and Token Flow
+ * 
+ * Flow: Order + Material --[guard: sufficient qty]--> Job --> Stage1 --> Stage2 --> Stage3 --> Product
+ * Guards check material quantity and priority
+ * Output arcs produce Job and Product ADTs
  */
 
 import { manufacturingADTs } from './adt.js';
@@ -9,7 +13,6 @@ export const manufacturingNet = {
   adtDefinitions: manufacturingADTs,
   
   places: [
-    // Input places with ADT tokens
     {
       id: 'orderQueue',
       label: 'Order Queue',
@@ -17,7 +20,10 @@ export const manufacturingNet = {
       y: 150,
       tokens: 1,
       valueTokens: [
-        { __adt__: true, constructor: 'Order', args: [1, { __adt__: true, constructor: 'Normal', args: [] }] }
+        { __adt__: true, constructor: 'Order', args: [
+          1, 
+          { __adt__: true, constructor: 'Normal', args: [] }
+        ]}
       ],
       sort: 'Order',
       io_type: 'input'
@@ -34,8 +40,6 @@ export const manufacturingNet = {
       sort: 'Material',
       io_type: 'input'
     },
-    
-    // Internal places
     {
       id: 'scheduledJobs',
       label: 'Scheduled Jobs',
@@ -77,18 +81,6 @@ export const manufacturingNet = {
       io_type: 'internal'
     },
     {
-      id: 'machineStatus',
-      label: 'Machines',
-      x: 300,
-      y: 300,
-      tokens: 3,
-      valueTokens: [{ value: 1 }, { value: 1 }, { value: 1 }],
-      sort: 'Int',
-      io_type: 'internal'
-    },
-    
-    // Output places
-    {
       id: 'completedProducts',
       label: 'Completed',
       x: 1100,
@@ -116,8 +108,10 @@ export const manufacturingNet = {
       label: 'Schedule Job',
       x: 200,
       y: 200,
-      guard: '',
-      action: '',
+      // Guard: material quantity must be >= 50
+      guard: 'quantity(mat) >= 50',
+      // Action: construct Job ADT from order and material
+      action: 'job = Job(ord, mat)',
       io_type: 'input'
     },
     {
@@ -126,7 +120,8 @@ export const manufacturingNet = {
       x: 400,
       y: 150,
       guard: '',
-      action: '',
+      // Pass job through unchanged
+      action: 'outJob = j',
       io_type: 'internal'
     },
     {
@@ -135,7 +130,7 @@ export const manufacturingNet = {
       x: 600,
       y: 150,
       guard: '',
-      action: '',
+      action: 'outJob = j',
       io_type: 'internal'
     },
     {
@@ -144,7 +139,7 @@ export const manufacturingNet = {
       x: 800,
       y: 150,
       guard: '',
-      action: '',
+      action: 'outJob = j',
       io_type: 'internal'
     },
     {
@@ -152,8 +147,10 @@ export const manufacturingNet = {
       label: 'QC Pass',
       x: 1000,
       y: 100,
-      guard: '',
-      action: '',
+      // Guard: check if priority is High (pass high priority orders)
+      guard: 'priority(order(j)) == High()',
+      // Produce Product ADT with order ID and Pass quality
+      action: 'prod = Product(id(order(j)), Pass())',
       io_type: 'output'
     },
     {
@@ -161,34 +158,128 @@ export const manufacturingNet = {
       label: 'QC Fail',
       x: 1000,
       y: 200,
-      guard: '',
-      action: '',
+      // Guard: Normal priority goes to rework
+      guard: 'priority(order(j)) == Normal()',
+      action: 'reworkJob = j',
       io_type: 'output'
     }
   ],
   
   arcs: [
-    // Schedule job: consume order and material, DO NOT produce (transition just consumes)
-    { id: 'arc1', source: 'orderQueue', target: 'scheduleJob', sourceType: 'place', targetType: 'transition', binding: 'ord' },
-    { id: 'arc2', source: 'rawMaterialSupply', target: 'scheduleJob', sourceType: 'place', targetType: 'transition', binding: 'mat' },
+    // Schedule job: consume order and material, produce Job ADT
+    { 
+      id: 'arc1', 
+      source: 'orderQueue', 
+      target: 'scheduleJob', 
+      sourceType: 'place', 
+      targetType: 'transition', 
+      binding: 'ord' 
+    },
+    { 
+      id: 'arc2', 
+      source: 'rawMaterialSupply', 
+      target: 'scheduleJob', 
+      sourceType: 'place', 
+      targetType: 'transition', 
+      binding: 'mat' 
+    },
+    { 
+      id: 'arc3', 
+      source: 'scheduleJob', 
+      target: 'scheduledJobs', 
+      sourceType: 'transition', 
+      targetType: 'place', 
+      binding: 'job'  // Output from action
+    },
     
-    // Start Stage 1: consume job and machine
-    { id: 'arc4', source: 'scheduledJobs', target: 'startStage1', sourceType: 'place', targetType: 'transition', binding: 'j' },
-    { id: 'arc5', source: 'machineStatus', target: 'startStage1', sourceType: 'place', targetType: 'transition', binding: 'm' },
-    { id: 'arc6', source: 'startStage1', target: 'stage1InProgress', sourceType: 'transition', targetType: 'place', binding: 'j' },
+    // Start Stage 1: consume job, produce to stage1
+    { 
+      id: 'arc4', 
+      source: 'scheduledJobs', 
+      target: 'startStage1', 
+      sourceType: 'place', 
+      targetType: 'transition', 
+      binding: 'j' 
+    },
+    { 
+      id: 'arc5', 
+      source: 'startStage1', 
+      target: 'stage1InProgress', 
+      sourceType: 'transition', 
+      targetType: 'place', 
+      binding: 'outJob' 
+    },
     
-    // Complete Stage 1: move job to stage 2
-    { id: 'arc7', source: 'stage1InProgress', target: 'completeStage1', sourceType: 'place', targetType: 'transition', binding: 'j' },
-    { id: 'arc8', source: 'completeStage1', target: 'stage2InProgress', sourceType: 'transition', targetType: 'place', binding: 'j' },
+    // Complete Stage 1: move to stage 2
+    { 
+      id: 'arc6', 
+      source: 'stage1InProgress', 
+      target: 'completeStage1', 
+      sourceType: 'place', 
+      targetType: 'transition', 
+      binding: 'j' 
+    },
+    { 
+      id: 'arc7', 
+      source: 'completeStage1', 
+      target: 'stage2InProgress', 
+      sourceType: 'transition', 
+      targetType: 'place', 
+      binding: 'outJob' 
+    },
     
-    // Complete Stage 2: move job to stage 3
-    { id: 'arc9', source: 'stage2InProgress', target: 'completeStage2', sourceType: 'place', targetType: 'transition', binding: 'j' },
-    { id: 'arc10', source: 'completeStage2', target: 'stage3InProgress', sourceType: 'transition', targetType: 'place', binding: 'j' },
+    // Complete Stage 2: move to stage 3
+    { 
+      id: 'arc8', 
+      source: 'stage2InProgress', 
+      target: 'completeStage2', 
+      sourceType: 'place', 
+      targetType: 'transition', 
+      binding: 'j' 
+    },
+    { 
+      id: 'arc9', 
+      source: 'completeStage2', 
+      target: 'stage3InProgress', 
+      sourceType: 'transition', 
+      targetType: 'place', 
+      binding: 'outJob' 
+    },
     
-    // Quality Check Pass: just consume job from stage3
-    { id: 'arc11', source: 'stage3InProgress', target: 'qualityCheckPass', sourceType: 'place', targetType: 'transition', binding: 'j' },
+    // Quality Check Pass: produce Product
+    { 
+      id: 'arc10', 
+      source: 'stage3InProgress', 
+      target: 'qualityCheckPass', 
+      sourceType: 'place', 
+      targetType: 'transition', 
+      binding: 'j' 
+    },
+    { 
+      id: 'arc11', 
+      source: 'qualityCheckPass', 
+      target: 'completedProducts', 
+      sourceType: 'transition', 
+      targetType: 'place', 
+      binding: 'prod' 
+    },
     
-    // Quality Check Fail: just consume job from stage3
-    { id: 'arc14', source: 'stage3InProgress', target: 'qualityCheckFail', sourceType: 'place', targetType: 'transition', binding: 'j' }
+    // Quality Check Fail: send to rework
+    { 
+      id: 'arc12', 
+      source: 'stage3InProgress', 
+      target: 'qualityCheckFail', 
+      sourceType: 'place', 
+      targetType: 'transition', 
+      binding: 'j' 
+    },
+    { 
+      id: 'arc13', 
+      source: 'qualityCheckFail', 
+      target: 'reworkQueue', 
+      sourceType: 'transition', 
+      targetType: 'place', 
+      binding: 'reworkJob' 
+    }
   ]
 };
