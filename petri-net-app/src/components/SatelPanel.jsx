@@ -937,7 +937,12 @@ const ResultsTab = ({ testSuite, testResults, isGenerating, isExecuting }) => {
                   Intention: {testCase.intentionId}
                 </div>
                 <div className="text-xs text-gray-600 mt-1">
-                  Path: {testCase.trace?.length || 0} transitions
+                  Path: {testCase.expectedTrace?.length || 0} transitions
+                  {testCase.expectedTrace && testCase.expectedTrace.length > 0 && (
+                    <span className="ml-2 text-xs text-blue-600">
+                      ({testCase.expectedTrace.map(t => t.transition).join(' → ')})
+                    </span>
+                  )}
                 </div>
                 {result?.errors && result.errors.length > 0 && (
                   <div className="mt-2 text-xs text-red-600">
