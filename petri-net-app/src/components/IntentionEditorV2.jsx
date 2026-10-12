@@ -1,0 +1,369 @@
+/**
+ * V2 Intention Editor
+ * 
+ * Editor for SATEL-style intentions with variables and stim/obs pairs
+ */
+
+import React from 'react';
+
+const IntentionEditorV2 = ({ intention, onChange, onSave, onCancel, elements }) => {
+  const transitions = elements.transitions || [];
+  const places = elements.places || [];
+  
+  const updateIntention = (field, value) => {
+    onChange({ ...intention, [field]: value });
+  };
+  
+  const updateVariable = (index, field, value) => {
+    const newVariables = [...intention.variables];
+    newVariables[index] = { ...newVariables[index], [field]: value };
+    updateIntention('variables', newVariables);
+  };
+  
+  const updateVariableHypothesis = (index, field, value) => {
+    const newVariables = [...intention.variables];
+    newVariables[index] = {
+      ...newVariables[index],
+      hypothesis: { ...newVariables[index].hypothesis, [field]: value }
+    };
+    updateIntention('variables', newVariables);
+  };
+  
+  const addVariable = () => {
+    const newVariables = [
+      ...intention.variables,
+      {
+        name: `var${intention.variables.length + 1}`,
+        sort: 'Nat',
+        hypothesis: { type: 'uniformity', representative: 0 }
+      }
+    ];
+    updateIntention('variables', newVariables);
+  };
+  
+  const removeVariable = (index) => {
+    const newVariables = intention.variables.filter((_, i) => i !== index);
+    updateIntention('variables', newVariables);
+  };
+  
+  const updatePair = (index, field, value) => {
+    const newPairs = [...intention.pairs];
+    newPairs[index] = { ...newPairs[index], [field]: value };
+    updateIntention('pairs', newPairs);
+  };
+  
+  const updateStimulation = (pairIndex, field, value) => {
+    const newPairs = [...intention.pairs];
+    newPairs[pairIndex] = {
+      ...newPairs[pairIndex],
+      stimulation: { ...newPairs[pairIndex].stimulation, [field]: value }
+    };
+    updateIntention('pairs', newPairs);
+  };
+  
+  const updateObservation = (pairIndex, field, value) => {
+    const newPairs = [...intention.pairs];
+    newPairs[pairIndex] = {
+      ...newPairs[pairIndex],
+      observation: { ...newPairs[pairIndex].observation, [field]: value }
+    };
+    updateIntention('pairs', newPairs);
+  };
+  
+  const addPair = () => {
+    const newPairs = [
+      ...intention.pairs,
+      {
+        stimulation: { transition: '', inputs: {} },
+        observation: { outputs: {}, markings: {} }
+      }
+    ];
+    updateIntention('pairs', newPairs);
+  };
+  
+  const removePair = (index) => {
+    const newPairs = intention.pairs.filter((_, i) => i !== index);
+    updateIntention('pairs', newPairs);
+  };
+  
+  return (
+    <div className="p-4 space-y-6">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        {intention.name === 'New Test Intention' ? 'Create V2 Test Intention' : 'Edit V2 Test Intention'}
+      </h3>
+      
+      {/* Basic Info */}
+      <div className="space-y-3">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input
+            type="text"
+            value={intention.name}
+            onChange={(e) => updateIntention('name', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Test intention name"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea
+            value={intention.description || ''}
+            onChange={(e) => updateIntention('description', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows={2}
+            placeholder="Describe what this test checks..."
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Test Type</label>
+          <select
+            value={intention.testType}
+            onChange={(e) => updateIntention('testType', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="positive">Positive (all pairs must succeed)</option>
+            <option value="negative">Negative (at least one pair must fail)</option>
+          </select>
+        </div>
+      </div>
+      
+      {/* Variables Section */}
+      <div className="border-t pt-4">
+        <div className="flex justify-between items-center mb-3">
+          <label className="block text-sm font-medium text-gray-700">
+            Variables
+            <span className="ml-2 text-xs text-gray-500">({intention.variables.length})</span>
+          </label>
+          <button
+            onClick={addVariable}
+            className="px-3 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100"
+          >
+            + Add Variable
+          </button>
+        </div>
+        
+        <div className="space-y-3">
+          {intention.variables.map((variable, idx) => (
+            <div key={idx} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-xs font-medium text-gray-600">Variable {idx + 1}</span>
+                <button
+                  onClick={() => removeVariable(idx)}
+                  className="px-2 py-0.5 text-red-600 hover:bg-red-50 rounded text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={variable.name}
+                    onChange={(e) => updateVariable(idx, 'name', e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                    placeholder="e.g., order"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Sort (ADT)</label>
+                  <input
+                    type="text"
+                    value={variable.sort}
+                    onChange={(e) => updateVariable(idx, 'sort', e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                    placeholder="e.g., Order"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Hypothesis</label>
+                <select
+                  value={variable.hypothesis.type}
+                  onChange={(e) => {
+                    const type = e.target.value;
+                    let newHypothesis = { type };
+                    if (type === 'uniformity') {
+                      newHypothesis.representative = 0;
+                    } else if (type === 'subuniformity') {
+                      newHypothesis.source = 'constructors';
+                    } else if (type === 'regularity') {
+                      newHypothesis.bounds = { depth: 2, nbEvents: 5 };
+                    }
+                    updateVariable(idx, 'hypothesis', newHypothesis);
+                  }}
+                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                >
+                  <option value="uniformity">Uniformity (single value)</option>
+                  <option value="subuniformity">Subuniformity (partition)</option>
+                  <option value="regularity">Regularity (bounded)</option>
+                </select>
+                
+                {variable.hypothesis.type === 'subuniformity' && (
+                  <select
+                    value={variable.hypothesis.source || 'constructors'}
+                    onChange={(e) => updateVariableHypothesis(idx, 'source', e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs mt-1"
+                  >
+                    <option value="constructors">Constructors</option>
+                    <option value="guards">Guards</option>
+                    <option value="axiom">Axiom</option>
+                  </select>
+                )}
+                
+                {variable.hypothesis.type === 'uniformity' && (
+                  <input
+                    type="text"
+                    value={JSON.stringify(variable.hypothesis.representative)}
+                    onChange={(e) => {
+                      try {
+                        const val = JSON.parse(e.target.value);
+                        updateVariableHypothesis(idx, 'representative', val);
+                      } catch {}
+                    }}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs mt-1 font-mono"
+                    placeholder="e.g., 0"
+                  />
+                )}
+              </div>
+            </div>
+          ))}
+          
+          {intention.variables.length === 0 && (
+            <div className="text-center py-4 text-gray-400 text-sm">
+              No variables defined. Add variables to parameterize this intention.
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Stim/Obs Pairs Section */}
+      <div className="border-t pt-4">
+        <div className="flex justify-between items-center mb-3">
+          <label className="block text-sm font-medium text-gray-700">
+            Stimulation/Observation Pairs
+            <span className="ml-2 text-xs text-gray-500">({intention.pairs.length})</span>
+          </label>
+          <button
+            onClick={addPair}
+            className="px-3 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100"
+          >
+            + Add Pair
+          </button>
+        </div>
+        
+        <div className="space-y-4">
+          {intention.pairs.map((pair, idx) => (
+            <div key={idx} className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <div className="flex justify-between items-start mb-2">
+                <span className="text-xs font-medium text-blue-700">Pair {idx + 1}</span>
+                <button
+                  onClick={() => removePair(idx)}
+                  className="px-2 py-0.5 text-red-600 hover:bg-red-50 rounded text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {/* Stimulation */}
+              <div className="bg-white p-2 rounded mb-2">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Stimulation</label>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Transition</label>
+                  <select
+                    value={pair.stimulation.transition}
+                    onChange={(e) => updateStimulation(idx, 'transition', e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
+                  >
+                    <option value="">Select transition...</option>
+                    {transitions.map(t => (
+                      <option key={t.id} value={t.id}>{t.label || t.id}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mt-2">
+                  <label className="block text-xs text-gray-600 mb-1">Inputs (JSON)</label>
+                  <textarea
+                    value={JSON.stringify(pair.stimulation.inputs, null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const val = JSON.parse(e.target.value);
+                        updateStimulation(idx, 'inputs', val);
+                      } catch {}
+                    }}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                    rows={3}
+                    placeholder='{ "placeId": ["$var"] }'
+                  />
+                </div>
+              </div>
+              
+              {/* Observation */}
+              <div className="bg-white p-2 rounded">
+                <label className="block text-xs font-medium text-gray-700 mb-1">Observation</label>
+                <div>
+                  <label className="block text-xs text-gray-600 mb-1">Expected Outputs (JSON)</label>
+                  <textarea
+                    value={JSON.stringify(pair.observation.outputs, null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const val = JSON.parse(e.target.value);
+                        updateObservation(idx, 'outputs', val);
+                      } catch {}
+                    }}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                    rows={3}
+                    placeholder='{ "placeId": [tokens] }'
+                  />
+                </div>
+                <div className="mt-2">
+                  <label className="block text-xs text-gray-600 mb-1">Marking Constraints (JSON, optional)</label>
+                  <textarea
+                    value={JSON.stringify(pair.observation.markings || {}, null, 2)}
+                    onChange={(e) => {
+                      try {
+                        const val = JSON.parse(e.target.value);
+                        updateObservation(idx, 'markings', val);
+                      } catch {}
+                    }}
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                    rows={2}
+                    placeholder='{ "placeId": { "length": 0 } }'
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          
+          {intention.pairs.length === 0 && (
+            <div className="text-center py-4 text-gray-400 text-sm">
+              No pairs defined. Add stimulation/observation pairs to specify the test.
+            </div>
+          )}
+        </div>
+      </div>
+      
+      {/* Action Buttons */}
+      <div className="pt-4 border-t flex gap-2">
+        <button
+          onClick={onSave}
+          className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+        >
+          Save Intention
+        </button>
+        <button
+          onClick={onCancel}
+          className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-300"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default IntentionEditorV2;

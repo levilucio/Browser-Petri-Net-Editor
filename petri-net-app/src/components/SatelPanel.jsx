@@ -8,6 +8,7 @@ import {
   validateInterface
 } from '../satel';
 import { AlgebraicSimulator } from '../features/simulation/algebraic-simulator';
+import IntentionEditorV2 from './IntentionEditorV2';
 
 const SatelPanel = ({ isOpen, onClose }) => {
   const { elements, simulationSettings } = usePetriNet();
@@ -326,6 +327,18 @@ const SatelPanel = ({ isOpen, onClose }) => {
     };
     setEditingIntention(newIntention);
   };
+  
+  const handleCreateIntentionV2 = () => {
+    const newIntention = {
+      id: `intention-v2-${Date.now()}`,
+      name: 'New V2 Test Intention',
+      description: '',
+      testType: 'positive',
+      variables: [],
+      pairs: []
+    };
+    setEditingIntention(newIntention);
+  };
 
   const handleSaveIntention = () => {
     if (!editingIntention) return;
@@ -513,6 +526,7 @@ const IntentionsTab = ({
   editingIntention,
   onSelectIntention,
   onCreateIntention,
+  onCreateIntentionV2,
   onEditIntention,
   onSaveIntention,
   onDeleteIntention,
@@ -533,12 +547,20 @@ const IntentionsTab = ({
 
   return (
     <div className="p-4">
-      <button
-        onClick={onCreateIntention}
-        className="w-full mb-4 px-4 py-3 bg-blue-50 text-blue-600 border-2 border-dashed border-blue-300 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
-      >
-        + Create Test Intention
-      </button>
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        <button
+          onClick={onCreateIntention}
+          className="px-4 py-3 bg-blue-50 text-blue-600 border-2 border-dashed border-blue-300 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+        >
+          + Create V1 Intention
+        </button>
+        <button
+          onClick={onCreateIntentionV2}
+          className="px-4 py-3 bg-purple-50 text-purple-600 border-2 border-dashed border-purple-300 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium"
+        >
+          + Create V2 Intention
+        </button>
+      </div>
 
       {testIntentions.length === 0 ? (
         <div className="text-center py-8 text-gray-500 text-sm">
@@ -558,24 +580,41 @@ const IntentionsTab = ({
               onClick={() => onSelectIntention(intention)}
             >
               <div className="flex items-start justify-between mb-2">
-                <h3 className="font-medium text-sm text-gray-800">{intention.name}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium text-sm text-gray-800">{intention.name}</h3>
+                  {isV2Intention(intention) && (
+                    <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded font-medium">
+                      V2
+                    </span>
+                  )}
+                </div>
                 <span className={`text-xs px-2 py-1 rounded ${
-                  intention.oracleType === 'positive' 
+                  (intention.testType === 'positive' || intention.oracleType === 'positive')
                     ? 'bg-green-100 text-green-700'
                     : 'bg-red-100 text-red-700'
                 }`}>
-                  {intention.oracleType}
+                  {intention.testType || intention.oracleType}
                 </span>
               </div>
               {intention.description && (
                 <p className="text-xs text-gray-600 mb-2">{intention.description}</p>
               )}
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <span>{intention.pathPattern?.events?.length || 0} events</span>
-                <span>•</span>
-                <span>{intention.inputConstraints?.length || 0} inputs</span>
-                <span>•</span>
-                <span>{intention.outputExpectations?.length || 0} outputs</span>
+                {isV2Intention(intention) ? (
+                  <>
+                    <span>{intention.variables?.length || 0} variables</span>
+                    <span>•</span>
+                    <span>{intention.pairs?.length || 0} pairs</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{intention.pathPattern?.events?.length || 0} events</span>
+                    <span>•</span>
+                    <span>{intention.inputConstraints?.length || 0} inputs</span>
+                    <span>•</span>
+                    <span>{intention.outputExpectations?.length || 0} outputs</span>
+                  </>
+                )}
               </div>
               {selectedIntention?.id === intention.id && (
                 <div className="mt-3 pt-3 border-t border-gray-200 flex gap-2">
@@ -609,8 +648,40 @@ const IntentionsTab = ({
   );
 };
 
-// Intention Editor Component
+// Detect if intention is V2 format
+const isV2Intention = (intention) => {
+  return intention && intention.variables && intention.pairs;
+};
+
+// Intention Editor Component (dispatcher)
 const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) => {
+  // Detect format and use appropriate editor
+  if (isV2Intention(intention)) {
+    return (
+      <IntentionEditorV2
+        intention={intention}
+        onChange={onChange}
+        onSave={onSave}
+        onCancel={onCancel}
+        elements={elements}
+      />
+    );
+  }
+  
+  // V1 editor
+  return (
+    <IntentionEditorV1
+      intention={intention}
+      onChange={onChange}
+      onSave={onSave}
+      onCancel={onCancel}
+      elements={elements}
+    />
+  );
+};
+
+// V1 Intention Editor Component
+const IntentionEditorV1 = ({ intention, onChange, onSave, onCancel, elements }) => {
   const transitions = elements.transitions || [];
   const places = elements.places || [];
 
@@ -878,24 +949,95 @@ const ResultsTab = ({ testSuite, testResults, isGenerating, isExecuting }) => {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Total Tests:</span>
-              <span className="font-semibold">{testResults.totalTests}</span>
+              <span className="font-semibold">{testResults.statistics?.total || testResults.totalTests || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-green-600">Passed:</span>
-              <span className="font-semibold text-green-600">{testResults.passed}</span>
+              <span className="font-semibold text-green-600">{testResults.statistics?.passed || testResults.passed || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-red-600">Failed:</span>
-              <span className="font-semibold text-red-600">{testResults.failed}</span>
+              <span className="font-semibold text-red-600">{testResults.statistics?.failed || testResults.failed || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-yellow-600">Errors:</span>
-              <span className="font-semibold text-yellow-600">{testResults.errors}</span>
+              <span className="font-semibold text-yellow-600">{testResults.statistics?.errors || testResults.errors || 0}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Execution Time:</span>
+              <span className="font-semibold">{testResults.statistics?.executionTime || 0}ms</span>
             </div>
           </div>
-          {testResults.passed === testResults.totalTests && (
+          {(testResults.statistics?.passed === testResults.statistics?.total || 
+            testResults.passed === testResults.totalTests) && (
             <div className="mt-3 p-2 bg-green-100 border border-green-300 rounded text-green-700 text-sm text-center font-medium">
               ✓ All tests passed!
+            </div>
+          )}
+          
+          {/* V2 Test Results with Per-Pair Details */}
+          {testResults.testResults && testResults.testResults.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <h4 className="text-xs font-semibold text-gray-600">Test Case Details:</h4>
+              {testResults.testResults.map((result, idx) => (
+                <div key={idx} className={`p-2 rounded border text-xs ${
+                  result.verdict === 'pass' 
+                    ? 'bg-green-50 border-green-200' 
+                    : 'bg-red-50 border-red-200'
+                }`}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-medium">{result.testCaseId}</span>
+                    <span className={`px-2 py-0.5 rounded ${
+                      result.verdict === 'pass' 
+                        ? 'bg-green-200 text-green-800' 
+                        : 'bg-red-200 text-red-800'
+                    }`}>
+                      {result.verdict}
+                    </span>
+                  </div>
+                  
+                  {result.testType && (
+                    <div className="text-gray-600 mb-1">
+                      Type: <span className="font-medium">{result.testType}</span>
+                    </div>
+                  )}
+                  
+                  {result.summary && (
+                    <div className="text-gray-600 mb-1">{result.summary}</div>
+                  )}
+                  
+                  {result.pairResults && result.pairResults.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      <div className="font-medium text-gray-700">Pair Results:</div>
+                      {result.pairResults.map((pr, pIdx) => (
+                        <div key={pIdx} className={`pl-3 py-1 border-l-2 ${
+                          pr.success ? 'border-green-400' : 'border-red-400'
+                        }`}>
+                          <span className="font-medium">Pair {pIdx + 1}: </span>
+                          <span className={pr.success ? 'text-green-700' : 'text-red-700'}>
+                            {pr.success ? '✓ pass' : '✗ fail'}
+                          </span>
+                          <span className="text-gray-600 ml-2">({pr.phase})</span>
+                          {pr.transition && (
+                            <div className="text-gray-600 text-xs mt-0.5">
+                              Transition: {pr.transition}
+                            </div>
+                          )}
+                          {pr.reason && (
+                            <div className="text-red-600 text-xs mt-0.5">
+                              Reason: {pr.reason}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {result.reason && !result.pairResults && (
+                    <div className="text-red-600 mt-1">{result.reason}</div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
