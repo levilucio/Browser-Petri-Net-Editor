@@ -13,8 +13,11 @@
  * complex guards, state dependencies, and concurrent resource usage.
  */
 
+import { manufacturingADTs, createOrder, createMaterial, createJob } from './adt.js';
+
 export const manufacturingNet = {
   mode: 'algebraic',
+  adtDefinitions: manufacturingADTs,
   places: [
     // ============ INPUT PLACES (Stimulations) ============
     {
