@@ -1,4 +1,4 @@
-import { DEFAULT_LOG_LEVEL, getLogLevel, setLogLevel as setConfigLevel, shouldLog } from '../config/logging';
+import { DEFAULT_LOG_LEVEL, getLogLevel, setLogLevel as setConfigLevel, shouldLog } from '../config/logging.js';
 
 export function setLogLevel(level) {
   setConfigLevel(level);
