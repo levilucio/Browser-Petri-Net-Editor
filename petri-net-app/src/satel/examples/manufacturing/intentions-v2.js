@@ -61,12 +61,12 @@ export const orderProcessingIntention = {
 };
 
 /**
- * Intention 2: Quality Check - Pass/Fail
- * Tests quality control with both outcomes (subuniformity over QualityStatus)
+ * Intention 2: Quality Check Pass
+ * Tests quality control pass outcome
  */
-export const qualityCheckIntention = {
-  id: 'quality-check',
-  name: 'Quality Check',
+export const qualityCheckPassIntention = {
+  id: 'quality-check-pass',
+  name: 'Quality Check Pass',
   testType: 'positive',
   variables: [
     {
@@ -74,36 +74,67 @@ export const qualityCheckIntention = {
       sort: 'Job',
       hypothesis: {
         type: 'uniformity',
-        representative: createJob(createOrder(1, 'Normal'), createMaterial(50))
+        representative: createJob(
+          createOrder(1, { __adt__: true, constructor: 'Normal', args: [] }),
+          createMaterial(50)
+        )
       },
       description: 'Job under inspection'
-    },
-    {
-      name: 'outcome',
-      sort: 'QualityStatus',
-      hypothesis: {
-        type: 'subuniformity',
-        source: 'constructors' // Pass and Fail
-      },
-      description: 'Quality check outcome'
     }
   ],
   pairs: [
     {
       stimulation: {
-        transition: 'qualityCheck',
+        transition: 'qualityCheckPass',
         inputs: {
           stage3InProgress: ['$job']
         }
       },
       observation: {
-        // Outcome depends on $outcome value - oracle checks appropriate place
-        // If Pass: completedProducts gets product
-        // If Fail: reworkQueue gets job
-        // This is handled by oracle checking variable instantiation
         outputs: {
-          completedProducts: [], // Will check based on $outcome
-          reworkQueue: []
+          completedProducts: [
+            createProduct(1, { __adt__: true, constructor: 'Pass', args: [] })
+          ],
+          machineStatus: [{ value: 1 }]
+        }
+      }
+    }
+  ]
+};
+
+/**
+ * Intention 2b: Quality Check Fail
+ * Tests quality control fail outcome
+ */
+export const qualityCheckFailIntention = {
+  id: 'quality-check-fail',
+  name: 'Quality Check Fail',
+  testType: 'positive',
+  variables: [
+    {
+      name: 'job',
+      sort: 'Job',
+      hypothesis: {
+        type: 'uniformity',
+        representative: createJob(
+          createOrder(1, { __adt__: true, constructor: 'Normal', args: [] }),
+          createMaterial(50)
+        )
+      }
+    }
+  ],
+  pairs: [
+    {
+      stimulation: {
+        transition: 'qualityCheckFail',
+        inputs: {
+          stage3InProgress: ['$job']
+        }
+      },
+      observation: {
+        outputs: {
+          reworkQueue: ['$job'],
+          machineStatus: [{ value: 1 }]
         }
       }
     }
@@ -117,14 +148,14 @@ export const qualityCheckIntention = {
 export const materialExhaustionIntention = {
   id: 'material-exhaustion',
   name: 'Material Exhaustion',
-  testType: 'negative', // Expect failure
+  testType: 'negative', // Expect observation failure
   variables: [
     {
       name: 'order',
       sort: 'Order',
       hypothesis: {
         type: 'uniformity',
-        representative: createOrder(1, 'High') // High priority but insufficient material
+        representative: createOrder(1, { __adt__: true, constructor: 'High', args: [] })
       }
     }
   ],
@@ -134,13 +165,17 @@ export const materialExhaustionIntention = {
         transition: 'scheduleJob',
         inputs: {
           orderQueue: ['$order'],
-          rawMaterialSupply: [createMaterial(0)] // No material available
+          rawMaterialSupply: [createMaterial(10)] // Insufficient (needs 50)
         }
       },
       observation: {
-        // Expect this to fail (transition disabled due to guard)
+        // Expect observation to fail - transition fires but produces unexpected output
         outputs: {
-          scheduledJobs: [] // Should remain empty
+          scheduledJobs: [] // Expect empty (guard should fail)
+        },
+        markings: {
+          orderQueue: { length: 0 }, // Should be consumed even if guard fails
+          rawMaterialSupply: { length: 0 }
         }
       }
     }
@@ -161,7 +196,7 @@ export const completeWorkflowIntention = {
       sort: 'Order',
       hypothesis: {
         type: 'uniformity',
-        representative: createOrder(1, 'Normal')
+        representative: createOrder(1, { __adt__: true, constructor: 'Normal', args: [] })
       }
     },
     {
@@ -184,7 +219,11 @@ export const completeWorkflowIntention = {
       },
       observation: {
         outputs: {
-          scheduledJobs: [createJob('$order', '$material')]
+          scheduledJobs: [{
+            __adt__: true,
+            constructor: 'Job',
+            args: ['$order', '$material']
+          }]
         }
       }
     },
@@ -192,16 +231,21 @@ export const completeWorkflowIntention = {
       stimulation: {
         transition: 'startStage1',
         inputs: {
-          scheduledJobs: [createJob('$order', '$material')],
-          machineStatus: [{ value: 3 }]
+          scheduledJobs: [{
+            __adt__: true,
+            constructor: 'Job',
+            args: ['$order', '$material']
+          }],
+          machineStatus: [{ value: 1 }]
         }
       },
       observation: {
         outputs: {
-          stage1InProgress: [createJob('$order', '$material')]
-        },
-        markings: {
-          machineStatus: { length: 1 } // One machine consumed
+          stage1InProgress: [{
+            __adt__: true,
+            constructor: 'Job',
+            args: ['$order', '$material']
+          }]
         }
       }
     },
@@ -209,12 +253,20 @@ export const completeWorkflowIntention = {
       stimulation: {
         transition: 'completeStage1',
         inputs: {
-          stage1InProgress: [createJob('$order', '$material')]
+          stage1InProgress: [{
+            __adt__: true,
+            constructor: 'Job',
+            args: ['$order', '$material']
+          }]
         }
       },
       observation: {
         outputs: {
-          stage2InProgress: [createJob('$order', '$material')]
+          stage2InProgress: [{
+            __adt__: true,
+            constructor: 'Job',
+            args: ['$order', '$material']
+          }]
         }
       }
     },
@@ -222,12 +274,20 @@ export const completeWorkflowIntention = {
       stimulation: {
         transition: 'completeStage2',
         inputs: {
-          stage2InProgress: [createJob('$order', '$material')]
+          stage2InProgress: [{
+            __adt__: true,
+            constructor: 'Job',
+            args: ['$order', '$material']
+          }]
         }
       },
       observation: {
         outputs: {
-          stage3InProgress: [createJob('$order', '$material')]
+          stage3InProgress: [{
+            __adt__: true,
+            constructor: 'Job',
+            args: ['$order', '$material']
+          }]
         }
       }
     },
@@ -235,12 +295,19 @@ export const completeWorkflowIntention = {
       stimulation: {
         transition: 'qualityCheckPass',
         inputs: {
-          stage3InProgress: [createJob('$order', '$material')]
+          stage3InProgress: [{
+            __adt__: true,
+            constructor: 'Job',
+            args: ['$order', '$material']
+          }]
         }
       },
       observation: {
         outputs: {
-          completedProducts: [createProduct('$order.id', 'Pass')]
+          completedProducts: [
+            createProduct(1, { __adt__: true, constructor: 'Pass', args: [] })
+          ],
+          machineStatus: [{ value: 1 }]
         }
       }
     }
@@ -250,7 +317,8 @@ export const completeWorkflowIntention = {
 // Export all v2 intentions
 export const manufacturingIntentionsV2 = [
   orderProcessingIntention,
-  qualityCheckIntention,
+  qualityCheckPassIntention,
+  qualityCheckFailIntention,
   materialExhaustionIntention,
   completeWorkflowIntention
 ];
