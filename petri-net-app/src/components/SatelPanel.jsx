@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
+import { generateTestSuite } from '../satel/core/TestGenerator';
+import { executeTestSuite } from '../satel/core/TestExecutor';
 import { 
-  generateTestSuite, 
-  executeTestSuite, 
   generateExecutionReport,
   extractInterface,
   validateInterface
@@ -98,14 +98,21 @@ const SatelPanel = ({ isOpen, onClose }) => {
     try {
       console.log('[SATEL] Starting test generation with', testIntentions.length, 'intentions');
       
+      // Check if all intentions are V2 format
+      const hasV2Intentions = testIntentions.some(intention => 
+        intention.variables && intention.pairs
+      );
+      
       const petriNet = {
         places: elements.places,
         transitions: elements.transitions,
         arcs: elements.arcs,
-        mode: 'algebraic'
+        mode: 'algebraic',
+        adtDefinitions: elements.adtDefinitions || elements.places[0]?.adtDefinitions
       };
 
       console.log('[SATEL] Petri net:', petriNet.places.length, 'places,', petriNet.transitions.length, 'transitions');
+      console.log('[SATEL] Has V2 intentions:', hasV2Intentions);
       
       // Check if we're in demo mode (Z3 not available)
       const demoMode = window.location.search.includes('satel-demo=true');
@@ -200,12 +207,16 @@ const SatelPanel = ({ isOpen, onClose }) => {
         };
         
         // Generate entire suite (uses shared graph caching internally)
+        // Skip reachability graph for V2 intentions
         suite = await generateTestSuite(
           testIntentions,
           petriNet,
           simulator,
           {
             ...limits,
+            maxStates: hasV2Intentions ? 0 : limits.maxStates,
+            maxDepth: hasV2Intentions ? 0 : limits.maxDepth,
+            applyReduction: !hasV2Intentions,
             onProgress: progressCallback
           }
         );
@@ -298,7 +309,8 @@ const SatelPanel = ({ isOpen, onClose }) => {
           places: elements.places,
           transitions: elements.transitions,
           arcs: elements.arcs,
-          mode: 'algebraic'
+          mode: 'algebraic',
+          adtDefinitions: elements.adtDefinitions || elements.places[0]?.adtDefinitions
         };
         results = await executeTestSuite(testSuite, petriNet, simulator);
       }
