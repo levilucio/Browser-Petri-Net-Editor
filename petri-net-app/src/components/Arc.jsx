@@ -51,12 +51,30 @@ const Arc = ({
   const endX = target.x;
   const endY = target.y;
 
-  // Calculate start and end angles for a straight line
-  const dx = endX - startX;
-  const dy = endY - startY;
-  const startAngle = Math.atan2(dy, dx);
-  const endAngle = startAngle;
-  const finalSegmentAngle = startAngle;
+  // Check if arc has waypoints for orthogonal routing
+  const waypoints = arc.waypoints || [];
+  const hasWaypoints = waypoints.length > 0;
+  
+  // Calculate angles based on waypoints or direct line
+  let startAngle, endAngle, finalSegmentAngle;
+  
+  if (hasWaypoints) {
+    // Start angle: from source to first waypoint
+    const firstWaypoint = waypoints[0];
+    startAngle = Math.atan2(firstWaypoint.y - startY, firstWaypoint.x - startX);
+    
+    // End angle: from last waypoint to target
+    const lastWaypoint = waypoints[waypoints.length - 1];
+    endAngle = Math.atan2(endY - lastWaypoint.y, endX - lastWaypoint.x);
+    finalSegmentAngle = endAngle;
+  } else {
+    // Direct line angles
+    const dx = endX - startX;
+    const dy = endY - startY;
+    startAngle = Math.atan2(dy, dx);
+    endAngle = startAngle;
+    finalSegmentAngle = startAngle;
+  }
   
   // Adjust start and end points based on source and target shapes
   let adjustedStartX, adjustedStartY, adjustedEndX, adjustedEndY;
@@ -133,10 +151,44 @@ const Arc = ({
   const displayArrowPoint2X = arrowPoint2X;
   const displayArrowPoint2Y = arrowPoint2Y;
 
-  // Midpoint and segment angle for labels on a straight line
-  const midX = (displayStartX + displayEndX) / 2;
-  const midY = (displayStartY + displayEndY) / 2;
-  const midSegmentAngle = Math.atan2(displayEndY - displayStartY, displayEndX - displayStartX);
+  // Prepare line points for drawing (with waypoints if available)
+  let linePoints;
+  let midX, midY, midSegmentAngle;
+  
+  if (hasWaypoints) {
+    // Build points array including waypoints
+    linePoints = [displayStartX, displayStartY];
+    waypoints.forEach(wp => {
+      linePoints.push(wp.x, wp.y);
+    });
+    linePoints.push(displayEndX, displayEndY);
+    
+    // Calculate midpoint along the path
+    const midIndex = Math.floor(waypoints.length / 2);
+    if (waypoints.length > 0) {
+      const midWaypoint = waypoints[midIndex];
+      midX = midWaypoint.x;
+      midY = midWaypoint.y;
+      
+      // Angle at midpoint
+      if (midIndex > 0) {
+        const prevWp = waypoints[midIndex - 1];
+        midSegmentAngle = Math.atan2(midWaypoint.y - prevWp.y, midWaypoint.x - prevWp.x);
+      } else {
+        midSegmentAngle = Math.atan2(midWaypoint.y - displayStartY, midWaypoint.x - displayStartX);
+      }
+    } else {
+      midX = (displayStartX + displayEndX) / 2;
+      midY = (displayStartY + displayEndY) / 2;
+      midSegmentAngle = Math.atan2(displayEndY - displayStartY, displayEndX - displayStartX);
+    }
+  } else {
+    // Straight line
+    linePoints = [displayStartX, displayStartY, displayEndX, displayEndY];
+    midX = (displayStartX + displayEndX) / 2;
+    midY = (displayStartY + displayEndY) / 2;
+    midSegmentAngle = Math.atan2(displayEndY - displayStartY, displayEndX - displayStartX);
+  }
   
   // Offset the weight label slightly to not overlap with the line (on one side)
   const weightOffsetX = -10 * Math.sin(midSegmentAngle);
@@ -145,9 +197,6 @@ const Arc = ({
   // Calculate name label position (on the opposite side of the arc from the weight)
   const nameOffsetX = 10 * Math.sin(midSegmentAngle);
   const nameOffsetY = -10 * Math.cos(midSegmentAngle);
-
-  // Prepare line points for drawing (straight line)
-  const linePoints = [displayStartX, displayStartY, displayEndX, displayEndY];
 
   // Return the arc component with polyline, arrow head, angle points, and weight label
   return (

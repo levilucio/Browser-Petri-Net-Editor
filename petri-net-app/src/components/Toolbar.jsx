@@ -44,7 +44,15 @@ const Toolbar = ({
   // Handlers moved to hook for clarity
   const { saveFileHandle, setSaveFileHandle } = (() => { try { return usePetriNet(); } catch (_) { return { saveFileHandle: null, setSaveFileHandle: () => {} }; } })();
 
-  const { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager, handleLoadExample } = useToolbarActions({
+  const { 
+    handleSave, 
+    handleSaveAs, 
+    handleLoad, 
+    handleClear, 
+    handleOpenAdtManager, 
+    handleLoadExample,
+    handleAutoLayout 
+  } = useToolbarActions({
     elements,
     setElements,
     updateHistory,
@@ -279,7 +287,32 @@ const Toolbar = ({
           </div>
         </div>
         
-        {/* Visual separator between Editing and ADT Manager */}
+        {/* Visual separator between Editing and Layout */}
+        <div className="h-full" style={{ 
+          borderRight: '1px solid rgba(180, 180, 190, 0.9)',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
+          margin: '0 12px',
+          height: '50px',
+          alignSelf: 'center',
+          opacity: 0.85
+        }}></div>
+        
+        {/* Layout Group */}
+        <div className="layout-tools p-2 flex-shrink-0">
+          <h3 className="text-xs font-semibold text-gray-600 mb-1 uppercase tracking-wider">Layout</h3>
+          <div className="flex justify-between">
+            <button
+              style={desktopButtonStyle(false)}
+              onClick={handleAutoLayout}
+              title="Automatically arrange places and transitions"
+              data-testid="toolbar-auto-layout"
+            >
+              Auto-layout
+            </button>
+          </div>
+        </div>
+
+        {/* Visual separator between Layout and ADT Manager */}
         <div className="h-full" style={{ 
           borderRight: '1px solid rgba(180, 180, 190, 0.9)',
           borderLeft: '1px solid rgba(255, 255, 255, 0.9)',
@@ -403,6 +436,24 @@ const Toolbar = ({
           <label htmlFor="grid-snap-toggle-mobile" className="text-sm text-gray-700">Snap to Grid</label>
         </div>
         {/* ModeButtons removed - now available as floating controls on canvas */}
+      </div>
+      <div className="layout-tools">
+        <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">Layout</h3>
+        <button
+          className="menu-button-hover"
+          style={mobileButtonStyle(false, 'default')}
+          onClick={() => {
+            setIsMobileMenuOpen(false);
+            handleAutoLayout();
+          }}
+          title="Automatically arrange places and transitions"
+          data-testid="toolbar-auto-layout-mobile"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z" />
+          </svg>
+          Auto-layout
+        </button>
       </div>
       <div className="adt-tools">
         <h3 className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wider">ADT Manager</h3>

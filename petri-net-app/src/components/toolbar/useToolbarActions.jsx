@@ -1,6 +1,7 @@
 import { exportToPNML, importFromPNML } from '../../utils/python/index';
 import { simulatorCore } from '../../features/simulation';
 import { detectNetModeFromContent } from '../../utils/netMode';
+import { computeAutoLayout } from '../../features/layout/petri-net-layout';
 
 export default function useToolbarActions(params) {
   const {
@@ -390,7 +391,59 @@ export default function useToolbarActions(params) {
     }
   };
 
-  return { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager, handleLoadExample };
+  const handleAutoLayout = () => {
+    try {
+      setIsLoading?.(true);
+      setError?.(null);
+      setSuccess?.(null);
+
+      const places = elements?.places || [];
+      const transitions = elements?.transitions || [];
+      const arcs = elements?.arcs || [];
+
+      if (places.length === 0 && transitions.length === 0) {
+        setError?.('No elements to layout. Add some places and transitions first.');
+        setIsLoading?.(false);
+        return;
+      }
+
+      // Compute new layout
+      const { places: newPlaces, transitions: newTransitions } = computeAutoLayout(
+        places,
+        transitions,
+        arcs
+      );
+
+      // Update elements with new positions
+      const updatedElements = {
+        ...elements,
+        places: newPlaces,
+        transitions: newTransitions,
+        arcs: arcs, // Arcs remain the same
+      };
+
+      setElements?.(updatedElements);
+      if (updateHistory) updateHistory(updatedElements);
+
+      setSuccess?.(`Auto-layout applied to ${newPlaces.length} places and ${newTransitions.length} transitions.`);
+      setIsMobileMenuOpen?.(false);
+    } catch (error) {
+      console.error('Error applying auto-layout:', error);
+      setError?.(`Error applying auto-layout: ${error.message}`);
+    } finally {
+      setIsLoading?.(false);
+    }
+  };
+
+  return { 
+    handleSave, 
+    handleSaveAs, 
+    handleLoad, 
+    handleClear, 
+    handleOpenAdtManager, 
+    handleLoadExample,
+    handleAutoLayout 
+  };
 }
 
 
