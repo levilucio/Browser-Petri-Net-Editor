@@ -59,6 +59,7 @@ function applyReductionHypothesis(testCases, hypothesis, petriNet) {
     case 'regularity':
       return applyRegularityReduction(testCases, hypothesis);
     case 'axiom-based':
+    case 'axiom': // Support both 'axiom-based' and 'axiom' for backward compatibility
       return applyAxiomBasedReduction(testCases, hypothesis, petriNet);
     default:
       console.warn(`Unknown reduction type: ${hypothesis.type}`);
@@ -215,16 +216,20 @@ function computeTraceSignature(trace, petriNet) {
 }
 
 /**
- * Check if trace touches a domain (heuristic: look for domain name in bindings/values)
- * @param {Array} trace - Trace events
- * @param {string} domain - Domain name
+ * Check if a trace touches a domain (variable or place)
+ * For uniformity reduction over a variable's bindings
+ * @param {Array} trace - Execution trace
+ * @param {string} domain - Variable name (e.g., 'x', 'order', 'material')
  * @returns {boolean}
  */
 function traceTouchesDomain(trace, domain) {
+  // Check if any event's binding contains the domain variable as a key
   for (const event of trace) {
-    const bindingStr = JSON.stringify(event.binding).toLowerCase();
-    if (bindingStr.includes(domain.toLowerCase())) {
-      return true;
+    if (event.binding && typeof event.binding === 'object') {
+      // Check if domain is a variable name in the binding
+      if (domain in event.binding) {
+        return true;
+      }
     }
   }
   return false;

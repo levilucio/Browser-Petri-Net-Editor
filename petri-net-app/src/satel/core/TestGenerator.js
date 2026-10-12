@@ -6,6 +6,7 @@
 import { buildReachabilityGraph, findMatchingPaths } from './StateSpaceExplorer.js';
 import { generateOracle } from './OracleGenerator.js';
 import { applyReduction } from './ReductionEngine.js';
+import { buildAdtRegistry } from '../../utils/adt-parser.js';
 
 /**
  * Generate test suite from test intentions
@@ -35,6 +36,9 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
   
   const startTime = Date.now();
   
+  // Build ADT registry from Petri net ADT definitions for constructor partitioning
+  const adtRegistry = buildAdtRegistry(petriNet);
+  
   // OPTIMIZATION: Build reachability graph once and reuse for all intentions
   // This is the biggest time saver since all intentions share the same Petri net
   const graphStart = Date.now();
@@ -42,7 +46,8 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
     maxStates: options.maxStates || 1000,
     maxDepth: options.maxDepth || 50,
     signal: options.signal,
-    onProgress: options.onProgress
+    onProgress: options.onProgress,
+    adtRegistry // Pass ADT registry for constructor partitioning
   });
   const graphTime = Date.now() - graphStart;
   
@@ -135,6 +140,7 @@ async function generateTestCasesFromIntention(testIntention, petriNet, simulator
       maxStates: options.maxStates || 1000,
       maxDepth: options.maxDepth || 50,
       signal: options.signal,
+      adtRegistry, // Pass ADT registry
       onProgress: options.onProgress
     });
     graphTime = Date.now() - graphStart;

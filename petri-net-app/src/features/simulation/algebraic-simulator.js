@@ -300,6 +300,9 @@ export class AlgebraicSimulator extends BaseSimulator {
   async fireTransitionSpecific(transitionId, options = {}) {
     // Skip expensive enabled checks if firing in batch mode (caller will handle after all fires complete)
     const skipEnabledCheck = options.skipEnabledCheck || false;
+    const explicitBinding = options.explicitBinding || null;
+    const explicitPicks = options.explicitPicks || null;
+    
     // Capture previous enabled transitions for parity payload
     const previouslyEnabled = skipEnabledCheck ? [] : await this.getEnabledTransitionsSpecific();
     // A simple re-evaluation: find one satisfying assignment and apply
@@ -310,24 +313,36 @@ export class AlgebraicSimulator extends BaseSimulator {
     const placesById = Object.fromEntries((this.petriNet.places || []).map(p => [p.id, p]));
     const guardAst = this.cache.guardAstByTransition.get(transitionId);
 
-    const result = await findSatisfyingAssignment({
-      transition: t,
-      inputArcs,
-      placesById,
-      bindingAstsByArc: this.cache.bindingAstsByArc,
-      guardAst,
-      parseArithmetic,
-      evaluateBooleanPredicate: evaluateBooleanPredicateWithPool,
-      matchPattern,
-      getTokensForPlace,
-      evaluateArithmeticWithBindings,
-      evaluateBooleanWithBindings,
-      evaluatePatternLiteral,
-      maxTokensPerPlace: this._config.maxTokensPerPlace,
-    });
-    if (!result) throw new Error(`Transition ${transitionId} is not enabled`);
-    let env = result.env || {};
-    const picks = result.picks || [];
+    // Use explicit binding/picks if provided (for subuniformity), otherwise find one
+    let env, picks;
+    if (explicitBinding && explicitPicks) {
+      env = explicitBinding;
+      picks = explicitPicks;
+      // Validate the explicit binding satisfies the guard
+      if (guardAst) {
+        const ok = await evaluateBooleanPredicateWithPool(guardAst, env, parseArithmetic);
+        if (!ok) throw new Error(`Explicit binding does not satisfy guard for ${transitionId}`);
+      }
+    } else {
+      const result = await findSatisfyingAssignment({
+        transition: t,
+        inputArcs,
+        placesById,
+        bindingAstsByArc: this.cache.bindingAstsByArc,
+        guardAst,
+        parseArithmetic,
+        evaluateBooleanPredicate: evaluateBooleanPredicateWithPool,
+        matchPattern,
+        getTokensForPlace,
+        evaluateArithmeticWithBindings,
+        evaluateBooleanWithBindings,
+        evaluatePatternLiteral,
+        maxTokensPerPlace: this._config.maxTokensPerPlace,
+      });
+      if (!result) throw new Error(`Transition ${transitionId} is not enabled`);
+      env = result.env || {};
+      picks = result.picks || [];
+    }
 
     // If guard has free variables, try to solve the guard to bind them before producing outputs
     if (guardAst) {

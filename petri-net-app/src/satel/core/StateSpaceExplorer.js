@@ -225,10 +225,12 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
  * @private
  */
 async function fireTransitionWithBinding(simulator, transitionId, binding, picks, petriNet) {
-  // Use simulator's fireTransitionSpecific directly
-  // For now, just call fireTransition and accept whatever binding it finds
-  // TODO: Extend simulator API to accept explicit binding
-  return await simulator.fireTransition(transitionId);
+  // Fire transition with explicit binding and token picks
+  // This ensures the successor state matches the partition representative
+  return await simulator.fireTransition(transitionId, {
+    explicitBinding: binding,
+    explicitPicks: picks
+  });
 }
 
 /**
@@ -320,9 +322,22 @@ function transitionMatchesEvent(transition, event, graph) {
     return false;
   }
   
-  // TODO: Match binding constraints if specified
+  // Match binding constraints if specified
   if (event.binding) {
-    // Would need to compare transition.binding with event.binding
+    // Compare event.binding with transition.binding
+    // Both should be variable->value maps
+    if (!transition.binding) {
+      return false; // Event requires binding but transition has none
+    }
+    
+    // Check all variables in event.binding match transition.binding
+    for (const [varName, expectedValue] of Object.entries(event.binding)) {
+      const actualValue = transition.binding[varName];
+      // Deep equality check for values (handles objects, arrays, primitives)
+      if (JSON.stringify(actualValue) !== JSON.stringify(expectedValue)) {
+        return false;
+      }
+    }
   }
   
   return true;
