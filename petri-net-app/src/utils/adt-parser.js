@@ -115,17 +115,22 @@ export function parseADT(xmlString) {
         operations.push({
           name: opMatch[1],
           arity: parseInt(opMatch[2], 10),
-          result: opMatch[3]
+          result: opMatch[3],
+          params: []  // Legacy parser included params: []
         });
       }
       
-      // Extract axioms
-      const axiomRegex = /<axiom\s+name="([^"]+)"\s+equation="([^"]+)"\s*\/?>/g;
+      // Extract axioms - handle multiline content
+      const axiomRegex = /<axiom[^>]*name="([^"]+)"[^>]*>([\s\S]*?)<\/axiom>/g;
       let axiomMatch;
       while ((axiomMatch = axiomRegex.exec(typeContent)) !== null) {
+        const axiomContent = axiomMatch[2].trim();
+        // Extract equation from content or attributes
+        const eqMatch = axiomContent.match(/equation\s*=\s*"([^"]+)"/);
+        const equation = eqMatch ? eqMatch[1] : axiomContent;
         axioms.push({
           name: axiomMatch[1],
-          equation: axiomMatch[2]
+          equation
         });
       }
       

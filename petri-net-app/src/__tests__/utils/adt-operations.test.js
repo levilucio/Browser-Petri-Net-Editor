@@ -2,8 +2,8 @@
  * Test ADT Operations in Guards and Actions
  */
 
-import { parseBooleanExpr, evaluateBooleanWithBindings } from '../../utils/z3-arith.js';
-import { parseArithmetic, evaluateArithmeticWithBindings } from '../../utils/arith-parser.js';
+import { parseBooleanExpr, evaluateBooleanWithBindings, evaluateArithmeticWithBindings } from '../../utils/z3-arith.js';
+import { parseArithmetic } from '../../utils/arith-parser.js';
 
 describe('ADT Operations', () => {
   test('field accessor: quantity(Material(100))', () => {
