@@ -18,8 +18,15 @@ export function generateRepresentatives(varName, constraints, options = {}) {
   const {
     maxRepresentatives = 10,
     includeBoundaries = true,
-    includeSign = true
+    includeSign = true,
+    sortName = null,  // NEW: ADT sort name
+    adtRegistry = null // NEW: ADT registry
   } = options;
+
+  // NEW: ADT constructor partitioning
+  if (sortName && adtRegistry) {
+    return generateADTRepresentatives(sortName, adtRegistry, options);
+  }
 
   if (constraints.length === 0) {
     // Unbounded variable - use sign partition
@@ -71,6 +78,160 @@ export function generateRepresentatives(varName, constraints, options = {}) {
 }
 
 /**
+ * Generate ADT constructor representatives
+ * @param {string} sortName - ADT sort name (e.g., "List", "Option")
+ * @param {Object} adtRegistry - ADT registry
+ * @param {Object} options - Generation options
+ * @returns {Array} Array of representative values (one per constructor shape)
+ */
+export function generateADTRepresentatives(sortName, adtRegistry, options = {}) {
+  const { maxDepth = 2 } = options;
+
+  // Handle built-in ADT shapes (literal-based)
+  if (sortName === 'List') {
+    return [
+      [],           // Empty list (Nil equivalent)
+      [0]           // Non-empty list with default element (Cons equivalent)
+    ];
+  }
+
+  if (sortName === 'Pair') {
+    return [
+      { fst: 0, snd: 0, __pair__: true }  // Pair with default elements
+    ];
+  }
+
+  if (sortName === 'String') {
+    return [
+      '',      // Empty string
+      'a'      // Non-empty string
+    ];
+  }
+
+  if (sortName === 'Bool') {
+    return [false, true];
+  }
+
+  if (sortName === 'Int') {
+    return [-1, 0, 1]; // Sign partition
+  }
+
+  // Try to get custom ADT definition
+  const adt = adtRegistry?.getType(sortName);
+  if (!adt) {
+    // Unknown ADT - use default value
+    return [0];
+  }
+
+  // Check if ADT has explicit constructors
+  if (adt.constructors && adt.constructors.length > 0) {
+    return generateConstructorRepresentatives(adt, adtRegistry, maxDepth);
+  }
+
+  // Fallback: treat as opaque type with single representative
+  return [0];
+}
+
+/**
+ * Generate representatives for custom ADT constructors
+ * @param {Object} adt - ADT definition
+ * @param {Object} adtRegistry - ADT registry
+ * @param {number} maxDepth - Maximum recursion depth
+ * @returns {Array} Array of witness terms (one per constructor)
+ */
+function generateConstructorRepresentatives(adt, adtRegistry, maxDepth) {
+  const representatives = [];
+
+  for (const ctor of adt.constructors) {
+    const witness = generateWitnessTerm(ctor, adtRegistry, 0, maxDepth);
+    representatives.push(witness);
+  }
+
+  return representatives;
+}
+
+/**
+ * Generate a witness term for a constructor
+ * @param {Object} ctor - Constructor definition
+ * @param {Object} adtRegistry - ADT registry
+ * @param {number} depth - Current recursion depth
+ * @param {number} maxDepth - Maximum recursion depth
+ * @returns {Object} Witness term
+ */
+function generateWitnessTerm(ctor, adtRegistry, depth, maxDepth) {
+  if (depth >= maxDepth) {
+    // At depth limit: select minimal constructor for result type
+    const minimalCtor = selectMinimalConstructor(ctor.result, adtRegistry);
+    if (minimalCtor && minimalCtor.arity === 0) {
+      return { __adt__: true, constructor: minimalCtor.name, args: [] };
+    }
+    // Fallback to default value
+    return generateDefaultValue(ctor.result, adtRegistry, depth, maxDepth);
+  }
+
+  if (ctor.arity === 0) {
+    // Nullary constructor
+    return { __adt__: true, constructor: ctor.name, args: [] };
+  }
+
+  // Generate arguments
+  const args = [];
+  for (const param of ctor.params || []) {
+    const argValue = generateDefaultValue(param.type, adtRegistry, depth + 1, maxDepth);
+    args.push(argValue);
+  }
+
+  return { __adt__: true, constructor: ctor.name, args };
+}
+
+/**
+ * Generate a default value for a given sort
+ * @param {string} sortName - Sort name
+ * @param {Object} adtRegistry - ADT registry
+ * @param {number} depth - Current recursion depth
+ * @param {number} maxDepth - Maximum recursion depth
+ * @returns {*} Default value
+ */
+function generateDefaultValue(sortName, adtRegistry, depth, maxDepth) {
+  if (sortName === 'Int') return 0;
+  if (sortName === 'Bool') return false;
+  if (sortName === 'String') return '';
+  if (sortName === 'Any') return 0;
+  if (sortName === 'List') return [];
+  if (sortName === 'Pair') return { fst: 0, snd: 0, __pair__: true };
+
+  // Recursive ADT
+  const adt = adtRegistry?.getType(sortName);
+  if (adt && adt.constructors) {
+    const minimalCtor = selectMinimalConstructor(sortName, adtRegistry);
+    if (minimalCtor) {
+      return generateWitnessTerm(minimalCtor, adtRegistry, depth, maxDepth);
+    }
+  }
+
+  return 0; // Fallback
+}
+
+/**
+ * Select minimal constructor (prefer nullary)
+ * @param {string} sortName - Sort name
+ * @param {Object} adtRegistry - ADT registry
+ * @returns {Object|null} Minimal constructor
+ */
+function selectMinimalConstructor(sortName, adtRegistry) {
+  const adt = adtRegistry?.getType(sortName);
+  if (!adt || !adt.constructors) return null;
+
+  // Prefer nullary constructors (arity 0)
+  for (const ctor of adt.constructors) {
+    if (ctor.arity === 0) return ctor;
+  }
+
+  // Otherwise, pick first constructor
+  return adt.constructors[0];
+}
+
+/**
  * Generate partitions for all variables based on guard conditions
  * @param {Object} conditions - Conditions from GuardAnalyzer
  * @param {Object} options - Partition options
@@ -80,14 +241,26 @@ export function generatePartitions(conditions, options = {}) {
   const partitions = new Map();
   
   for (const [varName, constraints] of conditions.variables.entries()) {
-    const representatives = generateRepresentatives(varName, constraints, options);
+    // Check if variable has an ADT sort
+    const sortName = conditions.sorts?.get(varName);
+    const extendedOptions = { ...options, sortName };
+    
+    const representatives = generateRepresentatives(varName, constraints, extendedOptions);
     partitions.set(varName, representatives);
   }
   
-  // For unbounded variables, use minimal sign partition
+  // For unbounded variables, use minimal sign partition or ADT representatives
   for (const varName of conditions.unbounded) {
     if (!partitions.has(varName)) {
-      partitions.set(varName, [1]); // Single representative for unbounded
+      const sortName = conditions.sorts?.get(varName);
+      if (sortName && options.adtRegistry) {
+        // ADT with no guard constraints - use constructor representatives
+        const adtReps = generateADTRepresentatives(sortName, options.adtRegistry, options);
+        partitions.set(varName, adtReps);
+      } else {
+        // Default: single representative for unbounded
+        partitions.set(varName, [1]);
+      }
     }
   }
   
@@ -208,17 +381,32 @@ export function generateAbstractionDoc(conditions, partitions) {
   const doc = {
     bounded: [],
     unbounded: [],
+    adt: [], // NEW: ADT partitioning documentation
     summary: ''
   };
   
   for (const [varName, representatives] of partitions.entries()) {
     const constraints = conditions.variables.get(varName) || [];
+    const sortName = conditions.sorts?.get(varName);
     
-    if (constraints.length === 0) {
+    // Check if this is an ADT partition
+    if (sortName && isADTSort(sortName, representatives)) {
+      doc.adt.push({
+        variable: varName,
+        sort: sortName,
+        representatives,
+        note: `ADT constructor partitioning for ${sortName}`,
+        incompleteness: representatives.length > 1 
+          ? 'One representative per constructor shape; arguments use default values'
+          : 'Single constructor or default value'
+      });
+    } else if (constraints.length === 0) {
       doc.unbounded.push({
         variable: varName,
         representatives,
-        note: 'No guard constraints - using sign partition [−1, 0, 1]'
+        note: sortName 
+          ? `Sort ${sortName} with no guard constraints`
+          : 'No guard constraints - using sign partition [−1, 0, 1]'
       });
     } else {
       const constants = constraints
@@ -237,16 +425,40 @@ export function generateAbstractionDoc(conditions, partitions) {
   
   const boundedCount = doc.bounded.length;
   const unboundedCount = doc.unbounded.length;
+  const adtCount = doc.adt.length;
   
-  if (boundedCount > 0 && unboundedCount === 0) {
-    doc.summary = `All ${boundedCount} variable(s) bounded by guard constraints`;
-  } else if (boundedCount === 0 && unboundedCount > 0) {
-    doc.summary = `${unboundedCount} unbounded variable(s) - using sign partition`;
-  } else if (boundedCount > 0 && unboundedCount > 0) {
-    doc.summary = `${boundedCount} bounded, ${unboundedCount} unbounded variable(s)`;
+  const parts = [];
+  if (boundedCount > 0) parts.push(`${boundedCount} bounded`);
+  if (unboundedCount > 0) parts.push(`${unboundedCount} unbounded`);
+  if (adtCount > 0) parts.push(`${adtCount} ADT`);
+  
+  if (parts.length > 0) {
+    doc.summary = `${parts.join(', ')} variable(s)`;
   } else {
     doc.summary = 'No variables analyzed';
   }
   
   return doc;
+}
+
+/**
+ * Check if representatives are ADT constructor terms
+ * @private
+ */
+function isADTSort(sortName, representatives) {
+  if (sortName === 'Int' || sortName === 'Bool' || sortName === 'String') {
+    return false; // Primitive types
+  }
+  
+  // Check for List shape
+  if (sortName === 'List' || Array.isArray(representatives[0])) {
+    return true;
+  }
+  
+  // Check for constructor terms
+  if (representatives.some(r => r && typeof r === 'object' && r.__adt__)) {
+    return true;
+  }
+  
+  return sortName && sortName !== 'Any';
 }

@@ -69,6 +69,7 @@ function applyMarking(petriNet, marking) {
  * @param {number} [options.maxDepth=50] - Maximum depth
  * @param {AbortSignal} [options.signal] - Abort signal for cancellation
  * @param {Function} [options.onProgress] - Progress callback
+ * @param {Object} [options.adtRegistry] - ADT registry for constructor partitioning
  * @returns {Promise<Object>} Reachability graph
  */
 export async function buildReachabilityGraph(petriNet, simulator, options = {}) {
@@ -76,6 +77,7 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
   const maxDepth = options.maxDepth || 50;
   const signal = options.signal;
   const onProgress = options.onProgress;
+  const adtRegistry = options.adtRegistry || null;
   
   const states = new Map(); // hash -> state object
   const transitions = [];
@@ -154,6 +156,7 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
           petriNet: tempNet,
           simulator,
           cache: simulator.cache,
+          adtRegistry, // Pass ADT registry for constructor partitioning
           options: options.subuniformity || { enableSubuniformity: true }
         });
         

@@ -12,13 +12,17 @@
  * @param {Object} guardAst - Parsed guard AST (from cache)
  * @param {Array} inputArcs - Input arcs with bindings
  * @param {Map} bindingAstsByArc - Cached binding ASTs
+ * @param {Object} options - Analysis options
  * @returns {Object} Conditions object with variables and their constraints
  */
-export function analyzeGuard(guardAst, inputArcs, bindingAstsByArc) {
+export function analyzeGuard(guardAst, inputArcs, bindingAstsByArc, options = {}) {
+  const { adtRegistry = null, placesById = null } = options;
+  
   const conditions = {
     variables: new Map(), // varName -> [{type, op, value, ast}]
     hasGuard: !!guardAst,
-    unbounded: []
+    unbounded: [],
+    sorts: new Map() // NEW: varName -> sort name
   };
 
   // Extract variables from input bindings first
@@ -30,6 +34,33 @@ export function analyzeGuard(guardAst, inputArcs, bindingAstsByArc) {
         for (const varName of vars) {
           if (!conditions.variables.has(varName)) {
             conditions.variables.set(varName, []);
+          }
+          
+          // NEW: Try to infer sort from AST type annotation
+          if (astObj.ast.varType) {
+            conditions.sorts.set(varName, astObj.ast.varType);
+          }
+        }
+      }
+    }
+  }
+
+  // NEW: Try to infer sorts from place types
+  if (adtRegistry && placesById) {
+    for (const arc of inputArcs) {
+      const srcId = arc.sourceId || arc.source;
+      const place = placesById[srcId];
+      if (place && place.sort) {
+        // If place has a declared sort, use it for all variables from this arc
+        const bindingAsts = bindingAstsByArc.get(arc.id) || [];
+        for (const astObj of bindingAsts) {
+          if (astObj && astObj.ast) {
+            const vars = extractVariablesFromBindingAST(astObj.ast);
+            for (const varName of vars) {
+              if (!conditions.sorts.has(varName)) {
+                conditions.sorts.set(varName, place.sort);
+              }
+            }
           }
         }
       }

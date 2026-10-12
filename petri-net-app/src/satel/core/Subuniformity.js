@@ -18,6 +18,7 @@ import { findRepresentativeBindings } from './RepresentativeFinder.js';
  * @param {Object} params.petriNet - Petri net object
  * @param {Object} params.simulator - Algebraic simulator
  * @param {Object} params.cache - Simulator cache with guardAstByTransition and bindingAstsByArc
+ * @param {Object} params.adtRegistry - ADT registry (optional)
  * @param {Object} params.options - Options
  * @returns {Promise<Array>} Array of {binding, picks, repr, doc} objects
  */
@@ -26,12 +27,14 @@ export async function computeSubuniformTransitions({
   petriNet,
   simulator,
   cache,
+  adtRegistry = null,
   options = {}
 }) {
   const {
     maxRepresentatives = 10,
     enableSubuniformity = true,
-    includeBoundaries = true
+    includeBoundaries = true,
+    maxDepth = 2 // NEW: Max depth for ADT witness generation
   } = options;
 
   // Get transition and arcs
@@ -63,13 +66,18 @@ export async function computeSubuniformTransitions({
     return result;
   }
 
-  // Phase 1: Analyze guard to extract conditions
-  const conditions = analyzeGuard(guardAst, inputArcs, bindingAstsByArc);
+  // Phase 1: Analyze guard to extract conditions (with ADT support)
+  const conditions = analyzeGuard(guardAst, inputArcs, bindingAstsByArc, {
+    adtRegistry,
+    placesById
+  });
 
   // Phase 2: Generate partitions (equivalence class representatives)
   const partitions = generatePartitions(conditions, {
     maxRepresentatives,
-    includeBoundaries
+    includeBoundaries,
+    adtRegistry,
+    maxDepth
   });
 
   // Get evaluators once

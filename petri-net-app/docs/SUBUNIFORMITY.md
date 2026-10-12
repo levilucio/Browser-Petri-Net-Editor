@@ -337,14 +337,136 @@ await buildReachabilityGraph(petriNet, simulator, {
 
 **Net impact:** 5-20% slowdown, but more comprehensive coverage.
 
+## ADT Constructor Partitioning (NEW)
+
+### Supported ADT Shapes
+
+**Built-in ADTs** with constructor partitioning:
+
+1. **List** — Partition by shape:
+   - Empty: `[]` (Nil)
+   - Non-empty: `[0]` (Cons with default element)
+
+2. **String** — Partition by length:
+   - Empty: `""`
+   - Non-empty: `"a"`
+
+3. **Pair** — Single representative:
+   - `(0, 0)` (default pair)
+
+4. **Bool** — Exhaustive:
+   - `false`, `true`
+
+5. **Int** — Sign partition:
+   - `-1`, `0`, `1`
+
+### Constructor Partitioning Strategy
+
+**Phase 1: Detect ADT Sort**
+```javascript
+// From binding annotations or place types
+binding: 'lst' (sort: List)
+```
+
+**Phase 2: Partition by Constructor Shape**
+```javascript
+Sort: List
+Constructors (conceptual):
+  - Nil (arity 0) → []
+  - Cons (arity 2) → [head | tail]
+
+Equivalence Classes:
+  - Class 1: Empty → []
+  - Class 2: Non-empty → [defaultValue]
+```
+
+**Phase 3: Generate Witness Terms**
+```javascript
+Representatives:
+  - [] (nullary constructor)
+  - [0] (unary with default Int element)
+```
+
+### Example: List Processing
+
+**Tokens available:** `[]`, `[1]`, `[1,2,3]`
+
+**Without subuniformity:**
+- Fire with `[]` → length = 0
+- Fire with `[1]` → length = 1 ✓
+- Fire with `[1,2,3]` → length = 3 ✓
+- **Result:** 2 firings (but `[1]` and `[1,2,3]` equivalent!)
+
+**With subuniformity:**
+- Detect sort: `List`
+- Partition: `{[]}`, `{[_|_]}`
+- Representatives: `[]`, `[0]`
+- Fire with `[]` → length = 0
+- Fire with `[0]` → length = 1 ✓
+- **Result:** 1 firing per constructor class
+- **Reduction:** 50%
+
+### Custom ADT Support
+
+**Future:** Support for user-defined ADTs with explicit constructors:
+
+```xml
+<type name="Option">
+  <constructor name="None" arity="0"/>
+  <constructor name="Some" arity="1">
+    <param index="0" type="Any"/>
+  </constructor>
+</type>
+```
+
+**Partitioning:**
+```javascript
+Representatives:
+  - { __adt__: true, constructor: 'None', args: [] }
+  - { __adt__: true, constructor: 'Some', args: [0] }
+```
+
+### Depth Bounding
+
+**Recursive ADTs** (e.g., `List`, `Tree`) require depth limits:
+
+```javascript
+maxDepth = 2:
+  List → [0] (depth 1)
+  Tree → Node(0, Leaf, Leaf) (depth 2)
+
+maxDepth exceeded:
+  Use minimal constructor (nullary if available)
+```
+
+### Soundness for ADTs
+
+✅ **Finite constructors:** Each ADT has finite top-level constructors  
+✅ **Depth-bounded:** Recursive structures limited by `maxDepth`  
+✅ **One witness per constructor:** No enumeration of all possible arguments  
+⚠️ **Incomplete for arguments:** Only uses default values for constructor parameters
+
+### Documentation Example
+
+```javascript
+{
+  variable: 'lst',
+  sort: 'List',
+  representatives: [[], [0]],
+  note: 'ADT constructor partitioning for List',
+  incompleteness: 'One representative per constructor shape; arguments use default values'
+}
+```
+
 ## Limitations
 
 ### Current Limitations
 
-1. **Integer-only:** No support for custom algebraic datatypes (lists, trees, records)
+1. **Built-in ADTs only:** List, String, Pair use literal syntax (not explicit constructors)
 2. **Simple guards:** Conjunctions of inequalities; no disjunctions or complex formulas
-3. **No SMT synthesis:** Representatives are boundary values, not SMT witnesses
+3. **No SMT synthesis:** Representatives are boundary/default values, not SMT witnesses
 4. **Relational guards:** `materials >= quantity * 2` not yet partitioned (treats as unbounded)
+5. **Argument defaults:** Constructor arguments use default values (0, false, "", [])
 
 ### Known Incompleteness
 
