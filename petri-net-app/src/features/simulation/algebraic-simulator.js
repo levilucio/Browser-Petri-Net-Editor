@@ -365,6 +365,17 @@ export class AlgebraicSimulator extends BaseSimulator {
       changedPlaces.add(arc.targetId || arc.target);
     }
 
+    // Evaluate action to define new variables
+    if (t.action && t.action.trim()) {
+      try {
+        const actionResult = evaluateAction(t.action, env, parseArithmetic);
+        // Merge action results into environment for output arc evaluation
+        Object.assign(env, actionResult);
+      } catch (err) {
+        logger.debug(`Action evaluation failed for ${transitionId}:`, err.message);
+      }
+    }
+    
     // Consume tokens
     // When multiple tokens from the same place are consumed, remove by descending
     // indices to avoid index-shift bugs.

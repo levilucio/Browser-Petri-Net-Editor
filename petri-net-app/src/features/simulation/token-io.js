@@ -65,6 +65,10 @@ export function produceTokens(outputArcs, bindingAstsByArc, env, placesById, eva
           else if (typeof v === 'string') {
             place.valueTokens.push(v);
           }
+          else if (v && typeof v === 'object' && v.__adt__ === true) {
+            // ADT token
+            place.valueTokens.push(v);
+          }
           else if (isPair(v)) {
             place.valueTokens.push(v);
           }
@@ -76,6 +80,10 @@ export function produceTokens(outputArcs, bindingAstsByArc, env, placesById, eva
             } else {
               place.valueTokens.push(...v); // Spread tuple elements
             }
+          }
+          else if (v !== null && v !== undefined && typeof v === 'object') {
+            // Generic object (might be ADT without __adt__ flag)
+            place.valueTokens.push(v);
           }
         } catch (e) {
           // Skip invalid bindings
