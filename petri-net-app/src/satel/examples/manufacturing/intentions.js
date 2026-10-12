@@ -10,6 +10,172 @@
  * - Edge cases: boundary conditions
  */
 
+// Quick subset for fast testing (5 core intentions)
+export const manufacturingIntentionsQuick = [
+  // Happy path
+  {
+    id: 'successful-production-small',
+    name: 'Successful Production - Small Order',
+    description: 'Small order (quantity=5) progresses through all stages and completes successfully with quality pass',
+    pathPattern: {
+      type: 'sequence',
+      events: [
+        { transition: 'receiveOrder', binding: { orderId: 1001, quantity: 5 } },
+        { transition: 'scheduleJob' },
+        { transition: 'startCutting' },
+        { transition: 'completeCutting' },
+        { transition: 'startAssembly' },
+        { transition: 'completeAssembly' },
+        { transition: 'qualityCheck' },
+        { transition: 'passQualityCheck' }
+      ]
+    },
+    inputConstraints: [
+      { place: 'orderQueue', pattern: '{ orderId: 1001, quantity: 5 }' },
+      { place: 'rawMaterialSupply', pattern: '100' },
+      { place: 'workerPool', pattern: '5' },
+      { place: 'machineStatus', pattern: '3' }
+    ],
+    outputExpectations: [
+      { place: 'completedProducts', pattern: '{ orderId: 1001, status: "completed" }' }
+    ],
+    reductionHypothesis: {
+      type: 'uniformity',
+      domain: 'order_sizes',
+      representative: 5,
+      reason: 'Production flow is uniform for any quantity within capacity (1-100)'
+    },
+    oracleType: 'positive'
+  },
+  
+  // Resource constraint
+  {
+    id: 'error-insufficient-materials',
+    name: 'Error: Insufficient Raw Materials',
+    description: 'Order requires more materials than available',
+    pathPattern: {
+      type: 'sequence',
+      events: [
+        { transition: 'receiveOrder', binding: { orderId: 2001, quantity: 50 } },
+        { transition: 'insufficientMaterials' }
+      ]
+    },
+    inputConstraints: [
+      { place: 'orderQueue', pattern: '{ orderId: 2001, quantity: 50 }' },
+      { place: 'rawMaterialSupply', pattern: '50' }
+    ],
+    outputExpectations: [
+      { place: 'errorLog', pattern: '{ errorType: "insufficient_materials" }' }
+    ],
+    reductionHypothesis: {
+      type: 'axiom',
+      domain: 'resource_checks',
+      reason: 'All resource shortage checks follow same guard pattern'
+    },
+    oracleType: 'positive'
+  },
+  
+  // Quality control
+  {
+    id: 'quality-fail-rework-success',
+    name: 'Quality Failure → Rework → Success',
+    description: 'Product fails QC, enters rework once, then passes',
+    pathPattern: {
+      type: 'sequence',
+      events: [
+        { transition: 'receiveOrder', binding: { orderId: 3001, quantity: 10 } },
+        { transition: 'scheduleJob' },
+        { transition: 'startCutting' },
+        { transition: 'completeCutting' },
+        { transition: 'startAssembly' },
+        { transition: 'completeAssembly' },
+        { transition: 'qualityCheck' },
+        { transition: 'failQualityCheck' },
+        { transition: 'startRework' },
+        { transition: 'startAssembly' },
+        { transition: 'completeAssembly' },
+        { transition: 'qualityCheck' },
+        { transition: 'passQualityCheck' }
+      ]
+    },
+    inputConstraints: [
+      { place: 'orderQueue', pattern: '{ orderId: 3001, quantity: 10 }' },
+      { place: 'rawMaterialSupply', pattern: '100' },
+      { place: 'workerPool', pattern: '5' },
+      { place: 'machineStatus', pattern: '3' }
+    ],
+    outputExpectations: [
+      { place: 'completedProducts', pattern: '{ orderId: 3001, status: "completed" }' }
+    ],
+    reductionHypothesis: {
+      type: 'regularity',
+      domain: 'rework_attempts',
+      reason: 'Test rework scenarios: 0 reworks (pass first time), 1 rework, 2 reworks'
+    },
+    oracleType: 'positive'
+  },
+  
+  // Edge case
+  {
+    id: 'edge-minimum-order',
+    name: 'Edge Case: Minimum Order (quantity=1)',
+    description: 'Smallest possible order quantity',
+    pathPattern: {
+      type: 'sequence',
+      events: [
+        { transition: 'receiveOrder', binding: { orderId: 6001, quantity: 1 } },
+        { transition: 'scheduleJob' },
+        { transition: 'startCutting' },
+        { transition: 'completeCutting' },
+        { transition: 'startAssembly' },
+        { transition: 'completeAssembly' },
+        { transition: 'qualityCheck' },
+        { transition: 'passQualityCheck' }
+      ]
+    },
+    inputConstraints: [
+      { place: 'orderQueue', pattern: '{ orderId: 6001, quantity: 1 }' },
+      { place: 'rawMaterialSupply', pattern: '100' },
+      { place: 'workerPool', pattern: '5' },
+      { place: 'machineStatus', pattern: '3' }
+    ],
+    outputExpectations: [
+      { place: 'completedProducts', pattern: '{ orderId: 6001, finalQuantity: 1 }' }
+    ],
+    reductionHypothesis: {
+      type: 'regularity',
+      domain: 'quantity_boundaries',
+      reason: 'Boundary test: min=1, typical=10, max=100'
+    },
+    oracleType: 'positive'
+  },
+  
+  // Negative test
+  {
+    id: 'negative-invalid-order',
+    name: 'Negative: Invalid Order (quantity > 100)',
+    description: 'Orders exceeding max quantity should be rejected',
+    pathPattern: {
+      type: 'sequence',
+      events: [
+        { transition: 'receiveOrder', binding: { orderId: 7001, quantity: 150 } }
+      ]
+    },
+    inputConstraints: [
+      { place: 'orderQueue', pattern: '{ orderId: 7001, quantity: 150 }' }
+    ],
+    outputExpectations: [],
+    reductionHypothesis: {
+      type: 'uniformity',
+      domain: 'invalid_inputs',
+      representative: 150,
+      reason: 'Any quantity > 100 should fail the same way'
+    },
+    oracleType: 'negative'
+  }
+];
+
+// Full comprehensive test suite (15 intentions)
 export const manufacturingIntentions = [
   // ==================== HAPPY PATH ====================
   {

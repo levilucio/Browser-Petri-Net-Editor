@@ -20,6 +20,9 @@ const SatelPanel = ({ isOpen, onClose }) => {
   const [selectedIntention, setSelectedIntention] = useState(null);
   const [editingIntention, setEditingIntention] = useState(null);
   const [activeTab, setActiveTab] = useState('intentions'); // 'intentions', 'results', 'interface'
+  const [generationProgress, setGenerationProgress] = useState(null);
+  const [generationWorker, setGenerationWorker] = useState(null);
+  const [generationTimeout, setGenerationTimeout] = useState(null);
 
   const isAlgebraicMode = simulationSettings?.netMode === 'algebraic-int';
 
@@ -42,6 +45,18 @@ const SatelPanel = ({ isOpen, onClose }) => {
     }
   }, [isOpen, isAlgebraicMode]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (generationWorker) {
+        generationWorker.terminate();
+      }
+      if (generationTimeout) {
+        clearTimeout(generationTimeout);
+      }
+    };
+  }, [generationWorker, generationTimeout]);
+
   // Extract I/O interface from current net
   const ioInterface = useMemo(() => {
     if (!isAlgebraicMode) return null;
@@ -54,6 +69,21 @@ const SatelPanel = ({ isOpen, onClose }) => {
     }
   }, [elements, isAlgebraicMode]);
 
+  const handleCancelGeneration = () => {
+    if (generationWorker) {
+      generationWorker.postMessage({ type: 'CANCEL' });
+      generationWorker.terminate();
+      setGenerationWorker(null);
+    }
+    if (generationTimeout) {
+      clearTimeout(generationTimeout);
+      setGenerationTimeout(null);
+    }
+    setIsGenerating(false);
+    setGenerationProgress(null);
+    setError('Test generation cancelled');
+  };
+
   const handleGenerateTests = async () => {
     if (testIntentions.length === 0) {
       setError('No test intentions defined. Create at least one test intention first.');
@@ -62,10 +92,11 @@ const SatelPanel = ({ isOpen, onClose }) => {
 
     setIsGenerating(true);
     setError(null);
+    setGenerationProgress({ current: 0, total: testIntentions.length, message: 'Starting...' });
     
     try {
       console.log('[SATEL] Starting test generation with', testIntentions.length, 'intentions');
-      const simulator = new AlgebraicSimulator();
+      
       const petriNet = {
         places: elements.places,
         transitions: elements.transitions,
@@ -81,7 +112,16 @@ const SatelPanel = ({ isOpen, onClose }) => {
       let suite;
       if (demoMode) {
         console.log('[SATEL] Demo mode: generating mock test suite');
-        // Create mock test suite for demo purposes
+        // Simulate progress
+        for (let i = 0; i < testIntentions.length; i++) {
+          setGenerationProgress({ 
+            current: i + 1, 
+            total: testIntentions.length, 
+            message: `Processing intention ${i + 1}/${testIntentions.length}` 
+          });
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        
         suite = {
           metadata: {
             generatedAt: new Date().toISOString(),
@@ -126,27 +166,88 @@ const SatelPanel = ({ isOpen, onClose }) => {
           ])
         };
       } else {
-        suite = await generateTestSuite(
-          testIntentions,
-          petriNet,
-          simulator,
-          {
-            maxStates: 1000,
-            maxDepth: 50,
-            maxPathsPerIntention: 100,
-            applyReduction: true
+        // Real generation with reduced limits to prevent freezing
+        console.log('[SATEL] Real mode: using reduced generation limits');
+        
+        const limits = {
+          maxStates: 200,  // Reduced from 1000
+          maxDepth: 20,    // Reduced from 50
+          maxPathsPerIntention: 10,  // Reduced from 100
+          applyReduction: true,
+          timeout: 60000  // 60 second timeout
+        };
+        
+        // Set overall timeout
+        const timeoutId = setTimeout(() => {
+          handleCancelGeneration();
+          setError('Test generation timed out after 60 seconds. Try reducing the number of test intentions or simplifying the Petri net.');
+        }, limits.timeout);
+        setGenerationTimeout(timeoutId);
+        
+        // Use synchronous generation with chunked processing
+        const { generateTestSuite } = await import('../satel/index.js');
+        const { AlgebraicSimulator } = await import('../features/simulation/algebraic-simulator.js');
+        const simulator = new AlgebraicSimulator();
+        
+        // Process intentions in chunks to allow UI updates
+        const testCases = [];
+        for (let i = 0; i < testIntentions.length; i++) {
+          setGenerationProgress({
+            current: i + 1,
+            total: testIntentions.length,
+            message: `Processing ${testIntentions[i].name || `intention ${i + 1}`}`
+          });
+          
+          // Yield to UI
+          await new Promise(resolve => setTimeout(resolve, 0));
+          
+          try {
+            const intention = testIntentions[i];
+            const cases = await generateTestSuite(
+              [intention],  // Process one at a time
+              petriNet,
+              simulator,
+              limits
+            );
+            if (cases && cases.testCases) {
+              testCases.push(...cases.testCases);
+            }
+          } catch (err) {
+            console.warn(`Failed to generate tests for intention ${i}:`, err.message);
           }
-        );
+        }
+        
+        clearTimeout(timeoutId);
+        setGenerationTimeout(null);
+        
+        suite = {
+          id: `suite-${Date.now()}`,
+          name: 'Generated Test Suite',
+          description: `Generated from ${testIntentions.length} test intention(s)`,
+          testCases: testCases,
+          statistics: {
+            intentionsProcessed: testIntentions.length,
+            casesGenerated: testCases.length,
+            casesAfterReduction: testCases.length,
+            generationTime: 0
+          }
+        };
       }
 
       console.log('[SATEL] Test suite generated:', suite);
       setTestSuite(suite);
       setActiveTab('results');
+      setGenerationProgress(null);
       console.log('[SATEL] Switched to results tab');
     } catch (err) {
       console.error('[SATEL] Test generation error:', err);
       setError(`Failed to generate tests: ${err.message}`);
+      setGenerationProgress(null);
     } finally {
+      if (generationTimeout) {
+        clearTimeout(generationTimeout);
+        setGenerationTimeout(null);
+      }
       setIsGenerating(false);
     }
   };
@@ -355,13 +456,39 @@ const SatelPanel = ({ isOpen, onClose }) => {
       {/* Action Buttons */}
       {activeTab === 'intentions' && !editingIntention && (
         <div className="p-4 border-t border-gray-200 space-y-2">
-          <button
-            onClick={handleGenerateTests}
-            disabled={isGenerating || testIntentions.length === 0}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-          >
-            {isGenerating ? 'Generating...' : 'Generate Test Suite'}
-          </button>
+          {isGenerating ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm text-gray-700">
+                <span>
+                  {generationProgress 
+                    ? `${generationProgress.current}/${generationProgress.total}: ${generationProgress.message}` 
+                    : 'Generating...'}
+                </span>
+              </div>
+              {generationProgress && (
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(generationProgress.current / generationProgress.total) * 100}%` }}
+                  />
+                </div>
+              )}
+              <button
+                onClick={handleCancelGeneration}
+                className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+              >
+                Cancel Generation
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleGenerateTests}
+              disabled={testIntentions.length === 0}
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+            >
+              Generate Test Suite
+            </button>
+          )}
           {testSuite && (
             <button
               onClick={handleExecuteTests}

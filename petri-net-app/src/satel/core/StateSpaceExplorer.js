@@ -65,15 +65,26 @@ function applyMarking(petriNet, marking) {
  * @param {Object} [options] - Exploration options
  * @param {number} [options.maxStates=1000] - Maximum states to explore
  * @param {number} [options.maxDepth=50] - Maximum depth
+ * @param {AbortSignal} [options.signal] - Abort signal for cancellation
+ * @param {Function} [options.onProgress] - Progress callback
  * @returns {Promise<Object>} Reachability graph
  */
 export async function buildReachabilityGraph(petriNet, simulator, options = {}) {
   const maxStates = options.maxStates || 1000;
   const maxDepth = options.maxDepth || 50;
+  const signal = options.signal;
+  const onProgress = options.onProgress;
   
   const states = new Map(); // hash -> state object
   const transitions = [];
   const queue = []; // BFS queue: [{marking, depth, parentHash}]
+  
+  // Check for cancellation
+  if (signal?.aborted) {
+    const error = new Error('Operation cancelled');
+    error.name = 'AbortError';
+    throw error;
+  }
   
   // Initial state
   const initialMarking = extractMarking(petriNet);
@@ -93,8 +104,32 @@ export async function buildReachabilityGraph(petriNet, simulator, options = {}) 
   states.set(initialHash, initialState);
   queue.push({ marking: initialMarking, depth: 0, parentHash: null });
   
+  let iterationCount = 0;
+  const maxIterations = maxStates * 10; // Safety limit
+  const yieldInterval = 50; // Yield to event loop every N iterations
+  
   // BFS exploration
-  while (queue.length > 0 && states.size < maxStates) {
+  while (queue.length > 0 && states.size < maxStates && iterationCount < maxIterations) {
+    // Check for cancellation periodically
+    if (signal?.aborted) {
+      const error = new Error('Operation cancelled');
+      error.name = 'AbortError';
+      throw error;
+    }
+    
+    // Yield to event loop periodically to keep UI responsive
+    if (iterationCount % yieldInterval === 0) {
+      if (onProgress) {
+        onProgress({ 
+          current: states.size, 
+          total: maxStates, 
+          message: `Explored ${states.size} states` 
+        });
+      }
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    
+    iterationCount++;
     const { marking, depth, parentHash } = queue.shift();
     
     if (depth >= maxDepth) {

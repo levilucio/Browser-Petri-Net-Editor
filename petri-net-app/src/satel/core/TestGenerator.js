@@ -77,7 +77,9 @@ async function generateTestCasesFromIntention(testIntention, petriNet, simulator
   // Build reachability graph
   const graph = await buildReachabilityGraph(petriNet, simulator, {
     maxStates: options.maxStates || 1000,
-    maxDepth: options.maxDepth || 50
+    maxDepth: options.maxDepth || 50,
+    signal: options.signal,
+    onProgress: options.onProgress
   });
   
   if (graph.truncated) {
