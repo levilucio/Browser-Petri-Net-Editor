@@ -62,7 +62,7 @@ describe('Manufacturing V2 Intentions', () => {
     }
   }, 10000);
   
-  test('Order Processing intention generates 1 case', async () => {
+  test('Order Processing intention generates 3 cases (Priority subuniformity)', async () => {
     const intention = manufacturingIntentionsV2.find(i => i.id === 'order-processing');
     
     const suite = await generateTestSuite(
@@ -72,8 +72,13 @@ describe('Manufacturing V2 Intentions', () => {
       { maxStates: 0, maxDepth: 0, applyReduction: false }
     );
     
-    expect(suite.testCases).toHaveLength(1);
+    // Priority subuniformity should generate 3 cases: High, Normal, Low
+    expect(suite.testCases).toHaveLength(3);
     expect(suite.testCases[0].testType).toBe('positive');
+    
+    // Verify each case has different priority
+    const priorities = suite.testCases.map(tc => tc.instantiation.priority.constructor);
+    expect(priorities.sort()).toEqual(['High', 'Low', 'Normal']);
   }, 5000);
   
   test('should execute test cases and produce verdicts', async () => {

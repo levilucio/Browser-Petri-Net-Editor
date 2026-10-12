@@ -175,24 +175,60 @@ async function executePair(pair, simulator) {
 }
 
 /**
+ * Check token sort against place sort
+ */
+function validateTokenSort(token, placeSort) {
+  // For primitive types, accept any value
+  if (!placeSort || placeSort === 'Int' || placeSort === 'Nat' || placeSort === 'Bool' || placeSort === 'String') {
+    return true;
+  }
+  
+  // For ADT tokens, check constructor matches the expected sort
+  if (token && typeof token === 'object' && token.__adt__) {
+    // TODO: Full sort checking would require ADT registry to check constructors
+    // For now, accept any ADT token
+    return true;
+  }
+  
+  return true;
+}
+
+/**
  * Check if transition is NOT enabled (for notEnabled observations)
  */
 async function checkNotEnabled(stimulation, simulator) {
   const { transition, inputs } = stimulation;
   
   try {
-    // 1. Inject input tokens into places
+    // 1. Inject input tokens into places using public API with sort validation
     for (const [placeId, tokens] of Object.entries(inputs)) {
       const place = simulator.petriNet.places.find(p => p.id === placeId);
-      if (place) {
-        place.valueTokens = tokens.map(token => {
-          if (typeof token === 'object' && token !== null) {
-            return token;
-          }
-          return { value: token };
-        });
-        place.tokens = place.valueTokens.length;
+      if (!place) {
+        return {
+          success: false,
+          reason: 'place_not_found',
+          placeId
+        };
       }
+      
+      // Validate token sorts
+      const formattedTokens = tokens.map(token => {
+        if (typeof token === 'object' && token !== null) {
+          // Check sort if place has a sort
+          if (place.sort && !validateTokenSort(token, place.sort)) {
+            throw new Error(`Token sort mismatch: expected ${place.sort}, got ${JSON.stringify(token)}`);
+          }
+          return token;
+        }
+        // Primitive value
+        if (place.sort && place.sort !== 'Int' && place.sort !== 'Nat' && place.sort !== 'String') {
+          throw new Error(`Token sort mismatch: expected ${place.sort}, got primitive ${token}`);
+        }
+        return { value: token };
+      });
+      
+      // Use public API to set marking
+      simulator.setPlaceMarking(placeId, formattedTokens);
     }
     
     // 2. Verify all input arcs have tokens (notEnabled requires sufficient tokens, only guard disables)
@@ -220,12 +256,7 @@ async function checkNotEnabled(stimulation, simulator) {
       }
     }
     
-    // 3. Invalidate cache
-    if (typeof simulator.invalidateEnabledCache === 'function') {
-      simulator.invalidateEnabledCache();
-    }
-    
-    // 4. Check if transition is enabled
+    // 3. Check if transition is enabled
     const enabled = await simulator.getEnabledTransitions();
     
     if (!enabled.includes(transition)) {
@@ -258,28 +289,36 @@ async function executeStimulation(stimulation, simulator, marking) {
   const { transition, inputs } = stimulation;
   
   try {
-    // 1. Inject input tokens into places (if any specified)
+    // 1. Inject input tokens into places using public API with sort validation (if any specified)
     if (inputs && Object.keys(inputs).length > 0) {
       for (const [placeId, tokens] of Object.entries(inputs)) {
         const place = simulator.petriNet.places.find(p => p.id === placeId);
-        if (place) {
-          // Set tokens - ensure proper format
-          place.valueTokens = tokens.map(token => {
-            // If already an object with value or ADT structure, use as-is
-            if (typeof token === 'object' && token !== null) {
-              return token;
-            }
-            // Primitive: wrap in value object
-            return { value: token };
-          });
-          // Update token count
-          place.tokens = place.valueTokens.length;
+        if (!place) {
+          return {
+            success: false,
+            reason: 'place_not_found',
+            placeId
+          };
         }
-      }
-      
-      // Invalidate enabled transition cache after injection
-      if (typeof simulator.invalidateEnabledCache === 'function') {
-        simulator.invalidateEnabledCache();
+        
+        // Validate token sorts and format tokens
+        const formattedTokens = tokens.map(token => {
+          if (typeof token === 'object' && token !== null) {
+            // Check sort if place has a sort
+            if (place.sort && !validateTokenSort(token, place.sort)) {
+              throw new Error(`Token sort mismatch: expected ${place.sort}, got ${JSON.stringify(token)}`);
+            }
+            return token;
+          }
+          // Primitive value
+          if (place.sort && place.sort !== 'Int' && place.sort !== 'Nat' && place.sort !== 'String') {
+            throw new Error(`Token sort mismatch: expected ${place.sort}, got primitive ${token}`);
+          }
+          return { value: token };
+        });
+        
+        // Use public API to set marking
+        simulator.setPlaceMarking(placeId, formattedTokens);
       }
     }
     
