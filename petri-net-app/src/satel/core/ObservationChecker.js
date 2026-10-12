@@ -24,6 +24,9 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
   let firstFailureIndex = -1;
   
   // Execute each pair sequentially
+  let hasError = false;
+  let hasObservationFailure = false;
+  
   for (let i = 0; i < pairs.length; i++) {
     const pair = pairs[i];
     
@@ -32,19 +35,33 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
       pairResults.push(result);
       
       if (!result.success) {
+        // Check if this is an observation failure (meaningful for negative tests)
+        if (result.phase === 'observation') {
+          hasObservationFailure = true;
+        }
+        
+        // Check if this is an error (transition_not_enabled_after_injection, firing_failed)
+        if (result.reason === 'transition_not_found' || 
+            result.reason === 'firing_failed' ||
+            result.reason === 'transition_not_enabled_after_injection') {
+          hasError = true;
+        }
+        
         overallSuccess = false;
         if (firstFailureIndex === -1) {
           firstFailureIndex = i;
         }
         
-        // For negative tests, first failure is expected
-        if (testType === 'negative') {
-          break; // Stop on first failure (expected)
+        // For negative tests, stop on first observation failure (expected)
+        if (testType === 'negative' && result.phase === 'observation') {
+          break;
         }
       }
     } catch (err) {
+      hasError = true;
       pairResults.push({
         success: false,
+        phase: 'error',
         error: err.message,
         pairIndex: i
       });
@@ -53,21 +70,22 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
         firstFailureIndex = i;
       }
       
-      // For negative tests, error is expected
-      if (testType === 'negative') {
-        break;
-      }
+      // For negative tests, exceptions are NOT expected successes - they're errors
+      // Continue to report the error
     }
   }
   
   // Determine verdict based on test type
   let verdict;
-  if (testType === 'positive') {
+  if (hasError) {
+    // Errors are always 'error' verdict, never pass
+    verdict = 'error';
+  } else if (testType === 'positive') {
     // All pairs must succeed
     verdict = overallSuccess ? 'pass' : 'fail';
   } else {
-    // At least one pair must fail
-    verdict = overallSuccess ? 'fail' : 'pass'; // Inverted!
+    // Negative test: at least one pair must fail at observation
+    verdict = hasObservationFailure ? 'pass' : 'fail';
   }
   
   return {
@@ -131,25 +149,64 @@ async function executePair(pair, simulator) {
 }
 
 /**
- * Execute stimulation: fire transition with explicit inputs
+ * Execute stimulation: inject input tokens and fire transition with explicit binding
  */
 async function executeStimulation(stimulation, simulator, marking) {
   const { transition, inputs } = stimulation;
   
-  // Check if transition is enabled
-  const enabled = await simulator.getEnabledTransitions();
-  if (!enabled.includes(transition)) {
-    return {
-      success: false,
-      reason: 'transition_not_enabled',
-      transition
-    };
-  }
-  
   try {
-    // Prepare explicit binding from inputs
-    // For now, fire transition normally (explicit binding already implemented in Phase 1)
-    await simulator.fireTransition(transition);
+    // 1. Inject input tokens into places
+    for (const [placeId, tokens] of Object.entries(inputs)) {
+      const place = simulator.petriNet.places.find(p => p.id === placeId);
+      if (place) {
+        // Set tokens (overwrite, don't append - this is the stimulation initial state)
+        place.valueTokens = tokens.map(token => 
+          typeof token === 'object' ? token : { value: token }
+        );
+      }
+    }
+    
+    // 2. Build explicit binding from injected tokens
+    const transitionDef = simulator.petriNet.transitions.find(t => t.id === transition);
+    if (!transitionDef) {
+      return {
+        success: false,
+        reason: 'transition_not_found',
+        transition
+      };
+    }
+    
+    // 3. Get input arcs for this transition
+    const inputArcs = simulator.petriNet.arcs?.filter(a => a.target === transition) || [];
+    
+    // 4. Build binding from input tokens
+    const explicitBinding = {};
+    for (const arc of inputArcs) {
+      const place = simulator.petriNet.places.find(p => p.id === arc.source);
+      if (place && place.valueTokens && place.valueTokens.length > 0) {
+        // For now, use first token (TODO: pattern matching)
+        const token = place.valueTokens[0];
+        // Extract variables from arc inscription if any
+        // For simple case, just ensure tokens are available
+      }
+    }
+    
+    // 5. Check if transition is enabled with current marking
+    const enabled = await simulator.getEnabledTransitions();
+    if (!enabled.includes(transition)) {
+      return {
+        success: false,
+        reason: 'transition_not_enabled_after_injection',
+        transition
+      };
+    }
+    
+    // 6. Fire with explicit binding if we have one, otherwise normal fire
+    if (Object.keys(explicitBinding).length > 0) {
+      await simulator.fireTransitionSpecific(transition, { explicitBinding });
+    } else {
+      await simulator.fireTransition(transition);
+    }
     
     return { success: true };
   } catch (err) {
