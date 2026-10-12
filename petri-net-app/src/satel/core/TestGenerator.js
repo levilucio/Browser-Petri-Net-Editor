@@ -12,7 +12,8 @@ import {
   instantiateVariables, 
   cartesianProduct, 
   filterByGuards,
-  instantiatePair 
+  instantiatePair,
+  extractMultiVariableGuards
 } from './VariableInstantiator.js';
 import { validateIntention } from './IntentionSchema.js';
 
@@ -152,10 +153,20 @@ async function generateTestCasesFromIntentionV2(intention, petriNet, simulator, 
   let combinations = cartesianProduct(instantiations);
   
   if (options.profileMode) {
-    console.log(`[V2] Intention '${intention.name}': ${combinations.length} instantiation combinations`);
+    console.log(`[V2] Intention '${intention.name}': ${combinations.length} combinations before filtering`);
   }
   
-  // 3. Generate one test case per combination
+  // 3. Filter by multi-variable guards
+  const guards = extractMultiVariableGuards(intention.variables, petriNet);
+  if (guards.length > 0) {
+    combinations = await filterByGuards(combinations, guards, petriNet);
+    
+    if (options.profileMode) {
+      console.log(`[V2] Intention '${intention.name}': ${combinations.length} combinations after guard filtering`);
+    }
+  }
+  
+  // 4. Generate one test case per combination
   const testCases = [];
   for (const inst of combinations) {
     // Instantiate all pairs

@@ -36,17 +36,51 @@ function generateGroundTerms(variable, petriNet, adtRegistry) {
   
   switch (hypothesis.type) {
     case 'uniformity':
-      return [hypothesis.representative];
+      // If representative provided, use it; otherwise generate from sort
+      if (hypothesis.representative !== undefined) {
+        return [hypothesis.representative];
+      }
+      return [generateArbitraryGroundTerm(sort, adtRegistry)];
     
     case 'subuniformity':
       return generateSubuniformTerms(variable, petriNet, adtRegistry);
     
     case 'regularity':
-      return generateRegularityTerms(variable, hypothesis.bounds);
+      return generateRegularityTerms(variable, petriNet, adtRegistry, hypothesis.bounds);
     
     default:
       throw new Error(`Unknown hypothesis type: ${hypothesis.type}`);
   }
+}
+
+/**
+ * Generate an arbitrary ground term from a sort/ADT
+ */
+function generateArbitraryGroundTerm(sort, adtRegistry) {
+  // Primitive types
+  if (sort === 'Int' || sort === 'Nat') return 0;
+  if (sort === 'Bool') return false;
+  if (sort === 'String') return '';
+  
+  // ADT type - use first nullary constructor or minimal constructor
+  if (adtRegistry) {
+    const adt = adtRegistry.getType(sort);
+    if (adt && adt.constructors) {
+      // Prefer nullary constructor
+      const nullary = adt.constructors.find(c => c.arity === 0);
+      if (nullary) {
+        return { __adt__: true, constructor: nullary.name, args: [] };
+      }
+      
+      // Otherwise use first constructor with recursively generated args
+      const firstCtor = adt.constructors[0];
+      const args = firstCtor.params?.map(p => generateArbitraryGroundTerm(p.type, adtRegistry)) || [];
+      return { __adt__: true, constructor: firstCtor.name, args };
+    }
+  }
+  
+  // Fallback
+  return 0;
 }
 
 /**
@@ -65,16 +99,36 @@ function generateSubuniformTerms(variable, petriNet, adtRegistry) {
       });
     
     case 'guards':
-      // Extract guards from transitions that use this variable
-      const guards = extractGuardsForVariable(variable.name, petriNet);
-      return generateRepresentatives(variable.name, guards, {
-        includeBoundaries: true,
-        includeSign: true
-      });
+      // For guard-based subuniformity, we need to partition based on guard boundaries
+      // This requires analyzing the guards to extract boundary values
+      // For ADT types, fall back to constructor partitioning
+      if (adtRegistry) {
+        const adt = adtRegistry.getType(sort);
+        if (adt && adt.constructors) {
+          // ADT type - guards likely check constructors or projections
+          // Use constructor partitioning as it's sort-correct
+          return generateRepresentatives(variable.name, [], {
+            sortName: sort,
+            adtRegistry,
+            maxDepth: 2
+          });
+        }
+      }
+      
+      // For numeric types, extract boundary values from guards
+      const guardStrings = extractGuardsForVariable(variable.name, petriNet);
+      const boundaries = extractBoundariesFromGuards(guardStrings, variable.name);
+      
+      if (boundaries.length > 0) {
+        return boundaries;
+      }
+      
+      // Fallback: use sign partition for unbounded
+      return [-1, 0, 1];
     
     case 'axiom':
-      // Domain-specific partition
-      return getAxiomRepresentatives(hypothesis.axiom, sort);
+      // Domain-specific partition derived from ADT
+      return getAxiomRepresentatives(hypothesis.axiom, sort, adtRegistry);
     
     default:
       throw new Error(`Unknown subuniformity source: ${hypothesis.source}`);
@@ -83,20 +137,65 @@ function generateSubuniformTerms(variable, petriNet, adtRegistry) {
 
 /**
  * Extract guards mentioning a variable from Petri net transitions
+ * Returns guard strings (not parsed structures)
  */
 function extractGuardsForVariable(varName, petriNet) {
   const guards = [];
   
   for (const transition of petriNet.transitions || []) {
     if (transition.guard && transition.guard.includes(varName)) {
-      // Parse guard to extract constraints
-      // Simplified: just note that variable appears in guard
-      guards.push({
-        type: 'comparison',
-        variable: varName,
-        operator: '>',
-        value: 0 // Default boundary
-      });
+      guards.push(transition.guard);
+    }
+  }
+  
+  return guards;
+}
+
+/**
+ * Extract boundary values from guard expressions
+ * Simple regex-based extraction for numeric comparisons
+ */
+function extractBoundariesFromGuards(guardStrings, varName) {
+  const boundaries = new Set();
+  
+  for (const guard of guardStrings) {
+    // Match patterns like: varName >= 50, varName < 100, etc.
+    const patterns = [
+      new RegExp(`${varName}\\s*([<>]=?)\\s*(\\d+)`, 'g'),
+      new RegExp(`(\\d+)\\s*([<>]=?)\\s*${varName}`, 'g')
+    ];
+    
+    for (const pattern of patterns) {
+      let match;
+      while ((match = pattern.exec(guard)) !== null) {
+        const value = parseInt(match[2] || match[1], 10);
+        if (!isNaN(value)) {
+          // Add boundary and neighbors
+          boundaries.add(value - 1);
+          boundaries.add(value);
+          boundaries.add(value + 1);
+        }
+      }
+    }
+  }
+  
+  return Array.from(boundaries).sort((a, b) => a - b);
+}
+
+/**
+ * Extract all guards from petri net that mention any of the variables
+ */
+export function extractMultiVariableGuards(variables, petriNet) {
+  const guards = [];
+  const varNames = variables.map(v => v.name);
+  
+  for (const transition of petriNet.transitions || []) {
+    if (transition.guard) {
+      // Check if guard mentions any of our variables
+      const mentionsVar = varNames.some(name => transition.guard.includes(name));
+      if (mentionsVar) {
+        guards.push(transition.guard);
+      }
     }
   }
   
@@ -105,39 +204,92 @@ function extractGuardsForVariable(varName, petriNet) {
 
 /**
  * Get representatives for axiom-based partitions
+ * Derives from ADT definitions or errors clearly
  */
-function getAxiomRepresentatives(axiom, sort) {
-  // Predefined axiom partitions
-  const axioms = {
-    quality_outcomes: [
-      { __adt__: true, constructor: 'Pass', args: [] },
-      { __adt__: true, constructor: 'Fail', args: [] }
-    ],
-    priority_levels: [
-      { __adt__: true, constructor: 'Low', args: [] },
-      { __adt__: true, constructor: 'Normal', args: [] },
-      { __adt__: true, constructor: 'High', args: [] }
-    ]
-  };
-  
-  if (axioms[axiom]) {
-    return axioms[axiom];
+function getAxiomRepresentatives(axiom, sort, adtRegistry) {
+  // Try to derive from ADT if available
+  if (adtRegistry) {
+    const adt = adtRegistry.getType(sort);
+    if (adt && adt.constructors) {
+      // Use all constructors as representatives
+      return adt.constructors.map(ctor => {
+        if (ctor.arity === 0) {
+          return { __adt__: true, constructor: ctor.name, args: [] };
+        }
+        // For non-nullary, generate minimal args
+        const args = ctor.params?.map(p => generateArbitraryGroundTerm(p.type, adtRegistry)) || [];
+        return { __adt__: true, constructor: ctor.name, args };
+      });
+    }
   }
   
-  // Fallback: use constructor-based partition
-  console.warn(`Unknown axiom ${axiom}, using constructor partition for ${sort}`);
-  return [];
+  // No ADT definition available - this is an error
+  throw new Error(
+    `Axiom partition '${axiom}' for sort '${sort}' cannot be derived: ` +
+    `no ADT definition found. Either provide ADT definitions in the net or use a different hypothesis.`
+  );
 }
 
 /**
- * Generate regularity-bounded terms
+ * Generate regularity-bounded terms via depth-bounded enumeration
  */
-function generateRegularityTerms(variable, bounds) {
-  const { depth = 2, nbEvents = 5 } = bounds;
+function generateRegularityTerms(variable, petriNet, adtRegistry, bounds) {
+  const { depth = 2, nbEvents = 5 } = bounds || {};
+  const { sort } = variable;
   
-  // Simplified: enumerate up to depth limit
-  // For now, just return basic values
-  return [0, 1, 2].slice(0, nbEvents);
+  // For primitive types, use boundary values
+  if (sort === 'Int' || sort === 'Nat') {
+    return [0, 1, -1, depth, -depth].slice(0, nbEvents);
+  }
+  
+  if (sort === 'Bool') {
+    return [true, false];
+  }
+  
+  if (sort === 'String') {
+    return ['', 'a', 'ab'].slice(0, nbEvents);
+  }
+  
+  // For ADT types, enumerate terms up to depth bound
+  if (adtRegistry) {
+    const adt = adtRegistry.getType(sort);
+    if (adt && adt.constructors) {
+      return enumerateTermsToDepth(adt, adtRegistry, depth, nbEvents);
+    }
+  }
+  
+  // Fallback
+  return [0];
+}
+
+/**
+ * Enumerate ADT terms up to a depth bound
+ */
+function enumerateTermsToDepth(adt, adtRegistry, maxDepth, maxCount) {
+  const terms = [];
+  
+  // BFS enumeration by depth
+  for (let d = 0; d <= maxDepth && terms.length < maxCount; d++) {
+    for (const ctor of adt.constructors) {
+      if (terms.length >= maxCount) break;
+      
+      if (d === 0) {
+        // Only nullary constructors at depth 0
+        if (ctor.arity === 0) {
+          terms.push({ __adt__: true, constructor: ctor.name, args: [] });
+        }
+      } else {
+        // Generate terms at depth d
+        if (ctor.arity > 0) {
+          // For simplicity, use depth-1 terms for all args
+          const args = ctor.params?.map(p => generateArbitraryGroundTerm(p.type, adtRegistry)) || [];
+          terms.push({ __adt__: true, constructor: ctor.name, args });
+        }
+      }
+    }
+  }
+  
+  return terms.slice(0, maxCount);
 }
 
 /**
@@ -177,32 +329,52 @@ export function cartesianProduct(instantiations) {
 }
 
 /**
- * Filter instantiations by joint guards
+ * Filter instantiations by joint guards using algebraic evaluator
  * Drop combinations that don't satisfy multi-variable guards
  * 
  * @param {Array<Object>} combinations - Cartesian product combinations
- * @param {Array} guards - Multi-variable guards
+ * @param {Array} guards - Multi-variable guard strings from transitions
+ * @param {Object} petriNet - Petri net for context
  * @returns {Array<Object>} Filtered combinations
  */
-export function filterByGuards(combinations, guards) {
+export async function filterByGuards(combinations, guards, petriNet) {
   if (!guards || guards.length === 0) {
     return combinations;
   }
   
-  return combinations.filter(inst => {
-    return guards.every(guard => evaluateGuard(guard, inst));
-  });
-}
-
-/**
- * Evaluate a guard on an instantiation
- * Simple boolean check (no SMT)
- */
-function evaluateGuard(guard, instantiation) {
-  // Simplified guard evaluation
-  // For now, always return true (no filtering)
-  // Full implementation would parse and evaluate guard AST
-  return true;
+  const { evaluateBooleanExpression } = await import('../../utils/arith-parser.js');
+  
+  const filtered = [];
+  for (const inst of combinations) {
+    let allGuardsSatisfied = true;
+    
+    for (const guardStr of guards) {
+      try {
+        // Create binding environment from instantiation
+        const bindings = {};
+        for (const [varName, value] of Object.entries(inst)) {
+          bindings[varName] = value;
+        }
+        
+        // Evaluate guard expression
+        const result = evaluateBooleanExpression(guardStr, bindings);
+        
+        if (!result) {
+          allGuardsSatisfied = false;
+          break;
+        }
+      } catch (err) {
+        // If evaluation fails, conservatively keep the combination
+        console.warn(`Failed to evaluate guard "${guardStr}" on instantiation:`, err.message);
+      }
+    }
+    
+    if (allGuardsSatisfied) {
+      filtered.push(inst);
+    }
+  }
+  
+  return filtered;
 }
 
 /**
