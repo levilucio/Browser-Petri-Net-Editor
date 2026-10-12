@@ -214,6 +214,29 @@ const SatelPanel = ({ isOpen, onClose }) => {
       }
 
       console.log('[SATEL] Test suite generated:', suite);
+      
+      // Regression check: Verify suite has valid data
+      if (suite) {
+        console.log('[SATEL] Suite validation:');
+        console.log(`  Test cases: ${suite.testCases?.length || 0}`);
+        console.log(`  Intentions processed: ${suite.statistics?.intentionsProcessed || 0}/${suite.statistics?.totalIntentions || 0}`);
+        console.log(`  States explored: ${suite.statistics?.statesExplored || 0}`);
+        console.log(`  Reduction applied: ${suite.statistics?.reductionApplied ? 'Yes' : 'No'}`);
+        
+        // Assert non-zero results for non-demo mode
+        if (!demoMode) {
+          if ((suite.testCases?.length || 0) === 0) {
+            console.error('[SATEL] ERROR: Generated 0 test cases in real mode!');
+          }
+          if ((suite.statistics?.statesExplored || 0) === 0) {
+            console.error('[SATEL] ERROR: Explored 0 states in real mode!');
+          }
+          if ((suite.statistics?.totalIntentions || 0) === 0) {
+            console.error('[SATEL] ERROR: totalIntentions is 0!');
+          }
+        }
+      }
+      
       setTestSuite(suite);
       setActiveTab('results');
       setGenerationProgress(null);

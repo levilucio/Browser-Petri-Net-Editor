@@ -22,6 +22,9 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
     casesGenerated: 0,
     casesAfterReduction: 0,
     generationTime: 0,
+    totalIntentions: 0,  // Will be set at end
+    statesExplored: 0,   // Will be set at end
+    reductionApplied: false,  // Will be set at end
     timing: {
       exploration: 0,
       pathFinding: 0,
@@ -44,7 +47,7 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
   const graphTime = Date.now() - graphStart;
   
   if (options.profileMode && sharedGraph) {
-    console.log(`[PROFILE] Shared reachability graph: ${graphTime}ms (${sharedGraph.states.size} states, ${sharedGraph.transitions.length} transitions)`);
+    console.log(`[PROFILE] Shared reachability graph: ${graphTime}ms (${sharedGraph.states.length} states, ${sharedGraph.transitions.length} transitions)`);
     console.log(`[PROFILE] This graph will be reused for all ${testIntentions.length} intentions\n`);
   }
   
@@ -92,6 +95,11 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
   }
   
   statistics.generationTime = Date.now() - startTime;
+  
+  // Add fields expected by UI
+  statistics.totalIntentions = testIntentions.length;
+  statistics.statesExplored = sharedGraph ? sharedGraph.states.length : 0;  // states is an array, not Map
+  statistics.reductionApplied = options.applyReduction !== false;
   
   return {
     id: `suite-${Date.now()}`,
@@ -144,13 +152,15 @@ async function generateTestCasesFromIntention(testIntention, petriNet, simulator
   const pathTime = Date.now() - pathStart;
   
   if (options.profileMode && !options.sharedGraph) {
-    console.log(`  [PROFILE]   Graph: ${graphTime}ms (${graph.states.size} states), Paths: ${pathTime}ms (${matchingPaths.length} found)`);
+    console.log(`  [PROFILE]   Graph: ${graphTime}ms (${graph.states.length} states), Paths: ${pathTime}ms (${matchingPaths.length} found)`);
   } else if (options.profileMode) {
     console.log(`  [PROFILE]   Paths: ${pathTime}ms (${matchingPaths.length} found from cached graph)`);
   }
   
   if (matchingPaths.length === 0) {
-    console.warn(`No matching paths found for intention '${testIntention.id}'`);
+    console.warn(`No matching paths found for intention '${testIntention.id}' (${testIntention.name})`);
+    console.warn(`  Path pattern:`, JSON.stringify(testIntention.pathPattern, null, 2));
+    console.warn(`  Available transitions in graph:`, graph.transitions.slice(0, 5).map(t => t.transitionId));
     return [];
   }
   

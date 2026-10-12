@@ -22,8 +22,8 @@ export const manufacturingNet = {
       label: 'Order Queue',
       x: 100,
       y: 150,
-      tokens: 0,
-      valueTokens: [],
+      tokens: 1,
+      valueTokens: [{ value: 1 }],  // Simplified: just a token count
       io_type: 'input',
       io_description: 'Incoming production orders from customers'
     },
@@ -180,7 +180,7 @@ export const manufacturingNet = {
       label: 'Receive Order',
       x: 200,
       y: 150,
-      guard: 'orderId > 0 && quantity > 0 && quantity <= 100',
+      guard: '',  // Guard removed - object tokens don't work with algebraic guards yet
       action: '',
       io_type: 'input',
       io_description: 'Customer places production order'
@@ -353,8 +353,8 @@ export const manufacturingNet = {
 
   arcs: [
     // Order intake
-    { id: 'arc1', source: 'orderQueue', target: 'receiveOrder', sourceType: 'place', targetType: 'transition', binding: 'orderId, quantity' },
-    { id: 'arc2', source: 'receiveOrder', target: 'scheduledJobs', sourceType: 'transition', targetType: 'place', binding: 'orderId, quantity' },
+    { id: 'arc1', source: 'orderQueue', target: 'receiveOrder', sourceType: 'place', targetType: 'transition', binding: 'x' },
+    { id: 'arc2', source: 'receiveOrder', target: 'scheduledJobs', sourceType: 'transition', targetType: 'place', binding: 'x' },
 
     // Resource checking for scheduling
     { id: 'arc3', source: 'rawMaterialSupply', target: 'scheduleJob', sourceType: 'place', targetType: 'transition', binding: 'materials' },
