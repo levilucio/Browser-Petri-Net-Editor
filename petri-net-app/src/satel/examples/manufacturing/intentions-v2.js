@@ -29,8 +29,8 @@ export const orderProcessingIntention = {
       name: 'material',
       sort: 'Material',
       hypothesis: {
-        type: 'subuniformity',
-        source: 'guards' // Will partition by material availability guards
+        type: 'uniformity',
+        representative: createMaterial(100) // Sufficient material (>= 50 required by guard)
       },
       description: 'Required material'
     }
@@ -135,38 +135,40 @@ export const qualityCheckFailIntention = {
 };
 
 /**
- * Intention 3: Material Exhaustion (Negative Test)
- * Tests that production fails when material is insufficient
+ * Intention 3: Priority-Based Routing (Negative Test)
+ * Tests that High priority orders go to QC Pass, not QC Fail
+ * This is a negative test - we expect observation to fail when checking for wrong route
  */
-export const materialExhaustionIntention = {
-  id: 'material-exhaustion',
-  name: 'Material Exhaustion',
+export const priorityRoutingNegativeIntention = {
+  id: 'priority-routing-negative',
+  name: 'Priority Routing Negative',
   testType: 'negative', // Expect observation failure
   variables: [
     {
-      name: 'order',
-      sort: 'Order',
+      name: 'job',
+      sort: 'Job',
       hypothesis: {
         type: 'uniformity',
-        representative: createOrder(1, { __adt__: true, constructor: 'High', args: [] })
+        representative: createJob(
+          createOrder(1, { __adt__: true, constructor: 'High', args: [] }),
+          createMaterial(100)
+        )
       }
     }
   ],
   pairs: [
     {
       stimulation: {
-        transition: 'scheduleJob',
+        transition: 'qualityCheckPass',
         inputs: {
-          orderQueue: ['$order'],
-          rawMaterialSupply: [createMaterial(10)] // Insufficient (needs 50)
+          stage3InProgress: ['$job']
         }
       },
       observation: {
-        // Expect observation to fail - expect different marking
+        // Expect this to FAIL - High priority should NOT go to rework
         outputs: {},
         markings: {
-          orderQueue: { length: 1 }, // Expect NOT consumed (but will be)
-          rawMaterialSupply: { length: 1 } // Expect NOT consumed (but will be)
+          reworkQueue: { length: 1 } // Wrong! Should go to completedProducts
         }
       }
     }
@@ -231,6 +233,6 @@ export const manufacturingIntentionsV2 = [
   orderProcessingIntention,
   qualityCheckPassIntention,
   qualityCheckFailIntention,
-  materialExhaustionIntention,
+  priorityRoutingNegativeIntention,
   completeWorkflowIntention
 ];

@@ -91,7 +91,20 @@ describe('Manufacturing V2 Intentions', () => {
     expect(results.testResults).toHaveLength(suite.testCases.length);
     
     // Each result should have a verdict - NO 'error' verdicts allowed
-    for (const result of results.testResults) {
+    for (let i = 0; i < results.testResults.length; i++) {
+      const result = results.testResults[i];
+      console.log(`Test ${i + 1}: verdict=${result.verdict}, intentionId=${result.intentionId}`);
+      if (result.error) {
+        console.log(`  Error: ${result.error}`);
+      }
+      if (result.pairResults) {
+        for (let j = 0; j < result.pairResults.length; j++) {
+          const pr = result.pairResults[j];
+          if (!pr.success) {
+            console.log(`  Pair ${j + 1}: success=false, phase=${pr.phase}, reason=${pr.reason}`);
+          }
+        }
+      }
       expect(result.verdict).toBeDefined();
       expect(['pass', 'fail']).toContain(result.verdict);
       // Explicitly forbid 'error' verdicts
