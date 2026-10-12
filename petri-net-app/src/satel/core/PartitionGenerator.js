@@ -87,7 +87,24 @@ export function generateRepresentatives(varName, constraints, options = {}) {
 export function generateADTRepresentatives(sortName, adtRegistry, options = {}) {
   const { maxDepth = 2 } = options;
 
-  // Handle built-in ADT shapes (literal-based)
+  // Primitive types - use existing partitions
+  if (sortName === 'Int') {
+    return [-1, 0, 1]; // Sign partition
+  }
+
+  if (sortName === 'Bool') {
+    return [false, true]; // Exhaustive
+  }
+
+  // Try to get ADT definition from registry
+  const adt = adtRegistry?.getType(sortName);
+  
+  // If ADT has explicit constructors, use general constructor partitioning
+  if (adt && adt.constructors && adt.constructors.length > 0) {
+    return generateConstructorRepresentatives(adt, adtRegistry, maxDepth);
+  }
+
+  // Fallback for built-in ADTs without explicit constructors (literal-based)
   if (sortName === 'List') {
     return [
       [],           // Empty list (Nil equivalent)
@@ -108,27 +125,10 @@ export function generateADTRepresentatives(sortName, adtRegistry, options = {}) 
     ];
   }
 
-  if (sortName === 'Bool') {
-    return [false, true];
+  // Unknown ADT or no constructors - use default value
+  if (adt) {
+    console.warn(`ADT ${sortName} has no constructors; using default representative`);
   }
-
-  if (sortName === 'Int') {
-    return [-1, 0, 1]; // Sign partition
-  }
-
-  // Try to get custom ADT definition
-  const adt = adtRegistry?.getType(sortName);
-  if (!adt) {
-    // Unknown ADT - use default value
-    return [0];
-  }
-
-  // Check if ADT has explicit constructors
-  if (adt.constructors && adt.constructors.length > 0) {
-    return generateConstructorRepresentatives(adt, adtRegistry, maxDepth);
-  }
-
-  // Fallback: treat as opaque type with single representative
   return [0];
 }
 

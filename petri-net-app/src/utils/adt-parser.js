@@ -28,6 +28,24 @@ export function parseADT(xmlString) {
     const typeEls = directChildren.filter((el) => el.localName === 'type');
     for (const typeEl of typeEls) {
       const name = typeEl.getAttribute('name') || '';
+      
+      // Parse constructors (NEW)
+      const ctorEls = Array.from(typeEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'constructor');
+      const constructors = ctorEls.map((ctorEl) => {
+        const paramEls = Array.from(ctorEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'param');
+        const params = paramEls.map((paramEl) => ({
+          index: Number(paramEl.getAttribute('index') || '0'),
+          type: paramEl.getAttribute('type') || ''
+        }));
+        return {
+          name: ctorEl.getAttribute('name') || '',
+          arity: Number(ctorEl.getAttribute('arity') || '0'),
+          result: ctorEl.getAttribute('result') || name, // Default to type name
+          params: params
+        };
+      });
+      
+      // Parse operations
       const opEls = Array.from(typeEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'operation');
       const ops = opEls.map((opEl) => {
         const paramEls = Array.from(opEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'param');
@@ -42,6 +60,8 @@ export function parseADT(xmlString) {
           params: params
         };
       });
+      
+      // Parse axioms
       const axiomsRoot = Array.from(typeEl.childNodes).find((n) => n.nodeType === 1 && n.localName === 'axioms');
       const axEls = axiomsRoot
         ? Array.from(axiomsRoot.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'axiom')
@@ -50,7 +70,13 @@ export function parseADT(xmlString) {
         name: axEl.getAttribute('name') || '',
         equation: (axEl.textContent || '').trim()
       }));
-      result.types.push({ name, operations: ops, axioms });
+      
+      result.types.push({ 
+        name, 
+        constructors: constructors.length > 0 ? constructors : undefined,
+        operations: ops, 
+        axioms 
+      });
     }
     return result;
   } catch (e) {
@@ -95,6 +121,30 @@ export function generateADT(adt) {
   for (const t of adt.types || []) {
     const typeEl = doc.createElement('type');
     typeEl.setAttribute('name', t.name || '');
+    
+    // Add constructors (NEW)
+    for (const ctor of t.constructors || []) {
+      const ctorEl = doc.createElement('constructor');
+      ctorEl.setAttribute('name', ctor.name || '');
+      ctorEl.setAttribute('arity', String(ctor.arity ?? 0));
+      if (ctor.result) {
+        ctorEl.setAttribute('result', ctor.result);
+      }
+      
+      // Add parameter elements
+      if (ctor.params && ctor.params.length > 0) {
+        for (const param of ctor.params) {
+          const paramEl = doc.createElement('param');
+          paramEl.setAttribute('index', String(param.index ?? 0));
+          paramEl.setAttribute('type', param.type || '');
+          ctorEl.appendChild(paramEl);
+        }
+      }
+      
+      typeEl.appendChild(ctorEl);
+    }
+    
+    // Add operations
     for (const op of t.operations || []) {
       const opEl = doc.createElement('operation');
       opEl.setAttribute('name', op.name || '');
@@ -113,6 +163,8 @@ export function generateADT(adt) {
       
       typeEl.appendChild(opEl);
     }
+    
+    // Add axioms
     if (t.axioms && t.axioms.length) {
       const axsEl = doc.createElement('axioms');
       for (const ax of t.axioms) {

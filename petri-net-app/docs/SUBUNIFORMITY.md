@@ -406,14 +406,14 @@ Representatives:
 - **Result:** 1 firing per constructor class
 - **Reduction:** 50%
 
-### Custom ADT Support
+### Custom ADT Support (IMPLEMENTED)
 
-**Future:** Support for user-defined ADTs with explicit constructors:
+**Now supported:** User-defined ADTs with explicit constructors:
 
 ```xml
 <type name="Option">
-  <constructor name="None" arity="0"/>
-  <constructor name="Some" arity="1">
+  <constructor name="None" arity="0" result="Option"/>
+  <constructor name="Some" arity="1" result="Option">
     <param index="0" type="Any"/>
   </constructor>
 </type>
@@ -421,10 +421,29 @@ Representatives:
 
 **Partitioning:**
 ```javascript
+Sort: Option
+Constructors: [None (arity 0), Some (arity 1)]
 Representatives:
   - { __adt__: true, constructor: 'None', args: [] }
   - { __adt__: true, constructor: 'Some', args: [0] }
 ```
+
+**General Algorithm:**
+1. Parse ADT definition from registry
+2. For each constructor:
+   - If arity 0: Use constructor directly
+   - If arity > 0: Generate witness with default arguments
+3. Recursive argument generation (depth-bounded)
+4. One representative per constructor
+
+**Example ADTs:**
+- **Option<T>** — `None | Some(value: T)`
+- **Result<T,E>** — `Ok(value: T) | Err(error: E)`
+- **Tree<T>** — `Leaf | Node(value: T, left: Tree, right: Tree)`
+
+**Examples available:**
+- `satel/examples/option/` — Option request handler
+- `satel/examples/result/` — Result validation pipeline
 
 ### Depth Bounding
 
@@ -458,15 +477,103 @@ maxDepth exceeded:
 }
 ```
 
+## General Constructor Partitioning
+
+### Algorithm
+
+**For any user-defined ADT:**
+
+1. **Detect sort** from binding or place type
+2. **Look up ADT** in registry
+3. **Walk constructors** from ADT definition
+4. **Generate witness** for each constructor:
+   ```javascript
+   constructor: { name, arity, params: [{type}] }
+   witness: { __adt__: true, constructor: name, args: [...] }
+   ```
+5. **Recursive argument generation:**
+   - For each param type:
+     - If primitive (Int, Bool, String): Use default value
+     - If ADT: Recursively generate witness (depth-bounded)
+     - If unknown: Use default (0)
+
+### Depth Bounding
+
+**Prevents infinite recursion:**
+```
+maxDepth = 2
+
+Tree ADT:
+  depth 0: Leaf (nullary constructor)
+  depth 1: Node(0, Leaf, Leaf)
+  depth 2: Node(0, Node(0, Leaf, Leaf), Leaf)
+  depth 3+: Use minimal constructor (Leaf)
+```
+
+### Example: Option ADT
+
+**Definition:**
+```xml
+<type name="Option">
+  <constructor name="None" arity="0"/>
+  <constructor name="Some" arity="1">
+    <param index="0" type="Any"/>
+  </constructor>
+</type>
+```
+
+**Partitioning:**
+```javascript
+Input: sort = "Option", maxDepth = 2
+
+Step 1: Look up Option in registry
+Step 2: Extract constructors: [None, Some]
+Step 3: Generate witnesses:
+  - None: { __adt__: true, constructor: 'None', args: [] }
+  - Some: { __adt__: true, constructor: 'Some', args: [0] }
+    (param type: Any → default to Int → 0)
+
+Output: [None, Some(0)]
+```
+
+### Example: Result ADT
+
+**Definition:**
+```xml
+<type name="Result">
+  <constructor name="Ok" arity="1">
+    <param index="0" type="Any"/>
+  </constructor>
+  <constructor name="Err" arity="1">
+    <param index="0" type="String"/>
+  </constructor>
+</type>
+```
+
+**Partitioning:**
+```javascript
+Input: sort = "Result", maxDepth = 2
+
+Step 1: Look up Result in registry
+Step 2: Extract constructors: [Ok, Err]
+Step 3: Generate witnesses:
+  - Ok: { __adt__: true, constructor: 'Ok', args: [0] }
+    (param type: Any → Int → 0)
+  - Err: { __adt__: true, constructor: 'Err', args: [""] }
+    (param type: String → "")
+
+Output: [Ok(0), Err("")]
+```
+
 ## Limitations
 
 ### Current Limitations
 
-1. **Built-in ADTs only:** List, String, Pair use literal syntax (not explicit constructors)
-2. **Simple guards:** Conjunctions of inequalities; no disjunctions or complex formulas
-3. **No SMT synthesis:** Representatives are boundary/default values, not SMT witnesses
-4. **Relational guards:** `materials >= quantity * 2` not yet partitioned (treats as unbounded)
-5. **Argument defaults:** Constructor arguments use default values (0, false, "", [])
+1. **Simple guards:** Conjunctions of inequalities; no disjunctions or complex formulas
+2. **No SMT synthesis:** Representatives are boundary/default values, not SMT witnesses
+3. **Relational guards:** `materials >= quantity * 2` not yet partitioned (treats as unbounded)
+4. **Argument defaults:** Constructor arguments use default values (0, false, "", [])
+5. **No argument partitioning:** All `Some(x)` represented by `Some(0)`, not partitioned by `x` values
 
 ### Known Incompleteness
 
