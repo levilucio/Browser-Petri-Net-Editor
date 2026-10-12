@@ -1,4 +1,4 @@
-import { evaluateArithmeticWithBindings } from './eval-arith';
+import { evaluateArithmeticWithBindings } from './eval-arith.js';
 
 export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
   const toBool = (value) => {

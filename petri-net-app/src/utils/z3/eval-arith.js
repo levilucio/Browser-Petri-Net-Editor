@@ -1,5 +1,5 @@
-import { getContext } from './context';
-import { buildZ3Expr, collectVariables } from './builders';
+import { getContext } from './context.js';
+import { buildZ3Expr, collectVariables } from './builders.js';
 
 function evalPure(node) {
   if (node.type === 'int') return node.value | 0;

@@ -1,8 +1,8 @@
-import { getContext } from './context';
-import { buildZ3Expr, collectVariables } from './builders';
-import { evaluateArithmeticWithBindings } from './eval-arith';
-import { evaluateBooleanWithBindings } from './booleanEvaluator';
-import { parseBooleanExpr } from './booleanParser';
+import { getContext } from './context.js';
+import { buildZ3Expr, collectVariables } from './builders.js';
+import { evaluateArithmeticWithBindings } from './eval-arith.js';
+import { evaluateBooleanWithBindings } from './booleanEvaluator.js';
+import { parseBooleanExpr } from './booleanParser.js';
 
 export async function evaluateBooleanPredicate(
   boolAstOrString,

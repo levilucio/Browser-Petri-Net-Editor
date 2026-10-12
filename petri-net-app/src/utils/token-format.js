@@ -9,6 +9,15 @@ export function formatToken(value) {
   if (typeof value === 'string') return `'${value}'`;
   if (Array.isArray(value)) return `[${value.map(formatToken).join(', ')}]`;
   if (isPair(value)) return `(${formatToken(value.fst)}, ${formatToken(value.snd)})`;
+  
+  // Handle ADT tokens
+  if (value && typeof value === 'object' && value.__adt__ === true) {
+    if (value.args && value.args.length > 0) {
+      return `${value.constructor}(${value.args.map(formatToken).join(', ')})`;
+    }
+    return `${value.constructor}()`;
+  }
+  
   return String(value);
 }
 

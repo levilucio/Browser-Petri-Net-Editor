@@ -25,7 +25,7 @@ const SatelPanel = ({ isOpen, onClose }) => {
   const [generationWorker, setGenerationWorker] = useState(null);
   const [generationTimeout, setGenerationTimeout] = useState(null);
 
-  const isAlgebraicMode = simulationSettings?.netMode === 'algebraic-int';
+  const isAlgebraicMode = simulationSettings?.netMode === 'algebraic' || simulationSettings?.netMode === 'algebraic-int';
 
   // Load test intentions from localStorage when panel opens (for Manufacturing example)
   useEffect(() => {
@@ -980,8 +980,8 @@ const ResultsTab = ({ testSuite, testResults, isGenerating, isExecuting }) => {
               <span className="font-semibold">{testResults.statistics?.executionTime || 0}ms</span>
             </div>
           </div>
-          {(testResults.statistics?.passed === testResults.statistics?.total || 
-            testResults.passed === testResults.totalTests) && (
+          {(testResults.statistics?.passed === testResults.statistics?.total && 
+            testResults.statistics?.errors === 0) && (
             <div className="mt-3 p-2 bg-green-100 border border-green-300 rounded text-green-700 text-sm text-center font-medium">
               ✓ All tests passed!
             </div>

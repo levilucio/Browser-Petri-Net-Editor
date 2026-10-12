@@ -195,16 +195,41 @@ async function checkNotEnabled(stimulation, simulator) {
       }
     }
     
-    // 2. Invalidate cache
+    // 2. Verify all input arcs have tokens (notEnabled requires sufficient tokens, only guard disables)
+    const transitionDef = simulator.petriNet.transitions.find(t => t.id === transition);
+    if (!transitionDef) {
+      return {
+        success: false,
+        reason: 'transition_not_found'
+      };
+    }
+    
+    const inputArcs = simulator.petriNet.arcs.filter(
+      a => (a.targetId === transition || a.target === transition) && (a.sourceType === 'place' || !a.sourceType)
+    );
+    
+    for (const arc of inputArcs) {
+      const placeId = arc.sourceId || arc.source;
+      const place = simulator.petriNet.places.find(p => p.id === placeId);
+      if (!place || !place.valueTokens || place.valueTokens.length === 0) {
+        return {
+          success: false,
+          reason: 'missing_input_tokens',
+          missingPlace: placeId
+        };
+      }
+    }
+    
+    // 3. Invalidate cache
     if (typeof simulator.invalidateEnabledCache === 'function') {
       simulator.invalidateEnabledCache();
     }
     
-    // 3. Check if transition is enabled
+    // 4. Check if transition is enabled
     const enabled = await simulator.getEnabledTransitions();
     
     if (!enabled.includes(transition)) {
-      // Transition is NOT enabled - this is what we expect
+      // Transition is NOT enabled - this is what we expect (guard rejection)
       return {
         success: true,
         reason: 'transition_correctly_not_enabled',

@@ -26,8 +26,8 @@ describe('Manufacturing V2 Intentions', () => {
     expect(manufacturingNet.adtDefinitions).toContain('Material');
   });
   
-  test('should have 7 V2 intentions', () => {
-    expect(manufacturingIntentionsV2).toHaveLength(7);
+  test('should have 9 V2 intentions', () => {
+    expect(manufacturingIntentionsV2).toHaveLength(9);
   });
   
   test('should generate test cases for each intention', async () => {
@@ -44,6 +44,10 @@ describe('Manufacturing V2 Intentions', () => {
       );
       
       expect(suite.testCases).toBeDefined();
+      if (suite.testCases.length === 0) {
+        console.log(`❌ Intention ${intention.id} (${intention.name}) generated 0 test cases`);
+        console.log(`   Variables: ${intention.variables.length}`);
+      }
       expect(suite.testCases.length).toBeGreaterThan(0);
       
       // Check test case structure

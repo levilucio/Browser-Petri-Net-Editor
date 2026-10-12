@@ -50,7 +50,20 @@ export function parseADTDefinitions(xmlString) {
       const adtContent = adtMatch[2];
       const constructors = [];
       
-      // Extract all <constructor name="...">...</constructor> blocks
+      // Extract all <constructor> blocks (both <constructor>...</constructor> and self-closing <constructor ... />)
+      // First try self-closing constructors
+      const selfClosingCtorRegex = /<constructor\s+name="([^"]+)"\s*\/>/g;
+      let selfClosingMatch;
+      
+      while ((selfClosingMatch = selfClosingCtorRegex.exec(adtContent)) !== null) {
+        constructors.push({
+          name: selfClosingMatch[1],
+          params: [],
+          arity: 0
+        });
+      }
+      
+      // Then extract non-self-closing constructors
       const ctorRegex = /<constructor\s+name="([^"]+)">([\s\S]*?)<\/constructor>/g;
       let ctorMatch;
       

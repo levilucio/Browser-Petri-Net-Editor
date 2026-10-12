@@ -9,7 +9,8 @@ import { createOrder, createMaterial, createJob, createProduct } from './adt.js'
 
 /**
  * Intention 1: Basic Order Processing
- * Tests the complete flow from order intake to scheduled job
+ * Tests the complete flow from order intake to scheduled job  
+ * Uses Priority subuniformity to generate 3 test cases (High/Normal/Low)
  */
 export const orderProcessingIntention = {
   id: 'order-processing',
@@ -17,13 +18,13 @@ export const orderProcessingIntention = {
   testType: 'positive',
   variables: [
     {
-      name: 'order',
-      sort: 'Order',
+      name: 'priority',
+      sort: 'Priority',
       hypothesis: {
-        type: 'uniformity',
-        representative: createOrder(1, 'Normal')
+        type: 'subuniformity',
+        source: 'constructors'
       },
-      description: 'Production order'
+      description: 'Order priority level'
     },
     {
       name: 'material',
@@ -40,15 +41,21 @@ export const orderProcessingIntention = {
       stimulation: {
         transition: 'scheduleJob',
         inputs: {
-          orderQueue: ['$order'],
+          orderQueue: [{ __adt__: true, constructor: 'Order', args: [1, '$priority'] }],
           rawMaterialSupply: ['$material']
         }
       },
       observation: {
-        outputs: {},
+        outputs: {
+          scheduledJobs: [{ __adt__: true, constructor: 'Job', args: [
+            { __adt__: true, constructor: 'Order', args: [1, '$priority'] },
+            '$material'
+          ]}]
+        },
         markings: {
           orderQueue: { length: 0 },
-          rawMaterialSupply: { length: 0 }
+          rawMaterialSupply: { length: 0 },
+          scheduledJobs: { length: 1 }
         }
       }
     }
@@ -57,38 +64,33 @@ export const orderProcessingIntention = {
 
 /**
  * Intention 2: Quality Check Pass
- * Tests quality control pass outcome
+ * Tests quality control pass outcome with High priority job
  */
 export const qualityCheckPassIntention = {
   id: 'quality-check-pass',
   name: 'Quality Check Pass',
   testType: 'positive',
-  variables: [
-    {
-      name: 'job',
-      sort: 'Job',
-      hypothesis: {
-        type: 'uniformity',
-        representative: createJob(
-          createOrder(1, 'Normal'),
-          createMaterial(50)
-        )
-      },
-      description: 'Job under inspection'
-    }
-  ],
+  variables: [],
   pairs: [
     {
       stimulation: {
         transition: 'qualityCheckPass',
         inputs: {
-          stage3InProgress: ['$job']
+          stage3InProgress: [
+            createJob(
+              createOrder(1, { __adt__: true, constructor: 'High', args: [] }),
+              createMaterial(100)
+            )
+          ]
         }
       },
       observation: {
-        outputs: {},
+        outputs: {
+          completedProducts: [createProduct(1, 'Pass')]
+        },
         markings: {
-          stage3InProgress: { length: 0 }
+          stage3InProgress: { length: 0 },
+          completedProducts: { length: 1 }
         }
       }
     }
@@ -97,37 +99,38 @@ export const qualityCheckPassIntention = {
 
 /**
  * Intention 2b: Quality Check Fail
- * Tests quality control fail outcome
+ * Tests quality control fail outcome with Normal priority job
  */
 export const qualityCheckFailIntention = {
   id: 'quality-check-fail',
   name: 'Quality Check Fail',
   testType: 'positive',
-  variables: [
-    {
-      name: 'job',
-      sort: 'Job',
-      hypothesis: {
-        type: 'uniformity',
-        representative: createJob(
-          createOrder(1, 'Normal'),
-          createMaterial(50)
-        )
-      }
-    }
-  ],
+  variables: [],
   pairs: [
     {
       stimulation: {
         transition: 'qualityCheckFail',
         inputs: {
-          stage3InProgress: ['$job']
+          stage3InProgress: [
+            createJob(
+              createOrder(1, { __adt__: true, constructor: 'Normal', args: [] }),
+              createMaterial(100)
+            )
+          ]
         }
       },
       observation: {
-        outputs: {},
+        outputs: {
+          reworkQueue: [
+            createJob(
+              createOrder(1, { __adt__: true, constructor: 'Normal', args: [] }),
+              createMaterial(100)
+            )
+          ]
+        },
         markings: {
-          stage3InProgress: { length: 0 }
+          stage3InProgress: { length: 0 },
+          reworkQueue: { length: 1 }
         }
       }
     }
@@ -329,35 +332,22 @@ export const completeWorkflowIntention = {
 };
 
 /**
- * Intention 5: Priority-Based Quality Check (Subuniformity)
- * Tests that High priority goes through qualityCheckPass, Normal goes to qualityCheckFail
- * Uses subuniformity to generate multiple cases with distinct routing
+ * Intention 5: High Priority Quality Check Pass
+ * Tests that High priority jobs pass quality check
  */
-export const priorityQualityCheckIntention = {
-  id: 'priority-quality-check',
-  name: 'Priority-Based Quality Check',
+export const highPriorityQCIntention = {
+  id: 'high-priority-qc',
+  name: 'High Priority QC Pass',
   testType: 'positive',
-  variables: [
-    {
-      name: 'pri',
-      sort: 'Priority',
-      hypothesis: {
-        type: 'subuniformity',
-        source: 'constructors' // Generates High, Normal, Low
-      },
-      description: 'Order priority'
-    }
-  ],
+  variables: [],
   pairs: [
-    // Test qualityCheckPass transition
-    // Only High priority should fire this
     {
       stimulation: {
         transition: 'qualityCheckPass',
         inputs: {
           stage3InProgress: [
             createJob(
-              createOrder(1, '$pri'),
+              createOrder(1, { __adt__: true, constructor: 'High', args: [] }),
               createMaterial(100)
             )
           ]
@@ -376,6 +366,78 @@ export const priorityQualityCheckIntention = {
   ]
 };
 
+/**
+ * Intention 6: Normal Priority Quality Check Fail
+ * Tests that Normal priority jobs go to rework
+ */
+export const normalPriorityQCIntention = {
+  id: 'normal-priority-qc',
+  name: 'Normal Priority QC Fail',
+  testType: 'positive',
+  variables: [],
+  pairs: [
+    {
+      stimulation: {
+        transition: 'qualityCheckFail',
+        inputs: {
+          stage3InProgress: [
+            createJob(
+              createOrder(2, { __adt__: true, constructor: 'Normal', args: [] }),
+              createMaterial(100)
+            )
+          ]
+        }
+      },
+      observation: {
+        outputs: {
+          reworkQueue: [
+            createJob(
+              createOrder(2, { __adt__: true, constructor: 'Normal', args: [] }),
+              createMaterial(100)
+            )
+          ]
+        },
+        markings: {
+          stage3InProgress: { length: 0 },
+          reworkQueue: { length: 1 }
+        }
+      }
+    }
+  ]
+};
+
+/**
+ * Intention 7: Low Priority Not Enabled
+ * Tests that Low priority jobs don't pass quality check (no transition for Low)
+ */
+export const lowPriorityNotEnabledIntention = {
+  id: 'low-priority-not-enabled',
+  name: 'Low Priority Not Enabled',
+  testType: 'positive',
+  variables: [],
+  pairs: [
+    {
+      stimulation: {
+        transition: 'qualityCheckPass',
+        inputs: {
+          stage3InProgress: [
+            createJob(
+              createOrder(3, { __adt__: true, constructor: 'Low', args: [] }),
+              createMaterial(100)
+            )
+          ]
+        }
+      },
+      observation: {
+        type: 'notEnabled',
+        outputs: {},
+        markings: {}
+      }
+    }
+  ]
+};
+
+
 // Export all v2 intentions
 export const manufacturingIntentionsV2 = [
   orderProcessingIntention,
@@ -384,5 +446,7 @@ export const manufacturingIntentionsV2 = [
   materialExhaustionIntention,
   materialSufficientIntention,
   completeWorkflowIntention,
-  priorityQualityCheckIntention
+  highPriorityQCIntention,
+  normalPriorityQCIntention,
+  lowPriorityNotEnabledIntention
 ];
