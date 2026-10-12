@@ -3,5 +3,5 @@ export {
   inferVariableTypes,
   autoAnnotateTypes,
   capitalizeTypeNames,
-} from '../arith-parser';
+} from '../arith-parser.js';
 
