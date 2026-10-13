@@ -69,6 +69,8 @@ This project includes an implementation of **SATEL** (Semi-Automatic Testing Lan
 
 **📺 [Watch the Demo Video](docs/assets/satel-demo.mp4)** - 55-second walkthrough of SATEL features
 
+**📺 [SATEL V2 Demo](docs/assets/satel-v2-demo.mp4)** - Shows defining an intention with typed variables (priority: Priority under subuniformity, material: Material under uniformity) and a stimulation/observation pair, generating 3 priority cases, and executing them (edits an existing intention since Create V2 button isn't wired yet).
+
 See [SATEL_README.md](SATEL_README.md) for detailed documentation.
 
 ## Repository layout
