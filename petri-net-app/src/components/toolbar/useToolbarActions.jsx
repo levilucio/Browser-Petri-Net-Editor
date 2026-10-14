@@ -1,6 +1,7 @@
 import { exportToPNML, importFromPNML } from '../../utils/python/index';
 import { simulatorCore } from '../../features/simulation';
 import { detectNetModeFromContent } from '../../utils/netMode';
+import { computeAutoLayout } from '../../features/layout/petri-net-layout';
 
 export default function useToolbarActions(params) {
   const {
@@ -277,6 +278,39 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      // Special case: Manufacturing Workflow loads from JS object
+      if (filename === 'manufacturing-workflow') {
+        const { manufacturingNet } = await import('../../satel/examples/manufacturing/net.js');
+        const { manufacturingIntentionsV2 } = await import('../../satel/examples/manufacturing/intentions-v2.js');
+        
+        // Convert to the format expected by the app
+        const safeJson = {
+          places: manufacturingNet.places || [],
+          transitions: manufacturingNet.transitions || [],
+          arcs: manufacturingNet.arcs || [],
+          mode: manufacturingNet.mode || 'algebraic',
+          adtDefinitions: manufacturingNet.adtDefinitions || ''
+        };
+        
+        // Store full test intentions (V2) - now fast with optimized generation
+        try {
+          localStorage.setItem('satel-test-intentions', JSON.stringify(manufacturingIntentionsV2));
+        } catch (e) {
+          console.warn('Could not store test intentions:', e);
+        }
+        
+        setElements(safeJson);
+        setSimulationSettings({
+          ...simulationSettings,
+          netMode: 'algebraic',
+        });
+        setSuccess?.(`Loaded Manufacturing Workflow with ${manufacturingIntentionsV2.length} test intentions (V2)`);
+        setIsMobileMenuOpen?.(false);
+        setIsLoading?.(false);
+        return;
+      }
+
+      // Standard PNML loading
       // Fetch the example file from the public/examples folder
       // Use URL constructor to handle relative paths correctly on all devices
       const exampleUrl = new URL(`./examples/${filename}`, window.location.href).href;
@@ -359,7 +393,59 @@ export default function useToolbarActions(params) {
     }
   };
 
-  return { handleSave, handleSaveAs, handleLoad, handleClear, handleOpenAdtManager, handleLoadExample };
+  const handleAutoLayout = () => {
+    try {
+      setIsLoading?.(true);
+      setError?.(null);
+      setSuccess?.(null);
+
+      const places = elements?.places || [];
+      const transitions = elements?.transitions || [];
+      const arcs = elements?.arcs || [];
+
+      if (places.length === 0 && transitions.length === 0) {
+        setError?.('No elements to layout. Add some places and transitions first.');
+        setIsLoading?.(false);
+        return;
+      }
+
+      // Compute new layout
+      const { places: newPlaces, transitions: newTransitions } = computeAutoLayout(
+        places,
+        transitions,
+        arcs
+      );
+
+      // Update elements with new positions
+      const updatedElements = {
+        ...elements,
+        places: newPlaces,
+        transitions: newTransitions,
+        arcs: arcs, // Arcs remain the same
+      };
+
+      setElements?.(updatedElements);
+      if (updateHistory) updateHistory(updatedElements);
+
+      setSuccess?.(`Auto-layout applied to ${newPlaces.length} places and ${newTransitions.length} transitions.`);
+      setIsMobileMenuOpen?.(false);
+    } catch (error) {
+      console.error('Error applying auto-layout:', error);
+      setError?.(`Error applying auto-layout: ${error.message}`);
+    } finally {
+      setIsLoading?.(false);
+    }
+  };
+
+  return { 
+    handleSave, 
+    handleSaveAs, 
+    handleLoad, 
+    handleClear, 
+    handleOpenAdtManager, 
+    handleLoadExample,
+    handleAutoLayout 
+  };
 }
 
 

@@ -1,4 +1,4 @@
-import { evaluateArithmeticWithBindings } from './eval-arith';
+import { evaluateArithmeticWithBindings } from './eval-arith.js';
 
 export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
   const toBool = (value) => {
@@ -82,6 +82,23 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
             b.__pair__
           ) {
             return eq(a.fst, b.fst) && eq(a.snd, b.snd);
+          }
+          // ADT term comparison
+          if (
+            a &&
+            typeof a === 'object' &&
+            a.__adt__ === true &&
+            b &&
+            typeof b === 'object' &&
+            b.__adt__ === true
+          ) {
+            if (a.constructor !== b.constructor) return false;
+            if (!a.args && !b.args) return true;
+            if (!a.args || !b.args || a.args.length !== b.args.length) return false;
+            for (let i = 0; i < a.args.length; i++) {
+              if (!eq(a.args[i], b.args[i])) return false;
+            }
+            return true;
           }
           return a === b;
         };

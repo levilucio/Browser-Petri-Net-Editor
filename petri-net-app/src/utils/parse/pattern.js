@@ -1,2 +1,2 @@
-export { parsePattern, stringifyPattern } from '../arith-parser';
+export { parsePattern, stringifyPattern } from '../arith-parser.js';
 

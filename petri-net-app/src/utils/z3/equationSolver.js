@@ -1,6 +1,6 @@
-import { getContext } from './context';
-import { buildZ3Expr, collectVariables } from './builders';
-import { evaluateArithmeticWithBindings } from './eval-arith';
+import { getContext } from './context.js';
+import { buildZ3Expr, collectVariables } from './builders.js';
+import { evaluateArithmeticWithBindings } from './eval-arith.js';
 
 const toLiteralAst = (value) => {
   if (typeof value === 'number') return { type: 'int', value: value | 0 };

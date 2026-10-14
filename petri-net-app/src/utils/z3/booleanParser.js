@@ -126,6 +126,48 @@ export function parseBooleanExpr(input, parseArithmetic) {
       }
     } catch (_) {}
 
+    // Check for function call: name(...) or Name(...)
+    const funcMatch = term.match(/^([A-Za-z_][A-Za-z0-9_]*)\s*\(/);
+    if (funcMatch) {
+      const funcName = funcMatch[1];
+      // Parse function call with arguments
+      let depth = 0;
+      let argStart = term.indexOf('(') + 1;
+      let i = argStart;
+      const args = [];
+      let currentArg = '';
+      
+      while (i < term.length) {
+        const ch = term[i];
+        if (ch === '(') {
+          depth++;
+          currentArg += ch;
+        } else if (ch === ')') {
+          if (depth === 0) {
+            // End of function call
+            if (currentArg.trim()) {
+              args.push(parseAnyTermString(currentArg.trim()));
+            }
+            break;
+          }
+          depth--;
+          currentArg += ch;
+        } else if (ch === ',' && depth === 0) {
+          // Argument separator
+          if (currentArg.trim()) {
+            args.push(parseAnyTermString(currentArg.trim()));
+          }
+          currentArg = '';
+        } else {
+          currentArg += ch;
+        }
+        i++;
+      }
+      
+      // Return funcall node
+      return { type: 'funcall', name: funcName, args };
+    }
+    
     const m = term.match(/^([A-Za-z_][A-Za-z0-9_]*)(?::([A-Za-z]+))?$/);
     if (!m) throw new Error(`Unrecognized term '${term}'`);
     const name = m[1];

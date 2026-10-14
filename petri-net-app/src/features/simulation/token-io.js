@@ -44,6 +44,10 @@ export function produceTokens(outputArcs, bindingAstsByArc, env, placesById, eva
           const { kind, ast } = astObj;
           if (ast && (ast.type === 'var' || ast.type === 'boolVar' || ast.type === 'pairVar')) {
             v = (env || {})[ast.name];
+          } else if (kind === 'term') {
+            // Use term parser for ADT constructors
+            const { evaluateTerm } = require('../../utils/term-parser.js');
+            v = evaluateTerm(ast, env);
           } else if (kind === 'arith') {
             v = evaluateArithmeticWithBindings(ast, env);
           } else if (kind === 'bool') {
@@ -65,6 +69,10 @@ export function produceTokens(outputArcs, bindingAstsByArc, env, placesById, eva
           else if (typeof v === 'string') {
             place.valueTokens.push(v);
           }
+          else if (v && typeof v === 'object' && v.__adt__ === true) {
+            // ADT token
+            place.valueTokens.push(v);
+          }
           else if (isPair(v)) {
             place.valueTokens.push(v);
           }
@@ -76,6 +84,10 @@ export function produceTokens(outputArcs, bindingAstsByArc, env, placesById, eva
             } else {
               place.valueTokens.push(...v); // Spread tuple elements
             }
+          }
+          else if (v !== null && v !== undefined && typeof v === 'object') {
+            // Generic object (might be ADT without __adt__ flag)
+            place.valueTokens.push(v);
           }
         } catch (e) {
           // Skip invalid bindings

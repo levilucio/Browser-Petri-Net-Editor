@@ -16,7 +16,7 @@ export async function solveEquation(lhs, rhs, maxModels = 5) {
 // This uses the parseArithmetic from arith-parser and the shared arithmetic evaluator.
 import { evaluateArithmeticWithBindings as _evalArithWithBindings } from './z3/eval-arith.js';
 import { evaluateBooleanPredicate as _evaluateBooleanPredicate } from './z3/eval-bool.js';
-import { parseArithmetic as _parseArithmetic } from './arith-parser';
+import { parseArithmetic as _parseArithmetic } from './arith-parser.js';
 
 export function evaluateAction(actionString, bindings, parseArithmetic = _parseArithmetic) {
   if (!actionString || typeof actionString !== 'string') return {};

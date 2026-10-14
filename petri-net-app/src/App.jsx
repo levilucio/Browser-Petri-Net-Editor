@@ -8,6 +8,7 @@ import CanvasManager from './features/canvas/CanvasManager';
 import FloatingEditorControls from './components/FloatingEditorControls';
 import FloatingActionBar from './components/FloatingActionBar';
 import DebugConsole from './components/DebugConsole';
+import SatelPanel from './components/SatelPanel';
 import { useElementManager } from './features/elements/useElementManager';
 import { useKeyboardShortcuts } from './features/keymap/useKeyboardShortcuts';
 import { useCanvasZoom } from './features/canvas/useCanvasZoom';
@@ -72,6 +73,7 @@ const AppContent = () => {
     } = usePetriNet();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSatelPanelOpen, setIsSatelPanelOpen] = useState(false);
 
     // Measure the toolbar height so layout offsets adapt when the toolbar
     // wraps onto multiple rows on narrower (e.g. laptop) screens.
@@ -214,6 +216,7 @@ const AppContent = () => {
             gridSnappingEnabled={gridSnappingEnabled} 
             onToggleGridSnapping={toggleGridSnapping} 
             onOpenSettings={() => setIsSettingsDialogOpen(true)} 
+            onOpenSatelPanel={() => setIsSatelPanelOpen(true)}
             elements={elements}
             setElements={setElements}
             updateHistory={updateHistory}
@@ -320,6 +323,12 @@ const AppContent = () => {
         <SettingsDialog 
           isOpen={isSettingsDialogOpen}
           onClose={() => setIsSettingsDialogOpen(false)}
+        />
+        
+        {/* SATEL Testing Panel */}
+        <SatelPanel
+          isOpen={isSatelPanelOpen}
+          onClose={() => setIsSatelPanelOpen(false)}
         />
       </div>
     );

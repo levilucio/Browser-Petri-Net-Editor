@@ -110,6 +110,22 @@ export function checkForUnboundVariables(petriNet, bindingAstsByArc, guardAstByT
 
   // Check output arcs for unbound variables and empty bindings
   const outputArcs = (petriNet.arcs || []).filter(a => a.sourceId === transitionId && (a.targetType === 'place' || !a.targetType));
+  
+  // Get action variables (variables defined in the action expression)
+  const transition = (petriNet.transitions || []).find(t => t.id === transitionId);
+  const actionVariables = new Set();
+  if (transition && transition.action) {
+    // Parse action to find LHS variables: "x = expr" defines x
+    const actionParts = transition.action.split(',');
+    for (const part of actionParts) {
+      const eqIdx = part.indexOf('=');
+      if (eqIdx > 0) {
+        const lhs = part.slice(0, eqIdx).trim();
+        if (lhs) actionVariables.add(lhs);
+      }
+    }
+  }
+  
   for (const arc of outputArcs) {
     const bindingAsts = bindingAstsByArc.get(arc.id) || [];
     // If output arc has no bindings at all, disable transition (no token can be produced)
@@ -119,8 +135,8 @@ export function checkForUnboundVariables(petriNet, bindingAstsByArc, guardAstByT
     for (const astObj of bindingAsts) {
       const { kind, ast } = astObj || {};
       if (kind === 'pattern' && ast.type === 'var') {
-        // Only check variables - literals like 'int', 'boolLit', 'pairPattern' are always valid
-        if (!boundVariables.has(ast.name)) {
+        // Variables can be bound from input arcs OR defined in action
+        if (!boundVariables.has(ast.name) && !actionVariables.has(ast.name)) {
           return true; // Has unbound variables
         }
       }

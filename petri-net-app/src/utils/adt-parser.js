@@ -4,13 +4,170 @@
  */
 
 /**
+ * Build ADT Registry from Petri net ADT definitions
+ * @param {Object} petriNet - Petri net with adtDefinitions field
+ * @returns {Object} Registry with getType(sortName) method
+ */
+export function buildAdtRegistry(petriNet) {
+  if (!petriNet || !petriNet.adtDefinitions) {
+    return null;
+  }
+  
+  const parsed = parseADTDefinitions(petriNet.adtDefinitions);
+  const typeMap = new Map();
+  
+  for (const adt of parsed.adts || []) {
+    typeMap.set(adt.name, adt);
+  }
+  
+  return {
+    getType(sortName) {
+      return typeMap.get(sortName) || null;
+    },
+    getAllTypes() {
+      return Array.from(typeMap.values());
+    }
+  };
+}
+
+/**
+ * Parse ADT definitions (adt-definitions XML format)
+ * Works in both Node and browser without DOMParser
+ * @param {string} xmlString - ADT definitions XML
+ * @returns {{ adts: Array<{ name: string, constructors: Array<{ name: string, params: Array }> }> }}
+ */
+export function parseADTDefinitions(xmlString) {
+  const result = { adts: [] };
+  
+  try {
+    // Simple regex-based XML parsing (no DOMParser needed)
+    // Extract all <adt name="...">...</adt> blocks
+    const adtRegex = /<adt\s+name="([^"]+)">([\s\S]*?)<\/adt>/g;
+    let adtMatch;
+    
+    while ((adtMatch = adtRegex.exec(xmlString)) !== null) {
+      const adtName = adtMatch[1];
+      const adtContent = adtMatch[2];
+      const constructors = [];
+      
+      // Extract all <constructor> blocks (both <constructor>...</constructor> and self-closing <constructor ... />)
+      // First try self-closing constructors
+      const selfClosingCtorRegex = /<constructor\s+name="([^"]+)"\s*\/>/g;
+      let selfClosingMatch;
+      
+      while ((selfClosingMatch = selfClosingCtorRegex.exec(adtContent)) !== null) {
+        constructors.push({
+          name: selfClosingMatch[1],
+          params: [],
+          arity: 0
+        });
+      }
+      
+      // Then extract non-self-closing constructors
+      const ctorRegex = /<constructor\s+name="([^"]+)">([\s\S]*?)<\/constructor>/g;
+      let ctorMatch;
+      
+      while ((ctorMatch = ctorRegex.exec(adtContent)) !== null) {
+        const ctorName = ctorMatch[1];
+        const ctorContent = ctorMatch[2];
+        const params = [];
+        
+        // Extract all <parameter name="..." type="..."/> tags
+        const paramRegex = /<parameter\s+name="([^"]+)"\s+type="([^"]+)"\s*\/?>/g;
+        let paramMatch;
+        
+        while ((paramMatch = paramRegex.exec(ctorContent)) !== null) {
+          params.push({
+            name: paramMatch[1],
+            type: paramMatch[2]
+          });
+        }
+        
+        constructors.push({
+          name: ctorName,
+          params,
+          arity: params.length
+        });
+      }
+      
+      result.adts.push({
+        name: adtName,
+        constructors
+      });
+    }
+  } catch (err) {
+    console.error('Failed to parse ADT definitions:', err);
+  }
+  
+  return result;
+}
+
+/**
  * Parse ADT XML string into JSON structure
+ * Works in both Node and browser without DOMParser
  * @param {string} xmlString
  * @returns {{ types: Array<{ name: string, operations: Array<{ name: string, arity: number, result: string }>, axioms: Array<{ name: string, equation: string }> }> }}
  */
 export function parseADT(xmlString) {
   const result = { types: [] };
   try {
+    // Simple regex-based XML parsing
+    const typeRegex = /<type\s+name="([^"]+)">([\s\S]*?)<\/type>/g;
+    let typeMatch;
+    
+    while ((typeMatch = typeRegex.exec(xmlString)) !== null) {
+      const typeName = typeMatch[1];
+      const typeContent = typeMatch[2];
+      const operations = [];
+      const axioms = [];
+      
+      // Extract operations
+      const opRegex = /<operation\s+name="([^"]+)"\s+arity="(\d+)"\s+result="([^"]+)"\s*\/?>/g;
+      let opMatch;
+      while ((opMatch = opRegex.exec(typeContent)) !== null) {
+        operations.push({
+          name: opMatch[1],
+          arity: parseInt(opMatch[2], 10),
+          result: opMatch[3],
+          params: []  // Legacy parser included params: []
+        });
+      }
+      
+      // Extract axioms - handle multiline content
+      const axiomRegex = /<axiom[^>]*name="([^"]+)"[^>]*>([\s\S]*?)<\/axiom>/g;
+      let axiomMatch;
+      while ((axiomMatch = axiomRegex.exec(typeContent)) !== null) {
+        const axiomContent = axiomMatch[2].trim();
+        // Extract equation from content or attributes
+        const eqMatch = axiomContent.match(/equation\s*=\s*"([^"]+)"/);
+        const equation = eqMatch ? eqMatch[1] : axiomContent;
+        axioms.push({
+          name: axiomMatch[1],
+          equation
+        });
+      }
+      
+      result.types.push({
+        name: typeName,
+        operations,
+        axioms
+      });
+    }
+    
+    return result;
+  } catch (err) {
+    console.error('Failed to parse ADT:', err);
+    return result;
+  }
+}
+
+// Legacy DOMParser-based implementation (kept for reference, not used)
+function parseADTLegacy(xmlString) {
+  const result = { types: [] };
+  try {
+    if (typeof DOMParser === 'undefined') {
+      throw new Error('DOMParser not available');
+    }
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
     const parserError = xmlDoc.getElementsByTagName('parsererror')[0];
@@ -28,6 +185,24 @@ export function parseADT(xmlString) {
     const typeEls = directChildren.filter((el) => el.localName === 'type');
     for (const typeEl of typeEls) {
       const name = typeEl.getAttribute('name') || '';
+      
+      // Parse constructors (NEW)
+      const ctorEls = Array.from(typeEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'constructor');
+      const constructors = ctorEls.map((ctorEl) => {
+        const paramEls = Array.from(ctorEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'param');
+        const params = paramEls.map((paramEl) => ({
+          index: Number(paramEl.getAttribute('index') || '0'),
+          type: paramEl.getAttribute('type') || ''
+        }));
+        return {
+          name: ctorEl.getAttribute('name') || '',
+          arity: Number(ctorEl.getAttribute('arity') || '0'),
+          result: ctorEl.getAttribute('result') || name, // Default to type name
+          params: params
+        };
+      });
+      
+      // Parse operations
       const opEls = Array.from(typeEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'operation');
       const ops = opEls.map((opEl) => {
         const paramEls = Array.from(opEl.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'param');
@@ -42,6 +217,8 @@ export function parseADT(xmlString) {
           params: params
         };
       });
+      
+      // Parse axioms
       const axiomsRoot = Array.from(typeEl.childNodes).find((n) => n.nodeType === 1 && n.localName === 'axioms');
       const axEls = axiomsRoot
         ? Array.from(axiomsRoot.childNodes).filter((n) => n.nodeType === 1 && n.localName === 'axiom')
@@ -50,7 +227,13 @@ export function parseADT(xmlString) {
         name: axEl.getAttribute('name') || '',
         equation: (axEl.textContent || '').trim()
       }));
-      result.types.push({ name, operations: ops, axioms });
+      
+      result.types.push({ 
+        name, 
+        constructors: constructors.length > 0 ? constructors : undefined,
+        operations: ops, 
+        axioms 
+      });
     }
     return result;
   } catch (e) {
@@ -95,6 +278,30 @@ export function generateADT(adt) {
   for (const t of adt.types || []) {
     const typeEl = doc.createElement('type');
     typeEl.setAttribute('name', t.name || '');
+    
+    // Add constructors (NEW)
+    for (const ctor of t.constructors || []) {
+      const ctorEl = doc.createElement('constructor');
+      ctorEl.setAttribute('name', ctor.name || '');
+      ctorEl.setAttribute('arity', String(ctor.arity ?? 0));
+      if (ctor.result) {
+        ctorEl.setAttribute('result', ctor.result);
+      }
+      
+      // Add parameter elements
+      if (ctor.params && ctor.params.length > 0) {
+        for (const param of ctor.params) {
+          const paramEl = doc.createElement('param');
+          paramEl.setAttribute('index', String(param.index ?? 0));
+          paramEl.setAttribute('type', param.type || '');
+          ctorEl.appendChild(paramEl);
+        }
+      }
+      
+      typeEl.appendChild(ctorEl);
+    }
+    
+    // Add operations
     for (const op of t.operations || []) {
       const opEl = doc.createElement('operation');
       opEl.setAttribute('name', op.name || '');
@@ -113,6 +320,8 @@ export function generateADT(adt) {
       
       typeEl.appendChild(opEl);
     }
+    
+    // Add axioms
     if (t.axioms && t.axioms.length) {
       const axsEl = doc.createElement('axioms');
       for (const ax of t.axioms) {

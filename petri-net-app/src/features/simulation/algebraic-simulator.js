@@ -5,16 +5,16 @@
  */
 
 import { BaseSimulator } from './BaseSimulator.js';
-import { parseArithmetic, parsePattern, matchPattern } from '../../utils/arith-parser';
-import { getTokensForPlace } from '../../utils/token-utils';
-import { evaluatePatternLiteral } from '../../utils/ast-eval';
-import { ensureOutputBindingsTypeCompatible } from './type-check';
-import { allowedOps } from './ops/registry';
-import { buildGuardCache, buildBindingCache } from './cache';
-import { findSatisfyingAssignment } from './assignment';
-import { consumeTokens, produceTokens } from './token-io';
-import { extractVariablesFromPattern, extractVariablesFromExpression, checkForUnboundVariables as checkUnbound } from './guard-utils';
-import { getCurrentStateNormalized } from './state-normalizer';
+import { parseArithmetic, parsePattern, matchPattern } from '../../utils/arith-parser.js';
+import { getTokensForPlace } from '../../utils/token-utils.js';
+import { evaluatePatternLiteral } from '../../utils/ast-eval.js';
+import { ensureOutputBindingsTypeCompatible } from './type-check.js';
+import { allowedOps } from './ops/registry.js';
+import { buildGuardCache, buildBindingCache } from './cache.js';
+import { findSatisfyingAssignment } from './assignment.js';
+import { consumeTokens, produceTokens } from './token-io.js';
+import { extractVariablesFromPattern, extractVariablesFromExpression, checkForUnboundVariables as checkUnbound } from './guard-utils.js';
+import { getCurrentStateNormalized } from './state-normalizer.js';
 import {
   evaluateAction,
   evaluateArithmeticWithBindings,
@@ -149,6 +149,69 @@ export class AlgebraicSimulator extends BaseSimulator {
    */
   _clearEnabledCache() {
     this._enabledCache.clear();
+  }
+
+  /**
+   * Public API: Invalidate enabled transition cache
+   * Use after manually changing marking or injecting tokens
+   */
+  invalidateEnabledCache() {
+    this._clearEnabledCache();
+  }
+
+  /**
+   * Public API: Inject tokens into a place
+   * @param {string} placeId - Place identifier
+   * @param {Array} tokens - Tokens to inject
+   */
+  injectTokens(placeId, tokens) {
+    const place = this.petriNet.places.find(p => p.id === placeId);
+    if (!place) {
+      throw new Error(`Place not found: ${placeId}`);
+    }
+    
+    if (!Array.isArray(place.valueTokens)) {
+      place.valueTokens = [];
+    }
+    
+    place.valueTokens.push(...tokens);
+    place.tokens = place.valueTokens.length;
+    
+    // Invalidate cache for transitions connected to this place
+    this._invalidateEnabledCache(new Set([placeId]));
+  }
+
+  /**
+   * Public API: Set marking for a place
+   * @param {string} placeId - Place identifier
+   * @param {Array} tokens - New tokens (replaces existing)
+   */
+  setPlaceMarking(placeId, tokens) {
+    const place = this.petriNet.places.find(p => p.id === placeId);
+    if (!place) {
+      throw new Error(`Place not found: ${placeId}`);
+    }
+    
+    place.valueTokens = Array.isArray(tokens) ? [...tokens] : [];
+    place.tokens = place.valueTokens.length;
+    
+    // Invalidate cache for transitions connected to this place
+    this._invalidateEnabledCache(new Set([placeId]));
+  }
+
+  /**
+   * Public API: Fire transition with explicit binding
+   * @param {string} transitionId - Transition to fire
+   * @param {Object} binding - Variable bindings
+   * @param {Object} picks - Token picks (which tokens to consume)
+   * @returns {Promise<Object>} New state after firing
+   */
+  async fireWithBinding(transitionId, binding, picks) {
+    return this.fireTransitionSpecific(transitionId, {
+      skipEnabledCheck: false,
+      explicitBinding: binding,
+      explicitPicks: picks
+    });
   }
 
   async updateSpecific(petriNet) {
@@ -300,6 +363,9 @@ export class AlgebraicSimulator extends BaseSimulator {
   async fireTransitionSpecific(transitionId, options = {}) {
     // Skip expensive enabled checks if firing in batch mode (caller will handle after all fires complete)
     const skipEnabledCheck = options.skipEnabledCheck || false;
+    const explicitBinding = options.explicitBinding || null;
+    const explicitPicks = options.explicitPicks || null;
+    
     // Capture previous enabled transitions for parity payload
     const previouslyEnabled = skipEnabledCheck ? [] : await this.getEnabledTransitionsSpecific();
     // A simple re-evaluation: find one satisfying assignment and apply
@@ -310,24 +376,36 @@ export class AlgebraicSimulator extends BaseSimulator {
     const placesById = Object.fromEntries((this.petriNet.places || []).map(p => [p.id, p]));
     const guardAst = this.cache.guardAstByTransition.get(transitionId);
 
-    const result = await findSatisfyingAssignment({
-      transition: t,
-      inputArcs,
-      placesById,
-      bindingAstsByArc: this.cache.bindingAstsByArc,
-      guardAst,
-      parseArithmetic,
-      evaluateBooleanPredicate: evaluateBooleanPredicateWithPool,
-      matchPattern,
-      getTokensForPlace,
-      evaluateArithmeticWithBindings,
-      evaluateBooleanWithBindings,
-      evaluatePatternLiteral,
-      maxTokensPerPlace: this._config.maxTokensPerPlace,
-    });
-    if (!result) throw new Error(`Transition ${transitionId} is not enabled`);
-    let env = result.env || {};
-    const picks = result.picks || [];
+    // Use explicit binding/picks if provided (for subuniformity), otherwise find one
+    let env, picks;
+    if (explicitBinding && explicitPicks) {
+      env = explicitBinding;
+      picks = explicitPicks;
+      // Validate the explicit binding satisfies the guard
+      if (guardAst) {
+        const ok = await evaluateBooleanPredicateWithPool(guardAst, env, parseArithmetic);
+        if (!ok) throw new Error(`Explicit binding does not satisfy guard for ${transitionId}`);
+      }
+    } else {
+      const result = await findSatisfyingAssignment({
+        transition: t,
+        inputArcs,
+        placesById,
+        bindingAstsByArc: this.cache.bindingAstsByArc,
+        guardAst,
+        parseArithmetic,
+        evaluateBooleanPredicate: evaluateBooleanPredicateWithPool,
+        matchPattern,
+        getTokensForPlace,
+        evaluateArithmeticWithBindings,
+        evaluateBooleanWithBindings,
+        evaluatePatternLiteral,
+        maxTokensPerPlace: this._config.maxTokensPerPlace,
+      });
+      if (!result) throw new Error(`Transition ${transitionId} is not enabled`);
+      env = result.env || {};
+      picks = result.picks || [];
+    }
 
     // If guard has free variables, try to solve the guard to bind them before producing outputs
     if (guardAst) {
@@ -350,6 +428,19 @@ export class AlgebraicSimulator extends BaseSimulator {
       changedPlaces.add(arc.targetId || arc.target);
     }
 
+    // Evaluate action to define new variables
+    if (t.action && t.action.trim()) {
+      try {
+        // Use term parser for ADT constructor support
+        const { evaluateActionWithTermParser } = await import('../../utils/term-parser.js');
+        const actionResult = evaluateActionWithTermParser(t.action, env);
+        // Merge action results into environment for output arc evaluation
+        Object.assign(env, actionResult);
+      } catch (err) {
+        logger.debug(`Action evaluation failed for ${transitionId}:`, err.message);
+      }
+    }
+    
     // Consume tokens
     // When multiple tokens from the same place are consumed, remove by descending
     // indices to avoid index-shift bugs.
@@ -368,15 +459,6 @@ export class AlgebraicSimulator extends BaseSimulator {
         parseArithmetic,
       }
     );
-
-    // Apply transition action if provided: action like "y = x + 1, z = x - 1"
-    if (t.action && typeof t.action === 'string') {
-      try {
-        const assignments = evaluateAction(t.action, env, parseArithmetic);
-        // No direct store for variables; actions only affect produced token expressions above.
-        // If future semantics require, we could apply assignments to outputs here.
-      } catch (_) { /* ignore action errors */ }
-    }
 
     // Invalidate enabled cache for transitions connected to changed places
     this._invalidateEnabledCache(changedPlaces);

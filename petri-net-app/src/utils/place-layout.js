@@ -166,6 +166,13 @@ export function formatAlgebraicToken(value) {
   if (value && typeof value === 'object' && value.__pair__) {
     return `(${formatAlgebraicToken(value.fst)}, ${formatAlgebraicToken(value.snd)})`;
   }
+  // Handle ADT tokens
+  if (value && typeof value === 'object' && value.__adt__ && value.constructor) {
+    if (value.args && value.args.length > 0) {
+      return `${value.constructor}(${value.args.map(formatAlgebraicToken).join(', ')})`;
+    }
+    return `${value.constructor}()`;
+  }
   return String(value);
 }
 
