@@ -7,15 +7,14 @@
  * 3. Path lengths differ across subdomains when behavior differs
  */
 
-import { describe, it, expect } from 'vitest';
-import { generateTestSuite } from '../TestGenerator.js';
-import { AlgebraicSimulator } from '../../../features/simulation/algebraic-simulator.js';
-import { manufacturingNet } from '../../examples/manufacturing/net.js';
-import {
+const { generateTestSuite } = require('../TestGenerator.js');
+const { AlgebraicSimulator } = require('../../../features/simulation/algebraic-simulator.js');
+const { manufacturingNet } = require('../../examples/manufacturing/net.js');
+const {
   jobLifecycleByPriority,
   reworkCyclePath,
   materialContentionPath
-} from '../../examples/manufacturing/intentions-v2-multistep.js';
+} = require('../../examples/manufacturing/intentions-v2-multistep.js');
 
 describe('Path-Condition Subuniformity', () => {
   const simulator = new AlgebraicSimulator();
@@ -55,9 +54,8 @@ describe('Path-Condition Subuniformity', () => {
 
       for (const testCase of result.testCases) {
         const pathLength = testCase.expectedTrace?.length || 0;
-        expect(pathLength, 
-          `Test "${testCase.intention.name}" with ${JSON.stringify(testCase.instantiation)} should have path ≥ 3`
-        ).toBeGreaterThanOrEqual(3);
+        // Test should have path length >= 3
+        expect(pathLength).toBeGreaterThanOrEqual(3);
       }
     });
 
@@ -89,9 +87,7 @@ describe('Path-Condition Subuniformity', () => {
         const uniqueLengths = new Set(allLengths);
         
         // Should have variation in path lengths (not all the same)
-        expect(uniqueLengths.size, 
-          'Different priorities should produce different path lengths'
-        ).toBeGreaterThan(1);
+        expect(uniqueLengths.size).toBeGreaterThan(1);
       }
     });
   });
@@ -110,9 +106,8 @@ describe('Path-Condition Subuniformity', () => {
       const testCase = result.testCases[0];
       const pathLength = testCase.expectedTrace?.length || 0;
       
-      expect(pathLength, 
-        'Rework cycle should have at least 6 transitions (fail + rework + pass)'
-      ).toBeGreaterThanOrEqual(6);
+      // Rework cycle should have at least 6 transitions
+      expect(pathLength).toBeGreaterThanOrEqual(6);
     });
 
     it('should execute complete fail-rework-pass sequence', async () => {
@@ -153,9 +148,8 @@ describe('Path-Condition Subuniformity', () => {
       });
       
       const uniqueValues = new Set(materialValues.filter(v => v !== undefined));
-      expect(uniqueValues.size, 
-        'Should have distinct material amounts across test cases'
-      ).toBeGreaterThan(1);
+      // Should have distinct material amounts
+      expect(uniqueValues.size).toBeGreaterThan(1);
     });
 
     it('should generate different path lengths based on material availability', async () => {
@@ -171,10 +165,7 @@ describe('Path-Condition Subuniformity', () => {
       const uniqueLengths = new Set(pathLengths);
 
       // Different material amounts should produce different execution paths
-      // (some schedule 2 jobs, some schedule 1, some schedule none)
-      expect(uniqueLengths.size, 
-        'Different material amounts should yield different path lengths'
-      ).toBeGreaterThan(1);
+      expect(uniqueLengths.size).toBeGreaterThan(1);
     });
   });
 
@@ -194,9 +185,8 @@ describe('Path-Condition Subuniformity', () => {
       );
       const avgPathLength = totalTransitions / result.testCases.length;
 
-      expect(avgPathLength, 
-        'Multi-step test suite should average at least 4 transitions per test'
-      ).toBeGreaterThanOrEqual(4);
+      // Multi-step test suite should average at least 4 transitions
+      expect(avgPathLength).toBeGreaterThanOrEqual(4);
     });
 
     it('should have at least 50% of tests with path length >= 3', async () => {
@@ -214,9 +204,8 @@ describe('Path-Condition Subuniformity', () => {
       
       const percentage = (longPaths / result.testCases.length) * 100;
       
-      expect(percentage, 
-        'At least half of multi-step tests should have path length >= 3'
-      ).toBeGreaterThanOrEqual(50);
+      // At least half should have path length >= 3
+      expect(percentage).toBeGreaterThanOrEqual(50);
     });
   });
 });
