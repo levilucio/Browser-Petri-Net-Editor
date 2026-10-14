@@ -9,6 +9,7 @@
 
 import { generateRepresentatives } from './PartitionGenerator.js';
 import { buildAdtRegistry } from '../../utils/adt-parser.js';
+import { partitionByPathConditions } from './PathConditionPartitioner.js';
 
 /**
  * Generate ground terms for all variables in an intention
@@ -22,7 +23,7 @@ export function instantiateVariables(intention, petriNet, adtRegistry) {
   const instantiations = {};
   
   for (const variable of intention.variables) {
-    instantiations[variable.name] = generateGroundTerms(variable, petriNet, adtRegistry);
+    instantiations[variable.name] = generateGroundTerms(variable, intention, petriNet, adtRegistry);
   }
   
   return instantiations;
@@ -31,7 +32,7 @@ export function instantiateVariables(intention, petriNet, adtRegistry) {
 /**
  * Generate ground terms for a single variable based on its hypothesis
  */
-function generateGroundTerms(variable, petriNet, adtRegistry) {
+function generateGroundTerms(variable, intention, petriNet, adtRegistry) {
   const { hypothesis, sort } = variable;
   
   switch (hypothesis.type) {
@@ -43,7 +44,7 @@ function generateGroundTerms(variable, petriNet, adtRegistry) {
       return [generateArbitraryGroundTerm(sort, adtRegistry)];
     
     case 'subuniformity':
-      return generateSubuniformTerms(variable, petriNet, adtRegistry);
+      return generateSubuniformTerms(variable, intention, petriNet, adtRegistry);
     
     case 'regularity':
       return generateRegularityTerms(variable, petriNet, adtRegistry, hypothesis.bounds);
@@ -86,7 +87,7 @@ function generateArbitraryGroundTerm(sort, adtRegistry) {
 /**
  * Generate subuniformity representatives
  */
-function generateSubuniformTerms(variable, petriNet, adtRegistry) {
+function generateSubuniformTerms(variable, intention, petriNet, adtRegistry) {
   const { sort, hypothesis } = variable;
   
   switch (hypothesis.source) {
@@ -98,9 +99,13 @@ function generateSubuniformTerms(variable, petriNet, adtRegistry) {
         maxDepth: 2 // Depth bound for recursive ADTs
       });
     
+    case 'path-conditions':
+      // NEW: Path-condition-based subuniformity
+      // Partition by conjunction of guards along execution paths
+      return partitionByPathConditions(variable, intention, petriNet, adtRegistry);
+    
     case 'guards':
-      // For guard-based subuniformity, we need to partition based on guard boundaries
-      // This requires analyzing the guards to extract boundary values
+      // Legacy guard-based subuniformity (kept for backward compatibility)
       // For ADT types, fall back to constructor partitioning
       if (adtRegistry) {
         const adt = adtRegistry.getType(sort);

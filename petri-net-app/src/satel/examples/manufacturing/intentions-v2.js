@@ -8,13 +8,13 @@
 import { createOrder, createMaterial, createJob, createProduct } from './adt.js';
 
 /**
- * Intention 1: Basic Order Processing
- * Tests the complete flow from order intake to scheduled job  
- * Uses Priority subuniformity to generate 3 test cases (High/Normal/Low)
+ * Intention 1: Basic Order Processing (Single Step)
+ * Tests single scheduleJob transition - kept for basic validation
+ * Note: All priorities take same 1-transition path (scheduleJob)
  */
 export const orderProcessingIntention = {
   id: 'order-processing',
-  name: 'Order Processing Workflow',
+  name: 'Order Processing (Single Step)',
   testType: 'positive',
   variables: [
     {
@@ -22,9 +22,9 @@ export const orderProcessingIntention = {
       sort: 'Priority',
       hypothesis: {
         type: 'subuniformity',
-        source: 'guards' // FIX #1: Split on path guards, not constructors
+        source: 'constructors'  // Simple constructor split for basic test
       },
-      description: 'Order priority level - splits on quality check guards'
+      description: 'Order priority level'
     },
     {
       name: 'material',
@@ -438,14 +438,28 @@ export const lowPriorityNotEnabledIntention = {
 };
 
 
-// Export all v2 intentions
+// Import multi-step intentions
+import {
+  jobLifecycleByPriority,
+  materialContentionPath,
+  reworkCyclePath,
+  parallelPriorityPaths
+} from './intentions-v2-multistep.js';
+
+// Export all v2 intentions (single-step + multi-step)
 export const manufacturingIntentionsV2 = [
-  orderProcessingIntention,
+  // Multi-step intentions (3-6 transitions per test, path-dependent behavior)
+  jobLifecycleByPriority,          // 5-6 transitions, priority determines path
+  reworkCyclePath,                  // 9 transitions, fail-rework-pass cycle
+  materialContentionPath,           // 2-4 transitions, material contention
+  
+  // Single-step intentions (kept for validation)
+  orderProcessingIntention,         // 1 transition
+  completeWorkflowIntention,        // 5 transitions (one test case)
   qualityCheckPassIntention,
   qualityCheckFailIntention,
   materialExhaustionIntention,
   materialSufficientIntention,
-  completeWorkflowIntention,
   highPriorityQCIntention,
   normalPriorityQCIntention,
   lowPriorityNotEnabledIntention
