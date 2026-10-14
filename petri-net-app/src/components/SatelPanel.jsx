@@ -207,16 +207,16 @@ const SatelPanel = ({ isOpen, onClose }) => {
         };
         
         // Generate entire suite (uses shared graph caching internally)
-        // Skip reachability graph for V2 intentions
+        // V2 intentions don't need reachability graph, but don't pass 0 limits
+        // (that breaks statistics display). Pass disableGraphCaching instead.
         suite = await generateTestSuite(
           testIntentions,
           petriNet,
           simulator,
           {
             ...limits,
-            maxStates: hasV2Intentions ? 0 : limits.maxStates,
-            maxDepth: hasV2Intentions ? 0 : limits.maxDepth,
-            applyReduction: !hasV2Intentions,
+            disableGraphCaching: hasV2Intentions, // V2 doesn't need graph
+            applyReduction: !hasV2Intentions, // V2 uses variable instantiation, not path reduction
             onProgress: progressCallback
           }
         );

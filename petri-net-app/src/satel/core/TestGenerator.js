@@ -112,7 +112,13 @@ export async function generateTestSuite(testIntentions, petriNet, simulator, opt
   
   // Add fields expected by UI
   statistics.totalIntentions = testIntentions.length;
-  statistics.statesExplored = sharedGraph ? sharedGraph.states.length : 0;  // states is an array, not Map
+  // For V2 intentions (graph disabled), count total pair stimulations as "states explored"
+  if (options.disableGraphCaching || !sharedGraph) {
+    const totalPairStimulations = testCases.reduce((sum, tc) => sum + (tc.pairs?.length || 0), 0);
+    statistics.statesExplored = totalPairStimulations || testCases.length; // Fallback to test case count
+  } else {
+    statistics.statesExplored = sharedGraph.states.length;  // states is an array, not Map
+  }
   statistics.reductionApplied = options.applyReduction !== false;
   
   return {
@@ -174,6 +180,14 @@ async function generateTestCasesFromIntentionV2(intention, petriNet, simulator, 
       instantiatePair(pair, inst)
     );
     
+    // Build expectedTrace from pair transitions for UI display
+    // Each pair represents one transition firing in sequence
+    const expectedTrace = instantiatedPairs.map((pair, idx) => ({
+      transition: pair.stimulation.transition,
+      binding: pair.stimulation.inputs || {},
+      step: idx
+    }));
+    
     testCases.push({
       id: `${intention.id}-${testCases.length + 1}`,
       intentionId: intention.id,
@@ -181,7 +195,7 @@ async function generateTestCasesFromIntentionV2(intention, petriNet, simulator, 
       testType: intention.testType,
       instantiation: inst,
       pairs: instantiatedPairs,
-      expectedTrace: [], // Not used for V2
+      expectedTrace, // Populated with pair transitions for UI display
       oracle: { type: 'v2', pairs: instantiatedPairs }
     });
   }
