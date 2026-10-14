@@ -5,6 +5,8 @@
  * Implements positive/negative test semantics.
  */
 
+import { buildAdtRegistry } from '../../utils/adt-parser.js';
+
 /**
  * Execute and check a V2 test case (sequence of stim/obs pairs)
  * 
@@ -15,6 +17,9 @@
  */
 export async function executeV2TestCase(testCase, petriNet, simulator) {
   const { pairs, testType } = testCase;
+  
+  // Build ADT registry for token sort validation
+  const adtRegistry = buildAdtRegistry(petriNet);
   
   // Initialize simulator with petri net
   await simulator.initialize(petriNet);
@@ -31,7 +36,7 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
     const pair = pairs[i];
     
     try {
-      const result = await executePair(pair, simulator);
+      const result = await executePair(pair, simulator, adtRegistry);
       pairResults.push(result);
       
       if (!result.success) {
@@ -136,7 +141,7 @@ async function executePair(pair, simulator) {
   }
   
   // 3. Execute stimulation
-  const stimResult = await executeStimulation(stimulation, simulator, initialMarking);
+  const stimResult = await executeStimulation(stimulation, simulator, initialMarking, adtRegistry);
   
   if (!stimResult.success) {
     return {
@@ -176,18 +181,41 @@ async function executePair(pair, simulator) {
 
 /**
  * Check token sort against place sort
+ * FIX #2: Implement proper ADT sort validation
  */
-function validateTokenSort(token, placeSort) {
-  // For primitive types, accept any value
-  if (!placeSort || placeSort === 'Int' || placeSort === 'Nat' || placeSort === 'Bool' || placeSort === 'String') {
-    return true;
+function validateTokenSort(token, placeSort, adtRegistry) {
+  // For primitive types, accept any value of compatible type
+  if (!placeSort || placeSort === 'Int' || placeSort === 'Nat') {
+    return typeof token === 'number';
+  }
+  if (placeSort === 'Bool') {
+    return typeof token === 'boolean';
+  }
+  if (placeSort === 'String') {
+    return typeof token === 'string';
   }
   
-  // For ADT tokens, check constructor matches the expected sort
+  // For ADT tokens, check constructor belongs to the expected sort
   if (token && typeof token === 'object' && token.__adt__) {
-    // TODO: Full sort checking would require ADT registry to check constructors
-    // For now, accept any ADT token
-    return true;
+    if (!adtRegistry) {
+      // No registry available - accept any ADT token
+      return true;
+    }
+    
+    const sortDef = adtRegistry.getType(placeSort);
+    if (!sortDef) {
+      // Unknown sort - be permissive
+      return true;
+    }
+    
+    // Check if constructor is defined in this ADT sort
+    const ctorNames = sortDef.constructors.map(c => c.name);
+    return ctorNames.includes(token.constructor);
+  }
+  
+  // Non-ADT object attempting to match ADT sort
+  if (placeSort && token && typeof token === 'object' && !token.__adt__) {
+    return false;
   }
   
   return true;
@@ -196,7 +224,7 @@ function validateTokenSort(token, placeSort) {
 /**
  * Check if transition is NOT enabled (for notEnabled observations)
  */
-async function checkNotEnabled(stimulation, simulator) {
+async function checkNotEnabled(stimulation, simulator, adtRegistry) {
   const { transition, inputs } = stimulation;
   
   try {
@@ -215,7 +243,7 @@ async function checkNotEnabled(stimulation, simulator) {
       const formattedTokens = tokens.map(token => {
         if (typeof token === 'object' && token !== null) {
           // Check sort if place has a sort
-          if (place.sort && !validateTokenSort(token, place.sort)) {
+          if (place.sort && !validateTokenSort(token, place.sort, adtRegistry)) {
             throw new Error(`Token sort mismatch: expected ${place.sort}, got ${JSON.stringify(token)}`);
           }
           return token;
@@ -284,8 +312,9 @@ async function checkNotEnabled(stimulation, simulator) {
 
 /**
  * Execute stimulation: inject input tokens and fire transition
+ * FIX #4: Use fireWithBinding for bound transitions
  */
-async function executeStimulation(stimulation, simulator, marking) {
+async function executeStimulation(stimulation, simulator, marking, adtRegistry) {
   const { transition, inputs } = stimulation;
   
   try {
@@ -305,7 +334,7 @@ async function executeStimulation(stimulation, simulator, marking) {
         const formattedTokens = tokens.map(token => {
           if (typeof token === 'object' && token !== null) {
             // Check sort if place has a sort
-            if (place.sort && !validateTokenSort(token, place.sort)) {
+            if (place.sort && !validateTokenSort(token, place.sort, adtRegistry)) {
               throw new Error(`Token sort mismatch: expected ${place.sort}, got ${JSON.stringify(token)}`);
             }
             return token;

@@ -458,6 +458,7 @@ const SatelPanel = ({ isOpen, onClose }) => {
             editingIntention={editingIntention}
             onSelectIntention={setSelectedIntention}
             onCreateIntention={handleCreateIntention}
+            onCreateIntentionV2={handleCreateIntentionV2} // FIX #6: Pass V2 handler
             onEditIntention={setEditingIntention}
             onSaveIntention={handleSaveIntention}
             onDeleteIntention={handleDeleteIntention}
@@ -991,20 +992,27 @@ const ResultsTab = ({ testSuite, testResults, isGenerating, isExecuting }) => {
           {testResults.testResults && testResults.testResults.length > 0 && (
             <div className="mt-4 space-y-2">
               <h4 className="text-xs font-semibold text-gray-600">Test Case Details:</h4>
-              {testResults.testResults.map((result, idx) => (
+              {testResults.testResults.map((result, idx) => {
+                // FIX #7: Show notEnabled as green pass
+                const hasNotEnabledPass = result.pairResults?.some(
+                  pr => pr.success && pr.phase === 'complete' && pr.reason === 'transition_correctly_not_enabled'
+                );
+                const isPass = result.verdict === 'pass' || hasNotEnabledPass;
+                
+                return (
                 <div key={idx} className={`p-2 rounded border text-xs ${
-                  result.verdict === 'pass' 
+                  isPass
                     ? 'bg-green-50 border-green-200' 
                     : 'bg-red-50 border-red-200'
                 }`}>
                   <div className="flex justify-between items-center mb-1">
                     <span className="font-medium">{result.testCaseId}</span>
                     <span className={`px-2 py-0.5 rounded ${
-                      result.verdict === 'pass' 
+                      isPass
                         ? 'bg-green-200 text-green-800' 
                         : 'bg-red-200 text-red-800'
                     }`}>
-                      {result.verdict}
+                      {isPass ? 'pass' : result.verdict}
                     </span>
                   </div>
                   
@@ -1021,27 +1029,35 @@ const ResultsTab = ({ testSuite, testResults, isGenerating, isExecuting }) => {
                   {result.pairResults && result.pairResults.length > 0 && (
                     <div className="mt-2 space-y-1">
                       <div className="font-medium text-gray-700">Pair Results:</div>
-                      {result.pairResults.map((pr, pIdx) => (
+                      {result.pairResults.map((pr, pIdx) => {
+                        // FIX #7: Show notEnabled as pass (green)
+                        const isNotEnabledPass = pr.success && pr.phase === 'complete' && pr.reason === 'transition_correctly_not_enabled';
+                        const pairIsPass = pr.success || isNotEnabledPass;
+                        
+                        return (
                         <div key={pIdx} className={`pl-3 py-1 border-l-2 ${
-                          pr.success ? 'border-green-400' : 'border-red-400'
+                          pairIsPass ? 'border-green-400' : 'border-red-400'
                         }`}>
                           <span className="font-medium">Pair {pIdx + 1}: </span>
-                          <span className={pr.success ? 'text-green-700' : 'text-red-700'}>
-                            {pr.success ? '✓ pass' : '✗ fail'}
+                          <span className={pairIsPass ? 'text-green-700' : 'text-red-700'}>
+                            {pairIsPass ? '✓ pass' : '✗ fail'}
                           </span>
-                          <span className="text-gray-600 ml-2">({pr.phase})</span>
+                          <span className="text-gray-600 ml-2">
+                            ({isNotEnabledPass ? 'guard correctly rejected' : pr.phase})
+                          </span>
                           {pr.transition && (
                             <div className="text-gray-600 text-xs mt-0.5">
                               Transition: {pr.transition}
                             </div>
                           )}
-                          {pr.reason && (
-                            <div className="text-red-600 text-xs mt-0.5">
+                          {pr.reason && pr.reason !== 'transition_correctly_not_enabled' && (
+                            <div className={`text-xs mt-0.5 ${pairIsPass ? 'text-gray-600' : 'text-red-600'}`}>
                               Reason: {pr.reason}
                             </div>
                           )}
                         </div>
-                      ))}
+                      );
+                      })}
                     </div>
                   )}
                   
@@ -1049,7 +1065,8 @@ const ResultsTab = ({ testSuite, testResults, isGenerating, isExecuting }) => {
                     <div className="text-red-600 mt-1">{result.reason}</div>
                   )}
                 </div>
-              ))}
+              );
+              })}
             </div>
           )}
         </div>
@@ -1090,6 +1107,14 @@ const ResultsTab = ({ testSuite, testResults, isGenerating, isExecuting }) => {
                 <div className="text-xs text-gray-600">
                   Intention: {testCase.intentionId}
                 </div>
+                {/* FIX #8: Show instantiated terms */}
+                {testCase.instantiation && Object.keys(testCase.instantiation).length > 0 && (
+                  <div className="text-xs text-gray-600 mt-1">
+                    Variables: {Object.entries(testCase.instantiation).map(([name, value]) => 
+                      `${name}=${JSON.stringify(value)}`
+                    ).join(', ')}
+                  </div>
+                )}
                 <div className="text-xs text-gray-600 mt-1">
                   Path: {testCase.expectedTrace?.length || 0} transitions
                   {testCase.expectedTrace && testCase.expectedTrace.length > 0 && (

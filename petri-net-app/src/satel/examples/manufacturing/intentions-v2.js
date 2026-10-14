@@ -22,9 +22,9 @@ export const orderProcessingIntention = {
       sort: 'Priority',
       hypothesis: {
         type: 'subuniformity',
-        source: 'constructors'
+        source: 'guards' // FIX #1: Split on path guards, not constructors
       },
-      description: 'Order priority level'
+      description: 'Order priority level - splits on quality check guards'
     },
     {
       name: 'material',
@@ -143,8 +143,8 @@ export const qualityCheckFailIntention = {
  */
 export const materialExhaustionIntention = {
   id: 'material-exhaustion',
-  name: 'Material Exhaustion',
-  testType: 'positive', // notEnabled observation is a valid success
+  name: 'Material Exhaustion (Guard Rejects)',
+  testType: 'positive', // FIX #5: notEnabled is success - guard correctly rejects
   variables: [
     {
       name: 'order',
