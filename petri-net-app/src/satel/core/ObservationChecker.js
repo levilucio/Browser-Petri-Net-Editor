@@ -46,9 +46,7 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
         }
         
         // Check if this is an error (transition_not_enabled_after_injection, firing_failed)
-        if (result.reason === 'transition_not_found' || 
-            result.reason === 'firing_failed' ||
-            result.reason === 'transition_not_enabled_after_injection') {
+        if (result.phase === 'error' || result.phase === 'stimulation') {
           hasError = true;
         }
         
@@ -110,7 +108,7 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
  * @param {Object} simulator - Simulator instance
  * @returns {Promise<Object>} Pair result
  */
-async function executePair(pair, simulator) {
+async function executePair(pair, simulator, adtRegistry) {
   const { stimulation, observation } = pair;
   
   // 1. Get current marking
@@ -118,7 +116,7 @@ async function executePair(pair, simulator) {
   
   // 2. Check if this is a 'notEnabled' observation (expects transition NOT to fire)
   if (observation.type === 'notEnabled') {
-    const stimResult = await checkNotEnabled(stimulation, simulator);
+    const stimResult = await checkNotEnabled(stimulation, simulator, adtRegistry);
     
     if (stimResult.success) {
       // Transition is correctly not enabled - observation passes
@@ -133,8 +131,9 @@ async function executePair(pair, simulator) {
       // Transition fired when it should not have
       return {
         success: false,
-        phase: 'observation',
-        reason: 'transition_fired_unexpectedly',
+        phase: stimResult.reason === 'transition_unexpectedly_enabled' ? 'observation' : 'error',
+        reason: stimResult.reason,
+        error: stimResult.error,
         transition: stimulation.transition
       };
     }

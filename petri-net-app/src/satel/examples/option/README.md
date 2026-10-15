@@ -1,5 +1,7 @@
 # Option Request Handler - Custom ADT Example
 
+> Historical example notes. V1 intention fixtures have been removed. See `docs/satel/increment-02-gui-v2.md` for the supported GUI workflow and current limitations.
+
 ## Overview
 
 Demonstrates **general constructor partitioning** with user-defined **Option** ADT.

@@ -92,6 +92,9 @@
  * Validate intention schema
  */
 export function validateIntention(intention) {
+  if (!intention || 'pathPattern' in intention || !Array.isArray(intention.variables) || !Array.isArray(intention.pairs)) {
+    throw new Error('Only V2 intentions with variables and stimulation/observation pairs are supported');
+  }
   if (!intention.id || typeof intention.id !== 'string') {
     throw new Error('Intention must have string id');
   }
@@ -162,36 +165,4 @@ function validatePair(pair) {
   if (!pair.observation.outputs || typeof pair.observation.outputs !== 'object') {
     throw new Error('Observation must have outputs object');
   }
-}
-
-/**
- * Migrate old-format intention to new format
- */
-export function migrateIntention(oldIntention) {
-  // Simple migration: convert pathPattern events to pairs
-  // This is a skeleton - full migration requires manual output specification
-  
-  const pairs = [];
-  const events = oldIntention.pathPattern?.events || [];
-  
-  for (const event of events) {
-    pairs.push({
-      stimulation: {
-        transition: event.transition,
-        inputs: {} // Must be filled manually
-      },
-      observation: {
-        outputs: {} // Must be filled manually from outputExpectations
-      }
-    });
-  }
-  
-  return {
-    id: oldIntention.id,
-    name: oldIntention.name || oldIntention.id,
-    testType: 'positive', // Default
-    variables: [], // Must be filled manually
-    pairs,
-    description: oldIntention.description
-  };
 }
