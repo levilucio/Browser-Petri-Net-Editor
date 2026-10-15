@@ -58,3 +58,30 @@ npm run satel:oracle-example
 npm run build
 npx playwright test tests/e2e/satel/oracle-account.spec.js tests/e2e/manufacturing-satel-v2.spec.js --project=chromium
 ```
+
+## Follow-up: instantiated pair presentation
+
+Both the account example and ordinary V2 generated tests now render as a vertical
+`HML( ⟨stimulation with observation⟩ … T ), truthValue` sequence, following the
+pair notation illustrated in §7.1.1 (printed p. 131) of
+[the SATEL thesis](https://archive-ouverte.unige.ch/unige:2498).
+
+For example, the equality witness contains
+`⟨withdraw(10) with ack(1) // paidAmount(10)⟩`. Constructor terms are displayed as
+`Amount(10)` or `Order(10, High())`, with the selected substitution shown above the
+pairs. Test cards are expanded initially. Expected/actual output comparisons also
+use place/token notation instead of JSON.
+
+This is an APN presentation adaptation: output events name places; input place
+bindings and expected empty outputs are listed under each pair. Ordinary V2
+stimulations retain their explicit transition and named-place bindings, displayed
+as `transition [place ↦ ⟦tokens⟧]`. Repeated tokens remain repeated. An empty output
+map is displayed as `unconstrained`, distinct from `null` with explicit empty-place
+assertions. A `notEnabled` observation retains its meaning. The final truth value
+is the test expectation, not a replay verdict. This rendering neither changes the
+test data nor claims support for the full CO-OPN synchronization/HML semantics.
+
+Validation for this presentation change: 10 focused GUI/API tests, production
+build, and the account reference-to-mutant browser workflow on desktop and mobile.
+The browser test checks that all 12 instantiated pairs are present and that the
+equality case displays its exact stimulation and payment observation.

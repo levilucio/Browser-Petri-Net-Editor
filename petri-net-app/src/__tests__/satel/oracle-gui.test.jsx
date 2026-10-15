@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import SatelTestDisplay from '../../components/SatelTestDisplay';
 import SatelPanel from '../../components/SatelPanel';
 import { usePetriNet } from '../../contexts/PetriNetContext';
 import { createOracleAccountExample } from '../../satel/examples/oracle-account/editor';
@@ -107,4 +108,31 @@ test('notEnabled on an unknown transition is an error even in a negative test', 
   ] };
   const result = await executeTestSuite({ testCases: [tc] }, reference(), new AlgebraicSimulator());
   expect(result.statistics).toMatchObject({ passed: 0, errors: 1 });
+});
+
+
+test('instantiated pairs show nested ADTs, repeated output tokens and empty checks without JSON encoding', () => {
+  const order = { __adt__: true, constructor: 'Order', args: [10, { __adt__: true, constructor: 'High', args: [] }] };
+  const tc = { testType: 'positive', instantiation: { order }, pairs: [{
+    stimulation: { transition: 'receive', inputs: { incoming: [order] } },
+    observation: { outputs: { ack: [1, 1], rejected: [] } },
+  }] };
+  const before = JSON.stringify(tc);
+  const { container } = render(<SatelTestDisplay test={tc} />);
+  expect(screen.getByLabelText('Instantiated variables')).toHaveTextContent('order ↦ Order(10, High())');
+  expect(screen.getByTestId('satel-pair-formula')).toHaveTextContent('receive [incoming ↦ ⟦Order(10, High())⟧] with ack(1) // ack(1)');
+  expect(screen.getByLabelText('Pair 1')).toHaveTextContent('Also require empty: rejected');
+  expect(container).not.toHaveTextContent('__adt__');
+  expect(container.querySelector('pre')).toBeNull();
+  expect(JSON.stringify(tc)).toBe(before);
+});
+
+test('empty observations and unconstrained observations remain visually distinct', () => {
+  render(<SatelTestDisplay test={{ pairs: [
+    { stimulation: { transition: 'a', inputs: {} }, observation: { outputs: { out: [] } } },
+    { stimulation: { transition: 'b', inputs: {} }, observation: { outputs: {} } },
+  ] }} />);
+  expect(screen.getAllByTestId('satel-pair-formula')[0]).toHaveTextContent('a with null');
+  expect(screen.getByLabelText('Pair 1')).toHaveTextContent('Also require empty: out');
+  expect(screen.getAllByTestId('satel-pair-formula')[1]).toHaveTextContent('b with unconstrained');
 });

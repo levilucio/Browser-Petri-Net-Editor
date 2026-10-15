@@ -5,6 +5,7 @@ import { validateIntention } from '../satel/core/IntentionSchema';
 import { AlgebraicSimulator } from '../features/simulation/algebraic-simulator';
 import IntentionEditorV2 from './IntentionEditorV2';
 import OracleValidationPanel from './OracleValidationPanel';
+import SatelTestDisplay, { formatSatelTerm } from './SatelTestDisplay';
 
 const button = 'px-3 py-2 border rounded disabled:opacity-50';
 
@@ -120,12 +121,18 @@ export default function SatelPanel({ isOpen, onClose }) {
             <p className="font-semibold">{visibleResults.statistics.passed} passed · {visibleResults.statistics.failed} failed · {visibleResults.statistics.errors} errors</p>
             {visibleResults.testResults.map(r => <details key={r.testCaseId} className="border rounded p-2" open={r.verdict !== 'pass'}>
               <summary>{r.testCaseId}: {r.verdict}</summary>
-              <pre className="text-xs whitespace-pre-wrap break-words">{JSON.stringify(r, null, 2)}</pre>
+              {r.summary && <p>{r.summary}</p>}
+              {r.error && <p className="text-red-800">{r.error}</p>}
+              {r.pairResults?.map((pr, i) => <div key={i} className="mt-2 break-words">
+                <p>Pair {i + 1}: {pr.phase === 'error' ? 'error' : pr.success ? 'matched' : 'not matched'} — {pr.error || pr.reason || pr.phase}</p>
+                {pr.expected && <p className="font-mono text-xs">Expected {pr.place}: {formatSatelTerm(pr.expected)}</p>}
+                {pr.actual && <p className="font-mono text-xs">Actual {pr.place}: {formatSatelTerm(pr.actual)}</p>}
+              </div>)}
             </details>)}
           </>}
-          {suite?.testCases.map(tc => <details key={tc.id} className="border rounded p-2">
+          {suite?.testCases.map(tc => <details key={tc.id} className="border rounded p-2" open>
             <summary>{tc.intentionName} · {tc.id}</summary>
-            <pre className="text-xs whitespace-pre-wrap break-words">{JSON.stringify({ instantiation: tc.instantiation, pairs: tc.pairs }, null, 2)}</pre>
+            <SatelTestDisplay test={tc} pairResults={visibleResults?.testResults.find(r => r.testCaseId === tc.id)?.pairResults} />
           </details>)}
         </div>}
       </div>

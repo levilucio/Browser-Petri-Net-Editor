@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SatelTestDisplay, { PlaceObservations } from './SatelTestDisplay';
 import { generateValidatedSubuniformitySuite, evaluateOracleSuite } from '../satel/core/ValidatedSubuniformity.js';
 import { accountInterface } from '../satel/examples/oracle-account/net.js';
 import { withdrawalGoal, coarseWithdrawalGoal, encodeAccountWitness } from '../satel/examples/oracle-account/algebra.js';
@@ -91,12 +92,12 @@ export default function OracleValidationPanel({ elements, session, onSessionChan
         {target.results.map(r => <details key={r.id} className="border-t pt-2" open={r.verdict !== 'pass'}>
           <summary>{r.id}: {r.verdict}{r.step ? ` at step ${r.step}` : ''}</summary>
           {r.reason && <p>{r.reason}</p>}
-          {r.expected && <><p>Expected</p><pre className="overflow-auto text-xs">{json(r.expected)}</pre></>}
-          {r.actual && <><p>Actual</p><pre className="overflow-auto text-xs">{json(r.actual)}</pre></>}
+          {r.expected && <PlaceObservations label="Expected" outputs={r.expected} />}
+          {r.actual && <PlaceObservations label="Actual" outputs={r.actual} />}
         </details>)}
       </div>}
       <h4 className="font-semibold">Symbolic classes and selected tests</h4>
-      {suite.selectedTests.map(test => <details key={test.id} className="p-3 border rounded">
+      {suite.selectedTests.map(test => <details key={test.id} className="p-3 border rounded" open>
         <summary>{term(test.symbolicDomain.witnessArgs[1])} · reference passed</summary>
         <p className="mt-2"><strong>Pattern:</strong> {test.symbolicDomain.patterns.map(term).join(', ')}</p>
         <p><strong>Constraints:</strong> {test.symbolicDomain.conditions.map(term).join(' and ') || 'none'}</p>
@@ -104,11 +105,7 @@ export default function OracleValidationPanel({ elements, session, onSessionChan
         <details><summary>Full symbolic derivation</summary>
           <pre className="text-xs whitespace-pre-wrap break-words">{json(test.symbolicDomain)}</pre>
         </details>
-        <p className="font-medium">Stimulation / observation pairs</p>
-        {test.steps.map((step, i) => <div key={i} className="py-2 border-t">
-          <p>{i + 1}. {step.action}({step.value})</p>
-          <pre className="text-xs whitespace-pre-wrap">{json(test.expected[i])}</pre>
-        </div>)}
+        <SatelTestDisplay test={test} io={suite.interface} />
       </details>)}
       <details><summary>Source constructor and operation definitions</summary>
         <pre className="text-xs whitespace-pre-wrap break-words">{json(suite.symbolicGoal)}</pre>
