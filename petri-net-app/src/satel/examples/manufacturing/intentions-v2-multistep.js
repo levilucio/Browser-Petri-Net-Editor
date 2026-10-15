@@ -18,6 +18,12 @@ import { createOrder, createMaterial, createJob, createProduct } from './adt.js'
  * Each priority value drives a DIFFERENT 5-6 transition sequence.
  */
 export const jobLifecycleByPriority = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    orderQueue: [{ __adt__: true, constructor: 'Order', args: [1, '$priority'] }],
+    rawMaterialSupply: [createMaterial(100)]
+  },
+
   id: 'job-lifecycle-priority',
   name: 'Complete Job Lifecycle (Priority-Dependent Path)',
   testType: 'positive',
@@ -159,6 +165,12 @@ export const jobLifecycleByPriority = {
  * - If material < 50: neither schedules (path: notEnabled × 2)
  */
 export const materialContentionPath = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    orderQueue: [createOrder(1, { __adt__: true, constructor: 'High', args: [] })],
+    rawMaterialSupply: [{ __adt__: true, constructor: 'Material', args: ['$materialAmount'] }]
+  },
+
   id: 'material-contention',
   name: 'Concurrent Jobs - Material Contention',
   testType: 'positive',
@@ -226,6 +238,12 @@ export const materialContentionPath = {
  * stage1 → stage2 → stage3 → QC_PASS → complete (9 transitions)
  */
 export const reworkCyclePath = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    orderQueue: [createOrder(1, { __adt__: true, constructor: 'Normal', args: [] })],
+    rawMaterialSupply: [createMaterial(100)]
+  },
+
   id: 'rework-cycle',
   name: 'Fail-Rework-Complete Cycle',
   testType: 'positive',
@@ -303,6 +321,15 @@ export const reworkCyclePath = {
  * Tests concurrent execution and priority differentiation.
  */
 export const parallelPriorityPaths = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    orderQueue: [
+      createOrder(1, { __adt__: true, constructor: 'High', args: [] }),
+      createOrder(2, { __adt__: true, constructor: 'Normal', args: [] })
+    ],
+    rawMaterialSupply: [createMaterial(100), createMaterial(100)]
+  },
+
   id: 'parallel-priority',
   name: 'Parallel High/Normal Priority Processing',
   testType: 'positive',

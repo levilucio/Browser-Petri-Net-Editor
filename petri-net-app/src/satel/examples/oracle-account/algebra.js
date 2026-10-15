@@ -1,3 +1,4 @@
+import { accountInitialMarking } from './net.js';
 const v = name => ({ var: name });
 const ctor = (name, ...args) => ({ ctor: name, args });
 const call = (name, ...args) => ({ call: name, args });
@@ -75,6 +76,7 @@ export function encodeAccountWitness(args, result) {
   const [balance, reply] = result.args;
   if (!['Paid', 'Refused'].includes(reply?.ctor) || reply.args?.length !== 1) throw new Error('Unsupported reply constructor');
   return {
+    initialMarking: accountInitialMarking(args[1]),
     steps: requestSteps(args[1]),
     expected: [
       { ack: [1], paidAmount: [], balanceResult: [] },

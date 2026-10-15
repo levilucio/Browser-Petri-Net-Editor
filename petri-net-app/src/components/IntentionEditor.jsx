@@ -1,12 +1,14 @@
 /**
- * V2 Intention Editor
+ * Intention Editor
  * 
  * Editor for SATEL-style intentions with variables and stim/obs pairs
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 
-const IntentionEditorV2 = ({ intention, onChange, onSave, onCancel, elements }) => {
+const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) => {
+  const [markingText, setMarkingText] = useState(JSON.stringify(intention.initialMarking || {}, null, 2));
+  const [markingError, setMarkingError] = useState('');
   const transitions = elements.transitions || [];
   const places = elements.places || [];
   
@@ -89,7 +91,7 @@ const IntentionEditorV2 = ({ intention, onChange, onSave, onCancel, elements }) 
   return (
     <div className="p-4 space-y-6">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
-        {intention.name === 'New Test Intention' ? 'Create V2 Test Intention' : 'Edit V2 Test Intention'}
+        {intention.name === 'New Test Intention' ? 'Create Test Intention' : 'Edit Test Intention'}
       </h3>
       
       {/* Basic Info */}
@@ -129,6 +131,20 @@ const IntentionEditorV2 = ({ intention, onChange, onSave, onCancel, elements }) 
         </div>
       </div>
       
+      <div className="border-t pt-4 space-y-2">
+        <label htmlFor="satel-initial-marking" className="block text-sm font-medium">Initial marking overrides (JSON)</label>
+        <p className="text-xs text-gray-600">Applied once before execution. Unlisted places keep the loaded APN marking. Use "$variable" for parameters. Pair inputs only select existing tokens.</p>
+        <textarea id="satel-initial-marking" rows={4} className="w-full border rounded p-2 font-mono text-xs"
+          value={markingText} onChange={e => {
+            setMarkingText(e.target.value);
+            try {
+              const marking = JSON.parse(e.target.value);
+              if (!marking || Array.isArray(marking) || typeof marking !== 'object' || !Object.values(marking).every(Array.isArray)) throw new Error('Use place IDs mapped to token arrays.');
+              updateIntention('initialMarking', marking); setMarkingError('');
+            } catch (err) { setMarkingError(err.message); }
+          }} />
+        {markingError && <p role="alert" className="text-red-700">{markingError}</p>}
+      </div>
       {/* Variables Section */}
       <div className="border-t pt-4">
         <div className="flex justify-between items-center mb-3">
@@ -286,7 +302,7 @@ const IntentionEditorV2 = ({ intention, onChange, onSave, onCancel, elements }) 
                   </select>
                 </div>
                 <div className="mt-2">
-                  <label className="block text-xs text-gray-600 mb-1">Inputs (JSON)</label>
+                  <label className="block text-xs text-gray-600 mb-1">Tokens to consume (JSON)</label>
                   <textarea
                     value={JSON.stringify(pair.stimulation.inputs, null, 2)}
                     onChange={(e) => {
@@ -306,7 +322,7 @@ const IntentionEditorV2 = ({ intention, onChange, onSave, onCancel, elements }) 
               <div className="bg-white p-2 rounded">
                 <label className="block text-xs font-medium text-gray-700 mb-1">Observation</label>
                 <div>
-                  <label className="block text-xs text-gray-600 mb-1">Expected Outputs (JSON)</label>
+                  <label className="block text-xs text-gray-600 mb-1">Expected tokens produced (JSON)</label>
                   <textarea
                     value={JSON.stringify(pair.observation.outputs, null, 2)}
                     onChange={(e) => {
@@ -351,6 +367,7 @@ const IntentionEditorV2 = ({ intention, onChange, onSave, onCancel, elements }) 
       <div className="pt-4 border-t flex gap-2">
         <button
           onClick={onSave}
+          disabled={!!markingError}
           className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
         >
           Save Intention
@@ -366,4 +383,4 @@ const IntentionEditorV2 = ({ intention, onChange, onSave, onCancel, elements }) 
   );
 };
 
-export default IntentionEditorV2;
+export default IntentionEditor;

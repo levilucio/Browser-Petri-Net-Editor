@@ -51,7 +51,7 @@ export async function executeTestSuite(testSuite, petriNet, simulator, options =
     
     try {
       if (testCase.oracle?.type !== 'v2' || !Array.isArray(testCase.pairs) || !testCase.pairs.length) {
-        throw new Error('Only nonempty V2 stimulation/observation test cases are supported');
+        throw new Error('Only nonempty stimulation/observation test cases are supported');
       }
       const result = await executeV2TestCase(testCase, petriNet, simulator);
 

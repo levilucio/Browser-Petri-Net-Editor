@@ -1,11 +1,12 @@
+import { withInitialMarking, initialMarkingOf } from './InitialMarking.js';
 /** V2 candidate generation. Symbolic oracle admission is a separate API. */
 import { buildAdtRegistry } from '../../utils/adt-parser.js';
 import { instantiateVariables, cartesianProduct, filterByGuards, instantiatePair,
-  extractMultiVariableGuards } from './VariableInstantiator.js';
+  extractMultiVariableGuards, instantiateTerm } from './VariableInstantiator.js';
 import { validateIntention } from './IntentionSchema.js';
 
 export async function generateTestSuite(intentions, petriNet, simulator, options = {}) {
-  if (!Array.isArray(intentions) || !intentions.length) throw new Error('At least one V2 intention is required');
+  if (!Array.isArray(intentions) || !intentions.length) throw new Error('At least one test intention is required');
   intentions.forEach(validateIntention);
   const start = Date.now();
   const testCases = [];
@@ -19,8 +20,8 @@ export async function generateTestSuite(intentions, petriNet, simulator, options
     testCases.push(...cases);
   }
   return {
-    id: `suite-${Date.now()}`, name: options.suiteName || 'V2 Test Suite',
-    description: `Generated from ${intentions.length} V2 intention(s)`,
+    id: `suite-${Date.now()}`, name: options.suiteName || 'SATEL Test Suite',
+    description: `Generated from ${intentions.length} test intention(s)`,
     testCases, oracleValidated: false,
     statistics: { totalIntentions: intentions.length, intentionsProcessed: intentions.length,
       casesGenerated: testCases.length, casesAfterReduction: testCases.length,
@@ -77,6 +78,7 @@ async function generateTestCasesFromIntentionV2(intention, petriNet, simulator, 
       intentionName: intention.name,
       testType: intention.testType,
       instantiation: inst,
+      initialMarking: initialMarkingOf(withInitialMarking(petriNet, instantiateTerm(intention.initialMarking || {}, inst))),
       pairs: instantiatedPairs,
       expectedTrace, // Populated with pair transitions for UI display
       oracle: { type: 'v2', pairs: instantiatedPairs }

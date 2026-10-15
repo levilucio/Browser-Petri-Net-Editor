@@ -1,3 +1,5 @@
+> Historical increment: per-step injection/draining and GUI version labels described below have been superseded by [continuous initial-marking execution](increment-03-initial-marking.md).
+
 # Increment 2 — GUI oracle validation, mutant APNs, V2-only intentions
 
 ## Review in the editor

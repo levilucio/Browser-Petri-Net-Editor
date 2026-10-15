@@ -25,6 +25,7 @@ test('GUI preserves reference expectations across close/load and detects exact-b
   const view = setup();
   await generate();
   expect(screen.getByText('4/4 tests passed the reference oracle')).toBeInTheDocument();
+  expect(screen.getAllByText('Initial marking M₀')).toHaveLength(4);
   view.rerender(<SatelPanel isOpen={false} onClose={() => {}} />);
   elements = createOracleAccountExample('oracle-account-reject-exact-balance');
   view.rerender(<SatelPanel isOpen onClose={() => {}} />);
@@ -71,12 +72,14 @@ test('unsupported target is an error, never a mutation kill', async () => {
   expect(screen.getByText('Execution error — not counted as a detected mutation.')).toBeInTheDocument();
 });
 
-test('editor offers only V2 intentions and explicitly discards old cached payloads', () => {
+test('editor offers only intentions and explicitly discards old cached payloads', () => {
   localStorage.setItem('satel-test-intentions', JSON.stringify([{ pathPattern: {} }]));
   setup();
-  fireEvent.click(screen.getByRole('button', { name: 'V2 intentions' }));
-  expect(screen.getByRole('button', { name: '+ Create V2 Intention' })).toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: /Create V1/ })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'intentions' }));
+  expect(screen.getByRole('button', { name: '+ Create Intention' })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /V[12]/ })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '+ Create Intention' }));
+  expect(screen.getByLabelText('Initial marking overrides (JSON)')).toBeInTheDocument();
   expect(screen.getByRole('alert')).toHaveTextContent('old cached intention list was discarded');
   expect(localStorage.getItem('satel-test-intentions')).toBeNull();
 });
@@ -97,7 +100,7 @@ test('public API generates V2 without exploring the state space and executes wit
 });
 
 test('V1 input is rejected by generation and execution, including mixed lists', async () => {
-  await expect(generateTestSuite([intention, { id: 'old', pathPattern: { events: [] } }], reference(), {})).rejects.toThrow('Only V2');
+  await expect(generateTestSuite([intention, { id: 'old', pathPattern: { events: [] } }], reference(), {})).rejects.toThrow('Only intentions');
   const results = await executeTestSuite({ testCases: [{ id: 'old', expectedTrace: [] }] }, reference(), {});
   expect(results.statistics).toMatchObject({ passed: 0, errors: 1 });
 });
@@ -121,7 +124,7 @@ test('instantiated pairs show nested ADTs, repeated output tokens and empty chec
   const { container } = render(<SatelTestDisplay test={tc} />);
   expect(screen.getByLabelText('Instantiated variables')).toHaveTextContent('order ↦ Order(10, High())');
   expect(screen.getByTestId('satel-pair-formula')).toHaveTextContent('receive [incoming ↦ ⟦Order(10, High())⟧] with ack(1) // ack(1)');
-  expect(screen.getByLabelText('Pair 1')).toHaveTextContent('Also require empty: rejected');
+  expect(screen.getByLabelText('Pair 1')).toHaveTextContent('No tokens produced at: rejected');
   expect(container).not.toHaveTextContent('__adt__');
   expect(container.querySelector('pre')).toBeNull();
   expect(JSON.stringify(tc)).toBe(before);
@@ -133,6 +136,6 @@ test('empty observations and unconstrained observations remain visually distinct
     { stimulation: { transition: 'b', inputs: {} }, observation: { outputs: {} } },
   ] }} />);
   expect(screen.getAllByTestId('satel-pair-formula')[0]).toHaveTextContent('a with null');
-  expect(screen.getByLabelText('Pair 1')).toHaveTextContent('Also require empty: out');
+  expect(screen.getByLabelText('Pair 1')).toHaveTextContent('No tokens produced at: out');
   expect(screen.getAllByTestId('satel-pair-formula')[1]).toHaveTextContent('b with unconstrained');
 });

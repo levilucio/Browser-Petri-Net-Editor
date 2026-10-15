@@ -1,3 +1,4 @@
+import { withInitialMarking, initialMarkingOf } from './InitialMarking.js';
 import { AlgebraicSimulator } from '../../features/simulation/algebraic-simulator.js';
 import { parseArithmetic } from '../../utils/arith-parser.js';
 import { parseBooleanExpr } from '../../utils/z3-arith.js';
@@ -61,9 +62,8 @@ function compile(net, io) {
   for (const p of net.places) {
     requireCondition(p.sort === 'Nat', `Unsupported sort at ${p.id}: only Nat is supported in this increment`);
     requireCondition(['input', 'output', 'internal'].includes(p.io_type), `Missing I/O role: ${p.id}`);
-    requireCondition(Array.isArray(p.valueTokens) && p.valueTokens.length <= 1 && p.valueTokens.every(isNat), `Invalid singleton Nat marking: ${p.id}`);
+    requireCondition(Array.isArray(p.valueTokens) && (p.io_type === 'output' || p.valueTokens.length <= 1) && p.valueTokens.every(isNat), `Invalid Nat marking (input/internal places must be singleton): ${p.id}`);
     requireCondition(p.tokens === p.valueTokens.length, `Inconsistent token count: ${p.id}`);
-    if (p.io_type !== 'internal') requireCondition(p.tokens === 0, `Public places must start empty: ${p.id}`);
     if (p.io_type === 'input') requireCondition(inputs.includes(p.id), `Unmapped input: ${p.id}`);
     if (p.io_type === 'output') requireCondition(io.outputs.includes(p.id), `Unobserved output: ${p.id}`);
   }
@@ -108,11 +108,11 @@ function compile(net, io) {
  * evidence only; they are neither selection criteria nor expected outputs.
  * Errors in the supported fragment are raised, not turned into failed tests.
  */
-export async function observeBoundedTrace(net, io, steps) {
-  net = copy(net);
+export async function observeBoundedTrace(net, io, steps, initialMarking = {}) {
+  net = withInitialMarking(net, initialMarking);
   io = copy(io);
   steps = copy(steps);
-  const { rules, inputs } = compile(net, io);
+  const { rules } = compile(net, io);
   requireCondition(Array.isArray(steps) && steps.length > 0, 'A nonempty stimulus sequence is required');
   for (const step of steps) {
     requireCondition(Object.hasOwn(io.actions, step.action), `Unknown public action: ${step.action}`);
@@ -120,45 +120,45 @@ export async function observeBoundedTrace(net, io, steps) {
   }
   const simulator = new AlgebraicSimulator();
   await simulator.initialize(copy(net));
-  const observations = [], annotations = [];
+  const observations = [], annotations = [], markings = [initialMarkingOf(net)];
   try {
     for (let index = 0; index < steps.length; index++) {
       const state = new Map(simulator.getCurrentState().places.map(p => [p.id, p.valueTokens]));
-      requireCondition([...state.values()].every(tokens => tokens.length <= 1 && tokens.every(isNat)), 'Unsupported runtime marking');
-      requireCondition([...inputs, ...io.outputs].every(id => state.get(id).length === 0), 'Unconsumed public tokens');
+      requireCondition([...state.values()].every(tokens => tokens.every(isNat)), 'Unsupported runtime marking');
       const step = steps[index];
-      simulator.injectTokens(io.actions[step.action], [step.value]);
-      state.set(io.actions[step.action], [step.value]);
+
 
       // Preflight avoids legacy simulator fallbacks silently swallowing invalid
       // guards or output expressions, and checks its execution against the
       // explicitly supported single-binding arithmetic fragment.
-      const enabled = rules.flatMap(rule => {
+      const allEnabled = rules.flatMap(rule => {
         if (!rule.incoming.every(a => state.get(a.source).length === 1)) return [];
         const env = Object.fromEntries(rule.incoming.map(a => [a.binding, state.get(a.source)[0]]));
         return guardHolds(rule.guard, env) ? [{ rule, env }] : [];
       });
       const simulatorEnabled = await simulator.getEnabledTransitions();
-      requireCondition(JSON.stringify(simulatorEnabled.slice().sort()) === JSON.stringify(enabled.map(e => e.rule.id).sort()), 'Simulator/fragment enabled-rule disagreement');
+      requireCondition(JSON.stringify(simulatorEnabled.slice().sort()) === JSON.stringify(allEnabled.map(e => e.rule.id).sort()), 'Simulator/fragment enabled-rule disagreement');
+      const enabled = allEnabled.filter(({ rule }) => rule.incoming.some(a =>
+        a.source === io.actions[step.action] && state.get(a.source)[0] === step.value));
       requireCondition(enabled.length <= 1, `Nondeterminism is unsupported at step ${index + 1}`);
-      if (enabled.length === 0) return { status: 'blocked', step: index + 1, observations, annotations };
+      if (enabled.length === 0) return { status: 'blocked', step: index + 1, observations, annotations, markings };
       const { rule, env } = enabled[0];
       const expectedState = new Map([...state].map(([id, tokens]) => [id, [...tokens]]));
       rule.incoming.forEach(a => expectedState.set(a.source, []));
       rule.outputs.forEach(o => expectedState.get(o.place).push(evaluate(o.ast, env)));
-      requireCondition([...expectedState.values()].every(tokens => tokens.length <= 1), 'Multiple tokens per place are unsupported');
+      requireCondition(net.places.filter(p => p.io_type !== 'output').every(p => expectedState.get(p.id).length <= 1), 'Multiple input/internal tokens per place are unsupported');
       await simulator.fireTransition(rule.id);
       const after = new Map(simulator.getCurrentState().places.map(p => [p.id, p.valueTokens]));
       for (const [id, expected] of expectedState) {
         requireCondition(JSON.stringify(after.get(id)) === JSON.stringify(expected), `Simulator/fragment marking disagreement: ${id}`);
       }
-      requireCondition(inputs.every(id => after.get(id).length === 0), 'Request was not consumed');
-      observations.push(Object.fromEntries(io.outputs.map(id => [id, copy(after.get(id))])));
+      observations.push(Object.fromEntries(io.outputs.map(id => [id,
+        rule.outputs.filter(o => o.place === id).map(o => evaluate(o.ast, env))])));
+      markings.push(Object.fromEntries([...after].map(([id, tokens]) => [id, copy(tokens)])));
       annotations.push(rule.id);
-      // Outputs are events observed once, not accumulated marking suffixes.
-      io.outputs.forEach(id => simulator.setPlaceMarking(id, []));
+      // Observation does not consume output tokens or alter the marking.
     }
-    return { status: 'completed', observations, annotations };
+    return { status: 'completed', observations, annotations, markings };
   } finally {
     simulator.reset();
   }

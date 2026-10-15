@@ -76,6 +76,8 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
   const pairs = normalizePairs(test, io);
   return <section aria-label="Instantiated stimulation/observation pairs" className="mt-3 space-y-2">
     <p className="text-xs text-gray-600">Instantiated test · {pairs.length} pairs in order</p>
+    <PlaceObservations label="Initial marking M₀" outputs={test.initialMarking} />
+    <p className="text-xs text-gray-600">Inputs select tokens already present. Outputs describe only this firing. No tokens are injected or cleared between pairs.</p>
     <SatelBindings bindings={test.instantiation || (test.symbolicDomain && { request: test.symbolicDomain.witnessArgs[1] })} />
     <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50">
       <div className="px-3 py-2 font-serif text-slate-600">HML(</div>
@@ -83,6 +85,7 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
         {pairs.map(({ stimulation, observation }, i) => {
           const empty = Object.entries(observation.type === 'notEnabled' ? {} : observation.outputs || {}).filter(([, tokens]) => !tokens.length).map(([place]) => place);
           const result = pairResults[i];
+          const marking = result?.marking || test.referenceMarkings?.[i + 1];
           return <li key={i} className="bg-white rounded border border-slate-200 p-3 min-w-0" aria-label={`Pair ${i + 1}`}>
             <div className="flex justify-between gap-2 text-xs text-gray-500 mb-2">
               <span>Pair {i + 1}</span>{result && <span>{result.phase === 'error' ? 'error' : result.success ? 'matched' : 'not matched'}</span>}
@@ -94,10 +97,13 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
             </div>
             <div className="mt-2 border-t pt-2 space-y-1 text-xs text-gray-600 break-words">
               <p>{stimulation.action ? 'Public request' : 'Transition'}: <span className="font-mono">{stimulation.action || stimulation.transition}</span></p>
-              <PlaceObservations outputs={stimulation.inputs} label="Input place bindings" />
-              {empty.length > 0 && <p>Also require empty: <span className="font-mono">{empty.join(', ')}</span>.</p>}
+              <PlaceObservations outputs={stimulation.inputs} label="Tokens consumed from places" />
+              {empty.length > 0 && <p>No tokens produced at: <span className="font-mono">{empty.join(', ')}</span>.</p>}
               {observation.type !== 'notEnabled' && observation.markings && Object.entries(observation.markings).map(([place, c]) =>
                 <p key={place}>Marking: {markingText(place, c)}</p>)}
+              {marking && <details><summary>Marking after pair {i + 1}</summary>
+                <PlaceObservations outputs={marking} />
+              </details>}
               {result?.reason && <p>{result.reason}</p>}
               {result?.error && <p className="text-red-800">{result.error}</p>}
               {result?.expected && <p>Expected: {result.place} ↦ {bag(result.expected)}</p>}
@@ -109,8 +115,8 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
       <div className="px-3 pb-3 font-serif">T ), {test.testType === 'negative' ? 'false' : 'true'}</div>
     </div>
     <p className="text-xs text-gray-500">Each ⟨stimulation with observation⟩ is one pair. Output-place events are joined by //.
-      Empty-place and marking checks shown beneath each pair are part of the APN oracle.
+      Empty-production and marking checks shown beneath each pair are part of the APN oracle.
       The final truth value is the expectation, not the execution verdict.</p>
-    {test.testType === 'negative' && <p className="text-xs text-gray-600">Current V2 negative-test check: an observation must mismatch; execution errors do not count as success.</p>}
+    {test.testType === 'negative' && <p className="text-xs text-gray-600">Current negative-test check: the sequence must be blocked or an observation must mismatch; execution errors do not count as success.</p>}
   </section>;
 }

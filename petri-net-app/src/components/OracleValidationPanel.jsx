@@ -57,7 +57,8 @@ export default function OracleValidationPanel({ elements, session, onSessionChan
     <div className="p-3 bg-blue-50 border rounded space-y-2">
       <p><strong>Loaded APN:</strong> {currentName}</p>
       {elements.satelExample?.description && <p>{elements.satelExample.description}</p>}
-      <p>Setup: deposit 10 → withdraw Request → query balance.</p>
+      <p>Initial setup: deposit request 10, the selected withdrawal request, and query request 0. Internal places start as shown in the loaded APN.</p>
+      <p>Execution: deposit → withdraw → query, continuously from M₀. Requests are consumed only when their turn is enabled; outputs remain in the marking.</p>
       <p>Classes come from Request constructors and conditional operation equations. The equation model
         and its numeric APN encoding are supplied by this example; arbitrary editor ADT definitions are not translated yet.</p>
     </div>

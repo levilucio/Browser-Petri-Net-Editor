@@ -14,8 +14,8 @@ const output = (source, target, binding) => ({
 export const accountNet = {
   mode: 'algebraic',
   places: [
-    place('depositRequest', 'input'), place('withdrawRequest', 'input'),
-    place('queryRequest', 'input'), place('allRequest', 'input'), place('balance', 'internal', [0]),
+    place('depositRequest', 'input', [10]), place('withdrawRequest', 'input', [10]),
+    place('queryRequest', 'input', [0]), place('allRequest', 'input'), place('balance', 'internal', [0]),
     place('ack', 'output'), place('paidAmount', 'output'), place('balanceResult', 'output'),
   ],
   transitions: [
@@ -51,6 +51,7 @@ export const accountInterface = {
 export function accountAuditCandidates() {
   return Array.from({ length: 13 }, (_, i) => ({
     id: `audit-withdraw-${i}`,
+    initialMarking: accountInitialMarking({ ctor: 'Amount', args: [i] }),
     steps: [
       { action: 'deposit', value: 10 },
       { action: 'withdraw', value: i },
@@ -77,4 +78,11 @@ export function accountMutants() {
       net.transitions.find(t => t.id === 'withdrawRefused').guard = 'n >= b';
     }),
   ];
+}
+
+// Explicit parameterized test-environment setup, applied only at initialization.
+// The current model supplies internal state; no pair may replace it.
+export function accountInitialMarking(request) {
+  return { depositRequest: [10], withdrawRequest: request.ctor === 'Amount' ? [request.args[0]] : [],
+    allRequest: request.ctor === 'All' ? [0] : [], queryRequest: [0] };
 }

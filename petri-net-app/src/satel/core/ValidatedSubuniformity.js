@@ -1,3 +1,4 @@
+import { withInitialMarking, initialMarkingOf } from './InitialMarking.js';
 import { observeBoundedTrace } from './BoundedOracleAdapter.js';
 import { deriveSymbolicSubdomains } from './SymbolicSubuniformity.js';
 
@@ -28,7 +29,7 @@ function validateTest(test, io) {
 export async function replayOracleTest(test, net, io) {
   try {
     validateTest(test, io);
-    const execution = await observeBoundedTrace(net, io, test.steps);
+    const execution = await observeBoundedTrace(net, io, test.steps, test.initialMarking);
     for (let i = 0; i < execution.observations.length; i++) {
       const actual = execution.observations[i];
       if (io.outputs.some(id => JSON.stringify(actual[id]) !== JSON.stringify(test.expected[i][id]))) {
@@ -65,7 +66,8 @@ export async function generateValidatedSubuniformitySuite({ referenceNet, io, sy
   if (candidates.some(c => !c.expected)) throw new Error('The adapter must encode the equation result as expected public observations');
   const validated = await validateOracleCandidates({ referenceNet, io, candidates });
   return freeze({
-    schemaVersion: 1,
+    schemaVersion: 2,
+    executionSemantics: 'initial-marking-continuous-firings',
     scope: 'symbolic-conditional-equations-with-synchronous-nat-apn-adapter',
     symbolicGoal: goal,
     decomposition,
@@ -85,9 +87,9 @@ export async function validateOracleCandidates({ referenceNet, io, candidates })
   const reference = copy(referenceNet), contract = copy(io), domain = copy(candidates);
   const validated = [];
   for (const candidate of domain) {
-    const execution = await observeBoundedTrace(reference, contract, candidate.steps);
+    const execution = await observeBoundedTrace(reference, contract, candidate.steps, candidate.initialMarking);
     if (execution.status !== 'completed') throw new Error(`Reference rejected candidate ${candidate.id} at step ${execution.step}`);
-    const test = freeze({ ...candidate, steps: copy(candidate.steps),
+    const test = freeze({ ...candidate, initialMarking: initialMarkingOf(withInitialMarking(reference, candidate.initialMarking)), referenceMarkings: execution.markings, steps: copy(candidate.steps),
       expected: copy(candidate.expected ?? execution.observations), referenceAnnotations: copy(execution.annotations) });
     const validation = await replayOracleTest(test, reference, contract);
     if (validation.verdict !== 'pass') throw new Error(`Reference validation failed for ${candidate.id}: ${validation.reason}`);

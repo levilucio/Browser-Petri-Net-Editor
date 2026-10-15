@@ -3,7 +3,7 @@ import { usePetriNet } from '../contexts/PetriNetContext';
 import { generateTestSuite, executeTestSuite, extractInterface, validateInterface } from '../satel';
 import { validateIntention } from '../satel/core/IntentionSchema';
 import { AlgebraicSimulator } from '../features/simulation/algebraic-simulator';
-import IntentionEditorV2 from './IntentionEditorV2';
+import IntentionEditor from './IntentionEditor';
 import OracleValidationPanel from './OracleValidationPanel';
 import SatelTestDisplay, { formatSatelTerm } from './SatelTestDisplay';
 
@@ -32,7 +32,7 @@ export default function SatelPanel({ isOpen, onClose }) {
     // Old transfer payloads must never be interpreted as supported intentions.
     if (isOpen && localStorage.getItem('satel-test-intentions')) {
       localStorage.removeItem('satel-test-intentions');
-      setError('An old cached intention list was discarded. Reload the example to use its V2 intentions.');
+      setError('An old cached intention list was discarded. Reload the example to use its intentions.');
     }
   }, [isOpen]);
 
@@ -82,12 +82,12 @@ export default function SatelPanel({ isOpen, onClose }) {
   if (!isOpen) return null;
   return <aside aria-label="SATEL Testing" className="fixed right-0 top-0 bottom-0 w-full sm:w-[540px] bg-white shadow-2xl z-50 flex flex-col border-l">
     <div className="flex items-center justify-between p-4 border-b">
-      <h2 className="text-lg font-semibold">SATEL Testing · V2</h2>
+      <h2 className="text-lg font-semibold">SATEL Testing</h2>
       <button aria-label="Close SATEL" onClick={onClose} className={button}>✕</button>
     </div>
     {!isAlgebraic ? <p className="p-4">Switch to Algebraic mode in Settings to use SATEL.</p> : <>
       <nav className="flex border-b text-sm" aria-label="SATEL views">
-        {[['oracle', 'Oracle validation'], ['intentions', 'V2 intentions'], ['results', 'Results'], ['interface', 'I/O']].map(([id, label]) =>
+        {[['oracle', 'Oracle validation'], ['intentions', 'intentions'], ['results', 'Results'], ['interface', 'I/O']].map(([id, label]) =>
           <button key={id} onClick={() => setActiveTab(id)} className={`flex-1 py-3 ${activeTab === id ? 'bg-blue-50 text-blue-700 font-semibold' : ''}`}>{label}</button>)}
       </nav>
       {error && <div role="alert" className="m-3 p-3 bg-red-50 text-red-800 border rounded text-sm">{error}</div>}
@@ -97,12 +97,12 @@ export default function SatelPanel({ isOpen, onClose }) {
           <OracleValidationPanel elements={elements} session={oracleSession} onSessionChange={setOracleSession} />
         </div>
         {activeTab === 'intentions' && (editing ?
-          <IntentionEditorV2 intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> :
+          <IntentionEditor intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> :
           <div className="p-4 space-y-3">
             <button className={`${button} w-full text-blue-700`} onClick={() => setEditing({
-              id: `intention-${Date.now()}`, name: 'New V2 Test Intention', description: '', testType: 'positive', variables: [], pairs: [],
-            })}>+ Create V2 Intention</button>
-            {!intentions.length && <p className="text-sm text-gray-600">No V2 intentions defined. The account symbolic example is available under Oracle validation.</p>}
+              id: `intention-${Date.now()}`, name: 'New Test Intention', description: '', testType: 'positive', variables: [], pairs: [],
+            })}>+ Create Intention</button>
+            {!intentions.length && <p className="text-sm text-gray-600">No intentions defined. The account symbolic example is available under Oracle validation.</p>}
             {intentions.map(i => <div key={i.id} className="p-3 border rounded text-sm">
               <strong>{i.name}</strong><p>{i.description}</p>
               <p>{i.testType} · {i.variables?.length || 0} variables · {i.pairs?.length || 0} pairs</p>
@@ -115,7 +115,7 @@ export default function SatelPanel({ isOpen, onClose }) {
         {activeTab === 'interface' && <InterfaceTab ioInterface={ioInterface} />}
         {activeTab === 'results' && <div className="p-4 space-y-3 text-sm">
           {suite && <p className="p-3 bg-green-50 border rounded">{suite.testCases.length} tests admitted by the reference oracle.</p>}
-          {!suite && !visibleResults && <p>No validated V2 suite yet. Generate from the V2 intentions tab.</p>}
+          {!suite && !visibleResults && <p>No validated suite yet. Generate from the intentions tab.</p>}
           {results && !visibleResults && <p>The loaded APN changed. Replay to see current results.</p>}
           {visibleResults && <>
             <p className="font-semibold">{visibleResults.statistics.passed} passed · {visibleResults.statistics.failed} failed · {visibleResults.statistics.errors} errors</p>
@@ -137,8 +137,8 @@ export default function SatelPanel({ isOpen, onClose }) {
         </div>}
       </div>
       {['intentions', 'results'].includes(activeTab) && !editing && <div className="p-4 border-t space-y-2">
-        <button onClick={generate} disabled={busy || !intentions.length} className={`${button} w-full bg-blue-700 text-white`}>Generate and validate V2 suite</button>
-        {suite && <button onClick={execute} disabled={busy} className={`${button} w-full`}>Replay V2 suite on loaded APN</button>}
+        <button onClick={generate} disabled={busy || !intentions.length} className={`${button} w-full bg-blue-700 text-white`}>Generate and validate suite</button>
+        {suite && <button onClick={execute} disabled={busy} className={`${button} w-full`}>Replay suite on loaded APN</button>}
         {busy && <p role="status" className="text-sm">{progress || 'Executing…'}</p>}
       </div>}
     </>}

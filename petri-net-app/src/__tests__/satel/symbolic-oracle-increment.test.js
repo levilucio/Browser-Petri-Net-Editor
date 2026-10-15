@@ -4,7 +4,7 @@ import {
   generateValidatedSubuniformitySuite, validateOracleCandidates,
   replayOracleTest, evaluateOracleSuite, evaluateSpecMutants,
 } from '../../satel/core/ValidatedSubuniformity.js';
-import { accountNet, accountInterface, accountMutants } from '../../satel/examples/oracle-account/net.js';
+import { accountNet, accountInterface, accountMutants, accountInitialMarking } from '../../satel/examples/oracle-account/net.js';
 import { withdrawalGoal, coarseWithdrawalGoal, encodeAccountWitness, requestSteps } from '../../satel/examples/oracle-account/algebra.js';
 import { runOracleAccountExample } from '../../satel/examples/oracle-account/run.js';
 
@@ -104,7 +104,7 @@ describe('Specification admission and fixed-oracle mutation execution', () => {
       [{ ctor: 'All', args: [] }, 1, [10], 0],
     ];
     for (const [request, ack, paidAmount, balance] of cases) {
-      const result = await observeBoundedTrace(accountNet, accountInterface, requestSteps(request));
+      const result = await observeBoundedTrace(accountNet, accountInterface, requestSteps(request), accountInitialMarking(request));
       expect(result.observations).toEqual([
         { ack: [1], paidAmount: [], balanceResult: [] },
         { ack: [ack], paidAmount, balanceResult: [] },

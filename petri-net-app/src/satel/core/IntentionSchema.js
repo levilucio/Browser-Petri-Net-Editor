@@ -93,7 +93,7 @@
  */
 export function validateIntention(intention) {
   if (!intention || 'pathPattern' in intention || !Array.isArray(intention.variables) || !Array.isArray(intention.pairs)) {
-    throw new Error('Only V2 intentions with variables and stimulation/observation pairs are supported');
+    throw new Error('Only intentions with variables and stimulation/observation pairs are supported');
   }
   if (!intention.id || typeof intention.id !== 'string') {
     throw new Error('Intention must have string id');
@@ -119,6 +119,9 @@ export function validateIntention(intention) {
     throw new Error('pairs must be non-empty array');
   }
   
+  if (intention.initialMarking !== undefined && (!intention.initialMarking || typeof intention.initialMarking !== 'object' || Array.isArray(intention.initialMarking) || !Object.values(intention.initialMarking).every(Array.isArray))) {
+    throw new Error('Initial marking must map place IDs to token arrays');
+  }
   for (const pair of intention.pairs) {
     validatePair(pair);
   }

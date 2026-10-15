@@ -13,6 +13,12 @@ import { createOrder, createMaterial, createJob, createProduct } from './adt.js'
  * Note: All priorities take same 1-transition path (scheduleJob)
  */
 export const orderProcessingIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    orderQueue: [{ __adt__: true, constructor: 'Order', args: [1, '$priority'] }],
+    rawMaterialSupply: ['$material']
+  },
+
   id: 'order-processing',
   name: 'Order Processing (Single Step)',
   testType: 'positive',
@@ -67,6 +73,16 @@ export const orderProcessingIntention = {
  * Tests quality control pass outcome with High priority job
  */
 export const qualityCheckPassIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    stage3InProgress: [
+      createJob(
+        createOrder(1, { __adt__: true, constructor: 'High', args: [] }),
+        createMaterial(100)
+      )
+    ]
+  },
+
   id: 'quality-check-pass',
   name: 'Quality Check Pass',
   testType: 'positive',
@@ -102,6 +118,16 @@ export const qualityCheckPassIntention = {
  * Tests quality control fail outcome with Normal priority job
  */
 export const qualityCheckFailIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    stage3InProgress: [
+      createJob(
+        createOrder(1, { __adt__: true, constructor: 'Normal', args: [] }),
+        createMaterial(100)
+      )
+    ]
+  },
+
   id: 'quality-check-fail',
   name: 'Quality Check Fail',
   testType: 'positive',
@@ -142,6 +168,12 @@ export const qualityCheckFailIntention = {
  * Tests that production correctly rejects insufficient material via guard
  */
 export const materialExhaustionIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    orderQueue: ['$order'],
+    rawMaterialSupply: [createMaterial(30)] // Insufficient (needs >= 50)
+  },
+
   id: 'material-exhaustion',
   name: 'Material Exhaustion (Guard Rejects)',
   testType: 'positive', // FIX #5: notEnabled is success - guard correctly rejects
@@ -178,6 +210,12 @@ export const materialExhaustionIntention = {
  * Tests that production works with sufficient material
  */
 export const materialSufficientIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    orderQueue: ['$order'],
+    rawMaterialSupply: [createMaterial(100)] // Sufficient
+  },
+
   id: 'material-sufficient',
   name: 'Material Sufficient',
   testType: 'positive',
@@ -218,10 +256,16 @@ export const materialSufficientIntention = {
  * Intention 4: Complete Production Workflow
  * Full flow: order → schedule → stage1 → stage2 → stage3 → QC pass → complete
  * 
- * Tokens stay in marking between pairs. Only initial injection at start.
+ * Tokens stay in marking between pairs. Setup is declared in initialMarking.
  * Each subsequent stimulation fires on tokens produced by previous step.
  */
 export const completeWorkflowIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    orderQueue: ['$order'],
+    rawMaterialSupply: ['$material']
+  },
+
   id: 'complete-workflow',
   name: 'Complete Production Workflow',
   testType: 'positive',
@@ -268,7 +312,7 @@ export const completeWorkflowIntention = {
     {
       stimulation: {
         transition: 'startStage1',
-        inputs: {} // No injection - use tokens from previous step
+        inputs: {} // No supplyion - use tokens from previous step
       },
       observation: {
         outputs: {
@@ -336,6 +380,16 @@ export const completeWorkflowIntention = {
  * Tests that High priority jobs pass quality check
  */
 export const highPriorityQCIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    stage3InProgress: [
+      createJob(
+        createOrder(1, { __adt__: true, constructor: 'High', args: [] }),
+        createMaterial(100)
+      )
+    ]
+  },
+
   id: 'high-priority-qc',
   name: 'High Priority QC Pass',
   testType: 'positive',
@@ -371,6 +425,16 @@ export const highPriorityQCIntention = {
  * Tests that Normal priority jobs go to rework
  */
 export const normalPriorityQCIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    stage3InProgress: [
+      createJob(
+        createOrder(2, { __adt__: true, constructor: 'Normal', args: [] }),
+        createMaterial(100)
+      )
+    ]
+  },
+
   id: 'normal-priority-qc',
   name: 'Normal Priority QC Fail',
   testType: 'positive',
@@ -411,6 +475,16 @@ export const normalPriorityQCIntention = {
  * Tests that Low priority jobs don't pass quality check (no transition for Low)
  */
 export const lowPriorityNotEnabledIntention = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    stage3InProgress: [
+      createJob(
+        createOrder(3, { __adt__: true, constructor: 'Low', args: [] }),
+        createMaterial(100)
+      )
+    ]
+  },
+
   id: 'low-priority-not-enabled',
   name: 'Low Priority Not Enabled',
   testType: 'positive',

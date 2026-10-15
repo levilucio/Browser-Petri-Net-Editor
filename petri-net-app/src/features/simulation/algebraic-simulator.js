@@ -317,14 +317,14 @@ export class AlgebraicSimulator extends BaseSimulator {
   extractVariablesFromPattern(ast) { return extractVariablesFromPattern(ast); }
   extractVariablesFromExpression(ast) { return extractVariablesFromExpression(ast); }
 
-  async isTransitionEnabled(transitionId) {
+  async isTransitionEnabled(transitionId, acceptAssignment) {
     if (!this.isInitialized) return false;
     const t = (this.petriNet.transitions || []).find(x => x.id === transitionId);
     if (!t) return false;
 
     // Gather input arcs (place -> transition)
     const inputArcs = (this.petriNet.arcs || []).filter(a => (a.targetId === transitionId || a.target === transitionId) && (a.sourceType === 'place' || !a.sourceType));
-    if (inputArcs.length === 0) return true; // degenerate: no inputs
+    if (inputArcs.length === 0 && !acceptAssignment) return true; // degenerate: no inputs
 
     // Check for unbound variables in guard and output arcs
     const hasUnboundVariables = await this.checkForUnboundVariables(transitionId, inputArcs);
@@ -337,6 +337,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     const placesById = Object.fromEntries((this.petriNet.places || []).map(p => [p.id, p]));
 
     const res = await findSatisfyingAssignment({
+      acceptAssignment,
       transition: t,
       inputArcs,
       placesById,
@@ -361,6 +362,7 @@ export class AlgebraicSimulator extends BaseSimulator {
   }
 
   async fireTransitionSpecific(transitionId, options = {}) {
+    this.lastFiring = null;
     // Skip expensive enabled checks if firing in batch mode (caller will handle after all fires complete)
     const skipEnabledCheck = options.skipEnabledCheck || false;
     const explicitBinding = options.explicitBinding || null;
@@ -388,6 +390,7 @@ export class AlgebraicSimulator extends BaseSimulator {
       }
     } else {
       const result = await findSatisfyingAssignment({
+        acceptAssignment: options.acceptAssignment,
         transition: t,
         inputArcs,
         placesById,
@@ -446,6 +449,7 @@ export class AlgebraicSimulator extends BaseSimulator {
     // indices to avoid index-shift bugs.
     consumeTokens(picks, placesById);
 
+    const afterConsumption = Object.fromEntries(Object.entries(placesById).map(([id, p]) => [id, (p.valueTokens || []).length]));
     // Produce tokens on outputs
     produceTokens(
       outputArcs,
@@ -459,6 +463,13 @@ export class AlgebraicSimulator extends BaseSimulator {
         parseArithmetic,
       }
     );
+
+    const produced = {};
+    for (const arc of outputArcs) {
+      const id = arc.targetId || arc.target;
+      produced[id] = JSON.parse(JSON.stringify((placesById[id].valueTokens || []).slice(afterConsumption[id])));
+    }
+    this.lastFiring = { transitionId, produced, consumed: JSON.parse(JSON.stringify(picks)) };
 
     // Invalidate enabled cache for transitions connected to changed places
     this._invalidateEnabledCache(changedPlaces);

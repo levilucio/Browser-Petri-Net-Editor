@@ -312,7 +312,7 @@ export default function useToolbarActions(params) {
           ...simulationSettings,
           netMode: 'algebraic',
         });
-        setSuccess?.(`Loaded Manufacturing Workflow with ${manufacturingIntentionsV2.length} test intentions (V2)`);
+        setSuccess?.(`Loaded Manufacturing Workflow with ${manufacturingIntentionsV2.length} test intentions`);
         setIsMobileMenuOpen?.(false);
         setIsLoading?.(false);
         return;
