@@ -14,6 +14,11 @@
  * - Zero balance: login → deposit → check (3 transitions, no withdraw)
  */
 export const depositWithdrawCycle = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    loginRequest: [{ userId: 'user1', password: 'pass123' }]
+  },
+
   id: 'deposit-withdraw-cycle',
   name: 'Deposit-Withdraw-Check Balance Cycle',
   testType: 'positive',
@@ -108,6 +113,11 @@ export const depositWithdrawCycle = {
  * Tests accumulation and guard-protected withdraw
  */
 export const multipleDepositsPath = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    loginRequest: [{ userId: 'user2', password: 'pass456' }]
+  },
+
   id: 'multiple-deposits',
   name: 'Multiple Deposits then Large Withdraw',
   testType: 'positive',
@@ -193,6 +203,12 @@ export const multipleDepositsPath = {
  * login → withdraw_fail → deposit → withdraw_success → check (5 transitions)
  */
 export const failedWithdrawRetry = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    loginRequest: [{ userId: 'user3', password: 'pass789' }],
+    accountBalance: [{ balance: 100 }]  // Override initial balance
+  },
+
   id: 'failed-withdraw-retry',
   name: 'Failed Withdraw then Retry after Deposit',
   testType: 'positive',
@@ -281,6 +297,14 @@ export const failedWithdrawRetry = {
  * Tests that balance guards partition behavior correctly.
  */
 export const concurrentSessionsPaths = {
+  // Test setup; subsequent pairs only consume tokens already present.
+  initialMarking: {
+    loginRequest: [
+      { userId: 'user1', password: 'pass1', initialBalance: '$user1Balance' },
+      { userId: 'user2', password: 'pass2', initialBalance: '$user2Balance' }
+    ]
+  },
+
   id: 'concurrent-sessions',
   name: 'Concurrent User Sessions (Balance-Dependent Paths)',
   testType: 'positive',

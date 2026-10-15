@@ -1,6 +1,8 @@
 import React from 'react';
+import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.js';
 
 const EXAMPLES = [
+  ...oracleAccountExamples,
   { filename: 'petri-net-PT.pnml', displayName: 'Petri Net PT' },
   { filename: 'petri-net-algebraic1.pnml', displayName: 'Algebraic Net 1' },
   { filename: 'petri-net-algebraic2.pnml', displayName: 'Algebraic Net 2' },
@@ -20,7 +22,7 @@ export default function ExamplesDialog({ isOpen, onClose, onSelectExample }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 p-2 sm:p-4">
-      <div className="bg-white rounded-lg sm:rounded shadow-lg w-full h-auto sm:max-w-md overflow-y-auto p-3 sm:p-4">
+      <div className="bg-white rounded-lg sm:rounded shadow-lg w-full h-auto max-h-[90vh] sm:max-w-md overflow-y-auto p-3 sm:p-4">
         <div className="flex items-center justify-between mb-3 sticky top-0 bg-white pb-2 border-b -mx-3 sm:-mx-4 px-3 sm:px-4 z-10">
           <h3 className="text-base sm:text-lg font-semibold pr-2">Examples</h3>
           <button 

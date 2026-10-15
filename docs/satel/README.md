@@ -1,165 +1,24 @@
 # SATEL for Algebraic Petri Nets
 
-Implementation of SATEL (Semi-Automatic Testing Language) for algebraic Petri nets with ADT-typed tokens.
+SATEL is an experimental partial implementation of test selection from algebraic Petri nets. The editor supports **typed test intentions**: typed variables and stimulation/observation pairs.
 
-## 🌐 Live Demo
+## Start with the oracle-validated example
 
-**Main Editor:** [https://levilucio.github.io/Browser-Petri-Net-Editor/](https://levilucio.github.io/Browser-Petri-Net-Editor/)  
-**SATEL Demo:** [https://levilucio.github.io/Browser-Petri-Net-Editor/satel-demo.html](https://levilucio.github.io/Browser-Petri-Net-Editor/satel-demo.html)
+1. Load **Examples → SATEL Account — Reference**.
+2. Open **SATEL → Oracle validation** and generate the refined suite. Four tests must pass the reference oracle before admission.
+3. Close the panel and load an account mutant from Examples.
+4. Reopen SATEL and replay the frozen suite. Inspect the first mismatching observation.
 
-## Quick Start
+See [continuous initial-marking execution](increment-03-initial-marking.md) for the current execution contract and review steps.
 
-### 1. Load an Example
-- Open the editor and switch to **Algebraic mode**
-- Click **Examples** → **Manufacturing Workflow (SATEL)**
+See [the GUI review guide](increment-02-gui-v2.md) for the exact steps, expected outcomes, V1 removal, and current limitations. [Increment 1](increment-01-symbolic-oracle.md) explains constructor/conditional-equation unfolding and its supported fragment. The CLI remains available with `cd petri-net-app && npm run satel:oracle-example`.
 
-### 2. Open SATEL Panel
-- Click the **SATEL Testing** button in the toolbar
-- View the loaded test intentions in the **Intentions** tab
+The classes are derived from ADT constructor patterns and conditional operation equations, not from enumerated executions. The account equation model and APN encoding are currently supplied by the example. General editor-ADT translation and symbolic generation from arbitrary intentions are not implemented yet.
 
-### 3. Generate Tests
-- Click **Generate Test Suite**
-- View results in the **Results** tab
-- See generated test cases with expected traces and execution outcomes
+## General intentions
 
-## Key Concepts
+Use **SATEL → intentions** to create or edit a typed-variable intention. **Generate and validate suite** instantiates it, then checks every candidate on the reference APN. Failures/errors prevent admission and are shown in Results. An admitted suite can be replayed against the loaded APN with unchanged expectations.
 
-### Test Intentions (V2 Format)
+The general generator/checker remains experimental and less restrictive than the account adapter. In particular, the manufacturing examples still have known semantic/test failures. Their presence in Examples does not imply all their intentions are correct.
 
-Test intentions specify **what to test** rather than **how to test it**. Each intention defines:
-
-**Variables:** Typed parameters with instantiation hypotheses
-- **Uniformity:** Single representative value
-- **Subuniformity:** One representative per equivalence class (partitioned by path conditions)
-- **Regularity:** Bounded enumeration
-
-**Stimulation/Observation Pairs:** HML-style sequences
-- **Stimulation:** Transition to fire with input token injection
-- **Observation:** Expected outputs and marking assertions
-
-**Example:**
-```javascript
-{
-  id: 'job-lifecycle',
-  name: 'Complete Job Lifecycle',
-  variables: [
-    {
-      name: 'priority',
-      sort: 'Priority',
-      hypothesis: {
-        type: 'subuniformity',
-        source: 'path-conditions'  // Partition by guards along paths
-      }
-    }
-  ],
-  pairs: [
-    { stimulation: { transition: 'scheduleJob', ... }, observation: {...} },
-    { stimulation: { transition: 'startStage1', ... }, observation: {...} },
-    { stimulation: { transition: 'qualityCheckPass', ... }, observation: {...} }
-  ]
-}
-```
-
-### Path-Condition Subuniformity
-
-Partitions variable domains so each equivalence class drives a **different transition sequence**:
-
-**Manufacturing Priority Example:**
-- High → qualityCheckPass (complete)
-- Normal → qualityCheckFail (rework)
-- Low → neither QC fires (stuck)
-
-Guards from intention pairs determine partitions:
-- `priority(order(job)) == High()` → High constructor
-- `priority(order(job)) == Normal()` → Normal constructor
-- Residual → Low constructor
-
-Each subdomain follows a distinct execution path.
-
-### Multi-Step Intentions
-
-Chain multiple stimulations to test workflows:
-
-**Manufacturing:**
-- Job Lifecycle (5-6 transitions): order → schedule → stage1 → stage2 → stage3 → QC
-- Rework Cycle (9 transitions): full cycle through fail → rework → pass
-- Material Contention (2-4 transitions): concurrent jobs competing for resources
-
-**Banking:**
-- Deposit-Withdraw-Check (4 transitions): login → deposit → withdraw → check
-- Failed Withdraw Retry (5 transitions): withdraw fail → deposit → withdraw success
-- Multiple Deposits (5 transitions): accumulation + large withdraw
-
-## Test Generation
-
-**Input:** Intentions + Petri net + ADT definitions  
-**Output:** Concrete test cases with expected traces
-
-**Process:**
-1. Instantiate variables per hypotheses
-2. Cartesian product of instantiations
-3. Filter by joint guards
-4. Build expected traces from pairs
-5. Execute and check oracles
-
-## Examples
-
-**Manufacturing Workflow:**
-- 12 V2 intentions (3 multi-step)
-- Tests order processing, production stages, quality control, rework
-- ADT types: Order, Priority, Material, Job, Product
-
-**Banking Operations:**
-- 4 multi-step intentions
-- Tests deposits, withdrawals, balance checks, overdraft protection
-- Guards ensure account balance constraints
-
-## Technical Details
-
-**Architecture:**
-- `TestGenerator.js` — Main generation logic
-- `VariableInstantiator.js` — Hypothesis → ground terms
-- `PathConditionPartitioner.js` — Path-condition-based subuniformity
-- `ObservationChecker.js` — Oracle execution
-- `TestExecutor.js` — V2 pair execution with token chaining
-
-**Test Statistics (Manufacturing):**
-- 11+ test cases from 12 intentions
-- 15 states explored across test suite
-- Path lengths: 1-9 transitions per test
-- Average 3.5 transitions per multi-step test
-
-**Key Fix (Oct 2026):**
-- Bug: All tests showed "Path: 0 transitions"
-- Root cause: `maxStates: 0` forced only initial state exploration
-- Fix: Use `disableGraphCaching: true` + build traces from pairs
-- Result: Correct path lengths and state counts ✓
-
-## Testing
-
-**Run Tests:**
-```bash
-cd petri-net-app
-npm test src/satel
-```
-
-**Test Coverage:**
-- Unit tests: Variable instantiation, path partitioning, ADT validation
-- Integration tests: Full generation for multi-step intentions
-- E2E tests: UI Generate button with screenshot verification
-
-**Assertions:**
-- Distinct paths per subdomain
-- Path lengths ≥ 3 for lifecycle intentions
-- Average path length ≥ 4 for multi-step suites
-- 50%+ of tests have path length ≥ 3
-
-## Documentation
-
-- **[DESIGN.md](./DESIGN.md)** — Technical design and implementation details
-- **[Demo Video](../assets/satel-v2-demo.mp4)** — Visual walkthrough (55s)
-- **[Original Thesis](https://archive-ouverte.unige.ch/unige:13068)** — PhD thesis by Levi Lucio (2009)
-
-## References
-
-Levi Lucio. *SATEL — A Test Intention Language for Object-Oriented Specifications of Reactive Systems*. PhD Thesis, University of Geneva, 2009. [UNIGE Archive](https://archive-ouverte.unige.ch/unige:13068)
+V1 intention editing, generation, execution, and fixtures have been removed. Old V1 intentions are rejected, not automatically migrated. Historical design documents and videos describe earlier implementations and are not current behavior guarantees.

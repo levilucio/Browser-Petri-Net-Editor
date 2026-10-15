@@ -92,6 +92,9 @@
  * Validate intention schema
  */
 export function validateIntention(intention) {
+  if (!intention || 'pathPattern' in intention || !Array.isArray(intention.variables) || !Array.isArray(intention.pairs)) {
+    throw new Error('Only intentions with variables and stimulation/observation pairs are supported');
+  }
   if (!intention.id || typeof intention.id !== 'string') {
     throw new Error('Intention must have string id');
   }
@@ -116,6 +119,9 @@ export function validateIntention(intention) {
     throw new Error('pairs must be non-empty array');
   }
   
+  if (intention.initialMarking !== undefined && (!intention.initialMarking || typeof intention.initialMarking !== 'object' || Array.isArray(intention.initialMarking) || !Object.values(intention.initialMarking).every(Array.isArray))) {
+    throw new Error('Initial marking must map place IDs to token arrays');
+  }
   for (const pair of intention.pairs) {
     validatePair(pair);
   }
@@ -162,36 +168,4 @@ function validatePair(pair) {
   if (!pair.observation.outputs || typeof pair.observation.outputs !== 'object') {
     throw new Error('Observation must have outputs object');
   }
-}
-
-/**
- * Migrate old-format intention to new format
- */
-export function migrateIntention(oldIntention) {
-  // Simple migration: convert pathPattern events to pairs
-  // This is a skeleton - full migration requires manual output specification
-  
-  const pairs = [];
-  const events = oldIntention.pathPattern?.events || [];
-  
-  for (const event of events) {
-    pairs.push({
-      stimulation: {
-        transition: event.transition,
-        inputs: {} // Must be filled manually
-      },
-      observation: {
-        outputs: {} // Must be filled manually from outputExpectations
-      }
-    });
-  }
-  
-  return {
-    id: oldIntention.id,
-    name: oldIntention.name || oldIntention.id,
-    testType: 'positive', // Default
-    variables: [], // Must be filled manually
-    pairs,
-    description: oldIntention.description
-  };
 }

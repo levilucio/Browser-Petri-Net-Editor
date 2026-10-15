@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets — Design Document
 
+> Historical design notes. V1 has been removed; current behavior and limits are documented in [increment 2](increment-02-gui-v2.md). State-space/path partition descriptions below are not the symbolic account implementation.
+
 ## Overview
 
 This document describes the implementation of **SATEL** (Semi-Automatic Testing Language) concepts adapted for **Algebraic Petri Nets (APNs)**, based on Levi Lucio's PhD thesis "SATEL — A Test Intention Language for Object-Oriented Specifications of Reactive Systems" (Geneva, 2009).

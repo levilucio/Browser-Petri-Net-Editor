@@ -2,13 +2,13 @@
  * Test Executor
  * 
  * Executes test cases and checks results against oracles.
- * Supports both V1 (trace-based) and V2 (stim/obs pairs) formats.
+ * Accepts V2 stimulation/observation pairs only.
  */
 
-import { executeV2TestCase, executeV2TestCases } from './ObservationChecker.js';
+import { executeV2TestCase } from './ObservationChecker.js';
 
 /**
- * Execute a test suite (V1 or V2 test cases)
+ * Execute a V2 test suite
  * 
  * @param {Object} testSuite - Generated test suite
  * @param {Object} petriNet - Petri net
@@ -50,17 +50,11 @@ export async function executeTestSuite(testSuite, petriNet, simulator, options =
     }
     
     try {
-      let result;
-      
-      // Detect format
-      if (testCase.oracle?.type === 'v2') {
-        // V2 format: use ObservationChecker
-        result = await executeV2TestCase(testCase, petriNet, simulator);
-      } else {
-        // V1 format: use legacy oracle
-        result = await executeV1TestCase(testCase, petriNet, simulator);
+      if (testCase.oracle?.type !== 'v2' || !Array.isArray(testCase.pairs) || !testCase.pairs.length) {
+        throw new Error('Only nonempty stimulation/observation test cases are supported');
       }
-      
+      const result = await executeV2TestCase(testCase, petriNet, simulator);
+
       results.testResults.push(result);
       
       if (result.verdict === 'pass') {
@@ -87,91 +81,4 @@ export async function executeTestSuite(testSuite, petriNet, simulator, options =
   results.statistics.executionTime = Date.now() - startTime;
   
   return results;
-}
-
-/**
- * Execute V1 test case (legacy trace-based)
- */
-async function executeV1TestCase(testCase, petriNet, simulator) {
-  // Initialize simulator
-  await simulator.initialize(petriNet);
-  
-  // Set initial marking
-  if (testCase.initialMarking) {
-    simulator.setMarking(testCase.initialMarking);
-  }
-  
-  // Execute trace
-  for (const event of testCase.expectedTrace) {
-    const enabled = await simulator.getEnabledTransitions();
-    
-    if (!enabled.includes(event.transition)) {
-      return {
-        testCaseId: testCase.id,
-        verdict: 'fail',
-        reason: `Transition ${event.transition} not enabled`,
-        event
-      };
-    }
-    
-    await simulator.fireTransition(event.transition);
-  }
-  
-  // Check oracle
-  const finalMarking = getCurrentMarking(simulator);
-  const oracleResult = checkV1Oracle(testCase.oracle, finalMarking);
-  
-  return {
-    testCaseId: testCase.id,
-    verdict: oracleResult.passed ? 'pass' : 'fail',
-    reason: oracleResult.reason,
-    finalMarking
-  };
-}
-
-/**
- * Check V1 oracle (output expectations)
- */
-function checkV1Oracle(oracle, marking) {
-  if (!oracle || !oracle.outputExpectations) {
-    return { passed: true };
-  }
-  
-  for (const expectation of oracle.outputExpectations) {
-    const tokens = marking[expectation.place] || [];
-    
-    // Check condition
-    if (expectation.condition === 'empty' && tokens.length !== 0) {
-      return {
-        passed: false,
-        reason: `Place ${expectation.place} not empty`
-      };
-    }
-    
-    if (expectation.condition === 'non-empty' && tokens.length === 0) {
-      return {
-        passed: false,
-        reason: `Place ${expectation.place} is empty`
-      };
-    }
-  }
-  
-  return { passed: true };
-}
-
-/**
- * Get current marking from simulator
- */
-function getCurrentMarking(simulator) {
-  const marking = {};
-  
-  if (!simulator.petriNet || !simulator.petriNet.places) {
-    return marking;
-  }
-  
-  for (const place of simulator.petriNet.places) {
-    marking[place.id] = place.valueTokens || [];
-  }
-  
-  return marking;
 }

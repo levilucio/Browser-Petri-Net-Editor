@@ -1,5 +1,7 @@
 # Drink Vending Machine Example
 
+> Historical example notes. V1 intention fixtures have been removed. See `docs/satel/increment-02-gui-v2.md` for the supported GUI workflow and current limitations.
+
 This example demonstrates SATEL test intentions for a drink vending machine, inspired by Levi Lucio's PhD thesis (2009).
 
 ## System Description

@@ -1,5 +1,7 @@
 
 
+> Historical example notes. V1 intention fixtures have been removed. See `docs/satel/increment-02-gui-v2.md` for the supported GUI workflow and current limitations.
+
 # Manufacturing Workflow Control System
 
 A production-grade algebraic Petri net example modeling a realistic manufacturing line with resource management, quality control, and error handling.

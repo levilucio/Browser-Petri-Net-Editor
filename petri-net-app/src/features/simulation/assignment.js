@@ -6,6 +6,7 @@ function isPair(v) {
 
 export async function findSatisfyingAssignment({
   transition,
+  acceptAssignment,
   inputArcs,
   placesById,
   bindingAstsByArc,
@@ -23,6 +24,7 @@ export async function findSatisfyingAssignment({
 
   const tryArc = async (arcIndex, env) => {
     if (arcIndex >= inputArcs.length) {
+      if (acceptAssignment && !acceptAssignment({ env, picks })) return null;
       if (!guardAst) return { env, picks };
       // Prefer pure boolean evaluation when possible (Jest/node friendly),
       // fallback to Z3 SAT if pure evaluation fails or throws
@@ -55,7 +57,7 @@ export async function findSatisfyingAssignment({
     const tryBind = async (k, localEnv) => {
       if (k >= needed) return tryArc(arcIndex + 1, localEnv);
       for (let i = 0; i < tokens.length; i++) {
-        if (used[i]) continue;
+        if (used[i] || picks.some(p => p.srcId === srcId && p.tokenIndex === i)) continue;
         used[i] = true;
         const tok = tokens[i];
         let ok = true;

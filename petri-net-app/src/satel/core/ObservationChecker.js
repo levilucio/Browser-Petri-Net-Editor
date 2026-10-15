@@ -1,441 +1,80 @@
-/**
- * Observation Checker (Oracle)
- * 
- * Executes stimulation/observation pairs and checks results.
- * Implements positive/negative test semantics.
- */
+/** Continuous execution from a single initial marking. */
+import { withInitialMarking, initialMarkingOf } from './InitialMarking.js';
 
-import { buildAdtRegistry } from '../../utils/adt-parser.js';
+const copy = value => JSON.parse(JSON.stringify(value));
+const unwrap = token => token && typeof token === 'object' && Object.keys(token).length === 1 && 'value' in token ? token.value : token;
 
-/**
- * Execute and check a V2 test case (sequence of stim/obs pairs)
- * 
- * @param {Object} testCase - V2 test case with pairs
- * @param {Object} petriNet - Petri net
- * @param {Object} simulator - Simulator instance
- * @returns {Promise<Object>} Test result
- */
+function inputSelector(stimulation, simulator) {
+  if (!simulator.petriNet.transitions.some(t => t.id === stimulation.transition)) throw new Error('transition_not_found');
+  const inputs = stimulation.inputs || {};
+  for (const [id, tokens] of Object.entries(inputs)) {
+    if (!simulator.petriNet.places.some(p => p.id === id)) throw new Error(`place_not_found: ${id}`);
+    if (!Array.isArray(tokens)) throw new Error(`Invalid input token multiset: ${id}`);
+    if (!simulator.petriNet.arcs.some(a => (a.sourceId || a.source) === id && (a.targetId || a.target) === stimulation.transition)) {
+      throw new Error(`Input place ${id} is not consumed by ${stimulation.transition}`);
+    }
+  }
+  return ({ picks }) => Object.entries(inputs).every(([id, tokens]) =>
+    tokensMatch(picks.filter(p => p.srcId === id).map(p => unwrap(p.value)), tokens.map(unwrap)));
+}
+
 export async function executeV2TestCase(testCase, petriNet, simulator) {
-  const { pairs, testType } = testCase;
-  
-  // Build ADT registry for token sort validation
-  const adtRegistry = buildAdtRegistry(petriNet);
-  
-  // Initialize simulator with petri net
-  await simulator.initialize(petriNet);
-  
+  const net = withInitialMarking(petriNet, testCase.initialMarking);
+  await simulator.initialize(net);
   const pairResults = [];
-  let overallSuccess = true;
-  let firstFailureIndex = -1;
-  
-  // Execute each pair sequentially
-  let hasError = false;
-  let hasObservationFailure = false;
-  
-  for (let i = 0; i < pairs.length; i++) {
-    const pair = pairs[i];
-    
-    try {
-      const result = await executePair(pair, simulator, adtRegistry);
-      pairResults.push(result);
-      
-      if (!result.success) {
-        // Check if this is an observation failure (meaningful for negative tests)
-        if (result.phase === 'observation') {
-          hasObservationFailure = true;
-        }
-        
-        // Check if this is an error (transition_not_enabled_after_injection, firing_failed)
-        if (result.reason === 'transition_not_found' || 
-            result.reason === 'firing_failed' ||
-            result.reason === 'transition_not_enabled_after_injection') {
-          hasError = true;
-        }
-        
-        overallSuccess = false;
-        if (firstFailureIndex === -1) {
-          firstFailureIndex = i;
-        }
-        
-        // For negative tests, stop on first observation failure (expected)
-        if (testType === 'negative' && result.phase === 'observation') {
-          break;
-        }
-      }
-    } catch (err) {
-      hasError = true;
-      pairResults.push({
-        success: false,
-        phase: 'error',
-        error: err.message,
-        pairIndex: i
-      });
-      overallSuccess = false;
-      if (firstFailureIndex === -1) {
-        firstFailureIndex = i;
-      }
-      
-      // For negative tests, exceptions are NOT expected successes - they're errors
-      // Continue to report the error
-    }
-  }
-  
-  // Determine verdict based on test type
-  let verdict;
-  if (hasError) {
-    // Errors are always 'error' verdict, never pass
-    verdict = 'error';
-  } else if (testType === 'positive') {
-    // All pairs must succeed
-    verdict = overallSuccess ? 'pass' : 'fail';
-  } else {
-    // Negative test: at least one pair must fail at observation
-    verdict = hasObservationFailure ? 'pass' : 'fail';
-  }
-  
-  return {
-    testCaseId: testCase.id,
-    testType,
-    verdict,
-    pairResults,
-    firstFailureIndex,
-    summary: `${pairResults.filter(r => r.success).length}/${pairs.length} pairs succeeded`
-  };
-}
-
-/**
- * Execute a single stimulation/observation pair
- * 
- * @param {Object} pair - Stim/obs pair
- * @param {Object} simulator - Simulator instance
- * @returns {Promise<Object>} Pair result
- */
-async function executePair(pair, simulator) {
-  const { stimulation, observation } = pair;
-  
-  // 1. Get current marking
-  const initialMarking = getCurrentMarking(simulator);
-  
-  // 2. Check if this is a 'notEnabled' observation (expects transition NOT to fire)
-  if (observation.type === 'notEnabled') {
-    const stimResult = await checkNotEnabled(stimulation, simulator);
-    
-    if (stimResult.success) {
-      // Transition is correctly not enabled - observation passes
-      return {
-        success: true,
-        phase: 'complete',
-        observationType: 'notEnabled',
-        transition: stimulation.transition,
-        reason: stimResult.reason
-      };
-    } else {
-      // Transition fired when it should not have
-      return {
-        success: false,
-        phase: 'observation',
-        reason: 'transition_fired_unexpectedly',
-        transition: stimulation.transition
-      };
-    }
-  }
-  
-  // 3. Execute stimulation
-  const stimResult = await executeStimulation(stimulation, simulator, initialMarking, adtRegistry);
-  
-  if (!stimResult.success) {
-    return {
-      success: false,
-      phase: 'stimulation',
-      reason: stimResult.reason,
-      transition: stimulation.transition
-    };
-  }
-  
-  // 4. Get new marking and produced tokens after stimulation
-  const newMarking = getCurrentMarking(simulator);
-  const producedTokens = stimResult.producedTokens || {};
-  
-  // 5. Check observation
-  const obsResult = checkObservation(observation, newMarking, producedTokens);
-  
-  if (!obsResult.success) {
-    return {
-      success: false,
-      phase: 'observation',
-      reason: obsResult.reason,
-      expected: obsResult.expected,
-      actual: obsResult.actual,
-      place: obsResult.place
-    };
-  }
-  
-  return {
-    success: true,
-    phase: 'complete',
-    transition: stimulation.transition,
-    producedTokens,
-    tokensProduced: Object.keys(producedTokens).length
-  };
-}
-
-/**
- * Check token sort against place sort
- * FIX #2: Implement proper ADT sort validation
- */
-function validateTokenSort(token, placeSort, adtRegistry) {
-  // For primitive types, accept any value of compatible type
-  if (!placeSort || placeSort === 'Int' || placeSort === 'Nat') {
-    return typeof token === 'number';
-  }
-  if (placeSort === 'Bool') {
-    return typeof token === 'boolean';
-  }
-  if (placeSort === 'String') {
-    return typeof token === 'string';
-  }
-  
-  // For ADT tokens, check constructor belongs to the expected sort
-  if (token && typeof token === 'object' && token.__adt__) {
-    if (!adtRegistry) {
-      // No registry available - accept any ADT token
-      return true;
-    }
-    
-    const sortDef = adtRegistry.getType(placeSort);
-    if (!sortDef) {
-      // Unknown sort - be permissive
-      return true;
-    }
-    
-    // Check if constructor is defined in this ADT sort
-    const ctorNames = sortDef.constructors.map(c => c.name);
-    return ctorNames.includes(token.constructor);
-  }
-  
-  // Non-ADT object attempting to match ADT sort
-  if (placeSort && token && typeof token === 'object' && !token.__adt__) {
-    return false;
-  }
-  
-  return true;
-}
-
-/**
- * Check if transition is NOT enabled (for notEnabled observations)
- */
-async function checkNotEnabled(stimulation, simulator, adtRegistry) {
-  const { transition, inputs } = stimulation;
-  
+  const markings = [initialMarkingOf(net)];
+  let failed = false, error = false;
   try {
-    // 1. Inject input tokens into places using public API with sort validation
-    for (const [placeId, tokens] of Object.entries(inputs)) {
-      const place = simulator.petriNet.places.find(p => p.id === placeId);
-      if (!place) {
-        return {
-          success: false,
-          reason: 'place_not_found',
-          placeId
-        };
-      }
-      
-      // Validate token sorts
-      const formattedTokens = tokens.map(token => {
-        if (typeof token === 'object' && token !== null) {
-          // Check sort if place has a sort
-          if (place.sort && !validateTokenSort(token, place.sort, adtRegistry)) {
-            throw new Error(`Token sort mismatch: expected ${place.sort}, got ${JSON.stringify(token)}`);
-          }
-          return token;
+    for (const pair of testCase.pairs) {
+      try {
+        if (typeof simulator.isTransitionEnabled !== 'function' || typeof simulator.fireTransitionSpecific !== 'function') {
+          throw new Error('SATEL requires the algebraic simulator with firing-effect support');
         }
-        // Primitive value
-        if (place.sort && place.sort !== 'Int' && place.sort !== 'Nat' && place.sort !== 'String') {
-          throw new Error(`Token sort mismatch: expected ${place.sort}, got primitive ${token}`);
+        const { stimulation, observation } = pair;
+        const acceptAssignment = inputSelector(stimulation, simulator);
+        const enabled = await simulator.isTransitionEnabled(stimulation.transition, acceptAssignment);
+        let result;
+        if (observation.type === 'notEnabled') {
+          result = { success: !enabled, phase: enabled ? 'observation' : 'complete',
+            reason: enabled ? 'transition_unexpectedly_enabled' : 'transition_correctly_not_enabled' };
+        } else if (!enabled) {
+          result = { success: false, phase: 'observation', reason: 'transition_not_enabled', transition: stimulation.transition };
+        } else {
+          await simulator.fireTransitionSpecific(stimulation.transition, { acceptAssignment });
+          const firing = simulator.lastFiring;
+          if (!firing || firing.transitionId !== stimulation.transition) throw new Error('Missing firing evidence');
+          const producedTokens = copy(firing.produced);
+          const marking = initialMarkingOf(simulator.getCurrentState());
+          const checked = checkObservation(observation, marking, producedTokens);
+          result = { ...checked, phase: checked.success ? 'complete' : 'observation',
+            transition: stimulation.transition, producedTokens, consumedTokens: copy(firing.consumed) };
         }
-        return { value: token };
-      });
-      
-      // Use public API to set marking
-      simulator.setPlaceMarking(placeId, formattedTokens);
-    }
-    
-    // 2. Verify all input arcs have tokens (notEnabled requires sufficient tokens, only guard disables)
-    const transitionDef = simulator.petriNet.transitions.find(t => t.id === transition);
-    if (!transitionDef) {
-      return {
-        success: false,
-        reason: 'transition_not_found'
-      };
-    }
-    
-    const inputArcs = simulator.petriNet.arcs.filter(
-      a => (a.targetId === transition || a.target === transition) && (a.sourceType === 'place' || !a.sourceType)
-    );
-    
-    for (const arc of inputArcs) {
-      const placeId = arc.sourceId || arc.source;
-      const place = simulator.petriNet.places.find(p => p.id === placeId);
-      if (!place || !place.valueTokens || place.valueTokens.length === 0) {
-        return {
-          success: false,
-          reason: 'missing_input_tokens',
-          missingPlace: placeId
-        };
+        result.marking = initialMarkingOf(simulator.getCurrentState());
+        pairResults.push(result);
+        markings.push(result.marking);
+        if (!result.success) { failed = true; break; }
+      } catch (e) {
+        error = true;
+        pairResults.push({ success: false, phase: 'error', error: e.message });
+        break;
       }
     }
-    
-    // 3. Check if transition is enabled
-    const enabled = await simulator.getEnabledTransitions();
-    
-    if (!enabled.includes(transition)) {
-      // Transition is NOT enabled - this is what we expect (guard rejection)
-      return {
-        success: true,
-        reason: 'transition_correctly_not_enabled',
-        enabledTransitions: enabled
-      };
-    } else {
-      // Transition IS enabled - this violates the notEnabled observation
-      return {
-        success: false,
-        reason: 'transition_unexpectedly_enabled'
-      };
-    }
-  } catch (err) {
-    return {
-      success: false,
-      reason: 'check_failed',
-      error: err.message
-    };
+    return { testCaseId: testCase.id, testType: testCase.testType,
+      verdict: error ? 'error' : (testCase.testType === 'negative' ? failed : !failed) ? 'pass' : 'fail',
+      pairResults, markings, firstFailureIndex: pairResults.findIndex(r => !r.success),
+      summary: `${pairResults.filter(r => r.success).length}/${testCase.pairs.length} pairs succeeded` };
+  } finally {
+    simulator.reset();
   }
 }
 
-/**
- * Execute stimulation: inject input tokens and fire transition
- * FIX #4: Use fireWithBinding for bound transitions
- */
-async function executeStimulation(stimulation, simulator, marking, adtRegistry) {
-  const { transition, inputs } = stimulation;
-  
-  try {
-    // 1. Inject input tokens into places using public API with sort validation (if any specified)
-    if (inputs && Object.keys(inputs).length > 0) {
-      for (const [placeId, tokens] of Object.entries(inputs)) {
-        const place = simulator.petriNet.places.find(p => p.id === placeId);
-        if (!place) {
-          return {
-            success: false,
-            reason: 'place_not_found',
-            placeId
-          };
-        }
-        
-        // Validate token sorts and format tokens
-        const formattedTokens = tokens.map(token => {
-          if (typeof token === 'object' && token !== null) {
-            // Check sort if place has a sort
-            if (place.sort && !validateTokenSort(token, place.sort, adtRegistry)) {
-              throw new Error(`Token sort mismatch: expected ${place.sort}, got ${JSON.stringify(token)}`);
-            }
-            return token;
-          }
-          // Primitive value
-          if (place.sort && place.sort !== 'Int' && place.sort !== 'Nat' && place.sort !== 'String') {
-            throw new Error(`Token sort mismatch: expected ${place.sort}, got primitive ${token}`);
-          }
-          return { value: token };
-        });
-        
-        // Use public API to set marking
-        simulator.setPlaceMarking(placeId, formattedTokens);
-      }
-    }
-    
-    // 2. Check transition exists
-    const transitionDef = simulator.petriNet.transitions.find(t => t.id === transition);
-    if (!transitionDef) {
-      return {
-        success: false,
-        reason: 'transition_not_found',
-        transition
-      };
-    }
-    
-    // 3. Capture output arcs to track produced tokens
-    const outputArcs = simulator.petriNet.arcs.filter(
-      a => (a.sourceId === transition || a.source === transition) && (a.targetType === 'place' || !a.targetType)
-    );
-    
-    // 4. Get places before firing to compare after
-    const placesBefore = {};
-    for (const arc of outputArcs) {
-      const placeId = arc.targetId || arc.target;
-      const place = simulator.petriNet.places.find(p => p.id === placeId);
-      if (place && Array.isArray(place.valueTokens)) {
-        placesBefore[placeId] = place.valueTokens.length;
-      }
-    }
-    
-    // 5. Try to fire the transition
-    try {
-      // Check if enabled first
-      const enabled = await simulator.getEnabledTransitions();
-      
-      if (!enabled.includes(transition)) {
-        // Not enabled - this could be due to guards or missing tokens
-        return {
-          success: false,
-          reason: 'transition_not_enabled_after_injection',
-          transition,
-          enabledTransitions: enabled
-        };
-      }
-      
-      // Fire the transition
-      await simulator.fireTransition(transition);
-      
-      // 6. Track produced tokens
-      const producedTokens = {};
-      for (const arc of outputArcs) {
-        const placeId = arc.targetId || arc.target;
-        const place = simulator.petriNet.places.find(p => p.id === placeId);
-        if (place && Array.isArray(place.valueTokens)) {
-          const beforeCount = placesBefore[placeId] || 0;
-          const afterCount = place.valueTokens.length;
-          if (afterCount > beforeCount) {
-            // Get newly produced tokens
-            producedTokens[placeId] = place.valueTokens.slice(beforeCount);
-          }
-        }
-      }
-      
-      return { success: true, producedTokens };
-    } catch (fireErr) {
-      return {
-        success: false,
-        reason: 'firing_failed',
-        error: fireErr.message
-      };
-    }
-  } catch (err) {
-    return {
-      success: false,
-      reason: 'stimulation_setup_failed',
-      error: err.message
-    };
-  }
-}
-
-/**
- * Check observation: verify output tokens and markings
- */
 function checkObservation(observation, marking, producedTokens = {}) {
   const { outputs, markings } = observation;
   
   // 1. Check output tokens (use produced tokens from this firing, not marking)
-  for (const [place, expectedTokens] of Object.entries(outputs)) {
-    // Use actually produced tokens if available, otherwise fall back to marking
-    const actualTokens = producedTokens[place] || marking[place] || [];
+  for (const [place, expectedTokens] of Object.entries(outputs || {})) {
+    // Only this firing's production is observable; old tokens are not new events.
+    const actualTokens = producedTokens[place] || [];
     
     if (!tokensMatch(actualTokens, expectedTokens)) {
       return {
@@ -511,23 +150,6 @@ function checkMarkingConstraint(tokens, constraint) {
   }
   
   return true;
-}
-
-/**
- * Get current marking from simulator
- */
-function getCurrentMarking(simulator) {
-  const marking = {};
-  
-  if (!simulator.petriNet || !simulator.petriNet.places) {
-    return marking;
-  }
-  
-  for (const place of simulator.petriNet.places) {
-    marking[place.id] = place.valueTokens || [];
-  }
-  
-  return marking;
 }
 
 /**

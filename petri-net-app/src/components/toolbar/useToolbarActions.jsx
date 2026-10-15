@@ -278,6 +278,18 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (filename.startsWith('oracle-account-')) {
+        const { createOracleAccountExample } = await import('../../satel/examples/oracle-account/editor.js');
+        const net = createOracleAccountExample(filename);
+        forceSimulatorReset?.();
+        setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net);
+        setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Oracle validation.`);
+        setIsMobileMenuOpen?.(false);
+        return;
+      }
+
       // Special case: Manufacturing Workflow loads from JS object
       if (filename === 'manufacturing-workflow') {
         const { manufacturingNet } = await import('../../satel/examples/manufacturing/net.js');
@@ -292,19 +304,15 @@ export default function useToolbarActions(params) {
           adtDefinitions: manufacturingNet.adtDefinitions || ''
         };
         
-        // Store full test intentions (V2) - now fast with optimized generation
-        try {
-          localStorage.setItem('satel-test-intentions', JSON.stringify(manufacturingIntentionsV2));
-        } catch (e) {
-          console.warn('Could not store test intentions:', e);
-        }
-        
+        safeJson.testIntentions = manufacturingIntentionsV2;
+        forceSimulatorReset?.();
+        updateHistory?.(safeJson);
         setElements(safeJson);
         setSimulationSettings({
           ...simulationSettings,
           netMode: 'algebraic',
         });
-        setSuccess?.(`Loaded Manufacturing Workflow with ${manufacturingIntentionsV2.length} test intentions (V2)`);
+        setSuccess?.(`Loaded Manufacturing Workflow with ${manufacturingIntentionsV2.length} test intentions`);
         setIsMobileMenuOpen?.(false);
         setIsLoading?.(false);
         return;

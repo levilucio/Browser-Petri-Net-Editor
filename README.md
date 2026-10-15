@@ -69,9 +69,15 @@ This project includes an implementation of **SATEL** (Semi-Automatic Testing Lan
 
 **📺 [Watch the Demo Video](docs/assets/satel-demo.mp4)** - 55-second walkthrough of SATEL features
 
-**📺 [SATEL V2 Demo](docs/assets/satel-v2-demo.mp4)** - Shows defining an intention with typed variables (priority: Priority under subuniformity, material: Material under uniformity) and a stimulation/observation pair, generating 3 priority cases, and executing them (edits an existing intention since Create V2 button isn't wired yet).
+**📺 [SATEL V2 Demo](docs/assets/satel-v2-demo.mp4)** - Shows defining an intention with typed variables (priority: Priority under subuniformity, material: Material under uniformity) and a stimulation/observation pair, generating 3 priority cases, and executing them (historical recording; the current editor supports V2 creation).
 
-See [SATEL_README.md](SATEL_README.md) for detailed documentation.
+See [SATEL guide](docs/satel/README.md) for detailed documentation.
+
+The first experimental [symbolic subuniformity and oracle-validation increment](docs/satel/increment-01-symbolic-oracle.md)
+is available in **SATEL → Oracle validation**, with reference and mutant APNs in Examples.
+See the [GUI and V2-only review guide](docs/satel/increment-02-gui-v2.md). The CLI also supports
+comparison of coarse and refined operation equations. Run it with
+`cd petri-net-app && npm run satel:oracle-example`.
 
 ## Repository layout
 
@@ -109,22 +115,21 @@ Open `http://localhost:3000`.
 
 ### Try SATEL Testing
 
-1. In Settings, switch to **Algebraic (Integer)** mode
-2. Load an example: **File** → **Examples** → **Manufacturing Workflow**
-3. Click the **SATEL** button in the toolbar
-4. Explore the three tabs:
-   - **Test Intentions**: View/create/edit test specifications
-   - **I/O Interface**: See marked input/output places and transitions
-   - **Results**: Generate and execute tests, view results
-5. Click **Generate Test Suite** → **Execute Tests**
+1. Load **Examples → SATEL Account — Reference** (switches to Algebraic mode).
+2. Open **SATEL → Oracle validation** and click **Generate and validate on loaded reference**.
+3. Inspect the four admitted tests, symbolic classes, and equation provenance.
+4. Close SATEL and load **SATEL Account — Mutant: reject-exact-balance**.
+5. Reopen SATEL and **Replay frozen suite on loaded APN**. Inspect the failed equality case.
 
-See [SATEL_README.md](SATEL_README.md) for detailed instructions.
+V2 intentions can be created and edited in **V2 intentions**. V1 is no longer supported.
+
+See [SATEL guide](docs/satel/README.md) for detailed instructions.
 
 ## Documentation
 
 - User guide: `docs/user-guide.md`
 - Developer guide: `docs/developer-guide.md`
-- SATEL testing guide: [SATEL_README.md](SATEL_README.md)
+- SATEL testing guide: [SATEL guide](docs/satel/README.md)
 - SATEL demo script: [docs/videos/SATEL_DEMO_SCRIPT.md](docs/videos/SATEL_DEMO_SCRIPT.md)
 
 ## Examples

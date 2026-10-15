@@ -96,6 +96,7 @@ describe('Manufacturing Mutation Tests', () => {
       }]
     };
     
+    mutated.initialMarking = mutated.pairs[0].stimulation.inputs;
     await simulator.initialize(manufacturingNet);
     const mutatedSuite = await generateTestSuite([mutated], manufacturingNet, simulator, {
       maxStates: 0,
@@ -140,6 +141,7 @@ describe('Manufacturing Mutation Tests', () => {
       }]
     };
     
+    correctTest.initialMarking = correctTest.pairs[0].stimulation.inputs;
     const suite = await generateTestSuite([correctTest], manufacturingNet, simulator, {
       maxStates: 0,
       maxDepth: 0,
@@ -206,6 +208,7 @@ describe('Manufacturing Mutation Tests', () => {
       }]
     };
     
+    wrongSortTest.initialMarking = wrongSortTest.pairs[0].stimulation.inputs;
     const suite = await generateTestSuite([wrongSortTest], manufacturingNet, simulator, {
       maxStates: 0,
       maxDepth: 0,
