@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "satel:oracle-example": "node tools/node/run-satel-oracle-example.js",
     "symex:bundle:pt": "node tools/node/build-symex-pt-zip.cjs",
     "predev": "npm run symex:bundle:pt",
     "prebuild": "npm run symex:bundle:pt",

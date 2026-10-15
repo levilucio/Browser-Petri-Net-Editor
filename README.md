@@ -73,6 +73,11 @@ This project includes an implementation of **SATEL** (Semi-Automatic Testing Lan
 
 See [SATEL_README.md](SATEL_README.md) for detailed documentation.
 
+The first experimental [symbolic subuniformity and oracle-validation increment](docs/satel/increment-01-symbolic-oracle.md)
+is available as a CLI/API example, including fixed-oracle mutation testing and a
+comparison of coarse and refined operation equations. Run it with
+`cd petri-net-app && npm run satel:oracle-example`.
+
 ## Repository layout
 
 This repository contains the application in `petri-net-app/`:
