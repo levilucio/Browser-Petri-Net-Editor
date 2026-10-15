@@ -153,14 +153,15 @@ function validatePair(pair) {
     throw new Error('Pair must have stimulation');
   }
   
-  if (!pair.stimulation.transition || typeof pair.stimulation.transition !== 'string') {
-    throw new Error('Stimulation must have transition ID');
+  if (pair.stimulation.method !== undefined) {
+    if (typeof pair.stimulation.method !== 'string' || !pair.stimulation.method) throw new Error('Stimulation must name a public method');
+    if (!pair.stimulation.arguments || typeof pair.stimulation.arguments !== 'object' || Array.isArray(pair.stimulation.arguments)) throw new Error('Method stimulation must have named arguments');
+    if (pair.stimulation.transition !== undefined || pair.stimulation.inputs !== undefined) throw new Error('Method calls cannot select internal transitions or input tokens');
+  } else {
+    if (!pair.stimulation.transition || typeof pair.stimulation.transition !== 'string') throw new Error('Stimulation must have a method or transition ID');
+    if (!pair.stimulation.inputs || typeof pair.stimulation.inputs !== 'object') throw new Error('Stimulation must have inputs object');
   }
-  
-  if (!pair.stimulation.inputs || typeof pair.stimulation.inputs !== 'object') {
-    throw new Error('Stimulation must have inputs object');
-  }
-  
+
   if (!pair.observation || typeof pair.observation !== 'object') {
     throw new Error('Pair must have observation');
   }

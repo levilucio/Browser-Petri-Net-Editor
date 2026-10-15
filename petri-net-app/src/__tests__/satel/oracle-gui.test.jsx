@@ -26,6 +26,8 @@ test('GUI preserves reference expectations across close/load and detects exact-b
   await generate();
   expect(screen.getByText('4/4 tests passed the reference oracle')).toBeInTheDocument();
   expect(screen.getAllByText('Initial marking M₀')).toHaveLength(4);
+  expect(screen.getByLabelText('SATEL Testing')).not.toHaveTextContent('HML(');
+  expect(screen.getByLabelText('SATEL Testing')).not.toHaveTextContent('T ),');
   view.rerender(<SatelPanel isOpen={false} onClose={() => {}} />);
   elements = createOracleAccountExample('oracle-account-reject-exact-balance');
   view.rerender(<SatelPanel isOpen onClose={() => {}} />);
@@ -75,18 +77,20 @@ test('unsupported target is an error, never a mutation kill', async () => {
 test('editor offers only intentions and explicitly discards old cached payloads', () => {
   localStorage.setItem('satel-test-intentions', JSON.stringify([{ pathPattern: {} }]));
   setup();
-  fireEvent.click(screen.getByRole('button', { name: 'intentions' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Intentions' }));
   expect(screen.getByRole('button', { name: '+ Create Intention' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /V[12]/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: '+ Create Intention' }));
-  expect(screen.getByLabelText('Initial marking overrides (JSON)')).toBeInTheDocument();
+  expect(screen.queryByLabelText('Initial marking overrides (JSON)')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '+ Add Pair' }));
+  expect(screen.getByLabelText('Pair 1 method')).toBeInTheDocument();
   expect(screen.getByRole('alert')).toHaveTextContent('old cached intention list was discarded');
   expect(localStorage.getItem('satel-test-intentions')).toBeNull();
 });
 
 const intention = {
   id: 'deposit', name: 'Deposit', testType: 'positive', variables: [],
-  pairs: [{ stimulation: { transition: 'deposit', inputs: { depositRequest: [10] } }, observation: { outputs: { ack: [1] } } }],
+  pairs: [{ stimulation: { method: 'deposit', arguments: { n: 10 } }, observation: { outputs: { ack: [1] } } }],
 };
 
 test('public API generates V2 without exploring the state space and executes with the same V2 checker', async () => {

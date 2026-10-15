@@ -67,6 +67,11 @@ export class SimulatorCore {
     catch (error) { console.error(`Failed to fire transition ${transitionId}:`, error); throw error; }
   }
 
+  async invokeMethod(name, args) {
+    if (!this.currentSimulator?.invokeMethod) throw new Error('Public methods require the algebraic simulator');
+    return this.currentSimulator.invokeMethod(name, args);
+  }
+
   async stepSimulation() {
     if (!this.currentSimulator) throw new Error('Simulator not initialized');
     try {

@@ -201,11 +201,13 @@ describe('useToolbarActions - Save / Save As', () => {
     expect(params.setIsLoading).toHaveBeenNthCalledWith(1, true);
     expect(params.setIsLoading).toHaveBeenLastCalledWith(false);
     expect(params.setElements).toHaveBeenCalledWith({
+      mode: 'algebraic', netMode: 'algebraic',
       places: [{ id: 'p1' }],
       transitions: [{ id: 't1' }],
       arcs: [{ source: 'p1', target: 't1', type: 'place-to-transition' }],
     });
     expect(params.setSimulationSettings).toHaveBeenCalledWith(expect.any(Function));
+    expect(params.setSimulationSettings.mock.calls.at(-1)[0]({ netMode: 'pt' }).netMode).toBe('algebraic');
     expect(params.updateHistory).toHaveBeenCalled();
     expect(params.setSuccess).toHaveBeenCalledWith(expect.stringContaining('Petri net loaded successfully'));
 

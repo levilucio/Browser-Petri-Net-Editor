@@ -196,6 +196,9 @@ export default function useToolbarActions(params) {
         }
 
         const safeJson = {
+          ...(petriNetJson.netMode ? { netMode: petriNetJson.netMode, mode: petriNetJson.netMode } : {}),
+          ...(petriNetJson.testIntentions ? { testIntentions: petriNetJson.testIntentions } : {}),
+          ...(petriNetJson.satelExample ? { satelExample: petriNetJson.satelExample } : {}),
           places: Array.isArray(petriNetJson.places) ? petriNetJson.places : [],
           transitions: Array.isArray(petriNetJson.transitions) ? petriNetJson.transitions : [],
           arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : [],

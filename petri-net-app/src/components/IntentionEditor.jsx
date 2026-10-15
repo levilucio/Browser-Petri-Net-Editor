@@ -1,3 +1,4 @@
+import { getPublicMethods, methodSignature } from '../features/simulation/PublicMethods';
 /**
  * Intention Editor
  * 
@@ -11,6 +12,9 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
   const [markingError, setMarkingError] = useState('');
   const transitions = elements.transitions || [];
   const places = elements.places || [];
+  let methods = [];
+  try { methods = getPublicMethods(elements); } catch {}
+  const methodMode = methods.length > 0 || intention.pairs.some(p => p.stimulation.method);
   
   const updateIntention = (field, value) => {
     onChange({ ...intention, [field]: value });
@@ -76,7 +80,7 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
     const newPairs = [
       ...intention.pairs,
       {
-        stimulation: { transition: '', inputs: {} },
+        stimulation: methodMode ? { method: methods[0]?.name || '', arguments: Object.fromEntries((methods[0]?.parameters || []).map(p => [p.name, 0])) } : { transition: '', inputs: {} },
         observation: { outputs: {}, markings: {} }
       }
     ];
@@ -131,7 +135,7 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
         </div>
       </div>
       
-      <div className="border-t pt-4 space-y-2">
+      {!methodMode && <div className="border-t pt-4 space-y-2">
         <label htmlFor="satel-initial-marking" className="block text-sm font-medium">Initial marking overrides (JSON)</label>
         <p className="text-xs text-gray-600">Applied once before execution. Unlisted places keep the loaded APN marking. Use "$variable" for parameters. Pair inputs only select existing tokens.</p>
         <textarea id="satel-initial-marking" rows={4} className="w-full border rounded p-2 font-mono text-xs"
@@ -144,7 +148,8 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
             } catch (err) { setMarkingError(err.message); }
           }} />
         {markingError && <p role="alert" className="text-red-700">{markingError}</p>}
-      </div>
+      </div>}
+      {methodMode && <p className="text-sm text-gray-600">Method tests start from the loaded model’s initial marking. Arguments vary; the test does not overwrite the model’s state.</p>}
       {/* Variables Section */}
       <div className="border-t pt-4">
         <div className="flex justify-between items-center mb-3">
@@ -288,6 +293,26 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
               {/* Stimulation */}
               <div className="bg-white p-2 rounded mb-2">
                 <label className="block text-xs font-medium text-gray-700 mb-1">Stimulation</label>
+                {methodMode ? <div className="space-y-2">
+                  <label className="block text-xs">Public method
+                    <select aria-label={`Pair ${idx + 1} method`} className="block w-full border rounded p-2"
+                      value={pair.stimulation.method || ''} onChange={e => {
+                        const method = methods.find(m => m.name === e.target.value);
+                        updatePair(idx, 'stimulation', { method: e.target.value, arguments: Object.fromEntries((method?.parameters || []).map(p => [p.name, 0])) });
+                      }}>
+                      <option value="">Select method…</option>
+                      {methods.map(m => <option key={m.name} value={m.name}>{methodSignature(m)}</option>)}
+                    </select>
+                  </label>
+                  {(methods.find(m => m.name === pair.stimulation.method)?.parameters || []).map(p => <label key={p.name} className="block text-xs">{p.name} · {p.sort}
+                    <input aria-label={`Pair ${idx + 1} argument ${p.name}`} className="block w-full border rounded p-2"
+                      value={pair.stimulation.arguments?.[p.name] ?? ''} placeholder="Integer or $variable"
+                      onChange={e => {
+                        const text = e.target.value;
+                        updateStimulation(idx, 'arguments', { ...pair.stimulation.arguments, [p.name]: /^-?\d+$/.test(text) ? Number(text) : text });
+                      }} />
+                  </label>)}
+                </div> : <>
                 <div>
                   <label className="block text-xs text-gray-600 mb-1">Transition</label>
                   <select
@@ -316,6 +341,8 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
                     placeholder='{ "placeId": ["$var"] }'
                   />
                 </div>
+                </>}
+
               </div>
               
               {/* Observation */}

@@ -1,3 +1,4 @@
+import { PublicMethodLauncher } from './components/PublicMethodPanel';
 import React, { useEffect, useState, useRef } from 'react';
 import Toolbar from './components/Toolbar';
 import PropertiesPanel from './components/PropertiesPanel';
@@ -314,6 +315,7 @@ const AppContent = () => {
               {Math.round(zoomLevel * 100)}%
             </button>
           </div>
+          <PublicMethodLauncher />
           <FloatingEditorControls />
           <FloatingActionBar />
           <DebugConsole ref={debugConsoleRef} enabled={Boolean(simulationSettings?.debugConsoleEnabled)} />

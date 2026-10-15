@@ -1,3 +1,4 @@
+import { getPublicMethods } from '../../features/simulation/PublicMethods.js';
 import { withInitialMarking, initialMarkingOf } from './InitialMarking.js';
 /** V2 candidate generation. Symbolic oracle admission is a separate API. */
 import { buildAdtRegistry } from '../../utils/adt-parser.js';
@@ -47,7 +48,10 @@ async function generateTestCasesFromIntentionV2(intention, petriNet, simulator, 
   }
   
   // 3. Filter by multi-variable guards
-  const guards = extractMultiVariableGuards(intention.variables, petriNet);
+  const usesMethods = intention.pairs.some(p => p.stimulation.method);
+  if (usesMethods && (intention.initialMarking !== undefined || intention.pairs.some(p => !p.stimulation.method))) throw new Error('Method intentions use the model initial marking and only public method calls');
+  // Alternative method guards are not a conjunction over candidate arguments.
+  const guards = usesMethods ? [] : extractMultiVariableGuards(intention.variables, petriNet);
   if (guards.length > 0) {
     combinations = await filterByGuards(combinations, guards, petriNet);
     
@@ -78,9 +82,10 @@ async function generateTestCasesFromIntentionV2(intention, petriNet, simulator, 
       intentionName: intention.name,
       testType: intention.testType,
       instantiation: inst,
-      initialMarking: initialMarkingOf(withInitialMarking(petriNet, instantiateTerm(intention.initialMarking || {}, inst))),
+      ...(usesMethods ? { referenceInitialMarking: initialMarkingOf(petriNet) } : { initialMarking: initialMarkingOf(withInitialMarking(petriNet, instantiateTerm(intention.initialMarking || {}, inst))) }),
+      ...(usesMethods ? { interface: { methods: getPublicMethods(petriNet) } } : {}),
       pairs: instantiatedPairs,
-      expectedTrace, // Populated with pair transitions for UI display
+      expectedTrace, // Legacy trace metadata; method tests are displayed from their pairs.
       oracle: { type: 'v2', pairs: instantiatedPairs }
     });
   }

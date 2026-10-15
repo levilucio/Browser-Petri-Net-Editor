@@ -1,11 +1,14 @@
 /** Continuous execution from a single initial marking. */
+import { isMethodRule } from '../../features/simulation/PublicMethods.js';
 import { withInitialMarking, initialMarkingOf } from './InitialMarking.js';
 
 const copy = value => JSON.parse(JSON.stringify(value));
 const unwrap = token => token && typeof token === 'object' && Object.keys(token).length === 1 && 'value' in token ? token.value : token;
 
 function inputSelector(stimulation, simulator) {
-  if (!simulator.petriNet.transitions.some(t => t.id === stimulation.transition)) throw new Error('transition_not_found');
+  const rule = simulator.petriNet.transitions.find(t => t.id === stimulation.transition);
+  if (!rule) throw new Error('transition_not_found');
+  if (isMethodRule(rule)) throw new Error('Public method rules must be invoked through their method');
   const inputs = stimulation.inputs || {};
   for (const [id, tokens] of Object.entries(inputs)) {
     if (!simulator.petriNet.places.some(p => p.id === id)) throw new Error(`place_not_found: ${id}`);
@@ -19,7 +22,10 @@ function inputSelector(stimulation, simulator) {
 }
 
 export async function executeV2TestCase(testCase, petriNet, simulator) {
-  const net = withInitialMarking(petriNet, testCase.initialMarking);
+  const usesMethods = testCase.pairs.some(p => p.stimulation.method);
+  if (usesMethods && (testCase.initialMarking !== undefined || testCase.pairs.some(p => !p.stimulation.method))) throw new Error('Method tests cannot override initial marking or mix direct transition steps');
+  if (usesMethods && petriNet.transitions.some(t => !isMethodRule(t))) throw new Error('Internal exploration is unsupported in the method oracle');
+  const net = usesMethods ? copy(petriNet) : withInitialMarking(petriNet, testCase.initialMarking);
   await simulator.initialize(net);
   const pairResults = [];
   const markings = [initialMarkingOf(net)];
@@ -31,9 +37,20 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
           throw new Error('SATEL requires the algebraic simulator with firing-effect support');
         }
         const { stimulation, observation } = pair;
+        let result;
+        if (stimulation.method) {
+          const enabled = simulator.checkMethod(stimulation.method, stimulation.arguments);
+          if (observation.type === 'notEnabled') {
+            result = { success: !enabled, phase: enabled ? 'observation' : 'complete', reason: enabled ? 'method_unexpectedly_enabled' : 'method_correctly_blocked' };
+          } else if (!enabled) result = { success: false, phase: 'observation', reason: 'method_blocked' };
+          else {
+            const call = await simulator.invokeMethod(stimulation.method, stimulation.arguments);
+            const checked = checkObservation(observation, initialMarkingOf(call.state), call.produced);
+            result = { ...checked, phase: checked.success ? 'complete' : 'observation', method: stimulation.method, producedTokens: call.produced };
+          }
+        } else {
         const acceptAssignment = inputSelector(stimulation, simulator);
         const enabled = await simulator.isTransitionEnabled(stimulation.transition, acceptAssignment);
-        let result;
         if (observation.type === 'notEnabled') {
           result = { success: !enabled, phase: enabled ? 'observation' : 'complete',
             reason: enabled ? 'transition_unexpectedly_enabled' : 'transition_correctly_not_enabled' };
@@ -48,6 +65,7 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
           const checked = checkObservation(observation, marking, producedTokens);
           result = { ...checked, phase: checked.success ? 'complete' : 'observation',
             transition: stimulation.transition, producedTokens, consumedTokens: copy(firing.consumed) };
+        }
         }
         result.marking = initialMarkingOf(simulator.getCurrentState());
         pairResults.push(result);

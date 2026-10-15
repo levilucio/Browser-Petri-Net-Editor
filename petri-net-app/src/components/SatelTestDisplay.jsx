@@ -47,13 +47,17 @@ export function SatelBindings({ bindings }) {
 function normalizePairs(test, io) {
   if (Array.isArray(test.pairs)) return test.pairs;
   return (test.steps || []).map((step, i) => ({
-    stimulation: { action: step.action, value: step.value,
-      inputs: { [io?.actions?.[step.action] || step.action]: [step.value] } },
+    stimulation: { method: step.method, arguments: step.arguments },
     observation: { outputs: test.expected[i] },
   }));
 }
 
-function stimulusText(stimulation) {
+function stimulusText(stimulation, io) {
+  if (stimulation.method) {
+    const parameters = io?.methods?.find(m => m.name === stimulation.method)?.parameters;
+    const args = parameters ? parameters.map(p => formatSatelTerm(stimulation.arguments[p.name])) : Object.entries(stimulation.arguments || {}).map(([name, value]) => `${name} = ${formatSatelTerm(value)}`);
+    return `${stimulation.method}(${args.join(', ')})`;
+  }
   if (stimulation.action) return `${stimulation.action}(${formatSatelTerm(stimulation.value)})`;
   const inputs = Object.entries(stimulation.inputs || {}).map(([place, tokens]) => `${place} ↦ ${bag(tokens)}`).join(', ');
   return `${stimulation.transition}${inputs ? ` [${inputs}]` : ''}`;
@@ -71,16 +75,17 @@ function markingText(place, c) {
   return `${place}: no active constraint`;
 }
 
-/** Thesis-style linear HML sequence, with explicit APN binding/assertion annotations. */
+/** Ordered, instantiated stimulation/observation pairs. */
 export default function SatelTestDisplay({ test, io, pairResults = [] }) {
+  io = io || test.interface;
   const pairs = normalizePairs(test, io);
   return <section aria-label="Instantiated stimulation/observation pairs" className="mt-3 space-y-2">
     <p className="text-xs text-gray-600">Instantiated test · {pairs.length} pairs in order</p>
-    <PlaceObservations label="Initial marking M₀" outputs={test.initialMarking} />
-    <p className="text-xs text-gray-600">Inputs select tokens already present. Outputs describe only this firing. No tokens are injected or cleared between pairs.</p>
+    <PlaceObservations label="Initial marking M₀" outputs={test.referenceInitialMarking || test.initialMarking} />
+    <p className="text-xs text-gray-600">Calls supply parameters. Observations describe outputs of that firing. State evolves continuously from the model’s initial marking.</p>
     <SatelBindings bindings={test.instantiation || (test.symbolicDomain && { request: test.symbolicDomain.witnessArgs[1] })} />
     <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50">
-      <div className="px-3 py-2 font-serif text-slate-600">HML(</div>
+      <div className="px-3 py-2 text-xs font-semibold text-slate-600">Stimulation / observation sequence</div>
       <ol className="space-y-2 px-2 pb-2">
         {pairs.map(({ stimulation, observation }, i) => {
           const empty = Object.entries(observation.type === 'notEnabled' ? {} : observation.outputs || {}).filter(([, tokens]) => !tokens.length).map(([place]) => place);
@@ -91,13 +96,13 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
               <span>Pair {i + 1}</span>{result && <span>{result.phase === 'error' ? 'error' : result.success ? 'matched' : 'not matched'}</span>}
             </div>
             <div className="font-serif text-base leading-relaxed break-words" data-testid="satel-pair-formula">
-              <span aria-hidden="true">⟨ </span><span className="text-blue-900">{stimulusText(stimulation)}</span>
+              <span aria-hidden="true">⟨ </span><span className="text-blue-900">{stimulusText(stimulation, io)}</span>
               <span className="italic text-gray-500"> with </span>
-              <span className="text-emerald-900">{observationText(observation, stimulation.transition)}</span><span aria-hidden="true"> ⟩</span>
+              <span className="text-emerald-900">{observationText(observation, stimulation.method || stimulation.transition)}</span><span aria-hidden="true"> ⟩</span>
             </div>
-            <div className="mt-2 border-t pt-2 space-y-1 text-xs text-gray-600 break-words">
-              <p>{stimulation.action ? 'Public request' : 'Transition'}: <span className="font-mono">{stimulation.action || stimulation.transition}</span></p>
-              <PlaceObservations outputs={stimulation.inputs} label="Tokens consumed from places" />
+            <details className="mt-2 border-t pt-2 space-y-1 text-xs text-gray-600 break-words"><summary>Execution details</summary>
+              <p>{stimulation.method ? 'Public method' : 'Transition'}: <span className="font-mono">{stimulation.method || stimulation.transition}</span></p>
+              {!stimulation.method && <PlaceObservations outputs={stimulation.inputs} label="Tokens consumed from places" />}
               {empty.length > 0 && <p>No tokens produced at: <span className="font-mono">{empty.join(', ')}</span>.</p>}
               {observation.type !== 'notEnabled' && observation.markings && Object.entries(observation.markings).map(([place, c]) =>
                 <p key={place}>Marking: {markingText(place, c)}</p>)}
@@ -108,15 +113,13 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
               {result?.error && <p className="text-red-800">{result.error}</p>}
               {result?.expected && <p>Expected: {result.place} ↦ {bag(result.expected)}</p>}
               {result?.actual && <p>Actual: {result.place} ↦ {bag(result.actual)}</p>}
-            </div>
+            </details>
           </li>;
         })}
       </ol>
-      <div className="px-3 pb-3 font-serif">T ), {test.testType === 'negative' ? 'false' : 'true'}</div>
+
     </div>
-    <p className="text-xs text-gray-500">Each ⟨stimulation with observation⟩ is one pair. Output-place events are joined by //.
-      Empty-production and marking checks shown beneath each pair are part of the APN oracle.
-      The final truth value is the expectation, not the execution verdict.</p>
-    {test.testType === 'negative' && <p className="text-xs text-gray-600">Current negative-test check: the sequence must be blocked or an observation must mismatch; execution errors do not count as success.</p>}
+    <p className="text-xs text-gray-500">Read pairs from top to bottom. “with” separates the stimulation from its observation; // joins outputs produced together. “null” means no specified output events.</p>
+    {test.testType === 'negative' && <p className="text-xs text-gray-600">Expected: this sequence is not realizable. Execution errors do not count as success.</p>}
   </section>;
 }

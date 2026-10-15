@@ -1,3 +1,5 @@
+import { methodSignature } from '../features/simulation/PublicMethods';
+import PublicMethodPanel from './PublicMethodPanel';
 import React, { useState, useEffect, useMemo } from 'react';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import { generateTestSuite, executeTestSuite, extractInterface, validateInterface } from '../satel';
@@ -87,11 +89,12 @@ export default function SatelPanel({ isOpen, onClose }) {
     </div>
     {!isAlgebraic ? <p className="p-4">Switch to Algebraic mode in Settings to use SATEL.</p> : <>
       <nav className="flex border-b text-sm" aria-label="SATEL views">
-        {[['oracle', 'Oracle validation'], ['intentions', 'intentions'], ['results', 'Results'], ['interface', 'I/O']].map(([id, label]) =>
+        {[['oracle', 'Oracle validation'], ['intentions', 'Intentions'], ['methods', 'Methods'], ['results', 'Results'], ['interface', 'I/O']].map(([id, label]) =>
           <button key={id} onClick={() => setActiveTab(id)} className={`flex-1 py-3 ${activeTab === id ? 'bg-blue-50 text-blue-700 font-semibold' : ''}`}>{label}</button>)}
       </nav>
       {error && <div role="alert" className="m-3 p-3 bg-red-50 text-red-800 border rounded text-sm">{error}</div>}
       <div className="flex-1 overflow-y-auto">
+        {activeTab === 'methods' && <PublicMethodPanel />}
         {/* Keep async work and controls mounted while switching tabs. */}
         <div hidden={activeTab !== 'oracle'}>
           <OracleValidationPanel elements={elements} session={oracleSession} onSessionChange={setOracleSession} />
@@ -154,7 +157,7 @@ const InterfaceTab = ({ ioInterface }) => {
     );
   }
 
-  const { inputPlaces, outputPlaces, inputTransitions, outputTransitions, validation } = ioInterface;
+  const { inputPlaces, outputPlaces, inputTransitions, outputTransitions, validation, methods = [] } = ioInterface;
 
   return (
     <div className="p-4 space-y-6">
@@ -180,7 +183,12 @@ const InterfaceTab = ({ ioInterface }) => {
         )}
       </div>
 
-      <div>
+      {methods.length > 0 && <section className="space-y-2">
+        <h3 className="text-sm font-semibold">Public methods ({methods.length})</h3>
+        <p className="text-xs text-gray-600">A stimulation calls one method. Guards and the current marking choose its implementing rule.</p>
+        {methods.map(m => <div key={m.name} className="font-mono text-sm border rounded p-2">{methodSignature(m)}</div>)}
+      </section>}
+      {!methods.length && <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">Input Places ({inputPlaces.length})</h3>
         {inputPlaces.length === 0 ? (
           <p className="text-xs text-gray-500">No input places marked</p>
@@ -196,7 +204,7 @@ const InterfaceTab = ({ ioInterface }) => {
             ))}
           </div>
         )}
-      </div>
+      </div>}
 
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">Output Places ({outputPlaces.length})</h3>
@@ -216,7 +224,7 @@ const InterfaceTab = ({ ioInterface }) => {
         )}
       </div>
 
-      <div>
+      {!methods.length && <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">Input Transitions ({inputTransitions.length})</h3>
         {inputTransitions.length === 0 ? (
           <p className="text-xs text-gray-500">No input transitions marked</p>
@@ -229,9 +237,9 @@ const InterfaceTab = ({ ioInterface }) => {
             ))}
           </div>
         )}
-      </div>
+      </div>}
 
-      <div>
+      {!methods.length && <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">Output Transitions ({outputTransitions.length})</h3>
         {outputTransitions.length === 0 ? (
           <p className="text-xs text-gray-500">No output transitions marked</p>
@@ -244,7 +252,7 @@ const InterfaceTab = ({ ioInterface }) => {
             ))}
           </div>
         )}
-      </div>
+      </div>}
     </div>
   );
 };

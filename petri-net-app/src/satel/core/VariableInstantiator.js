@@ -496,7 +496,10 @@ export function instantiatePair(pair, instantiation) {
   }
   
   return {
-    stimulation: {
+    stimulation: pair.stimulation.method ? {
+      method: pair.stimulation.method,
+      arguments: instantiateTerm(pair.stimulation.arguments, instantiation),
+    } : {
       transition: pair.stimulation.transition,
       inputs: instantiateObject(pair.stimulation.inputs, instantiation)
     },

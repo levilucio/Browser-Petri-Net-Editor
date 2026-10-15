@@ -1,3 +1,4 @@
+import PublicMethodEditor from './panel/PublicMethodEditor';
 import React, { useContext } from 'react';
 import { PetriNetContext } from '../contexts/PetriNetContext';
 import PlaceProperties from './panel/PlaceProperties.jsx';
@@ -36,7 +37,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
 
   if (!selectedElement) return null;
 
-  const { elementType } = getElementInfo();
+  const { elementId, elementType } = getElementInfo();
 
   return (
     <div className="properties-panel w-full px-4 py-2 overflow-y-auto mx-0">
@@ -54,6 +55,9 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
           />
         </div>
 
+      {elementType === 'transition' && ['algebraic', 'algebraic-int'].includes(netMode) && <PublicMethodEditor
+        key={elementId} transition={elements.transitions.find(t => t.id === elementId) || selectedElement}
+        elements={elements} setElements={setElements} updateHistory={updateHistory} />}
       {/* Place-specific properties */}
       {selectedElement && elementType === 'place' && (
         <PlaceProperties
@@ -78,7 +82,7 @@ const PropertiesPanel = ({ selectedElement, elements, setElements, updateHistory
         />
       )}
 
-      {selectedElement && elementType === 'transition' && netMode === 'algebraic-int' && (
+      {selectedElement && elementType === 'transition' && ['algebraic', 'algebraic-int'].includes(netMode) && (
         <TransitionGuardEditor
           guardText={formValues.guardText}
           guardError={formValues.guardError}

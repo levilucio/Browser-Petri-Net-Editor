@@ -14,36 +14,39 @@ const output = (source, target, binding) => ({
 export const accountNet = {
   mode: 'algebraic',
   places: [
-    place('depositRequest', 'input', [10]), place('withdrawRequest', 'input', [10]),
-    place('queryRequest', 'input', [0]), place('allRequest', 'input'), place('balance', 'internal', [0]),
-    place('ack', 'output'), place('paidAmount', 'output'), place('balanceResult', 'output'),
+    place('balance', 'internal', [0]), place('ack', 'output'),
+    place('paidAmount', 'output'), place('balanceResult', 'output'),
   ],
   transitions: [
-    { id: 'deposit', guard: '' },
-    { id: 'withdrawAccepted', guard: 'n <= b' },
-    { id: 'withdrawRefused', guard: 'n > b' },
-    { id: 'withdrawAll', guard: '' },
-    { id: 'query', guard: '' },
+    { id: 'deposit', guard: '', method: { name: 'deposit', parameters: [{ name: 'n', sort: 'Nat' }] } },
+    { id: 'withdrawAccepted', guard: 'n <= b', method: { name: 'withdraw', parameters: [{ name: 'n', sort: 'Nat' }] } },
+    { id: 'withdrawRefused', guard: 'n > b', method: { name: 'withdraw', parameters: [{ name: 'n', sort: 'Nat' }] } },
+    { id: 'withdrawAll', guard: '', method: { name: 'withdrawAll', parameters: [] } },
+    { id: 'query', guard: '', method: { name: 'query', parameters: [] } },
   ],
   arcs: [
-    input('depositRequest', 'deposit', 'n'), input('balance', 'deposit', 'b'),
+    input('balance', 'deposit', 'b'),
     output('deposit', 'balance', 'b + n'), output('deposit', 'ack', '1'),
-    input('withdrawRequest', 'withdrawAccepted', 'n'), input('balance', 'withdrawAccepted', 'b'),
+    input('balance', 'withdrawAccepted', 'b'),
     output('withdrawAccepted', 'balance', 'b - n'), output('withdrawAccepted', 'ack', '1'),
     output('withdrawAccepted', 'paidAmount', 'n'),
-    input('withdrawRequest', 'withdrawRefused', 'n'), input('balance', 'withdrawRefused', 'b'),
+    input('balance', 'withdrawRefused', 'b'),
     output('withdrawRefused', 'balance', 'b'), output('withdrawRefused', 'ack', '0'),
-    input('allRequest', 'withdrawAll', 'q'), input('balance', 'withdrawAll', 'b'),
+    input('balance', 'withdrawAll', 'b'),
     output('withdrawAll', 'balance', '0'), output('withdrawAll', 'ack', '1'),
     output('withdrawAll', 'paidAmount', 'b'),
-    input('queryRequest', 'query', 'q'), input('balance', 'query', 'b'),
+    input('balance', 'query', 'b'),
     output('query', 'balance', 'b'), output('query', 'balanceResult', 'b'),
   ],
 };
 
 // The harness chooses public requests, never the expected internal transition.
 export const accountInterface = {
-  actions: { deposit: 'depositRequest', withdraw: 'withdrawRequest', withdrawAll: 'allRequest', query: 'queryRequest' },
+  methods: [
+    { name: 'deposit', parameters: [{ name: 'n', sort: 'Nat' }] },
+    { name: 'withdraw', parameters: [{ name: 'n', sort: 'Nat' }] },
+    { name: 'withdrawAll', parameters: [] }, { name: 'query', parameters: [] },
+  ],
   outputs: ['ack', 'paidAmount', 'balanceResult'],
 };
 
@@ -51,11 +54,10 @@ export const accountInterface = {
 export function accountAuditCandidates() {
   return Array.from({ length: 13 }, (_, i) => ({
     id: `audit-withdraw-${i}`,
-    initialMarking: accountInitialMarking({ ctor: 'Amount', args: [i] }),
     steps: [
-      { action: 'deposit', value: 10 },
-      { action: 'withdraw', value: i },
-      { action: 'query', value: 0 },
+      { method: 'deposit', arguments: { n: 10 } },
+      { method: 'withdraw', arguments: { n: i } },
+      { method: 'query', arguments: {} },
     ],
   }));
 }
@@ -77,12 +79,8 @@ export function accountMutants() {
       net.transitions.find(t => t.id === 'withdrawAccepted').guard = 'n < b';
       net.transitions.find(t => t.id === 'withdrawRefused').guard = 'n >= b';
     }),
+    change('wrong-initial-balance', 'Account starts with balance one instead of zero.', net => {
+      net.places.find(p => p.id === 'balance').valueTokens = [1];
+    }),
   ];
-}
-
-// Explicit parameterized test-environment setup, applied only at initialization.
-// The current model supplies internal state; no pair may replace it.
-export function accountInitialMarking(request) {
-  return { depositRequest: [10], withdrawRequest: request.ctor === 'Amount' ? [request.args[0]] : [],
-    allRequest: request.ctor === 'All' ? [0] : [], queryRequest: [0] };
 }
