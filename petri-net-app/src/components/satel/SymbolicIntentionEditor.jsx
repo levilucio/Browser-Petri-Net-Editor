@@ -1,18 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { protocolCases, replaceProtocolSequence } from '../../satel/core/IntentionNotation.js';
 import { compileSymbolicIntention, importSymbolicADTXml, guardFromTransition } from '../../satel/core/SymbolicSource.js';
 import { useAdtRegistry } from '../../contexts/AdtContext';
 
+function SequenceCase({ value, label, onChange, onValidityChange }) {
+  const [draft, setDraft] = useState(value), [error, setError] = useState('');
+  useEffect(() => { setDraft(value); setError(''); }, [value]);
+  useEffect(() => { onValidityChange(label, !!error); return () => onValidityChange(label, false); }, [error, label, onValidityChange]);
+  return <label className="block font-medium">{label}<textarea aria-label={label} aria-invalid={!!error} spellCheck={false} rows={5} className="block w-full rounded border p-3 font-mono text-xs mt-2" value={draft} onChange={e => {
+    setDraft(e.target.value);
+    try { onChange(e.target.value); setError(''); } catch (err) { setError(err.message); }
+  }} />{error && <span role="alert" className="text-red-800 text-xs">{error}</span>}</label>;
+}
 export default function SymbolicIntentionEditor({ intention, onChange, onSave, onCancel, elements }) {
   const [error, setError] = useState('');
+  const [sequenceErrors, setSequenceErrors] = useState({});
+  const sequenceValidity = useCallback((key, value) => setSequenceErrors(prev => prev[key] === value ? prev : { ...prev, [key]: value }), []);
   const registry = useAdtRegistry();
   const s = intention.symbolic;
   const update = (field, value) => { setError(''); onChange({ ...intention, symbolic: { ...s, [field]: value } }); };
+  let cases = [];
+  try { cases = protocolCases(s.protocolSource || ''); } catch {}
   let invalid = '';
   try { compileSymbolicIntention(intention); } catch (e) { invalid = e.message; }
   return <div className="p-4 space-y-4 text-sm">
-    <h3 className="text-lg font-semibold">Symbolic test intention</h3>
-    <p>Classes are derived from the typed equations and goal below, before APN execution. These definitions are saved with this intention.</p>
+    <h3 className="text-lg font-semibold">Test intention</h3>
+    <p>Variables and conditions select instances of the pair sequences below. Each sequence starts from the model’s initial marking.</p>
     <label className="block">Name<input aria-label="Symbolic intention name" className="block w-full border p-2 rounded" value={intention.name} onChange={e => onChange({ ...intention, name: e.target.value })} /></label>
+    <label className="block">Variables<input aria-label="Symbolic goal variables" className="block w-full border rounded p-2" placeholder="x: Nat, xs: NatList" value={s.variablesText || ''} onChange={e => update('variablesText', e.target.value)} /></label>
+    <label className="block">Conditions (optional)<input aria-label="Symbolic goal constraints" className="block w-full border rounded p-2" placeholder="amount <= balance and balance > 0" value={s.conditionsText || ''} onChange={e => update('conditionsText', e.target.value)} /></label>
+    <section className="p-3 bg-slate-50 border rounded space-y-2" aria-label="Selection hypothesis">
+      <h4 className="font-semibold">Hypothesis</h4>
+      <p className="font-mono text-xs break-words">subUniformity({s.variablesText || 'no free variables'})</p>
+      <p>Choose one representative per completed symbolic class of the saved selection expression:</p>
+      <p className="font-mono text-xs break-words">{s.goalKind === 'guard' ? s.guardText : `${s.operation}(${s.argsText || ''})`}</p>
+      <p className="text-xs text-gray-600">ADT equations unfold the operations used in this expression. This is a static selection assumption, not a proof of semantic equivalence or exhaustive coverage.</p>
+    </section>
+    <section aria-label="Intention pair sequences" className="space-y-4">
+      <h4 className="font-semibold">Stimulation / observation sequences</h4>
+      <p className="text-xs text-gray-600">Write one {'{ method(parameter=value) with place(token) // place(token) }'} pair per line. A dot separates successive pairs. Observations here describe tokens produced by the call; unmentioned public places produce none. Use “none” for no produced tokens.</p>
+      {cases.map((c, index) => <div key={`${index}:${c.name}`} className="border rounded p-3 bg-blue-50 space-y-2">
+        <p className="font-mono text-xs break-words">{c.header[0].replace(/^case /, '').replace(/:$/, '')}</p>
+        <SequenceCase label={`Sequence: ${c.name}`} value={c.pairs.join(' .\n')} onValidityChange={sequenceValidity} onChange={text => {
+          const protocolSource = replaceProtocolSequence(s.protocolSource, index, text);
+          compileSymbolicIntention({ ...intention, symbolic: { ...s, protocolSource } });
+          update('protocolSource', protocolSource);
+        }} />
+        <details className="text-xs"><summary>How this sequence binds selection values</summary><pre className="whitespace-pre-wrap break-words">{c.header.join('\n')}</pre><p>These input and result patterns bind the case variables before its pairs are instantiated. Edit them in Advanced selection settings.</p></details>
+      </div>)}
+      {!cases.length && <p>No pair sequence yet. Define a protocol in Advanced selection settings to turn class analysis into executable tests.</p>}
+    </section>
+    <details className="border rounded p-3 space-y-4"><summary className="cursor-pointer font-semibold">Advanced selection settings</summary>
+      <p>The saved definitions below drive selection. Changing an APN guard does not automatically change them. Selection does not propagate APN markings; reference execution checks the instantiated sequence afterwards.</p>
     <label className="block">ADT constructors and operation equations
       <textarea aria-label="ADT constructors and operation equations" spellCheck={false} className="block w-full border p-2 rounded font-mono text-xs" rows={16} value={s.source} onChange={e => update('source', e.target.value)} />
     </label>
@@ -35,17 +74,15 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
       }}><option value="">Choose transition…</option>{(elements.transitions || []).filter(t => t.guard?.trim()).map(t => <option key={t.id} value={t.id}>{t.label || t.id}</option>)}</select></label>
       <p className="text-xs text-gray-600">Copies the guard and its variable sorts into this intention. Later transition edits do not change this saved definition. Import clears the protocol so you can define a matching pair sequence. True/false classes describe the guard, not reachability from the APN initial marking.</p>
     </> : <label className="block">Operation<input aria-label="Symbolic operation" className="block w-full border rounded p-2" value={s.operation || ''} onChange={e => update('operation', e.target.value)} /></label>}
-    <label className="block">Goal variables<input aria-label="Symbolic goal variables" className="block w-full border rounded p-2" placeholder="x: Nat, xs: NatList" value={s.variablesText || ''} onChange={e => update('variablesText', e.target.value)} /></label>
     {s.goalKind !== 'guard' && <label className="block">Operation arguments<input aria-label="Symbolic goal arguments" className="block w-full border rounded p-2" value={s.argsText || ''} onChange={e => update('argsText', e.target.value)} /></label>}
-    <label className="block">Goal constraints (optional)<input aria-label="Symbolic goal constraints" className="block w-full border rounded p-2" placeholder="amount <= balance and balance > 0" value={s.conditionsText || ''} onChange={e => update('conditionsText', e.target.value)} /></label>
-    <p className="text-xs text-gray-600">Every free goal variable participates in the symbolic domain. Fix an argument to a concrete term to keep it constant. Constraints here are explicit selection assumptions. Guard goals use the declared variables, in declaration order, as protocol inputs.</p>
     <label className="block">Unfolding budget<input aria-label="Unfolding budget" type="number" min="1" max="32" className="block w-full border rounded p-2" value={s.maxDepth} onChange={e => update('maxDepth', Number(e.target.value))} /></label>
     <p className="text-xs text-gray-600">Maximum equation applications along a branch. Unfinished branches stay visible; this is not a bound on the list or tree values represented by a class.</p>
     <label className="block">Stimulation/observation protocol (optional)
       <textarea aria-label="Symbolic pair protocol" spellCheck={false} className="block w-full border rounded p-2 font-mono text-xs" rows={12} value={s.protocolSource || ''} onChange={e => update('protocolSource', e.target.value)} />
     </label>
     <p className="text-xs text-gray-600">Each case matches operation inputs and its equation result, then lists pairs such as “pair withdraw(n=amount) =&gt; ack(1), paidAmount(amount)”. Outputs are tokens produced by that call; unmentioned public places produce none. Leave blank for class derivation only. Public APN methods support Nat, Int, Bool, String, Pair and List parameters and observations. Strings use quotes; lists and pairs may be nested.</p>
+    </details>
     {invalid && <p role="status" className="text-amber-900 bg-amber-50 p-2 rounded">{invalid}</p>}
-    <div className="flex gap-2"><button disabled={!!invalid} onClick={onSave} className="bg-blue-700 text-white rounded p-2 disabled:opacity-50">Save Intention</button><button className="border rounded p-2" onClick={onCancel}>Cancel</button></div>
+    <div className="flex gap-2"><button disabled={!!invalid || Object.values(sequenceErrors).some(Boolean)} onClick={onSave} className="bg-blue-700 text-white rounded p-2 disabled:opacity-50">Save Intention</button><button className="border rounded p-2" onClick={onCancel}>Cancel</button></div>
   </div>;
 }

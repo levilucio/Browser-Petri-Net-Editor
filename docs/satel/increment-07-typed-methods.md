@@ -1,3 +1,5 @@
+> The current GUI workflow is documented in [increment 8](increment-08-intention-workspace.md). The execution semantics below remain applicable.
+
 # Increment 7: execute public methods with the built-in ADTs
 
 Branch: `codex/satel-public-methods`, stacked draft PR #4.

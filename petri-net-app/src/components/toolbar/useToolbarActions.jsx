@@ -286,7 +286,7 @@ export default function useToolbarActions(params) {
         const net = createTypedStoreExample(filename.endsWith('-mutant'));
         forceSimulatorReset?.(); setElements(net);
         setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
-        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Oracle validation.`);
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Intentions to review or generate tests.`);
         setIsMobileMenuOpen?.(false); return;
       }
       if (['builtin-types', 'compound-guard', 'compound-guard-mutant'].includes(filename)) {
@@ -294,7 +294,7 @@ export default function useToolbarActions(params) {
         const net = filename === 'builtin-types' ? createBuiltinTypesExample() : createCompoundGuardExample(filename.endsWith('-mutant'));
         forceSimulatorReset?.(); setElements(net);
         setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
-        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Oracle validation.`);
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Intentions to review or generate tests.`);
         setIsMobileMenuOpen?.(false); return;
       }
       if (filename === 'symbolic-list') {
@@ -302,7 +302,7 @@ export default function useToolbarActions(params) {
         const net = createSymbolicListExample();
         forceSimulatorReset?.(); setElements(net);
         setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
-        updateHistory?.(net); setSuccess?.('Loaded List membership. Open SATEL → Oracle validation to derive classes.');
+        updateHistory?.(net); setSuccess?.('Loaded List membership. Open SATEL → Generated tests → Advanced details to derive classes.');
         setIsMobileMenuOpen?.(false); return;
       }
       if (filename.startsWith('oracle-account-')) {
@@ -312,7 +312,7 @@ export default function useToolbarActions(params) {
         setElements(net);
         setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
         updateHistory?.(net);
-        setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Oracle validation.`);
+        setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Intentions to review or generate tests.`);
         setIsMobileMenuOpen?.(false);
         return;
       }

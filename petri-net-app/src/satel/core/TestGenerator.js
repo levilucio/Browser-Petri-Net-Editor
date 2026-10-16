@@ -1,3 +1,4 @@
+import { compileMethodTerm, evaluateMethodTerm } from '../../features/simulation/MethodTerms.js';
 import { getPublicMethods } from '../../features/simulation/PublicMethods.js';
 import { withInitialMarking, initialMarkingOf } from './InitialMarking.js';
 /** V2 candidate generation. Symbolic oracle admission is a separate API. */
@@ -41,7 +42,13 @@ async function generateTestCasesFromIntentionV2(intention, petriNet, simulator, 
   const instantiations = instantiateVariables(intention, petriNet, adtRegistry);
   
   // 2. Cartesian product
+  const size = Object.values(instantiations).reduce((n, values) => n * values.length, 1);
+  if (size > 10000) throw new Error('Candidate combination limit is 10,000; narrow the explicit variable domains.');
   let combinations = cartesianProduct(instantiations);
+  if (intention.conditionsText?.trim()) {
+    const condition = compileMethodTerm(intention.conditionsText, Object.fromEntries(intention.variables.map(v => [v.name, v.sort])), 'Bool');
+    combinations = combinations.filter(values => evaluateMethodTerm(condition, values) === true);
+  }
   
   if (options.profileMode) {
     console.log(`[V2] Intention '${intention.name}': ${combinations.length} combinations before filtering`);

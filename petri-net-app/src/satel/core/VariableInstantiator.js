@@ -36,6 +36,8 @@ function generateGroundTerms(variable, intention, petriNet, adtRegistry) {
   const { hypothesis, sort } = variable;
   
   switch (hypothesis.type) {
+    case 'finite':
+      return hypothesis.values;
     case 'uniformity':
       // If representative provided, use it; otherwise generate from sort
       if (hypothesis.representative !== undefined) {

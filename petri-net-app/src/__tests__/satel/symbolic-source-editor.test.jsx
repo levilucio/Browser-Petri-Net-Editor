@@ -33,6 +33,7 @@ test('invalid source remains editable, disables Save, and XML import replaces it
     return <AdtProvider><SymbolicIntentionEditor intention={intention} onChange={setIntention} elements={{ adtDefinitions: xml }} onSave={() => {}} onCancel={() => {}} /></AdtProvider>;
   }
   render(<Harness />);
+  fireEvent.click(screen.getByText('Advanced selection settings', { exact: true }));
   fireEvent.change(screen.getByLabelText('ADT constructors and operation equations'), { target: { value: 'constructor ' } });
   expect(screen.getByRole('button', { name: 'Save Intention' })).toBeDisabled();
   expect(screen.getByLabelText('ADT constructors and operation equations')).toHaveValue('constructor ');
@@ -60,6 +61,7 @@ test('guard editor imports a transition snapshot with shared variable declaratio
     return <AdtProvider><SymbolicIntentionEditor intention={intention} onChange={setIntention} elements={net} onSave={() => { saved = intention; }} onCancel={() => {}} /></AdtProvider>;
   }
   render(<Harness />);
+  fireEvent.click(screen.getByText('Advanced selection settings', { exact: true }));
   expect(screen.getByLabelText('Symbolic guard')).toHaveValue('x > 0 and (x < 5 or x == 10)');
   fireEvent.change(screen.getByLabelText('Import transition guard'), { target: { value: 'refuse' } });
   expect(screen.getByLabelText('Symbolic guard')).toHaveValue('not (x > 0 and (x < 5 or x == 10))');

@@ -76,5 +76,7 @@ test('removing a pair keeps the remaining pair draft and validation attached to 
   expect(screen.getByLabelText('Pair 1 expected outputs at ack')).toHaveValue('Order(');
   expect(screen.getByRole('button', { name: 'Save Intention' })).toBeDisabled();
   fireEvent.click(screen.getByLabelText('Remove pair 1'));
+  expect(screen.getByRole('button', { name: 'Save Intention' })).toBeDisabled(); // Empty sequences cannot be saved.
+  fireEvent.click(screen.getByRole('button', { name: '+ Add Pair' }));
   expect(screen.getByRole('button', { name: 'Save Intention' })).toBeEnabled();
 });

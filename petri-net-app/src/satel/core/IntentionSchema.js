@@ -1,3 +1,5 @@
+import { validBuiltinValue } from '../../utils/builtin-values.js';
+import { compileMethodTerm } from '../../features/simulation/MethodTerms.js';
 /**
  * SATEL Intention Schema V2
  * 
@@ -111,6 +113,8 @@ export function validateIntention(intention) {
     throw new Error('variables must be an array');
   }
   
+  if (new Set(intention.variables.map(v => v.name)).size !== intention.variables.length) throw new Error('Variable names must be unique');
+  if (intention.conditionsText?.trim()) compileMethodTerm(intention.conditionsText, Object.fromEntries(intention.variables.map(v => [v.name, v.sort])), 'Bool');
   for (const v of intention.variables) {
     validateVariable(v);
   }
@@ -142,7 +146,8 @@ function validateVariable(v) {
     throw new Error('Variable must have hypothesis');
   }
   
-  const validTypes = ['uniformity', 'subuniformity', 'regularity'];
+  if (v.hypothesis.type === 'finite' && (!Array.isArray(v.hypothesis.values) || !v.hypothesis.values.length || v.hypothesis.values.length > 128 || !v.hypothesis.values.every(x => validBuiltinValue(x, v.sort)))) throw new Error(`Supply 1–128 well-sorted finite values for ${v.name}`);
+  const validTypes = ['finite', 'uniformity', 'subuniformity', 'regularity'];
   if (!validTypes.includes(v.hypothesis.type)) {
     throw new Error(`Hypothesis type must be one of: ${validTypes.join(', ')}`);
   }

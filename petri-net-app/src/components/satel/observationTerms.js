@@ -56,3 +56,11 @@ export function formatObservationToken(value) {
   throw new Error('This structured term is preserved. Remove this check to replace it.');
 }
 export const formatObservationTokens = values => values.map(formatObservationToken).join(', ');
+
+export const groundNotation = value => formatObservationToken(quoteDollars(value));
+function quoteDollars(value) {
+  if (typeof value === 'string' && value.startsWith('$')) return { literal: value };
+  if (Array.isArray(value)) return value.map(quoteDollars);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, quoteDollars(v)]));
+  return value;
+}

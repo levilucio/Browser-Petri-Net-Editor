@@ -1,3 +1,6 @@
+import VariableSelectionEditor from './satel/VariableSelectionEditor';
+import { intentionNotation } from '../satel/core/IntentionNotation';
+import { validateIntention } from '../satel/core/IntentionSchema';
 import { defaultMethodValue } from '../utils/builtin-values';
 import MethodArgumentInput from './satel/MethodArgumentInput';
 import { getPublicMethods, methodSignature } from '../features/simulation/PublicMethods';
@@ -11,6 +14,8 @@ import ObservationEditor from './satel/ObservationEditor';
 import React, { useState, useRef, useCallback } from 'react';
 
 const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) => {
+  const variableKeys = useRef(intention.variables.map((_, i) => `variable-${i}`));
+  const nextVariableKey = useRef(intention.variables.length);
   const [markingText, setMarkingText] = useState(JSON.stringify(intention.initialMarking || {}, null, 2));
   const [markingError, setMarkingError] = useState('');
   const pairKeys = useRef(intention.pairs.map((_, i) => i));
@@ -27,34 +32,21 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
     onChange({ ...intention, [field]: value });
   };
   
-  const updateVariable = (index, field, value) => {
-    const newVariables = [...intention.variables];
-    newVariables[index] = { ...newVariables[index], [field]: value };
-    updateIntention('variables', newVariables);
-  };
-  
-  const updateVariableHypothesis = (index, field, value) => {
-    const newVariables = [...intention.variables];
-    newVariables[index] = {
-      ...newVariables[index],
-      hypothesis: { ...newVariables[index].hypothesis, [field]: value }
-    };
-    updateIntention('variables', newVariables);
-  };
-  
   const addVariable = () => {
+    variableKeys.current.push(`variable-${nextVariableKey.current++}`);
     const newVariables = [
       ...intention.variables,
       {
         name: `var${intention.variables.length + 1}`,
         sort: 'Nat',
-        hypothesis: { type: 'uniformity', representative: 0 }
+        hypothesis: { type: 'finite', values: [0] }
       }
     ];
     updateIntention('variables', newVariables);
   };
   
   const removeVariable = (index) => {
+    variableKeys.current.splice(index, 1);
     const newVariables = intention.variables.filter((_, i) => i !== index);
     updateIntention('variables', newVariables);
   };
@@ -93,6 +85,9 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
     updateIntention('pairs', newPairs);
   };
   
+  let invalid = '', preview = '';
+  try { validateIntention(intention); } catch (err) { invalid = err.message; }
+  try { preview = intentionNotation(intention); } catch { preview = 'Complete the fields to preview this intention.'; }
   return (
     <div className="p-4 space-y-6">
       <h3 className="text-lg font-semibold text-gray-800 mb-4">
@@ -111,7 +106,9 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
             placeholder="Test intention name"
           />
         </div>
-        
+
+      </div>
+      <details className="border rounded p-3 space-y-3"><summary>Additional intention settings</summary>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea
@@ -134,8 +131,9 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
             <option value="negative">Negative (at least one pair must fail)</option>
           </select>
         </div>
-      </div>
-      
+
+      </details>
+
       {!methodMode && <div className="border-t pt-4 space-y-2">
         <label htmlFor="satel-initial-marking" className="block text-sm font-medium">Initial marking overrides (JSON)</label>
         <p className="text-xs text-gray-600">Applied once before execution. Unlisted places keep the loaded APN marking. Use "$variable" for parameters. Pair inputs only select existing tokens.</p>
@@ -167,93 +165,9 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
         </div>
         
         <div className="space-y-3">
-          {intention.variables.map((variable, idx) => (
-            <div key={idx} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-xs font-medium text-gray-600">Variable {idx + 1}</span>
-                <button
-                  onClick={() => removeVariable(idx)}
-                  className="px-2 py-0.5 text-red-600 hover:bg-red-50 rounded text-xs"
-                >
-                  ✕
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2 mb-2">
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">Name</label>
-                  <input
-                    type="text"
-                    value={variable.name}
-                    onChange={(e) => updateVariable(idx, 'name', e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                    placeholder="e.g., order"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">Sort (ADT)</label>
-                  <input
-                    type="text"
-                    value={variable.sort}
-                    onChange={(e) => updateVariable(idx, 'sort', e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                    placeholder="e.g., Order"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">Hypothesis</label>
-                <select
-                  value={variable.hypothesis.type}
-                  onChange={(e) => {
-                    const type = e.target.value;
-                    let newHypothesis = { type };
-                    if (type === 'uniformity') {
-                      newHypothesis.representative = 0;
-                    } else if (type === 'subuniformity') {
-                      newHypothesis.source = 'constructors';
-                    } else if (type === 'regularity') {
-                      newHypothesis.bounds = { depth: 2, nbEvents: 5 };
-                    }
-                    updateVariable(idx, 'hypothesis', newHypothesis);
-                  }}
-                  className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                >
-                  <option value="uniformity">Uniformity (single value)</option>
-                  <option value="subuniformity">Subuniformity (partition)</option>
-                  <option value="regularity">Regularity (bounded)</option>
-                </select>
-                
-                {variable.hypothesis.type === 'subuniformity' && (
-                  <select
-                    value={variable.hypothesis.source || 'constructors'}
-                    onChange={(e) => updateVariableHypothesis(idx, 'source', e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs mt-1"
-                  >
-                    <option value="constructors">Constructors</option>
-                    <option value="guards">Guards</option>
-                    <option value="axiom">Axiom</option>
-                  </select>
-                )}
-                
-                {variable.hypothesis.type === 'uniformity' && (
-                  <input
-                    type="text"
-                    value={JSON.stringify(variable.hypothesis.representative)}
-                    onChange={(e) => {
-                      try {
-                        const val = JSON.parse(e.target.value);
-                        updateVariableHypothesis(idx, 'representative', val);
-                      } catch {}
-                    }}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs mt-1 font-mono"
-                    placeholder="e.g., 0"
-                  />
-                )}
-              </div>
-            </div>
-          ))}
+          {intention.variables.map((variable, idx) => <VariableSelectionEditor key={variableKeys.current[idx]} variable={variable}
+            validityKey={variableKeys.current[idx]} onValidityChange={observationValidity} onRemove={() => removeVariable(idx)}
+            onChange={value => updateIntention('variables', intention.variables.map((v, i) => i === idx ? value : v))} />)}
           
           {intention.variables.length === 0 && (
             <div className="text-center py-4 text-gray-400 text-sm">
@@ -263,6 +177,14 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
         </div>
       </div>
       
+      <label className="block text-sm font-medium">Conditions (optional)
+        <input aria-label="Intention conditions" className="w-full border rounded p-2 mt-1 font-mono text-xs" placeholder="amount > 0 and amount <= 10" value={intention.conditionsText || ''} onChange={e => updateIntention('conditionsText', e.target.value)} />
+        <span className="block text-xs font-normal text-gray-600 mt-1">Filters the selected combinations of variable values before reference execution. Use declared variable names without $ here.</span>
+      </label>
+      <details className="border rounded p-3" open><summary className="font-medium">Intention notation preview</summary>
+        <p className="text-xs text-gray-600 my-2">Edit the fields and pairs below. $name denotes a variable in calls and observations. Additional marking checks stay in the pair editor.</p>
+        <pre className="text-xs whitespace-pre-wrap break-words">{preview}</pre>
+      </details>
       {/* Stim/Obs Pairs Section */}
       <div className="border-t pt-4">
         <div className="flex justify-between items-center mb-3">
@@ -358,11 +280,12 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
         </div>
       </div>
       
+      {invalid && <p role="status" className="text-sm text-amber-900">{invalid}</p>}
       {/* Action Buttons */}
       <div className="pt-4 border-t flex gap-2">
         <button
           onClick={onSave}
-          disabled={!!markingError || Object.values(observationErrors).some(Boolean)}
+          disabled={!!invalid || !!markingError || Object.values(observationErrors).some(Boolean)}
           className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
         >
           Save Intention
