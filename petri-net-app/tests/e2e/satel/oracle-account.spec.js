@@ -155,3 +155,47 @@ test('account symbolic goals are editable in Intentions and derive before oracle
   await page.getByRole('button', { name: 'Validate derived pairs on loaded reference' }).click();
   await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible();
 });
+
+test('compound guard shared-variable classes become readable pairs and detect the missing disjunct mutant', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-compound-guard').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('4 feasible classes', { timeout: 30000 });
+  await expect(page.getByTestId('symbolic-summary')).toContainText('0 unresolved branches');
+  await expect(page.getByText('Candidate pairs — not yet oracle-validated')).toHaveCount(4);
+  await expect(page.getByTestId('satel-pair-formula').filter({ hasText: 'check(10)' })).toContainText('accepted(1)');
+  await page.getByRole('button', { name: 'Validate derived pairs on loaded reference' }).click();
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible();
+  const ten = page.getByRole('region', { name: 'Instantiated stimulation/observation pairs', exact: true }).filter({ has: page.getByTestId('satel-pair-formula').filter({ hasText: 'check(10)' }) });
+  await expect(ten.getByLabel('Instantiated variables')).toContainText('x ↦ 10');
+  await page.getByTestId('satel-pair-formula').filter({ hasText: 'check(10)' }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('compound-guard-pairs.png') });
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await expect(page.getByLabel('Symbolic goal kind')).toHaveValue('guard');
+  await expect(page.getByLabel('Symbolic guard')).toHaveValue('x > 0 and (x < 5 or x == 10)');
+  await page.getByLabel('Import transition guard').selectOption('refuse');
+  await expect(page.getByLabel('Symbolic guard')).toHaveValue('not (x > 0 and (x < 5 or x == 10))');
+  await expect(page.getByLabel('Symbolic pair protocol')).toHaveValue('');
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.getByLabel('Close SATEL').click(); await openExamples(page);
+  await page.getByTestId('example-compound-guard-mutant').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Oracle validation', exact: true }).click();
+  await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+  await expect(page.getByTestId('oracle-target-results')).toContainText('3 passed · 1 failed · 0 errors');
+});
+
+test('built-in list partiality and String guards are visible in the real browser solver', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-builtin-types').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('1 feasible classes', { timeout: 30000 });
+  await expect(page.getByRole('region', { name: 'Unresolved symbolic branches' })).toContainText('head requires a non-empty list');
+  await page.getByLabel('Symbolic intention', { exact: true }).selectOption('builtin-string');
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('3 feasible classes', { timeout: 30000 });
+  await expect(page.getByTestId('symbolic-summary')).toContainText('0 unresolved branches');
+  await expect(page.getByTestId('symbolic-summary')).toContainText('pairwise disjoint');
+  await expect(page.getByText('Class derivation only: no APN method protocol is declared. These witnesses are not oracle-validated tests.')).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('builtin-string-classes.png') });
+});

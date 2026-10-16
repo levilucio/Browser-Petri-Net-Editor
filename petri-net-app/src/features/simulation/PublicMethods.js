@@ -29,11 +29,11 @@ function expression(text, variables) {
   const ast = parseArithmetic(text);
   const visit = node => {
     requireThat(node, 'Invalid method expression');
-    if (node.type === 'int') return;
+    if (node.type === 'int') { requireThat(validMethodValue(node.value, 'Int'), 'Method literal must be a 32-bit Int'); return; }
     if (node.type === 'var') {
       requireThat(!node.varType && variables.has(node.name), `Unbound method variable: ${node.name}`); return;
     }
-    requireThat(node.type === 'binop' && ['+', '-'].includes(node.op), 'Public methods currently support integer literals, variables, addition and subtraction');
+    requireThat(node.type === 'binop' && ['+', '-', '*'].includes(node.op), 'Public methods currently support integer literals, variables, addition, subtraction and multiplication');
     visit(node.left); visit(node.right);
   };
   visit(ast); return ast;
@@ -41,10 +41,20 @@ function expression(text, variables) {
 function evaluate(ast, env) {
   if (ast.type === 'int') return ast.value;
   if (ast.type === 'var') return env[ast.name];
-  return ast.op === '+' ? evaluate(ast.left, env) + evaluate(ast.right, env) : evaluate(ast.left, env) - evaluate(ast.right, env);
+  const a = BigInt(evaluate(ast.left, env)), b = BigInt(evaluate(ast.right, env));
+  const value = Number(ast.op === '+' ? a + b : ast.op === '-' ? a - b : a * b);
+  requireThat(validMethodValue(value, 'Int'), 'Method arithmetic leaves the supported 32-bit range');
+  return value;
 }
 function holds(guard, env) {
   if (!guard) return true;
+  if (guard.type === 'boolLit') return !!guard.value;
+  if (guard.type === 'not') return !holds(guard.expr, env);
+  if (guard.type === 'and') return holds(guard.left, env) && holds(guard.right, env);
+  if (guard.type === 'or') return holds(guard.left, env) || holds(guard.right, env);
+  if (guard.type === 'implies') return !holds(guard.left, env) || holds(guard.right, env);
+  if (guard.type === 'xor') return holds(guard.left, env) !== holds(guard.right, env);
+  if (guard.type === 'iff') return holds(guard.left, env) === holds(guard.right, env);
   const a = evaluate(guard.left, env), b = evaluate(guard.right, env);
   return ({ '<': () => a < b, '<=': () => a <= b, '>': () => a > b, '>=': () => a >= b,
     '==': () => a === b, '!=': () => a !== b })[guard.op]();
@@ -86,15 +96,22 @@ export function prepareMethodCall(net, name, args = {}) {
     let guard = null;
     if (t.guard?.trim()) {
       guard = parseBooleanExpr(t.guard, parseArithmetic);
-      requireThat(guard?.type === 'cmp' && ['<', '<=', '>', '>=', '==', '!='].includes(guard.op), `Method rule ${ruleId} requires a single comparison guard`);
-      // Validate both parsed operands using the same fragment checker.
+      // Validate every operand while preserving the shared call/input binding.
       const validate = ast => {
-        if (ast.type === 'int') return;
+        if (ast.type === 'int') { requireThat(validMethodValue(ast.value, 'Int'), 'Method literal must be a 32-bit Int'); return; }
         if (ast.type === 'var') { requireThat(!ast.varType && variables.has(ast.name), `Unbound method variable: ${ast.name}`); return; }
-        requireThat(ast.type === 'binop' && ['+', '-'].includes(ast.op), 'Unsupported method guard expression');
+        requireThat(ast.type === 'binop' && ['+', '-', '*'].includes(ast.op), 'Unsupported method guard expression');
         validate(ast.left); validate(ast.right);
       };
-      validate(guard.left); validate(guard.right);
+      const validateGuard = g => {
+        requireThat(g, 'Invalid method guard');
+        if (g.type === 'boolLit') return;
+        if (g.type === 'not') { validateGuard(g.expr); return; }
+        if (['and', 'or', 'xor', 'implies', 'iff'].includes(g.type)) { validateGuard(g.left); validateGuard(g.right); return; }
+        requireThat(g.type === 'cmp' && ['<', '<=', '>', '>=', '==', '!='].includes(g.op), `Unsupported method guard in ${ruleId}`);
+        validate(g.left); validate(g.right);
+      };
+      validateGuard(guard);
     }
     const outs = outgoing.map(a => ({ place: target(a), ast: expression(binding(a), variables) }));
     const choose = (i, env, picks) => {

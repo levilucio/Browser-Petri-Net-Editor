@@ -1,3 +1,4 @@
+import { equalValues } from '../value-equality.js';
 import { getContext } from './context.js';
 import { buildZ3Expr, collectVariables } from './builders.js';
 
@@ -50,7 +51,7 @@ export async function evaluateArithmetic(ast) {
 export function evaluateArithmeticWithBindings(ast, bindings) {
   function evalNode(node) {
     if (node.type === 'int') return node.value | 0;
-    if (node.type === 'string') return node.value;
+    if (node.type === 'string' || node.type === 'boolLit') return node.value;
     if (node.type === 'list') return (node.elements || []).map(evalNode);
     if (node.type === 'pair') return { __pair__: true, fst: evalNode(node.fst), snd: evalNode(node.snd) };
     if (node.type === 'var') {
@@ -102,7 +103,7 @@ export function evaluateArithmeticWithBindings(ast, bindings) {
         if (!Array.isArray(sub) || !Array.isArray(list)) throw new Error('isSublistOf requires two lists');
         const n = sub.length; if (n === 0) return true;
         for (let i = 0; i <= list.length - n; i++) {
-          let ok = true; for (let j = 0; j < n; j++) { if (list[i + j] !== sub[j]) { ok = false; break; } }
+          let ok = true; for (let j = 0; j < n; j++) { if (!equalValues(list[i + j], sub[j])) { ok = false; break; } }
           if (ok) return true;
         }
         return false;

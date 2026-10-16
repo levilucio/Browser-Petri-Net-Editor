@@ -1,4 +1,5 @@
-import { formatSymbolicTerm, validateSymbolicGoal, unify, substitute, evaluateGround, termSort, variablesIn } from './SymbolicTerms.js';
+import { addBuiltins, builtinNames, resolveBuiltin, NIL, CONS, PAIR } from './BuiltinAlgebra.js';
+import { formatSymbolicTerm, validateSymbolicGoal, unify, substitute, evaluateGround, termSort, variablesIn, elaborateTerm } from './SymbolicTerms.js';
 
 const identifier = '[A-Za-z_][A-Za-z0-9_]*';
 export function parseVariables(text) {
@@ -14,7 +15,7 @@ export function parseVariables(text) {
 export function parseTerms(text, algebra, variables = {}) {
   const tokens = []; let rest = text.trim();
   while (rest) {
-    const m = rest.match(/^(\d+|[A-Za-z_][A-Za-z0-9_]*|==|!=|<=|>=|[(),+\-<>])/);
+    const m = rest.match(/^("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\d+|[A-Za-z_][A-Za-z0-9_]*|<->|->|&&|\|\||==|!=|<=|>=|[()[\],|+*\-<>!^])/);
     if (!m) throw new Error(`Unexpected expression near: ${rest.slice(0, 30)}`);
     tokens.push(m[0]); rest = rest.slice(m[0].length).trimStart();
   }
@@ -23,36 +24,72 @@ export function parseTerms(text, algebra, variables = {}) {
   const atom = () => {
     const token = tokens[pos++];
     if (!token) throw new Error('Incomplete expression');
-    if (token === '(') { const t = expression(); take(')'); return t; }
-    if (token === '-') { const value = atom(); if (typeof value !== 'number') throw new Error('Unary minus requires a literal'); return -value; }
+    if (token === '(') {
+      const t = expression();
+      if (tokens[pos] === ',') { pos++; const second = expression(); take(')'); return { ctor: PAIR, args: [t, second] }; }
+      take(')'); return t;
+    }
+    if (token === '[') {
+      const values = []; let tail = { ctor: NIL, args: [] };
+      if (tokens[pos] !== ']') {
+        values.push(expression()); while (tokens[pos] === ',') { pos++; values.push(expression()); }
+        if (tokens[pos] === '|') { pos++; tail = expression(); }
+      }
+      take(']'); return values.reduceRight((tail, head) => ({ ctor: CONS, args: [head, tail] }), tail);
+    }
+    if (/^["']/.test(token)) return token[0] === '"' ? JSON.parse(token) : JSON.parse('"' + token.slice(1, -1).replace(/\\'/g, "'").replace(/"/g, '\\"') + '"');
     if (/^\d+$/.test(token)) { const n = Number(token); if (!Number.isSafeInteger(n)) throw new Error('Literal exceeds exact integer range'); return n; }
     if (token === 'true' || token === 'false') return token === 'true';
     if (tokens[pos] === '(') {
       pos++; const args = [];
       if (tokens[pos] !== ')') { args.push(expression()); while (tokens[pos] === ',') { pos++; args.push(expression()); } }
       take(')');
+      if (['and', 'or', 'xor', 'implies', 'iff', 'not'].includes(token)) {
+        if (args.length !== (token === 'not' ? 1 : 2)) throw new Error(`Wrong arity for ${token}`);
+        return { op: token, left: args[0], ...(token === 'not' ? {} : { right: args[1] }) };
+      }
       if (Object.hasOwn(algebra.constructors, token)) return { ctor: token, args };
       if (Object.hasOwn(algebra.operations, token)) return { call: token, args };
+      if (builtinNames.has(token)) return { call: resolveBuiltin(token, args, t => termSort(t, variables, algebra)), args };
       throw new Error(`Unknown constructor/operation: ${token}`);
     }
     if (Object.hasOwn(variables, token)) return { var: token };
     throw new Error(`Undeclared variable: ${token}`);
   };
-  const sum = () => { let t = atom(); while (['+', '-'].includes(tokens[pos])) { const op = tokens[pos++]; t = { op, left: t, right: atom() }; } return t; };
-  const expression = () => {
-    let t = sum(); if (['==', '!=', '<', '<=', '>', '>='].includes(tokens[pos])) { const op = tokens[pos++]; t = { op, left: t, right: sum() }; } return t;
-  };
+  const unary = () => { if (tokens[pos] === '-') { pos++; const t = unary(); return typeof t === 'number' ? -t : { op: '-', left: 0, right: t }; } return atom(); };
+  const binary = (next, operators) => () => { let t = next(); while (Object.hasOwn(operators, tokens[pos])) { const op = operators[tokens[pos++]]; t = { op, left: t, right: next() }; } return t; };
+  const product = binary(unary, { '*': '*' });
+  const sum = binary(product, { '+': '+', '-': '-' });
+  const comparison = () => { let t = sum(); if (['==', '!=', '<', '<=', '>', '>='].includes(tokens[pos])) { const op = tokens[pos++]; t = { op, left: t, right: sum() }; } return t; };
+  const not = () => { if (['not', '!'].includes(tokens[pos])) { pos++; return { op: 'not', left: not() }; } return comparison(); };
+  const and = binary(not, { and: 'and', '&&': 'and' });
+  const xor = binary(and, { xor: 'xor', '^': 'xor' });
+  const or = binary(xor, { or: 'or', '||': 'or' });
+  const implies = binary(or, { implies: 'implies', '->': 'implies' });
+  const expression = binary(implies, { iff: 'iff', '<->': 'iff' });
   const values = [];
   if (tokens.length) { values.push(expression()); while (tokens[pos] === ',') { pos++; values.push(expression()); } }
   if (pos !== tokens.length) throw new Error(`Unexpected token: ${tokens[pos]}`);
   return values;
+}
+// Split keywords only outside quoted literals and nested terms.
+function splitIf(text) {
+  let quote = null, depth = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (quote) { if (ch === '\\') i++; else if (ch === quote) quote = null; continue; }
+    if (ch === '"' || ch === "'") { quote = ch; continue; }
+    if ('(['.includes(ch)) depth++; if (')]'.includes(ch)) depth--;
+    if (!depth && /^\s+if\s+/.test(text.slice(i))) { const m = text.slice(i).match(/^\s+if\s+/)[0]; return [text.slice(0, i), text.slice(i + m.length)]; }
+  }
+  return [text];
 }
 const one = (text, algebra, vars) => { const terms = parseTerms(text, algebra, vars); if (terms.length !== 1) throw new Error('Expected one expression'); return terms[0]; };
 const lines = source => String(source).split('\n').map(s => s.trim()).filter(s => s && !s.startsWith('#'));
 
 /** Explicit signatures and oriented conditional equations; no eval or implicit rewrite axioms. */
 export function parseSymbolicSource(source) {
-  const algebra = { constructors: {}, operations: {} }, rules = [];
+  let algebra = { constructors: {}, operations: {} }; const rules = [];
   for (const line of lines(source)) {
     const signature = line.match(new RegExp(`^(constructor|operation)\\s+(${identifier})\\(([^)]*)\\)\\s*:\\s*(${identifier})$`));
     if (signature) {
@@ -64,25 +101,26 @@ export function parseSymbolicSource(source) {
     if (line.startsWith('rule ')) { rules.push(line); continue; }
     throw new Error(`Expected constructor, operation or rule: ${line}`);
   }
+  algebra = addBuiltins(algebra);
   for (const line of rules) {
     const match = line.match(/^rule\s+([A-Za-z_][\w.-]*)\s*\(([^)]*)\)\s*:\s*(.+?)\s+=(?!=)\s+(.+)$/);
     if (!match) throw new Error(`Invalid rule syntax: ${line}`);
     const [, id, declarations, lhs, rhsAndCondition] = match;
-    const variables = parseVariables(declarations), parts = rhsAndCondition.split(/\s+if\s+/);
+    const variables = parseVariables(declarations), parts = splitIf(rhsAndCondition);
     if (parts.length > 2) throw new Error('Only one if clause is allowed per rule');
     const left = one(lhs, algebra, variables);
     if (!left?.call) throw new Error('A defining equation must have an operation call on the left');
     const result = one(parts[0], algebra, variables);
-    const conditions = parts[1] ? parts[1].split(/\s+and\s+/).map(c => one(c, algebra, variables)) : [];
+    const conditions = parts[1] ? [one(parts[1], algebra, variables)] : [];
     algebra.operations[left.call].rules.push({ id, variables, patterns: left.args, conditions, result });
   }
   return algebra;
 }
 export function formatSymbolicSource(algebra) {
   return [
-    ...Object.entries(algebra.constructors).map(([n, s]) => `constructor ${n}(${s.parameters.join(', ')}) : ${s.result}`),
-    ...Object.entries(algebra.operations).map(([n, s]) => `operation ${n}(${s.parameters.join(', ')}) : ${s.result}`), '',
-    ...Object.entries(algebra.operations).flatMap(([name, s]) => s.rules.map(r => `rule ${r.id}(${Object.entries(r.variables || {}).map(([n, s]) => `${n}: ${s}`).join(', ')}): ${name}(${r.patterns.map(formatSymbolicTerm).join(', ')}) = ${formatSymbolicTerm(r.result)}${r.conditions?.length ? ` if ${r.conditions.map(formatSymbolicTerm).join(' and ')}` : ''}`)),
+    ...Object.entries(algebra.constructors).filter(([, s]) => !s.builtin).map(([n, s]) => `constructor ${n}(${s.parameters.join(', ')}) : ${s.result}`),
+    ...Object.entries(algebra.operations).filter(([, s]) => !s.builtin).map(([n, s]) => `operation ${n}(${s.parameters.join(', ')}) : ${s.result}`), '',
+    ...Object.entries(algebra.operations).filter(([, s]) => !s.builtin).flatMap(([name, s]) => s.rules.map(r => `rule ${r.id}(${Object.entries(r.variables || {}).map(([n, s]) => `${n}: ${s}`).join(', ')}): ${name}(${r.patterns.map(formatSymbolicTerm).join(', ')}) = ${formatSymbolicTerm(r.result)}${r.conditions?.length ? ` if ${r.conditions.map(formatSymbolicTerm).join(' and ')}` : ''}`)),
   ].join('\n');
 }
 export function compileSymbolicIntention(intention) {
@@ -90,8 +128,22 @@ export function compileSymbolicIntention(intention) {
   if (!s || !intention.id || !intention.name) throw new Error('Symbolic intention needs an ID, name and definition');
   const algebra = parseSymbolicSource(s.source);
   const variables = parseVariables(s.variablesText || '');
-  const goal = { algebra, variables, operation: s.operation, args: parseTerms(s.argsText, algebra, variables), maxDepth: Number(s.maxDepth),
-    conditions: (s.conditionsText || '').trim() ? s.conditionsText.split(/\s+and\s+/).map(c => one(c, algebra, variables)) : [] };
+  let args, operation;
+  if (s.goalKind === 'guard') {
+    const condition = one(s.guardText || '', algebra, variables);
+    operation = '_guardGoal';
+    if (algebra.operations[operation] || algebra.constructors[operation]) throw new Error('Reserved guard goal name');
+    args = Object.keys(variables).map(name => ({ var: name }));
+    algebra.operations[operation] = { parameters: Object.values(variables), result: 'Bool', rules: [true, false].map(value => ({
+      id: `guard.${value}`, variables, patterns: args, result: value,
+      conditions: [value ? condition : { op: 'not', left: condition }],
+    })) };
+  } else {
+    args = parseTerms(s.argsText || '', algebra, variables);
+    operation = algebra.operations[s.operation] ? s.operation : resolveBuiltin(s.operation, args, t => termSort(t, variables, algebra));
+  }
+  const goal = { algebra, variables, operation, args, maxDepth: Number(s.maxDepth),
+    conditions: (s.conditionsText || '').trim() ? [one(s.conditionsText, algebra, variables)] : [] };
   validateSymbolicGoal(goal);
   const protocol = s.protocolSource?.trim() ? parseProtocol(s.protocolSource, algebra, goal) : null;
   return { goal, protocol };
@@ -139,12 +191,14 @@ export function parseProtocol(source, algebra, goal) {
     current.pairs.push({ stimulation: { method: pair[1], arguments: args }, observation: { outputs } });
   }
   if (!cases.length) throw new Error('Protocol has no cases');
-  const pattern = t => t?.var || typeof t === 'number' || typeof t === 'boolean' || (t?.ctor && t.args.every(pattern));
+  const pattern = t => t?.var || typeof t === 'number' || typeof t === 'boolean' || typeof t === 'string' || (t?.ctor && t.args.every(pattern));
   for (const c of cases) {
     const op = algebra.operations[goal.operation];
     if (c.patterns?.length !== op.parameters.length || c.result === undefined || !c.pairs.length) throw new Error(`Incomplete protocol case: ${c.id}`);
     c.patterns.forEach((p, i) => { if (!pattern(p) || termSort(p, c.variables, algebra, op.parameters[i]) !== op.parameters[i]) throw new Error(`Invalid input pattern: ${c.id}`); });
     if (!pattern(c.result) || termSort(c.result, c.variables, algebra, op.result) !== op.result) throw new Error(`Invalid result pattern: ${c.id}`);
+    c.patterns = c.patterns.map((p, i) => elaborateTerm(p, c.variables, algebra, op.parameters[i]));
+    c.result = elaborateTerm(c.result, c.variables, algebra, op.result);
     const bound = variablesIn([c.patterns, c.result]);
     for (const n of Object.keys(c.variables)) if (!bound.has(n)) throw new Error(`Protocol variable is not bound by inputs/result: ${n}`);
   }
@@ -214,4 +268,27 @@ export function importSymbolicADTXml(xml) {
   });
   // Reparse to reject unsupported syntax immediately; full type checks run on Save.
   const result = source + '\n' + ruleLines.join('\n'); parseSymbolicSource(result); return result;
+}
+
+/** Explicit snapshot, never a hidden dependency on the current simulator state. */
+export function guardFromTransition(net, transitionId, source = '') {
+  const transition = net.transitions.find(t => t.id === transitionId);
+  if (!transition?.guard?.trim()) throw new Error('Choose a transition with a guard');
+  const variables = {};
+  const declare = (name, sort) => {
+    if (variables[name] && variables[name] !== sort) throw new Error(`Conflicting guard variable sort: ${name}`);
+    variables[name] = sort;
+  };
+  for (const p of transition.method?.parameters || []) declare(p.name, p.sort);
+  for (const arc of net.arcs.filter(a => a.target === transitionId && a.sourceType === 'place')) {
+    const binding = (arc.binding || '').trim();
+    if (/^[a-z_][A-Za-z0-9_]*$/.test(binding)) declare(binding, net.places.find(p => p.id === arc.source)?.sort || 'Int');
+    else if (!/^-?\d+$/.test(binding)) throw new Error('This input arc needs explicit variable declarations; copy the guard manually');
+  }
+  const algebra = parseSymbolicSource(source);
+  const term = one(transition.guard, algebra, variables);
+  if (termSort(term, variables, algebra) !== 'Bool') throw new Error('Guard must be Boolean');
+  const used = variablesIn(term);
+  return { goalKind: 'guard', guardText: transition.guard,
+    variablesText: Object.entries(variables).filter(([name]) => used.has(name)).map(([name, sort]) => `${name}: ${sort}`).join(', ') };
 }

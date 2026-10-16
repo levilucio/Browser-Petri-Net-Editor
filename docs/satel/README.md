@@ -9,13 +9,13 @@ SATEL is an experimental partial implementation of test selection from algebraic
 3. Close the panel and load an account mutant from Examples.
 4. Reopen SATEL and replay the frozen suite. Inspect the first mismatching observation.
 
-See [generic symbolic intentions and Z3](increment-05-generic-symbolic-z3.md) for the latest implementation, editable equations, recursive List example and laptop review steps.
+See [built-in ADTs and compound guards](increment-06-builtins-compound-guards.md) for current type coverage, shared-variable conditions, guard import, reference/mutant examples and laptop review steps. [Increment 5](increment-05-generic-symbolic-z3.md) introduces editable equations and recursive custom ADTs.
 
 See [parameterized public methods](increment-04-public-methods.md) for the current execution contract, GUI review steps, and scope. [Increment 3](increment-03-initial-marking.md) describes the earlier direct-transition contract.
 
 See [the GUI review guide](increment-02-gui-v2.md) for the exact steps, expected outcomes, V1 removal, and current limitations. [Increment 1](increment-01-symbolic-oracle.md) explains constructor/conditional-equation unfolding and its supported fragment. The CLI remains available with `cd petri-net-app && npm run satel:oracle-example`.
 
-The classes are derived from ADT constructor patterns and conditional operation equations, not from enumerated executions. Symbolic intentions now save editable typed equations, goals and declarative pair protocols. The GUI uses generic bounded unfolding with Z3 constructor/arithmetic solving. Custom editor ADT XML can be imported for the supported oriented-equation fragment. Unresolved branches and overlap checks are visible; exhaustive coverage is not claimed. See increment 5 for assumptions and remaining limits.
+The classes are derived from ADT constructor patterns and conditional operation equations, not from enumerated executions. Symbolic intentions now save editable typed equations, goals and declarative pair protocols. The GUI uses generic bounded unfolding with Z3 constructor/arithmetic solving. Custom editor ADT XML can be imported for the supported oriented-equation fragment. Unresolved branches and overlap checks are visible; exhaustive coverage is not claimed. See increment 6 for current assumptions and remaining limits.
 
 ## General intentions
 

@@ -137,3 +137,17 @@ test('account trace records event-local observations and all intermediate markin
   expect(trace.markings.at(-1).ack).toEqual([1, 1]);
   expect(trace.observations.at(-1)).toEqual({ ack: [], paidAmount: [], balanceResult: [0] });
 });
+
+test('compound arithmetic guards and multiplication agree with firing; overflow preserves the marking', async () => {
+  const { createCompoundGuardExample } = await import('../../satel/examples/compound-guard/editor');
+  const net = createCompoundGuardExample();
+  net.transitions[0].guard = 'x * x < 100 and (x > 0 or x == 0)';
+  net.transitions[1].guard = `not (${net.transitions[0].guard})`;
+  const sim = await initialize(net);
+  expect((await sim.invokeMethod('check', { x: 3 })).produced.accepted).toEqual([1]);
+  expect((await sim.invokeMethod('check', { x: -3 })).produced.accepted).toEqual([0]);
+  expect((await sim.invokeMethod('check', { x: 11 })).produced.accepted).toEqual([0]);
+  const before = JSON.stringify(sim.getCurrentState());
+  await expect(sim.invokeMethod('check', { x: 50000 })).rejects.toThrow('32-bit range');
+  expect(JSON.stringify(sim.getCurrentState())).toBe(before);
+});

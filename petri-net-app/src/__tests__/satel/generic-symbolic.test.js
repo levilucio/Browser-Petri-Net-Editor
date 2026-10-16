@@ -79,7 +79,7 @@ rule f.impossible(x: Nat): f(x) = true if x < 0`;
 
 test('invalid sorts, recursive occurs checks and unsupported syntax do not yield invented witnesses', async () => {
   expect(() => goalFrom('operation f(Nat): Bool\nrule bad(x: Nat): f(x) = x', 'f', 'x', 'x: Nat')).toThrow('Ill-sorted result');
-  expect(() => parseSymbolicSource('operation f(Nat): Nat\nrule bad(x: Nat): f(x) = x * x')).toThrow('Unexpected');
+  expect(() => parseSymbolicSource('operation f(Nat): Nat\nrule bad(x: Nat): f(x) = x / x')).toThrow('Unexpected');
   const source = 'constructor Nil(): L\nconstructor Cons(L): L\noperation equal(L, L): Bool\nrule eq(x: L): equal(x, x) = true';
   const r = await deriveGenericSubdomains(goalFrom(source, 'equal', 'xs, Cons(xs)', 'xs: L'));
   expect(r.domains).toEqual([]); expect(r.unresolved[0].reason).toContain('No defining equation');

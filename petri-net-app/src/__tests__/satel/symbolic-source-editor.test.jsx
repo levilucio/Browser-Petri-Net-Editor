@@ -50,3 +50,23 @@ test('account and list symbolic definitions, edited budgets and pair protocols s
     expect(compileSymbolicIntention(loaded.testIntentions[0]).goal.maxDepth).toBe(3);
   }
 });
+
+test('guard editor imports a transition snapshot with shared variable declarations and saves it through PNML', async () => {
+  const { createCompoundGuardExample, createGuardIntention } = await import('../../satel/examples/compound-guard/editor');
+  const net = createCompoundGuardExample();
+  let saved;
+  function Harness() {
+    const [intention, setIntention] = useState(createGuardIntention());
+    return <AdtProvider><SymbolicIntentionEditor intention={intention} onChange={setIntention} elements={net} onSave={() => { saved = intention; }} onCancel={() => {}} /></AdtProvider>;
+  }
+  render(<Harness />);
+  expect(screen.getByLabelText('Symbolic guard')).toHaveValue('x > 0 and (x < 5 or x == 10)');
+  fireEvent.change(screen.getByLabelText('Import transition guard'), { target: { value: 'refuse' } });
+  expect(screen.getByLabelText('Symbolic guard')).toHaveValue('not (x > 0 and (x < 5 or x == 10))');
+  expect(screen.getByLabelText('Symbolic goal variables')).toHaveValue('x: Int');
+  expect(screen.getByLabelText('Symbolic pair protocol')).toHaveValue('');
+  fireEvent.click(screen.getByRole('button', { name: 'Save Intention' }));
+  const loaded = await importFromPNML(await exportToPNML({ ...net, testIntentions: [saved] }));
+  expect(loaded.testIntentions[0]).toEqual(saved);
+  expect(compileSymbolicIntention(loaded.testIntentions[0]).goal.algebra.operations._guardGoal.result).toBe('Bool');
+});

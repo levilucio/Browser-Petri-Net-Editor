@@ -3,6 +3,9 @@ import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.j
 
 const EXAMPLES = [
   ...oracleAccountExamples,
+  { filename: 'builtin-types', displayName: 'SATEL Built-in types — Symbolic classes' },
+  { filename: 'compound-guard', displayName: 'SATEL Compound guard — Reference' },
+  { filename: 'compound-guard-mutant', displayName: 'SATEL Compound guard — Mutant: missing x = 10' },
   { filename: 'symbolic-list', displayName: 'SATEL List — Symbolic membership classes' },
   { filename: 'petri-net-PT.pnml', displayName: 'Petri Net PT' },
   { filename: 'petri-net-algebraic1.pnml', displayName: 'Algebraic Net 1' },

@@ -9,7 +9,7 @@ function Domain({ domain, children }) {
     <summary>{domain.witnessArgs ? domain.witnessArgs.map(term).join(', ') : domain.id} · {domain.status}</summary>
     <p className="mt-2"><strong>Pattern:</strong> {domain.patterns.map(term).join(', ')}</p>
     <p><strong>Constraints:</strong> {domain.conditions.map(term).join(' and ') || 'none'}</p>
-    <p><strong>Equation path:</strong> {domain.rules.join(' → ') || 'not unfolded'}</p>
+    <p><strong>Derivation path:</strong> {domain.rules.join(' → ') || 'not unfolded'}</p>
     <p><strong>Result:</strong> {term(domain.resultPattern)}</p>
     {domain.witnessArgs && <p><strong>Witness:</strong> {domain.witnessArgs.map(term).join(', ')} ↦ {term(domain.witnessResult)}</p>}
     {domain.reason && <p className="text-amber-900">{domain.reason}</p>}

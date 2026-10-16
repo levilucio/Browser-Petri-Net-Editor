@@ -121,7 +121,7 @@ Open `http://localhost:3000`.
 4. Close SATEL and load **SATEL Account — Mutant: reject-exact-balance**.
 5. Reopen SATEL and **Replay frozen suite on loaded APN**. Inspect the failed equality case.
 
-V2 intentions can be created and edited in **V2 intentions**. V1 is no longer supported.
+Create and edit intentions in **Intentions**. For built-in ADTs and shared-variable compound guards, load **SATEL Built-in types — Symbolic classes** or **SATEL Compound guard — Reference**. See the [increment 6 review guide](docs/satel/increment-06-builtins-compound-guards.md).
 
 See [SATEL guide](docs/satel/README.md) for detailed instructions.
 

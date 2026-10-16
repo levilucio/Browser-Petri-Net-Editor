@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatSymbolicTerm } from '../satel/core/SymbolicTerms.js';
 
 /** Presentation only: neither substitutes parameters nor changes the oracle. */
 export function formatSatelTerm(value) {
@@ -7,7 +8,8 @@ export function formatSatelTerm(value) {
   if (typeof value === 'string') return value.startsWith('$') ? value.slice(1) : JSON.stringify(value);
   if (typeof value !== 'object') return String(value);
   if (value.var) return value.var;
-  if (value.ctor || value.__adt__) {
+  if (value.ctor) return formatSymbolicTerm(value);
+  if (value.__adt__) {
     const name = value.ctor || value.constructor;
     return `${name}(${(value.args || []).map(formatSatelTerm).join(', ')})`;
   }
@@ -84,7 +86,7 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
     <p className="text-xs text-gray-600">Instantiated test · {pairs.length} pairs in order</p>
     <PlaceObservations label="Initial marking M₀" outputs={test.referenceInitialMarking || test.initialMarking} />
     <p className="text-xs text-gray-600">Calls supply parameters. Observations describe outputs of that firing. State evolves continuously from the model’s initial marking.</p>
-    <SatelBindings bindings={test.instantiation || (test.symbolicDomain && { request: test.symbolicDomain.witnessArgs[1] })} />
+    <SatelBindings bindings={test.instantiation || test.symbolicDomain?.witnessBindings || (test.symbolicDomain?.witnessArgs && Object.fromEntries(test.symbolicDomain.witnessArgs.map((value, i) => [`arg${i + 1}`, value])))} />
     <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50">
       <div className="px-3 py-2 text-xs font-semibold text-slate-600">Stimulation / observation sequence</div>
       <ol className="space-y-2 px-2 pb-2">

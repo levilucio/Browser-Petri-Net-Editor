@@ -22,6 +22,14 @@ export function parseArithmetic(input) {
 
   function parseStringLiteral() {
     skipWs();
+    if (src[i] === '"') {
+      const start = i++;
+      while (i < src.length) {
+        if (src[i] === '\\') { i += 2; continue; }
+        if (src[i++] === '"') return { type: 'string', value: JSON.parse(src.slice(start, i)) };
+      }
+      throw new Error('Unterminated string literal');
+    }
     if (src[i] !== "'") throw new Error(`Expected string literal at position ${i}`);
     i++; // skip opening quote
     let value = '';
@@ -53,6 +61,7 @@ export function parseArithmetic(input) {
     while (i < src.length && isIdentPart(src[i])) i++;
     const name = src.slice(start, i);
 
+    if (name === 'true' || name === 'false') return { type: 'boolLit', value: name === 'true' };
     // Validate variable names start with lowercase to avoid T/F ambiguity
     if (name && /^[A-Z]/.test(name)) {
       throw new Error(`Variable names must start with lowercase letter, got '${name}' (use 't' instead of 'T', 'f' instead of 'F')`);
@@ -161,7 +170,11 @@ export function parseArithmetic(input) {
     }
 
     if (src[i] === '[') return parseListLiteral();
-    if (src[i] === "'") return parseStringLiteral();
+    if (src[i] === "'" || src[i] === '"') return parseStringLiteral();
+    if (src[i] === '-') {
+      i++; const operand = parseFactor();
+      return operand.type === 'int' ? { type: 'int', value: -operand.value } : { type: 'binop', op: '-', left: { type: 'int', value: 0 }, right: operand };
+    }
     if (isDigit(src[i])) return parseIntLiteral();
     if (/[A-Za-z_]/.test(src[i])) return parseIdent();
 
@@ -213,6 +226,8 @@ export function stringifyArithmetic(ast) {
 
   switch (ast.type) {
     case 'int':
+      return String(ast.value);
+    case 'boolLit':
       return String(ast.value);
     case 'string':
       return `'${ast.value.replace(/'/g, "\\'")}'`;
