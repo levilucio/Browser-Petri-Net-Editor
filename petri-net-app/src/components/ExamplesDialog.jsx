@@ -1,8 +1,10 @@
 import React from 'react';
+import { fulfilmentExamples } from '../satel/examples/fulfilment/editor.js';
 import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.js';
 
 const EXAMPLES = [
   ...oracleAccountExamples,
+  ...fulfilmentExamples,
   { filename: 'executable-sequence', displayName: 'SATEL Whole-sequence selection — Reference' },
   { filename: 'executable-sequence-mutant', displayName: 'SATEL Whole-sequence selection — Mutant: no debit' },
   { filename: 'typed-store', displayName: 'SATEL Typed store — Reference' },

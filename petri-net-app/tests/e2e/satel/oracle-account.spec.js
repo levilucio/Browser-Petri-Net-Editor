@@ -14,6 +14,40 @@ async function openSatel(page) {
   }
 }
 
+test('fulfilment generates four ten-pair tests and detects all six independently loaded mutants', async ({ page }, testInfo) => {
+  test.setTimeout(150000);
+  await page.goto('/');
+  await openExamples(page);
+  await page.getByTestId('example-fulfilment-reference').click();
+  await openSatel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible({ timeout: 30000 });
+  await expect(page.getByLabel('Executable selection')).toContainText('4 executable classes · 0 blocked classes · 0 unresolved searches');
+  await expect(page.getByTestId('satel-pair-formula')).toHaveCount(40);
+  await expect(page.getByTestId('satel-pair-formula').nth(9)).toContainText('audit() with stockLevel(10) // walletBalance(78) // netRevenue(22) // loyalty(2) // shipmentCount(1) // returnCount(1)');
+  await page.getByTestId('satel-pair-formula').nth(9).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('fulfilment-reference.png') });
+  for (const [id, counts, step] of [
+    ['stock-not-reserved', '0 passed · 4 failed · 0 errors', 10],
+    ['payment-not-debited', '0 passed · 4 failed · 0 errors', 10],
+    ['express-bulk-fee', '3 passed · 1 failed · 0 errors', 6],
+    ['refund-not-credited', '0 passed · 4 failed · 0 errors', 10],
+    ['one-packing-crate', '0 passed · 4 failed · 0 errors', 5],
+    ['loyalty-before-return', '0 passed · 4 failed · 0 errors', 10],
+  ]) {
+    await page.getByLabel('Close SATEL').click();
+    await openExamples(page);
+    await page.getByTestId(`example-fulfilment-${id}`).click();
+    await openSatel(page);
+    await page.getByRole('button', { name: 'Replay results', exact: true }).click();
+    await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+    await expect(page.getByTestId('oracle-target-results')).toContainText(counts);
+    await expect(page.getByTestId('oracle-target-results')).toContainText(`fail at step ${step}`);
+    await expect(page.getByText(/4 frozen tests from/)).toBeVisible();
+  }
+});
+
 test('whole-sequence generation chooses an earlier amount from the final observation', async ({ page }) => {
   await page.goto('/');
   await openExamples(page);

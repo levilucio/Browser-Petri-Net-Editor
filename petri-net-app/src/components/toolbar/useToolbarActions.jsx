@@ -281,6 +281,14 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (filename.startsWith('fulfilment-')) {
+        const { createFulfilmentExample } = await import('../../satel/examples/fulfilment/editor.js');
+        const net = createFulfilmentExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (['executable-sequence', 'executable-sequence-mutant'].includes(filename)) {
         const { createExecutableSequenceExample } = await import('../../satel/examples/executable-sequence/editor.js');
         const net = createExecutableSequenceExample(filename.endsWith('-mutant'));

@@ -24,6 +24,9 @@ marking-aware parameter selection and a reference/mutant example where the final
 observation determines an earlier withdrawal. The [intention workspace](increment-08-intention-workspace.md)
 describes the current GUI.
 
+For a larger example, see [fulfilment and six mutants](increment-10-fulfilment-example.md):
+34 places, 17 rules, and four tests of ten stimulation/observation pairs each.
+
 ## General intentions
 
 Use **SATEL → Intentions** to create or edit a typed-variable intention. **Generated tests → Generate tests** instantiates it, then checks every candidate on the reference APN. Failures/errors prevent admission and are shown in Generated tests. An admitted suite can be replayed against the loaded APN with unchanged expectations.
