@@ -51,7 +51,7 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
       {!cases.length && <p>No pair sequence yet. Define a protocol in Advanced selection settings to turn class analysis into executable tests.</p>}
     </section>
     <details className="border rounded p-3 space-y-4"><summary className="cursor-pointer font-semibold">Advanced selection settings</summary>
-      <p>The saved definitions below drive selection. Changing an APN guard does not automatically change them. Selection does not propagate APN markings; reference execution checks the instantiated sequence afterwards.</p>
+      <p>The saved definitions below drive selection. Changing an APN guard does not automatically change them. When a pair sequence is present, selection propagates the APN marking and solves for values satisfying the whole sequence. Concrete reference replay then checks the selected test.</p>
     <label className="block">ADT constructors and operation equations
       <textarea aria-label="ADT constructors and operation equations" spellCheck={false} className="block w-full border p-2 rounded font-mono text-xs" rows={16} value={s.source} onChange={e => update('source', e.target.value)} />
     </label>

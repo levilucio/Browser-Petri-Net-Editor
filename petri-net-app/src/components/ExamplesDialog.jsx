@@ -3,6 +3,8 @@ import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.j
 
 const EXAMPLES = [
   ...oracleAccountExamples,
+  { filename: 'executable-sequence', displayName: 'SATEL Whole-sequence selection — Reference' },
+  { filename: 'executable-sequence-mutant', displayName: 'SATEL Whole-sequence selection — Mutant: no debit' },
   { filename: 'typed-store', displayName: 'SATEL Typed store — Reference' },
   { filename: 'typed-store-mutant', displayName: 'SATEL Typed store — Mutant: drops first item' },
   { filename: 'builtin-types', displayName: 'SATEL Built-in types — Symbolic classes' },

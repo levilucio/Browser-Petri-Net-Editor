@@ -281,6 +281,14 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (['executable-sequence', 'executable-sequence-mutant'].includes(filename)) {
+        const { createExecutableSequenceExample } = await import('../../satel/examples/executable-sequence/editor.js');
+        const net = createExecutableSequenceExample(filename.endsWith('-mutant'));
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (['typed-store', 'typed-store-mutant'].includes(filename)) {
         const { createTypedStoreExample } = await import('../../satel/examples/typed-store/editor.js');
         const net = createTypedStoreExample(filename.endsWith('-mutant'));

@@ -5,7 +5,7 @@ SATEL is an experimental partial implementation of test selection from algebraic
 ## Start with the oracle-validated example
 
 1. Load **Examples → SATEL Account — Reference**.
-2. Open **SATEL → Oracle validation** and generate the refined suite. Four tests must pass the reference oracle before admission.
+2. Open **SATEL → Generated tests** and generate the refined suite. Four tests must pass the reference oracle before admission.
 3. Close the panel and load an account mutant from Examples.
 4. Reopen SATEL and replay the frozen suite. Inspect the first mismatching observation.
 
@@ -19,9 +19,14 @@ See [the GUI review guide](increment-02-gui-v2.md) for the exact steps, expected
 
 The classes are derived from ADT constructor patterns and conditional operation equations, not from enumerated executions. Symbolic intentions now save editable typed equations, goals and declarative pair protocols. The GUI uses generic bounded unfolding with Z3 constructor/arithmetic solving. Custom editor ADT XML can be imported for the supported oriented-equation fragment. Unresolved branches and overlap checks are visible; exhaustive coverage is not claimed. See increments 6 and 7 for current assumptions and remaining limits.
 
+See [whole-sequence executable selection](increment-09-executable-sequences.md) for
+marking-aware parameter selection and a reference/mutant example where the final
+observation determines an earlier withdrawal. The [intention workspace](increment-08-intention-workspace.md)
+describes the current GUI.
+
 ## General intentions
 
-Use **SATEL → Intentions** to create or edit a typed-variable intention. **Generate and validate suite** instantiates it, then checks every candidate on the reference APN. Failures/errors prevent admission and are shown in Results. An admitted suite can be replayed against the loaded APN with unchanged expectations.
+Use **SATEL → Intentions** to create or edit a typed-variable intention. **Generated tests → Generate tests** instantiates it, then checks every candidate on the reference APN. Failures/errors prevent admission and are shown in Generated tests. An admitted suite can be replayed against the loaded APN with unchanged expectations.
 
 The general generator/checker remains experimental and less restrictive than the account adapter. In particular, the manufacturing examples still have known semantic/test failures. Their presence in Examples does not imply all their intentions are correct.
 

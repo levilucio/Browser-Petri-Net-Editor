@@ -34,6 +34,32 @@ function binding(a) {
   return bindings[0].trim();
 }
 
+/** Shared typed rule plan for concrete execution and symbolic path generation. */
+export function compileMethodRule(net, method, ruleId) {
+  const places = new Map(net.places.map(p => [p.id, p]));
+  const t = net.transitions.find(t => t.id === ruleId);
+  requireThat(!t.action?.trim(), 'Transition action scripts are outside the public-method fragment');
+  const incoming = net.arcs.filter(a => target(a) === ruleId);
+  const outgoing = net.arcs.filter(a => source(a) === ruleId);
+  for (const a of [...incoming, ...outgoing]) {
+    requireThat((a.sourceId === undefined || a.source === undefined || a.sourceId === a.source) && (a.targetId === undefined || a.target === undefined || a.targetId === a.target), `Conflicting arc endpoints: ${a.id}`);
+    const id = incoming.includes(a) ? source(a) : target(a), p = places.get(id);
+    requireThat(p && methodSorts.includes(p.sort), `Method place ${id} must have a supported built-in sort`);
+    requireThat(Array.isArray(p.valueTokens) && p.valueTokens.every(v => validMethodValue(v, p.sort)) && p.tokens === p.valueTokens.length, `Invalid marking at ${id}`);
+  }
+  const ins = incoming.map(a => ({ a, variable: binding(a), place: source(a) }));
+  requireThat(ins.every(i => identifier.test(i.variable)), 'Method input arc bindings must be variables');
+  const variables = Object.fromEntries(method.parameters.map(p => [p.name, p.sort]));
+  for (const input of ins) {
+    const sort = places.get(input.place).sort;
+    requireThat(!variables[input.variable] || variables[input.variable] === sort || ['Nat', 'Int'].every(s => [variables[input.variable], sort].includes(s)), `Conflicting method variable sort: ${input.variable}`);
+    variables[input.variable] ||= sort;
+  }
+  const guard = t.guard?.trim() ? compileMethodTerm(t.guard, variables, 'Bool') : null;
+  const outs = outgoing.map(a => ({ place: target(a), ast: compileMethodTerm(binding(a), variables, places.get(target(a)).sort) }));
+  return { ins, outs, guard, variables };
+}
+
 /** Resolve a call without mutating the marking. Multiple distinct enabled choices are unsupported. */
 export function prepareMethodCall(net, name, args = {}) {
   args = copy(args);
@@ -48,26 +74,7 @@ export function prepareMethodCall(net, name, args = {}) {
   const candidates = [], seen = new Set();
   let visited = 0;
   for (const ruleId of method.rules) {
-    const t = net.transitions.find(t => t.id === ruleId);
-    requireThat(!t.action?.trim(), 'Transition action scripts are outside the public-method fragment');
-    const incoming = net.arcs.filter(a => target(a) === ruleId);
-    const outgoing = net.arcs.filter(a => source(a) === ruleId);
-    for (const a of [...incoming, ...outgoing]) {
-      requireThat((a.sourceId === undefined || a.source === undefined || a.sourceId === a.source) && (a.targetId === undefined || a.target === undefined || a.targetId === a.target), `Conflicting arc endpoints: ${a.id}`);
-      const id = incoming.includes(a) ? source(a) : target(a), p = places.get(id);
-      requireThat(p && methodSorts.includes(p.sort), `Method place ${id} must have a supported built-in sort`);
-      requireThat(Array.isArray(p.valueTokens) && p.valueTokens.every(v => validMethodValue(v, p.sort)) && p.tokens === p.valueTokens.length, `Invalid marking at ${id}`);
-    }
-    const ins = incoming.map(a => ({ a, variable: binding(a), place: source(a) }));
-    requireThat(ins.every(i => identifier.test(i.variable)), 'Method input arc bindings must be variables');
-    const variables = Object.fromEntries(method.parameters.map(p => [p.name, p.sort]));
-    for (const input of ins) {
-      const sort = places.get(input.place).sort;
-      requireThat(!variables[input.variable] || variables[input.variable] === sort || ['Nat', 'Int'].every(s => [variables[input.variable], sort].includes(s)), `Conflicting method variable sort: ${input.variable}`);
-      variables[input.variable] ||= sort;
-    }
-    const guard = t.guard?.trim() ? compileMethodTerm(t.guard, variables, 'Bool') : null;
-    const outs = outgoing.map(a => ({ place: target(a), ast: compileMethodTerm(binding(a), variables, places.get(target(a)).sort) }));
+    const { ins, outs, guard } = compileMethodRule(net, method, ruleId);
     const choose = (i, env, picks) => {
       requireThat(++visited <= 10000, 'Method binding search limit reached; result is unresolved');
       if (i < ins.length) {

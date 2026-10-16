@@ -14,6 +14,29 @@ async function openSatel(page) {
   }
 }
 
+test('whole-sequence generation chooses an earlier amount from the final observation', async ({ page }) => {
+  await page.goto('/');
+  await openExamples(page);
+  await page.getByTestId('example-executable-sequence').click();
+  await openSatel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('2/2 tests passed the reference oracle')).toBeVisible();
+  await expect(page.getByLabel('Executable selection')).toContainText('2 executable classes · 0 blocked classes · 0 unresolved searches');
+  const pairs = page.getByTestId('satel-pair-formula');
+  await expect(pairs).toHaveCount(6);
+  await expect(pairs.nth(3)).toContainText('withdraw(3) with ack(1) // paidAmount(3)');
+  await expect(pairs.nth(4)).toContainText('withdraw(7)');
+  await expect(pairs.nth(5)).toContainText('query() with balanceResult(0)');
+  await page.getByLabel('Close SATEL').click();
+  await openExamples(page);
+  await page.getByTestId('example-executable-sequence-mutant').click();
+  await openSatel(page);
+  await page.getByRole('button', { name: 'Replay results', exact: true }).click();
+  await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+  await expect(page.getByTestId('oracle-target-results')).toContainText('0 passed · 2 failed · 0 errors');
+});
+
 test('reference suite survives loading a mutant and identifies the first mismatching observation', async ({ page }, testInfo) => {
   await page.goto('/');
   await openExamples(page);

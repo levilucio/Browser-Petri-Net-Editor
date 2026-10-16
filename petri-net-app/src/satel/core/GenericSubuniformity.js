@@ -82,6 +82,7 @@ export async function deriveGenericSubdomains(goal, options = {}) {
         // Model extraction and arithmetic must preserve the declared result sort.
         if (termSort(witnessResult, {}, algebra, algebra.operations[operation].result) !== algebra.operations[operation].result) throw new Error('Ill-sorted witness result');
         domains.push({ ...record, status: 'feasible', witnessArgs, witnessResult,
+          variables: { ...sorts }, goalBindings: Object.fromEntries(Object.keys(variables).map(n => [n, substitute({ var: n }, branch.bindings)])),
           witnessBindings: Object.fromEntries(Object.keys(variables).map(n => [n, evaluateGround(substitute(substitute({ var: n }, branch.bindings), feasibility.bindings))])) });
       } catch (e) { unresolved.push({ ...record, status: 'unknown', reason: e.message }); }
       continue;
