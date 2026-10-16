@@ -69,6 +69,7 @@ function observationText(observation, transition) {
 }
 function markingText(place, c) {
   // The current checker applies the first present constraint in this order.
+  if (c.equals !== undefined) return `${place} = ${bag(c.equals)}`;
   if (c.length !== undefined) return `|${place}| = ${c.length}`;
   if (c.empty !== undefined) return `${place} ${c.empty ? '=' : '≠'} ∅`;
   if (c.contains !== undefined) return `${bag(c.contains)} ⊆ ${place}`;

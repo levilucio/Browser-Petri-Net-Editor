@@ -487,7 +487,7 @@ export function instantiateTerm(term, instantiation) {
 export function instantiatePair(pair, instantiation) {
   const obs = {
     outputs: instantiateObject(pair.observation.outputs, instantiation),
-    markings: pair.observation.markings // Markings don't have variables
+    markings: instantiateTerm(pair.observation.markings, instantiation)
   };
   
   // Preserve observation type if present (e.g., 'notEnabled')

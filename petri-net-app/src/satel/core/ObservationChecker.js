@@ -88,6 +88,9 @@ export async function executeV2TestCase(testCase, petriNet, simulator) {
 
 function checkObservation(observation, marking, producedTokens = {}) {
   const { outputs, markings } = observation;
+  for (const place of [...Object.keys(outputs || {}), ...Object.keys(markings || {})]) {
+    if (!Object.hasOwn(marking, place)) throw new Error(`Unknown observation place: ${place}`);
+  }
   
   // 1. Check output tokens (use produced tokens from this firing, not marking)
   for (const [place, expectedTokens] of Object.entries(outputs || {})) {
@@ -152,6 +155,7 @@ function sortTokens(tokens) {
  * Check if marking satisfies constraint
  */
 function checkMarkingConstraint(tokens, constraint) {
+  if (constraint.equals !== undefined) return tokensMatch(tokens, constraint.equals);
   if (constraint.length !== undefined) {
     return tokens.length === constraint.length;
   }

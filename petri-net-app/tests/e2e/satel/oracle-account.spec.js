@@ -87,3 +87,32 @@ test('public calls accept arguments and preserve the marking between calls', asy
   await expect(page.getByLabel('SATEL Testing')).toContainText('Public methods (4)');
   await expect(page.getByLabel('SATEL Testing')).toContainText('withdraw(n: Nat)');
 });
+
+test('observations are edited as places and token multisets without JSON', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-oracle-account-reference').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  await page.getByRole('button', { name: '+ Create Intention' }).click();
+  await page.getByRole('button', { name: '+ Add Pair' }).click();
+  await page.getByLabel('Pair 1 argument n').fill('10');
+  const observation = page.getByRole('region', { name: 'Pair 1 observation' });
+  await expect(observation).not.toContainText('JSON');
+  await page.getByLabel('Pair 1 check outputs at ack').check();
+  await page.getByLabel('Pair 1 expected outputs at ack').fill('1,');
+  await expect(page.getByRole('button', { name: 'Save Intention' })).toBeDisabled();
+  await page.getByLabel('Pair 1 expected outputs at ack').fill('1');
+  await observation.getByText('Marking after this call (optional)', { exact: true }).click();
+  await page.getByLabel('Pair 1 marking check at balance', { exact: true }).selectOption('equals');
+  await page.getByLabel('Pair 1 expected marking at balance', { exact: true }).fill('10');
+  await page.getByLabel('Pair 1 marking check at ack').selectOption('equals');
+  await page.getByLabel('Pair 1 expected marking at ack').fill('1');
+  await observation.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('place-observation-editor.png') });
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await expect(page.getByLabel('Pair 1 expected marking at balance', { exact: true })).toHaveValue('10');
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await page.getByRole('button', { name: 'Generate and validate suite' }).click();
+  await expect(page.getByText('1 tests admitted by the reference oracle.')).toBeVisible();
+  await expect(page.getByTestId('satel-pair-formula')).toContainText('deposit(10) with ack(1)');
+});

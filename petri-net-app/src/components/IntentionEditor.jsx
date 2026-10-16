@@ -5,11 +5,16 @@ import { getPublicMethods, methodSignature } from '../features/simulation/Public
  * Editor for SATEL-style intentions with variables and stim/obs pairs
  */
 
-import React, { useState } from 'react';
+import ObservationEditor from './satel/ObservationEditor';
+import React, { useState, useRef, useCallback } from 'react';
 
 const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) => {
   const [markingText, setMarkingText] = useState(JSON.stringify(intention.initialMarking || {}, null, 2));
   const [markingError, setMarkingError] = useState('');
+  const pairKeys = useRef(intention.pairs.map((_, i) => i));
+  const nextPairKey = useRef(intention.pairs.length);
+  const [observationErrors, setObservationErrors] = useState({});
+  const observationValidity = useCallback((key, invalid) => setObservationErrors(prev => prev[key] === invalid ? prev : { ...prev, [key]: invalid }), []);
   const transitions = elements.transitions || [];
   const places = elements.places || [];
   let methods = [];
@@ -67,16 +72,8 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
     updateIntention('pairs', newPairs);
   };
   
-  const updateObservation = (pairIndex, field, value) => {
-    const newPairs = [...intention.pairs];
-    newPairs[pairIndex] = {
-      ...newPairs[pairIndex],
-      observation: { ...newPairs[pairIndex].observation, [field]: value }
-    };
-    updateIntention('pairs', newPairs);
-  };
-  
   const addPair = () => {
+    pairKeys.current.push(nextPairKey.current++);
     const newPairs = [
       ...intention.pairs,
       {
@@ -88,6 +85,8 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
   };
   
   const removePair = (index) => {
+    const [key] = pairKeys.current.splice(index, 1);
+    setObservationErrors(prev => { const next = { ...prev }; delete next[key]; return next; });
     const newPairs = intention.pairs.filter((_, i) => i !== index);
     updateIntention('pairs', newPairs);
   };
@@ -279,10 +278,11 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
         
         <div className="space-y-4">
           {intention.pairs.map((pair, idx) => (
-            <div key={idx} className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <div key={pairKeys.current[idx]} className="bg-blue-50 p-3 rounded-lg border border-blue-200">
               <div className="flex justify-between items-start mb-2">
                 <span className="text-xs font-medium text-blue-700">Pair {idx + 1}</span>
                 <button
+                  aria-label={`Remove pair ${idx + 1}`}
                   onClick={() => removePair(idx)}
                   className="px-2 py-0.5 text-red-600 hover:bg-red-50 rounded text-xs"
                 >
@@ -345,40 +345,9 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
 
               </div>
               
-              {/* Observation */}
-              <div className="bg-white p-2 rounded">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Observation</label>
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">Expected tokens produced (JSON)</label>
-                  <textarea
-                    value={JSON.stringify(pair.observation.outputs, null, 2)}
-                    onChange={(e) => {
-                      try {
-                        const val = JSON.parse(e.target.value);
-                        updateObservation(idx, 'outputs', val);
-                      } catch {}
-                    }}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
-                    rows={3}
-                    placeholder='{ "placeId": [tokens] }'
-                  />
-                </div>
-                <div className="mt-2">
-                  <label className="block text-xs text-gray-600 mb-1">Marking Constraints (JSON, optional)</label>
-                  <textarea
-                    value={JSON.stringify(pair.observation.markings || {}, null, 2)}
-                    onChange={(e) => {
-                      try {
-                        const val = JSON.parse(e.target.value);
-                        updateObservation(idx, 'markings', val);
-                      } catch {}
-                    }}
-                    className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
-                    rows={2}
-                    placeholder='{ "placeId": { "length": 0 } }'
-                  />
-                </div>
-              </div>
+              <ObservationEditor observation={pair.observation} places={places} pairNumber={idx + 1}
+                onChange={value => updatePair(idx, 'observation', value)}
+                onValidityChange={invalid => observationValidity(pairKeys.current[idx], invalid)} />
             </div>
           ))}
           
@@ -394,8 +363,8 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
       <div className="pt-4 border-t flex gap-2">
         <button
           onClick={onSave}
-          disabled={!!markingError}
-          className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+          disabled={!!markingError || Object.values(observationErrors).some(Boolean)}
+          className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
         >
           Save Intention
         </button>
