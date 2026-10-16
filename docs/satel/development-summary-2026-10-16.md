@@ -671,3 +671,12 @@ Detailed review guides: [increment 1](increment-01-symbolic-oracle.md),
 [increment 8](increment-08-intention-workspace.md), [increment 9](increment-09-executable-sequences.md)
 and [increment 10](increment-10-fulfilment-example.md). The older
 [DESIGN.md](DESIGN.md) is historical and must not be used as the current contract.
+
+
+## Subsequent increment
+
+After this snapshot, [increment 11](increment-11-typed-exercise-collection.md)
+added ten reference APNs and twenty mutants, sequences up to twenty pairs,
+ground-term evaluation improvements, and reproducible performance measurements.
+It records the evidence and limitations separately rather than changing the
+historical results above.

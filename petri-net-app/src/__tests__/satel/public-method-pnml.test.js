@@ -1,3 +1,4 @@
+import { createExerciseExample, exerciseExamples } from '../../satel/examples/exercises/editor';
 import { exportToPNML, importFromPNML } from '../../utils/python/index';
 import { createOracleAccountExample } from '../../satel/examples/oracle-account/editor';
 import { getPublicMethods } from '../../features/simulation/PublicMethods';
@@ -34,4 +35,15 @@ test('malformed method metadata fails loading rather than making public rules au
   const saved = await exportToPNML(createOracleAccountExample('oracle-account-reference'));
   await expect(importFromPNML(saved.replace('"name":"deposit"', '"name":null'))).rejects.toThrow('Invalid SATEL metadata');
   await expect(importFromPNML(saved.replace('"places":', '"places"BROKEN:'))).rejects.toThrow('Invalid SATEL metadata');
+});
+
+
+test.each(exerciseExamples)('$filename: exercise PNML preserves initial state, methods, equations and pair sequences', async entry => {
+  const net = createExerciseExample(entry.filename);
+  const loaded = await importFromPNML(await exportToPNML(net));
+  expect(getPublicMethods(loaded)).toEqual(getPublicMethods(net));
+  expect(loaded.testIntentions).toEqual(net.testIntentions);
+  expect(loaded.satelExample).toEqual(net.satelExample);
+  expect(loaded.places.map(p => [p.id, p.sort, p.io_type, p.valueTokens])).toEqual(net.places.map(p => [p.id, p.sort, p.io_type, p.valueTokens]));
+  expect(loaded.arcs.map(a => [a.id, a.binding || a.bindings?.[0]])).toEqual(net.arcs.map(a => [a.id, a.binding]));
 });

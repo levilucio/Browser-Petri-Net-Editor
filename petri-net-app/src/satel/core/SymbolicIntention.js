@@ -15,12 +15,12 @@ export async function deriveSymbolicIntention(intention, net, options = {}) {
   try {
     report.interface = { methods: getPublicMethods(net).map(({ name, parameters }) => ({ name, parameters })), outputs: net.places.filter(p => p.io_type === 'output').map(p => p.id), outputSorts: Object.fromEntries(net.places.filter(p => p.io_type === 'output').map(p => [p.id, p.sort])) };
     if (options.classesOnly) {
-      report.candidates = decomposition.domains.map(d => ({ ...encodeProtocolWitness(protocol, d.witnessArgs, d.witnessResult, report.interface), id: d.id, symbolicDomain: d }));
+      report.candidates = decomposition.domains.map(d => ({ ...encodeProtocolWitness(protocol, d.witnessArgs, d.witnessResult, report.interface, goal.algebra), id: d.id, symbolicDomain: d }));
       return report;
     }
     report.execution = await selectExecutableRepresentatives(goal, protocol, decomposition, net, report.interface, options);
     decomposition.domains = decomposition.domains.map(d => report.execution.selected.find(s => s.id === d.id) || d);
-    report.candidates = report.execution.selected.map(d => ({ ...encodeProtocolWitness(protocol, d.witnessArgs, d.witnessResult, report.interface), id: d.id, symbolicDomain: d }));
+    report.candidates = report.execution.selected.map(d => ({ ...encodeProtocolWitness(protocol, d.witnessArgs, d.witnessResult, report.interface, goal.algebra), id: d.id, symbolicDomain: d }));
   } catch (e) { report.encodingError = e.message; }
   return report;
 }

@@ -1,3 +1,4 @@
+import { foldGroundTerms } from './GroundTerms.js';
 import { compileMethodRule, getPublicMethods, isMethodRule } from '../../features/simulation/PublicMethods.js';
 import { validBuiltinValue } from '../../utils/builtin-values.js';
 import { deriveGenericSubdomains } from './GenericSubuniformity.js';
@@ -128,7 +129,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
             Object.entries(projection.roots).every(([n, t]) => match(t, domain.witnessBindings[n], preferred, preferredResidual));
           const choices = preferenceMatches ? [preferred, new Map()] : [new Map()];
           for (const [choiceIndex, fixed] of choices.entries()) {
-            const cs = substitute([...conditions, ...(choiceIndex === 0 && preferenceMatches ? preferredResidual : [])], fixed);
+            const cs = foldGroundTerms(substitute([...conditions, ...(choiceIndex === 0 && preferenceMatches ? preferredResidual : [])], fixed), goal.algebra);
             const projected = substitute(projection, fixed);
             const used = [...variablesIn([cs, projected])];
             const names = new Map(used.map((n, i) => [n, { var: `v${i}` }]));

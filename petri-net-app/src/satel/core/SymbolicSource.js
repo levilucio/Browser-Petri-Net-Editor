@@ -1,7 +1,8 @@
+import { evaluateGroundTerm } from './GroundTerms.js';
 import { symbolicToValue } from '../../utils/builtin-values.js';
 import { splitTopLevel } from '../../utils/split-terms.js';
 import { addBuiltins, builtinNames, resolveBuiltin, NIL, CONS, PAIR } from './BuiltinAlgebra.js';
-import { formatSymbolicTerm, validateSymbolicGoal, unify, substitute, evaluateGround, termSort, variablesIn, elaborateTerm } from './SymbolicTerms.js';
+import { formatSymbolicTerm, validateSymbolicGoal, unify, substitute, termSort, variablesIn, elaborateTerm } from './SymbolicTerms.js';
 
 const identifier = '[A-Za-z_][A-Za-z0-9_]*';
 export function parseVariables(text) {
@@ -203,18 +204,18 @@ export function parseProtocol(source, algebra, goal) {
   }
   return cases;
 }
-export function encodeProtocolWitness(protocol, args, result, io) {
+export function encodeProtocolWitness(protocol, args, result, io, algebra) {
   const matches = [];
   for (const c of protocol) {
     const bindings = new Map();
     if (!c.patterns.every((p, i) => unify(p, args[i], bindings)) || !unify(c.result, result, bindings)) continue;
     const steps = [], expected = [];
     for (const p of c.pairs) {
-      steps.push({ method: p.stimulation.method, arguments: Object.fromEntries(Object.entries(p.stimulation.arguments).map(([n, t]) => [n, symbolicToValue(evaluateGround(substitute(t, bindings)))])) });
+      steps.push({ method: p.stimulation.method, arguments: Object.fromEntries(Object.entries(p.stimulation.arguments).map(([n, t]) => [n, symbolicToValue(evaluateGroundTerm(substitute(t, bindings), algebra))])) });
       const outputs = Object.fromEntries(io.outputs.map(n => [n, []]));
       for (const [n, ts] of Object.entries(p.observation.outputs)) {
         if (!Object.hasOwn(outputs, n)) throw new Error(`Unknown public output in protocol: ${n}`);
-        outputs[n] = ts.map(t => symbolicToValue(evaluateGround(substitute(t, bindings))));
+        outputs[n] = ts.map(t => symbolicToValue(evaluateGroundTerm(substitute(t, bindings), algebra)));
       }
       expected.push(outputs);
     }

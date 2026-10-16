@@ -9,6 +9,14 @@ for the complete conversation-derived implementation history, current semantics,
 validation evidence, deferred negative/nondeterministic testing, and research questions.
 It distinguishes established prototype behaviour from unproved mathematical claims.
 
+## Typed exercise collection
+
+[Increment 11: ten reference APNs, twenty mutants and performance results](increment-11-typed-exercise-collection.md)
+adds examples spanning Int, Nat, Bool, String, Pair and List, with sequences from
+2 to 20 pairs. Open **Examples → SATEL exercises**, generate on a reference,
+then replay its frozen suite on the matching mutants. The guide includes the
+mutation matrix, timing measurements, CLI export command and remaining limits.
+
 ## Start with the oracle-validated example
 
 1. Load **Examples → SATEL Account — Reference**.
