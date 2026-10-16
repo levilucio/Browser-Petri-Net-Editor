@@ -121,7 +121,7 @@ Open `http://localhost:3000`.
 4. Close SATEL and load **SATEL Account — Mutant: reject-exact-balance**.
 5. Reopen SATEL and **Replay frozen suite on loaded APN**. Inspect the failed equality case.
 
-Create and edit intentions in **Intentions**. For built-in ADTs and shared-variable compound guards, load **SATEL Built-in types — Symbolic classes** or **SATEL Compound guard — Reference**. See the [increment 6 review guide](docs/satel/increment-06-builtins-compound-guards.md).
+Create and edit intentions in **Intentions**. For built-in ADTs and shared-variable compound guards, load **SATEL Built-in types — Symbolic classes** or **SATEL Compound guard — Reference**. See the [increment 6 review guide](docs/satel/increment-06-builtins-compound-guards.md). For executable Bool/String/Pair/List calls and two-pair mutation testing, load **SATEL Typed store — Reference** and follow the [increment 7 review guide](docs/satel/increment-07-typed-methods.md).
 
 See [SATEL guide](docs/satel/README.md) for detailed instructions.
 

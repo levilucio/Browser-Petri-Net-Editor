@@ -10,7 +10,7 @@ export function getCurrentStateNormalized(petriNet) {
     y: Number(p.y || 0),
     name: p.name || '',
     type: 'place',
-    valueTokens: Array.isArray(p.valueTokens) ? [...p.valueTokens] : undefined,
+    valueTokens: Array.isArray(p.valueTokens) ? JSON.parse(JSON.stringify(p.valueTokens)) : undefined,
   }));
   const transitions = (petriNet.transitions || []).map(t => ({
     ...t,

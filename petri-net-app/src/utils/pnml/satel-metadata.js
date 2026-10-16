@@ -11,7 +11,7 @@ export function writeSatelMetadata(doc, netElement, net) {
   getPublicMethods(net); // Do not export a malformed declaration as an internal rule.
   const element = doc.createElementNS(APN_NS, 'apn:satel');
   element.setAttribute('version', '1');
-  element.textContent = JSON.stringify({ places, transitions, testIntentions: net.testIntentions, satelExample: net.satelExample });
+  element.textContent = JSON.stringify({ places, transitions, testIntentions: net.testIntentions, satelExample: net.satelExample }).replace(/[\ufffe\uffff]/g, ch => '\\u' + ch.charCodeAt(0).toString(16));
   netElement.appendChild(element);
   return true;
 }

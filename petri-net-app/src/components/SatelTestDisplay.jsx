@@ -1,3 +1,4 @@
+import { quoteTermString } from '../utils/term-string.js';
 import React from 'react';
 import { formatSymbolicTerm } from '../satel/core/SymbolicTerms.js';
 
@@ -5,9 +6,10 @@ import { formatSymbolicTerm } from '../satel/core/SymbolicTerms.js';
 export function formatSatelTerm(value) {
   if (value === undefined) return '?';
   if (value === null) return 'null';
-  if (typeof value === 'string') return value.startsWith('$') ? value.slice(1) : JSON.stringify(value);
+  if (typeof value === 'string') return quoteTermString(value);
   if (typeof value !== 'object') return String(value);
   if (value.var) return value.var;
+  if (Object.keys(value).length === 1 && typeof value.literal === 'string') return quoteTermString(value.literal);
   if (value.ctor) return formatSymbolicTerm(value);
   if (value.__adt__) {
     const name = value.ctor || value.constructor;

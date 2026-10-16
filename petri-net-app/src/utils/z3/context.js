@@ -2,6 +2,14 @@ import { logger } from '../logger.js';
 
 let z3InitPromise = null;
 
+function createContext(z3) {
+  const ctx = new z3.Context('main');
+  // The JS wrapper finalizes AST handles on the main thread while check() runs
+  // in a WASM worker. Protect decrements against that concurrent solver work.
+  z3.Z3.enable_concurrent_dec_ref(ctx.ptr);
+  return ctx;
+}
+
 async function ensureZ3Available() {
   const isNodeJSTest = typeof process !== 'undefined' && process.env && process.env.JEST_WORKER_ID;
   if (isNodeJSTest) {
@@ -129,7 +137,7 @@ export async function getContext() {
 
         logger.debug('Creating Z3 context...');
         // Use a general-purpose context so both arithmetic and string theories are available
-        const ctx = new z3.Context('main');
+        const ctx = createContext(z3);
         if (!ctx) {
           throw new Error('Failed to create Z3 context.');
         }
@@ -168,7 +176,7 @@ export async function getContext() {
 
             const { init } = await import('z3-solver');
             const z3 = await init();
-            const ctx = new z3.Context('main');
+            const ctx = createContext(z3);
             logger.debug('Z3 context initialized successfully (fallback)');
             return { z3, ctx };
           } catch (fallbackError) {
@@ -182,7 +190,7 @@ export async function getContext() {
           try {
             const { init } = await import('z3-solver');
             const z3 = await init();
-            const ctx = new z3.Context('main');
+            const ctx = createContext(z3);
             logger.debug('Z3 context initialized successfully (Node.js)');
             return { z3, ctx };
           } catch (nodeError) {

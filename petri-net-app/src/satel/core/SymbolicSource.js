@@ -1,3 +1,5 @@
+import { symbolicToValue } from '../../utils/builtin-values.js';
+import { splitTopLevel } from '../../utils/split-terms.js';
 import { addBuiltins, builtinNames, resolveBuiltin, NIL, CONS, PAIR } from './BuiltinAlgebra.js';
 import { formatSymbolicTerm, validateSymbolicGoal, unify, substitute, evaluateGround, termSort, variablesIn, elaborateTerm } from './SymbolicTerms.js';
 
@@ -167,25 +169,22 @@ export function parseProtocol(source, algebra, goal) {
       if (current.result !== undefined) throw new Error('Duplicate result declaration');
       current.result = one(line.slice(7), algebra, current.variables); continue;
     }
-    const pair = line.match(/^pair\s+([A-Za-z_]\w*)\((.*?)\)\s*=>\s*(.*)$/);
+    const sides = splitTopLevel(line, '=>');
+    const method = sides[0].match(/^pair\s+([A-Za-z_]\w*)\((.*)\)$/);
+    const pair = sides.length === 2 && method ? [line, method[1], method[2], sides[1]] : null;
     if (!pair) throw new Error(`Invalid protocol pair: ${line}`);
     const args = {};
-    // Argument expressions may contain commas in constructor terms; method parameters
-    // are numeric in this increment, so named argument splitting is intentionally strict.
-    for (const part of pair[2].trim() ? pair[2].split(',') : []) {
+    for (const part of pair[2].trim() ? splitTopLevel(pair[2]) : []) {
       const a = part.trim().match(/^([A-Za-z_]\w*)\s*=\s*(.+)$/);
       if (!a || Object.hasOwn(args, a[1])) throw new Error('Expected unique named method arguments');
       args[a[1]] = one(a[2], algebra, current.variables);
     }
     const outputs = {};
     if (pair[3] !== 'none') {
-      // Parse output applications using signatures supplied by the notation itself.
-      const names = [...pair[3].matchAll(/\b([A-Za-z_]\w*)\s*\(/g)].map(m => m[1]);
-      const notation = { constructors: { ...algebra.constructors }, operations: { ...algebra.operations } };
-      names.forEach(n => { notation.constructors[n] = {}; delete notation.operations[n]; });
-      for (const o of parseTerms(pair[3], notation, current.variables)) {
-        if (!o?.ctor || o.args.length !== 1) throw new Error('Use place(token) observations separated by commas');
-        (outputs[o.ctor] ||= []).push(o.args[0]);
+      for (const text of splitTopLevel(pair[3])) {
+        const output = text.match(/^([A-Za-z_]\w*)\((.*)\)$/);
+        if (!output) throw new Error('Use place(token) observations separated by commas');
+        (outputs[output[1]] ||= []).push(one(output[2], algebra, current.variables));
       }
     }
     current.pairs.push({ stimulation: { method: pair[1], arguments: args }, observation: { outputs } });
@@ -211,11 +210,11 @@ export function encodeProtocolWitness(protocol, args, result, io) {
     if (!c.patterns.every((p, i) => unify(p, args[i], bindings)) || !unify(c.result, result, bindings)) continue;
     const steps = [], expected = [];
     for (const p of c.pairs) {
-      steps.push({ method: p.stimulation.method, arguments: Object.fromEntries(Object.entries(p.stimulation.arguments).map(([n, t]) => [n, evaluateGround(substitute(t, bindings))])) });
+      steps.push({ method: p.stimulation.method, arguments: Object.fromEntries(Object.entries(p.stimulation.arguments).map(([n, t]) => [n, symbolicToValue(evaluateGround(substitute(t, bindings)))])) });
       const outputs = Object.fromEntries(io.outputs.map(n => [n, []]));
       for (const [n, ts] of Object.entries(p.observation.outputs)) {
         if (!Object.hasOwn(outputs, n)) throw new Error(`Unknown public output in protocol: ${n}`);
-        outputs[n] = ts.map(t => evaluateGround(substitute(t, bindings)));
+        outputs[n] = ts.map(t => symbolicToValue(evaluateGround(substitute(t, bindings))));
       }
       expected.push(outputs);
     }

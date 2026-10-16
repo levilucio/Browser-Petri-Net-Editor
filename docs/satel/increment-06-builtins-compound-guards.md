@@ -2,6 +2,8 @@
 
 Branch: `codex/satel-public-methods`, stacked draft PR #4. This extends increment 5's symbolic selection engine and the numeric public-method guard evaluator. Initial markings, synchronous calls, separate derivation/admission and frozen expectations are preserved.
 
+The Nat/Int-only public-call limit described below is superseded by [increment 7](increment-07-typed-methods.md), which adds Bool, String, Pair and List execution.
+
 ## Review on your laptop
 
 ```sh

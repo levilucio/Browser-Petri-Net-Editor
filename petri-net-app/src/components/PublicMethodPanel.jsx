@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { usePetriNet } from '../contexts/PetriNetContext';
 import { getPublicMethods, methodSignature } from '../features/simulation/PublicMethods';
+import { parseMethodValue } from '../features/simulation/MethodTerms';
 import { PlaceObservations, formatSatelTerm } from './SatelTestDisplay';
 
 function MethodCall({ method, disabled, invoke, outputIds }) {
@@ -13,9 +14,7 @@ function MethodCall({ method, disabled, invoke, outputIds }) {
     setBusy(true); setError(''); setMessage(null);
     try {
       const args = Object.fromEntries(method.parameters.map(p => {
-        const value = (values[p.name] ?? '').trim();
-        if (!/^-?\d+$/.test(value)) throw new Error(`Enter an integer for ${p.name}`);
-        return [p.name, Number(value)];
+        return [p.name, parseMethodValue(values[p.name] ?? '', p.sort)];
       }));
       const result = await invoke(method.name, args);
       setMessage({ ...result, display: `${method.name}(${method.parameters.map(p => formatSatelTerm(args[p.name])).join(', ')})` });
@@ -25,10 +24,11 @@ function MethodCall({ method, disabled, invoke, outputIds }) {
   return <div className="border rounded-lg p-3 space-y-2 bg-white">
     <h4 className="font-mono text-sm break-words">{methodSignature(method)}</h4>
     {method.parameters.map(p => <label key={p.name} className="block text-sm">{p.name} · {p.sort}
-      <input aria-label={`${method.name} argument ${p.name}`} inputMode="numeric" value={values[p.name] ?? ''}
+      <input aria-label={`${method.name} argument ${p.name}`} inputMode={['Nat', 'Int'].includes(p.sort) ? 'numeric' : 'text'} value={values[p.name] ?? ''}
         onChange={e => setValues({ ...values, [p.name]: e.target.value })} disabled={disabled || busy}
-        className="mt-1 block border rounded w-full px-2 py-2" placeholder={p.sort === 'Nat' ? 'Nonnegative integer' : 'Integer'} />
+        className="mt-1 block border rounded w-full px-2 py-2" placeholder={({ Nat: 'Nonnegative integer', Int: 'Integer', Bool: 'true or false', String: '"text" (quotes required)', List: '[1, true, "text"]', Pair: '("text", false)' })[p.sort]} />
     </label>)}
+    {!!method.parameters.length && <p className="text-xs text-gray-600">Use quoted strings, true/false, [a, b] for a list, or (a, b) for a pair.</p>}
     <button onClick={call} disabled={disabled || busy} className="px-3 py-2 rounded bg-blue-700 text-white disabled:opacity-50">Call {method.name}</button>
     {error && <p role="alert" className="text-sm text-red-800">{error}</p>}
     {message && <div role="status" className="text-sm space-y-2">

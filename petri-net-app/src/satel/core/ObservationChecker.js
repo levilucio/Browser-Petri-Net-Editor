@@ -1,3 +1,5 @@
+import { equalTokenBags } from '../../utils/builtin-values.js';
+import { equalValues } from '../../utils/value-equality.js';
 /** Continuous execution from a single initial marking. */
 import { isMethodRule } from '../../features/simulation/PublicMethods.js';
 import { withInitialMarking, initialMarkingOf } from './InitialMarking.js';
@@ -131,25 +133,7 @@ function checkObservation(observation, marking, producedTokens = {}) {
 /**
  * Check if actual tokens match expected tokens (deep equality)
  */
-function tokensMatch(actual, expected) {
-  if (actual.length !== expected.length) {
-    return false;
-  }
-  
-  // Deep equality check
-  return JSON.stringify(sortTokens(actual)) === JSON.stringify(sortTokens(expected));
-}
-
-/**
- * Sort tokens for consistent comparison
- */
-function sortTokens(tokens) {
-  return tokens.slice().sort((a, b) => {
-    const aStr = JSON.stringify(a);
-    const bStr = JSON.stringify(b);
-    return aStr.localeCompare(bStr);
-  });
-}
+const tokensMatch = equalTokenBags;
 
 /**
  * Check if marking satisfies constraint
@@ -167,7 +151,7 @@ function checkMarkingConstraint(tokens, constraint) {
   if (constraint.contains !== undefined) {
     // Check if marking contains specified tokens
     return constraint.contains.every(expected =>
-      tokens.some(actual => JSON.stringify(actual) === JSON.stringify(expected))
+      tokens.some(actual => equalValues(actual, expected))
     );
   }
   

@@ -13,6 +13,7 @@ export async function observeBoundedTrace(net, io, steps) {
   const signatures = ms => JSON.stringify([...ms].sort((a, b) => a.name.localeCompare(b.name)));
   if (!Array.isArray(io.methods) || signatures(actualMethods) !== signatures(io.methods)) throw new Error('Public method interface does not match the saved contract');
   if (!Array.isArray(io.outputs) || !io.outputs.length || new Set(io.outputs).size !== io.outputs.length || io.outputs.some(id => !net.places.some(p => p.id === id && p.io_type === 'output'))) throw new Error('Invalid public output interface');
+  if (io.outputSorts && (Object.keys(io.outputSorts).length !== io.outputs.length || io.outputs.some(id => io.outputSorts[id] !== net.places.find(p => p.id === id)?.sort))) throw new Error('Public output sorts do not match the saved contract');
   if (!Array.isArray(steps) || !steps.length) throw new Error('A nonempty method-call sequence is required');
   const sim = new AlgebraicSimulator();
   await sim.initialize(net);

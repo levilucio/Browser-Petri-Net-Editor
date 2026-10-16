@@ -3,6 +3,8 @@ import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.j
 
 const EXAMPLES = [
   ...oracleAccountExamples,
+  { filename: 'typed-store', displayName: 'SATEL Typed store — Reference' },
+  { filename: 'typed-store-mutant', displayName: 'SATEL Typed store — Mutant: drops first item' },
   { filename: 'builtin-types', displayName: 'SATEL Built-in types — Symbolic classes' },
   { filename: 'compound-guard', displayName: 'SATEL Compound guard — Reference' },
   { filename: 'compound-guard-mutant', displayName: 'SATEL Compound guard — Mutant: missing x = 10' },

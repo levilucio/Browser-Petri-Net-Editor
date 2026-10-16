@@ -1,12 +1,13 @@
-/** Checked, synchronous public methods for the numeric APN fragment. */
-import { parseArithmetic } from '../../utils/arith-parser.js';
-import { parseBooleanExpr } from '../../utils/z3-arith.js';
+/** Checked, synchronous public methods for the built-in APN values. */
+import { compileMethodTerm, evaluateMethodTerm } from './MethodTerms.js';
+import { methodSorts, validBuiltinValue, builtinValueKey } from '../../utils/builtin-values.js';
+import { equalValues } from '../../utils/value-equality.js';
 
 const copy = x => JSON.parse(JSON.stringify(x));
 const requireThat = (ok, message) => { if (!ok) throw new Error(message); };
 const identifier = /^[A-Za-z_][A-Za-z0-9_]*$/;
 export const isMethodRule = t => t.method !== undefined && t.method !== null;
-export const validMethodValue = (value, sort) => Number.isInteger(value) && value <= 2147483647 && value >= (sort === 'Nat' ? 0 : -2147483648);
+export const validMethodValue = validBuiltinValue;
 export const methodSignature = m => `${m.name}(${m.parameters.map(p => `${p.name}: ${p.sort}`).join(', ')})`;
 
 export function getPublicMethods(net) {
@@ -15,7 +16,7 @@ export function getPublicMethods(net) {
     if (!isMethodRule(t)) continue;
     const m = t.method;
     requireThat(m && typeof m.name === 'string' && identifier.test(m.name) && Array.isArray(m.parameters), `Invalid public method declaration: ${t.id}`);
-    requireThat(m.parameters.every(p => p && typeof p.name === 'string' && identifier.test(p.name) && ['Nat', 'Int'].includes(p.sort)), `Method ${m.name}: parameters must have names and Nat or Int sorts`);
+    requireThat(m.parameters.every(p => p && typeof p.name === 'string' && identifier.test(p.name) && methodSorts.includes(p.sort)), `Method ${m.name}: parameters must have names and supported built-in sorts`);
     requireThat(new Set(m.parameters.map(p => p.name)).size === m.parameters.length, `Duplicate parameter in ${m.name}`);
     if (methods.has(m.name)) {
       requireThat(JSON.stringify(methods.get(m.name).parameters) === JSON.stringify(m.parameters), `Inconsistent signatures for method ${m.name}`);
@@ -25,40 +26,6 @@ export function getPublicMethods(net) {
   return [...methods.values()];
 }
 
-function expression(text, variables) {
-  const ast = parseArithmetic(text);
-  const visit = node => {
-    requireThat(node, 'Invalid method expression');
-    if (node.type === 'int') { requireThat(validMethodValue(node.value, 'Int'), 'Method literal must be a 32-bit Int'); return; }
-    if (node.type === 'var') {
-      requireThat(!node.varType && variables.has(node.name), `Unbound method variable: ${node.name}`); return;
-    }
-    requireThat(node.type === 'binop' && ['+', '-', '*'].includes(node.op), 'Public methods currently support integer literals, variables, addition, subtraction and multiplication');
-    visit(node.left); visit(node.right);
-  };
-  visit(ast); return ast;
-}
-function evaluate(ast, env) {
-  if (ast.type === 'int') return ast.value;
-  if (ast.type === 'var') return env[ast.name];
-  const a = BigInt(evaluate(ast.left, env)), b = BigInt(evaluate(ast.right, env));
-  const value = Number(ast.op === '+' ? a + b : ast.op === '-' ? a - b : a * b);
-  requireThat(validMethodValue(value, 'Int'), 'Method arithmetic leaves the supported 32-bit range');
-  return value;
-}
-function holds(guard, env) {
-  if (!guard) return true;
-  if (guard.type === 'boolLit') return !!guard.value;
-  if (guard.type === 'not') return !holds(guard.expr, env);
-  if (guard.type === 'and') return holds(guard.left, env) && holds(guard.right, env);
-  if (guard.type === 'or') return holds(guard.left, env) || holds(guard.right, env);
-  if (guard.type === 'implies') return !holds(guard.left, env) || holds(guard.right, env);
-  if (guard.type === 'xor') return holds(guard.left, env) !== holds(guard.right, env);
-  if (guard.type === 'iff') return holds(guard.left, env) === holds(guard.right, env);
-  const a = evaluate(guard.left, env), b = evaluate(guard.right, env);
-  return ({ '<': () => a < b, '<=': () => a <= b, '>': () => a > b, '>=': () => a >= b,
-    '==': () => a === b, '!=': () => a !== b })[guard.op]();
-}
 const source = a => a.sourceId || a.source;
 const target = a => a.targetId || a.target;
 function binding(a) {
@@ -69,11 +36,12 @@ function binding(a) {
 
 /** Resolve a call without mutating the marking. Multiple distinct enabled choices are unsupported. */
 export function prepareMethodCall(net, name, args = {}) {
+  args = copy(args);
   const methods = getPublicMethods(net), method = methods.find(m => m.name === name);
   requireThat(method, `Unknown public method: ${name}`);
   requireThat(args && typeof args === 'object' && !Array.isArray(args), 'Method arguments must be a named map');
   requireThat(JSON.stringify(Object.keys(args).sort()) === JSON.stringify(method.parameters.map(p => p.name).sort()), `Arguments for ${methodSignature(method)} must match its declared parameters exactly`);
-  for (const p of method.parameters) requireThat(validMethodValue(args[p.name], p.sort), `Argument ${p.name} must be a 32-bit ${p.sort}`);
+  for (const p of method.parameters) requireThat(validMethodValue(args[p.name], p.sort), `Argument ${p.name} must be a valid ${p.sort} (integers use the 32-bit range)`);
   const ids = [...net.places, ...net.transitions, ...net.arcs].map(x => x.id);
   requireThat(ids.every(id => typeof id === 'string' && id) && new Set(ids).size === ids.length, 'Net IDs must be nonempty and unique');
   const places = new Map(net.places.map(p => [p.id, p]));
@@ -87,54 +55,44 @@ export function prepareMethodCall(net, name, args = {}) {
     for (const a of [...incoming, ...outgoing]) {
       requireThat((a.sourceId === undefined || a.source === undefined || a.sourceId === a.source) && (a.targetId === undefined || a.target === undefined || a.targetId === a.target), `Conflicting arc endpoints: ${a.id}`);
       const id = incoming.includes(a) ? source(a) : target(a), p = places.get(id);
-      requireThat(p && ['Nat', 'Int'].includes(p.sort), `Method place ${id} must have sort Nat or Int`);
+      requireThat(p && methodSorts.includes(p.sort), `Method place ${id} must have a supported built-in sort`);
       requireThat(Array.isArray(p.valueTokens) && p.valueTokens.every(v => validMethodValue(v, p.sort)) && p.tokens === p.valueTokens.length, `Invalid marking at ${id}`);
     }
     const ins = incoming.map(a => ({ a, variable: binding(a), place: source(a) }));
     requireThat(ins.every(i => identifier.test(i.variable)), 'Method input arc bindings must be variables');
-    const variables = new Set([...method.parameters.map(p => p.name), ...ins.map(i => i.variable)]);
-    let guard = null;
-    if (t.guard?.trim()) {
-      guard = parseBooleanExpr(t.guard, parseArithmetic);
-      // Validate every operand while preserving the shared call/input binding.
-      const validate = ast => {
-        if (ast.type === 'int') { requireThat(validMethodValue(ast.value, 'Int'), 'Method literal must be a 32-bit Int'); return; }
-        if (ast.type === 'var') { requireThat(!ast.varType && variables.has(ast.name), `Unbound method variable: ${ast.name}`); return; }
-        requireThat(ast.type === 'binop' && ['+', '-', '*'].includes(ast.op), 'Unsupported method guard expression');
-        validate(ast.left); validate(ast.right);
-      };
-      const validateGuard = g => {
-        requireThat(g, 'Invalid method guard');
-        if (g.type === 'boolLit') return;
-        if (g.type === 'not') { validateGuard(g.expr); return; }
-        if (['and', 'or', 'xor', 'implies', 'iff'].includes(g.type)) { validateGuard(g.left); validateGuard(g.right); return; }
-        requireThat(g.type === 'cmp' && ['<', '<=', '>', '>=', '==', '!='].includes(g.op), `Unsupported method guard in ${ruleId}`);
-        validate(g.left); validate(g.right);
-      };
-      validateGuard(guard);
+    const variables = Object.fromEntries(method.parameters.map(p => [p.name, p.sort]));
+    for (const input of ins) {
+      const sort = places.get(input.place).sort;
+      requireThat(!variables[input.variable] || variables[input.variable] === sort || ['Nat', 'Int'].every(s => [variables[input.variable], sort].includes(s)), `Conflicting method variable sort: ${input.variable}`);
+      variables[input.variable] ||= sort;
     }
-    const outs = outgoing.map(a => ({ place: target(a), ast: expression(binding(a), variables) }));
+    const guard = t.guard?.trim() ? compileMethodTerm(t.guard, variables, 'Bool') : null;
+    const outs = outgoing.map(a => ({ place: target(a), ast: compileMethodTerm(binding(a), variables, places.get(target(a)).sort) }));
     const choose = (i, env, picks) => {
       requireThat(++visited <= 10000, 'Method binding search limit reached; result is unresolved');
       if (i < ins.length) {
         const input = ins[i];
         places.get(input.place).valueTokens.forEach((value, tokenIndex) => {
           if (picks.some(p => p.srcId === input.place && p.tokenIndex === tokenIndex)) return;
-          if (Object.hasOwn(env, input.variable) && env[input.variable] !== value) return;
+          if (Object.hasOwn(env, input.variable) && !equalValues(env[input.variable], value)) return;
           choose(i + 1, { ...env, [input.variable]: value }, [...picks, { arcId: input.a.id, srcId: input.place, tokenIndex, value, countFallback: false }]);
         }); return;
       }
-      if (!holds(guard, env)) return;
+      if (guard) {
+        const enabled = evaluateMethodTerm(guard, env);
+        requireThat(typeof enabled === 'boolean', 'Method guard must evaluate to Bool');
+        if (!enabled) return;
+      }
       const next = copy(net), nextPlaces = new Map(next.places.map(p => [p.id, p]));
       const produced = {};
       [...picks].sort((a, b) => b.tokenIndex - a.tokenIndex).forEach(p => nextPlaces.get(p.srcId).valueTokens.splice(p.tokenIndex, 1));
       for (const out of outs) {
-        const value = evaluate(out.ast, env), p = nextPlaces.get(out.place);
+        const value = evaluateMethodTerm(out.ast, env), p = nextPlaces.get(out.place);
         requireThat(validMethodValue(value, p.sort), `Method output leaves ${p.sort} range at ${p.id}`);
-        p.valueTokens.push(value); (produced[p.id] ||= []).push(value);
+        p.valueTokens.push(copy(value)); (produced[p.id] ||= []).push(copy(value));
       }
       next.places.forEach(p => { p.tokens = p.valueTokens.length; });
-      const key = JSON.stringify([ruleId, env, next.places.map(p => [p.id, p.valueTokens])]);
+      const key = JSON.stringify([ruleId, Object.keys(env).sort().map(n => [n, builtinValueKey(env[n])]), next.places.map(p => [p.id, p.valueTokens.map(builtinValueKey).sort()])]);
       if (!seen.has(key)) { seen.add(key); candidates.push({ transitionId: ruleId, env, picks, produced, next }); }
     };
     choose(0, { ...args }, []);

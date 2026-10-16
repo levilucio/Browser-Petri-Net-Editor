@@ -17,7 +17,7 @@ describe('pnml writer formats algebraic valueTokens using apn:valueTokens', () =
     expect(xml).not.toContain('<initialMarking>');
     expect(xml).toContain('<apn:token><apn:text>T</apn:text></apn:token>');
     expect(xml).toContain('<apn:token><apn:text>F</apn:text></apn:token>');
-    expect(xml).toContain("<apn:token><apn:text>'a\\'b'</apn:text></apn:token>");
+    expect(xml).toContain('<apn:token><apn:text>"a\'b"</apn:text></apn:token>');
     expect(xml).toContain('<apn:token><apn:text>(1, 3)</apn:text></apn:token>');
     expect(xml).toContain('<apn:token><apn:text>[1, 2]</apn:text></apn:token>');
   });

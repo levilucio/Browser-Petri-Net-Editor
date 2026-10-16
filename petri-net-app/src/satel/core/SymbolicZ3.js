@@ -18,7 +18,8 @@ function decodeString(text) {
 }
 /** Shared Z3 context, using SMT-LIB for strings absent from this JS wrapper's high-level API. */
 export async function createSymbolicSolver(algebra, options = {}) {
-  const { ctx } = await getContext();
+  const { ctx, z3: { Z3 } } = await getContext();
+  const c = ctx.ptr;
   const prefix = `satel${++serial}_`;
   const names = [...new Set(Object.values(algebra.constructors).map(c => c.result))];
   const sort = s => s === 'Nat' ? 'Int' : ['Int', 'Bool', 'String'].includes(s) ? s : prefix + s;
@@ -34,6 +35,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
   return async function solve({ terms, conditions, variables, witness = true }) {
     const solver = new ctx.Solver();
     solver.set('timeout', options.timeoutMs ?? 3000);
+    let vector = null, model = null;
     try {
       const symbolNames = new Map([...variablesIn([terms, conditions])].map(n => [n, `${prefix}v${++checkId}`]));
       const encode = t => {
@@ -67,38 +69,54 @@ export async function createSymbolicSolver(algebra, options = {}) {
       const handles = [...symbolNames.values()].map(v => `(assert (= ${v} ${v}))`).join('\n');
       const assertions = [...symbolNames].map(([n, v]) => valid(variables[n], v)).concat(conditions.map(encode));
       solver.fromString(preamble + declarations + '\n' + handles + '\n' + assertions.map(s => `(assert ${s})`).join('\n'));
-      const symbols = new Map([...symbolNames.keys()].map((n, i) => [n, solver.assertions().get(i).arg(0)]));
+      // Own these handles explicitly. The wrapper's AstVector/Model finalizers
+      // can otherwise release them during a later asynchronous check().
+      vector = Z3.solver_get_assertions(c, solver.ptr); Z3.ast_vector_inc_ref(c, vector);
+      const symbols = new Map([...symbolNames.keys()].map((n, i) => [n, Z3.get_app_arg(c, Z3.to_app(c, Z3.ast_vector_get(c, vector, i)), 0)]));
       let status = String(await solver.check());
       if (status !== 'sat') return { status: status === 'unsat' ? 'unsat' : 'unknown', reason: status === 'unsat' ? 'Contradictory constructor/arithmetic/Boolean/string constraints' : 'Z3 returned unknown (possibly timeout)' };
       if (!witness) return { status: 'sat' };
-      const preferred = [...symbols].filter(([n]) => ['Nat', 'Int'].includes(variables[n])).map(([, x]) => x.eq(1));
+      const preferred = [...symbols].filter(([n]) => ['Nat', 'Int'].includes(variables[n]));
       if (preferred.length) {
-        solver.push(); solver.add(...preferred);
+        solver.push();
+        const one = Z3.mk_numeral(c, '1', Z3.mk_int_sort(c)); Z3.inc_ref(c, one);
+        try { preferred.forEach(([, x]) => Z3.solver_assert(c, solver.ptr, Z3.mk_eq(c, x, one))); }
+        finally { Z3.dec_ref(c, one); }
         if (String(await solver.check()) !== 'sat') {
           solver.pop(); status = String(await solver.check());
           if (status !== 'sat') return { status: 'unknown', reason: 'Z3 could not restore a witness after preference checking' };
         }
       }
-      const model = solver.model(); let remaining = 2000;
+      model = Z3.solver_get_model(c, solver.ptr); Z3.model_inc_ref(c, model);
+      let remaining = 2000;
       const decode = (value, expected) => {
         if (--remaining < 0) throw new Error('Witness is too large to display safely');
-        if (expected === 'String') return decodeString(value.sexpr());
-        if (ctx.isIntVal(value)) {
-          const n = Number(value.asString()); if (!Number.isSafeInteger(n)) throw new Error('Witness exceeds exact JavaScript integer range'); return n;
+        if (expected === 'String') return decodeString(Z3.ast_to_string(c, value));
+        if (['Nat', 'Int'].includes(expected)) {
+          const n = Number(Z3.get_numeral_string(c, value)); if (!Number.isSafeInteger(n)) throw new Error('Witness exceeds exact JavaScript integer range'); return n;
         }
-        if (ctx.isTrue(value)) return true; if (ctx.isFalse(value)) return false;
-        const name = String(value.decl().name()).slice(prefix.length), sig = algebra.constructors[name];
+        if (expected === 'Bool') {
+          const truth = Z3.get_bool_value(c, value);
+          if (truth !== 1 && truth !== -1) throw new Error('Nonliteral Boolean model');
+          return truth === 1;
+        }
+        const app = Z3.to_app(c, value);
+        const name = Z3.get_symbol_string(c, Z3.get_decl_name(c, Z3.get_app_decl(c, app))).slice(prefix.length), sig = algebra.constructors[name];
         if (!sig) throw new Error('Z3 returned a non-constructor witness');
-        return { ctor: name, args: Array.from({ length: value.numArgs() }, (_, i) => decode(value.arg(i), sig.parameters[i])) };
+        return { ctor: name, args: Array.from({ length: Z3.get_app_num_args(c, app) }, (_, i) => decode(Z3.get_app_arg(c, app, i), sig.parameters[i])) };
       };
       const bindings = new Map([...symbols].map(([n, x]) => {
-        const value = decode(model.eval(x, true), variables[n]);
+        const value = decode(Z3.model_eval(c, model, x, true), variables[n]);
         if (termSort(value, {}, algebra, variables[n]) !== variables[n]) throw new Error('Independent witness sort check failed');
         return [n, value];
       }));
       if (!conditions.every(c => evaluateGround(substitute(c, bindings)) === true)) throw new Error('Independent witness constraint check failed');
       return { status: 'sat', bindings };
     } catch (error) { return { status: 'unknown', reason: error.message }; }
-    finally { solver.release(); }
+    finally {
+      if (model !== null) Z3.model_dec_ref(c, model);
+      if (vector !== null) Z3.ast_vector_dec_ref(c, vector);
+      solver.release();
+    }
   };
 }

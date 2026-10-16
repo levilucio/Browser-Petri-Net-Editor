@@ -1,3 +1,4 @@
+import { quoteTermString } from '../../utils/term-string.js';
 import { builtinDisplay } from './BuiltinAlgebra.js';
 /** Typed, first-order terms shared by the equation editor, unfolding and SMT adapter. */
 export const isVariable = t => !!t && typeof t === 'object' && typeof t.var === 'string';
@@ -161,7 +162,7 @@ export function evaluateGround(t) {
 export function formatSymbolicTerm(t) {
   if (isVariable(t)) return t.var.replace(/@(\d+)\.(\w+)/g, (_, id, name) => name + [...id].map(n => '₀₁₂₃₄₅₆₇₈₉'[n]).join(''));
   if (t?.undefined) return `undefined (${t.undefined})`;
-  if (typeof t === 'string') return JSON.stringify(t);
+  if (typeof t === 'string') return quoteTermString(t);
   if (t?.ctor?.startsWith('_Any')) return formatSymbolicTerm(t.args[0]);
   if (t?.ctor === '_Pair') return `(${t.args.map(formatSymbolicTerm).join(', ')})`;
   if (t?.ctor === '_ListNil') return '[]';

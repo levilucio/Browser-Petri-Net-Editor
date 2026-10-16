@@ -281,6 +281,14 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (['typed-store', 'typed-store-mutant'].includes(filename)) {
+        const { createTypedStoreExample } = await import('../../satel/examples/typed-store/editor.js');
+        const net = createTypedStoreExample(filename.endsWith('-mutant'));
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Oracle validation.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (['builtin-types', 'compound-guard', 'compound-guard-mutant'].includes(filename)) {
         const { createBuiltinTypesExample, createCompoundGuardExample } = await import('../../satel/examples/compound-guard/editor.js');
         const net = filename === 'builtin-types' ? createBuiltinTypesExample() : createCompoundGuardExample(filename.endsWith('-mutant'));

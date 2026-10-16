@@ -44,7 +44,7 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
     <label className="block">Stimulation/observation protocol (optional)
       <textarea aria-label="Symbolic pair protocol" spellCheck={false} className="block w-full border rounded p-2 font-mono text-xs" rows={12} value={s.protocolSource || ''} onChange={e => update('protocolSource', e.target.value)} />
     </label>
-    <p className="text-xs text-gray-600">Each case matches operation inputs and its equation result, then lists pairs such as “pair withdraw(n=amount) =&gt; ack(1), paidAmount(amount)”. Outputs are tokens produced by that call; unmentioned public places produce none. Leave blank for class derivation only. Public APN method execution still supports Nat/Int parameters.</p>
+    <p className="text-xs text-gray-600">Each case matches operation inputs and its equation result, then lists pairs such as “pair withdraw(n=amount) =&gt; ack(1), paidAmount(amount)”. Outputs are tokens produced by that call; unmentioned public places produce none. Leave blank for class derivation only. Public APN methods support Nat, Int, Bool, String, Pair and List parameters and observations. Strings use quotes; lists and pairs may be nested.</p>
     {invalid && <p role="status" className="text-amber-900 bg-amber-50 p-2 rounded">{invalid}</p>}
     <div className="flex gap-2"><button disabled={!!invalid} onClick={onSave} className="bg-blue-700 text-white rounded p-2 disabled:opacity-50">Save Intention</button><button className="border rounded p-2" onClick={onCancel}>Cancel</button></div>
   </div>;

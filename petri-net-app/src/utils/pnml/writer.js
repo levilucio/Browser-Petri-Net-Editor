@@ -67,15 +67,7 @@ export function generatePNML(petriNetJson) {
 
       const formatToken = (v) => {
         if (typeof v === 'boolean') return v ? 'T' : 'F';
-        if (typeof v === 'string') {
-          const escaped = v
-            .replace(/\\/g, '\\\\')
-            .replace(/'/g, "\\'")
-            .replace(/\n/g, '\\n')
-            .replace(/\t/g, '\\t')
-            .replace(/\r/g, '\\r');
-          return `'${escaped}'`;
-        }
+        if (typeof v === 'string') return JSON.stringify(v).replace(/[\ufffe\uffff]/g, ch => '\\u' + ch.charCodeAt(0).toString(16));
         if (Array.isArray(v)) {
           const elements = v.map(formatToken);
           return `[${elements.join(', ')}]`;

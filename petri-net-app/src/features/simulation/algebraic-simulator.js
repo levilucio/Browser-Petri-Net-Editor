@@ -367,13 +367,14 @@ export class AlgebraicSimulator extends BaseSimulator {
 
   async invokeMethod(name, args = {}) {
     if (!this.isInitialized) throw new Error('Simulator not initialized');
-    const call = prepareMethodCall(this.petriNet, name, args);
-    if (!call) return { status: 'blocked', method: name, arguments: args, state: this.getCurrentState() };
+    if (this._methodCallActive) throw new Error('A public method call is already in progress');
+    this._methodCallActive = true;
     const before = deepCloneNet(this.petriNet);
     try {
+      const call = prepareMethodCall(this.petriNet, name, args);
+      if (!call) return { status: 'blocked', method: name, arguments: JSON.parse(JSON.stringify(args)), state: this.getCurrentState() };
       // Resolved by the checked call API; never exposed as an arbitrary external binding.
-      await this.fireTransitionSpecific(call.transitionId, { [methodInvocation]: true,
-        skipEnabledCheck: true, explicitBinding: call.env, explicitPicks: call.picks });
+      await this.fireTransitionSpecific(call.transitionId, { [methodInvocation]: call, skipEnabledCheck: true });
       for (const p of call.next.places) {
         const actual = this.petriNet.places.find(a => a.id === p.id);
         if (JSON.stringify(actual.valueTokens) !== JSON.stringify(p.valueTokens)) throw new Error(`Method/simulator marking disagreement: ${p.id}`);
@@ -381,12 +382,12 @@ export class AlgebraicSimulator extends BaseSimulator {
       const state = this.getCurrentState();
       this.emitTransitionFired({ transitionId: call.transitionId, newPetriNet: state });
       await this.checkTransitionStateChanges();
-      return { status: 'fired', method: name, arguments: { ...args }, transitionId: call.transitionId,
+      return { status: 'fired', method: name, arguments: JSON.parse(JSON.stringify(args)), transitionId: call.transitionId,
         produced: call.produced, state };
     } catch (error) {
       this.petriNet = before; this.lastFiring = null; this._clearEnabledCache();
       throw error;
-    }
+    } finally { this._methodCallActive = false; }
   }
 
   async stepSimulationSpecific() {
@@ -410,6 +411,21 @@ export class AlgebraicSimulator extends BaseSimulator {
     const inputArcs = (this.petriNet.arcs || []).filter(a => (a.targetId === transitionId || a.target === transitionId) && (a.sourceType === 'place' || !a.sourceType));
     const outputArcs = (this.petriNet.arcs || []).filter(a => (a.sourceId === transitionId || a.source === transitionId) && (a.targetType === 'place' || !a.targetType));
     const placesById = Object.fromEntries((this.petriNet.places || []).map(p => [p.id, p]));
+    if (isMethodRule(t)) {
+      // The private invocation capability carries the fully checked plan. Apply
+      // its concrete effects with the same token-consumption machinery as other
+      // firings; no legacy parser fallback may reinterpret rich values here.
+      const call = options[methodInvocation];
+      if (!call || call.transitionId !== transitionId) throw new Error('Invalid checked method call');
+      consumeTokens(call.picks, placesById);
+      for (const [id, values] of Object.entries(call.produced)) {
+        placesById[id].valueTokens.push(...JSON.parse(JSON.stringify(values)));
+        placesById[id].tokens = placesById[id].valueTokens.length;
+      }
+      this.lastFiring = { transitionId, produced: JSON.parse(JSON.stringify(call.produced)), consumed: JSON.parse(JSON.stringify(call.picks)) };
+      this._invalidateEnabledCache(new Set([...call.picks.map(p => p.srcId), ...Object.keys(call.produced)]));
+      return this.getCurrentState();
+    }
     const guardAst = this.cache.guardAstByTransition.get(transitionId);
 
     // Use explicit binding/picks if provided (for subuniformity), otherwise find one

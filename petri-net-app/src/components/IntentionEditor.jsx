@@ -1,3 +1,5 @@
+import { defaultMethodValue } from '../utils/builtin-values';
+import MethodArgumentInput from './satel/MethodArgumentInput';
 import { getPublicMethods, methodSignature } from '../features/simulation/PublicMethods';
 /**
  * Intention Editor
@@ -77,7 +79,7 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
     const newPairs = [
       ...intention.pairs,
       {
-        stimulation: methodMode ? { method: methods[0]?.name || '', arguments: Object.fromEntries((methods[0]?.parameters || []).map(p => [p.name, 0])) } : { transition: '', inputs: {} },
+        stimulation: methodMode ? { method: methods[0]?.name || '', arguments: Object.fromEntries((methods[0]?.parameters || []).map(p => [p.name, defaultMethodValue(p.sort)])) } : { transition: '', inputs: {} },
         observation: { outputs: {}, markings: {} }
       }
     ];
@@ -298,19 +300,16 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
                     <select aria-label={`Pair ${idx + 1} method`} className="block w-full border rounded p-2"
                       value={pair.stimulation.method || ''} onChange={e => {
                         const method = methods.find(m => m.name === e.target.value);
-                        updatePair(idx, 'stimulation', { method: e.target.value, arguments: Object.fromEntries((method?.parameters || []).map(p => [p.name, 0])) });
+                        updatePair(idx, 'stimulation', { method: e.target.value, arguments: Object.fromEntries((method?.parameters || []).map(p => [p.name, defaultMethodValue(p.sort)])) });
                       }}>
                       <option value="">Select method…</option>
                       {methods.map(m => <option key={m.name} value={m.name}>{methodSignature(m)}</option>)}
                     </select>
                   </label>
                   {(methods.find(m => m.name === pair.stimulation.method)?.parameters || []).map(p => <label key={p.name} className="block text-xs">{p.name} · {p.sort}
-                    <input aria-label={`Pair ${idx + 1} argument ${p.name}`} className="block w-full border rounded p-2"
-                      value={pair.stimulation.arguments?.[p.name] ?? ''} placeholder="Integer or $variable"
-                      onChange={e => {
-                        const text = e.target.value;
-                        updateStimulation(idx, 'arguments', { ...pair.stimulation.arguments, [p.name]: /^-?\d+$/.test(text) ? Number(text) : text });
-                      }} />
+                    <MethodArgumentInput key={pair.stimulation.method + ':' + p.name} label={`Pair ${idx + 1} argument ${p.name}`} sort={p.sort}
+                      value={pair.stimulation.arguments?.[p.name] ?? defaultMethodValue(p.sort)} validityKey={`${pairKeys.current[idx]}:argument:${p.name}`} onValidityChange={observationValidity}
+                      onChange={value => updateStimulation(idx, 'arguments', { ...pair.stimulation.arguments, [p.name]: value })} />
                   </label>)}
                 </div> : <>
                 <div>

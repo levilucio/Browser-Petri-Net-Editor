@@ -1,3 +1,4 @@
+import { quoteTermString } from '../../utils/term-string.js';
 /** Small, strict notation for token multisets in the intention editor. No evaluation. */
 export function parseObservationTokens(text) {
   let at = 0;
@@ -21,7 +22,7 @@ export function parseObservationTokens(text) {
       if (!match) fail();
       at += match[0].length;
       const value = JSON.parse(match[0]);
-      if (value.startsWith('$')) throw new Error('Strings starting with $ are reserved for variable references.');
+      if (value.startsWith('$')) return { literal: value };
       return value;
     }
     if (text[at] === '[') { at++; return list(']'); }
@@ -46,9 +47,10 @@ export function parseObservationTokens(text) {
 }
 
 export function formatObservationToken(value) {
-  if (typeof value === 'string') return value.startsWith('$') ? value : JSON.stringify(value);
+  if (typeof value === 'string') return value.startsWith('$') ? value : quoteTermString(value);
   if (value === null || typeof value === 'number' || typeof value === 'boolean') return String(value);
   if (Array.isArray(value)) return `[${value.map(formatObservationToken).join(', ')}]`;
+  if (value && Object.keys(value).length === 1 && typeof value.literal === 'string') return quoteTermString(value.literal);
   if (value?.__adt__) return `${value.constructor}(${(value.args || []).map(formatObservationToken).join(', ')})`;
   if (value?.__pair__) return `(${formatObservationToken(value.fst)}, ${formatObservationToken(value.snd)})`;
   throw new Error('This structured term is preserved. Remove this check to replace it.');

@@ -1,3 +1,4 @@
+import { validBuiltinValue, equalTokenBags } from '../../utils/builtin-values.js';
 import { initialMarkingOf } from './InitialMarking.js';
 import { observeBoundedTrace } from './BoundedOracleAdapter.js';
 import { deriveSymbolicSubdomains } from './SymbolicSubuniformity.js';
@@ -11,16 +12,16 @@ function freeze(value) {
   return value;
 }
 
-function validateTest(test, io) {
+function validateTest(test, io, net) {
   if (!test || typeof test.id !== 'string' || !test.id || !Array.isArray(test.steps) || !test.steps.length ||
       !Array.isArray(test.expected) || test.expected.length !== test.steps.length) {
     throw new Error('Malformed test: nonempty ID, stimuli and one observation per step are required');
   }
   for (const observation of test.expected) {
     if (!observation || JSON.stringify(Object.keys(observation).sort()) !== JSON.stringify([...io.outputs].sort()) ||
-        !Object.values(observation).every(tokens => Array.isArray(tokens) && tokens.length <= 1 &&
-          tokens.every(n => Number.isInteger(n) && n >= 0 && n <= 2147483647))) {
-      throw new Error('Malformed oracle: all public outputs must have singleton/empty Nat observations');
+        !Object.entries(observation).every(([id, tokens]) => Array.isArray(tokens) &&
+          tokens.every(value => validBuiltinValue(value, io.outputSorts?.[id] || net.places.find(p => p.id === id)?.sort)))) {
+      throw new Error('Malformed oracle: public observations must be well-sorted token multisets');
     }
   }
 }
@@ -28,12 +29,12 @@ function validateTest(test, io) {
 /** Replay a fixed oracle. Internal transition identity is not a verdict. */
 export async function replayOracleTest(test, net, io) {
   try {
-    validateTest(test, io);
+    validateTest(test, io, net);
     if (test.initialMarking !== undefined) throw new Error("Method tests cannot override the model initial marking");
     const execution = await observeBoundedTrace(net, io, test.steps);
     for (let i = 0; i < execution.observations.length; i++) {
       const actual = execution.observations[i];
-      if (io.outputs.some(id => JSON.stringify(actual[id]) !== JSON.stringify(test.expected[i][id]))) {
+      if (io.outputs.some(id => !equalTokenBags(actual[id], test.expected[i][id]))) {
         return { id: test.id, verdict: 'fail', reason: 'observation-mismatch', step: i + 1,
           expected: copy(test.expected[i]), actual, annotations: execution.annotations };
       }

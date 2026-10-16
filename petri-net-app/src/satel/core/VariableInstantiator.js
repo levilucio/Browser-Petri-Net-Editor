@@ -457,6 +457,7 @@ export async function filterByGuards(combinations, guards, petriNet) {
  * @returns {*} Instantiated term
  */
 export function instantiateTerm(term, instantiation) {
+  if (term && typeof term === 'object' && Object.keys(term).length === 1 && typeof term.literal === 'string') return term.literal;
   if (typeof term === 'string' && term.startsWith('$')) {
     // Variable reference
     const varName = term.slice(1);
