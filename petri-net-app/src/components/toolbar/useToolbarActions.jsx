@@ -281,6 +281,14 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (filename === 'symbolic-list') {
+        const { createSymbolicListExample } = await import('../../satel/examples/symbolic-list/editor.js');
+        const net = createSymbolicListExample();
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.('Loaded List membership. Open SATEL → Oracle validation to derive classes.');
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (filename.startsWith('oracle-account-')) {
         const { createOracleAccountExample } = await import('../../satel/examples/oracle-account/editor.js');
         const net = createOracleAccountExample(filename);

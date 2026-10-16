@@ -3,6 +3,7 @@ import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.j
 
 const EXAMPLES = [
   ...oracleAccountExamples,
+  { filename: 'symbolic-list', displayName: 'SATEL List — Symbolic membership classes' },
   { filename: 'petri-net-PT.pnml', displayName: 'Petri Net PT' },
   { filename: 'petri-net-algebraic1.pnml', displayName: 'Algebraic Net 1' },
   { filename: 'petri-net-algebraic2.pnml', displayName: 'Algebraic Net 2' },

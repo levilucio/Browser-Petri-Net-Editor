@@ -17,7 +17,7 @@ const setup = () => {
 };
 const generate = async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Generate and validate on loaded reference' }));
-  await screen.findByText(/tests passed the reference oracle/);
+  await screen.findByText(/tests passed the reference oracle/, {}, { timeout: 15000 });
 };
 beforeEach(() => localStorage.clear());
 
@@ -46,7 +46,7 @@ test('GUI preserves reference expectations across close/load and detects exact-b
 
 test('coarse equations expose the surviving exact-balance mutant', async () => {
   const view = setup();
-  fireEvent.change(screen.getByLabelText('Equation refinement'), { target: { value: 'coarse' } });
+  fireEvent.change(screen.getByLabelText('Symbolic intention'), { target: { value: 'account-coarse' } });
   await generate();
   expect(screen.getByText('3/3 tests passed the reference oracle')).toBeInTheDocument();
   elements = createOracleAccountExample('oracle-account-reject-exact-balance');

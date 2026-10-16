@@ -32,3 +32,8 @@ export {
 
 // Test execution
 export { executeTestSuite } from './core/TestExecutor.js';
+
+// Generic typed equation intentions: derive first, admit with an explicit APN protocol.
+export { deriveGenericSubdomains } from './core/GenericSubuniformity.js';
+export { compileSymbolicIntention, importSymbolicADTXml } from './core/SymbolicSource.js';
+export { deriveSymbolicIntention, admitSymbolicIntention } from './core/SymbolicIntention.js';

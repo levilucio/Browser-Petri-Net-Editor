@@ -39,7 +39,7 @@ test('reference suite survives loading a mutant and identifies the first mismatc
   await expect(pairs).toHaveCount(12);
   await expect(page.getByLabel('SATEL Testing')).not.toContainText('HML(');
   await expect(pairs.nth(7)).toContainText('withdraw(10) with ack(1) // paidAmount(10)');
-  const equalityTest = page.locator('details').filter({ has: page.locator('summary', { hasText: /^Amount\(10\) · reference passed$/ }) }).first();
+  const equalityTest = page.locator('details').filter({ has: page.locator('summary', { hasText: /^10, Amount\(10\) · feasible$/ }) }).first();
   await equalityTest.scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('instantiated-pairs.png') });
   await page.getByRole('button', { name: 'Intentions' }).click();
@@ -109,10 +109,49 @@ test('observations are edited as places and token multisets without JSON', async
   await observation.scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('place-observation-editor.png') });
   await page.getByRole('button', { name: 'Save Intention' }).click();
-  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.locator('div.p-3.border.rounded').filter({ has: page.getByText('New Test Intention', { exact: true }) }).getByRole('button', { name: 'Edit', exact: true }).click();
   await expect(page.getByLabel('Pair 1 expected marking at balance', { exact: true })).toHaveValue('10');
   await page.getByRole('button', { name: 'Save Intention' }).click();
   await page.getByRole('button', { name: 'Generate and validate suite' }).click();
   await expect(page.getByText('1 tests admitted by the reference oracle.')).toBeVisible();
   await expect(page.getByTestId('satel-pair-formula')).toContainText('deposit(10) with ack(1)');
+});
+
+
+test('saved symbolic intentions expose a recursive list frontier and editable equation budget', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-symbolic-list').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('4 feasible classes · 0 infeasible branches · 1 unresolved branches', { timeout: 30000 });
+  await expect(page.getByRole('region', { name: 'Unresolved symbolic branches' })).toContainText('Unfolding budget exhausted');
+  await expect(page.getByText('Class derivation only: no APN method protocol is declared. These witnesses are not oracle-validated tests.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Generate and validate on loaded reference' })).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath('list-classes.png') });
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await expect(page.getByLabel('ADT constructors and operation equations')).toContainText('member(x, Cons(y, ys))');
+  await page.getByLabel('Unfolding budget').fill('3');
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await page.getByRole('button', { name: 'Derive / validate' }).click();
+  await expect(page.getByText('This report belongs to the saved intention/model snapshot. Derive again to use the current selection or edits.')).toBeVisible();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('6 feasible classes · 0 infeasible branches · 1 unresolved branches');
+});
+
+test('account symbolic goals are editable in Intentions and derive before oracle admission', async ({ page }) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-oracle-account-reference').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  const card = page.locator('div.p-3.border.rounded').filter({ has: page.getByText('Account — less / equal / greater', { exact: true }) });
+  await card.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.getByLabel('Symbolic goal arguments').fill('25, request');
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await card.getByRole('button', { name: 'Derive / validate' }).click();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('4 feasible classes', { timeout: 30000 });
+  await expect(page.getByText('Candidate pairs — not yet oracle-validated')).toHaveCount(4);
+  await expect(page.getByTestId('satel-pair-formula').first()).toContainText('deposit(25)');
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Validate derived pairs on loaded reference' }).click();
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible();
 });

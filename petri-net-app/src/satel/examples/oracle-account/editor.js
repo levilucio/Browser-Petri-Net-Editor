@@ -1,4 +1,5 @@
 import { accountNet, accountMutants } from './net.js';
+import { createAccountSymbolicIntentions } from './intentions.js';
 
 export const oracleAccountExamples = [
   { filename: 'oracle-account-reference', displayName: 'SATEL Account — Reference' },
@@ -24,6 +25,6 @@ export function createOracleAccountExample(filename) {
     description: mutant?.description || 'Deposit, withdraw and query a Nat balance.',
     role: mutant ? 'mutant' : 'reference' };
   // Model-owned intentions replace the former localStorage transfer mechanism.
-  net.testIntentions = [];
+  net.testIntentions = createAccountSymbolicIntentions();
   return net;
 }

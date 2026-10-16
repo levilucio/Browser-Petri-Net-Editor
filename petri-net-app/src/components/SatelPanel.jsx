@@ -6,6 +6,9 @@ import { generateTestSuite, executeTestSuite, extractInterface, validateInterfac
 import { validateIntention } from '../satel/core/IntentionSchema';
 import { AlgebraicSimulator } from '../features/simulation/algebraic-simulator';
 import IntentionEditor from './IntentionEditor';
+import SymbolicIntentionEditor from './satel/SymbolicIntentionEditor';
+import { createSymbolicListIntention } from '../satel/examples/symbolic-list/editor.js';
+import { compileSymbolicIntention } from '../satel/core/SymbolicSource.js';
 import OracleValidationPanel from './OracleValidationPanel';
 import SatelTestDisplay, { formatSatelTerm } from './SatelTestDisplay';
 
@@ -14,6 +17,8 @@ const button = 'px-3 py-2 border rounded disabled:opacity-50';
 export default function SatelPanel({ isOpen, onClose }) {
   const { elements, setElements, simulationSettings } = usePetriNet();
   const intentions = elements.testIntentions || [];
+  const pairIntentions = intentions.filter(i => i.kind !== 'symbolic');
+  const [selectedSymbolicId, setSelectedSymbolicId] = useState(null);
   const [editing, setEditing] = useState(null);
   const [activeTab, setActiveTab] = useState('intentions');
   const [suite, setSuite] = useState(null);
@@ -46,7 +51,8 @@ export default function SatelPanel({ isOpen, onClose }) {
 
   const save = () => {
     try {
-      validateIntention(editing);
+      if (editing.kind === 'symbolic') compileSymbolicIntention(editing);
+      else validateIntention(editing);
       setElements(prev => ({ ...prev, testIntentions: intentions.some(i => i.id === editing.id)
         ? intentions.map(i => i.id === editing.id ? editing : i) : [...intentions, editing] }));
       setEditing(null); setError(null);
@@ -56,7 +62,7 @@ export default function SatelPanel({ isOpen, onClose }) {
     setBusy(true); setError(null); setSuite(null); setResults(null);
     const snapshot = JSON.parse(fingerprint);
     try {
-      const generated = await generateTestSuite(intentions, snapshot, new AlgebraicSimulator(), {
+      const generated = await generateTestSuite(pairIntentions, snapshot, new AlgebraicSimulator(), {
         onProgress: p => setProgress(p.message),
       });
       setProgress('Checking every candidate on the reference APN…');
@@ -97,19 +103,21 @@ export default function SatelPanel({ isOpen, onClose }) {
         {activeTab === 'methods' && <PublicMethodPanel />}
         {/* Keep async work and controls mounted while switching tabs. */}
         <div hidden={activeTab !== 'oracle'}>
-          <OracleValidationPanel elements={elements} session={oracleSession} onSessionChange={setOracleSession} />
+          <OracleValidationPanel elements={elements} session={oracleSession} onSessionChange={setOracleSession} selectedId={selectedSymbolicId} onSelect={setSelectedSymbolicId} />
         </div>
         {activeTab === 'intentions' && (editing ?
-          <IntentionEditor intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> :
+          editing.kind === 'symbolic' ? <SymbolicIntentionEditor intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> : <IntentionEditor intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> :
           <div className="p-4 space-y-3">
             <button className={`${button} w-full text-blue-700`} onClick={() => setEditing({
               id: `intention-${Date.now()}`, name: 'New Test Intention', description: '', testType: 'positive', variables: [], pairs: [],
             })}>+ Create Intention</button>
-            {!intentions.length && <p className="text-sm text-gray-600">No intentions defined. The account symbolic example is available under Oracle validation.</p>}
+            <button className={`${button} w-full text-blue-700`} onClick={() => setEditing({ ...createSymbolicListIntention(), id: `symbolic-${Date.now()}`, name: 'New symbolic intention' })}>+ Create symbolic intention</button>
+            {!intentions.length && <p className="text-sm text-gray-600">No intentions defined. Create a pair intention or a symbolic equation intention.</p>}
             {intentions.map(i => <div key={i.id} className="p-3 border rounded text-sm">
               <strong>{i.name}</strong><p>{i.description}</p>
-              <p>{i.testType} · {i.variables?.length || 0} variables · {i.pairs?.length || 0} pairs</p>
-              <div className="flex gap-2 mt-2">
+              <p>{i.kind === 'symbolic' ? `Symbolic equations · ${i.symbolic.operation} · budget ${i.symbolic.maxDepth}` : `${i.testType} · ${i.variables?.length || 0} variables · ${i.pairs?.length || 0} pairs`}</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {i.kind === 'symbolic' && <button className={button} onClick={() => { setSelectedSymbolicId(i.id); setActiveTab('oracle'); }}>Derive / validate</button>}
                 <button className={button} onClick={() => setEditing(JSON.parse(JSON.stringify(i)))}>Edit</button>
                 <button className={button} onClick={() => setElements(prev => ({ ...prev, testIntentions: intentions.filter(x => x.id !== i.id) }))}>Delete</button>
               </div>
@@ -139,8 +147,9 @@ export default function SatelPanel({ isOpen, onClose }) {
           </details>)}
         </div>}
       </div>
-      {['intentions', 'results'].includes(activeTab) && !editing && <div className="p-4 border-t space-y-2">
-        <button onClick={generate} disabled={busy || !intentions.length} className={`${button} w-full bg-blue-700 text-white`}>Generate and validate suite</button>
+      {['intentions', 'results'].includes(activeTab) && !editing && (!!pairIntentions.length || !!suite) && <div className="p-4 border-t space-y-2">
+        {!!pairIntentions.length && <><p className="text-xs text-gray-600">Generates the {pairIntentions.length} pair intention(s). Use “Derive / validate” on a symbolic intention for equation-based classes.</p>
+        <button onClick={generate} disabled={busy || !pairIntentions.length} className={`${button} w-full bg-blue-700 text-white`}>Generate and validate suite</button></>}
         {suite && <button onClick={execute} disabled={busy} className={`${button} w-full`}>Replay suite on loaded APN</button>}
         {busy && <p role="status" className="text-sm">{progress || 'Executing…'}</p>}
       </div>}
