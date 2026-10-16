@@ -2,6 +2,13 @@
 
 SATEL is an experimental partial implementation of test selection from algebraic Petri nets. The editor supports **typed test intentions**: typed variables and stimulation/observation pairs.
 
+## Development record and paper preparation
+
+See the [development and decision summary (16 October 2026)](development-summary-2026-10-16.md)
+for the complete conversation-derived implementation history, current semantics,
+validation evidence, deferred negative/nondeterministic testing, and research questions.
+It distinguishes established prototype behaviour from unproved mathematical claims.
+
 ## Start with the oracle-validated example
 
 1. Load **Examples → SATEL Account — Reference**.
