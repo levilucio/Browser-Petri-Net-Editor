@@ -92,7 +92,8 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
     <div className="border border-slate-300 rounded-lg overflow-hidden bg-slate-50">
       <div className="px-3 py-2 text-xs font-semibold text-slate-600">Stimulation / observation sequence</div>
       <ol className="space-y-2 px-2 pb-2">
-        {pairs.map(({ stimulation, observation }, i) => {
+        {pairs.map(({ stimulation, observation, assertion }, i) => {
+          if (assertion === 'blocked') observation = { ...observation, type: 'notEnabled' };
           const empty = Object.entries(observation.type === 'notEnabled' ? {} : observation.outputs || {}).filter(([, tokens]) => !tokens.length).map(([place]) => place);
           const result = pairResults[i];
           const marking = result?.marking || test.referenceMarkings?.[i + 1];
@@ -106,6 +107,7 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
               <span className="text-emerald-900">{observationText(observation, stimulation.method || stimulation.transition)}</span><span aria-hidden="true"> ⟩</span>
             </div>
             <details className="mt-2 border-t pt-2 space-y-1 text-xs text-gray-600 break-words"><summary>Execution details</summary>
+              <p>Observation scope: {observation.scope === 'public' ? 'all public output places' : 'listed places only'}.</p>
               <p>{stimulation.method ? 'Public method' : 'Transition'}: <span className="font-mono">{stimulation.method || stimulation.transition}</span></p>
               {test.symbolicDomain?.execution?.assertions?.[i] && <p>Selected rule: {test.symbolicDomain.execution.assertions[i].transitionId}. Input token occurrences: {test.symbolicDomain.execution.assertions[i].inputOccurrences.map(p => `${p.place}[${p.tokenIndex + 1}]`).join(', ') || 'none'} (positions before this firing).</p>}
               {!stimulation.method && <PlaceObservations outputs={stimulation.inputs} label="Tokens consumed from places" />}
@@ -126,6 +128,5 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
 
     </div>
     <p className="text-xs text-gray-500">Read pairs from top to bottom. “with” separates the stimulation from its observation; // joins outputs produced together. “null” means no specified output events.</p>
-    {test.testType === 'negative' && <p className="text-xs text-gray-600">Expected: this sequence is not realizable. Execution errors do not count as success.</p>}
   </section>;
 }

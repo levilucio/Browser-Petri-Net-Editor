@@ -680,3 +680,9 @@ added ten reference APNs and twenty mutants, sequences up to twenty pairs,
 ground-term evaluation improvements, and reproducible performance measurements.
 It records the evidence and limitations separately rather than changing the
 historical results above.
+
+[Increment 12](increment-12-unified-pipeline.md) subsequently unified the explicit
+and symbolic test pipelines, made observation scope explicit, fixed stepwise
+verdict precedence, separated static and executable witnesses, and refactored
+compilation, search and GUI orchestration. Its own report records compatibility
+limits and before/after performance evidence.

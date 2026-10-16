@@ -74,12 +74,13 @@ test.each(exerciseScenarios)('$id: executable classes, continuous state and inde
   expect(JSON.stringify(reference)).toBe(original);
 });
 
-test('late impossible observation with equal-token permutations remains unresolved when the search budget is exhausted', async () => {
+test('late impossible observation is disproved within budget after equal-token symmetry reduction', async () => {
   const net = createExerciseExample('exercise-kits-reference');
   net.testIntentions[0].symbolic.protocolSource = net.testIntentions[0].symbolic.protocolSource.replace(/pair returnParts\(\) => ack\(true\)$/, 'pair returnParts() => ack(false)');
   const report = await deriveSymbolicIntention(net.testIntentions[0], net, { maxSequenceBranches: 400 });
   expect(report.execution.selected).toEqual([]);
-  expect(report.execution.unresolved.length).toBeGreaterThan(0);
-  expect(report.execution.unresolved[0].reason).toBe('Sequence search budget exhausted');
-  await expect(admitSymbolicIntention(report, net)).rejects.toThrow('unresolved');
+  expect(report.execution.unresolved).toEqual([]);
+  expect(report.execution.blocked).toHaveLength(2);
+  expect(report.execution.visited).toBeLessThan(400);
+  await expect(admitSymbolicIntention(report, net)).rejects.toThrow('No partial suite');
 });

@@ -87,6 +87,7 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
   
   let invalid = '', preview = '';
   try { validateIntention(intention); } catch (err) { invalid = err.message; }
+  if (intention.testType === 'negative') invalid = 'Whole-test verdict inversion is unsupported. Review the pair assertions.';
   try { preview = intentionNotation(intention); } catch { preview = 'Complete the fields to preview this intention.'; }
   return (
     <div className="p-4 space-y-6">
@@ -120,17 +121,11 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
           />
         </div>
         
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Test Type</label>
-          <select
-            value={intention.testType}
-            onChange={(e) => updateIntention('testType', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="positive">Positive (all pairs must succeed)</option>
-            <option value="negative">Negative (at least one pair must fail)</option>
-          </select>
-        </div>
+        <p className="text-sm text-gray-600">Each pair must satisfy its stated observation.</p>
+        {intention.testType === 'negative' && <div role="alert" className="text-red-800">
+          <p>This saved intention uses unsupported whole-test verdict inversion. Review its pairs and state the expected behavior explicitly.</p>
+          <button type="button" className="border rounded p-2" onClick={() => updateIntention('testType', 'positive')}>Use explicit pair assertions</button>
+        </div>}
 
       </details>
 

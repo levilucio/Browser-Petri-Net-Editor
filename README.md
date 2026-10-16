@@ -71,7 +71,8 @@ This project includes an implementation of **SATEL** (Semi-Automatic Testing Lan
 
 **📺 [SATEL V2 Demo](docs/assets/satel-v2-demo.mp4)** - Shows defining an intention with typed variables (priority: Priority under subuniformity, material: Material under uniformity) and a stimulation/observation pair, generating 3 priority cases, and executing them (historical recording; the current editor supports V2 creation).
 
-See [SATEL guide](docs/satel/README.md) for detailed documentation.
+See [SATEL guide](docs/satel/README.md) for detailed documentation and the
+[unified pipeline refactoring](docs/satel/increment-12-unified-pipeline.md) for the current architecture and verification results.
 
 The first experimental [symbolic subuniformity and oracle-validation increment](docs/satel/increment-01-symbolic-oracle.md)
 is available in **SATEL → Oracle validation**, with reference and mutant APNs in Examples.

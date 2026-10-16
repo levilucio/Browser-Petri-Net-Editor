@@ -9,6 +9,12 @@ for the complete conversation-derived implementation history, current semantics,
 validation evidence, deferred negative/nondeterministic testing, and research questions.
 It distinguishes established prototype behaviour from unproved mathematical claims.
 
+## Unified testing pipeline
+
+[Increment 12: unified selection, admission and replay](increment-12-unified-pipeline.md)
+documents the common test representation, stepwise verdicts, compiled models,
+search improvements, compatibility changes and measured performance.
+
 ## Typed exercise collection
 
 [Increment 11: ten reference APNs, twenty mutants and performance results](increment-11-typed-exercise-collection.md)

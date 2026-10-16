@@ -154,8 +154,8 @@ describe('Specification admission and fixed-oracle mutation execution', () => {
     broken.arcs.find(a => a.id === 'withdrawAccepted-balance').binding = 'missing';
     const [result] = await evaluateSpecMutants(example.suite, [{ id: 'malformed', net: broken }]);
     expect(result.selected.status).toBe('error');
-    // withdrawAll does not use the malformed withdrawal rule; the other calls error.
-    expect(result.selected.counts).toEqual({ pass: 1, fail: 0, error: 3 });
+    // Compilation validates the complete public-method definition before any call.
+    expect(result.selected.counts).toEqual({ pass: 0, fail: 0, error: 4 });
     const test = copy(example.suite.selectedTests[0]);
     test.steps[0].method = 'unknown';
     expect(await replayOracleTest(test, accountNet, accountInterface)).toMatchObject({ verdict: 'error' });
@@ -167,7 +167,7 @@ describe('Specification admission and fixed-oracle mutation execution', () => {
     expect(await replayOracleTest(example.suite.selectedTests[0], blocked, accountInterface)).toMatchObject({
       verdict: 'fail', reason: 'request-blocked', step: 2,
     });
-    await expect(generate({ referenceNet: blocked })).rejects.toThrow(/Reference rejected candidate/);
+    await expect(generate({ referenceNet: blocked })).rejects.toThrow(/Reference validation failed/);
   });
 
   test('refuses nondeterminism, illegal Nat values and writes to internal places', async () => {
