@@ -1,3 +1,6 @@
+import { selectNegativeCompanions } from './NegativeSelection.js';
+import { validateOracleCandidates } from './ValidatedSubuniformity.js';
+import { freeze } from '../../domain/snapshots.js';
 import { deriveSymbolicIntention } from './SymbolicIntention.js';
 import { selectExplicitIntention } from './ExplicitSelection.js';
 import { normalizeTest, publicInterface } from './TestCase.js';
@@ -32,8 +35,18 @@ export async function generateIntention(intention, net, options = {}) {
     report
   };
   options.onPhase?.('Validating every candidate from the reference initial marking…');
-  return {
-    report,
-    suite: await admitIntention(report, net, options)
-  };
+  let suite = await admitIntention(report, net, options);
+  if (options.includeNegative) {
+    options.onPhase?.('Selecting bounded refusal companions from validated prefixes…');
+    report.negativeSelection = await selectNegativeCompanions(suite, options);
+    report.candidates.push(...report.negativeSelection.candidates);
+    options.onSelection?.(report);
+    const negatives = report.negativeSelection.candidates.length ? await validateOracleCandidates({
+      referenceNet: suite.referenceNet, io: suite.interface, candidates: report.negativeSelection.candidates, ...options
+    }) : [];
+    const selectedTests = [...suite.selectedTests, ...negatives];
+    suite = freeze({ ...suite, selectedTests, negativeSelection: copy(report.negativeSelection),
+      validation: { generated: selectedTests.length, referencePassed: selectedTests.length } });
+  }
+  return { report, suite };
 }
