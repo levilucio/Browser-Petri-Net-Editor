@@ -1,4 +1,5 @@
 import { nondeterminismExamples } from '../satel/examples/nondeterminism/editor.js';
+import { hmlSelectionExamples } from '../satel/examples/hml-selection/editor.js';
 import { refusalExamples } from '../satel/examples/refusal/editor.js';
 import React, { useState } from 'react';
 import { exerciseExamples } from '../satel/examples/exercises/editor.js';
@@ -9,6 +10,7 @@ const EXAMPLES = [
   ...oracleAccountExamples,
   ...refusalExamples,
   ...nondeterminismExamples,
+  ...hmlSelectionExamples,
   ...fulfilmentExamples,
   { filename: 'executable-sequence', displayName: 'SATEL Whole-sequence selection — Reference' },
   { filename: 'executable-sequence-mutant', displayName: 'SATEL Whole-sequence selection — Mutant: no debit' },

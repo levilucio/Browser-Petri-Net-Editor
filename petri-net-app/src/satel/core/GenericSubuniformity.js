@@ -106,7 +106,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
       terms: [patterns, body.result],
       conditions: constraints,
       variables: sorts,
-      witness: !found && !undefinedReason(body) && !body.conditions.some(c => splitGuard(c))
+      witness: !found && !undefinedReason(body) && (witnessOnly && options.preserveBooleanStructure || !body.conditions.some(c => splitGuard(c)))
     });
     const record = {
       id: branch.rules.join('/') || 'root',
@@ -132,7 +132,10 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     }
     // Normalize compound guards before unfolding calls so Boolean short-circuit
     // branches never force undefined terms from an irrelevant alternative.
-    const logicalIndex = body.conditions.findIndex(c => splitGuard(c));
+    // A witness query can send a completed Boolean formula directly to SMT.
+    // Class enumeration still splits alternatives to preserve its coverage
+    // contract; residual algebraic calls still require narrowing first.
+    const logicalIndex = witnessOnly && options.preserveBooleanStructure && !found ? -1 : body.conditions.findIndex(c => splitGuard(c));
     if (logicalIndex >= 0) {
       const alternatives = splitGuard(body.conditions[logicalIndex]);
       if (expanded + alternatives.length > maxBranches) {

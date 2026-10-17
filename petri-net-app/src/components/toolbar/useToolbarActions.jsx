@@ -281,6 +281,14 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (filename.startsWith('hml-selection-')) {
+        const { createHmlSelectionExample } = await import('../../satel/examples/hml-selection/editor.js');
+        const net = createHmlSelectionExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (filename.startsWith('nondeterminism-')) {
         const { createNondeterminismExample } = await import('../../satel/examples/nondeterminism/editor.js');
         const net = createNondeterminismExample(filename);

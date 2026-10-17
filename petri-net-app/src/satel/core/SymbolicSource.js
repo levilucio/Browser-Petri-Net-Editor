@@ -9,6 +9,7 @@ export { parseVariables, parseTerms, parseSymbolicSource, formatSymbolicSource }
 const identifier = '[A-Za-z_][A-Za-z0-9_]*';
 export function compileSymbolicIntention(intention) {
   if (intention.branchingProperty) validateFormula(intention.branchingProperty);
+  if (intention.branchingExpectedTruth !== undefined && typeof intention.branchingExpectedTruth !== 'boolean') throw new Error('Expected branching truth must be Boolean');
   const s = intention.symbolic;
   if (!s || !intention.id || !intention.name) throw new Error('Symbolic intention needs an ID, name and definition');
   const algebra = parseSymbolicSource(s.source);

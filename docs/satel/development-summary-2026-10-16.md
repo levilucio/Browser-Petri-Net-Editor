@@ -35,6 +35,11 @@ plain-language failure evidence linked to the relevant outcomes and markings.
 These increments supersede the earlier HML deferral below; full bisimulation
 checking and the complete thesis semantics are not claimed.
 
+[Increment 18](increment-18-joint-hml-selection.md) now jointly selects shared
+scalar parameters for a complete sequence and an additional bounded HML property,
+replacing the former sequence-first/post-check limitation for Nat/Int/Bool models.
+Joint selection with recursive ADTs and strings remains open.
+
 ## 1. Objective and agreed scope
 
 Levi Lúcio asked for a review of the existing prototype as a partial implementation

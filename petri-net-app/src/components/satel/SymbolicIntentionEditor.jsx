@@ -54,10 +54,11 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
     </section>
     <section className="border rounded p-3 space-y-2">
       <h4 className="font-semibold">Additional branching requirements</h4>
-      <p className="text-xs text-gray-600">Checked from the initial marking, using the same selected goal-variable values as the sequence. Use $name to refer to a goal variable. Selection solves the sequence first; these requirements are then checked without choosing a different representative. A failed or inconclusive requirement prevents admission.</p>
+      <p className="text-xs text-gray-600">The sequence and this property jointly select one shared assignment to the goal variables. Both start from the initial marking. Use $name to refer to a goal variable. Joint selection currently supports Nat, Int and Bool with scalar arithmetic and Boolean guards; other types remain available for sequence-only selection. Concrete reference replay checks the complete selected test.</p>
       {intention.branchingProperty ? <>
+        <label className="block">Expected additional property truth<select aria-label="Expected additional property truth" className="border rounded p-2 ml-2" value={String(intention.branchingExpectedTruth ?? true)} onChange={e => onChange({ ...intention, branchingExpectedTruth: e.target.value === 'true' })}><option value="true">Must hold</option><option value="false">Must not hold</option></select></label>
         <HmlPropertyEditor formula={intention.branchingProperty} elements={elements} onValidityChange={setPropertyInvalid} onChange={branchingProperty => onChange({ ...intention, branchingProperty })} />
-        <button className="border rounded p-2" onClick={() => { const next = { ...intention }; delete next.branchingProperty; setPropertyInvalid(false); onChange(next); }}>Remove branching requirements</button>
+        <button className="border rounded p-2" onClick={() => { const next = { ...intention }; delete next.branchingProperty; delete next.branchingExpectedTruth; setPropertyInvalid(false); onChange(next); }}>Remove branching requirements</button>
       </> : <button className="border rounded p-2" onClick={() => onChange({ ...intention, branchingProperty: { op: 'true' } })}>Add branching requirements</button>}
     </section>
     <details className="border rounded p-3 space-y-4"><summary className="cursor-pointer font-semibold">Advanced selection settings</summary>

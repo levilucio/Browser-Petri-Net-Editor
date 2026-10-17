@@ -9,6 +9,8 @@ import HmlPropertyDisplay from '../../components/satel/HmlPropertyDisplay';
 import { evaluateFormula } from '../../satel/core/HmlEvaluator';
 import { publicInterface } from '../../satel/core/TestCase';
 import { modal } from '../../satel/examples/nondeterminism/editor';
+import { createHmlSelectionExample } from '../../satel/examples/hml-selection/editor';
+import SymbolicIntentionEditor from '../../components/satel/SymbolicIntentionEditor';
 const net = () => createNondeterminismExample('nondeterminism-branch-reference');
 test('branching editor saves nested obligations and expected false without JSON editing', async () => {
   let saved;
@@ -76,4 +78,20 @@ test('expected-false explanations and evidence ids remain separate across displa
   expect(screen.getAllByLabelText('Property explanation')[0]).toHaveTextContent('expected to be false, but it is true');
   fireEvent.click(links[1]);
   expect(document.getElementById(links[1].getAttribute('href').slice(1))).toHaveFocus();
+});
+
+test('symbolic editor saves expected-false joint requirements and preserves them through PNML', async () => {
+  const model = createHmlSelectionExample();
+  let saved;
+  function Harness() {
+    const [value, setValue] = useState(model.testIntentions[0]);
+    return <SymbolicIntentionEditor intention={value} elements={model} onChange={setValue} onSave={() => { saved = value; }} onCancel={() => {}} />;
+  }
+  render(<AdtProvider><Harness /></AdtProvider>);
+  expect(screen.getByText(/jointly select one shared assignment/)).toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Expected additional property truth'), { target: { value: 'false' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save Intention' }));
+  expect(saved.branchingExpectedTruth).toBe(false);
+  const restored = await importFromPNML(await exportToPNML({ ...model, testIntentions: [saved] }));
+  expect(restored.testIntentions[0]).toEqual(saved);
 });

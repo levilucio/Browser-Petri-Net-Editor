@@ -33,7 +33,9 @@ export async function deriveSymbolicIntention(intention, net, options = {}) {
       }));
       return report;
     }
-    report.execution = await selectExecutableRepresentatives(goal, protocol, decomposition, net, report.interface, options);
+    report.execution = await selectExecutableRepresentatives(goal, protocol, decomposition, net, report.interface, {
+      ...options, branchingProperty: intention.branchingProperty, branchingExpectedTruth: intention.branchingExpectedTruth
+    });
     report.candidates = report.execution.selected.map(d => ({
       ...encodeProtocolWitness(protocol, d.witnessArgs, d.witnessResult, report.interface, goal.algebra),
       id: d.id,
@@ -42,8 +44,9 @@ export async function deriveSymbolicIntention(intention, net, options = {}) {
     if (intention.branchingProperty) report.candidates = report.candidates.map(test => {
       const values = Object.fromEntries(Object.entries(test.symbolicDomain.witnessBindings).map(([n, term]) => [n, symbolicToValue(term)]));
       const { steps, expected, pairs, ...metadata } = test;
-      return { ...metadata, pairs: [], expectedTruth: true, formula: { op: 'and', children: [sequenceFormula(pairs), instantiateFormula(intention.branchingProperty, values)] },
-        propertySelection: 'sequence-selected representative; additional branching obligations validated without re-solving' };
+      const property = instantiateFormula(intention.branchingProperty, values);
+      return { ...metadata, pairs: [], expectedTruth: true, formula: { op: 'and', children: [sequenceFormula(pairs), intention.branchingExpectedTruth === false ? { op: 'not', child: property } : property] },
+        propertySelection: 'joint-sequence-and-hml', branchingExpectedTruth: intention.branchingExpectedTruth ?? true };
     });
   } catch (e) {
     if (e.code === 'cancelled') throw e;

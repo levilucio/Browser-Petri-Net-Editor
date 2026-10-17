@@ -22,6 +22,12 @@ adds linked plain-language explanations beside formal results, retains rejected
 outcomes and their output/marking mismatches, and includes actual examples from
 the mutants plus a selectable stock-marking property.
 
+[Increment 18: joint sequence and HML selection](increment-18-joint-hml-selection.md)
+selects shared Nat/Int/Bool parameters satisfying the sequence and additional
+branching requirement together. A new reference and two mutants demonstrate
+replacing a sequence-valid value of 1 with a branching-valid value of 3, including
+an expected-false requirement. Joint ADT/String selection remains the next step.
+
 ## Negative tests and generation explanations
 
 [Increment 13: explicit final refusals](increment-13-explicit-refusals.md) adds

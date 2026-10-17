@@ -5,6 +5,7 @@ import { validBuiltinValue, valueToSymbolic as valueTerm, integerBounds } from '
 import { createConstraintSearch } from './GenericSubuniformity.js';
 import { substitute, variablesIn, evaluateGround, termSort, unify } from './SymbolicTerms.js';
 import { checkCancelled, diagnostic, DomainError } from '../../domain/diagnostics.js';
+import { buildHmlConstraints } from './HmlConstraints.js';
 const eq = (left, right) => ({
   op: '==',
   left,
@@ -222,9 +223,12 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
           roots: domain.goalBindings
         }, caseBindings);
         const domainConditions = substitute([...domain.conditions, ...extra], caseBindings);
+        const hml = options.branchingProperty ? await buildHmlConstraints(options.branchingProperty, net, io, projection.roots, sorts, goal.algebra, {
+          ...options, deadline: budget.deadline, expectedTruth: options.branchingExpectedTruth ?? true
+        }) : null;
         for await (const path of paths(compiled, net, io, substitute(c.pairs, caseBindings), goal.algebra, sorts, budget, search, domainConditions)) {
           attempts++;
-          const conditions = path.conditions;
+          const conditions = [...path.conditions, ...(hml?.conditions || [])];
           // Preserve the previous representative when it satisfies the COMPLETE
           // path. If it cannot, release it and solve for new values in the class.
           // This also avoids unfolding an arbitrary recursive tail when a known
@@ -248,7 +252,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
               conditions: substitute(cs, names),
               maxDepth: options.sequenceUnfoldingDepth ?? 32
             }, {
-              maxTimeMs: budget.deadline - Date.now()
+              maxTimeMs: budget.deadline - Date.now(), preserveBooleanStructure: !!hml
             });
             const witness = result.witness;
             if (!witness) {
@@ -275,7 +279,8 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
                 policy: 'one executable representative per algebraic class',
                 caseId: original.id,
                 pathsTried: attempts,
-                representative: fixed.size ? 'existing witness satisfies whole sequence' : 'solved jointly from whole sequence',
+                representative: hml ? fixed.size ? 'existing witness satisfies sequence and HML property' : 'solved jointly from sequence and HML property' : fixed.size ? 'existing witness satisfies whole sequence' : 'solved jointly from whole sequence',
+                ...(hml ? { hmlSelection: { policy: hml.policy, expectedTruth: hml.expectedTruth, ...hml.stats } } : {}),
                 assertions: path.trace.map(t => ({
                   kind: t.assertion,
                   transitionId: t.transitionId,
@@ -296,7 +301,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
         for (let i = unresolved.length - 1; i >= 0; i--) if (unresolved[i].id === domain.id) unresolved.splice(i, 1);
       } else if (!unresolved.some(x => x.id === domain.id)) blocked.push({
         id: domain.id,
-        reason: 'No complete stimulation/observation sequence is feasible from the model initial marking',
+        reason: options.branchingProperty ? 'No representative satisfies the sequence and HML requirement with defined scalar execution from the model initial marking' : 'No complete stimulation/observation sequence is feasible from the model initial marking',
         pathsTried: attempts
       });
     } catch (e) {
@@ -315,6 +320,6 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
     visited: budget.visited,
     pruned: budget.pruned,
     prefixChecks: budget.prefixChecks,
-    policy: 'one executable representative per algebraic class; whole-sequence constraints; bounded symbolic execution'
+    policy: options.branchingProperty ? 'one representative per algebraic class; joint sequence and HML constraints; bounded scalar execution' : 'one executable representative per algebraic class; whole-sequence constraints; bounded symbolic execution'
   };
 }

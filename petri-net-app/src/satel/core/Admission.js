@@ -10,7 +10,7 @@ export async function admitIntention(report, net, options = {}) {
   if (report.symbolicGoal) {
     if (!report.execution) throw new Error('Generate executable sequences before admitting a suite.');
     if (report.execution.unresolved.length) throw new Error('Executable selection is unresolved. Inspect the sequence search diagnostics.');
-    if (report.execution.blocked.length) throw new Error('Reference validation failed: some algebraic classes have no executable complete sequence. No partial suite admitted.');
+    if (report.execution.blocked.length) throw new Error(report.intention.branchingProperty ? 'Reference validation failed: some algebraic classes have no representative satisfying the sequence and HML requirement with defined execution. No partial suite admitted.' : 'Reference validation failed: some algebraic classes have no executable complete sequence. No partial suite admitted.');
     if (!report.interface) throw new Error('This intention has no APN stimulation/observation protocol');
     if (report.decomposition.unresolved.length) throw new Error('Unresolved symbolic branches remain. Resolve them before admitting a suite.');
     if (report.decomposition.overlaps.length) throw new Error('Classes overlap, or disjointness could not be established. No suite admitted.');
@@ -24,8 +24,8 @@ export async function admitIntention(report, net, options = {}) {
   });
   return freeze({
     schemaVersion: 7,
-    executionSemantics: report.intention.formula ? 'bounded-hml-from-initial-marking' : 'continuous-sequence-from-initial-marking',
-    scope: report.symbolicGoal ? 'typed-equation-classes-with-whole-sequence-selection' : 'fixed-finite-values',
+    executionSemantics: report.intention.formula || report.intention.branchingProperty ? 'bounded-hml-from-initial-marking' : 'continuous-sequence-from-initial-marking',
+    scope: report.intention.branchingProperty ? 'typed-equation-classes-with-joint-hml-selection' : report.symbolicGoal ? 'typed-equation-classes-with-whole-sequence-selection' : 'fixed-finite-values',
     symbolicGoal: report.symbolicGoal,
     selection: report.execution,
     intention: report.intention,

@@ -83,7 +83,7 @@ export default function OracleValidationPanel({
         {selected?.kind === 'symbolic' && !selected.symbolic.protocolSource?.trim() && <p>This intention has no pair sequence. It supports class analysis only, available under Advanced details.</p>}
         <p className="text-xs text-gray-600">Generation replaces the saved suite. Loading another APN keeps it for replay.</p>
       </>}
-      <p className="p-3 border rounded bg-amber-50">Equation-based intentions select values jointly across the complete sequence, starting from the model initial marking. Explicit finite values and chosen representatives remain fixed. Every generated test must then pass concrete reference replay. Exhaustive coverage is not proved.</p>
+      <p className="p-3 border rounded bg-amber-50">Equation-based intentions select values jointly across the complete sequence and any supported additional HML property, starting from the model initial marking. Explicit finite values and chosen representatives remain fixed. Every generated test must then pass concrete reference replay. Exhaustive coverage is not proved.</p>
       {session && <p><strong>Saved run:</strong> {session.intentionName} · {session.referenceName}</p>}
       {stale && <p className="text-amber-900">These tests belong to the saved intention/model snapshot. Generate again to use the current selection or edits.</p>}
       {suite && <div role="status" className="p-3 border border-green-300 bg-green-50"><strong>{passed}/{passed} tests passed the reference oracle</strong><p>Expectations are frozen. Open Replay results to check another APN.</p></div>}
@@ -91,8 +91,8 @@ export default function OracleValidationPanel({
       {report?.encodingError && <p role="alert" className="text-red-800">Pair sequence encoding: {report.encodingError}</p>}
       {report?.symbolicGoal && report.interface && !report.execution && <p>Class analysis only: these pairs use static witnesses. Generate tests to select executable values and validate them.</p>}
       {report?.execution && <section aria-label="Executable selection" className="p-3 border rounded bg-blue-50">
-        <p>Whole-sequence selection: {report.execution.selected.length} executable classes · {report.execution.blocked.length} blocked classes · {report.execution.unresolved.length} unresolved searches.</p>
-        <p className="text-sm">Values respect available input tokens, shared variables, guards and expected observations through every pair. One representative is selected per algebraic class.</p>
+        <p>{report.intention.branchingProperty ? 'Joint sequence / HML selection' : 'Whole-sequence selection'}: {report.execution.selected.length} executable classes · {report.execution.blocked.length} blocked classes · {report.execution.unresolved.length} unresolved searches.</p>
+        <p className="text-sm">Values respect available input tokens, shared variables, guards and expected observations through every pair{report.intention.branchingProperty ? ', together with the additional HML property from the initial marking' : ''}. One representative is selected per algebraic class.</p>
         {[...report.execution.blocked, ...report.execution.unresolved].map((d, i) => <p key={i}>{d.id}: {d.reason}</p>)}
       </section>}
       {report?.decomposition && (!!report.decomposition.unresolved.length || !!report.decomposition.overlaps.length) && <p role="alert" className="bg-amber-50 p-2">Admission blocked: {report.decomposition.unresolved.length} unresolved branches and {report.decomposition.overlaps.length} overlapping or unchecked class pairs. Inspect Advanced details.</p>}
