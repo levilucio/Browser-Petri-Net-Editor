@@ -4,7 +4,7 @@ import { methodSorts, validBuiltinValue, builtinValueKey } from '../../utils/bui
 import { equalValues } from '../../utils/value-equality.js';
 import { semanticFingerprint } from './SemanticNet.js';
 import { freeze } from '../snapshots.js';
-import { DomainError } from '../diagnostics.js';
+import { DomainError, checkCancelled } from '../diagnostics.js';
 const copy = x => JSON.parse(JSON.stringify(x));
 const requireThat = (ok, message) => {
   if (!ok) throw new DomainError('invalid-model', message);
@@ -103,8 +103,8 @@ export function compilePublicNet(net) {
   return compiled;
 }
 
-/** Resolve a call without mutating the marking. Multiple distinct enabled choices are unsupported. */
-export function prepareMethodCall(net, name, args = {}, options = {}) {
+/** Enumerate observable edges without mutating the marking. A partial search is explicit. */
+export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
   args = copy(args);
   const {
       methods,
@@ -120,77 +120,99 @@ export function prepareMethodCall(net, name, args = {}, options = {}) {
   const candidates = [],
     seen = new Set();
   let visited = 0;
-  for (const {
-    id: ruleId,
-    ins,
-    outs,
-    guard
-  } of plans[name]) {
-    const choose = (i, env, picks) => {
-      if (++visited > 10000) throw new DomainError('resource-limit', 'Method binding search limit reached; result is unresolved');
-      if (i < ins.length) {
-        const input = ins[i];
-        const equivalent = new Set();
-        places.get(input.place).valueTokens.forEach((value, tokenIndex) => {
-          if (picks.some(p => p.srcId === input.place && p.tokenIndex === tokenIndex)) return;
-          const key = builtinValueKey(value);
-          if (equivalent.has(key)) return;
-          equivalent.add(key);
-          if (Object.hasOwn(env, input.variable) && !equalValues(env[input.variable], value)) return;
-          choose(i + 1, {
-            ...env,
-            [input.variable]: value
-          }, [...picks, {
-            arcId: input.a.id,
-            srcId: input.place,
-            tokenIndex,
-            value,
-            countFallback: false
-          }]);
+  const maxBindings = options.maxBindings ?? 10000;
+  requireThat(Number.isInteger(maxBindings) && maxBindings > 0, 'maxBindings must be a positive integer');
+  try {
+    for (const {
+      id: ruleId,
+      ins,
+      outs,
+      guard
+    } of plans[name]) {
+      const choose = (i, env, picks) => {
+        checkCancelled(options.signal);
+        if (++visited > maxBindings) throw new DomainError('resource-limit', 'Method binding search limit reached; result is unresolved');
+        options.onVisit?.();
+        if (i < ins.length) {
+          const input = ins[i];
+          const equivalent = new Set();
+          places.get(input.place).valueTokens.forEach((value, tokenIndex) => {
+            if (picks.some(p => p.srcId === input.place && p.tokenIndex === tokenIndex)) return;
+            const key = builtinValueKey(value);
+            if (equivalent.has(key)) return;
+            equivalent.add(key);
+            if (Object.hasOwn(env, input.variable) && !equalValues(env[input.variable], value)) return;
+            choose(i + 1, {
+              ...env,
+              [input.variable]: value
+            }, [...picks, {
+              arcId: input.a.id,
+              srcId: input.place,
+              tokenIndex,
+              value,
+              countFallback: false
+            }]);
+          });
+          return;
+        }
+        if (guard !== null && guard !== undefined) {
+          const enabled = evaluateMethodTerm(guard, env);
+          requireThat(typeof enabled === 'boolean', 'Method guard must evaluate to Bool');
+          if (!enabled) return;
+        }
+        const next = {
+            ...net,
+            places: net.places.map(p => ({
+              ...p,
+              valueTokens: copy(p.valueTokens)
+            }))
+          },
+          nextPlaces = new Map(next.places.map(p => [p.id, p]));
+        const produced = {};
+        [...picks].sort((a, b) => b.tokenIndex - a.tokenIndex).forEach(p => nextPlaces.get(p.srcId).valueTokens.splice(p.tokenIndex, 1));
+        for (const out of outs) {
+          const value = evaluateMethodTerm(out.ast, env),
+            p = nextPlaces.get(out.place);
+          requireThat(validMethodValue(value, p.sort), `Method output leaves ${p.sort} range at ${p.id}`);
+          p.valueTokens.push(copy(value));
+          (produced[p.id] ||= []).push(copy(value));
+        }
+        next.places.forEach(p => {
+          p.tokens = p.valueTokens.length;
         });
-        return;
-      }
-      if (guard) {
-        const enabled = evaluateMethodTerm(guard, env);
-        requireThat(typeof enabled === 'boolean', 'Method guard must evaluate to Bool');
-        if (!enabled) return;
-      }
-      const next = {
-          ...net,
-          places: net.places.map(p => ({
-            ...p,
-            valueTokens: copy(p.valueTokens)
-          }))
-        },
-        nextPlaces = new Map(next.places.map(p => [p.id, p]));
-      const produced = {};
-      [...picks].sort((a, b) => b.tokenIndex - a.tokenIndex).forEach(p => nextPlaces.get(p.srcId).valueTokens.splice(p.tokenIndex, 1));
-      for (const out of outs) {
-        const value = evaluateMethodTerm(out.ast, env),
-          p = nextPlaces.get(out.place);
-        requireThat(validMethodValue(value, p.sort), `Method output leaves ${p.sort} range at ${p.id}`);
-        p.valueTokens.push(copy(value));
-        (produced[p.id] ||= []).push(copy(value));
-      }
-      next.places.forEach(p => {
-        p.tokens = p.valueTokens.length;
-      });
-      const key = JSON.stringify([ruleId, Object.keys(env).sort().map(n => [n, builtinValueKey(env[n])]), next.places.map(p => [p.id, p.valueTokens.map(builtinValueKey).sort()])]);
-      if (!seen.has(key)) {
-        seen.add(key);
-        candidates.push({
-          transitionId: ruleId,
-          env,
-          picks,
-          produced,
-          next
-        });
-      }
-    };
-    choose(0, {
-      ...args
-    }, []);
+        const key = JSON.stringify([Object.entries(produced).map(([id, tokens]) => [id, tokens.map(builtinValueKey).sort()]).sort(), markingKey(next)]);
+        if (!seen.has(key)) {
+          seen.add(key);
+          candidates.push({
+            transitionId: ruleId,
+            env,
+            picks,
+            produced,
+            next
+          });
+        }
+      };
+      choose(0, {
+        ...args
+      }, []);
+    }
+  } catch (error) {
+    if (error.code !== 'resource-limit') throw error;
+    return { successors: candidates, complete: false, visited, reason: error.message };
   }
+  return { successors: candidates, complete: true, visited };
+}
+
+/** Full markings, including hidden places and multiplicity, identify successor states. */
+export function markingKey(net) {
+  return JSON.stringify(net.places.map(p => [p.id, p.valueTokens.map(builtinValueKey).sort()]).sort((a, b) => a[0].localeCompare(b[0])));
+}
+
+/** Interactive single firing keeps requiring a unique successor; HML explores all. */
+export function prepareMethodCall(net, name, args = {}, options = {}) {
+  const result = enumerateMethodSuccessors(net, name, args, options);
+  if (!result.complete) throw new DomainError('resource-limit', result.reason);
+  const candidates = result.successors;
   if (candidates.length > 1 && !options.checkOnly) throw new DomainError('unsupported-nondeterminism', `Nondeterministic public call ${name}: multiple enabled rules or bindings are unsupported`);
   return candidates[0] || null;
 }

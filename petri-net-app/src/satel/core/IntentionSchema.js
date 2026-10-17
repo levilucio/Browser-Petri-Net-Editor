@@ -1,3 +1,4 @@
+import { validateFormula } from './HmlFormula.js';
 import { validBuiltinValue } from '../../utils/builtin-values.js';
 import { compileMethodTerm } from '../../domain/apn/MethodTerms.js';
 /**
@@ -113,6 +114,12 @@ export function validateIntention(intention) {
   if (intention.conditionsText?.trim()) compileMethodTerm(intention.conditionsText, Object.fromEntries(intention.variables.map(v => [v.name, v.sort])), 'Bool');
   for (const v of intention.variables) {
     validateVariable(v);
+  }
+  if (intention.formula) {
+    validateFormula(intention.formula);
+    if (intention.pairs.length || intention.initialMarking !== undefined) throw new Error('Branching properties use the model initial marking and replace the pair sequence');
+    if (intention.expectedTruth !== undefined && typeof intention.expectedTruth !== 'boolean') throw new Error('Expected truth must be boolean');
+    return true;
   }
   if (!Array.isArray(intention.pairs) || intention.pairs.length === 0) {
     throw new Error('pairs must be non-empty array');

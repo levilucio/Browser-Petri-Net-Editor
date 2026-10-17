@@ -24,7 +24,7 @@ export async function admitIntention(report, net, options = {}) {
   });
   return freeze({
     schemaVersion: 7,
-    executionSemantics: 'continuous-sequence-from-initial-marking',
+    executionSemantics: report.intention.formula ? 'bounded-hml-from-initial-marking' : 'continuous-sequence-from-initial-marking',
     scope: report.symbolicGoal ? 'typed-equation-classes-with-whole-sequence-selection' : 'fixed-finite-values',
     symbolicGoal: report.symbolicGoal,
     selection: report.execution,

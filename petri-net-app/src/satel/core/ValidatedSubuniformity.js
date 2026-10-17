@@ -69,12 +69,15 @@ export async function validateOracleCandidates({
     if (candidate.initialMarking !== undefined && (candidate.steps || candidate.pairs?.map(p => p.stimulation) || []).some(s => s.method)) throw new Error("Method candidates cannot override the model initial marking");
     const canonical = normalizeTest(candidate, contract);
     const validation = await replayOracleTest(canonical, reference, contract, options);
+    options.onValidation?.(validation);
     if (validation.verdict !== 'pass') throw new Error(`Reference validation failed for ${candidate.id}: ${validation.reason}`);
     const test = freeze({
       ...canonical,
       referenceInitialMarking: validation.markings[0],
       referenceMarkings: validation.markings,
-      referenceAnnotations: validation.annotations
+      referenceAnnotations: validation.annotations,
+      ...(validation.propertyResult ? { referencePropertyResult: validation.propertyResult } : {}),
+      ...(validation.branchingSequence ? { branchingSequence: true } : {})
     });
     validated.push(test);
   }
@@ -100,7 +103,7 @@ export async function evaluateOracleSuite(tests, targetNet, io, options = {}) {
     fail: 0,
     error: 0
   };
-  results.forEach(r => counts[r.verdict]++);
+  results.forEach(r => { counts[r.verdict] = (counts[r.verdict] || 0) + 1; });
   return {
     counts,
     results
@@ -113,7 +116,7 @@ export async function evaluateSpecMutants(suite, mutants, auditTests = null) {
   const results = [];
   for (const mutant of mutants) {
     const selected = await evaluateOracleSuite(suite.selectedTests, mutant.net, suite.interface);
-    const status = run => run.counts.error ? 'error' : run.counts.fail ? 'killed' : 'survived';
+    const status = run => run.counts.error ? 'error' : run.counts.fail ? 'killed' : run.counts.inconclusive ? 'inconclusive' : 'survived';
     const result = {
       id: mutant.id,
       description: mutant.description,

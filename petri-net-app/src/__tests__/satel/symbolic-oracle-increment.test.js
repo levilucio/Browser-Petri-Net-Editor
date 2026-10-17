@@ -170,10 +170,10 @@ describe('Specification admission and fixed-oracle mutation execution', () => {
     await expect(generate({ referenceNet: blocked })).rejects.toThrow(/Reference validation failed/);
   });
 
-  test('refuses nondeterminism, illegal Nat values and writes to internal places', async () => {
+  test('accepts possible nondeterministic traces but rejects illegal Nat values and writes to internal places', async () => {
     const ambiguous = copy(accountNet);
     ambiguous.transitions.find(t => t.id === 'withdrawRefused').guard = '';
-    expect(await replayOracleTest(example.suite.selectedTests[1], ambiguous, accountInterface)).toMatchObject({ verdict: 'error' });
+    expect(await replayOracleTest(example.suite.selectedTests[1], ambiguous, accountInterface)).toMatchObject({ verdict: 'pass', branchingSequence: true });
     const negative = copy(example.suite.selectedTests[1]);
     negative.steps[1].arguments.n = -1;
     expect(await replayOracleTest(negative, accountNet, accountInterface)).toMatchObject({ verdict: 'error' });

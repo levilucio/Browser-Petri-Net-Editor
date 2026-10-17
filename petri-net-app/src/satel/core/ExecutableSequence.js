@@ -138,7 +138,7 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
         const next = Object.fromEntries(Object.entries(marking).map(([id, tokens]) => [id, tokens.filter((_, k) => !picks.some(p => p.place === id && p.tokenIndex === k))]));
         const produced = Object.fromEntries(io.outputs.map(id => [id, []]));
         const cs = [];
-        if (plan.guard) cs.push(instantiate(plan.guard));
+        if (plan.guard !== null && plan.guard !== undefined) cs.push(instantiate(plan.guard));
         for (const out of plan.outs) {
           const value = instantiate(out.ast);
           next[out.place].push(value);

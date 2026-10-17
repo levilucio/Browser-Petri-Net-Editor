@@ -32,7 +32,7 @@ export function refusalConstraints(plans, marking, args, algebra, tick) {
         return;
       }
       bindings++;
-      const enabled = conjoin([...equalities, ...(plan.guard ? [instantiateLocals(plan.guard, env)] : [])]);
+      const enabled = conjoin([...equalities, ...(plan.guard !== null && plan.guard !== undefined ? [instantiateLocals(plan.guard, env)] : [])]);
       conditions.push(foldGroundTerms({ op: 'not', left: enabled }, algebra));
     }
     bind(0, args, [], []);

@@ -1,3 +1,4 @@
+import HmlPropertyEditor from './HmlPropertyEditor';
 import React, { useState, useEffect, useCallback } from 'react';
 import { protocolCases, replaceProtocolSequence } from '../../satel/core/IntentionNotation.js';
 import { compileSymbolicIntention, importSymbolicADTXml, guardFromTransition } from '../../satel/core/SymbolicSource.js';
@@ -14,6 +15,7 @@ function SequenceCase({ value, label, onChange, onValidityChange }) {
 }
 export default function SymbolicIntentionEditor({ intention, onChange, onSave, onCancel, elements }) {
   const [error, setError] = useState('');
+  const [propertyInvalid, setPropertyInvalid] = useState(false);
   const [sequenceErrors, setSequenceErrors] = useState({});
   const sequenceValidity = useCallback((key, value) => setSequenceErrors(prev => prev[key] === value ? prev : { ...prev, [key]: value }), []);
   const registry = useAdtRegistry();
@@ -50,6 +52,14 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
       </div>)}
       {!cases.length && <p>No pair sequence yet. Define a protocol in Advanced selection settings to turn class analysis into executable tests.</p>}
     </section>
+    <section className="border rounded p-3 space-y-2">
+      <h4 className="font-semibold">Additional branching requirements</h4>
+      <p className="text-xs text-gray-600">Checked from the initial marking, using the same selected goal-variable values as the sequence. Use $name to refer to a goal variable. Selection solves the sequence first; these requirements are then checked without choosing a different representative. A failed or inconclusive requirement prevents admission.</p>
+      {intention.branchingProperty ? <>
+        <HmlPropertyEditor formula={intention.branchingProperty} elements={elements} onValidityChange={setPropertyInvalid} onChange={branchingProperty => onChange({ ...intention, branchingProperty })} />
+        <button className="border rounded p-2" onClick={() => { const next = { ...intention }; delete next.branchingProperty; setPropertyInvalid(false); onChange(next); }}>Remove branching requirements</button>
+      </> : <button className="border rounded p-2" onClick={() => onChange({ ...intention, branchingProperty: { op: 'true' } })}>Add branching requirements</button>}
+    </section>
     <details className="border rounded p-3 space-y-4"><summary className="cursor-pointer font-semibold">Advanced selection settings</summary>
       <p>The saved definitions below drive selection. Changing an APN guard does not automatically change them. When a pair sequence is present, selection propagates the APN marking and solves for values satisfying the whole sequence. Concrete reference replay then checks the selected test.</p>
     <label className="block">ADT constructors and operation equations
@@ -83,6 +93,6 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
     <p className="text-xs text-gray-600">Each case matches operation inputs and its equation result, then lists pairs such as “pair withdraw(n=amount) =&gt; ack(1), paidAmount(amount)”. Use “pair withdraw(n=amount) =&gt; refused” for a forbidden final call. Outputs are tokens produced by an accepted call; unmentioned public places produce none. Leave blank for class derivation only. Public APN methods support Nat, Int, Bool, String, Pair and List parameters and observations. Strings use quotes; lists and pairs may be nested.</p>
     </details>
     {invalid && <p role="status" className="text-amber-900 bg-amber-50 p-2 rounded">{invalid}</p>}
-    <div className="flex gap-2"><button disabled={!!invalid || Object.values(sequenceErrors).some(Boolean)} onClick={onSave} className="bg-blue-700 text-white rounded p-2 disabled:opacity-50">Save Intention</button><button className="border rounded p-2" onClick={onCancel}>Cancel</button></div>
+    <div className="flex gap-2"><button disabled={!!invalid || propertyInvalid || Object.values(sequenceErrors).some(Boolean)} onClick={onSave} className="bg-blue-700 text-white rounded p-2 disabled:opacity-50">Save Intention</button><button className="border rounded p-2" onClick={onCancel}>Cancel</button></div>
   </div>;
 }

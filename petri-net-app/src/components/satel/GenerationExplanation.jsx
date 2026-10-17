@@ -21,7 +21,8 @@ export function TestGenerationExplanation({ test }) {
       {domain.execution && <p>{domain.execution.pathsTried} complete path(s) considered before this representative was selected. This does not enumerate all possible executions.</p>}
       {domain.execution?.assertions.filter(a => a.kind === 'blocked').map((a, i) => <p key={i}>Final refusal covers {a.refusal?.length || 0} rules and {a.refusal?.reduce((n, r) => n + r.bindings, 0) || 0} input bindings at the reached marking.</p>)}
     </> : <><p>The intention’s declared finite values or explicit representatives were instantiated and filtered by its conditions. Those values were not repaired by the solver.</p><SatelBindings bindings={test.instantiation} /></>}
-    <p>{test.referenceMarkings ? 'Every pair passed concrete reference replay. Expand each pair’s execution details to inspect the marking after that step.' : 'This candidate has not been admitted by concrete reference replay.'}</p>
+    {test.propertySelection && <p>Additional branching obligations were checked using the sequence-selected representative. No new representative was solved for these obligations.</p>}
+    <p>{test.referencePropertyResult ? 'The property has its expected truth value on the reference. Inspect its branching evidence below. This is not a proof of bisimulation.' : test.referenceMarkings ? 'Every pair passed concrete reference replay. Expand each pair’s execution details to inspect the marking after that step.' : 'This candidate has not been admitted by concrete reference replay.'}</p>
   </details>;
 }
 

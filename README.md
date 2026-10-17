@@ -71,13 +71,15 @@ This project includes an implementation of **SATEL** (Semi-Automatic Testing Lan
 
 **📺 [SATEL V2 Demo](docs/assets/satel-v2-demo.mp4)** - Shows defining an intention with typed variables (priority: Priority under subuniformity, material: Material under uniformity) and a stimulation/observation pair, generating 3 priority cases, and executing them (historical recording; the current editor supports V2 creation).
 
+[Branching HML tests and nondeterministic examples](docs/satel/increment-16-hml-nondeterminism.md) now cover token choices and alternative enabled method rules, with readable editing and witness/counterexample evidence.
+
 See [SATEL guide](docs/satel/README.md) for detailed documentation and the
 [unified pipeline refactoring](docs/satel/increment-12-unified-pipeline.md) for the architecture.
 [Refusal tests and generation explanations](docs/satel/increment-15-generation-explanations.md)
 describes the latest increments, laptop walkthrough and verification results.
 
 The first experimental [symbolic subuniformity and oracle-validation increment](docs/satel/increment-01-symbolic-oracle.md)
-is available in **SATEL → Oracle validation**, with reference and mutant APNs in Examples.
+is available in **SATEL → Generated tests**, with reference and mutant APNs in Examples.
 See the [GUI and V2-only review guide](docs/satel/increment-02-gui-v2.md). The CLI also supports
 comparison of coarse and refined operation equations. Run it with
 `cd petri-net-app && npm run satel:oracle-example`.
@@ -119,7 +121,7 @@ Open `http://localhost:3000`.
 ### Try SATEL Testing
 
 1. Load **Examples → SATEL Account — Reference** (switches to Algebraic mode).
-2. Open **SATEL → Oracle validation** and click **Generate and validate on loaded reference**.
+2. Open **SATEL → Generated tests** and click **Generate tests**.
 3. Inspect the four admitted tests, symbolic classes, and equation provenance.
 4. Close SATEL and load **SATEL Account — Mutant: reject-exact-balance**.
 5. Reopen SATEL and **Replay frozen suite on loaded APN**. Inspect the failed equality case.

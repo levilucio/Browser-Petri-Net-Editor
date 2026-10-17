@@ -1,3 +1,4 @@
+import { formulaNotation } from '../satel/core/HmlFormula';
 import { methodSignature } from '../features/simulation/PublicMethods';
 import PublicMethodPanel from './PublicMethodPanel';
 import React, { useState, useEffect, useMemo } from 'react';
@@ -14,10 +15,10 @@ const button = 'px-3 py-2 border rounded disabled:opacity-50';
 
 function SequencePreview({ intention }) {
   try {
-    const text = intention.kind === 'symbolic'
+    const text = intention.formula ? formulaNotation(intention.formula) : intention.kind === 'symbolic'
       ? protocolCases(intention.symbolic.protocolSource || '').map(c => `${c.name}:\n${c.pairs.join(' .\n')}`).join('\n\n')
       : intention.pairs.map(pairNotation).join(' .\n');
-    return <pre className="mt-2 text-xs whitespace-pre-wrap break-words bg-slate-50 rounded p-2">{text || 'No pair sequence defined.'}</pre>;
+    return <pre className="mt-2 text-xs whitespace-pre-wrap break-words bg-slate-50 rounded p-2">{text || 'No pair sequence defined.'}{intention.branchingProperty ? `\nAdditional requirement: ${formulaNotation(intention.branchingProperty)}` : ''}</pre>;
   } catch { return <p>Edit this intention to review its sequence.</p>; }
 }
 export default function SatelPanel({ isOpen, onClose }) {
@@ -59,8 +60,9 @@ export default function SatelPanel({ isOpen, onClose }) {
         {activeTab === 'intentions' && (editing ?
           editing.kind === 'symbolic' ? <SymbolicIntentionEditor key={editing.id} intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> : <IntentionEditor key={editing.id} intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> :
           <div className="p-4 space-y-3 text-sm">
-            <p>Describe calls and expected observations as a sequence of pairs. Each test starts from the APN’s initial marking.</p>
+            <p>Describe calls and observations as a sequence or a branching property. Each test starts from the APN’s initial marking.</p>
             <button className={`${button} w-full text-blue-700`} onClick={() => setEditing({ id: `intention-${Date.now()}`, name: 'New Test Intention', description: '', testType: 'positive', variables: [], pairs: [] })}>+ Create Intention</button>
+            <button className={`${button} w-full text-blue-700`} onClick={() => setEditing({ id: `property-${Date.now()}`, name: 'New branching property', testType: 'positive', variables: [], pairs: [], formula: { op: 'true' }, expectedTruth: true })}>+ Create branching property</button>
             {!intentions.length && <p>No intentions defined. Create one or load a SATEL example.</p>}
             {intentions.map(i => <article key={i.id} className="p-3 border rounded">
               <h3 className="font-semibold">{i.name}</h3>{i.description && <p>{i.description}</p>}

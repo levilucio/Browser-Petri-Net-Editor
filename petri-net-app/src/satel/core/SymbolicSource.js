@@ -1,3 +1,4 @@
+import { validateFormula } from './HmlFormula.js';
 import { evaluateGroundTerm } from './GroundTerms.js';
 import { symbolicToValue } from '../../utils/builtin-values.js';
 import { splitTopLevel } from '../../utils/split-terms.js';
@@ -7,6 +8,7 @@ import { parseVariables, parseTerms, parseSymbolicSource, formatSymbolicSource, 
 export { parseVariables, parseTerms, parseSymbolicSource, formatSymbolicSource } from '../../domain/algebra/Source.js';
 const identifier = '[A-Za-z_][A-Za-z0-9_]*';
 export function compileSymbolicIntention(intention) {
+  if (intention.branchingProperty) validateFormula(intention.branchingProperty);
   const s = intention.symbolic;
   if (!s || !intention.id || !intention.name) throw new Error('Symbolic intention needs an ID, name and definition');
   const algebra = parseSymbolicSource(s.source);

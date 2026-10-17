@@ -696,3 +696,20 @@ and symbolic test pipelines, made observation scope explicit, fixed stepwise
 verdict precedence, separated static and executable witnesses, and refactored
 compilation, search and GUI orchestration. Its own report records compatibility
 limits and before/after performance evidence.
+
+
+## Update — 17 October: HML properties and nondeterminism
+
+[Increment 16](increment-16-hml-nondeterminism.md) supersedes the earlier
+nondeterminism restriction for SATEL replay. It explores alternative token
+bindings and public-method rules, evaluates finite HML-style properties with
+true/false/unresolved outcomes, and supplies a branching editor and evidence.
+The new examples include a mutant with the same linear traces but distinguishable
+branching, and negative formulas that detect a lost alternative. A literal-false
+guard bug was found and fixed in concrete and symbolic paths.
+
+Bisimulation remains the semantic motivation, not a guarantee established by the
+selected finite suite. Symbolic selection still solves the pair sequence before
+checking additional branching obligations at its selected representative; joint
+constraint solving for arbitrary HML properties remains future work. Automatic
+refusal companions do not currently operate on branching properties.

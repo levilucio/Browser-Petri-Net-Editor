@@ -1,13 +1,21 @@
 # SATEL for Algebraic Petri Nets
 
-SATEL is an experimental partial implementation of test selection from algebraic Petri nets. The editor supports **typed test intentions**: typed variables and stimulation/observation pairs.
+SATEL is an experimental partial implementation of test selection from algebraic Petri nets. The editor supports **typed test intentions**: typed variables, stimulation/observation sequences and branching HML properties.
 
 ## Development record and paper preparation
 
 See the [development and decision summary (16 October 2026)](development-summary-2026-10-16.md)
 for the complete conversation-derived implementation history, current semantics,
-validation evidence, deferred negative/nondeterministic testing, and research questions.
+validation evidence, historical deferrals, and research questions. See the later increments for implemented negative and nondeterministic testing.
 It distinguishes established prototype behaviour from unproved mathematical claims.
+
+## Nondeterminism and branching properties
+
+[Increment 16: HML properties and nondeterminism](increment-16-hml-nondeterminism.md)
+adds multiset/rule successor exploration, an approachable branching editor,
+expected-true/false properties, bounded verdicts, and two references with five
+mutants. It includes the laptop walkthrough, performance results and the limit
+on symbolic representative selection for additional branching requirements.
 
 ## Negative tests and generation explanations
 

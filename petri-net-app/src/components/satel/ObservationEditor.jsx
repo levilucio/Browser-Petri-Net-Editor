@@ -5,7 +5,7 @@ import { parseObservationTokens, formatObservationTokens } from './observationTe
 const field = 'w-full min-w-0 border rounded px-2 py-2 text-sm';
 const constraintKind = c => c?.equals !== undefined ? 'equals' : c?.length !== undefined ? 'length' : c?.empty !== undefined ? (c.empty ? 'empty' : 'nonempty') : c?.contains !== undefined ? 'contains' : c ? 'custom' : 'ignore';
 
-export default function ObservationEditor({ observation, places, pairNumber, onChange, onValidityChange }) {
+export default function ObservationEditor({ observation, places, pairNumber, onChange, onValidityChange, allowRefusal = true, markingsOnly = false }) {
   const [drafts, setDrafts] = useState({});
   const [errors, setErrors] = useState({});
   const blocked = observation.type === 'notEnabled';
@@ -43,16 +43,16 @@ export default function ObservationEditor({ observation, places, pairNumber, onC
   };
   return <section aria-label={`Pair ${pairNumber} observation`} className="bg-white p-3 rounded space-y-3">
     <h4 className="text-sm font-semibold">Observation</h4>
-    <label className="block text-xs">Expected outcome
+    {allowRefusal && <label className="block text-xs">Expected outcome
       <select aria-label={`Pair ${pairNumber} expected outcome`} className={field} value={blocked ? 'blocked' : 'fires'} onChange={e => {
         const next = { ...observation };
         if (e.target.value === 'blocked') next.type = 'notEnabled'; else delete next.type;
         onChange(next);
       }}><option value="fires">Call fires: check places</option><option value="blocked">Call is blocked: marking unchanged</option></select>
-    </label>
+    </label>}
     {blocked ? <p className="text-xs text-gray-600">Checks that no rule can accept this stimulation. No firing occurs; place checks are inactive.</p> : <>
       <p className="text-xs text-gray-600">List tokens separated by commas. Repeat a token for multiplicity. Use $variable or constructor terms, e.g. Order(10, High()). An empty field means ∅.</p>
-      <fieldset className="space-y-2">
+      {!markingsOnly && <fieldset className="space-y-2">
         <legend className="text-sm font-semibold mb-1">Tokens produced by this call</legend>
         <p className="text-xs text-gray-600">Check a place to assert its exact new outputs. Unchecked places are unconstrained. Earlier tokens do not count.</p>
         {ids.map(id => <div key={id} className="border rounded p-2 space-y-1">
@@ -60,8 +60,8 @@ export default function ObservationEditor({ observation, places, pairNumber, onC
             checked={Object.hasOwn(observation.outputs || {}, id)} onChange={e => { clear(`outputs:${id}`); updateMap('outputs', id, e.target.checked ? [] : undefined); }} />{placeName(id)}</label>
           {Object.hasOwn(observation.outputs || {}, id) && tokensField(`outputs:${id}`, observation.outputs[id], `Pair ${pairNumber} expected outputs at ${id}`, value => updateMap('outputs', id, value))}
         </div>)}
-      </fieldset>
-      <details open={Object.keys(observation.markings || {}).length > 0} className="border-t pt-2">
+      </fieldset>}
+      <details open={markingsOnly || Object.keys(observation.markings || {}).length > 0} className="border-t pt-2">
         <summary className="text-sm font-semibold cursor-pointer">Marking after this call (optional)</summary>
         <p className="text-xs text-gray-600 my-2">Checks all tokens remaining at a place, including earlier tokens.</p>
         <div className="space-y-2">{ids.map(id => {

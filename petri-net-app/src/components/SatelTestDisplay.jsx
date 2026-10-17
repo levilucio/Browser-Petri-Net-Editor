@@ -1,3 +1,5 @@
+import HmlPropertyDisplay from './satel/HmlPropertyDisplay';
+import { sequenceFormula } from '../satel/core/HmlFormula';
 import { quoteTermString } from '../utils/term-string.js';
 import React from 'react';
 import { formatSymbolicTerm } from '../satel/core/SymbolicTerms.js';
@@ -81,9 +83,14 @@ function markingText(place, c) {
 }
 
 /** Ordered, instantiated stimulation/observation pairs. */
-export default function SatelTestDisplay({ test, io, pairResults = [] }) {
+export default function SatelTestDisplay({ test, io, pairResults = [], propertyResult, propertyOrigin = 'target' }) {
   io = io || test.interface;
   const pairs = normalizePairs(test, io);
+  if (test.formula || propertyResult || test.referencePropertyResult) return <section className="mt-3 space-y-2">
+    <PlaceObservations label="Initial marking M₀" outputs={propertyResult?.initialMarking || test.referenceInitialMarking || test.initialMarking} />
+    <SatelBindings bindings={test.instantiation || test.symbolicDomain?.witnessBindings} />
+    <HmlPropertyDisplay formula={test.formula || sequenceFormula(pairs)} expectedTruth={test.expectedTruth ?? true} result={propertyResult || test.referencePropertyResult} reference={!propertyResult || propertyOrigin === 'reference'} />
+  </section>;
   return <section aria-label="Instantiated stimulation/observation pairs" className="mt-3 space-y-2">
     <p className="text-xs text-gray-600">Instantiated test · {pairs.length} pairs in order</p>
     <PlaceObservations label="Initial marking M₀" outputs={test.referenceInitialMarking || test.initialMarking} />
@@ -127,6 +134,6 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
       </ol>
 
     </div>
-    <p className="text-xs text-gray-500">Read pairs from top to bottom. “with” separates the stimulation from its observation; // joins outputs produced together. “null” means no specified output events.</p>
+    <p className="text-xs text-gray-500">The sequence requires one possible complete path. Other outcomes are not excluded; use a branching property for universal requirements. Read pairs from top to bottom. “with” separates the stimulation from its observation; // joins outputs produced together. “null” means no specified output events.</p>
   </section>;
 }

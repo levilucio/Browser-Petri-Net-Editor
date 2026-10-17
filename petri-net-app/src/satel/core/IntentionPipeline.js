@@ -20,7 +20,7 @@ export async function deriveIntention(intention, net, options = {}) {
     report = {
       intention,
       selectionPolicy: 'enumerate-fixed-values',
-      interface: intention.pairs.some(p => p.stimulation.method) ? publicInterface(net) : null,
+      interface: intention.formula || intention.pairs.some(p => p.stimulation.method) ? publicInterface(net) : null,
       candidates: selected
     };
   }
@@ -35,7 +35,12 @@ export async function generateIntention(intention, net, options = {}) {
     report
   };
   options.onPhase?.('Validating every candidate from the reference initial marking…');
-  let suite = await admitIntention(report, net, options);
+  report.referenceResults = [];
+  let suite = await admitIntention(report, net, { ...options, onValidation: result => {
+    report.referenceResults.push(result);
+    options.onSelection?.(report);
+    options.onValidation?.(result);
+  } });
   if (options.includeNegative) {
     options.onPhase?.('Selecting bounded refusal companions from validated prefixes…');
     report.negativeSelection = await selectNegativeCompanions(suite, options);

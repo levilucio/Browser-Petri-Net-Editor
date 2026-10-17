@@ -1,3 +1,4 @@
+import { validateFormula } from './HmlFormula.js';
 import { getPublicMethods } from '../../domain/apn/PublicMethods.js';
 import { copy } from '../../domain/snapshots.js';
 import { DomainError } from '../../domain/diagnostics.js';
@@ -25,6 +26,12 @@ export function publicInterface(net) {
 export function normalizeTest(test, io) {
   if (typeof test?.id !== 'string' || !test.id) throw new DomainError('invalid-test', 'A nonempty test ID is required');
   if (test.testType === 'negative') throw new DomainError('unsupported-negative-test', 'Legacy whole-test verdict inversion is unsupported. Specify a blocked pair explicitly; use a positive prefix and a final refused call.');
+  if (test.formula) {
+    validateFormula(test.formula);
+    if (test.expectedTruth !== undefined && typeof test.expectedTruth !== 'boolean') throw new DomainError('invalid-test', 'Expected property truth must be boolean');
+    if (test.pairs?.length || test.steps?.length) throw new DomainError('invalid-test', 'Use a property or a sequence, not both');
+    return { ...copy(test), ...(io ? { interface: copy(io) } : {}), schemaVersion: 8, expectedTruth: test.expectedTruth ?? true, pairs: [] };
+  }
   let pairs = test.pairs;
   if (!pairs) {
     if (!Array.isArray(test.steps) || !Array.isArray(test.expected) || test.steps.length !== test.expected.length) {

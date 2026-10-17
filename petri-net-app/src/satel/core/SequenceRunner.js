@@ -5,7 +5,7 @@ import { publicInterface } from './TestCase.js';
 import { inputSelector } from './DirectTransitionDriver.js';
 import { copy } from '../../domain/snapshots.js';
 import { checkCancelled, DomainError } from '../../domain/diagnostics.js';
-function checkInterface(net, io) {
+export function checkInterface(net, io) {
   const actual = publicInterface(net);
   const signatures = methods => JSON.stringify([...methods].sort((a, b) => a.name.localeCompare(b.name)));
   if (!Array.isArray(io.methods) || signatures(actual.methods) !== signatures(io.methods)) throw new DomainError('interface-mismatch', 'Public method interface does not match the saved contract');

@@ -1,3 +1,5 @@
+import HmlPropertyEditor, { newModal } from './satel/HmlPropertyEditor';
+import { sequenceFormula } from '../satel/core/HmlFormula';
 import VariableSelectionEditor from './satel/VariableSelectionEditor';
 import { intentionNotation } from '../satel/core/IntentionNotation';
 import { validateIntention } from '../satel/core/IntentionSchema';
@@ -21,12 +23,13 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
   const pairKeys = useRef(intention.pairs.map((_, i) => i));
   const nextPairKey = useRef(intention.pairs.length);
   const [observationErrors, setObservationErrors] = useState({});
+  const [propertyInvalid, setPropertyInvalid] = useState(false);
   const observationValidity = useCallback((key, invalid) => setObservationErrors(prev => prev[key] === invalid ? prev : { ...prev, [key]: invalid }), []);
   const transitions = elements.transitions || [];
   const places = elements.places || [];
   let methods = [];
   try { methods = getPublicMethods(elements); } catch {}
-  const methodMode = methods.length > 0 || intention.pairs.some(p => p.stimulation.method);
+  const methodMode = !!intention.formula || methods.length > 0 || intention.pairs.some(p => p.stimulation.method);
   
   const updateIntention = (field, value) => {
     onChange({ ...intention, [field]: value });
@@ -144,6 +147,8 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
         {markingError && <p role="alert" className="text-red-700">{markingError}</p>}
       </div>}
       {methodMode && <p className="text-sm text-gray-600">Method tests start from the loaded model’s initial marking. Arguments vary; the test does not overwrite the model’s state.</p>}
+      <details className="border rounded p-3" open={!intention.formula || intention.variables.length > 0}>
+        <summary className="text-sm font-medium cursor-pointer">Parameters and value selection</summary>
       {/* Variables Section */}
       <div className="border-t pt-4">
         <div className="flex justify-between items-center mb-3">
@@ -176,12 +181,23 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
         <input aria-label="Intention conditions" className="w-full border rounded p-2 mt-1 font-mono text-xs" placeholder="amount > 0 and amount <= 10" value={intention.conditionsText || ''} onChange={e => updateIntention('conditionsText', e.target.value)} />
         <span className="block text-xs font-normal text-gray-600 mt-1">Filters the selected combinations of variable values before reference execution. Use declared variable names without $ here.</span>
       </label>
-      <details className="border rounded p-3" open><summary className="font-medium">Intention notation preview</summary>
+      </details>
+      {!intention.formula && <details className="border rounded p-3" open><summary className="font-medium">Intention notation preview</summary>
         <p className="text-xs text-gray-600 my-2">Edit the fields and pairs below. $name denotes a variable in calls and observations. Additional marking checks stay in the pair editor.</p>
         <pre className="text-xs whitespace-pre-wrap break-words">{preview}</pre>
       </details>
+      }
+      {intention.formula && <>
+        <label className="block text-sm">Expected property truth on the reference
+          <select aria-label="Expected property truth" className="w-full border rounded p-2" value={String(intention.expectedTruth ?? true)} onChange={e => updateIntention('expectedTruth', e.target.value === 'true')}>
+            <option value="true">True — this behavior is required</option><option value="false">False — this property must not hold</option>
+          </select>
+        </label>
+        <HmlPropertyEditor formula={intention.formula} elements={elements} onChange={value => updateIntention('formula', value)} onValidityChange={setPropertyInvalid} />
+      </>}
+      {!intention.formula && methodMode && <button type="button" className="border rounded p-2 text-blue-700" onClick={() => { setObservationErrors({}); onChange({ ...intention, pairs: [], formula: intention.pairs.length ? sequenceFormula(intention.pairs) : newModal(methods), expectedTruth: true }); }}>Use a branching property</button>}
       {/* Stim/Obs Pairs Section */}
-      <div className="border-t pt-4">
+      {!intention.formula && <div className="border-t pt-4">
         <div className="flex justify-between items-center mb-3">
           <label className="block text-sm font-medium text-gray-700">
             Stimulation/Observation Pairs
@@ -287,12 +303,13 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
         </div>
       </div>
       
+      }
       {invalid && <p role="status" className="text-sm text-amber-900">{invalid}</p>}
       {/* Action Buttons */}
       <div className="pt-4 border-t flex gap-2">
         <button
           onClick={onSave}
-          disabled={!!invalid || !!markingError || Object.values(observationErrors).some(Boolean)}
+          disabled={!!invalid || propertyInvalid || !!markingError || Object.values(observationErrors).some(Boolean)}
           className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
         >
           Save Intention

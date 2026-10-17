@@ -23,7 +23,7 @@ export async function selectNegativeCompanions(suite, options = {}) {
   const usedIds = new Set(suite.selectedTests.map(t => t.id));
   let visited = 0;
   outer: for (const seed of suite.selectedTests) {
-    if (seed.pairs.some(p => p.assertion === 'blocked' || !p.stimulation.method)) continue;
+    if (seed.formula || seed.branchingSequence || seed.pairs.some(p => p.assertion === 'blocked' || !p.stimulation.method)) continue;
     for (let index = 0; index < seed.pairs.length; index++) {
       checkCancelled(options.signal);
       const prefix = seed.pairs.slice(0, index), methodName = seed.pairs[index].stimulation.method;

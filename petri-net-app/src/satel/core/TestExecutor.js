@@ -16,6 +16,7 @@ export async function executeTestSuite(suite, net, simulator, options = {}) {
       passed: run.counts.pass,
       failed: run.counts.fail,
       errors: run.counts.error,
+      inconclusive: run.counts.inconclusive || 0,
       executionTime: Date.now() - start
     }
   };

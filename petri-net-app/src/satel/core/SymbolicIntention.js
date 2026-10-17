@@ -1,3 +1,5 @@
+import { instantiateFormula, sequenceFormula } from './HmlFormula.js';
+import { symbolicToValue } from '../../utils/builtin-values.js';
 import { compileSymbolicIntention, encodeProtocolWitness } from './SymbolicSource.js';
 import { selectExecutableRepresentatives } from './ExecutableSequence.js';
 import { deriveGenericSubdomains } from './GenericSubuniformity.js';
@@ -37,6 +39,12 @@ export async function deriveSymbolicIntention(intention, net, options = {}) {
       id: d.id,
       symbolicDomain: d
     }));
+    if (intention.branchingProperty) report.candidates = report.candidates.map(test => {
+      const values = Object.fromEntries(Object.entries(test.symbolicDomain.witnessBindings).map(([n, term]) => [n, symbolicToValue(term)]));
+      const { steps, expected, pairs, ...metadata } = test;
+      return { ...metadata, pairs: [], expectedTruth: true, formula: { op: 'and', children: [sequenceFormula(pairs), instantiateFormula(intention.branchingProperty, values)] },
+        propertySelection: 'sequence-selected representative; additional branching obligations validated without re-solving' };
+    });
   } catch (e) {
     if (e.code === 'cancelled') throw e;
     report.encodingError = e.message;

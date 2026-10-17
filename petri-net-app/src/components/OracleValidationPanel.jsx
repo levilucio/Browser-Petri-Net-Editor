@@ -76,9 +76,10 @@ export default function OracleValidationPanel({
           }}>
           {intentions.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
         </select></label>
-        <button disabled={busy || selected?.kind === 'symbolic' && !selected.symbolic.protocolSource?.trim()} className="w-full rounded p-2 bg-blue-700 text-white disabled:opacity-50" onClick={() => generate(false, includeNegative)}>Generate tests</button>
-        <label className="flex gap-2 items-start"><input type="checkbox" aria-label="Include bounded refusal tests" disabled={busy} checked={includeNegative} onChange={e => setIncludeNegative(e.target.checked)} /><span>Also select bounded refusal tests from validated positive prefixes</span></label>
-        {includeNegative && <p className="text-xs text-gray-600">At most 10 extra tests. Prefixes stay fixed; terminal parameters may leave the intention’s conditions, within their declared sorts. A call is refused only when no method rule can accept it. Explicit error responses such as ack(0) are accepted calls.</p>}
+        <button disabled={busy || selected?.kind === 'symbolic' && !selected.symbolic.protocolSource?.trim()} className="w-full rounded p-2 bg-blue-700 text-white disabled:opacity-50" onClick={() => generate(false, includeNegative && !selected?.formula)}>Generate tests</button>
+        <label className="flex gap-2 items-start"><input type="checkbox" aria-label="Include bounded refusal tests" disabled={busy || !!selected?.formula} checked={includeNegative && !selected?.formula} onChange={e => setIncludeNegative(e.target.checked)} /><span>Also select bounded refusal tests from validated positive prefixes</span></label>
+        {selected?.formula && <p className="text-xs text-gray-600">Branching properties share fixed variable values across every obligation. Refusals can be written directly as “every outcome → impossible”. Automatic prefix companions apply to linear tests only.</p>}
+        {includeNegative && !selected?.formula && <p className="text-xs text-gray-600">At most 10 extra tests. Prefixes stay fixed; terminal parameters may leave the intention’s conditions, within their declared sorts. A call is refused only when no method rule can accept it. Explicit error responses such as ack(0) are accepted calls.</p>}
         {selected?.kind === 'symbolic' && !selected.symbolic.protocolSource?.trim() && <p>This intention has no pair sequence. It supports class analysis only, available under Advanced details.</p>}
         <p className="text-xs text-gray-600">Generation replaces the saved suite. Loading another APN keeps it for replay.</p>
       </>}
@@ -97,11 +98,11 @@ export default function OracleValidationPanel({
       {report?.decomposition && (!!report.decomposition.unresolved.length || !!report.decomposition.overlaps.length) && <p role="alert" className="bg-amber-50 p-2">Admission blocked: {report.decomposition.unresolved.length} unresolved branches and {report.decomposition.overlaps.length} overlapping or unchecked class pairs. Inspect Advanced details.</p>}
       <NegativeCoverage report={report?.negativeSelection} />
       {!!candidates.length && <section aria-label="Instantiated test sequences" className="space-y-3">
-        <h4 className="font-semibold">{suite ? 'Validated pair sequences' : 'Candidate pair sequences — not admitted'}</h4>
+        <h4 className="font-semibold">{suite ? 'Validated tests' : 'Candidate tests — not admitted'}</h4>
         {candidates.map((candidate, i) => <article key={candidate.id} className="border rounded p-3 space-y-2">
-          <h5 className="font-semibold">Test {i + 1}{candidate.pairs?.some(p => p.assertion === 'blocked') ? ' · final refusal' : ' · accepted sequence'}</h5>
+          <h5 className="font-semibold">Test {i + 1}{candidate.formula ? ' · branching property' : candidate.pairs?.some(p => p.assertion === 'blocked') ? ' · final refusal' : ' · accepted sequence'}</h5>
           <TestGenerationExplanation test={suite?.selectedTests.find(t => t.id === candidate.id) || candidate} />
-          <SatelTestDisplay test={suite?.selectedTests.find(t => t.id === candidate.id) || candidate} io={report?.interface} pairResults={session.validation?.testResults.find(r => r.testCaseId === candidate.id)?.pairResults} />
+          <SatelTestDisplay test={suite?.selectedTests.find(t => t.id === candidate.id) || candidate} io={report?.interface} propertyOrigin="reference" propertyResult={report?.referenceResults?.find(r => r.testCaseId === candidate.id)?.propertyResult} pairResults={session.validation?.testResults.find(r => r.testCaseId === candidate.id)?.pairResults} />
         </article>)}
       </section>}
       <details className="border rounded p-3 space-y-3"><summary className="cursor-pointer font-medium">Advanced details</summary>
@@ -133,12 +134,12 @@ export default function OracleValidationPanel({
         <p className="text-xs text-gray-600">Uses saved expectations and the target’s own initial marking. Load the mutant example, then replay; no regeneration is needed.</p>
         {session.target && !target && <p>Target changed. Replay to obtain current results.</p>}
         {target && <div data-testid="oracle-target-results" className="p-3 border rounded space-y-2">
-            <strong>{session.targetName}: {target.counts.pass} passed · {target.counts.fail} failed · {target.counts.error} errors</strong>
-            <p>{target.counts.error ? 'Execution error — not counted as a detected mutation.' : target.counts.fail ? 'Behavioral difference detected against the reference expectations.' : 'No difference detected by this suite.'}</p>
+            <strong>{session.targetName}: {target.counts.pass} passed · {target.counts.fail} failed · {target.counts.error} errors{target.counts.inconclusive ? ` · ${target.counts.inconclusive} inconclusive` : ''}</strong>
+            <p>{target.counts.error ? 'Execution error — not counted as a detected mutation.' : target.counts.fail ? 'Behavioral difference detected against the reference expectations.' : target.counts.inconclusive ? 'Exploration incomplete — no conformance claim for unresolved properties.' : 'No difference detected by this suite.'}</p>
             {target.results.map(r => <details key={r.id} className="border-t pt-2" open={r.verdict !== 'pass'}>
               <summary>{r.id}: {r.verdict}{r.step ? ` at step ${r.step}` : ''}</summary>{r.reason && <p>{r.reason}</p>}
               {r.expected && <PlaceObservations label="Expected" outputs={r.expected} />}{r.actual && <PlaceObservations label="Actual" outputs={r.actual} />}
-              <SatelTestDisplay test={suite.selectedTests.find(t => t.id === r.id)} io={suite.interface} />
+              <SatelTestDisplay test={suite.selectedTests.find(t => t.id === r.id)} io={suite.interface} propertyResult={r.propertyResult} />
             </details>)}
         </div>}
       </>}

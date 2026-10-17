@@ -81,11 +81,12 @@ test('search exhaustion is unresolved, not an infeasible class or negative test'
   await expect(admitSymbolicIntention(report, net)).rejects.toThrow(/unresolved/);
 });
 
-test('nondeterministic paths cannot bypass concrete reference admission', async () => {
+test('equivalent duplicate rules are admitted as one observable successor', async () => {
   const net = tokenNet([7, 7]);
   net.transitions.push({ ...copy(net.transitions[0]), id: 'alsoTake' });
   net.arcs.push(...net.arcs.map(a => ({ ...a, id: a.id + '-other', source: a.source === 'take' ? 'alsoTake' : a.source, target: a.target === 'take' ? 'alsoTake' : a.target })));
   const report = await derive(net);
   expect(report.candidates).toHaveLength(1);
-  await expect(admitSymbolicIntention(report, net)).rejects.toThrow(/Nondeterministic/);
+  const suite = await admitSymbolicIntention(report, net);
+  expect(suite.validation.referencePassed).toBe(1);
 });

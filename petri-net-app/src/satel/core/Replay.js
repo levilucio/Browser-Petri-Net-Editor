@@ -1,3 +1,5 @@
+import { replayProperty } from './HmlEvaluator.js';
+import { sequenceFormula } from './HmlFormula.js';
 import { equalTokenBags } from '../../utils/builtin-values.js';
 import { runSequence } from './SequenceRunner.js';
 import { normalizeTest } from './TestCase.js';
@@ -12,6 +14,7 @@ export async function replayTest(source, net, io, options = {}) {
   let test, execution;
   try {
     test = normalizeTest(source, io);
+    if (test.formula) return replayProperty(test, net, io, options);
     for (const {
       observation
     } of test.pairs) {
@@ -76,6 +79,10 @@ export async function replayTest(source, net, io, options = {}) {
     return result;
   } catch (error) {
     if (error.code === 'cancelled') throw error;
+    if (error.code === 'unsupported-nondeterminism' && test?.pairs.every(p => p.stimulation.method)) {
+      const result = await replayProperty({ ...test, formula: sequenceFormula(test.pairs) }, net, io, options);
+      return { ...result, branchingSequence: true };
+    }
     execution = error.execution;
     pairResults.push({
       success: false,

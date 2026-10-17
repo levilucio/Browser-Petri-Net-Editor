@@ -1,3 +1,4 @@
+import { instantiateFormula } from './HmlFormula.js';
 import { checkCancelled } from '../../domain/diagnostics.js';
 import { compileMethodTerm, evaluateMethodTerm } from '../../domain/apn/MethodTerms.js';
 import { getPublicMethods } from '../../domain/apn/PublicMethods.js';
@@ -25,7 +26,7 @@ export async function selectExplicitIntention(intention, petriNet, options = {})
   }
 
   // 3. Filter by multi-variable guards
-  const usesMethods = intention.pairs.some(p => p.stimulation.method);
+  const usesMethods = !!intention.formula || intention.pairs.some(p => p.stimulation.method);
   if (usesMethods && (intention.initialMarking !== undefined || intention.pairs.some(p => !p.stimulation.method))) throw new Error('Method intentions use the model initial marking and only public method calls');
   // Alternative method guards are not a conjunction over candidate arguments.
   const guards = usesMethods ? [] : extractMultiVariableGuards(intention.variables, petriNet);
@@ -64,6 +65,7 @@ export async function selectExplicitIntention(intention, petriNet, options = {})
         }
       } : {}),
       pairs: instantiatedPairs,
+      ...(intention.formula ? { formula: instantiateFormula(intention.formula, inst), expectedTruth: intention.expectedTruth ?? true } : {}),
       expectedTrace,
       // Legacy trace metadata; method tests are displayed from their pairs.
       oracle: {
