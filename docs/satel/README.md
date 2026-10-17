@@ -9,6 +9,11 @@ for the complete conversation-derived implementation history, current semantics,
 validation evidence, historical deferrals, and research questions. See the later increments for implemented negative and nondeterministic testing.
 It distinguishes established prototype behaviour from unproved mathematical claims.
 
+The [publication and black-box testing planning note (18 October 2026)](paper-planning-publishability-and-black-box-testing.md)
+records proposed contributions, correspondence proofs, observability limitations,
+statistical execution experiments, and related-work leads for the future paper.
+It separates research proposals from implemented functionality and proved results.
+
 ## Nondeterminism and branching properties
 
 For a practical walkthrough of the current GUI, see the [HML, nondeterminism and negative-test review guide](gui-review-2026-10-17.md).
