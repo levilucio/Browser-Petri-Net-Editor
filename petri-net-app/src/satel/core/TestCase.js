@@ -24,7 +24,7 @@ export function publicInterface(net) {
 }
 export function normalizeTest(test, io) {
   if (typeof test?.id !== 'string' || !test.id) throw new DomainError('invalid-test', 'A nonempty test ID is required');
-  if (test.testType === 'negative') throw new DomainError('unsupported-negative-test', 'Legacy whole-test verdict inversion is unsupported. Specify a blocked pair explicitly; negative sequence generation is not implemented.');
+  if (test.testType === 'negative') throw new DomainError('unsupported-negative-test', 'Legacy whole-test verdict inversion is unsupported. Specify a blocked pair explicitly; use a positive prefix and a final refused call.');
   let pairs = test.pairs;
   if (!pairs) {
     if (!Array.isArray(test.steps) || !Array.isArray(test.expected) || test.steps.length !== test.expected.length) {
@@ -41,12 +41,16 @@ export function normalizeTest(test, io) {
   if (!Array.isArray(pairs) || !pairs.length) throw new DomainError('invalid-test', 'A nonempty pair sequence is required');
   if (test.pairs && test.steps && JSON.stringify(test.steps) !== JSON.stringify(test.pairs.map(p => p.stimulation))) throw new DomainError('invalid-test', 'Conflicting legacy steps and canonical pairs');
   if (test.pairs && test.expected && JSON.stringify(test.expected) !== JSON.stringify(test.pairs.map(p => p.observation.outputs))) throw new DomainError('invalid-test', 'Conflicting legacy expectations and canonical pairs');
-  pairs = pairs.map(pair => {
+  pairs = pairs.map((pair, index) => {
     if (!pair.stimulation || !pair.observation) throw new DomainError('invalid-test', 'Each pair requires a stimulation and an observation');
     const scope = pair.observation.scope || 'listed';
     if (!['listed', 'public'].includes(scope)) throw new DomainError('invalid-test', 'Unknown observation scope');
     const assertion = pair.assertion || (pair.observation.type === 'notEnabled' ? 'blocked' : 'required');
     if (!['required', 'blocked'].includes(assertion)) throw new DomainError('unsupported-assertion', `Unsupported pair assertion: ${assertion}`);
+    if (assertion === 'blocked') {
+      if (index !== pairs.length - 1) throw new DomainError('invalid-test', 'A refused call must be the final pair');
+      if (Object.values(pair.observation.outputs || {}).some(tokens => !Array.isArray(tokens) || tokens.length)) throw new DomainError('invalid-test', 'Refusal cannot expect produced tokens');
+    }
     if (scope === 'public' && (!io?.outputs || JSON.stringify(Object.keys(pair.observation.outputs || {}).sort()) !== JSON.stringify([...io.outputs].sort()))) {
       throw new DomainError('invalid-test', 'Public observations must name every public output exactly once');
     }

@@ -67,7 +67,7 @@ function stimulusText(stimulation, io) {
   return `${stimulation.transition}${inputs ? ` [${inputs}]` : ''}`;
 }
 function observationText(observation, transition) {
-  if (observation.type === 'notEnabled') return `notEnabled(${transition})`;
+  if (observation.type === 'notEnabled') return 'refused; marking unchanged';
   if (!Object.keys(observation.outputs || {}).length) return 'unconstrained';
   return events(observation.outputs) || 'null';
 }
@@ -109,7 +109,7 @@ export default function SatelTestDisplay({ test, io, pairResults = [] }) {
             <details className="mt-2 border-t pt-2 space-y-1 text-xs text-gray-600 break-words"><summary>Execution details</summary>
               <p>Observation scope: {observation.scope === 'public' ? 'all public output places' : 'listed places only'}.</p>
               <p>{stimulation.method ? 'Public method' : 'Transition'}: <span className="font-mono">{stimulation.method || stimulation.transition}</span></p>
-              {test.symbolicDomain?.execution?.assertions?.[i] && <p>Selected rule: {test.symbolicDomain.execution.assertions[i].transitionId}. Input token occurrences: {test.symbolicDomain.execution.assertions[i].inputOccurrences.map(p => `${p.place}[${p.tokenIndex + 1}]`).join(', ') || 'none'} (positions before this firing).</p>}
+              {test.symbolicDomain?.execution?.assertions?.[i]?.kind !== 'blocked' && test.symbolicDomain?.execution?.assertions?.[i] && <p>Selected rule: {test.symbolicDomain.execution.assertions[i].transitionId}. Input token occurrences: {test.symbolicDomain.execution.assertions[i].inputOccurrences.map(p => `${p.place}[${p.tokenIndex + 1}]`).join(', ') || 'none'} (positions before this firing).</p>}
               {!stimulation.method && <PlaceObservations outputs={stimulation.inputs} label="Tokens consumed from places" />}
               {empty.length > 0 && <p>No tokens produced at: <span className="font-mono">{empty.join(', ')}</span>.</p>}
               {observation.type !== 'notEnabled' && observation.markings && Object.entries(observation.markings).map(([place, c]) =>

@@ -104,7 +104,7 @@ export function compilePublicNet(net) {
 }
 
 /** Resolve a call without mutating the marking. Multiple distinct enabled choices are unsupported. */
-export function prepareMethodCall(net, name, args = {}) {
+export function prepareMethodCall(net, name, args = {}, options = {}) {
   args = copy(args);
   const {
       methods,
@@ -191,6 +191,6 @@ export function prepareMethodCall(net, name, args = {}) {
       ...args
     }, []);
   }
-  if (candidates.length > 1) throw new DomainError('unsupported-nondeterminism', `Nondeterministic public call ${name}: multiple enabled rules or bindings are unsupported`);
+  if (candidates.length > 1 && !options.checkOnly) throw new DomainError('unsupported-nondeterminism', `Nondeterministic public call ${name}: multiple enabled rules or bindings are unsupported`);
   return candidates[0] || null;
 }

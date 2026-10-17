@@ -506,6 +506,7 @@ export function instantiatePair(pair, instantiation) {
       transition: pair.stimulation.transition,
       inputs: instantiateObject(pair.stimulation.inputs, instantiation)
     },
+    assertion: pair.assertion,
     observation: obs
   };
 }

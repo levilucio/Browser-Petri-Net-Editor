@@ -120,7 +120,9 @@ export function validateIntention(intention) {
   if (intention.initialMarking !== undefined && (!intention.initialMarking || typeof intention.initialMarking !== 'object' || Array.isArray(intention.initialMarking) || !Object.values(intention.initialMarking).every(Array.isArray))) {
     throw new Error('Initial marking must map place IDs to token arrays');
   }
-  for (const pair of intention.pairs) {
+  for (const [index, pair] of intention.pairs.entries()) {
+    if (pair.assertion && !['required', 'blocked'].includes(pair.assertion)) throw new Error('Unknown pair assertion');
+    if ((pair.assertion === 'blocked' || pair.observation?.type === 'notEnabled') && index !== intention.pairs.length - 1) throw new Error('A refused call must be the final pair');
     validatePair(pair);
   }
   return true;

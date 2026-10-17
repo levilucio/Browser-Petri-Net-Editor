@@ -12,7 +12,7 @@ export function pairNotation(pair) {
     if (c.contains !== undefined) return `⟦${c.contains.map(formatObservationToken).join(', ')}⟧ ⊆ ${p}`;
     return `${p}: no active constraint`;
   });
-  return `{ ${call} with ${o.type === 'notEnabled' ? 'blocked' : outputs.join(' // ') || 'unconstrained'} }${o.type !== 'notEnabled' && markings.length ? ` [marking: ${markings.join('; ')}]` : ''}`;
+  return `{ ${call} with ${pair.assertion === 'blocked' || o.type === 'notEnabled' ? 'refused' : outputs.join(' // ') || 'unconstrained'} }${o.type !== 'notEnabled' && markings.length ? ` [marking: ${markings.join('; ')}]` : ''}`;
 }
 export function intentionNotation(intention) {
   const variables = intention.variables.map(v => `  ${v.name} : ${v.sort}`).join('\n');

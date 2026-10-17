@@ -1,3 +1,4 @@
+import { equalTokenBags } from '../../utils/builtin-values.js';
 import { runSequence } from './SequenceRunner.js';
 import { normalizeTest } from './TestCase.js';
 import { checkObservation } from './Observations.js';
@@ -31,6 +32,14 @@ export async function replayTest(source, net, io, options = {}) {
           success: false,
           reason: pair.stimulation.method ? 'method_blocked' : 'transition_not_enabled'
         };else checked = checkObservation(pair.observation, event.marking, event.produced);
+        if (pair.assertion === 'blocked' && checked.success) {
+          const unchanged = Object.keys(event.previousMarking).length === Object.keys(event.marking).length && Object.entries(event.previousMarking).every(([id, tokens]) => equalTokenBags(tokens, event.marking[id] || []));
+          if (!unchanged) checked = { success: false, reason: 'refusal_changed_marking' };
+          else {
+            const observation = checkObservation(pair.observation, event.marking, event.produced);
+            if (!observation.success) checked = observation;
+          }
+        }
         pairResults.push({
           ...checked,
           phase: checked.success ? 'complete' : 'observation',

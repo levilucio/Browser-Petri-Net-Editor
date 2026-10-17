@@ -66,6 +66,7 @@ export async function runSequence(net, pairs, io, options = {}) {
       const event = {
         step: index + 1,
         enabled,
+        previousMarking: copy(execution.markings[execution.markings.length - 1]),
         produced,
         outputs,
         marking,

@@ -91,7 +91,8 @@ export function parseProtocol(source, algebra, goal) {
       args[a[1]] = one(a[2], algebra, current.variables);
     }
     const outputs = {};
-    if (pair[3] !== 'none') {
+    const refused = pair[3] === 'refused';
+    if (pair[3] !== 'none' && !refused) {
       for (const text of splitTopLevel(pair[3])) {
         const output = text.match(/^([A-Za-z_]\w*)\((.*)\)$/);
         if (!output) throw new Error('Use place(token) observations separated by commas');
@@ -99,6 +100,7 @@ export function parseProtocol(source, algebra, goal) {
       }
     }
     current.pairs.push({
+      assertion: refused ? 'blocked' : 'required',
       stimulation: {
         method: pair[1],
         arguments: args
@@ -111,6 +113,7 @@ export function parseProtocol(source, algebra, goal) {
   if (!cases.length) throw new Error('Protocol has no cases');
   const pattern = t => t?.var || typeof t === 'number' || typeof t === 'boolean' || typeof t === 'string' || t?.ctor && t.args.every(pattern);
   for (const c of cases) {
+    if (c.pairs.some((p, i) => p.assertion === 'blocked' && i !== c.pairs.length - 1)) throw new Error('A refused call must be the final pair');
     const op = algebra.operations[goal.operation];
     if (c.patterns?.length !== op.parameters.length || c.result === undefined || !c.pairs.length) throw new Error(`Incomplete protocol case: ${c.id}`);
     c.patterns.forEach((p, i) => {
@@ -145,7 +148,8 @@ export function encodeProtocolWitness(protocol, args, result, io, algebra) {
     }
     matches.push({
       steps,
-      expected
+      expected,
+      pairs: steps.map((stimulation, i) => ({ stimulation, assertion: c.pairs[i].assertion, observation: { outputs: expected[i], scope: 'public' } }))
     });
   }
   if (matches.length !== 1) throw new Error(`Witness must match exactly one protocol case (matched ${matches.length})`);

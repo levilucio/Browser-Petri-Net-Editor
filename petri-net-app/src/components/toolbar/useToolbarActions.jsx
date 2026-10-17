@@ -281,6 +281,14 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (filename.startsWith('refusal-')) {
+        const { createRefusalExample } = await import('../../satel/examples/refusal/editor.js');
+        const net = createRefusalExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (filename.startsWith('exercise-')) {
         const { createExerciseExample } = await import('../../satel/examples/exercises/editor.js');
         const net = createExerciseExample(filename);

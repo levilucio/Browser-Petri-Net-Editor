@@ -1,3 +1,4 @@
+import { refusalConstraints } from './RefusalConstraints.js';
 import { foldGroundTerms } from './GroundTerms.js';
 import { compilePublicNet, isMethodRule } from '../../domain/apn/PublicMethods.js';
 import { validBuiltinValue, valueToSymbolic as valueTerm, integerBounds } from '../../utils/builtin-values.js';
@@ -25,8 +26,7 @@ function range(term, sort) {
   }] : [];
 }
 
-/** Positive path constraint builder. Assertions are explicit so a future forbidden
- * final pair can use a different planner, rather than invert a failed replay. */
+/** Continuous positive prefixes, optionally ending with a universally blocked call. */
 async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, initialConditions) {
   if (!pairs.length || pairs.length > 32) fail('Executable sequences require 1–32 pairs');
   const {
@@ -83,7 +83,7 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
       return;
     }
     const pair = pairs[index];
-    if ((pair.assertion || 'required') !== 'required') fail('Only required pairs are supported by positive generation');
+    if (pair.assertion === 'blocked' && index !== pairs.length - 1) fail('A refused call must be the final pair');
     const {
       method: name,
       arguments: args
@@ -98,6 +98,13 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
       parameterConditions.push(...range(args[p.name], p.sort));
     }
     for (const id of Object.keys(pair.observation.outputs)) if (!io.outputs.includes(id)) fail(`Unknown public output in protocol: ${id}`);
+    if (pair.assertion === 'blocked') {
+      const refusal = refusalConstraints(plans[name], marking, args, algebra, tick);
+      yield* walk(index + 1, marking, [...conditions, ...parameterConditions, ...refusal.conditions], [...trace, {
+        assertion: 'blocked', picks: [], marking, refusal: refusal.evidence
+      }]);
+      return;
+    }
     for (const plan of plans[name]) {
       async function* bind(i, env, picks, constraints) {
         tick();
@@ -272,7 +279,8 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
                 assertions: path.trace.map(t => ({
                   kind: t.assertion,
                   transitionId: t.transitionId,
-                  inputOccurrences: t.picks
+                  inputOccurrences: t.picks,
+                  refusal: t.refusal
                 }))
               }
             };

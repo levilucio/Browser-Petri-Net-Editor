@@ -261,9 +261,21 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
 
               </div>
               
-              <ObservationEditor observation={pair.observation} places={places} pairNumber={idx + 1}
+              {methodMode && <label className="block text-xs mb-2">Expected response
+                <select aria-label={`Pair ${idx + 1} expected response`} className="block w-full border rounded p-2"
+                  value={pair.assertion || (pair.observation.type === 'notEnabled' ? 'blocked' : 'required')}
+                  onChange={e => {
+                    const pairs = intention.pairs.map((p, i) => i === idx ? { ...p, assertion: e.target.value,
+                      observation: { outputs: {}, ...(p.observation.markings ? { markings: p.observation.markings } : {}) } } : p);
+                    updateIntention('pairs', pairs);
+                  }}>
+                  <option value="required">Accepted, with these observations</option>
+                  <option value="blocked" disabled={idx !== intention.pairs.length - 1}>Refused; marking unchanged (final pair)</option>
+                </select>
+              </label>}
+              {pair.assertion === 'blocked' || pair.observation.type === 'notEnabled' ? <p className="text-xs p-2">The final call must have no enabled rule or token binding. It produces no tokens and leaves the marking unchanged.</p> : <ObservationEditor observation={pair.observation} places={places} pairNumber={idx + 1}
                 onChange={value => updatePair(idx, 'observation', value)}
-                onValidityChange={invalid => observationValidity(pairKeys.current[idx], invalid)} />
+                onValidityChange={invalid => observationValidity(pairKeys.current[idx], invalid)} />}
             </div>
           ))}
           

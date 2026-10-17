@@ -362,7 +362,7 @@ export class AlgebraicSimulator extends BaseSimulator {
 
   checkMethod(name, args) {
     if (!this.isInitialized) throw new Error('Simulator not initialized');
-    return !!prepareMethodCall(this.petriNet, name, args);
+    return !!prepareMethodCall(this.petriNet, name, args, { checkOnly: true });
   }
 
   async invokeMethod(name, args = {}) {
