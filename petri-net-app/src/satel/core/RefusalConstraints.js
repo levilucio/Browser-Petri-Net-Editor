@@ -1,0 +1,42 @@
+import { foldGroundTerms } from './GroundTerms.js';
+import { integerBounds } from '../../utils/builtin-values.js';
+
+export const equalTerm = (left, right) => ({ op: '==', left, right });
+export const conjoin = terms => terms.reduce((left, right) => ({ op: 'and', left, right }), true);
+export const parameterRange = (term, sort) => ['Nat', 'Int'].includes(sort)
+  ? [{ op: '>=', left: term, right: integerBounds(sort).min }, { op: '<=', left: term, right: integerBounds(sort).max }] : [];
+export const instantiateLocals = (term, env) => term?.var ? env[term.var]
+  : Array.isArray(term) ? term.map(t => instantiateLocals(t, env))
+  : term && typeof term === 'object' ? Object.fromEntries(Object.entries(term).map(([k, v]) => [k, instantiateLocals(v, env)])) : term;
+
+/** Refusal is the conjunction of the negated enabling conditions of EVERY
+ * distinct input binding of EVERY rule. Finite token occurrences come from the
+ * current marking. Output computation errors are not alternative refusal cases.
+ * tick must throw on cancellation/resource exhaustion; no partial formula escapes. */
+export function refusalConstraints(plans, marking, args, algebra, tick) {
+  const conditions = [], evidence = [];
+  for (const plan of plans) {
+    let bindings = 0;
+    function bind(i, env, picks, equalities) {
+      tick();
+      if (i < plan.ins.length) {
+        const input = plan.ins[i], seen = new Set();
+        for (const [tokenIndex, value] of marking[input.place].entries()) {
+          if (picks.some(p => p.place === input.place && p.tokenIndex === tokenIndex)) continue;
+          const key = JSON.stringify(value);
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const extra = Object.hasOwn(env, input.variable) ? [equalTerm(env[input.variable], value)] : [];
+          bind(i + 1, { ...env, [input.variable]: value }, [...picks, { place: input.place, tokenIndex }], [...equalities, ...extra]);
+        }
+        return;
+      }
+      bindings++;
+      const enabled = conjoin([...equalities, ...(plan.guard !== null && plan.guard !== undefined ? [instantiateLocals(plan.guard, env)] : [])]);
+      conditions.push(foldGroundTerms({ op: 'not', left: enabled }, algebra));
+    }
+    bind(0, args, [], []);
+    evidence.push({ transitionId: plan.id, bindings });
+  }
+  return { conditions, evidence };
+}

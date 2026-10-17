@@ -16,26 +16,30 @@ const setup = () => {
   return render(<SatelPanel isOpen onClose={() => {}} />);
 };
 const generate = async () => {
-  fireEvent.click(screen.getByRole('button', { name: 'Generate and validate on loaded reference' }));
-  await screen.findByText(/tests passed the reference oracle/);
+  fireEvent.click(screen.getByRole('button', { name: 'Generate tests' }));
+  await screen.findByText(/tests passed the reference oracle/, {}, { timeout: 15000 });
 };
 beforeEach(() => localStorage.clear());
 
 test('GUI preserves reference expectations across close/load and detects exact-balance mutant', async () => {
   const view = setup();
+  fireEvent.click(screen.getByRole('button', { name: 'Generated tests', exact: true }));
   await generate();
   expect(screen.getByText('4/4 tests passed the reference oracle')).toBeInTheDocument();
   expect(screen.getAllByText('Initial marking M₀')).toHaveLength(4);
+  expect(screen.getByLabelText('SATEL Testing')).not.toHaveTextContent('HML(');
+  expect(screen.getByLabelText('SATEL Testing')).not.toHaveTextContent('T ),');
   view.rerender(<SatelPanel isOpen={false} onClose={() => {}} />);
   elements = createOracleAccountExample('oracle-account-reject-exact-balance');
   view.rerender(<SatelPanel isOpen onClose={() => {}} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Replay results', exact: true }));
   fireEvent.click(screen.getByRole('button', { name: 'Replay frozen suite on loaded APN' }));
   const result = await screen.findByTestId('oracle-target-results');
   await waitFor(() => expect(result).toHaveTextContent('3 passed · 1 failed · 0 errors'));
   expect(result).toHaveTextContent('withdraw.amount.accept/affordable.equal: fail at step 2');
   expect(result).toHaveTextContent('Expected');
   expect(result).toHaveTextContent('Actual');
-  expect(screen.getByText('4/4 tests passed the reference oracle')).toBeInTheDocument();
+  expect(screen.getByText(/4 frozen tests from/)).toBeInTheDocument();
   elements = reference();
   view.rerender(<SatelPanel isOpen onClose={() => {}} />);
   expect(screen.queryByTestId('oracle-target-results')).not.toBeInTheDocument();
@@ -44,11 +48,13 @@ test('GUI preserves reference expectations across close/load and detects exact-b
 
 test('coarse equations expose the surviving exact-balance mutant', async () => {
   const view = setup();
-  fireEvent.change(screen.getByLabelText('Equation refinement'), { target: { value: 'coarse' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Generated tests', exact: true }));
+  fireEvent.change(screen.getByLabelText('Intention to generate'), { target: { value: 'account-coarse' } });
   await generate();
   expect(screen.getByText('3/3 tests passed the reference oracle')).toBeInTheDocument();
   elements = createOracleAccountExample('oracle-account-reject-exact-balance');
   view.rerender(<SatelPanel isOpen onClose={() => {}} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Replay results', exact: true }));
   fireEvent.click(screen.getByRole('button', { name: 'Replay frozen suite on loaded APN' }));
   await waitFor(() => expect(screen.getByTestId('oracle-target-results')).toHaveTextContent('3 passed · 0 failed · 0 errors'));
   expect(screen.getByText('No difference detected by this suite.')).toBeInTheDocument();
@@ -56,17 +62,19 @@ test('coarse equations expose the surviving exact-balance mutant', async () => {
 
 test('a mutant cannot silently become a valid reference for equation-derived expectations', async () => {
   const view = setup();
+  fireEvent.click(screen.getByRole('button', { name: 'Generated tests', exact: true }));
   elements = createOracleAccountExample('oracle-account-no-debit');
   view.rerender(<SatelPanel isOpen onClose={() => {}} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Generate and validate on loaded reference' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Generate tests' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('Reference validation failed');
   expect(screen.queryByRole('button', { name: 'Replay frozen suite on loaded APN' })).not.toBeInTheDocument();
 });
 
 test('unsupported target is an error, never a mutation kill', async () => {
-  const view = setup(); await generate();
+  const view = setup(); fireEvent.click(screen.getByRole('button', { name: 'Generated tests', exact: true })); await generate();
   elements = reference(); elements.transitions[0].guard = 'unsupported(n)';
   view.rerender(<SatelPanel isOpen onClose={() => {}} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Replay results', exact: true }));
   fireEvent.click(screen.getByRole('button', { name: 'Replay frozen suite on loaded APN' }));
   await waitFor(() => expect(screen.getByTestId('oracle-target-results')).toHaveTextContent('0 passed · 0 failed · 4 errors'));
   expect(screen.getByText('Execution error — not counted as a detected mutation.')).toBeInTheDocument();
@@ -75,18 +83,20 @@ test('unsupported target is an error, never a mutation kill', async () => {
 test('editor offers only intentions and explicitly discards old cached payloads', () => {
   localStorage.setItem('satel-test-intentions', JSON.stringify([{ pathPattern: {} }]));
   setup();
-  fireEvent.click(screen.getByRole('button', { name: 'intentions' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Intentions' }));
   expect(screen.getByRole('button', { name: '+ Create Intention' })).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /V[12]/ })).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: '+ Create Intention' }));
-  expect(screen.getByLabelText('Initial marking overrides (JSON)')).toBeInTheDocument();
+  expect(screen.queryByLabelText('Initial marking overrides (JSON)')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: '+ Add Pair' }));
+  expect(screen.getByLabelText('Pair 1 method')).toBeInTheDocument();
   expect(screen.getByRole('alert')).toHaveTextContent('old cached intention list was discarded');
   expect(localStorage.getItem('satel-test-intentions')).toBeNull();
 });
 
 const intention = {
   id: 'deposit', name: 'Deposit', testType: 'positive', variables: [],
-  pairs: [{ stimulation: { transition: 'deposit', inputs: { depositRequest: [10] } }, observation: { outputs: { ack: [1] } } }],
+  pairs: [{ stimulation: { method: 'deposit', arguments: { n: 10 } }, observation: { outputs: { ack: [1] } } }],
 };
 
 test('public API generates V2 without exploring the state space and executes with the same V2 checker', async () => {

@@ -1,0 +1,14 @@
+[
+  {"family":"allocation","kind":"linear","size":64},
+  {"family":"allocation","kind":"linear","size":256,"limits":{"timeoutMs":3000}},
+  {"family":"allocation","kind":"slots","size":8,"unsat":true,"limits":{"timeoutMs":3000}},
+  {"family":"invoice","size":4,"nonlinear":true,"limits":{"timeoutMs":3000,"maxTimeMs":10000}},
+  {"family":"decomposition","kind":"tree","depth":10},
+  {"family":"decomposition","kind":"tree","depth":16},
+  {"family":"fulfilment","sites":4,"policies":8,"cycles":4,"mutations":true},
+  {"family":"fulfilment","sites":4,"policies":64,"cycles":4,"limits":{"maxSequenceTimeMs":12000}},
+  {"family":"workers","workers":2,"rounds":4,"audit":false},
+  {"family":"workers","workers":4,"rounds":2,"audit":false,"mutations":true},
+  {"family":"workers","workers":2,"rounds":4,"audit":true},
+  {"family":"workers","workers":4,"rounds":4,"audit":true}
+]

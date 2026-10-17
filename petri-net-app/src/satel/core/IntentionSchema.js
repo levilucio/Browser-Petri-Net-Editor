@@ -1,3 +1,6 @@
+import { validateFormula } from './HmlFormula.js';
+import { validBuiltinValue } from '../../utils/builtin-values.js';
+import { compileMethodTerm } from '../../domain/apn/MethodTerms.js';
 /**
  * SATEL Intention Schema V2
  * 
@@ -98,73 +101,70 @@ export function validateIntention(intention) {
   if (!intention.id || typeof intention.id !== 'string') {
     throw new Error('Intention must have string id');
   }
-  
   if (!intention.name || typeof intention.name !== 'string') {
     throw new Error('Intention must have string name');
   }
-  
   if (intention.testType !== 'positive' && intention.testType !== 'negative') {
     throw new Error('testType must be "positive" or "negative"');
   }
-  
   if (!Array.isArray(intention.variables)) {
     throw new Error('variables must be an array');
   }
-  
+  if (new Set(intention.variables.map(v => v.name)).size !== intention.variables.length) throw new Error('Variable names must be unique');
+  if (intention.conditionsText?.trim()) compileMethodTerm(intention.conditionsText, Object.fromEntries(intention.variables.map(v => [v.name, v.sort])), 'Bool');
   for (const v of intention.variables) {
     validateVariable(v);
   }
-  
+  if (intention.formula) {
+    validateFormula(intention.formula);
+    if (intention.pairs.length || intention.initialMarking !== undefined) throw new Error('Branching properties use the model initial marking and replace the pair sequence');
+    if (intention.expectedTruth !== undefined && typeof intention.expectedTruth !== 'boolean') throw new Error('Expected truth must be boolean');
+    return true;
+  }
   if (!Array.isArray(intention.pairs) || intention.pairs.length === 0) {
     throw new Error('pairs must be non-empty array');
   }
-  
   if (intention.initialMarking !== undefined && (!intention.initialMarking || typeof intention.initialMarking !== 'object' || Array.isArray(intention.initialMarking) || !Object.values(intention.initialMarking).every(Array.isArray))) {
     throw new Error('Initial marking must map place IDs to token arrays');
   }
-  for (const pair of intention.pairs) {
+  for (const [index, pair] of intention.pairs.entries()) {
+    if (pair.assertion && !['required', 'blocked'].includes(pair.assertion)) throw new Error('Unknown pair assertion');
+    if ((pair.assertion === 'blocked' || pair.observation?.type === 'notEnabled') && index !== intention.pairs.length - 1) throw new Error('A refused call must be the final pair');
     validatePair(pair);
   }
-  
   return true;
 }
-
 function validateVariable(v) {
   if (!v.name || typeof v.name !== 'string') {
     throw new Error('Variable must have string name');
   }
-  
   if (!v.sort || typeof v.sort !== 'string') {
     throw new Error('Variable must have string sort');
   }
-  
   if (!v.hypothesis || typeof v.hypothesis !== 'object') {
     throw new Error('Variable must have hypothesis');
   }
-  
-  const validTypes = ['uniformity', 'subuniformity', 'regularity'];
+  if (v.hypothesis.type === 'finite' && (!Array.isArray(v.hypothesis.values) || !v.hypothesis.values.length || v.hypothesis.values.length > 128 || !v.hypothesis.values.every(x => validBuiltinValue(x, v.sort)))) throw new Error(`Supply 1–128 well-sorted finite values for ${v.name}`);
+  const validTypes = ['finite', 'uniformity', 'subuniformity', 'regularity'];
   if (!validTypes.includes(v.hypothesis.type)) {
     throw new Error(`Hypothesis type must be one of: ${validTypes.join(', ')}`);
   }
 }
-
 function validatePair(pair) {
   if (!pair.stimulation || typeof pair.stimulation !== 'object') {
     throw new Error('Pair must have stimulation');
   }
-  
-  if (!pair.stimulation.transition || typeof pair.stimulation.transition !== 'string') {
-    throw new Error('Stimulation must have transition ID');
+  if (pair.stimulation.method !== undefined) {
+    if (typeof pair.stimulation.method !== 'string' || !pair.stimulation.method) throw new Error('Stimulation must name a public method');
+    if (!pair.stimulation.arguments || typeof pair.stimulation.arguments !== 'object' || Array.isArray(pair.stimulation.arguments)) throw new Error('Method stimulation must have named arguments');
+    if (pair.stimulation.transition !== undefined || pair.stimulation.inputs !== undefined) throw new Error('Method calls cannot select internal transitions or input tokens');
+  } else {
+    if (!pair.stimulation.transition || typeof pair.stimulation.transition !== 'string') throw new Error('Stimulation must have a method or transition ID');
+    if (!pair.stimulation.inputs || typeof pair.stimulation.inputs !== 'object') throw new Error('Stimulation must have inputs object');
   }
-  
-  if (!pair.stimulation.inputs || typeof pair.stimulation.inputs !== 'object') {
-    throw new Error('Stimulation must have inputs object');
-  }
-  
   if (!pair.observation || typeof pair.observation !== 'object') {
     throw new Error('Pair must have observation');
   }
-  
   if (!pair.observation.outputs || typeof pair.observation.outputs !== 'object') {
     throw new Error('Observation must have outputs object');
   }

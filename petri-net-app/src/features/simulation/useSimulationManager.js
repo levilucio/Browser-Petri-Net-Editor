@@ -125,6 +125,23 @@ const useSimulationManager = (
     [simulatorCore, setElements, updateHistory, clearError, refreshEnabledTransitions, setSimulationError]
   );
 
+  const methodBusyRef = useRef(false);
+  const invokePublicMethod = useCallback(async (name, args) => {
+    if (isContinuousSimulatingRef.current || isRunningRef.current || methodBusyRef.current) throw new Error('Stop the running simulation before calling a method');
+    methodBusyRef.current = true;
+    try {
+      if (!(await simulatorCore.isReady())) await simulatorCore.initialize(latestElementsRef.current, { netMode });
+      else await simulatorCore.update(latestElementsRef.current);
+      const result = await simulatorCore.invokeMethod(name, args);
+      if (result.status === 'fired') {
+        setElements(result.state); latestElementsRef.current = result.state;
+        // The simulator event bus records this firing in history.
+      }
+      clearError(); await refreshEnabledTransitions();
+      return result;
+    } finally { methodBusyRef.current = false; }
+  }, [simulatorCore, netMode, setElements, clearError, refreshEnabledTransitions]);
+
   const stepSimulation = useMemo(
     () => createStepSimulation({
       simulatorCore,
@@ -225,6 +242,7 @@ const useSimulationManager = (
     simulationError,
     isSimulatorReady,
     handleFireTransition,
+    invokePublicMethod,
     stepSimulation,
     startContinuousSimulation,
     startRunSimulation,

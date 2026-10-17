@@ -1,5 +1,7 @@
 # Continuous execution from the initial marking
 
+Historical increment: the account example now uses [parameterized public methods](increment-04-public-methods.md), with each target’s own initial marking. The request-place setup below remains documentation of the earlier direct-transition contract.
+
 Tests now declare one initial marking M₀ and follow a continuous sequence of APN firings. Pair inputs constrain tokens consumed from the current marking. They never inject or replace tokens. Outputs describe production by that firing, including self-loops and repeated identical values. Observing outputs does not remove them. Execution stops at the first blocked pair or mismatch.
 
 ## GUI review

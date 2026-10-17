@@ -36,6 +36,8 @@ function generateGroundTerms(variable, intention, petriNet, adtRegistry) {
   const { hypothesis, sort } = variable;
   
   switch (hypothesis.type) {
+    case 'finite':
+      return hypothesis.values;
     case 'uniformity':
       // If representative provided, use it; otherwise generate from sort
       if (hypothesis.representative !== undefined) {
@@ -457,6 +459,7 @@ export async function filterByGuards(combinations, guards, petriNet) {
  * @returns {*} Instantiated term
  */
 export function instantiateTerm(term, instantiation) {
+  if (term && typeof term === 'object' && Object.keys(term).length === 1 && typeof term.literal === 'string') return term.literal;
   if (typeof term === 'string' && term.startsWith('$')) {
     // Variable reference
     const varName = term.slice(1);
@@ -487,7 +490,7 @@ export function instantiateTerm(term, instantiation) {
 export function instantiatePair(pair, instantiation) {
   const obs = {
     outputs: instantiateObject(pair.observation.outputs, instantiation),
-    markings: pair.observation.markings // Markings don't have variables
+    markings: instantiateTerm(pair.observation.markings, instantiation)
   };
   
   // Preserve observation type if present (e.g., 'notEnabled')
@@ -496,10 +499,14 @@ export function instantiatePair(pair, instantiation) {
   }
   
   return {
-    stimulation: {
+    stimulation: pair.stimulation.method ? {
+      method: pair.stimulation.method,
+      arguments: instantiateTerm(pair.stimulation.arguments, instantiation),
+    } : {
       transition: pair.stimulation.transition,
       inputs: instantiateObject(pair.stimulation.inputs, instantiation)
     },
+    assertion: pair.assertion,
     observation: obs
   };
 }

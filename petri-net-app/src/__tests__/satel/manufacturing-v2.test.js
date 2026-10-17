@@ -26,8 +26,8 @@ describe('Manufacturing V2 Intentions', () => {
     expect(manufacturingNet.adtDefinitions).toContain('Material');
   });
   
-  test('should have 9 V2 intentions', () => {
-    expect(manufacturingIntentionsV2).toHaveLength(9);
+  test('contains twelve saved legacy intentions', () => {
+    expect(manufacturingIntentionsV2).toHaveLength(12);
   });
   
   test('should generate test cases for each intention', async () => {
@@ -122,7 +122,8 @@ describe('Manufacturing V2 Intentions', () => {
   }, 10000);
   
   test('positive test cases should have meaningful pair results', async () => {
-    const positiveIntention = manufacturingIntentionsV2.find(i => i.testType === 'positive');
+    // Pin the supported fixed-sequence case, not the first catalog entry (a legacy conditional path).
+    const positiveIntention = manufacturingIntentionsV2.find(i => i.id === 'order-processing');
     
     const suite = await generateTestSuite(
       [positiveIntention],

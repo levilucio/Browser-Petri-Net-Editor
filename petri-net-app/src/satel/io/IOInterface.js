@@ -1,3 +1,4 @@
+import { getPublicMethods, isMethodRule } from '../../features/simulation/PublicMethods.js';
 /**
  * I/O Interface Manager
  * Manages stimulation and observation marking for places and transitions
@@ -69,7 +70,7 @@ export function getOutputPlaces(petriNet) {
  * @returns {Array} Input transitions
  */
 export function getInputTransitions(petriNet) {
-  return (petriNet.transitions || []).filter(isInput);
+  return (petriNet.transitions || []).filter(t => isInput(t) || isMethodRule(t));
 }
 
 /**
@@ -88,6 +89,7 @@ export function getOutputTransitions(petriNet) {
  */
 export function extractInterface(petriNet) {
   return {
+    methods: getPublicMethods(petriNet),
     inputPlaces: getInputPlaces(petriNet),
     outputPlaces: getOutputPlaces(petriNet),
     inputTransitions: getInputTransitions(petriNet),

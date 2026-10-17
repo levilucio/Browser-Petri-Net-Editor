@@ -12,7 +12,7 @@ test('manufacturing example loads model-owned intentions', async ({ page }) => {
     await page.getByLabel('Open toolbar menu').click();
     await page.getByTestId('toolbar-satel-mobile').click();
   }
-  await page.getByRole('button', { name: 'intentions' }).click();
+  await page.getByRole('button', { name: 'Intentions' }).click();
   const panel = page.getByRole('complementary', { name: 'SATEL Testing' });
   await expect(panel.getByRole('button', { name: 'Edit', exact: true })).toHaveCount(12);
   await expect(panel.getByRole('button', { name: 'Generate and validate suite' })).toBeEnabled();

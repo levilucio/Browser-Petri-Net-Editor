@@ -12,10 +12,10 @@ import { buildAdtRegistry } from '../../../utils/adt-parser.js';
 describe('Follow-up Fixes', () => {
   
   // FIX #1: Priority subuniformity on path guards
-  test('Priority subuniformity splits on guards, not constructors', async () => {
+  test('Single-step priority intention declares constructor selection', async () => {
     const intention = manufacturingIntentionsV2.find(i => i.id === 'order-processing');
     expect(intention).toBeDefined();
-    expect(intention.variables[0].hypothesis.source).toBe('guards');
+    expect(intention.variables[0].hypothesis.source).toBe('constructors');
     expect(intention.variables[0].hypothesis.type).toBe('subuniformity');
   });
 
@@ -124,7 +124,7 @@ describe('Follow-up Fixes', () => {
     });
 
     // Should generate test cases
-    expect(suite.testCases.length).toBe(11);
+    expect(suite.testCases.length).toBe(18);
 
     // All cases should have expected trace
     suite.testCases.forEach(tc => {
@@ -132,7 +132,7 @@ describe('Follow-up Fixes', () => {
       expect(Array.isArray(tc.expectedTrace)).toBe(true);
     });
 
-    // States explored should be meaningful
-    expect(suite.statistics.statesExplored).toBeGreaterThan(1);
+    // Finite selection does not build a reachability graph.
+    expect(suite.statistics.statesExplored).toBe(0);
   });
 });

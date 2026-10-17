@@ -196,6 +196,9 @@ export default function useToolbarActions(params) {
         }
 
         const safeJson = {
+          ...(petriNetJson.netMode ? { netMode: petriNetJson.netMode, mode: petriNetJson.netMode } : {}),
+          ...(petriNetJson.testIntentions ? { testIntentions: petriNetJson.testIntentions } : {}),
+          ...(petriNetJson.satelExample ? { satelExample: petriNetJson.satelExample } : {}),
           places: Array.isArray(petriNetJson.places) ? petriNetJson.places : [],
           transitions: Array.isArray(petriNetJson.transitions) ? petriNetJson.transitions : [],
           arcs: Array.isArray(petriNetJson.arcs) ? petriNetJson.arcs : [],
@@ -278,6 +281,86 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (filename.startsWith('hml-adt-')) {
+        const { createHmlAlgebraicExample } = await import('../../satel/examples/hml-selection/algebraic.js');
+        const net = createHmlAlgebraicExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (filename.startsWith('hml-selection-')) {
+        const { createHmlSelectionExample } = await import('../../satel/examples/hml-selection/editor.js');
+        const net = createHmlSelectionExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (filename.startsWith('nondeterminism-')) {
+        const { createNondeterminismExample } = await import('../../satel/examples/nondeterminism/editor.js');
+        const net = createNondeterminismExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (filename.startsWith('refusal-')) {
+        const { createRefusalExample } = await import('../../satel/examples/refusal/editor.js');
+        const net = createRefusalExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (filename.startsWith('exercise-')) {
+        const { createExerciseExample } = await import('../../satel/examples/exercises/editor.js');
+        const net = createExerciseExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (filename.startsWith('fulfilment-')) {
+        const { createFulfilmentExample } = await import('../../satel/examples/fulfilment/editor.js');
+        const net = createFulfilmentExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (['executable-sequence', 'executable-sequence-mutant'].includes(filename)) {
+        const { createExecutableSequenceExample } = await import('../../satel/examples/executable-sequence/editor.js');
+        const net = createExecutableSequenceExample(filename.endsWith('-mutant'));
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (['typed-store', 'typed-store-mutant'].includes(filename)) {
+        const { createTypedStoreExample } = await import('../../satel/examples/typed-store/editor.js');
+        const net = createTypedStoreExample(filename.endsWith('-mutant'));
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Intentions to review or generate tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (['builtin-types', 'compound-guard', 'compound-guard-mutant'].includes(filename)) {
+        const { createBuiltinTypesExample, createCompoundGuardExample } = await import('../../satel/examples/compound-guard/editor.js');
+        const net = filename === 'builtin-types' ? createBuiltinTypesExample() : createCompoundGuardExample(filename.endsWith('-mutant'));
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Intentions to review or generate tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (filename === 'symbolic-list') {
+        const { createSymbolicListExample } = await import('../../satel/examples/symbolic-list/editor.js');
+        const net = createSymbolicListExample();
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.('Loaded List membership. Open SATEL → Generated tests → Advanced details to derive classes.');
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (filename.startsWith('oracle-account-')) {
         const { createOracleAccountExample } = await import('../../satel/examples/oracle-account/editor.js');
         const net = createOracleAccountExample(filename);
@@ -285,7 +368,7 @@ export default function useToolbarActions(params) {
         setElements(net);
         setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
         updateHistory?.(net);
-        setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Oracle validation.`);
+        setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Intentions to review or generate tests.`);
         setIsMobileMenuOpen?.(false);
         return;
       }

@@ -1,0 +1,218 @@
+/** Checked, synchronous public methods for the built-in APN values. */
+import { compileMethodTerm, evaluateMethodTerm } from './MethodTerms.js';
+import { methodSorts, validBuiltinValue, builtinValueKey } from '../../utils/builtin-values.js';
+import { equalValues } from '../../utils/value-equality.js';
+import { semanticFingerprint } from './SemanticNet.js';
+import { freeze } from '../snapshots.js';
+import { DomainError, checkCancelled } from '../diagnostics.js';
+const copy = x => JSON.parse(JSON.stringify(x));
+const requireThat = (ok, message) => {
+  if (!ok) throw new DomainError('invalid-model', message);
+};
+const identifier = /^[A-Za-z_][A-Za-z0-9_]*$/;
+export const isMethodRule = t => t.method !== undefined && t.method !== null;
+export const validMethodValue = validBuiltinValue;
+export const methodSignature = m => `${m.name}(${m.parameters.map(p => `${p.name}: ${p.sort}`).join(', ')})`;
+export function getPublicMethods(net) {
+  const methods = new Map();
+  for (const t of net.transitions || []) {
+    if (!isMethodRule(t)) continue;
+    const m = t.method;
+    requireThat(m && typeof m.name === 'string' && identifier.test(m.name) && Array.isArray(m.parameters), `Invalid public method declaration: ${t.id}`);
+    requireThat(m.parameters.every(p => p && typeof p.name === 'string' && identifier.test(p.name) && methodSorts.includes(p.sort)), `Method ${m.name}: parameters must have names and supported built-in sorts`);
+    requireThat(new Set(m.parameters.map(p => p.name)).size === m.parameters.length, `Duplicate parameter in ${m.name}`);
+    if (methods.has(m.name)) {
+      requireThat(JSON.stringify(methods.get(m.name).parameters) === JSON.stringify(m.parameters), `Inconsistent signatures for method ${m.name}`);
+      methods.get(m.name).rules.push(t.id);
+    } else methods.set(m.name, {
+      name: m.name,
+      parameters: copy(m.parameters),
+      rules: [t.id]
+    });
+  }
+  return [...methods.values()];
+}
+const source = a => a.sourceId || a.source;
+const target = a => a.targetId || a.target;
+function binding(a) {
+  const bindings = a.bindings ?? (a.binding === undefined ? [] : [a.binding]);
+  requireThat(Array.isArray(bindings) && bindings.length === 1 && typeof bindings[0] === 'string' && (a.weight === undefined || a.weight === 1), `Method arc ${a.id} requires one binding and unit multiplicity`);
+  return bindings[0].trim();
+}
+
+/** Shared typed rule plan for concrete execution and symbolic path generation. */
+export function compileMethodRule(net, method, ruleId) {
+  const places = new Map(net.places.map(p => [p.id, p]));
+  const t = net.transitions.find(t => t.id === ruleId);
+  requireThat(!t.action?.trim(), 'Transition action scripts are outside the public-method fragment');
+  const incoming = net.arcs.filter(a => target(a) === ruleId);
+  const outgoing = net.arcs.filter(a => source(a) === ruleId);
+  for (const a of [...incoming, ...outgoing]) {
+    requireThat((a.sourceId === undefined || a.source === undefined || a.sourceId === a.source) && (a.targetId === undefined || a.target === undefined || a.targetId === a.target), `Conflicting arc endpoints: ${a.id}`);
+    const id = incoming.includes(a) ? source(a) : target(a),
+      p = places.get(id);
+    requireThat(p && methodSorts.includes(p.sort), `Method place ${id} must have a supported built-in sort`);
+    requireThat(Array.isArray(p.valueTokens) && p.valueTokens.every(v => validMethodValue(v, p.sort)) && p.tokens === p.valueTokens.length, `Invalid marking at ${id}`);
+  }
+  const ins = incoming.map(a => ({
+    a,
+    variable: binding(a),
+    place: source(a)
+  }));
+  requireThat(ins.every(i => identifier.test(i.variable)), 'Method input arc bindings must be variables');
+  const variables = Object.fromEntries(method.parameters.map(p => [p.name, p.sort]));
+  for (const input of ins) {
+    const sort = places.get(input.place).sort;
+    requireThat(!variables[input.variable] || variables[input.variable] === sort || ['Nat', 'Int'].every(s => [variables[input.variable], sort].includes(s)), `Conflicting method variable sort: ${input.variable}`);
+    variables[input.variable] ||= sort;
+  }
+  const guard = t.guard?.trim() ? compileMethodTerm(t.guard, variables, 'Bool') : null;
+  const outs = outgoing.map(a => ({
+    place: target(a),
+    ast: compileMethodTerm(binding(a), variables, places.get(target(a)).sort)
+  }));
+  return {
+    ins,
+    outs,
+    guard,
+    variables
+  };
+}
+
+// Bounded semantic cache: changing layout or marking does not recompile expressions.
+const compiledModels = new Map();
+export function compilePublicNet(net) {
+  const key = semanticFingerprint(net, {
+    definitionOnly: true
+  });
+  if (compiledModels.has(key)) return compiledModels.get(key);
+  const ids = [...net.places, ...net.transitions, ...net.arcs].map(x => x.id);
+  requireThat(ids.every(id => typeof id === 'string' && id) && new Set(ids).size === ids.length, 'Net IDs must be nonempty and unique');
+  const methods = getPublicMethods(net);
+  const plans = Object.fromEntries(methods.map(method => [method.name, method.rules.map(id => ({
+    id,
+    ...compileMethodRule(net, method, id)
+  }))]));
+  const compiled = freeze({
+    key,
+    methods,
+    plans: copy(plans)
+  });
+  if (compiledModels.size >= 8) compiledModels.delete(compiledModels.keys().next().value);
+  compiledModels.set(key, compiled);
+  return compiled;
+}
+
+/** Enumerate observable edges without mutating the marking. A partial search is explicit. */
+export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
+  args = copy(args);
+  const {
+      methods,
+      plans
+    } = compilePublicNet(net),
+    method = methods.find(m => m.name === name);
+  requireThat(method, `Unknown public method: ${name}`);
+  requireThat(args && typeof args === 'object' && !Array.isArray(args), 'Method arguments must be a named map');
+  requireThat(JSON.stringify(Object.keys(args).sort()) === JSON.stringify(method.parameters.map(p => p.name).sort()), `Arguments for ${methodSignature(method)} must match its declared parameters exactly`);
+  for (const p of method.parameters) requireThat(validMethodValue(args[p.name], p.sort), `Argument ${p.name} must be a valid ${p.sort} (integers use the 32-bit range)`);
+  for (const p of net.places) requireThat(Array.isArray(p.valueTokens) && p.tokens === p.valueTokens.length && p.valueTokens.every(v => validMethodValue(v, p.sort)), `Invalid marking at ${p.id}`);
+  const places = new Map(net.places.map(p => [p.id, p]));
+  const candidates = [],
+    seen = new Set();
+  let visited = 0;
+  const maxBindings = options.maxBindings ?? 10000;
+  requireThat(Number.isInteger(maxBindings) && maxBindings > 0, 'maxBindings must be a positive integer');
+  try {
+    for (const {
+      id: ruleId,
+      ins,
+      outs,
+      guard
+    } of plans[name]) {
+      const choose = (i, env, picks) => {
+        checkCancelled(options.signal);
+        if (++visited > maxBindings) throw new DomainError('resource-limit', 'Method binding search limit reached; result is unresolved');
+        options.onVisit?.();
+        if (i < ins.length) {
+          const input = ins[i];
+          const equivalent = new Set();
+          places.get(input.place).valueTokens.forEach((value, tokenIndex) => {
+            if (picks.some(p => p.srcId === input.place && p.tokenIndex === tokenIndex)) return;
+            const key = builtinValueKey(value);
+            if (equivalent.has(key)) return;
+            equivalent.add(key);
+            if (Object.hasOwn(env, input.variable) && !equalValues(env[input.variable], value)) return;
+            choose(i + 1, {
+              ...env,
+              [input.variable]: value
+            }, [...picks, {
+              arcId: input.a.id,
+              srcId: input.place,
+              tokenIndex,
+              value,
+              countFallback: false
+            }]);
+          });
+          return;
+        }
+        if (guard !== null && guard !== undefined) {
+          const enabled = evaluateMethodTerm(guard, env);
+          requireThat(typeof enabled === 'boolean', 'Method guard must evaluate to Bool');
+          if (!enabled) return;
+        }
+        const next = {
+            ...net,
+            places: net.places.map(p => ({
+              ...p,
+              valueTokens: copy(p.valueTokens)
+            }))
+          },
+          nextPlaces = new Map(next.places.map(p => [p.id, p]));
+        const produced = {};
+        [...picks].sort((a, b) => b.tokenIndex - a.tokenIndex).forEach(p => nextPlaces.get(p.srcId).valueTokens.splice(p.tokenIndex, 1));
+        for (const out of outs) {
+          const value = evaluateMethodTerm(out.ast, env),
+            p = nextPlaces.get(out.place);
+          requireThat(validMethodValue(value, p.sort), `Method output leaves ${p.sort} range at ${p.id}`);
+          p.valueTokens.push(copy(value));
+          (produced[p.id] ||= []).push(copy(value));
+        }
+        next.places.forEach(p => {
+          p.tokens = p.valueTokens.length;
+        });
+        const key = JSON.stringify([Object.entries(produced).map(([id, tokens]) => [id, tokens.map(builtinValueKey).sort()]).sort(), markingKey(next)]);
+        if (!seen.has(key)) {
+          seen.add(key);
+          candidates.push({
+            transitionId: ruleId,
+            env,
+            picks,
+            produced,
+            next
+          });
+        }
+      };
+      choose(0, {
+        ...args
+      }, []);
+    }
+  } catch (error) {
+    if (error.code !== 'resource-limit') throw error;
+    return { successors: candidates, complete: false, visited, reason: error.message };
+  }
+  return { successors: candidates, complete: true, visited };
+}
+
+/** Full markings, including hidden places and multiplicity, identify successor states. */
+export function markingKey(net) {
+  return JSON.stringify(net.places.map(p => [p.id, p.valueTokens.map(builtinValueKey).sort()]).sort((a, b) => a[0].localeCompare(b[0])));
+}
+
+/** Interactive single firing keeps requiring a unique successor; HML explores all. */
+export function prepareMethodCall(net, name, args = {}, options = {}) {
+  const result = enumerateMethodSuccessors(net, name, args, options);
+  if (!result.complete) throw new DomainError('resource-limit', result.reason);
+  const candidates = result.successors;
+  if (candidates.length > 1 && !options.checkOnly) throw new DomainError('unsupported-nondeterminism', `Nondeterministic public call ${name}: multiple enabled rules or bindings are unsupported`);
+  return candidates[0] || null;
+}

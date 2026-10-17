@@ -1,0 +1,3412 @@
+{
+  "recordedAt": "2026-10-16T19:46:32.368Z",
+  "baseCommit": "b19f227249443a4711f83169c3783e2faf16a99b",
+  "sourceSha256": {
+    "src/utils/builtin-values.js": "0a13e0ac7251d43961703d26e0a3268163f2fe754355310e8994bab9987da7a7",
+    "tools/node/run-satel-exercises.js": "624736a3202575335e0e878635758d237bd256fb3b911b1af5085469d626c6d8",
+    "src/satel/core/Admission.js": "eee4a2957430d55f7e9af2bfc2b65311ce90d04d9a5a8559036a232fa146ccc4",
+    "src/satel/core/BoundedOracleAdapter.js": "d457ec4fc7ad3e1cf5e83b10171d7aa73c0dff3e2ab56a290ad8ecd3776177ab",
+    "src/satel/core/BuiltinAlgebra.js": "7ea88be3c429fab927d8c761829a869691ccde34f5778776034604ce415bd40d",
+    "src/satel/core/Contracts.js": "eb85f2bc753f36bf76b385bed3103c11d757139170ebf74916fac9b543277f39",
+    "src/satel/core/DirectTransitionDriver.js": "a52932e470a97a4235fbb7cefb612af3a8ea90993aeaa7088eb642f30eb50c66",
+    "src/satel/core/ExecutableSequence.js": "bf29b4893c6af272ec082481fad9352ae137055f300063123175c9e9e89e1d5d",
+    "src/satel/core/ExplicitSelection.js": "b6b705c59fcb6e9afd3259cbb6f6797257702598e709385199e6b8db8cb2458a",
+    "src/satel/core/GenericSubuniformity.js": "e1122881cda8b3474505b8427ded1649c2f8f50335cb05c14c5f8952e316aab4",
+    "src/satel/core/GroundTerms.js": "d62be4dc12390fbf37d083aee7fe8ae80fd734d06940e6ab4dc5f968e8abc069",
+    "src/satel/core/GuardLogic.js": "53519ce7d6b3163e193e15e1d11140dcc29e0b1017c421a0f5a760e2824838b8",
+    "src/satel/core/InitialMarking.js": "51529eca2900ccc475b4e56e8ff4bd8fa4f33a134c17cb64163bb8a49e0ae508",
+    "src/satel/core/IntentionNotation.js": "c25015675be1f543ef9b8e2a133731a9e355c3293acd1bb9348280a639315ce5",
+    "src/satel/core/IntentionPipeline.js": "72be1c73440fd85c84738b31d84fecf6c7cc5541b99a22541cb80c3c24f1fdff",
+    "src/satel/core/IntentionSchema.js": "936ebdfd40d3c4a441a8d099d10c7866803f86cc4860d3921a8549b94c96802d",
+    "src/satel/core/ObservationChecker.js": "5b6ffec82cb7ffd0cf8273e3be47f6c8d82ff5038bc519256ac22062d8b2977e",
+    "src/satel/core/Observations.js": "7806f9103ae20a3dcfe596f7412c0465ce798bdae57c17072446227923d1f278",
+    "src/satel/core/PartitionGenerator.js": "93fccc79c82af956b7929b9c12b2b54317d2b60f47f1f85fec4808034e13fcac",
+    "src/satel/core/PathConditionPartitioner.js": "4bc8347ab618d967bf9967bb0d41d9cb5fa11e4e83e1ef9c6e7932ed71f45391",
+    "src/satel/core/Replay.js": "20a89b8fc0117fa67c2ad3e4d8bd629000607057f76f2e3149e90472f670ca78",
+    "src/satel/core/SequenceRunner.js": "f6cdd1f9d55e2250225677f2b8d8eeeaf6f5a05bfc880c9fca2275b9d7190a41",
+    "src/satel/core/SymbolicIntention.js": "a644bc0e85fc7beb3229385831c54491ca8f13b7d4b6ff753ed6d9bda669f69e",
+    "src/satel/core/SymbolicSource.js": "500a3c7674bb003d3fa9cee55bb627fb18c10ebad1e7dbc903bdf64e8d760604",
+    "src/satel/core/SymbolicSubuniformity.js": "a92f38646e20f76a30d9b0610fea71acf227350cfd0ff853dc1d2d23fb7d2a22",
+    "src/satel/core/SymbolicTerms.js": "58cfc15046ba0ebc22f307bab3b910d8f743c1bfe6b2e3409df46daddc68b2e8",
+    "src/satel/core/SymbolicZ3.js": "ac5ff7e5e2633f6aa37f65439abcec45f11bd71137add274248c71ec3738e413",
+    "src/satel/core/TestCase.js": "7e06b017d09d16dfd6b537269c1f94259243b44a680c7045e305ef7f6698e46a",
+    "src/satel/core/TestExecutor.js": "906120b2dd8770099d9d25b688928ddd8780000c3c661f5ec7c5d475a2f304a6",
+    "src/satel/core/TestGenerator.js": "c4da34b06844b8a3569f3ecc6079362b663a9ce628d6c968886888c2650054d4",
+    "src/satel/core/ValidatedSubuniformity.js": "5488947c773e1b2a5ed6406a8e7658544f5395882420797ab91c37eea76ced54",
+    "src/satel/core/VariableInstantiator.js": "4fc35dba16d62a566435576182fcb294c68ee0797bdd5a6d4f61377a7f3a6d2c",
+    "src/domain/diagnostics.js": "00fa91259d69b119a2b94997c7204de55e13ec19c49410feebf131fda484aeea",
+    "src/domain/snapshots.js": "41316b3d8fe5c5b122ce81e1e7fcfecc4a63f127aa008dc5715093930b1c4db2",
+    "src/domain/apn/MethodTerms.js": "cc0de0a9ddd7239ac67c96ae4dfd4ee9a40290f81da6ccf359b920f4850c050b",
+    "src/domain/apn/PublicMethods.js": "d52681af4fae06c9c94165d00b2004c2e6b52ce12ace1a5da2d7738062e73d14",
+    "src/domain/apn/SemanticNet.js": "1ba97eac03a084dc43c26c6bb5cec707d3396f29b9cc3007d35a0fa71786eafc",
+    "src/domain/algebra/BuiltinAlgebra.js": "52d11e8ece3e65bccf2d31b813218758a26f0a9efa69a7c620e2b9d5e0f750e8",
+    "src/domain/algebra/GroundTerms.js": "4ee0d2d0583aabf79b57749e6123cf18ef4522d030483df996a61fbac9361f62",
+    "src/domain/algebra/GuardLogic.js": "96f5a0417d43fc8b24a6e8c9be8a303c5afcbab23582d6c52ac54474aebee073",
+    "src/domain/algebra/Source.js": "9b8095af3c37dc2431c3740f3ab10008cf6a1c38d2f2f55de13ab8266fbed0dc",
+    "src/domain/algebra/SymbolicTerms.js": "342c2f2af19da050c50dbbafc98dd462161a000ea47a2ab0cb7ff18862485430",
+    "src/satel/examples/exercises/builder.js": "2976debca3b8817e6d2fa07be05e1424a262705ce925a25af88ccb57746e4f2e",
+    "src/satel/examples/exercises/coordinates.js": "21039b4d6ec7ef4d246afb8593d3e9dcbff373c021402d03857aeb372f2b8c46",
+    "src/satel/examples/exercises/door.js": "76008ee2dcde7d883cdccb4b586242c1ae3630d09bebc6700749f72f24be3bc2",
+    "src/satel/examples/exercises/editor.js": "ef247f0685aa808788a6c4ba8e84cb0297db3496f80cceca16bef7a68b17404b",
+    "src/satel/examples/exercises/journal.js": "0cfc28fe8307b24a5ed51eaadebf0ece3cd136b5995eceac9bb1fcbd775a55a7",
+    "src/satel/examples/exercises/kits.js": "5810654c9ab90a7ae1539860867591359fcb9184d4d514f507de982912742dd6",
+    "src/satel/examples/exercises/labels.js": "8ce50ccaee79a0f41362753109b436dcfb6ccecd5c1a0f7908801af93d985eae",
+    "src/satel/examples/exercises/parcel.js": "c9f19c7441876494b6bde522cf955edb71862a8c1f4a4162b5f230f6111d3ef1",
+    "src/satel/examples/exercises/queue.js": "a73a2998c8b04bb89e0f78ab532525953fed76aefef468b6a70bdafba7c4e112",
+    "src/satel/examples/exercises/quota.js": "561d17cde5d778f0b2e2fe7b93a23e84771f61077e98609da85eb72be0f9bc62",
+    "src/satel/examples/exercises/thermostat.js": "1ac470052e3ddf5454f842f0245a63a74e6919fe1a4924609e4184147f0fa3ae",
+    "src/satel/examples/exercises/tickets.js": "3d028bceb9ce0b7182aaf28872fe46a31cc37637e33919ce98f281b49fe2964d"
+  },
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 9
+  },
+  "methodology": "Serial, in-process runs after separately timed Z3 initialization. No forced GC. Generation includes algebraic decomposition and whole-sequence selection. Admission executes and checks the reference. Replay is a further frozen-suite execution. Memory is sampled after each run, not a peak or leak measurement. Numbers are descriptive, not timing gates.",
+  "runs": 5,
+  "z3InitializationMs": 151.05,
+  "scenarios": [
+    {
+      "id": "thermostat",
+      "depth": 2,
+      "classes": 3,
+      "types": "Int",
+      "generationMs": {
+        "median": 138.18,
+        "min": 130.28,
+        "max": 622.92
+      },
+      "admissionMs": {
+        "median": 3.86,
+        "min": 3.69,
+        "max": 22.22
+      },
+      "replayMs": {
+        "median": 2.83,
+        "min": 1.96,
+        "max": 3.51
+      },
+      "tests": [
+        {
+          "id": "below",
+          "firstCall": {
+            "method": "adjust",
+            "arguments": {
+              "delta": -1
+            }
+          },
+          "pairs": 2
+        },
+        {
+          "id": "steady",
+          "firstCall": {
+            "method": "adjust",
+            "arguments": {
+              "delta": 0
+            }
+          },
+          "pairs": 2
+        },
+        {
+          "id": "above",
+          "firstCall": {
+            "method": "adjust",
+            "arguments": {
+              "delta": 1
+            }
+          },
+          "pairs": 2
+        }
+      ],
+      "selection": [
+        {
+          "id": "below",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "steady",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "above",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "wrong-direction",
+          "ms": 4.62,
+          "pass": 2,
+          "fail": 1,
+          "error": 0,
+          "failures": [
+            {
+              "id": "below",
+              "step": 2,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "wrong-initial",
+          "ms": 3.04,
+          "pass": 0,
+          "fail": 3,
+          "error": 0,
+          "failures": [
+            {
+              "id": "below",
+              "step": 2,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "steady",
+              "step": 2,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "above",
+              "step": 2,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 622.92,
+          "admitMs": 22.22,
+          "replayMs": 3.51,
+          "visited": 48,
+          "pruned": 3,
+          "prefixChecks": 3,
+          "memoryMiB": {
+            "rss": 234.17,
+            "heapTotal": 24.79,
+            "heapUsed": 18.13,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "wrong-direction",
+              "ms": 4.62,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "wrong-initial",
+              "ms": 3.04,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 163.75,
+          "admitMs": 3.86,
+          "replayMs": 3.13,
+          "visited": 48,
+          "pruned": 3,
+          "prefixChecks": 3,
+          "memoryMiB": {
+            "rss": 239.25,
+            "heapTotal": 33.04,
+            "heapUsed": 20.04,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "wrong-direction",
+              "ms": 3.4,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "wrong-initial",
+              "ms": 2.87,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 138.18,
+          "admitMs": 3.72,
+          "replayMs": 2.69,
+          "visited": 48,
+          "pruned": 3,
+          "prefixChecks": 3,
+          "memoryMiB": {
+            "rss": 245.5,
+            "heapTotal": 33.04,
+            "heapUsed": 22.61,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "wrong-direction",
+              "ms": 4.29,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "wrong-initial",
+              "ms": 3.65,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 135.25,
+          "admitMs": 3.69,
+          "replayMs": 1.96,
+          "visited": 48,
+          "pruned": 3,
+          "prefixChecks": 3,
+          "memoryMiB": {
+            "rss": 248.63,
+            "heapTotal": 33.04,
+            "heapUsed": 23.75,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "wrong-direction",
+              "ms": 2.93,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "wrong-initial",
+              "ms": 4.87,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 130.28,
+          "admitMs": 5.15,
+          "replayMs": 2.83,
+          "visited": 48,
+          "pruned": 3,
+          "prefixChecks": 3,
+          "memoryMiB": {
+            "rss": 250.13,
+            "heapTotal": 33.04,
+            "heapUsed": 16.66,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "wrong-direction",
+              "ms": 2.16,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "wrong-initial",
+              "ms": 3.03,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "door",
+      "depth": 4,
+      "classes": 4,
+      "types": "Bool, Pair",
+      "generationMs": {
+        "median": 58.17,
+        "min": 52.86,
+        "max": 60.13
+      },
+      "admissionMs": {
+        "median": 7.29,
+        "min": 6.73,
+        "max": 8.76
+      },
+      "replayMs": {
+        "median": 7.3,
+        "min": 5.86,
+        "max": 8.32
+      },
+      "tests": [
+        {
+          "id": "offClear",
+          "firstCall": {
+            "method": "configure",
+            "arguments": {
+              "enabled": false,
+              "jammed": false
+            }
+          },
+          "pairs": 4
+        },
+        {
+          "id": "offJammed",
+          "firstCall": {
+            "method": "configure",
+            "arguments": {
+              "enabled": false,
+              "jammed": true
+            }
+          },
+          "pairs": 4
+        },
+        {
+          "id": "onClear",
+          "firstCall": {
+            "method": "configure",
+            "arguments": {
+              "enabled": true,
+              "jammed": false
+            }
+          },
+          "pairs": 4
+        },
+        {
+          "id": "onJammed",
+          "firstCall": {
+            "method": "configure",
+            "arguments": {
+              "enabled": true,
+              "jammed": true
+            }
+          },
+          "pairs": 4
+        }
+      ],
+      "selection": [
+        {
+          "id": "offClear",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "offJammed",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "onClear",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "onJammed",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "ignore-jam",
+          "ms": 5.64,
+          "pass": 3,
+          "fail": 1,
+          "error": 0,
+          "failures": [
+            {
+              "id": "onJammed",
+              "step": 2,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "stuck-open",
+          "ms": 7.28,
+          "pass": 3,
+          "fail": 1,
+          "error": 0,
+          "failures": [
+            {
+              "id": "onClear",
+              "step": 4,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 60.13,
+          "admitMs": 8.76,
+          "replayMs": 7.34,
+          "visited": 120,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 250.63,
+            "heapTotal": 34.29,
+            "heapUsed": 17.87,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "ignore-jam",
+              "ms": 5.64,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "stuck-open",
+              "ms": 7.28,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 52.86,
+          "admitMs": 7.15,
+          "replayMs": 5.86,
+          "visited": 120,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 251,
+            "heapTotal": 34.29,
+            "heapUsed": 17.26,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "ignore-jam",
+              "ms": 6.33,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "stuck-open",
+              "ms": 6.54,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 58.17,
+          "admitMs": 7.29,
+          "replayMs": 7.3,
+          "visited": 120,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 251.53,
+            "heapTotal": 34.29,
+            "heapUsed": 24.83,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "ignore-jam",
+              "ms": 5.22,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "stuck-open",
+              "ms": 4.69,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 58.69,
+          "admitMs": 6.73,
+          "replayMs": 8.32,
+          "visited": 120,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 251.52,
+            "heapTotal": 34.54,
+            "heapUsed": 24.54,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "ignore-jam",
+              "ms": 5.11,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "stuck-open",
+              "ms": 5.64,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 55.49,
+          "admitMs": 7.73,
+          "replayMs": 6.73,
+          "visited": 120,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 252.15,
+            "heapTotal": 34.54,
+            "heapUsed": 24.42,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "ignore-jam",
+              "ms": 5.58,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            },
+            {
+              "id": "stuck-open",
+              "ms": 4.92,
+              "pass": 3,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tickets",
+      "depth": 6,
+      "classes": 2,
+      "types": "Nat",
+      "generationMs": {
+        "median": 62.04,
+        "min": 59.15,
+        "max": 64.76
+      },
+      "admissionMs": {
+        "median": 3.78,
+        "min": 3.55,
+        "max": 5.06
+      },
+      "replayMs": {
+        "median": 2.84,
+        "min": 2.58,
+        "max": 4.05
+      },
+      "tests": [
+        {
+          "id": "exhausted",
+          "firstCall": {
+            "method": "issue",
+            "arguments": {
+              "n": 2
+            }
+          },
+          "pairs": 6
+        },
+        {
+          "id": "spare",
+          "firstCall": {
+            "method": "issue",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "pairs": 6
+        }
+      ],
+      "selection": [
+        {
+          "id": "exhausted",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "spare",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "free-use",
+          "ms": 1.59,
+          "pass": 0,
+          "fail": 2,
+          "error": 0,
+          "failures": [
+            {
+              "id": "exhausted",
+              "step": 3,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "spare",
+              "step": 3,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "extra-ticket",
+          "ms": 4.33,
+          "pass": 0,
+          "fail": 2,
+          "error": 0,
+          "failures": [
+            {
+              "id": "exhausted",
+              "step": 3,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "spare",
+              "step": 3,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 64.76,
+          "admitMs": 4.95,
+          "replayMs": 2.84,
+          "visited": 74,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 252.73,
+            "heapTotal": 35.54,
+            "heapUsed": 18.41,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "free-use",
+              "ms": 1.59,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "extra-ticket",
+              "ms": 4.33,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 59.15,
+          "admitMs": 3.55,
+          "replayMs": 2.81,
+          "visited": 74,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 253.1,
+            "heapTotal": 35.79,
+            "heapUsed": 19.16,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "free-use",
+              "ms": 1.91,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "extra-ticket",
+              "ms": 2.51,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 64.59,
+          "admitMs": 3.78,
+          "replayMs": 2.58,
+          "visited": 74,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 253.48,
+            "heapTotal": 36.04,
+            "heapUsed": 19.94,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "free-use",
+              "ms": 2.42,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "extra-ticket",
+              "ms": 1.65,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 62.04,
+          "admitMs": 5.06,
+          "replayMs": 4.05,
+          "visited": 74,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 254.04,
+            "heapTotal": 36.29,
+            "heapUsed": 20.72,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "free-use",
+              "ms": 2.75,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "extra-ticket",
+              "ms": 1.87,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 60.81,
+          "admitMs": 3.67,
+          "replayMs": 3.18,
+          "visited": 74,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 254.29,
+            "heapTotal": 36.29,
+            "heapUsed": 21.33,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "free-use",
+              "ms": 1.52,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "extra-ticket",
+              "ms": 1.61,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "labels",
+      "depth": 8,
+      "classes": 3,
+      "types": "String, Bool",
+      "generationMs": {
+        "median": 482.38,
+        "min": 439.15,
+        "max": 507.49
+      },
+      "admissionMs": {
+        "median": 9.21,
+        "min": 6.52,
+        "max": 12.63
+      },
+      "replayMs": {
+        "median": 7.67,
+        "min": 6.42,
+        "max": 11.12
+      },
+      "tests": [
+        {
+          "id": "String.length/String.isSubstringOf/empty/String.length",
+          "firstCall": {
+            "method": "register",
+            "arguments": {
+              "s": ""
+            }
+          },
+          "pairs": 8
+        },
+        {
+          "id": "String.length/String.isSubstringOf/short/String.length/String.length",
+          "firstCall": {
+            "method": "register",
+            "arguments": {
+              "s": "E"
+            }
+          },
+          "pairs": 8
+        },
+        {
+          "id": "String.length/String.isSubstringOf/long/String.length",
+          "firstCall": {
+            "method": "register",
+            "arguments": {
+              "s": "CDEF"
+            }
+          },
+          "pairs": 8
+        }
+      ],
+      "selection": [
+        {
+          "id": "String.length/String.isSubstringOf/empty/String.length",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "String.length/String.isSubstringOf/short/String.length/String.length",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "String.length/String.isSubstringOf/long/String.length",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "wrong-prefix",
+          "ms": 5.82,
+          "pass": 0,
+          "fail": 3,
+          "error": 0,
+          "failures": [
+            {
+              "id": "String.length/String.isSubstringOf/empty/String.length",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/short/String.length/String.length",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/long/String.length",
+              "step": 4,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "stale-clear",
+          "ms": 6.87,
+          "pass": 0,
+          "fail": 3,
+          "error": 0,
+          "failures": [
+            {
+              "id": "String.length/String.isSubstringOf/empty/String.length",
+              "step": 8,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/short/String.length/String.length",
+              "step": 8,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/long/String.length",
+              "step": 8,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 482.38,
+          "admitMs": 12.63,
+          "replayMs": 7.67,
+          "visited": 171,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 260.09,
+            "heapTotal": 36.54,
+            "heapUsed": 26.17,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "wrong-prefix",
+              "ms": 5.82,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "stale-clear",
+              "ms": 6.87,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 439.15,
+          "admitMs": 11.6,
+          "replayMs": 11.12,
+          "visited": 171,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 274.87,
+            "heapTotal": 48.79,
+            "heapUsed": 38,
+            "external": 35.59,
+            "arrayBuffers": 31.98
+          },
+          "mutants": [
+            {
+              "id": "wrong-prefix",
+              "ms": 7.19,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "stale-clear",
+              "ms": 11.69,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 440.93,
+          "admitMs": 6.86,
+          "replayMs": 6.42,
+          "visited": 171,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 256.52,
+            "heapTotal": 59.54,
+            "heapUsed": 28.49,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "wrong-prefix",
+              "ms": 3.28,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "stale-clear",
+              "ms": 6.03,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 507.49,
+          "admitMs": 6.52,
+          "replayMs": 6.88,
+          "visited": 171,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 287.64,
+            "heapTotal": 59.54,
+            "heapUsed": 32.33,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "wrong-prefix",
+              "ms": 4.58,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "stale-clear",
+              "ms": 5.49,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 499.05,
+          "admitMs": 9.21,
+          "replayMs": 9.37,
+          "visited": 171,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 290.77,
+            "heapTotal": 59.54,
+            "heapUsed": 36.08,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "wrong-prefix",
+              "ms": 7.9,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "stale-clear",
+              "ms": 9.83,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coordinates",
+      "depth": 10,
+      "classes": 4,
+      "types": "Pair, Int",
+      "generationMs": {
+        "median": 246.32,
+        "min": 230.65,
+        "max": 281.26
+      },
+      "admissionMs": {
+        "median": 11.79,
+        "min": 11.13,
+        "max": 12.89
+      },
+      "replayMs": {
+        "median": 10.48,
+        "min": 9.27,
+        "max": 12.2
+      },
+      "tests": [
+        {
+          "id": "southwest",
+          "firstCall": {
+            "method": "load",
+            "arguments": {
+              "p": {
+                "__pair__": true,
+                "fst": -1,
+                "snd": -1
+              }
+            }
+          },
+          "pairs": 10
+        },
+        {
+          "id": "northwest",
+          "firstCall": {
+            "method": "load",
+            "arguments": {
+              "p": {
+                "__pair__": true,
+                "fst": -1,
+                "snd": 0
+              }
+            }
+          },
+          "pairs": 10
+        },
+        {
+          "id": "southeast",
+          "firstCall": {
+            "method": "load",
+            "arguments": {
+              "p": {
+                "__pair__": true,
+                "fst": 0,
+                "snd": -1
+              }
+            }
+          },
+          "pairs": 10
+        },
+        {
+          "id": "northeast",
+          "firstCall": {
+            "method": "load",
+            "arguments": {
+              "p": {
+                "__pair__": true,
+                "fst": 1,
+                "snd": 1
+              }
+            }
+          },
+          "pairs": 10
+        }
+      ],
+      "selection": [
+        {
+          "id": "southwest",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "northwest",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "southeast",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "northeast",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "swapped-axes",
+          "ms": 5.41,
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "failures": [
+            {
+              "id": "southwest",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "northwest",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "southeast",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "northeast",
+              "step": 4,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "bad-origin",
+          "ms": 10.09,
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "failures": [
+            {
+              "id": "southwest",
+              "step": 10,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "northwest",
+              "step": 10,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "southeast",
+              "step": 10,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "northeast",
+              "step": 10,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 281.26,
+          "admitMs": 12.53,
+          "replayMs": 12.2,
+          "visited": 244,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 293.52,
+            "heapTotal": 60.54,
+            "heapUsed": 28.16,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "swapped-axes",
+              "ms": 5.41,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "bad-origin",
+              "ms": 10.09,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 252.21,
+          "admitMs": 12.89,
+          "replayMs": 10.48,
+          "visited": 244,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 294.52,
+            "heapTotal": 61.04,
+            "heapUsed": 33.7,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "swapped-axes",
+              "ms": 4.64,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "bad-origin",
+              "ms": 10.69,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 236.81,
+          "admitMs": 11.36,
+          "replayMs": 10.58,
+          "visited": 244,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 294.64,
+            "heapTotal": 61.54,
+            "heapUsed": 40.41,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "swapped-axes",
+              "ms": 4.94,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "bad-origin",
+              "ms": 8.97,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 246.32,
+          "admitMs": 11.79,
+          "replayMs": 9.27,
+          "visited": 244,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 295.89,
+            "heapTotal": 61.79,
+            "heapUsed": 32.44,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "swapped-axes",
+              "ms": 4.96,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "bad-origin",
+              "ms": 10.08,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 230.65,
+          "admitMs": 11.13,
+          "replayMs": 9.44,
+          "visited": 244,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 297.64,
+            "heapTotal": 61.79,
+            "heapUsed": 39.18,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "swapped-axes",
+              "ms": 6.02,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "bad-origin",
+              "ms": 10.75,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "queue",
+      "depth": 12,
+      "classes": 3,
+      "types": "List, Int",
+      "generationMs": {
+        "median": 56.26,
+        "min": 51.48,
+        "max": 57.79
+      },
+      "admissionMs": {
+        "median": 10.41,
+        "min": 8.67,
+        "max": 15.29
+      },
+      "replayMs": {
+        "median": 8.47,
+        "min": 7.69,
+        "max": 8.86
+      },
+      "tests": [
+        {
+          "id": "empty",
+          "firstCall": {
+            "method": "load",
+            "arguments": {
+              "xs": []
+            }
+          },
+          "pairs": 12
+        },
+        {
+          "id": "single",
+          "firstCall": {
+            "method": "load",
+            "arguments": {
+              "xs": [
+                1
+              ]
+            }
+          },
+          "pairs": 12
+        },
+        {
+          "id": "double",
+          "firstCall": {
+            "method": "load",
+            "arguments": {
+              "xs": [
+                1,
+                1
+              ]
+            }
+          },
+          "pairs": 12
+        }
+      ],
+      "selection": [
+        {
+          "id": "empty",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "single",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "double",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "prepend",
+          "ms": 4.92,
+          "pass": 0,
+          "fail": 3,
+          "error": 0,
+          "failures": [
+            {
+              "id": "empty",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "single",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "double",
+              "step": 4,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "no-removal",
+          "ms": 5.9,
+          "pass": 0,
+          "fail": 3,
+          "error": 0,
+          "failures": [
+            {
+              "id": "empty",
+              "step": 6,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "single",
+              "step": 6,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "double",
+              "step": 6,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 57.6,
+          "admitMs": 12.78,
+          "replayMs": 8.32,
+          "visited": 255,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 298.39,
+            "heapTotal": 63.04,
+            "heapUsed": 30.11,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "prepend",
+              "ms": 4.92,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "no-removal",
+              "ms": 5.9,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 57.79,
+          "admitMs": 10.41,
+          "replayMs": 8.86,
+          "visited": 255,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 298.77,
+            "heapTotal": 63.04,
+            "heapUsed": 36.6,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "prepend",
+              "ms": 3.93,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "no-removal",
+              "ms": 4.43,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 56.26,
+          "admitMs": 8.67,
+          "replayMs": 8.7,
+          "visited": 255,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 298.38,
+            "heapTotal": 63.04,
+            "heapUsed": 42.12,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "prepend",
+              "ms": 5.23,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "no-removal",
+              "ms": 5.19,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 51.48,
+          "admitMs": 15.29,
+          "replayMs": 8.47,
+          "visited": 255,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 298.76,
+            "heapTotal": 63.54,
+            "heapUsed": 32.99,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "prepend",
+              "ms": 4.71,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "no-removal",
+              "ms": 6.29,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 52.39,
+          "admitMs": 9.06,
+          "replayMs": 7.69,
+          "visited": 255,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 300.13,
+            "heapTotal": 64.29,
+            "heapUsed": 37.45,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "prepend",
+              "ms": 3.43,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "no-removal",
+              "ms": 4.49,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "parcel",
+      "depth": 14,
+      "classes": 4,
+      "types": "Pair, String, Bool, Nat",
+      "generationMs": {
+        "median": 219.12,
+        "min": 213.53,
+        "max": 228.47
+      },
+      "admissionMs": {
+        "median": 26.77,
+        "min": 26.07,
+        "max": 32.48
+      },
+      "replayMs": {
+        "median": 24.64,
+        "min": 24.3,
+        "max": 26.8
+      },
+      "tests": [
+        {
+          "id": "String.length/String.isSubstringOf/emptyRegular",
+          "firstCall": {
+            "method": "create",
+            "arguments": {
+              "meta": {
+                "__pair__": true,
+                "fst": "",
+                "snd": false
+              }
+            }
+          },
+          "pairs": 14
+        },
+        {
+          "id": "String.length/String.isSubstringOf/emptyFragile",
+          "firstCall": {
+            "method": "create",
+            "arguments": {
+              "meta": {
+                "__pair__": true,
+                "fst": "",
+                "snd": true
+              }
+            }
+          },
+          "pairs": 14
+        },
+        {
+          "id": "String.length/String.isSubstringOf/namedRegular/String.length",
+          "firstCall": {
+            "method": "create",
+            "arguments": {
+              "meta": {
+                "__pair__": true,
+                "fst": "X",
+                "snd": false
+              }
+            }
+          },
+          "pairs": 14
+        },
+        {
+          "id": "String.length/String.isSubstringOf/namedFragile/String.length",
+          "firstCall": {
+            "method": "create",
+            "arguments": {
+              "meta": {
+                "__pair__": true,
+                "fst": "X",
+                "snd": true
+              }
+            }
+          },
+          "pairs": 14
+        }
+      ],
+      "selection": [
+        {
+          "id": "String.length/String.isSubstringOf/emptyRegular",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "String.length/String.isSubstringOf/emptyFragile",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "String.length/String.isSubstringOf/namedRegular/String.length",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "String.length/String.isSubstringOf/namedFragile/String.length",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "not-fragile",
+          "ms": 12.67,
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "failures": [
+            {
+              "id": "String.length/String.isSubstringOf/emptyRegular",
+              "step": 6,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/emptyFragile",
+              "step": 6,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/namedRegular/String.length",
+              "step": 6,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/namedFragile/String.length",
+              "step": 6,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "no-return-label",
+          "ms": 20.09,
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "failures": [
+            {
+              "id": "String.length/String.isSubstringOf/emptyRegular",
+              "step": 12,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/emptyFragile",
+              "step": 12,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/namedRegular/String.length",
+              "step": 12,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "String.length/String.isSubstringOf/namedFragile/String.length",
+              "step": 12,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 223.05,
+          "admitMs": 28.42,
+          "replayMs": 25.01,
+          "visited": 480,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 301.13,
+            "heapTotal": 64.29,
+            "heapUsed": 40.87,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "not-fragile",
+              "ms": 12.67,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-return-label",
+              "ms": 20.09,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 213.53,
+          "admitMs": 26.13,
+          "replayMs": 24.64,
+          "visited": 480,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 302.01,
+            "heapTotal": 65.54,
+            "heapUsed": 42.45,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "not-fragile",
+              "ms": 13.44,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-return-label",
+              "ms": 23.6,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 216.93,
+          "admitMs": 26.07,
+          "replayMs": 24.3,
+          "visited": 480,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 319.13,
+            "heapTotal": 98.29,
+            "heapUsed": 44.46,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "not-fragile",
+              "ms": 14.74,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-return-label",
+              "ms": 24.51,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 228.47,
+          "admitMs": 32.48,
+          "replayMs": 26.8,
+          "visited": 480,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 334.88,
+            "heapTotal": 93.54,
+            "heapUsed": 31.09,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "not-fragile",
+              "ms": 16.97,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-return-label",
+              "ms": 23.91,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 219.12,
+          "admitMs": 26.77,
+          "replayMs": 24.4,
+          "visited": 480,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 334.88,
+            "heapTotal": 93.54,
+            "heapUsed": 46.24,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "not-fragile",
+              "ms": 11.77,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-return-label",
+              "ms": 19.64,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quota",
+      "depth": 16,
+      "classes": 3,
+      "types": "Nat, Bool",
+      "generationMs": {
+        "median": 289.61,
+        "min": 272.2,
+        "max": 332.83
+      },
+      "admissionMs": {
+        "median": 12.92,
+        "min": 12.41,
+        "max": 15.05
+      },
+      "replayMs": {
+        "median": 11.43,
+        "min": 11.23,
+        "max": 12.48
+      },
+      "tests": [
+        {
+          "id": "small",
+          "firstCall": {
+            "method": "reserve",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "pairs": 16
+        },
+        {
+          "id": "special",
+          "firstCall": {
+            "method": "reserve",
+            "arguments": {
+              "n": 7
+            }
+          },
+          "pairs": 16
+        },
+        {
+          "id": "ordinary",
+          "firstCall": {
+            "method": "reserve",
+            "arguments": {
+              "n": 4
+            }
+          },
+          "pairs": 16
+        }
+      ],
+      "selection": [
+        {
+          "id": "small",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "special",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "ordinary",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "lost-release",
+          "ms": 4,
+          "pass": 0,
+          "fail": 3,
+          "error": 0,
+          "failures": [
+            {
+              "id": "small",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "special",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "ordinary",
+              "step": 4,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "missing-special",
+          "ms": 8.6,
+          "pass": 2,
+          "fail": 1,
+          "error": 0,
+          "failures": [
+            {
+              "id": "special",
+              "step": 1,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 332.83,
+          "admitMs": 15.05,
+          "replayMs": 11.42,
+          "visited": 459,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.58,
+            "heapTotal": 93.54,
+            "heapUsed": 41.73,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "lost-release",
+              "ms": 4,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "missing-special",
+              "ms": 8.6,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 289.61,
+          "admitMs": 12.92,
+          "replayMs": 12.44,
+          "visited": 459,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.83,
+            "heapTotal": 93.54,
+            "heapUsed": 32.83,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "lost-release",
+              "ms": 3.84,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "missing-special",
+              "ms": 10.62,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 282.21,
+          "admitMs": 13.94,
+          "replayMs": 11.23,
+          "visited": 459,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 326.81,
+            "heapTotal": 93.54,
+            "heapUsed": 23.65,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "lost-release",
+              "ms": 4.15,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "missing-special",
+              "ms": 8.47,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 298.79,
+          "admitMs": 12.41,
+          "replayMs": 11.43,
+          "visited": 459,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 326.81,
+            "heapTotal": 93.54,
+            "heapUsed": 50.03,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "lost-release",
+              "ms": 4.52,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "missing-special",
+              "ms": 8.21,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 272.2,
+          "admitMs": 12.81,
+          "replayMs": 12.48,
+          "visited": 459,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.06,
+            "heapTotal": 93.54,
+            "heapUsed": 39.25,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "lost-release",
+              "ms": 4.37,
+              "pass": 0,
+              "fail": 3,
+              "error": 0
+            },
+            {
+              "id": "missing-special",
+              "ms": 7.94,
+              "pass": 2,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "kits",
+      "depth": 18,
+      "classes": 2,
+      "types": "Pair, String, Bool",
+      "generationMs": {
+        "median": 22.23,
+        "min": 20.21,
+        "max": 23.1
+      },
+      "admissionMs": {
+        "median": 15.15,
+        "min": 14.46,
+        "max": 16.44
+      },
+      "replayMs": {
+        "median": 12.44,
+        "min": 11.66,
+        "max": 13.71
+      },
+      "tests": [
+        {
+          "id": "disposable",
+          "firstCall": {
+            "method": "take",
+            "arguments": {}
+          },
+          "pairs": 18
+        },
+        {
+          "id": "reusable",
+          "firstCall": {
+            "method": "take",
+            "arguments": {}
+          },
+          "pairs": 18
+        }
+      ],
+      "selection": [
+        {
+          "id": "disposable",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "reusable",
+          "policy": "solved jointly from whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "missing-part",
+          "ms": 2.56,
+          "pass": 0,
+          "fail": 2,
+          "error": 0,
+          "failures": [
+            {
+              "id": "disposable",
+              "step": 1,
+              "reason": "request-blocked"
+            },
+            {
+              "id": "reusable",
+              "step": 1,
+              "reason": "request-blocked"
+            }
+          ]
+        },
+        {
+          "id": "wrong-material",
+          "ms": 8.15,
+          "pass": 1,
+          "fail": 1,
+          "error": 0,
+          "failures": [
+            {
+              "id": "reusable",
+              "step": 4,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 22.14,
+          "admitMs": 14.46,
+          "replayMs": 11.66,
+          "visited": 290,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.06,
+            "heapTotal": 93.54,
+            "heapUsed": 40.9,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "missing-part",
+              "ms": 2.56,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "wrong-material",
+              "ms": 8.15,
+              "pass": 1,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 20.21,
+          "admitMs": 15.15,
+          "replayMs": 12.44,
+          "visited": 290,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.06,
+            "heapTotal": 93.54,
+            "heapUsed": 41.98,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "missing-part",
+              "ms": 2.14,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "wrong-material",
+              "ms": 7.71,
+              "pass": 1,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 23.03,
+          "admitMs": 16.44,
+          "replayMs": 13.71,
+          "visited": 290,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.06,
+            "heapTotal": 93.54,
+            "heapUsed": 42.95,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "missing-part",
+              "ms": 2.19,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "wrong-material",
+              "ms": 8.35,
+              "pass": 1,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 22.23,
+          "admitMs": 14.9,
+          "replayMs": 12.56,
+          "visited": 290,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.18,
+            "heapTotal": 93.54,
+            "heapUsed": 43.9,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "missing-part",
+              "ms": 2.05,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "wrong-material",
+              "ms": 8.33,
+              "pass": 1,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 23.1,
+          "admitMs": 15.76,
+          "replayMs": 11.74,
+          "visited": 290,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.31,
+            "heapTotal": 93.54,
+            "heapUsed": 44.8,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "missing-part",
+              "ms": 2.18,
+              "pass": 0,
+              "fail": 2,
+              "error": 0
+            },
+            {
+              "id": "wrong-material",
+              "ms": 7.45,
+              "pass": 1,
+              "fail": 1,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "journal",
+      "depth": 20,
+      "classes": 4,
+      "types": "List, Pair, Int, Bool, String",
+      "generationMs": {
+        "median": 246.77,
+        "min": 235.43,
+        "max": 269.92
+      },
+      "admissionMs": {
+        "median": 30.26,
+        "min": 23.65,
+        "max": 35.91
+      },
+      "replayMs": {
+        "median": 25.5,
+        "min": 23.33,
+        "max": 28.09
+      },
+      "tests": [
+        {
+          "id": "fallingQuiet",
+          "firstCall": {
+            "method": "record",
+            "arguments": {
+              "delta": -1,
+              "armed": false
+            }
+          },
+          "pairs": 20
+        },
+        {
+          "id": "fallingArmed",
+          "firstCall": {
+            "method": "record",
+            "arguments": {
+              "delta": -1,
+              "armed": true
+            }
+          },
+          "pairs": 20
+        },
+        {
+          "id": "risingQuiet",
+          "firstCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 1,
+              "armed": false
+            }
+          },
+          "pairs": 20
+        },
+        {
+          "id": "risingArmed",
+          "firstCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 1,
+              "armed": true
+            }
+          },
+          "pairs": 20
+        }
+      ],
+      "selection": [
+        {
+          "id": "fallingQuiet",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "fallingArmed",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "risingQuiet",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        },
+        {
+          "id": "risingArmed",
+          "policy": "existing witness satisfies whole sequence",
+          "pathsTried": 1
+        }
+      ],
+      "mutations": [
+        {
+          "id": "reverse-log",
+          "ms": 8.07,
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "failures": [
+            {
+              "id": "fallingQuiet",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "fallingArmed",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "risingQuiet",
+              "step": 4,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "risingArmed",
+              "step": 4,
+              "reason": "observation-mismatch"
+            }
+          ]
+        },
+        {
+          "id": "no-accumulation",
+          "ms": 9.71,
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "failures": [
+            {
+              "id": "fallingQuiet",
+              "step": 6,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "fallingArmed",
+              "step": 6,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "risingQuiet",
+              "step": 6,
+              "reason": "observation-mismatch"
+            },
+            {
+              "id": "risingArmed",
+              "step": 6,
+              "reason": "observation-mismatch"
+            }
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "generateMs": 235.43,
+          "admitMs": 35.91,
+          "replayMs": 28.09,
+          "visited": 684,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.31,
+            "heapTotal": 93.54,
+            "heapUsed": 50.48,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "reverse-log",
+              "ms": 8.07,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-accumulation",
+              "ms": 9.71,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 246.77,
+          "admitMs": 30.23,
+          "replayMs": 25.65,
+          "visited": 684,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.31,
+            "heapTotal": 93.54,
+            "heapUsed": 32,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "reverse-log",
+              "ms": 7.76,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-accumulation",
+              "ms": 8.49,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 269.92,
+          "admitMs": 30.26,
+          "replayMs": 24.58,
+          "visited": 684,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.56,
+            "heapTotal": 93.54,
+            "heapUsed": 45.19,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "reverse-log",
+              "ms": 7.17,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-accumulation",
+              "ms": 7.76,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 252.77,
+          "admitMs": 30.69,
+          "replayMs": 25.5,
+          "visited": 684,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.56,
+            "heapTotal": 91.54,
+            "heapUsed": 26.47,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "reverse-log",
+              "ms": 9.97,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-accumulation",
+              "ms": 9.71,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        },
+        {
+          "generateMs": 238.13,
+          "admitMs": 23.65,
+          "replayMs": 23.33,
+          "visited": 684,
+          "pruned": 0,
+          "prefixChecks": 0,
+          "memoryMiB": {
+            "rss": 327.68,
+            "heapTotal": 91.54,
+            "heapUsed": 39.36,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          },
+          "mutants": [
+            {
+              "id": "reverse-log",
+              "ms": 7.25,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            },
+            {
+              "id": "no-accumulation",
+              "ms": 7.85,
+              "pass": 0,
+              "fail": 4,
+              "error": 0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "journalDepthSweep": [
+    {
+      "depth": 2,
+      "generationMs": {
+        "median": 171.95,
+        "min": 155.16,
+        "max": 181.44
+      },
+      "admissionMs": {
+        "median": 4.21,
+        "min": 3.87,
+        "max": 4.57
+      },
+      "replayMs": {
+        "median": 3.19,
+        "min": 2.57,
+        "max": 3.39
+      },
+      "samples": [
+        {
+          "generateMs": 181.44,
+          "admitMs": 3.87,
+          "replayMs": 2.57,
+          "visited": 72,
+          "memoryMiB": {
+            "rss": 327.68,
+            "heapTotal": 91.54,
+            "heapUsed": 46.12,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 175.5,
+          "admitMs": 4.26,
+          "replayMs": 3.19,
+          "visited": 72,
+          "memoryMiB": {
+            "rss": 320.95,
+            "heapTotal": 91.54,
+            "heapUsed": 25.13,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 171.13,
+          "admitMs": 4.57,
+          "replayMs": 3.32,
+          "visited": 72,
+          "memoryMiB": {
+            "rss": 320.95,
+            "heapTotal": 91.54,
+            "heapUsed": 31.88,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 155.16,
+          "admitMs": 4.21,
+          "replayMs": 2.88,
+          "visited": 72,
+          "memoryMiB": {
+            "rss": 321.07,
+            "heapTotal": 91.54,
+            "heapUsed": 38.62,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 171.95,
+          "admitMs": 4.04,
+          "replayMs": 3.39,
+          "visited": 72,
+          "memoryMiB": {
+            "rss": 321.82,
+            "heapTotal": 91.54,
+            "heapUsed": 45.38,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        }
+      ]
+    },
+    {
+      "depth": 4,
+      "generationMs": {
+        "median": 182.2,
+        "min": 174.47,
+        "max": 197.57
+      },
+      "admissionMs": {
+        "median": 6.63,
+        "min": 5.61,
+        "max": 7.11
+      },
+      "replayMs": {
+        "median": 5.44,
+        "min": 4.23,
+        "max": 8.45
+      },
+      "samples": [
+        {
+          "generateMs": 174.47,
+          "admitMs": 6.63,
+          "replayMs": 8.45,
+          "visited": 140,
+          "memoryMiB": {
+            "rss": 321.82,
+            "heapTotal": 91.54,
+            "heapUsed": 29.87,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 175.64,
+          "admitMs": 5.61,
+          "replayMs": 4.23,
+          "visited": 140,
+          "memoryMiB": {
+            "rss": 321.82,
+            "heapTotal": 91.54,
+            "heapUsed": 40.92,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 192.73,
+          "admitMs": 5.78,
+          "replayMs": 4.68,
+          "visited": 140,
+          "memoryMiB": {
+            "rss": 321.95,
+            "heapTotal": 91.54,
+            "heapUsed": 26.77,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 182.2,
+          "admitMs": 7.11,
+          "replayMs": 5.44,
+          "visited": 140,
+          "memoryMiB": {
+            "rss": 321.95,
+            "heapTotal": 91.54,
+            "heapUsed": 37.88,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 197.57,
+          "admitMs": 6.87,
+          "replayMs": 7.67,
+          "visited": 140,
+          "memoryMiB": {
+            "rss": 321.95,
+            "heapTotal": 91.54,
+            "heapUsed": 48.93,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        }
+      ]
+    },
+    {
+      "depth": 8,
+      "generationMs": {
+        "median": 186.65,
+        "min": 177.46,
+        "max": 323.37
+      },
+      "admissionMs": {
+        "median": 13.53,
+        "min": 10.13,
+        "max": 19.29
+      },
+      "replayMs": {
+        "median": 9.31,
+        "min": 8.46,
+        "max": 9.47
+      },
+      "samples": [
+        {
+          "generateMs": 323.37,
+          "admitMs": 11.32,
+          "replayMs": 9.08,
+          "visited": 276,
+          "memoryMiB": {
+            "rss": 321.95,
+            "heapTotal": 91.54,
+            "heapUsed": 42.4,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 177.46,
+          "admitMs": 10.13,
+          "replayMs": 9.31,
+          "visited": 276,
+          "memoryMiB": {
+            "rss": 321.95,
+            "heapTotal": 91.54,
+            "heapUsed": 40.1,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 186.65,
+          "admitMs": 19.29,
+          "replayMs": 9.33,
+          "visited": 276,
+          "memoryMiB": {
+            "rss": 321.95,
+            "heapTotal": 91.54,
+            "heapUsed": 36.35,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 194.54,
+          "admitMs": 13.53,
+          "replayMs": 8.46,
+          "visited": 276,
+          "memoryMiB": {
+            "rss": 323.32,
+            "heapTotal": 155.54,
+            "heapUsed": 27.99,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 185.86,
+          "admitMs": 14.65,
+          "replayMs": 9.47,
+          "visited": 276,
+          "memoryMiB": {
+            "rss": 325.45,
+            "heapTotal": 151.04,
+            "heapUsed": 39.78,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        }
+      ]
+    },
+    {
+      "depth": 12,
+      "generationMs": {
+        "median": 194.22,
+        "min": 192.49,
+        "max": 225.54
+      },
+      "admissionMs": {
+        "median": 15.14,
+        "min": 12.81,
+        "max": 17.66
+      },
+      "replayMs": {
+        "median": 15.86,
+        "min": 12.24,
+        "max": 18.76
+      },
+      "samples": [
+        {
+          "generateMs": 193.46,
+          "admitMs": 17.66,
+          "replayMs": 17.27,
+          "visited": 412,
+          "memoryMiB": {
+            "rss": 356.95,
+            "heapTotal": 151.04,
+            "heapUsed": 18.87,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 194.22,
+          "admitMs": 17.26,
+          "replayMs": 18.76,
+          "visited": 412,
+          "memoryMiB": {
+            "rss": 367.45,
+            "heapTotal": 151.04,
+            "heapUsed": 61.1,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 225.54,
+          "admitMs": 14.76,
+          "replayMs": 14.48,
+          "visited": 412,
+          "memoryMiB": {
+            "rss": 378.57,
+            "heapTotal": 151.04,
+            "heapUsed": 49.59,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 216.04,
+          "admitMs": 15.14,
+          "replayMs": 12.24,
+          "visited": 412,
+          "memoryMiB": {
+            "rss": 378.57,
+            "heapTotal": 151.04,
+            "heapUsed": 40.27,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 192.49,
+          "admitMs": 12.81,
+          "replayMs": 15.86,
+          "visited": 412,
+          "memoryMiB": {
+            "rss": 387.32,
+            "heapTotal": 151.04,
+            "heapUsed": 82.44,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        }
+      ]
+    },
+    {
+      "depth": 16,
+      "generationMs": {
+        "median": 210.5,
+        "min": 204.72,
+        "max": 226.89
+      },
+      "admissionMs": {
+        "median": 18.93,
+        "min": 18.46,
+        "max": 21.21
+      },
+      "replayMs": {
+        "median": 17.2,
+        "min": 16.32,
+        "max": 18.74
+      },
+      "samples": [
+        {
+          "generateMs": 212.58,
+          "admitMs": 18.46,
+          "replayMs": 17.2,
+          "visited": 548,
+          "memoryMiB": {
+            "rss": 387.7,
+            "heapTotal": 151.04,
+            "heapUsed": 28.53,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 210.5,
+          "admitMs": 18.65,
+          "replayMs": 16.32,
+          "visited": 548,
+          "memoryMiB": {
+            "rss": 387.7,
+            "heapTotal": 151.04,
+            "heapUsed": 50.85,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 206.95,
+          "admitMs": 19.45,
+          "replayMs": 16.95,
+          "visited": 548,
+          "memoryMiB": {
+            "rss": 387.7,
+            "heapTotal": 151.04,
+            "heapUsed": 71.21,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 204.72,
+          "admitMs": 18.93,
+          "replayMs": 18.11,
+          "visited": 548,
+          "memoryMiB": {
+            "rss": 387.7,
+            "heapTotal": 151.04,
+            "heapUsed": 28.95,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 226.89,
+          "admitMs": 21.21,
+          "replayMs": 18.74,
+          "visited": 548,
+          "memoryMiB": {
+            "rss": 387.7,
+            "heapTotal": 151.04,
+            "heapUsed": 38.22,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        }
+      ]
+    },
+    {
+      "depth": 20,
+      "generationMs": {
+        "median": 273.27,
+        "min": 235.01,
+        "max": 280.53
+      },
+      "admissionMs": {
+        "median": 27.76,
+        "min": 24.08,
+        "max": 32.17
+      },
+      "replayMs": {
+        "median": 25.9,
+        "min": 22.9,
+        "max": 26.67
+      },
+      "samples": [
+        {
+          "generateMs": 280.53,
+          "admitMs": 32.17,
+          "replayMs": 26.67,
+          "visited": 684,
+          "memoryMiB": {
+            "rss": 387.7,
+            "heapTotal": 152.04,
+            "heapUsed": 38.87,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 273.38,
+          "admitMs": 28.26,
+          "replayMs": 26.13,
+          "visited": 684,
+          "memoryMiB": {
+            "rss": 387.82,
+            "heapTotal": 152.79,
+            "heapUsed": 39.97,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 250.06,
+          "admitMs": 27.76,
+          "replayMs": 25.58,
+          "visited": 684,
+          "memoryMiB": {
+            "rss": 387.95,
+            "heapTotal": 154.04,
+            "heapUsed": 40.75,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 273.27,
+          "admitMs": 26.02,
+          "replayMs": 25.9,
+          "visited": 684,
+          "memoryMiB": {
+            "rss": 388.07,
+            "heapTotal": 154.29,
+            "heapUsed": 41.43,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        },
+        {
+          "generateMs": 235.01,
+          "admitMs": 24.08,
+          "replayMs": 22.9,
+          "visited": 684,
+          "memoryMiB": {
+            "rss": 388.07,
+            "heapTotal": 155.04,
+            "heapUsed": 42.16,
+            "external": 3.83,
+            "arrayBuffers": 0.22
+          }
+        }
+      ]
+    }
+  ],
+  "lateContradictionProbe": {
+    "limits": {
+      "maxSequenceBranches": 1000,
+      "maxSequenceTimeMs": 3000
+    },
+    "ms": 15.82,
+    "visited": 282,
+    "blocked": [
+      {
+        "id": "disposable",
+        "reason": "No complete stimulation/observation sequence is feasible from the model initial marking",
+        "pathsTried": 0
+      },
+      {
+        "id": "reusable",
+        "reason": "No complete stimulation/observation sequence is feasible from the model initial marking",
+        "pathsTried": 0
+      }
+    ],
+    "unresolved": [],
+    "admitted": false
+  }
+}

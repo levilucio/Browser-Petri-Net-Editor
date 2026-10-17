@@ -9,26 +9,21 @@ export { generateTestSuite } from './core/TestGenerator.js';
 // Increment 1: explicit, bounded oracle-validated path (not the legacy generator).
 export { observeBoundedTrace } from './core/BoundedOracleAdapter.js';
 export { deriveSymbolicSubdomains } from './core/SymbolicSubuniformity.js';
-export {
-  generateValidatedSubuniformitySuite, validateOracleCandidates, replayOracleTest,
-  evaluateOracleSuite, evaluateSpecMutants,
-} from './core/ValidatedSubuniformity.js';
+export { generateValidatedSubuniformitySuite, validateOracleCandidates, replayOracleTest, evaluateOracleSuite, evaluateSpecMutants } from './core/ValidatedSubuniformity.js';
 
 // I/O interface
-export {
-  markIOType,
-  getIOType,
-  isInput,
-  isOutput,
-  getInputPlaces,
-  getOutputPlaces,
-  getInputTransitions,
-  getOutputTransitions,
-  extractInterface,
-  validateInterface,
-  createStimulation,
-  createObservation
-} from './io/IOInterface.js';
+export { markIOType, getIOType, isInput, isOutput, getInputPlaces, getOutputPlaces, getInputTransitions, getOutputTransitions, extractInterface, validateInterface, createStimulation, createObservation } from './io/IOInterface.js';
 
 // Test execution
 export { executeTestSuite } from './core/TestExecutor.js';
+
+// Generic typed equation intentions: derive first, admit with an explicit APN protocol.
+export { deriveGenericSubdomains } from './core/GenericSubuniformity.js';
+export { compileSymbolicIntention, importSymbolicADTXml, guardFromTransition } from './core/SymbolicSource.js';
+export { deriveSymbolicIntention, admitSymbolicIntention } from './core/SymbolicIntention.js';
+
+// Common selection → admission → replay entry points.
+export { deriveIntention, generateIntention } from './core/IntentionPipeline.js';
+export { admitIntention } from './core/Admission.js';
+export { normalizeTest, publicInterface } from './core/TestCase.js';
+export { findConstraintWitness } from './core/GenericSubuniformity.js';

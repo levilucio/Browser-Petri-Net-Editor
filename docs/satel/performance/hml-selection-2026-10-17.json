@@ -1,0 +1,151 @@
+{
+  "measuredAt": "2026-10-17T16:46:43.747Z",
+  "node": "v24.19.0",
+  "baselineCommit": "2dba4f248c653dc087f40c0ce325b2e36b4ca1d8",
+  "dirty": true,
+  "scope": "functional smoke; includes solver initialization; no statistical timing claim",
+  "intentions": [
+    {
+      "id": "hml-select-progress",
+      "expectedAdditionalTruth": true,
+      "selected": [
+        3
+      ],
+      "staticRepresentative": [
+        1
+      ],
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      },
+      "selection": {
+        "status": "selected",
+        "policy": "one executable representative per algebraic class",
+        "caseId": "open",
+        "pathsTried": 1,
+        "representative": "solved jointly from sequence and HML property",
+        "hmlSelection": {
+          "policy": "joint-sequence-and-hml",
+          "expectedTruth": true,
+          "work": 89,
+          "nodes": 4,
+          "cacheHits": 1,
+          "outcomes": 4,
+          "constraintSize": 110
+        },
+        "assertions": [
+          {
+            "kind": "required",
+            "transitionId": "openA",
+            "inputOccurrences": [
+              {
+                "place": "state",
+                "tokenIndex": 0
+              },
+              {
+                "place": "amount",
+                "tokenIndex": 0
+              }
+            ]
+          }
+        ]
+      },
+      "durationMs": 68.32283199999995,
+      "mutants": [
+        {
+          "id": "hml-selection-missing-finish",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        },
+        {
+          "id": "hml-selection-wrong-receipt",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hml-select-no-dead-end",
+      "expectedAdditionalTruth": false,
+      "selected": [
+        3
+      ],
+      "staticRepresentative": [
+        1
+      ],
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      },
+      "selection": {
+        "status": "selected",
+        "policy": "one executable representative per algebraic class",
+        "caseId": "open",
+        "pathsTried": 1,
+        "representative": "solved jointly from sequence and HML property",
+        "hmlSelection": {
+          "policy": "joint-sequence-and-hml",
+          "expectedTruth": false,
+          "work": 91,
+          "nodes": 6,
+          "cacheHits": 1,
+          "outcomes": 4,
+          "constraintSize": 110
+        },
+        "assertions": [
+          {
+            "kind": "required",
+            "transitionId": "openA",
+            "inputOccurrences": [
+              {
+                "place": "state",
+                "tokenIndex": 0
+              },
+              {
+                "place": "amount",
+                "tokenIndex": 0
+              }
+            ]
+          }
+        ]
+      },
+      "durationMs": 57.68293199999994,
+      "mutants": [
+        {
+          "id": "hml-selection-missing-finish",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        },
+        {
+          "id": "hml-selection-wrong-receipt",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        }
+      ]
+    }
+  ],
+  "sequenceOnly": [
+    1
+  ],
+  "depth20": {
+    "work": 786,
+    "nodes": 121,
+    "cacheHits": 100,
+    "outcomes": 220,
+    "constraintSize": 3,
+    "durationMs": 7.66450599999996,
+    "note": "ground-token universal constraint construction, not a general symbolic branching benchmark"
+  }
+}
