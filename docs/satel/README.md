@@ -17,6 +17,11 @@ expected-true/false properties, bounded verdicts, and two references with five
 mutants. It includes the laptop walkthrough, performance results and the limit
 on symbolic representative selection for additional branching requirements.
 
+[Increment 17: HML failure explanations](increment-17-hml-failure-explanations.md)
+adds linked plain-language explanations beside formal results, retains rejected
+outcomes and their output/marking mismatches, and includes actual examples from
+the mutants plus a selectable stock-marking property.
+
 ## Negative tests and generation explanations
 
 [Increment 13: explicit final refusals](increment-13-explicit-refusals.md) adds

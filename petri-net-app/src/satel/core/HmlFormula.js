@@ -57,6 +57,7 @@ export function sequenceFormula(pairs) {
     : { op: 'diamond', stimulation: copy(pair.stimulation), observation: copy(pair.observation), child }, { op: 'true' });
 }
 const term = x => typeof x === 'string' ? x.startsWith('$') ? x : JSON.stringify(x) : Array.isArray(x) ? `[${x.map(term).join(', ')}]` : x?.__pair__ ? `(${term(x.fst)}, ${term(x.snd)})` : x && typeof x === 'object' ? Object.hasOwn(x, 'literal') ? JSON.stringify(x.literal) : JSON.stringify(x) : String(x);
+export const formatHmlTerm = term;
 export function formulaNotation(node) {
   if (node.op === 'marking') return `marking(${Object.entries(node.markings).map(([p, c]) => `${p}: ${Object.entries(c).map(([k, v]) => `${k} ${term(v)}`).join(' ')}`).join('; ') || 'unconstrained'})`;
   if (node.op === 'true') return '⊤';

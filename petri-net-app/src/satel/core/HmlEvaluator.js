@@ -6,6 +6,7 @@ import { validateFormula, mapFormula } from './HmlFormula.js';
 import { validBuiltinValue } from '../../utils/builtin-values.js';
 import { checkCancelled, DomainError, diagnostic } from '../../domain/diagnostics.js';
 import { copy } from '../../domain/snapshots.js';
+import { explainProperty } from './HmlExplanation.js';
 
 /** Three-valued bounded model checking. Errors are separate from logical false/unknown.
  * Successor caches never identify states by observations alone. Evaluation is lazy,
@@ -55,7 +56,11 @@ export async function evaluateFormula(formula, sourceNet, io, options = {}) {
     if (++stats.evaluatedNodes > maxNodes) return { op: node.op, value: null, reason: 'Property node budget reached', path };
     if (stats.evaluatedNodes % 32 === 0) { await new Promise(resolve => setTimeout(resolve, 0)); budget(); }
     const result = { op: node.op, path, value: null };
-    if (node.op === 'marking') return { ...result, value: checkObservation({ outputs: {}, markings: node.markings }, initialMarkingOf(state)).success };
+    if (node.op === 'marking') {
+      const marking = initialMarkingOf(state);
+      const observationCheck = checkObservation({ outputs: {}, markings: node.markings }, marking);
+      return { ...result, value: observationCheck.success, marking, observationCheck };
+    }
     if (node.op === 'true' || node.op === 'false') return { ...result, value: node.op === 'true' };
     if (node.op === 'not') {
       const child = await safeVisit(node.child, state, `${path}.1`);
@@ -79,15 +84,19 @@ export async function evaluateFormula(formula, sourceNet, io, options = {}) {
       if (!edges.complete) stats.incompleteSearches++;
       cache.set(key, edges);
     } else stats.cacheHits++;
-    Object.assign(result, { stimulation: copy(node.stimulation), complete: edges.complete, successorCount: edges.successors.length, branches: [] });
+    Object.assign(result, { stimulation: copy(node.stimulation), beforeMarking: initialMarkingOf(state), complete: edges.complete, successorCount: edges.successors.length, branches: [], rejectedBranches: [] });
     if (!edges.complete) result.reason = edges.reason;
     const decisive = node.op === 'diamond';
-    for (const edge of edges.successors) {
+    for (const [index, edge] of edges.successors.entries()) {
       const marking = initialMarkingOf(edge.next);
-      const matches = !node.observation || checkObservation(node.observation, marking, edge.produced).success;
-      if (node.excludeObservation ? matches : !matches) continue;
+      const observationCheck = node.observation ? checkObservation(node.observation, marking, edge.produced) : { success: true };
+      const branch = { outcome: index + 1, transitionId: edge.transitionId, binding: copy(edge.env), marking, produced: copy(edge.produced), observationCheck };
+      if (node.excludeObservation ? observationCheck.success : !observationCheck.success) {
+        result.rejectedBranches.push(branch);
+        continue;
+      }
       const child = await safeVisit(node.child, edge.next, `${path}.${result.branches.length + 1}`);
-      result.branches.push({ transitionId: edge.transitionId, binding: copy(edge.env), marking, produced: copy(edge.produced), child });
+      result.branches.push({ ...branch, child });
       if (child.value === decisive) return { ...result, value: decisive };
     }
     return { ...result, value: !edges.complete || result.branches.some(b => b.child.value === null) ? null : !decisive };
@@ -120,8 +129,9 @@ export async function replayProperty(test, net, io, options = {}) {
     if (test.initialMarking !== undefined) throw new DomainError('invalid-test', 'Property tests use the model initial marking');
     const result = await evaluateFormula(test.formula, net, io, options);
     const expected = test.expectedTruth ?? true;
+    const explanation = explainProperty(test.formula, result, expected);
     return { id: test.id, testCaseId: test.id, verdict: result.value === null ? 'inconclusive' : result.value === expected ? 'pass' : 'fail',
-      reason: result.value === null ? 'Property exploration is incomplete' : result.value === expected ? 'Property has the expected truth value' : 'Property truth differs from the reference expectation',
+      reason: explanation.summary, propertyExplanation: explanation,
       expectedTruth: expected, actualTruth: result.value, propertyResult: result, pairResults: [], markings: [initialMarkingOf(net)], annotations: [] };
   } catch (error) {
     if (error.code === 'cancelled') throw error;

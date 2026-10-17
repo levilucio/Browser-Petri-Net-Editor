@@ -1,0 +1,365 @@
+{
+  "measuredAt": "2026-10-17T15:30:13.894Z",
+  "node": "v24.19.0",
+  "sourceCommit": "bba393cae3aa9cac7f6549d0e78f9f43cb557e5e",
+  "dirty": true,
+  "scope": "single-process functional smoke; cold/warm timings mixed; no statistical performance claim",
+  "models": [
+    {
+      "family": "bag",
+      "reference": [
+        {
+          "intention": "bag-orders",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 9,
+          "evaluatedNodes": 9,
+          "successorSearches": 6,
+          "bindingVisits": 13,
+          "cacheHits": 2,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0
+        },
+        {
+          "intention": "bag-no-third",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 0,
+          "evaluatedNodes": 2,
+          "successorSearches": 1,
+          "bindingVisits": 3,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0
+        },
+        {
+          "intention": "bag-remaining-stock",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 0,
+          "evaluatedNodes": 2,
+          "successorSearches": 1,
+          "bindingVisits": 3,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0
+        }
+      ],
+      "mutants": [
+        {
+          "id": "nondeterminism-bag-missing-choice",
+          "counts": {
+            "pass": 2,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "bag-orders-1",
+              "verdict": "fail",
+              "actualTruth": false,
+              "explanation": {
+                "status": "fail",
+                "summary": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied.",
+                "findings": [
+                  {
+                    "path": "1.1",
+                    "code": "continuation-failure",
+                    "text": "take() can fire with a matching observation, but every matching outcome fails the continuation. Outcomes outside the filter cannot witness this possibility either. Follow the separate branches: they need not fail for the same reason."
+                  },
+                  {
+                    "path": "1.1.1",
+                    "code": "continuation-failure",
+                    "text": "take() can fire with a matching observation, but every matching outcome fails the continuation. Outcomes outside the filter cannot witness this possibility either. Follow the separate branches: they need not fail for the same reason."
+                  },
+                  {
+                    "path": "1.1.1.1",
+                    "code": "call-unavailable",
+                    "text": "No implementing transition with a valid token binding can fire take() in this marking. The required possibility is absent; the successor search is complete."
+                  }
+                ],
+                "omitted": 0
+              }
+            },
+            {
+              "id": "bag-no-third-1",
+              "verdict": "pass",
+              "actualTruth": true
+            },
+            {
+              "id": "bag-remaining-stock-1",
+              "verdict": "pass",
+              "actualTruth": true
+            }
+          ]
+        },
+        {
+          "id": "nondeterminism-bag-multiplicity",
+          "counts": {
+            "pass": 1,
+            "fail": 2,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "bag-orders-1",
+              "verdict": "fail",
+              "actualTruth": false,
+              "explanation": {
+                "status": "fail",
+                "summary": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied.",
+                "findings": [
+                  {
+                    "path": "1.1",
+                    "code": "continuation-failure",
+                    "text": "take() can fire with a matching observation, but every matching outcome fails the continuation. Outcomes outside the filter cannot witness this possibility either. Follow the separate branches: they need not fail for the same reason."
+                  },
+                  {
+                    "path": "1.1.outcome-2",
+                    "code": "output-mismatch",
+                    "text": "At place picked, this firing produced ⟦2⟧; the observation requires ⟦1⟧. These are produced tokens, not the whole resulting marking."
+                  },
+                  {
+                    "path": "1.1.1",
+                    "code": "no-matching-outcome",
+                    "text": "take() can fire, but none of its 1 distinct outcome satisfies the observation filter. The failure is in the requested observation, not call availability."
+                  },
+                  {
+                    "path": "1.1.1.outcome-1",
+                    "code": "output-mismatch",
+                    "text": "At place picked, this firing produced ⟦2⟧; the observation requires ⟦1⟧. These are produced tokens, not the whole resulting marking."
+                  }
+                ],
+                "omitted": 0
+              }
+            },
+            {
+              "id": "bag-no-third-1",
+              "verdict": "pass",
+              "actualTruth": true
+            },
+            {
+              "id": "bag-remaining-stock-1",
+              "verdict": "fail",
+              "actualTruth": false,
+              "explanation": {
+                "status": "fail",
+                "summary": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied.",
+                "findings": [
+                  {
+                    "path": "1",
+                    "code": "no-matching-outcome",
+                    "text": "take() can fire, but none of its 2 distinct outcomes satisfies the observation filter. The failure is in the requested observation, not call availability."
+                  },
+                  {
+                    "path": "1.outcome-1",
+                    "code": "marking-mismatch",
+                    "text": "Place stock has marking ⟦2⟧; the assertion requires it to equal ⟦1, 2⟧."
+                  },
+                  {
+                    "path": "1.outcome-2",
+                    "code": "output-mismatch",
+                    "text": "At place picked, this firing produced ⟦2⟧; the observation requires ⟦1⟧. These are produced tokens, not the whole resulting marking."
+                  }
+                ],
+                "omitted": 0
+              }
+            }
+          ]
+        },
+        {
+          "id": "nondeterminism-bag-extra-output",
+          "counts": {
+            "pass": 2,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "bag-orders-1",
+              "verdict": "pass",
+              "actualTruth": true
+            },
+            {
+              "id": "bag-no-third-1",
+              "verdict": "fail",
+              "actualTruth": false,
+              "explanation": {
+                "status": "fail",
+                "summary": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied.",
+                "findings": [
+                  {
+                    "path": "1",
+                    "code": "negation",
+                    "text": "The inner requirement is true; negation therefore makes this requirement false. This requirement forbids the possibility established by the witness below."
+                  },
+                  {
+                    "path": "1.1",
+                    "code": "enabled-witness",
+                    "text": "Rule takeBad can fire take(), producing picked ↦ ⟦99⟧. It satisfies the observation filter and its continuation. This one witness establishes possibility; other outcomes need not satisfy the requirement."
+                  }
+                ],
+                "omitted": 0
+              }
+            },
+            {
+              "id": "bag-remaining-stock-1",
+              "verdict": "pass",
+              "actualTruth": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "branch",
+      "reference": [
+        {
+          "intention": "branch-both",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 0,
+          "evaluatedNodes": 6,
+          "successorSearches": 3,
+          "bindingVisits": 8,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0
+        },
+        {
+          "intention": "branch-restricted",
+          "expectedTruth": false,
+          "verdict": "pass",
+          "durationMs": 1,
+          "evaluatedNodes": 9,
+          "successorSearches": 5,
+          "bindingVisits": 12,
+          "cacheHits": 0,
+          "formulaCacheHits": 1,
+          "incompleteSearches": 0
+        },
+        {
+          "intention": "branch-progress",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 2,
+          "evaluatedNodes": 6,
+          "successorSearches": 3,
+          "bindingVisits": 8,
+          "cacheHits": 0,
+          "formulaCacheHits": 1,
+          "incompleteSearches": 0
+        }
+      ],
+      "mutants": [
+        {
+          "id": "nondeterminism-branch-early-choice",
+          "counts": {
+            "pass": 2,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "branch-both-1",
+              "verdict": "fail",
+              "actualTruth": false,
+              "explanation": {
+                "status": "fail",
+                "summary": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied.",
+                "findings": [
+                  {
+                    "path": "1",
+                    "code": "continuation-failure",
+                    "text": "open() can fire with a matching observation, but every matching outcome fails the continuation. Outcomes outside the filter cannot witness this possibility either. Follow the separate branches: they need not fail for the same reason."
+                  },
+                  {
+                    "path": "1.1.1",
+                    "code": "call-unavailable",
+                    "text": "No implementing transition with a valid token binding can fire left() in this marking. The required possibility is absent; the successor search is complete."
+                  },
+                  {
+                    "path": "1.2.2",
+                    "code": "call-unavailable",
+                    "text": "No implementing transition with a valid token binding can fire right() in this marking. The required possibility is absent; the successor search is complete."
+                  }
+                ],
+                "omitted": 0
+              }
+            },
+            {
+              "id": "branch-restricted-1",
+              "verdict": "pass",
+              "actualTruth": false
+            },
+            {
+              "id": "branch-progress-1",
+              "verdict": "pass",
+              "actualTruth": true
+            }
+          ]
+        },
+        {
+          "id": "nondeterminism-branch-missing-restriction",
+          "counts": {
+            "pass": 2,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "branch-both-1",
+              "verdict": "pass",
+              "actualTruth": true
+            },
+            {
+              "id": "branch-restricted-1",
+              "verdict": "fail",
+              "actualTruth": true,
+              "explanation": {
+                "status": "fail",
+                "summary": "The test fails: the property was expected to be false, but it is true. The requirement expected not to hold does hold. The evidence below establishes its truth.",
+                "findings": [
+                  {
+                    "path": "1",
+                    "code": "all-continuations-satisfied",
+                    "text": "Every outcome of open() that satisfies the observation filter also satisfies the continuation. The successor search is complete. Outcomes outside that filter are not constrained by this box."
+                  },
+                  {
+                    "path": "1.1.1",
+                    "code": "enabled-witness",
+                    "text": "Rule left can fire left(), producing state ↦ ⟦3⟧; reply ↦ ⟦1⟧. It satisfies the observation filter and its continuation. This one witness establishes possibility; other outcomes need not satisfy the requirement."
+                  },
+                  {
+                    "path": "1.1.2",
+                    "code": "enabled-witness",
+                    "text": "Rule right can fire right(), producing state ↦ ⟦3⟧; reply ↦ ⟦2⟧. It satisfies the observation filter and its continuation. This one witness establishes possibility; other outcomes need not satisfy the requirement."
+                  }
+                ],
+                "omitted": 0
+              }
+            },
+            {
+              "id": "branch-progress-1",
+              "verdict": "pass",
+              "actualTruth": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "depth20": {
+    "tokenChoices": "ten 1s and ten 2s",
+    "completeValueOrders": 184756,
+    "expectedTruth": true,
+    "evaluatedNodes": 121,
+    "successorSearches": 121,
+    "bindingVisits": 341,
+    "cacheHits": 0,
+    "formulaCacheHits": 100,
+    "incompleteSearches": 0,
+    "durationMs": 13,
+    "serializedEvidenceBytes": 84015
+  }
+}

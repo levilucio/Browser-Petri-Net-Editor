@@ -20,7 +20,7 @@ for (const family of ['bag', 'branch']) {
   }
   for (const entry of nondeterminismExamples.filter(e => e.filename.startsWith(`nondeterminism-${family}-`) && !e.filename.endsWith('reference'))) {
     const result = await evaluateOracleSuite(tests, createNondeterminismExample(entry.filename), publicInterface(reference));
-    row.mutants.push({ id: entry.filename, counts: result.counts, properties: result.results.map(r => ({ id: r.id, verdict: r.verdict, actualTruth: r.actualTruth })) });
+    row.mutants.push({ id: entry.filename, counts: result.counts, properties: result.results.map(r => ({ id: r.id, verdict: r.verdict, actualTruth: r.actualTruth, ...(r.verdict === 'fail' ? { explanation: r.propertyExplanation } : {}) })) });
     if (!result.counts.fail || result.counts.error || result.counts.inconclusive) throw new Error(`Unexpected mutant result: ${entry.filename}`);
   }
   report.models.push(row);

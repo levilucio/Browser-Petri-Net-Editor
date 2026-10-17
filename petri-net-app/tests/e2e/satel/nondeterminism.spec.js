@@ -27,6 +27,11 @@ test('edit and generate branching property; frozen replay distinguishes identica
   await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
   await expect(page.getByTestId('oracle-target-results')).toContainText('0 passed · 1 failed · 0 errors');
   await expect(page.getByLabel('Property evaluation evidence')).toContainText('Target property: false');
+  await expect(page.getByLabel('Property explanation')).toContainText('every matching outcome fails the continuation');
+  await expect(page.getByLabel('Property explanation')).toContainText('fire left()');
+  await expect(page.getByLabel('Property explanation')).toContainText('fire right()');
+  await page.getByRole('link', { name: 'Evidence 1.2.2', exact: true }).click();
+  await expect(page.getByText('1.2.2 · diamond · false · right()', { exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('branching-counterexample.png') });
 });
 test('negative HML property detects a missing alternative; bag example validates multiplicity', async ({ page }) => {
@@ -41,9 +46,34 @@ test('negative HML property detects a missing alternative; bag example validates
   await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
   await expect(page.getByTestId('oracle-target-results')).toContainText('0 passed · 1 failed · 0 errors');
   await expect(page.getByLabel('Property evaluation evidence')).toContainText('Target property: true');
+  await expect(page.getByLabel('Property explanation')).toContainText('expected to be false, but it is true');
+  await expect(page.getByLabel('Property explanation')).toContainText('Every outcome of open()');
   await page.getByLabel('Close SATEL').click(); await load(page, 'bag-reference'); await satel(page);
   await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
   await page.getByLabel('Intention to generate').selectOption('bag-orders');
   await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
   await expect(page.getByText('1/1 tests passed the reference oracle')).toBeVisible();
+});
+
+test('output mismatch explanation opens the rejected firing and its marking', async ({ page }, testInfo) => {
+  await page.goto('/'); await load(page, 'bag-reference'); await satel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByLabel('Intention to generate').selectOption('bag-orders');
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('1/1 tests passed the reference oracle')).toBeVisible();
+  await page.getByLabel('Close SATEL').click(); await load(page, 'bag-multiplicity'); await satel(page);
+  await page.getByRole('button', { name: 'Replay results', exact: true }).click();
+  await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+  await expect(page.getByLabel('Property explanation')).toContainText('this firing produced ⟦2⟧; the observation requires ⟦1⟧');
+  const link = page.getByRole('link', { name: 'Evidence 1.1.1.outcome-1', exact: true });
+  const id = (await link.getAttribute('href')).slice(1);
+  await link.click();
+  const outcome = page.locator(`[id="${id}"]`);
+  await expect(outcome).toBeFocused();
+  await expect(outcome).toContainText('rule take · outside observation filter');
+  await expect(outcome).toContainText('x ↦ 2');
+  await outcome.getByText('Resulting marking', { exact: true }).click();
+  await expect(outcome).toContainText('stock ↦ ∅');
+  await outcome.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('output-mismatch-explanation.png') });
 });

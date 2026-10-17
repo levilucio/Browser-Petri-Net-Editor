@@ -5,6 +5,10 @@ import SatelTestDisplay from '../../components/SatelTestDisplay';
 import { AdtProvider } from '../../contexts/AdtContext';
 import { createNondeterminismExample } from '../../satel/examples/nondeterminism/editor';
 import { exportToPNML, importFromPNML } from '../../utils/python/index';
+import HmlPropertyDisplay from '../../components/satel/HmlPropertyDisplay';
+import { evaluateFormula } from '../../satel/core/HmlEvaluator';
+import { publicInterface } from '../../satel/core/TestCase';
+import { modal } from '../../satel/examples/nondeterminism/editor';
 const net = () => createNondeterminismExample('nondeterminism-branch-reference');
 test('branching editor saves nested obligations and expected false without JSON editing', async () => {
   let saved;
@@ -42,4 +46,34 @@ test('display distinguishes target unknown from reference success and shows bran
   expect(screen.getByText('Binding budget exhausted')).toBeInTheDocument();
   expect(screen.getByTestId('satel-hml-formula')).toHaveTextContent('∧');
   expect(screen.getByText(/1 distinct successors found; enumeration incomplete/)).toBeInTheDocument();
+});
+
+test('plain-language output mismatch links open the exact rejected outcome and show its values', async () => {
+  const source = createNondeterminismExample('nondeterminism-bag-reference');
+  const formula = modal('diamond', 'take', { picked: [99] });
+  const result = await evaluateFormula(formula, source, publicInterface(source));
+  render(<HmlPropertyDisplay formula={formula} result={result} />);
+  expect(screen.getByLabelText('Property explanation')).toHaveTextContent('can fire, but none');
+  const link = screen.getByRole('link', { name: 'Evidence 1.outcome-1' });
+  const outcome = document.getElementById(link.getAttribute('href').slice(1));
+  expect(outcome.closest('details').open).toBe(false);
+  fireEvent.click(link);
+  expect(outcome.closest('details').open).toBe(true);
+  expect(outcome).toHaveFocus();
+  expect(outcome).toHaveTextContent('produced ⟦1⟧; the observation requires ⟦99⟧');
+  expect(outcome).toHaveTextContent('x ↦ 1');
+  expect(screen.getByText(/M\[1\] ⊭/)).toBeInTheDocument();
+});
+
+test('expected-false explanations and evidence ids remain separate across displayed tests', async () => {
+  const source = createNondeterminismExample('nondeterminism-branch-missing-restriction');
+  const formula = net().testIntentions[1].formula;
+  const result = await evaluateFormula(formula, source, publicInterface(source));
+  render(<><HmlPropertyDisplay formula={formula} expectedTruth={false} result={result} /><HmlPropertyDisplay formula={formula} expectedTruth={false} result={result} /></>);
+  const links = screen.getAllByRole('link', { name: 'Evidence 1', exact: true });
+  expect(links).toHaveLength(2);
+  expect(links[0].getAttribute('href')).not.toBe(links[1].getAttribute('href'));
+  expect(screen.getAllByLabelText('Property explanation')[0]).toHaveTextContent('expected to be false, but it is true');
+  fireEvent.click(links[1]);
+  expect(document.getElementById(links[1].getAttribute('href').slice(1))).toHaveFocus();
 });

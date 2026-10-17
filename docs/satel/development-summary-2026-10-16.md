@@ -28,6 +28,13 @@ Account's explicit rejection response is preserved as accepted behavior; refusal
 examples reuse the existing quota and thermostat specifications. See the linked
 increment reports for the new tests, boundaries, mutants and measurements.
 
+[Increment 16](increment-16-hml-nondeterminism.md) subsequently adds finite HML
+properties for multiset and rule nondeterminism, including expected-false tests.
+[Increment 17](increment-17-hml-failure-explanations.md) adds formal and
+plain-language failure evidence linked to the relevant outcomes and markings.
+These increments supersede the earlier HML deferral below; full bisimulation
+checking and the complete thesis semantics are not claimed.
+
 ## 1. Objective and agreed scope
 
 Levi Lúcio asked for a review of the existing prototype as a partial implementation

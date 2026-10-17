@@ -11,7 +11,8 @@ function multiset() {
   const refused = modal('box', 'take', null, no());
   const sequence = values => values.reduceRight((child, x) => modal('diamond', 'take', { picked: [x] }, child), refused);
   b.net.testIntentions = [property('bag-orders', 'Both token orders, multiplicity and final refusal', all(sequence([1, 1, 2]), sequence([2, 1, 1]))),
-    property('bag-no-third', 'No third value may be reported', { op: 'not', child: modal('diamond', 'take', { picked: [99] }) })];
+    property('bag-no-third', 'No third value may be reported', { op: 'not', child: modal('diamond', 'take', { picked: [99] }) }),
+    property('bag-remaining-stock', 'Taking 1 retains one 1 and one 2', { ...modal('diamond', 'take', { picked: [1] }), observation: { outputs: { picked: [1] }, markings: { stock: { equals: [1, 2] } } } })];
   return b.net;
 }
 function branching() {
