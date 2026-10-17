@@ -18,6 +18,16 @@ symbolic-selection and GUI increments were published on the branch above, in the
 existing stacked draft PR #4. Publication to that branch does not imply a merge
 into SATEL or the default branch.
 
+## Subsequent work — 17 October 2026
+
+The historical open points below describe the 16 October snapshot. Since then,
+[increments 13–15](increment-15-generation-explanations.md) have implemented
+explicit final refusals, bounded optional refusal companions and readable
+selection/coverage evidence. General negative semantics remain open. The
+Account's explicit rejection response is preserved as accepted behavior; refusal
+examples reuse the existing quota and thermostat specifications. See the linked
+increment reports for the new tests, boundaries, mutants and measurements.
+
 ## 1. Objective and agreed scope
 
 Levi Lúcio asked for a review of the existing prototype as a partial implementation

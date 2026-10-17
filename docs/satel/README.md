@@ -9,6 +9,19 @@ for the complete conversation-derived implementation history, current semantics,
 validation evidence, deferred negative/nondeterministic testing, and research questions.
 It distinguishes established prototype behaviour from unproved mathematical claims.
 
+## Negative tests and generation explanations
+
+[Increment 13: explicit final refusals](increment-13-explicit-refusals.md) adds
+reachable positive prefixes ending in a call that must be blocked, with quota and
+thermostat reference/mutant examples. [Increment 14: bounded refusal companions](increment-14-bounded-negative-selection.md)
+adds opt-in automatic selection from validated positive prefixes. [Increment 15:
+generation explanations and verification](increment-15-generation-explanations.md)
+provides the laptop walkthrough, baseline results and performance observations.
+
+A refused call has no enabled method rule or token binding and preserves the
+marking. An accepted call returning an error response, such as Account's `ack(0)`,
+is a different observation. Exhausted searches never become refusal tests.
+
 ## Unified testing pipeline
 
 [Increment 12: unified selection, admission and replay](increment-12-unified-pipeline.md)

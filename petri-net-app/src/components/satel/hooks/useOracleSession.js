@@ -43,7 +43,7 @@ export function useOracleSession({
       }
     }
   };
-  const generate = (classesOnly = false) => selected && run(async (signal, publish) => {
+  const generate = (classesOnly = false, includeNegative = false) => selected && run(async (signal, publish) => {
     const net = copy(elements),
       intention = copy(selected);
     const next = {
@@ -57,6 +57,7 @@ export function useOracleSession({
     const result = await generateIntention(intention, net, {
       signal,
       classesOnly,
+      includeNegative: !classesOnly && includeNegative,
       onPhase: setProgress,
       onSelection: report => publish({
         ...next,

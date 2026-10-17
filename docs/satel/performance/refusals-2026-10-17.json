@@ -1,0 +1,692 @@
+{
+  "generatedAt": "2026-10-17T11:22:22.680Z",
+  "node": "v24.19.0",
+  "sourceCommit": "b7707c6de41cde05b3e492fa73ae85175ade2d94",
+  "dirty": true,
+  "method": "Single sequential smoke run, shared warmed Z3 context; not a statistical benchmark or a before/after comparison.",
+  "records": [
+    {
+      "id": "thermostat",
+      "depth": 2,
+      "positiveTests": 3,
+      "negativeTests": 1,
+      "positiveMs": 500.59,
+      "negativeSelectionMs": 402.27,
+      "negativeAdmissionMs": 1.16,
+      "attempts": 4,
+      "visits": 16,
+      "truncated": false,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 4,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "wrong-direction",
+          "pass": 3,
+          "fail": 1,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "wrong-initial",
+          "pass": 1,
+          "fail": 3,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": [
+        {
+          "id": "below-refusal-1",
+          "pairs": 1,
+          "finalCall": {
+            "method": "adjust",
+            "arguments": {
+              "delta": -6
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "door",
+      "depth": 4,
+      "positiveTests": 4,
+      "negativeTests": 0,
+      "positiveMs": 61.36,
+      "negativeSelectionMs": 46.01,
+      "negativeAdmissionMs": 0,
+      "attempts": 13,
+      "visits": 43,
+      "truncated": false,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 4,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "ignore-jam",
+          "pass": 3,
+          "fail": 1,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "stuck-open",
+          "pass": 3,
+          "fail": 1,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": []
+    },
+    {
+      "id": "tickets",
+      "depth": 6,
+      "positiveTests": 2,
+      "negativeTests": 1,
+      "positiveMs": 64.13,
+      "negativeSelectionMs": 92.61,
+      "negativeAdmissionMs": 0.7,
+      "attempts": 11,
+      "visits": 33,
+      "truncated": false,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 3,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "free-use",
+          "pass": 1,
+          "fail": 2,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "extra-ticket",
+          "pass": 1,
+          "fail": 2,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": [
+        {
+          "id": "exhausted-refusal-1",
+          "pairs": 1,
+          "finalCall": {
+            "method": "issue",
+            "arguments": {
+              "n": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "labels",
+      "depth": 8,
+      "positiveTests": 3,
+      "negativeTests": 1,
+      "positiveMs": 512.02,
+      "negativeSelectionMs": 117.74,
+      "negativeAdmissionMs": 0.89,
+      "attempts": 22,
+      "visits": 66,
+      "truncated": false,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 4,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "wrong-prefix",
+          "pass": 1,
+          "fail": 3,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "stale-clear",
+          "pass": 1,
+          "fail": 3,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": [
+        {
+          "id": "String.length/String.isSubstringOf/empty/String.length-refusal-1",
+          "pairs": 1,
+          "finalCall": {
+            "method": "register",
+            "arguments": {
+              "s": "￾￾￾￾ﯾ뿾￾"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "coordinates",
+      "depth": 10,
+      "positiveTests": 4,
+      "negativeTests": 0,
+      "positiveMs": 229.03,
+      "negativeSelectionMs": 115.32,
+      "negativeAdmissionMs": 0,
+      "attempts": 37,
+      "visits": 111,
+      "truncated": false,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 4,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "swapped-axes",
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "bad-origin",
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": []
+    },
+    {
+      "id": "queue",
+      "depth": 12,
+      "positiveTests": 3,
+      "negativeTests": 0,
+      "positiveMs": 68.09,
+      "negativeSelectionMs": 108.06,
+      "negativeAdmissionMs": 0,
+      "attempts": 34,
+      "visits": 102,
+      "truncated": false,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 3,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "prepend",
+          "pass": 0,
+          "fail": 3,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "no-removal",
+          "pass": 0,
+          "fail": 3,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": []
+    },
+    {
+      "id": "parcel",
+      "depth": 14,
+      "positiveTests": 4,
+      "negativeTests": 0,
+      "positiveMs": 244.8,
+      "negativeSelectionMs": 120.98,
+      "negativeAdmissionMs": 0,
+      "attempts": 40,
+      "visits": 160,
+      "truncated": true,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 4,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "not-fragile",
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "no-return-label",
+          "pass": 0,
+          "fail": 4,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": []
+    },
+    {
+      "id": "quota",
+      "depth": 16,
+      "positiveTests": 3,
+      "negativeTests": 10,
+      "positiveMs": 260.94,
+      "negativeSelectionMs": 1111.8,
+      "negativeAdmissionMs": 24.24,
+      "attempts": 20,
+      "visits": 80,
+      "truncated": true,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 13,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "lost-release",
+          "pass": 3,
+          "fail": 10,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "missing-special",
+          "pass": 10,
+          "fail": 3,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": [
+        {
+          "id": "small-refusal-1",
+          "pairs": 1,
+          "finalCall": {
+            "method": "reserve",
+            "arguments": {
+              "n": 11
+            }
+          }
+        },
+        {
+          "id": "small-refusal-3",
+          "pairs": 3,
+          "finalCall": {
+            "method": "release",
+            "arguments": {
+              "n": 4
+            }
+          }
+        },
+        {
+          "id": "small-refusal-5",
+          "pairs": 5,
+          "finalCall": {
+            "method": "reserve",
+            "arguments": {
+              "n": 11
+            }
+          }
+        },
+        {
+          "id": "small-refusal-7",
+          "pairs": 7,
+          "finalCall": {
+            "method": "release",
+            "arguments": {
+              "n": 5
+            }
+          }
+        },
+        {
+          "id": "small-refusal-9",
+          "pairs": 9,
+          "finalCall": {
+            "method": "reserve",
+            "arguments": {
+              "n": 10
+            }
+          }
+        },
+        {
+          "id": "small-refusal-11",
+          "pairs": 11,
+          "finalCall": {
+            "method": "release",
+            "arguments": {
+              "n": 3
+            }
+          }
+        },
+        {
+          "id": "small-refusal-13",
+          "pairs": 13,
+          "finalCall": {
+            "method": "reserve",
+            "arguments": {
+              "n": 11
+            }
+          }
+        },
+        {
+          "id": "small-refusal-15",
+          "pairs": 15,
+          "finalCall": {
+            "method": "release",
+            "arguments": {
+              "n": 4
+            }
+          }
+        },
+        {
+          "id": "special-refusal-3",
+          "pairs": 3,
+          "finalCall": {
+            "method": "release",
+            "arguments": {
+              "n": 8
+            }
+          }
+        },
+        {
+          "id": "special-refusal-5",
+          "pairs": 5,
+          "finalCall": {
+            "method": "reserve",
+            "arguments": {
+              "n": 7
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "kits",
+      "depth": 18,
+      "positiveTests": 2,
+      "negativeTests": 0,
+      "positiveMs": 35.02,
+      "negativeSelectionMs": 97.94,
+      "negativeAdmissionMs": 0,
+      "attempts": 33,
+      "visits": 125,
+      "truncated": false,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 2,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "missing-part",
+          "pass": 0,
+          "fail": 2,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "wrong-material",
+          "pass": 1,
+          "fail": 1,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": []
+    },
+    {
+      "id": "journal",
+      "depth": 20,
+      "positiveTests": 4,
+      "negativeTests": 10,
+      "positiveMs": 233.43,
+      "negativeSelectionMs": 3002.89,
+      "negativeAdmissionMs": 30.35,
+      "attempts": 19,
+      "visits": 76,
+      "truncated": true,
+      "unresolved": [],
+      "limits": {
+        "maxTests": 10,
+        "maxAttempts": 40,
+        "maxTimeMs": 20000,
+        "maxBindings": 10000
+      },
+      "reference": {
+        "pass": 14,
+        "fail": 0,
+        "error": 0
+      },
+      "mutants": [
+        {
+          "id": "reverse-log",
+          "pass": 2,
+          "fail": 12,
+          "error": 0,
+          "errors": []
+        },
+        {
+          "id": "no-accumulation",
+          "pass": 3,
+          "fail": 11,
+          "error": 0,
+          "errors": []
+        }
+      ],
+      "negatives": [
+        {
+          "id": "fallingQuiet-refusal-1",
+          "pairs": 1,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-3",
+          "pairs": 3,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-5",
+          "pairs": 5,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-7",
+          "pairs": 7,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-9",
+          "pairs": 9,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-11",
+          "pairs": 11,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-13",
+          "pairs": 13,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-15",
+          "pairs": 15,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-17",
+          "pairs": 17,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        },
+        {
+          "id": "fallingQuiet-refusal-19",
+          "pairs": 19,
+          "finalCall": {
+            "method": "record",
+            "arguments": {
+              "delta": 0,
+              "armed": false
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "extraMutants": [
+    {
+      "name": "quota",
+      "positive": {
+        "pass": 3,
+        "fail": 0,
+        "error": 0
+      },
+      "refusal": {
+        "pass": 0,
+        "fail": 1,
+        "error": 0
+      }
+    },
+    {
+      "name": "thermostat",
+      "positive": {
+        "pass": 3,
+        "fail": 0,
+        "error": 0
+      },
+      "refusal": {
+        "pass": 1,
+        "fail": 1,
+        "error": 0
+      }
+    }
+  ]
+}

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { TestGenerationExplanation, NegativeCoverage } from './satel/GenerationExplanation.jsx';
 import SatelTestDisplay, { PlaceObservations } from './SatelTestDisplay';
 import { formatSymbolicTerm as term } from '../satel/core/SymbolicTerms.js';
 import { useOracleSession } from './satel/hooks/useOracleSession.js';
@@ -26,6 +27,7 @@ export default function OracleValidationPanel({
   view = 'generated',
   onNavigate
 }) {
+  const [includeNegative, setIncludeNegative] = useState(false);
   const intentions = elements.testIntentions || [];
   const selected = intentions.find(i => i.id === selectedId) || intentions[0];
   const {
@@ -74,7 +76,9 @@ export default function OracleValidationPanel({
           }}>
           {intentions.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
         </select></label>
-        <button disabled={busy || selected?.kind === 'symbolic' && !selected.symbolic.protocolSource?.trim()} className="w-full rounded p-2 bg-blue-700 text-white disabled:opacity-50" onClick={() => generate()}>Generate tests</button>
+        <button disabled={busy || selected?.kind === 'symbolic' && !selected.symbolic.protocolSource?.trim()} className="w-full rounded p-2 bg-blue-700 text-white disabled:opacity-50" onClick={() => generate(false, includeNegative)}>Generate tests</button>
+        <label className="flex gap-2 items-start"><input type="checkbox" aria-label="Include bounded refusal tests" disabled={busy} checked={includeNegative} onChange={e => setIncludeNegative(e.target.checked)} /><span>Also select bounded refusal tests from validated positive prefixes</span></label>
+        {includeNegative && <p className="text-xs text-gray-600">At most 10 extra tests. Prefixes stay fixed; terminal parameters may leave the intention’s conditions, within their declared sorts. A call is refused only when no method rule can accept it. Explicit error responses such as ack(0) are accepted calls.</p>}
         {selected?.kind === 'symbolic' && !selected.symbolic.protocolSource?.trim() && <p>This intention has no pair sequence. It supports class analysis only, available under Advanced details.</p>}
         <p className="text-xs text-gray-600">Generation replaces the saved suite. Loading another APN keeps it for replay.</p>
       </>}
@@ -91,10 +95,12 @@ export default function OracleValidationPanel({
         {[...report.execution.blocked, ...report.execution.unresolved].map((d, i) => <p key={i}>{d.id}: {d.reason}</p>)}
       </section>}
       {report?.decomposition && (!!report.decomposition.unresolved.length || !!report.decomposition.overlaps.length) && <p role="alert" className="bg-amber-50 p-2">Admission blocked: {report.decomposition.unresolved.length} unresolved branches and {report.decomposition.overlaps.length} overlapping or unchecked class pairs. Inspect Advanced details.</p>}
+      <NegativeCoverage report={report?.negativeSelection} />
       {!!candidates.length && <section aria-label="Instantiated test sequences" className="space-y-3">
         <h4 className="font-semibold">{suite ? 'Validated pair sequences' : 'Candidate pair sequences — not admitted'}</h4>
         {candidates.map((candidate, i) => <article key={candidate.id} className="border rounded p-3 space-y-2">
-          <h5 className="font-semibold">Test {i + 1}</h5>
+          <h5 className="font-semibold">Test {i + 1}{candidate.pairs?.some(p => p.assertion === 'blocked') ? ' · final refusal' : ' · accepted sequence'}</h5>
+          <TestGenerationExplanation test={suite?.selectedTests.find(t => t.id === candidate.id) || candidate} />
           <SatelTestDisplay test={suite?.selectedTests.find(t => t.id === candidate.id) || candidate} io={report?.interface} pairResults={session.validation?.testResults.find(r => r.testCaseId === candidate.id)?.pairResults} />
         </article>)}
       </section>}
