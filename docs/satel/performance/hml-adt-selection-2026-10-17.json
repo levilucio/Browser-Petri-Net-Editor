@@ -1,0 +1,430 @@
+{
+  "measuredAt": "2026-10-17T17:33:30.776Z",
+  "node": "v24.19.0",
+  "baselineCommit": "44549543e227368392b347a77c03ab7d8400ef41",
+  "dirty": true,
+  "scope": "functional smoke; first run includes Z3 initialization; subsequent runs reuse caches; no statistical performance claim",
+  "intentions": [
+    {
+      "id": "hml-adt-string-progress",
+      "durationMs": 497.141407,
+      "selected": [
+        "ok"
+      ],
+      "staticRepresentative": [
+        "￶"
+      ],
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      },
+      "selection": {
+        "status": "selected",
+        "policy": "one executable representative per algebraic class",
+        "caseId": "open",
+        "pathsTried": 1,
+        "representative": "solved jointly from sequence and HML property",
+        "hmlSelection": {
+          "policy": "joint-sequence-and-hml",
+          "expectedTruth": true,
+          "work": 77,
+          "nodes": 4,
+          "cacheHits": 1,
+          "outcomes": 4,
+          "equationExpansions": 2,
+          "residualCalls": 0,
+          "constraintSize": 38
+        },
+        "assertions": [
+          {
+            "kind": "required",
+            "transitionId": "openA",
+            "inputOccurrences": [
+              {
+                "place": "state",
+                "tokenIndex": 0
+              },
+              {
+                "place": "value",
+                "tokenIndex": 0
+              }
+            ]
+          }
+        ]
+      },
+      "mutants": [
+        {
+          "mutation": "missing-finish",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        },
+        {
+          "mutation": "wrong-value",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hml-adt-string-no-dead-end",
+      "durationMs": 96.80231000000003,
+      "selected": [
+        "ok"
+      ],
+      "staticRepresentative": [
+        "￾"
+      ],
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      },
+      "selection": {
+        "status": "selected",
+        "policy": "one executable representative per algebraic class",
+        "caseId": "open",
+        "pathsTried": 1,
+        "representative": "solved jointly from sequence and HML property",
+        "hmlSelection": {
+          "policy": "joint-sequence-and-hml",
+          "expectedTruth": false,
+          "work": 79,
+          "nodes": 6,
+          "cacheHits": 1,
+          "outcomes": 4,
+          "equationExpansions": 2,
+          "residualCalls": 0,
+          "constraintSize": 38
+        },
+        "assertions": [
+          {
+            "kind": "required",
+            "transitionId": "openA",
+            "inputOccurrences": [
+              {
+                "place": "state",
+                "tokenIndex": 0
+              },
+              {
+                "place": "value",
+                "tokenIndex": 0
+              }
+            ]
+          }
+        ]
+      },
+      "mutants": [
+        {
+          "mutation": "missing-finish",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        },
+        {
+          "mutation": "wrong-value",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hml-adt-list-progress",
+      "durationMs": 84.09676200000001,
+      "selected": [
+        [
+          3
+        ]
+      ],
+      "staticRepresentative": [
+        [
+          1
+        ]
+      ],
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      },
+      "selection": {
+        "status": "selected",
+        "policy": "one executable representative per algebraic class",
+        "caseId": "open",
+        "pathsTried": 1,
+        "representative": "solved jointly from sequence and HML property",
+        "hmlSelection": {
+          "policy": "joint-sequence-and-hml",
+          "expectedTruth": true,
+          "work": 91,
+          "nodes": 4,
+          "cacheHits": 1,
+          "outcomes": 4,
+          "equationExpansions": 3,
+          "residualCalls": 0,
+          "constraintSize": 239
+        },
+        "assertions": [
+          {
+            "kind": "required",
+            "transitionId": "openA",
+            "inputOccurrences": [
+              {
+                "place": "state",
+                "tokenIndex": 0
+              },
+              {
+                "place": "value",
+                "tokenIndex": 0
+              }
+            ]
+          }
+        ]
+      },
+      "mutants": [
+        {
+          "mutation": "missing-finish",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        },
+        {
+          "mutation": "wrong-value",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hml-adt-list-no-dead-end",
+      "durationMs": 55.12488199999996,
+      "selected": [
+        [
+          3
+        ]
+      ],
+      "staticRepresentative": [
+        [
+          1
+        ]
+      ],
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      },
+      "selection": {
+        "status": "selected",
+        "policy": "one executable representative per algebraic class",
+        "caseId": "open",
+        "pathsTried": 1,
+        "representative": "solved jointly from sequence and HML property",
+        "hmlSelection": {
+          "policy": "joint-sequence-and-hml",
+          "expectedTruth": false,
+          "work": 93,
+          "nodes": 6,
+          "cacheHits": 1,
+          "outcomes": 4,
+          "equationExpansions": 3,
+          "residualCalls": 0,
+          "constraintSize": 239
+        },
+        "assertions": [
+          {
+            "kind": "required",
+            "transitionId": "openA",
+            "inputOccurrences": [
+              {
+                "place": "state",
+                "tokenIndex": 0
+              },
+              {
+                "place": "value",
+                "tokenIndex": 0
+              }
+            ]
+          }
+        ]
+      },
+      "mutants": [
+        {
+          "mutation": "missing-finish",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        },
+        {
+          "mutation": "wrong-value",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hml-adt-pair-progress",
+      "durationMs": 61.9456120000001,
+      "selected": [
+        {
+          "__pair__": true,
+          "fst": 3,
+          "snd": true
+        }
+      ],
+      "staticRepresentative": [
+        {
+          "__pair__": true,
+          "fst": 1,
+          "snd": false
+        }
+      ],
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      },
+      "selection": {
+        "status": "selected",
+        "policy": "one executable representative per algebraic class",
+        "caseId": "open",
+        "pathsTried": 1,
+        "representative": "solved jointly from sequence and HML property",
+        "hmlSelection": {
+          "policy": "joint-sequence-and-hml",
+          "expectedTruth": true,
+          "work": 92,
+          "nodes": 4,
+          "cacheHits": 1,
+          "outcomes": 4,
+          "equationExpansions": 4,
+          "residualCalls": 0,
+          "constraintSize": 209
+        },
+        "assertions": [
+          {
+            "kind": "required",
+            "transitionId": "openA",
+            "inputOccurrences": [
+              {
+                "place": "state",
+                "tokenIndex": 0
+              },
+              {
+                "place": "value",
+                "tokenIndex": 0
+              }
+            ]
+          }
+        ]
+      },
+      "mutants": [
+        {
+          "mutation": "missing-finish",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        },
+        {
+          "mutation": "wrong-value",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "hml-adt-pair-no-dead-end",
+      "durationMs": 55.772748999999976,
+      "selected": [
+        {
+          "__pair__": true,
+          "fst": 3,
+          "snd": true
+        }
+      ],
+      "staticRepresentative": [
+        {
+          "__pair__": true,
+          "fst": 1,
+          "snd": false
+        }
+      ],
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      },
+      "selection": {
+        "status": "selected",
+        "policy": "one executable representative per algebraic class",
+        "caseId": "open",
+        "pathsTried": 1,
+        "representative": "solved jointly from sequence and HML property",
+        "hmlSelection": {
+          "policy": "joint-sequence-and-hml",
+          "expectedTruth": false,
+          "work": 94,
+          "nodes": 6,
+          "cacheHits": 1,
+          "outcomes": 4,
+          "equationExpansions": 4,
+          "residualCalls": 0,
+          "constraintSize": 209
+        },
+        "assertions": [
+          {
+            "kind": "required",
+            "transitionId": "openA",
+            "inputOccurrences": [
+              {
+                "place": "state",
+                "tokenIndex": 0
+              },
+              {
+                "place": "value",
+                "tokenIndex": 0
+              }
+            ]
+          }
+        ]
+      },
+      "mutants": [
+        {
+          "mutation": "missing-finish",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        },
+        {
+          "mutation": "wrong-value",
+          "counts": {
+            "pass": 0,
+            "fail": 1,
+            "error": 0
+          }
+        }
+      ]
+    }
+  ]
+}
+

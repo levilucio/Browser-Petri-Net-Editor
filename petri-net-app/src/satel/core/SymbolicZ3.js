@@ -46,6 +46,21 @@ export async function createSymbolicSolver(algebra, options = {}) {
     preamble += `(declare-datatypes (${names.map(n => `(${sort(n)} 0)`).join(' ')}) (${names.map(n => `(${bySort[n].map(([c, sig]) => `(${nameOf(c)} ${sig.parameters.map((s, i) => `(${nameOf(c)}_${i} ${sort(s)})`).join(' ')})`).join(' ')})`).join(' ')}))\n`;
     preamble += `(define-funs-rec (${names.map(n => `(${prefix}valid_${n} ((x ${sort(n)})) Bool)`).join(' ')}) (${names.map(n => `(or ${bySort[n].map(([c, sig]) => `(and ((_ is ${nameOf(c)}) x) ${sig.parameters.map((s, i) => valid(s, `(${nameOf(c)}_${i} x)`)).join(' ')})`).join(' ')})`).join(' ')}))\n`;
   }
+  // Mirror validBuiltinValue, including bounded nested machine integers. Flat
+  // list tails do not consume nesting depth; Any wrappers do.
+  const runtimeSorts = ['List', 'Pair', 'Any'].filter(s => names.includes(s));
+  const runtimeValid = (s, x, d) => ['Nat', 'Int'].includes(s) ? `(and (>= ${d} 0) (>= ${x} ${s === 'Nat' ? 0 : '(- 2147483648)'}) (<= ${x} 2147483647))` : ['Bool', 'String'].includes(s) ? `(>= ${d} 0)` : runtimeSorts.includes(s) ? `(${prefix}runtime_${s} ${x} ${d})` : 'false';
+  if (runtimeSorts.length) {
+    const descend = s => {
+      const tag = ctor => `((_ is ${nameOf(ctor)}) x)`;
+      const field = (ctor, i) => `(${nameOf(ctor)}_${i} x)`;
+      const smaller = '(- d 1)';
+      if (s === 'List') return `(or ${tag('_ListNil')} (and ${tag('_ListCons')} ${runtimeValid('Any', field('_ListCons', 0), smaller)} ${runtimeValid('List', field('_ListCons', 1), 'd')}))`;
+      if (s === 'Pair') return `(and ${runtimeValid('Any', field('_Pair', 0), smaller)} ${runtimeValid('Any', field('_Pair', 1), smaller)})`;
+      return `(or ${['Int', 'Bool', 'String', 'List', 'Pair'].map(sort => `(and ${tag('_Any' + sort)} ${runtimeValid(sort, field('_Any' + sort, 0), smaller)})`).join(' ')})`;
+    };
+    preamble += `(define-funs-rec (${runtimeSorts.map(s => `(${prefix}runtime_${s} ((x ${sort(s)}) (d Int)) Bool)`).join(' ')}) (${runtimeSorts.map(s => `(and (>= d 0) ${descend(s)})`).join(' ')}))\n`;
+  }
   let checkId = 0;
   return async function solve({
     terms,
@@ -68,6 +83,10 @@ export async function createSymbolicSolver(algebra, options = {}) {
           if (!symbolNames.has(t.var)) throw new Error('Missing symbolic variable');
           return symbolNames.get(t.var);
         }
+        if (t?.if !== undefined) return `(ite ${encode(t.if)} ${encode(t.then)} ${encode(t.else)})`;
+        if (t?.test) return `((_ is ${nameOf(t.test)}) ${encode(t.value)})`;
+        if (t?.field) return `(${nameOf(t.field)}_${t.index} ${encode(t.value)})`;
+        if (t?.valid) return runtimeValid(t.valid, encode(t.value), String(t.depth ?? 64));
         if (t?.ctor) return t.args.length ? `(${nameOf(t.ctor)} ${t.args.map(encode).join(' ')})` : nameOf(t.ctor);
         if (t?.op) {
           const a = encode(t.left);

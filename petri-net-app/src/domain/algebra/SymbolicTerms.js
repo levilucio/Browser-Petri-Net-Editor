@@ -1,4 +1,5 @@
 import { quoteTermString } from '../../utils/term-string.js';
+import { validBuiltinValue, symbolicToValue } from '../../utils/builtin-values.js';
 import { builtinDisplay } from './BuiltinAlgebra.js';
 /** Typed, first-order terms shared by the equation editor, unfolding and SMT adapter. */
 export const isVariable = t => !!t && typeof t === 'object' && typeof t.var === 'string';
@@ -31,6 +32,28 @@ const numeric = s => ['Nat', 'Int'].includes(s);
 export function termSort(t, vars, algebra, expected) {
   const accept = sort => expected === 'Any' || expected === 'Int' && sort === 'Nat' ? expected : sort;
   if (t?.undefined) return expected || 'Any';
+  // Internal, typed terms produced by guarded equation compilation. They are
+  // not additions to the user-facing term syntax.
+  if (t?.test) {
+    if (termSort(t.value, vars, algebra) !== algebra.constructors[t.test]?.result) throw new Error('Ill-sorted constructor test');
+    return accept('Bool');
+  }
+  if (t?.field) {
+    const signature = algebra.constructors[t.field];
+    if (!signature || !Number.isInteger(t.index) || !signature.parameters[t.index] || termSort(t.value, vars, algebra) !== signature.result) throw new Error('Ill-sorted constructor field');
+    return accept(signature.parameters[t.index]);
+  }
+  if (t?.valid) {
+    const actual = termSort(t.value, vars, algebra);
+    if (actual !== t.valid && !(numeric(actual) && numeric(t.valid))) throw new Error('Ill-sorted runtime validity check');
+    return accept('Bool');
+  }
+  if (t?.if !== undefined) {
+    if (termSort(t.if, vars, algebra) !== 'Bool') throw new Error('Conditional requires Bool');
+    const a = termSort(t.then, vars, algebra), b = termSort(t.else, vars, algebra);
+    if (a !== b && !(numeric(a) && numeric(b))) throw new Error('Conditional branches have different sorts');
+    return accept(a === b ? a : 'Int');
+  }
   if (typeof t === 'boolean') return accept('Bool');
   if (typeof t === 'string') return accept('String');
   if (Number.isSafeInteger(t)) {
@@ -84,6 +107,7 @@ export function elaborateTerm(t, vars, algebra, expected) {
       args: [elaborateTerm(t, vars, algebra)]
     };
   }
+  if (t?.test || t?.field || t?.valid || t?.if !== undefined) return t;
   if (t?.op) {
     let operandSort;
     if (logicalOps.includes(t.op)) operandSort = 'Bool';else {
@@ -163,6 +187,14 @@ export function validateCondition(c, vars, algebra) {
   if (termSort(c, vars, algebra) !== 'Bool') throw new Error('Guard conditions must be Boolean');
 }
 export function evaluateGround(t) {
+  if (t?.if !== undefined) return evaluateGround(evaluateGround(t.if) ? t.then : t.else);
+  if (t?.test) return evaluateGround(t.value)?.ctor === t.test;
+  if (t?.field) {
+    const value = evaluateGround(t.value);
+    if (value?.ctor !== t.field) throw new Error('Constructor field used outside its matching branch');
+    return value.args[t.index];
+  }
+  if (t?.valid) return validBuiltinValue(symbolicToValue(evaluateGround(t.value)), t.valid, 64 - (t.depth ?? 64));
   if (t?.undefined) throw new Error(t.undefined);
   if (isVariable(t)) throw new Error('Term is not ground');
   if (t?.call) {
@@ -209,6 +241,10 @@ export function evaluateGround(t) {
   return t;
 }
 export function formatSymbolicTerm(t) {
+  if (t?.if !== undefined) return `if ${formatSymbolicTerm(t.if)} then ${formatSymbolicTerm(t.then)} else ${formatSymbolicTerm(t.else)}`;
+  if (t?.test) return `is ${builtinDisplay(t.test)}(${formatSymbolicTerm(t.value)})`;
+  if (t?.field) return `${builtinDisplay(t.field)}.field${t.index}(${formatSymbolicTerm(t.value)})`;
+  if (t?.valid) return `valid ${t.valid}(${formatSymbolicTerm(t.value)})`;
   if (isVariable(t)) return t.var.replace(/@(\d+)\.(\w+)/g, (_, id, name) => name + [...id].map(n => '₀₁₂₃₄₅₆₇₈₉'[n]).join(''));
   if (t?.undefined) return `undefined (${t.undefined})`;
   if (typeof t === 'string') return quoteTermString(t);

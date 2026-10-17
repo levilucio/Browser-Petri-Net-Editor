@@ -14,6 +14,7 @@ export function evaluateGroundTerm(term, algebra = builtinAlgebra, maxSteps = 10
   const definitions = new Map();
   const run = t => {
     if (++steps > maxSteps) throw new DomainError('resource-limit', 'Ground evaluation budget exhausted');
+    if (t?.test || t?.field || t?.valid || t?.if !== undefined) return evaluateGround(t);
     if (t?.undefined) throw new DomainError('undefined-term', t.undefined);
     if (t?.ctor) return {
       ...t,

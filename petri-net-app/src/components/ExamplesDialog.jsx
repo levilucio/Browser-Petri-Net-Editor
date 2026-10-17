@@ -1,4 +1,5 @@
 import { nondeterminismExamples } from '../satel/examples/nondeterminism/editor.js';
+import { hmlAlgebraicExamples } from '../satel/examples/hml-selection/algebraic.js';
 import { hmlSelectionExamples } from '../satel/examples/hml-selection/editor.js';
 import { refusalExamples } from '../satel/examples/refusal/editor.js';
 import React, { useState } from 'react';
@@ -11,6 +12,7 @@ const EXAMPLES = [
   ...refusalExamples,
   ...nondeterminismExamples,
   ...hmlSelectionExamples,
+  ...hmlAlgebraicExamples,
   ...fulfilmentExamples,
   { filename: 'executable-sequence', displayName: 'SATEL Whole-sequence selection — Reference' },
   { filename: 'executable-sequence-mutant', displayName: 'SATEL Whole-sequence selection — Mutant: no debit' },

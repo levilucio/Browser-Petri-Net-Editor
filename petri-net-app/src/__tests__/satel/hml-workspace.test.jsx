@@ -21,7 +21,7 @@ test('branching editor saves nested obligations and expected false without JSON 
   render(<AdtProvider><Harness /></AdtProvider>);
   expect(screen.getByLabelText('Property 1.1 requirement')).toHaveValue('and');
   fireEvent.change(screen.getByLabelText('Property 1 requirement'), { target: { value: 'box' } });
-  expect(screen.getByText(/This allows no matching outcome/)).toBeInTheDocument();
+  expect(screen.getByText(/This is also true when there are no matching outcomes/)).toBeInTheDocument();
   fireEvent.change(screen.getByLabelText('Expected property truth'), { target: { value: 'false' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save Intention' }));
   expect(saved.formula.op).toBe('box');

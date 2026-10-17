@@ -1,0 +1,7 @@
+[
+  {"family":"resource-apn","size":4,"mutations":false},
+  {"family":"resource-apn","size":8,"mutations":true},
+  {"family":"resource-apn","size":16,"mutations":false},
+  {"family":"resource-apn","size":32,"mutations":false},
+  {"family":"resource-apn","size":64,"mutations":false}
+]

@@ -725,3 +725,13 @@ selected finite suite. Symbolic selection still solves the pair sequence before
 checking additional branching obligations at its selected representative; joint
 constraint solving for arbitrary HML properties remains future work. Automatic
 refusal companions do not currently operate on branching properties.
+
+
+## Subsequent scalability work
+
+[Increment 19](increment-19-algebraic-hml-selection.md) extends joint HML
+selection to built-in algebraic values. [Increment 20](increment-20-scalability.md)
+measures the resulting approach on larger order-fulfilment and worker-service
+APNs, custom recursive ADTs and isolated solver workloads. These reports
+supersede earlier sequence-first restrictions and distinguish runtime support,
+search exhaustion and implementation overhead from mathematical completeness.

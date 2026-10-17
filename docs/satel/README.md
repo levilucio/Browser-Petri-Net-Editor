@@ -11,6 +11,8 @@ It distinguishes established prototype behaviour from unproved mathematical clai
 
 ## Nondeterminism and branching properties
 
+For a practical walkthrough of the current GUI, see the [HML, nondeterminism and negative-test review guide](gui-review-2026-10-17.md).
+
 [Increment 16: HML properties and nondeterminism](increment-16-hml-nondeterminism.md)
 adds multiset/rule successor exploration, an approachable branching editor,
 expected-true/false properties, bounded verdicts, and two references with five
@@ -26,7 +28,12 @@ the mutants plus a selectable stock-marking property.
 selects shared Nat/Int/Bool parameters satisfying the sequence and additional
 branching requirement together. A new reference and two mutants demonstrate
 replacing a sequence-valid value of 1 with a branching-valid value of 3, including
-an expected-false requirement. Joint ADT/String selection remains the next step.
+an expected-false requirement.
+
+[Increment 19: algebraic HML selection](increment-19-algebraic-hml-selection.md)
+extends joint selection to String, List and Pair with guarded operation unfolding.
+[Increment 20: scalability experiments](increment-20-scalability.md) measures
+solver constraints, custom ADT analysis and larger executable APN abstractions.
 
 ## Negative tests and generation explanations
 

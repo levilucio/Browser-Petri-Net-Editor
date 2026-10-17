@@ -54,7 +54,7 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
     </section>
     <section className="border rounded p-3 space-y-2">
       <h4 className="font-semibold">Additional branching requirements</h4>
-      <p className="text-xs text-gray-600">The sequence and this property jointly select one shared assignment to the goal variables. Both start from the initial marking. Use $name to refer to a goal variable. Joint selection currently supports Nat, Int and Bool with scalar arithmetic and Boolean guards; other types remain available for sequence-only selection. Concrete reference replay checks the complete selected test.</p>
+      <p className="text-xs text-gray-600">The sequence and this property jointly select one shared assignment to the goal variables. Both start from the initial marking. Use $name to refer to a goal variable. Joint selection supports Nat, Int, Bool, String, List and Pair. List and Pair operations use bounded equation unfolding; an exhausted search remains unresolved. Concrete reference replay checks the complete selected test.</p>
       {intention.branchingProperty ? <>
         <label className="block">Expected additional property truth<select aria-label="Expected additional property truth" className="border rounded p-2 ml-2" value={String(intention.branchingExpectedTruth ?? true)} onChange={e => onChange({ ...intention, branchingExpectedTruth: e.target.value === 'true' })}><option value="true">Must hold</option><option value="false">Must not hold</option></select></label>
         <HmlPropertyEditor formula={intention.branchingProperty} elements={elements} onValidityChange={setPropertyInvalid} onChange={branchingProperty => onChange({ ...intention, branchingProperty })} />

@@ -18,6 +18,7 @@ export function TestGenerationExplanation({ test }) {
       {domain.staticWitness && <p><strong>Static representative:</strong> {domain.staticWitness.args.map(term).join(', ')}</p>}
       <SatelBindings bindings={domain.witnessBindings} />
       <p><strong>Sequence selection:</strong> {domain.execution?.representative || 'Static class analysis only; no execution evidence.'}</p>
+      {domain.execution?.hmlSelection?.equationExpansions > 0 && <p>HML selection unfolded {domain.execution.hmlSelection.equationExpansions} operation calls. {domain.execution.hmlSelection.residualCalls ? 'Some alternatives exceeded the unfolding bound; this concrete witness avoids those unresolved alternatives.' : 'No residual equation calls remained in the constructed HML constraints.'}</p>}
       {domain.execution && <p>{domain.execution.pathsTried} complete path(s) considered before this representative was selected. This does not enumerate all possible executions.</p>}
       {domain.execution?.assertions.filter(a => a.kind === 'blocked').map((a, i) => <p key={i}>Final refusal covers {a.refusal?.length || 0} rules and {a.refusal?.reduce((n, r) => n + r.bindings, 0) || 0} input bindings at the reached marking.</p>)}
     </> : <><p>The intention’s declared finite values or explicit representatives were instantiated and filtered by its conditions. Those values were not repaired by the solver.</p><SatelBindings bindings={test.instantiation} /></>}

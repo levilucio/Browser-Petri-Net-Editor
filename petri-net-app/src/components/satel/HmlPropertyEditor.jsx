@@ -50,7 +50,7 @@ function PropertyNode({ node, onChange, methods, places, path, validity }) {
       </label>
       {node.observation && <ObservationEditor key={`${path}:${revision}`} observation={node.observation} places={places} pairNumber={`property ${path}`} allowRefusal={false}
         onChange={observation => onChange({ ...node, observation })} onValidityChange={observationValidity} />}
-      {node.op === 'box' && <p className="text-xs text-amber-900">This allows no matching outcome. To require an outcome as well, add a “possible” property in an “all” group.</p>}
+      {node.op === 'box' && <p className="text-xs text-amber-900">This is also true when there are no matching outcomes. To require an outcome as well, add a “possible” property in an “all” group.</p>}
     </>}
     {node.op === 'marking' && <ObservationEditor observation={{ outputs: {}, markings: node.markings }} places={places} pairNumber={`property ${path}`} allowRefusal={false} markingsOnly
       onChange={value => onChange({ ...node, markings: value.markings })} onValidityChange={observationValidity} />}
@@ -76,7 +76,7 @@ export default function HmlPropertyEditor({ formula, onChange, elements, onValid
   const invalid = Object.values(errors).some(Boolean);
   useEffect(() => { onValidityChange?.(invalid); }, [invalid, onValidityChange]);
   return <section aria-label="Branching property editor" className="space-y-3">
-    <p className="text-sm">Describe possible and required continuations. Every branch shares the same variable values. Calls start from the model’s initial marking.</p>
+    <p className="text-sm">Describe possible and required continuations. Every branch shares the same variable values. The whole property starts from the model’s initial marking; nested calls continue from the marking reached in their branch.</p>
     <PropertyNode node={formula} onChange={onChange} methods={methods} places={elements.places || []} path="1" validity={validity} />
     <details className="border rounded p-3"><summary>HML notation</summary><pre className="text-xs whitespace-pre-wrap break-words mt-2">{formulaNotation(formula)}</pre>
       <p className="text-xs mt-2">⟨a⟩: some matching successor; [a]: every matching successor; ∧: both at the same state; ∨: either; ¬: negation; ⊤: true; ⊥: false. * matches any observation.</p>

@@ -256,6 +256,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
             });
             const witness = result.witness;
             if (!witness) {
+              if (choiceIndex === choices.length - 1 && hml?.stats.residualCalls) unresolved.push({ id: domain.id, reason: 'HML equation unfolding left residual calls; absence of a witness is not infeasibility' });
               if (choiceIndex === choices.length - 1 && result.unresolved.length) unresolved.push({
                 id: domain.id,
                 reason: result.unresolved.map(x => x.reason).join('; ')
@@ -301,7 +302,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
         for (let i = unresolved.length - 1; i >= 0; i--) if (unresolved[i].id === domain.id) unresolved.splice(i, 1);
       } else if (!unresolved.some(x => x.id === domain.id)) blocked.push({
         id: domain.id,
-        reason: options.branchingProperty ? 'No representative satisfies the sequence and HML requirement with defined scalar execution from the model initial marking' : 'No complete stimulation/observation sequence is feasible from the model initial marking',
+        reason: options.branchingProperty ? 'No representative satisfies the sequence and HML requirement with defined execution from the model initial marking' : 'No complete stimulation/observation sequence is feasible from the model initial marking',
         pathsTried: attempts
       });
     } catch (e) {
@@ -320,6 +321,6 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
     visited: budget.visited,
     pruned: budget.pruned,
     prefixChecks: budget.prefixChecks,
-    policy: options.branchingProperty ? 'one representative per algebraic class; joint sequence and HML constraints; bounded scalar execution' : 'one executable representative per algebraic class; whole-sequence constraints; bounded symbolic execution'
+    policy: options.branchingProperty ? 'one representative per algebraic class; joint sequence and HML constraints; bounded built-in execution' : 'one executable representative per algebraic class; whole-sequence constraints; bounded symbolic execution'
   };
 }

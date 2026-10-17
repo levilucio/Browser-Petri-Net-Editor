@@ -4,6 +4,17 @@ import { deriveSymbolicIntention, admitSymbolicIntention } from '../../satel/cor
 import { evaluateOracleSuite } from '../../satel/core/ValidatedSubuniformity';
 import { getPublicMethods } from '../../features/simulation/PublicMethods';
 
+import { buildHmlConstraints } from '../../satel/core/HmlConstraints.js';
+import { sequenceFormula } from '../../satel/core/HmlFormula.js';
+import { parseSymbolicSource } from '../../satel/core/SymbolicSource.js';
+import { evaluateGround } from '../../satel/core/SymbolicTerms.js';
+const hmlAlgebra = parseSymbolicSource('');
+async function compiledTruth(test, net, io) {
+  const c = await buildHmlConstraints(sequenceFormula(test.pairs), net, io, {}, {}, hmlAlgebra);
+  expect(c.stats.residualCalls).toBe(0);
+  return c.conditions.every(t => evaluateGround(t) === true);
+}
+
 jest.setTimeout(60000);
 const matrix = {
   thermostat: [[1, 2], [3, 2]], door: [[1, 2], [1, 4]], tickets: [[2, 3], [2, 3]],
@@ -21,6 +32,7 @@ test.each(exerciseScenarios)('$id: executable classes, continuous state and inde
   const suite = await admitSymbolicIntention(report, reference);
   expect(suite.validation).toEqual({ generated: scenario.classes, referencePassed: scenario.classes });
   for (const test of suite.selectedTests) {
+    expect(await compiledTruth(test, reference, suite.interface)).toBe(true);
     expect(test.steps).toHaveLength(scenario.depth);
     expect(test.referenceMarkings).toHaveLength(scenario.depth + 1);
     const last = test.referenceMarkings.at(-1);
@@ -62,6 +74,7 @@ test.each(exerciseScenarios)('$id: executable classes, continuous state and inde
     expect(getPublicMethods(target)).toEqual(getPublicMethods(reference));
     expect(target.testIntentions).toEqual(reference.testIntentions);
     const run = await evaluateOracleSuite(suite.selectedTests, target, suite.interface);
+    for (const [j, test] of suite.selectedTests.entries()) expect(await compiledTruth(test, target, suite.interface)).toBe(run.results[j].verdict === 'pass');
     const [failures, step] = matrix[scenario.id][i];
     expect(run.counts).toEqual({ pass: scenario.classes - failures, fail: failures, error: 0 });
     for (const failure of run.results.filter(r => r.verdict === 'fail')) {

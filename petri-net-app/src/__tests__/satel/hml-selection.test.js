@@ -168,11 +168,11 @@ test('incomplete construction stays unresolved and never admits a partial univer
   await expect(build(net.testIntentions[0].branchingProperty, net, { n: 'Nat' }, { maxHmlConstraintSize: 1 })).rejects.toMatchObject({ code: 'resource-limit' });
 });
 
-test('unsupported ADT/String joint selection is explicit; cancellation and invalid unreachable labels are checked', async () => {
+test('unsupported place sorts, cancellation and invalid unreachable labels are checked', async () => {
   const net = createExerciseExample('exercise-thermostat-reference');
   const controller = new AbortController(); controller.abort();
   await expect(build({ op: 'true' }, net, {}, { signal: controller.signal })).rejects.toMatchObject({ code: 'cancelled' });
-  const source = reference(); source.places[0].sort = 'String'; source.places[0].valueTokens = ['start'];
-  await expect(build({ op: 'true' }, source)).rejects.toThrow(/Nat, Int and Bool/);
+  const source = reference(); source.places[0].sort = 'Custom';
+  await expect(build({ op: 'true' }, source)).rejects.toThrow(/supported built-in sorts/);
   await expect(build({ op: 'or', children: [{ op: 'true' }, modal('diamond', 'missing', null)] }, reference())).rejects.toThrow(/Invalid method signature/);
 });

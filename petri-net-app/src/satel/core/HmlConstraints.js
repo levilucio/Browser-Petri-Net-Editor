@@ -1,29 +1,13 @@
 import { compilePublicNet, isMethodRule } from '../../domain/apn/PublicMethods.js';
-import { integerBounds, validBuiltinValue } from '../../utils/builtin-values.js';
+import { methodSorts, valueToSymbolic, validBuiltinValue } from '../../utils/builtin-values.js';
 import { checkCancelled, DomainError } from '../../domain/diagnostics.js';
 import { validateFormula, mapFormula } from './HmlFormula.js';
 import { termSort } from './SymbolicTerms.js';
 
-const scalar = sort => ['Nat', 'Int', 'Bool'].includes(sort);
+import { createHmlTerms, not, combine, and, or, implies, eq, valueValid as range } from './HmlTerms.js';
 const unsupported = message => { throw new DomainError('unsupported-model', `Joint HML selection: ${message}`); };
 const invalid = message => { throw new DomainError('invalid-test', message); };
-const not = a => typeof a === 'boolean' ? !a : a?.op === 'not' ? a.left : { op: 'not', left: a };
-const combine = (op, values) => {
-  const identity = op === 'and', decisive = !identity;
-  if (values.includes(decisive)) return decisive;
-  return values.filter(v => v !== identity).reduce((a, b) => a === identity ? b : { op, left: a, right: b }, identity);
-};
-const and = (...values) => combine('and', values), or = (...values) => combine('or', values);
-const implies = (a, b) => or(not(a), b);
-const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b) ? true : typeof a !== 'object' && typeof b !== 'object' ? a === b : { op: '==', left: a, right: b };
-const range = (term, sort) => {
-  if (sort === 'Bool') return true;
-  const { min, max } = integerBounds(sort);
-  if (typeof term === 'number') return term >= min && term <= max;
-  return and({ op: '>=', left: term, right: min }, { op: '<=', left: term, right: max });
-};
-
-/** Finite HML constraint construction over symbolic scalar markings.
+/** Finite HML constraint construction over symbolic built-in markings.
  * A diamond is a disjunction over eligible edges; a box is a conjunction of
  * implications, never a conjunction of enabledness conditions. All branches
  * share the caller's root terms. Incomplete construction throws, never returns
@@ -32,9 +16,8 @@ const range = (term, sort) => {
 export async function buildHmlConstraints(formula, net, io, roots, sorts, algebra, options = {}) {
   validateFormula(formula);
   if (!['algebraic', 'algebraic-int'].includes(net.mode) || !net.transitions.length || net.transitions.some(t => !isMethodRule(t))) unsupported('requires public-method algebraic APNs');
-  if (net.places.some(p => !scalar(p.sort)) || Object.values(sorts).some(s => !scalar(s))) unsupported('this increment supports Nat, Int and Bool only; ADT/String joint selection is not implemented');
+  if (net.places.some(p => !methodSorts.includes(p.sort))) unsupported('method places must use supported built-in sorts');
   const compiled = compilePublicNet(net), places = new Map(net.places.map(p => [p.id, p]));
-  if (compiled.methods.some(m => m.parameters.some(p => !scalar(p.sort)))) unsupported('method parameters must have sort Nat, Int or Bool');
   for (const p of net.places) if (!Array.isArray(p.valueTokens) || p.tokens !== p.valueTokens.length || !p.valueTokens.every(v => validBuiltinValue(v, p.sort))) invalid(`Invalid initial marking at ${p.id}`);
   const maxWork = options.maxHmlSelectionWork ?? 10000, maxNodes = options.maxHmlSelectionNodes ?? 2000;
   const deadline = Math.min(options.deadline ?? Infinity, Date.now() + (options.maxHmlSelectionTimeMs ?? 10000));
@@ -44,28 +27,25 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
     checkCancelled(options.signal);
     if (++stats.work > maxWork || Date.now() >= deadline) throw new DomainError('resource-limit', 'Joint HML constraint construction budget exhausted');
   };
-  // Restrict operations explicitly. Arithmetic intermediates are checked below
-  // with the concrete simulator's signed 32-bit semantics, not unbounded Int.
-  const inspectTerm = term => {
-    tick();
-    if (typeof term === 'number' || typeof term === 'boolean' || term?.var) return;
-    if (!term?.op || !['+', '-', '*', '==', '!=', '<', '<=', '>', '>=', 'and', 'or', 'not', 'implies', 'iff', 'xor'].includes(term.op)) unsupported('method expressions must use scalar arithmetic and Boolean operators');
-    inspectTerm(term.left); if (term.op !== 'not') inspectTerm(term.right);
-  };
-  for (const plans of Object.values(compiled.plans)) for (const plan of plans) {
-    if (plan.guard !== null && plan.guard !== undefined) inspectTerm(plan.guard);
-    plan.outs.forEach(out => inspectTerm(out.ast));
-  }
+  const expression = createHmlTerms(algebra, tick, stats, options);
   const preconditions = [];
-  const value = (raw, expected) => {
+  const value = (raw, expected, depth = 0) => {
+    if (depth > 64) invalid('HML value exceeds supported nesting depth');
     let term;
-    if (typeof raw === 'string' && raw.startsWith('$') && Object.hasOwn(roots, raw.slice(1))) term = roots[raw.slice(1)];
-    else if (typeof raw === 'number' && Number.isSafeInteger(raw) || typeof raw === 'boolean') term = raw;
-    else invalid(`Expected a scalar value or declared goal variable for ${expected}`);
-    if ((typeof raw === 'number' || typeof raw === 'boolean') && !validBuiltinValue(raw, expected)) invalid(`Invalid ${expected} literal in HML requirement`);
-    const actual = termSort(term, sorts, algebra);
+    if (typeof raw === 'string' && raw.startsWith('$')) {
+      if (!Object.hasOwn(roots, raw.slice(1))) invalid(`Undeclared goal variable: ${raw}`);
+      term = roots[raw.slice(1)];
+    } else if (raw && typeof raw === 'object' && Object.keys(raw).length === 1 && typeof raw.literal === 'string') term = raw.literal;
+    else if (Array.isArray(raw)) term = raw.reduceRight((tail, v) => ({ ctor: '_ListCons', args: [value(v, 'Any', depth + 1), tail] }), { ctor: '_ListNil', args: [] });
+    else if (raw?.__pair__ === true && Object.keys(raw).length === 3) term = { ctor: '_Pair', args: [value(raw.fst, 'Any', depth + 1), value(raw.snd, 'Any', depth + 1)] };
+    else if (validBuiltinValue(raw, expected)) term = valueToSymbolic(raw);
+    else invalid(`Expected a valid ${expected} value or declared goal variable`);
+    let actual = termSort(term, sorts, algebra);
+    if (expected === 'Any' && actual !== 'Any') {
+      term = { ctor: `_Any${actual === 'Nat' ? 'Int' : actual}`, args: [term] };
+      actual = 'Any';
+    }
     if (actual !== expected && !(['Nat', 'Int'].includes(actual) && ['Nat', 'Int'].includes(expected))) invalid(`HML value has sort ${actual}; expected ${expected}`);
-    inspectTerm(term);
     preconditions.push(range(term, expected));
     return term;
   };
@@ -98,17 +78,6 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
     }
     return { ...node, stimulation: { method: method.name, arguments: arguments_ }, ...(observation ? { observation } : {}) };
   });
-  const expression = (t, env) => {
-    tick();
-    if (t?.var) return { term: env[t.var], safe: true };
-    if (!t?.op) return { term: t, safe: true };
-    const a = expression(t.left, env);
-    if (t.op === 'not') return { term: not(a.term), safe: a.safe };
-    const b = expression(t.right, env);
-    const term = t.op === 'and' ? and(a.term, b.term) : t.op === 'or' ? or(a.term, b.term) : t.op === 'implies' ? implies(a.term, b.term) : t.op === '==' ? eq(a.term, b.term) : t.op === '!=' ? not(eq(a.term, b.term)) : { op: t.op, left: a.term, right: b.term };
-    const safe = and(a.safe, ['and', 'implies'].includes(t.op) ? implies(a.term, b.safe) : t.op === 'or' ? implies(not(a.term), b.safe) : b.safe, ['+', '-', '*'].includes(t.op) ? range(term, 'Int') : true);
-    return { term, safe };
-  };
   const bagMatch = (actual, expected, exact = true, i = 0, used = []) => {
     tick();
     if (exact && actual.length !== expected.length || actual.length < expected.length) return false;
@@ -169,7 +138,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
             }
             return;
           }
-          const guard = plan.guard === null || plan.guard === undefined ? { term: true, safe: true } : expression(plan.guard, env);
+          const guard = plan.guard === null || plan.guard === undefined ? { term: true, safe: true } : expression(plan.guard, env, plan.variables, 'Bool');
           safety.push(implies(matching, guard.safe));
           const enabled = and(matching, guard.term);
           if (enabled === false) return;
@@ -177,7 +146,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
           const next = Object.fromEntries(Object.entries(marking).map(([id, ts]) => [id, ts.filter((_, j) => !picks.some(p => p.place === id && p.index === j))]));
           const produced = {}, outputSafety = [];
           for (const output of plan.outs) {
-            const v = expression(output.ast, env);
+            const v = expression(output.ast, env, plan.variables, places.get(output.place).sort);
             outputSafety.push(v.safe, range(v.term, places.get(output.place).sort));
             next[output.place].push(v.term);
             (produced[output.place] ||= []).push(v.term);
@@ -200,7 +169,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
     memo.get(node).set(key, result);
     return result;
   };
-  const result = await visit(symbolic, Object.fromEntries(net.places.map(p => [p.id, [...p.valueTokens]])));
+  const result = await visit(symbolic, Object.fromEntries(net.places.map(p => [p.id, p.valueTokens.map(valueToSymbolic)])));
   const conditions = [...preconditions, result.safe, options.expectedTruth === false ? not(result.truth) : result.truth];
   // Bound expanded serialization too: memoization alone does not bound the size
   // of a formula DAG when later substitution/SMT encoding traverses its edges.
