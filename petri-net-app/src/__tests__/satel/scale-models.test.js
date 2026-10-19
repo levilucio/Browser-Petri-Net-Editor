@@ -21,7 +21,7 @@ test('regional orders conserve stock and wallet; visible faults fail while unobs
     expect(result.counts).toEqual(mutation === 'stock-leak' ? { pass: 1, fail: 0, error: 0 } : { pass: 0, fail: 1, error: 0 });
   }
 });
-test.each([[2, 2, false], [2, 2, true], [4, 2, false], [2, 4, false], [2, 4, true]])('%i workers / %i rounds with audit=%s is universally checked and detects both faults', async (workers, rounds, audit) => {
+test.each([[2, 2, false], [2, 2, true], [4, 2, false], [2, 4, false], [2, 4, true], [8, 4, false], [8, 8, false]])('%i workers / %i rounds with audit=%s is universally checked and detects both faults', async (workers, rounds, audit) => {
   const config = { workers, rounds, audit }, net = workerService(config);
   // A branch allowance, rather than a wall-clock threshold, catches accidental
   // re-expansion of solver-ready HML formulas during equation narrowing.

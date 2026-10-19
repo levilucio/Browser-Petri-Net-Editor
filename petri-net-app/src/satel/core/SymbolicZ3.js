@@ -74,7 +74,33 @@ export async function createSymbolicSolver(algebra, options = {}) {
     let vector = null;
     try {
       const symbolNames = new Map([...variablesIn(witness ? [terms, conditions] : conditions)].map(n => [n, `${prefix}v${++checkId}`]));
-      const encode = t => {
+      const graphDeclarations = [], graphAssertions = [];
+      const encode = (t, resolveRef) => {
+        const enc = child => encode(child, resolveRef);
+        if (t?.termGraph) {
+          const nodes = t.termGraph;
+          if (!Array.isArray(nodes) || !nodes.length) throw new Error('Empty or invalid term graph');
+          const name = `${prefix}g${++checkId}_`;
+          const nodeSorts = [];
+          nodes.forEach((node, i) => {
+            const checkedIndex = ref => {
+              if (!Number.isInteger(ref) || ref < 0 || ref >= i) throw new Error('Invalid or forward term graph reference');
+              return ref;
+            };
+            nodeSorts.push(termSort(node, variables, algebra, undefined, ref => nodeSorts[checkedIndex(ref)]));
+            const value = encode(node, ref => name + checkedIndex(ref));
+            graphDeclarations.push(`(declare-const ${name}${i} ${sort(nodeSorts[i])})`);
+            graphAssertions.push(`(assert (= ${name}${i} ${value}))`);
+          });
+          // Definitional equalities avoid the SMT parser expanding nested lets.
+          // These internal symbols are not witness parameters. Independent
+          // checking evaluates the original graph lazily, not these definitions.
+          return name + (nodes.length - 1);
+        }
+        if (t?.graphRef !== undefined) {
+          if (typeof resolveRef !== 'function') throw new Error('Term graph reference outside its scope');
+          return resolveRef(t.graphRef);
+        }
         if (typeof t === 'number') return t < 0 ? `(- ${-t})` : String(t);
         if (typeof t === 'string') return stringLiteral(t);
         if (typeof t === 'boolean') return String(t);
@@ -82,15 +108,15 @@ export async function createSymbolicSolver(algebra, options = {}) {
           if (!symbolNames.has(t.var)) throw new Error('Missing symbolic variable');
           return symbolNames.get(t.var);
         }
-        if (t?.if !== undefined) return `(ite ${encode(t.if)} ${encode(t.then)} ${encode(t.else)})`;
-        if (t?.test) return `((_ is ${nameOf(t.test)}) ${encode(t.value)})`;
-        if (t?.field) return `(${nameOf(t.field)}_${t.index} ${encode(t.value)})`;
-        if (t?.valid) return runtimeValid(t.valid, encode(t.value), String(t.depth ?? 64));
-        if (t?.ctor) return t.args.length ? `(${nameOf(t.ctor)} ${t.args.map(encode).join(' ')})` : nameOf(t.ctor);
+        if (t?.if !== undefined) return `(ite ${enc(t.if)} ${enc(t.then)} ${enc(t.else)})`;
+        if (t?.test) return `((_ is ${nameOf(t.test)}) ${enc(t.value)})`;
+        if (t?.field) return `(${nameOf(t.field)}_${t.index} ${enc(t.value)})`;
+        if (t?.valid) return runtimeValid(t.valid, enc(t.value), String(t.depth ?? 64));
+        if (t?.ctor) return t.args.length ? `(${nameOf(t.ctor)} ${t.args.map(enc).join(' ')})` : nameOf(t.ctor);
         if (t?.op) {
-          const a = encode(t.left);
+          const a = enc(t.left);
           if (t.op === 'not') return `(not ${a})`;
-          const b = encode(t.right);
+          const b = enc(t.right);
           const op = {
             '+': '+',
             '-': '-',
@@ -111,7 +137,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
           return `(${op} ${a} ${b})`;
         }
         if (t?.call && algebra.operations[t.call]?.primitive) {
-          const [a, b, n] = t.args.map(encode);
+          const [a, b, n] = t.args.map(enc);
           switch (algebra.operations[t.call].primitive) {
             case 'length':
               return `(str.len ${a})`;
@@ -130,8 +156,8 @@ export async function createSymbolicSolver(algebra, options = {}) {
       const declarations = [...symbolNames].map(([n, v]) => `(declare-const ${v} ${sort(variables[n])})`).join('\n');
       // Preserve an AST handle for unconstrained variables as well, for model completion.
       const handles = [...symbolNames.values()].map(v => `(assert (= ${v} ${v}))`).join('\n');
-      const assertions = [...symbolNames].map(([n, v]) => valid(variables[n], v)).concat(conditions.map(encode));
-      solver.fromString(preamble + declarations + '\n' + handles + '\n' + assertions.map(s => `(assert ${s})`).join('\n'));
+      const assertions = [...symbolNames].map(([n, v]) => valid(variables[n], v)).concat(conditions.map(c => encode(c)));
+      solver.fromString(preamble + declarations + '\n' + graphDeclarations.join('\n') + '\n' + handles + '\n' + graphAssertions.join('\n') + '\n' + assertions.map(s => `(assert ${s})`).join('\n'));
       // Own these handles explicitly. The wrapper's AstVector/Model finalizers
       // can otherwise release them during a later asynchronous check().
       vector = Z3.solver_get_assertions(c, solver.ptr);

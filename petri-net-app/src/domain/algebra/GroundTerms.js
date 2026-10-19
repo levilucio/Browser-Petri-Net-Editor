@@ -14,6 +14,7 @@ export function evaluateGroundTerm(term, algebra = builtinAlgebra, maxSteps = 10
   const definitions = new Map();
   const run = t => {
     if (++steps > maxSteps) throw new DomainError('resource-limit', 'Ground evaluation budget exhausted');
+    if (t?.termGraph) return evaluateGround(t);
     if (t?.test || t?.field || t?.valid || t?.if !== undefined) return evaluateGround(t);
     if (t?.undefined) throw new DomainError('undefined-term', t.undefined);
     if (t?.ctor) return {
@@ -65,6 +66,9 @@ export function evaluateGroundTerm(term, algebra = builtinAlgebra, maxSteps = 10
  * This does not select paths, erase constraints or prune symbolic alternatives. */
 export function foldGroundTerms(term, algebra) {
   if (!term || typeof term !== 'object') return term;
+  // Graph nodes contain scoped references, not standalone ground terms. Keep
+  // the graph intact for lazy concrete checking and scoped SMT translation.
+  if (term.termGraph) return term;
   if (Array.isArray(term)) return term.map(t => foldGroundTerms(t, algebra));
   if (term.var) return term;
   // Preserve Any tags before reducing comparisons or projected components.

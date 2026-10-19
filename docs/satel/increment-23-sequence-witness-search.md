@@ -184,6 +184,10 @@ benchmark budgets.
 
 ## Next boundary
 
+The shared-expression work proposed below is implemented in
+[increment 24](increment-24-shared-hml-terms.md), with new measurements and the
+remaining audit-history construction limit retained.
+
 The next increment should preserve shared HML constraints through substitution
 and SMT translation, using the paired audit/non-audit worker models. Their
 construction-work and expanded-expression limits were not changed or retested at

@@ -44,7 +44,7 @@ test.each(scenarios)('%s has a solver witness checked by concrete HML replay', a
   const constraints = await build(formula, net, { x: sort });
   const solve = await createSymbolicSolver(algebra);
   const result = await solve({ terms: [{ var: 'x' }], conditions: constraints.conditions, variables: { x: sort } });
-  expect({ status: result.status, reason: result.reason, stats: constraints.stats }).toMatchObject({ status: 'sat' });
+  expect({ status: result.status, reason: result.reason }).toEqual({ status: 'sat', reason: undefined });
   const concrete = await evaluateFormula(instantiateFormula(formula, { x: symbolicToValue(result.bindings.get('x')) }), net, publicInterface(net));
   expect(concrete.value).toBe(true);
 });

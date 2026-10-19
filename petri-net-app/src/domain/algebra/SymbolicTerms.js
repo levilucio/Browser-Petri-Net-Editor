@@ -1,3 +1,4 @@
+import { interpretTermGraph } from './TermGraph.js';
 import { quoteTermString } from '../../utils/term-string.js';
 import { validBuiltinValue, symbolicToValue } from '../../utils/builtin-values.js';
 import { builtinDisplay } from './BuiltinAlgebra.js';
@@ -29,28 +30,33 @@ export function unify(a, b, bindings) {
 }
 export const logicalOps = ['and', 'or', 'not', 'xor', 'implies', 'iff'];
 const numeric = s => ['Nat', 'Int'].includes(s);
-export function termSort(t, vars, algebra, expected) {
+export function termSort(t, vars, algebra, expected, resolveRef) {
   const accept = sort => expected === 'Any' || expected === 'Int' && sort === 'Nat' ? expected : sort;
+  if (t?.termGraph) return accept(interpretTermGraph(t, (node, resolve) => termSort(node, vars, algebra, undefined, resolve)));
+  if (t?.graphRef !== undefined) {
+    if (!resolveRef) throw new Error('Term graph reference outside its scope');
+    return accept(resolveRef(t.graphRef));
+  }
   if (t?.undefined) return expected || 'Any';
   // Internal, typed terms produced by guarded equation compilation. They are
   // not additions to the user-facing term syntax.
   if (t?.test) {
-    if (termSort(t.value, vars, algebra) !== algebra.constructors[t.test]?.result) throw new Error('Ill-sorted constructor test');
+    if (termSort(t.value, vars, algebra, undefined, resolveRef) !== algebra.constructors[t.test]?.result) throw new Error('Ill-sorted constructor test');
     return accept('Bool');
   }
   if (t?.field) {
     const signature = algebra.constructors[t.field];
-    if (!signature || !Number.isInteger(t.index) || !signature.parameters[t.index] || termSort(t.value, vars, algebra) !== signature.result) throw new Error('Ill-sorted constructor field');
+    if (!signature || !Number.isInteger(t.index) || !signature.parameters[t.index] || termSort(t.value, vars, algebra, undefined, resolveRef) !== signature.result) throw new Error('Ill-sorted constructor field');
     return accept(signature.parameters[t.index]);
   }
   if (t?.valid) {
-    const actual = termSort(t.value, vars, algebra);
+    const actual = termSort(t.value, vars, algebra, undefined, resolveRef);
     if (actual !== t.valid && !(numeric(actual) && numeric(t.valid))) throw new Error('Ill-sorted runtime validity check');
     return accept('Bool');
   }
   if (t?.if !== undefined) {
-    if (termSort(t.if, vars, algebra) !== 'Bool') throw new Error('Conditional requires Bool');
-    const a = termSort(t.then, vars, algebra), b = termSort(t.else, vars, algebra);
+    if (termSort(t.if, vars, algebra, undefined, resolveRef) !== 'Bool') throw new Error('Conditional requires Bool');
+    const a = termSort(t.then, vars, algebra, undefined, resolveRef), b = termSort(t.else, vars, algebra, undefined, resolveRef);
     if (a !== b && !(numeric(a) && numeric(b))) throw new Error('Conditional branches have different sorts');
     return accept(a === b ? a : 'Int');
   }
@@ -66,11 +72,11 @@ export function termSort(t, vars, algebra, expected) {
   }
   if (t?.op) {
     if (logicalOps.includes(t.op)) {
-      if (termSort(t.left, vars, algebra) !== 'Bool' || t.op !== 'not' && termSort(t.right, vars, algebra) !== 'Bool') throw new Error('Logical operators require Bool operands');
+      if (termSort(t.left, vars, algebra, undefined, resolveRef) !== 'Bool' || t.op !== 'not' && termSort(t.right, vars, algebra, undefined, resolveRef) !== 'Bool') throw new Error('Logical operators require Bool operands');
       return accept('Bool');
     }
-    const left = termSort(t.left, vars, algebra),
-      right = termSort(t.right, vars, algebra);
+    const left = termSort(t.left, vars, algebra, undefined, resolveRef),
+      right = termSort(t.right, vars, algebra, undefined, resolveRef);
     if (['+', '-', '*'].includes(t.op)) {
       if (![left, right].every(s => numeric(s) || s === 'Any')) throw new Error('Arithmetic operands must be numeric');
       return accept(left === 'Nat' && right === 'Nat' ? 'Nat' : 'Int');
@@ -84,7 +90,7 @@ export function termSort(t, vars, algebra, expected) {
   const sig = t?.ctor ? algebra.constructors[t.ctor] : t?.call ? algebra.operations[t.call] : null;
   if (!sig || !Array.isArray(t.args) || t.args.length !== sig.parameters.length) throw new Error('Unknown term or wrong constructor/operation arity');
   t.args.forEach((a, i) => {
-    if (termSort(a, vars, algebra, sig.parameters[i]) !== sig.parameters[i]) throw new Error(`Ill-sorted argument of ${t.ctor || t.call}`);
+    if (termSort(a, vars, algebra, sig.parameters[i], resolveRef) !== sig.parameters[i]) throw new Error(`Ill-sorted argument of ${t.ctor || t.call}`);
   });
   return accept(sig.result);
 }
@@ -107,7 +113,7 @@ export function elaborateTerm(t, vars, algebra, expected) {
       args: [elaborateTerm(t, vars, algebra)]
     };
   }
-  if (t?.test || t?.field || t?.valid || t?.if !== undefined) return t;
+  if (t?.termGraph || t?.test || t?.field || t?.valid || t?.if !== undefined) return t;
   if (t?.op) {
     let operandSort;
     if (logicalOps.includes(t.op)) operandSort = 'Bool';else {
@@ -186,19 +192,25 @@ export function validateSymbolicGoal({
 export function validateCondition(c, vars, algebra) {
   if (termSort(c, vars, algebra) !== 'Bool') throw new Error('Guard conditions must be Boolean');
 }
-export function evaluateGround(t) {
-  if (t?.if !== undefined) return evaluateGround(evaluateGround(t.if) ? t.then : t.else);
-  if (t?.test) return evaluateGround(t.value)?.ctor === t.test;
+export function evaluateGround(t, resolveRef) {
+  const run = child => evaluateGround(child, resolveRef);
+  if (t?.termGraph) return interpretTermGraph(t, (node, resolve) => evaluateGround(node, resolve));
+  if (t?.graphRef !== undefined) {
+    if (!resolveRef) throw new Error('Term graph reference outside its scope');
+    return resolveRef(t.graphRef);
+  }
+  if (t?.if !== undefined) return run(run(t.if) ? t.then : t.else);
+  if (t?.test) return run(t.value)?.ctor === t.test;
   if (t?.field) {
-    const value = evaluateGround(t.value);
+    const value = run(t.value);
     if (value?.ctor !== t.field) throw new Error('Constructor field used outside its matching branch');
     return value.args[t.index];
   }
-  if (t?.valid) return validBuiltinValue(symbolicToValue(evaluateGround(t.value)), t.valid, 64 - (t.depth ?? 64));
+  if (t?.valid) return validBuiltinValue(symbolicToValue(run(t.value)), t.valid, 64 - (t.depth ?? 64));
   if (t?.undefined) throw new Error(t.undefined);
   if (isVariable(t)) throw new Error('Term is not ground');
   if (t?.call) {
-    const args = t.args.map(evaluateGround),
+    const args = t.args.map(run),
       [a, b, n] = args;
     if (t.call === '_string_length_value') return a.length;
     if (t.call === '_string_concat_value') return a + b;
@@ -209,15 +221,15 @@ export function evaluateGround(t) {
   }
   if (t?.ctor) return {
     ctor: t.ctor,
-    args: t.args.map(evaluateGround)
+    args: t.args.map(run)
   };
   if (t?.op) {
-    const a = evaluateGround(t.left);
+    const a = run(t.left);
     if (t.op === 'not') return !a;
-    if (t.op === 'and') return a && evaluateGround(t.right);
-    if (t.op === 'or') return a || evaluateGround(t.right);
-    if (t.op === 'implies') return !a || evaluateGround(t.right);
-    const b = evaluateGround(t.right);
+    if (t.op === 'and') return a && run(t.right);
+    if (t.op === 'or') return a || run(t.right);
+    if (t.op === 'implies') return !a || run(t.right);
+    const b = run(t.right);
     if (['+', '-', '*'].includes(t.op)) {
       const x = BigInt(a),
         y = BigInt(b);

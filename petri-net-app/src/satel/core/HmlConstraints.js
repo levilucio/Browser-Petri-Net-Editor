@@ -3,6 +3,7 @@ import { methodSorts, valueToSymbolic, validBuiltinValue } from '../../utils/bui
 import { checkCancelled, DomainError } from '../../domain/diagnostics.js';
 import { validateFormula, mapFormula } from './HmlFormula.js';
 import { termSort } from './SymbolicTerms.js';
+import { packTermGraph, termSize } from '../../domain/algebra/TermGraph.js';
 
 import { createHmlTerms, not, combine, and, or, implies, eq, valueValid as range } from './HmlTerms.js';
 const unsupported = message => { throw new DomainError('unsupported-model', `Joint HML selection: ${message}`); };
@@ -170,11 +171,14 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
     return result;
   };
   const result = await visit(symbolic, Object.fromEntries(net.places.map(p => [p.id, p.valueTokens.map(valueToSymbolic)])));
-  const conditions = [...preconditions, result.safe, options.expectedTruth === false ? not(result.truth) : result.truth];
-  // Bound expanded serialization too: memoization alone does not bound the size
-  // of a formula DAG when later substitution/SMT encoding traverses its edges.
-  let size = 0;
-  const measure = t => { if (++size > (options.maxHmlConstraintSize ?? 100000)) throw new DomainError('resource-limit', 'Joint HML constraint size budget exhausted'); if (t && typeof t === 'object') Object.values(t).forEach(measure); };
-  measure(conditions);
-  return { conditions, stats: { ...stats, constraintSize: size }, policy: 'joint-sequence-and-hml', expectedTruth: options.expectedTruth ?? true };
+  const obligations = [...preconditions, result.safe, options.expectedTruth === false ? not(result.truth) : result.truth];
+  // Keep conjunction order for lazy definedness checking. Packing preserves
+  // shared terms through ordinary JSON traversal/substitution without expanding
+  // them back into a tree. The size budget now bounds the stored representation.
+  const expandedConstraintSize = termSize(obligations);
+  const graph = packTermGraph(obligations.reduce((left, right) => ({ op: 'and', left, right }), true));
+  const conditions = [graph], size = termSize(conditions);
+  if (size > (options.maxHmlConstraintSize ?? 100000)) throw new DomainError('resource-limit', 'Joint HML constraint size budget exhausted');
+  tick();
+  return { conditions, stats: { ...stats, constraintSize: size, expandedConstraintSize, sharedTermNodes: graph.termGraph?.length || 0 }, policy: 'joint-sequence-and-hml', expectedTruth: options.expectedTruth ?? true };
 }

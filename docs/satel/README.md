@@ -16,6 +16,11 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 24: shared HML term graphs](increment-24-shared-hml-terms.md) preserves
+expression sharing through substitution and SMT encoding. Eight-worker cases now
+resolve through eight rounds in the measured models; audit-history construction
+still exposes a separate limit.
+
 [Increment 23: ordinary sequence witness search](increment-23-sequence-witness-search.md)
 extends Boolean preservation to ordinary sequences and refusal companions. The
 existing coupled allocators now resolve through 64 resources in the measured
