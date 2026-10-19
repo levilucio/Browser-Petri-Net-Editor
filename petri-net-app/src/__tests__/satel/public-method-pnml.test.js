@@ -4,6 +4,22 @@ import { createOracleAccountExample } from '../../satel/examples/oracle-account/
 import { getPublicMethods } from '../../features/simulation/PublicMethods';
 import { AlgebraicSimulator } from '../../features/simulation/algebraic-simulator';
 import { createFulfilmentExample, fulfilmentExamples } from '../../satel/examples/fulfilment/editor';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { workerService } from '../../satel/examples/scale/models';
+import { semanticFingerprint } from '../../domain/apn/SemanticNet';
+
+test('exported audit stress reference and mutants load as the benchmarked models', async () => {
+  for (const mutant of [null, 'missing-worker', 'wrong-receipt']) {
+    const file = resolve(__dirname, '../../../../docs/satel/performance/models', `workers-audit-stress-${mutant || 'reference'}.pnml`);
+    const loaded = await importFromPNML(readFileSync(file, 'utf8'));
+    // Compare both after the GUI importer normalizes arc binding aliases and
+    // direction metadata; these differ from the generator's in-memory shape.
+    const expected = await importFromPNML(await exportToPNML(workerService({ workers: 4, rounds: 4, audit: true, mutant })));
+    expect(semanticFingerprint(loaded)).toBe(semanticFingerprint(expected));
+    expect(loaded.testIntentions).toEqual(expected.testIntentions);
+  }
+});
 
 test('large fulfilment reference and mutants survive GUI PNML save/load', async () => {
   for (const example of fulfilmentExamples) {

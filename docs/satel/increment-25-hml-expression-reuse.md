@@ -174,6 +174,10 @@ copy the same case list. These are Node measurements, not browser-latency claims
 
 ## Remaining boundary
 
+[Increment 26](increment-26-hml-rule-reuse.md) implements rule-effect and binding-prefix
+reuse. The four-worker/four-round audit case now resolves under the normal work
+limit; the larger six-round case remains unresolved.
+
 The optimization reduces translation work but leaves history branching and input
 binding enumeration intact. The next useful increment is to profile and reduce
 repeated rule/binding work while preserving multiplicities, shared-variable

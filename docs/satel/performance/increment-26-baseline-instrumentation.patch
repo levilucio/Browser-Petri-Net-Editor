@@ -1,0 +1,64 @@
+diff --git a/petri-net-app/src/satel/core/HmlConstraints.js b/petri-net-app/src/satel/core/HmlConstraints.js
+index 0d35a12..d013df8 100644
+--- a/petri-net-app/src/satel/core/HmlConstraints.js
++++ b/petri-net-app/src/satel/core/HmlConstraints.js
+@@ -23,12 +23,13 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
+   const maxWork = options.maxHmlSelectionWork ?? 10000, maxNodes = options.maxHmlSelectionNodes ?? 2000;
+   const deadline = Math.min(options.deadline ?? Infinity, Date.now() + (options.maxHmlSelectionTimeMs ?? 10000));
+   if (![maxWork, maxNodes, options.maxHmlSelectionTimeMs ?? 10000, options.maxHmlConstraintSize ?? 100000].every(n => Number.isInteger(n) && n > 0)) invalid('HML selection budgets must be positive integers');
+-  const stats = { work: 0, nodes: 0, cacheHits: 0, outcomes: 0 };
+-  const tick = () => {
++  const stats = { work: 0, nodes: 0, cacheHits: 0, outcomes: 0, bindingVisits: 0, guardEvaluations: 0, successorBuilds: 0, ruleRequests: 0, workByPhase: {} };
++  const tick = (phase = 'other') => {
++    stats.workByPhase[phase] = (stats.workByPhase[phase] || 0) + 1;
+     checkCancelled(options.signal);
+     if (++stats.work > maxWork || Date.now() >= deadline) throw new DomainError('resource-limit', 'Joint HML constraint construction budget exhausted');
+   };
+-  const expression = createHmlTerms(algebra, tick, stats, options);
++  const expression = createHmlTerms(algebra, () => tick('expression'), stats, options);
+   const preconditions = [];
+   const value = (raw, expected, depth = 0) => {
+     if (depth > 64) invalid('HML value exceeds supported nesting depth');
+@@ -80,7 +81,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
+     return { ...node, stimulation: { method: method.name, arguments: arguments_ }, ...(observation ? { observation } : {}) };
+   });
+   const bagMatch = (actual, expected, exact = true, i = 0, used = []) => {
+-    tick();
++    tick('observation');
+     if (exact && actual.length !== expected.length || actual.length < expected.length) return false;
+     if (i === expected.length) return true;
+     const seen = new Set(), alternatives = [];
+@@ -101,7 +102,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
+   }));
+   const memo = new WeakMap();
+   const visit = async (node, marking) => {
+-    tick();
++    tick('formula');
+     const key = JSON.stringify(Object.entries(marking).map(([id, ts]) => [id, ts.map(t => JSON.stringify(t)).sort()]));
+     if (memo.get(node)?.has(key)) { stats.cacheHits++; return memo.get(node).get(key); }
+     if (++stats.nodes > maxNodes) throw new DomainError('resource-limit', 'Joint HML formula/state budget exhausted');
+@@ -126,8 +127,9 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
+       const terms = [], safety = [];
+       let reached = true;
+       for (const plan of compiled.plans[node.stimulation.method]) {
++        stats.ruleRequests++;
+         const bind = async (i, env, picks, matching) => {
+-          tick();
++          tick('binding'); stats.bindingVisits++;
+           if (matching === false) return;
+           if (i < plan.ins.length) {
+             const input = plan.ins[i], seen = new Set();
+@@ -139,11 +141,13 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
+             }
+             return;
+           }
++          stats.guardEvaluations++;
+           const guard = plan.guard === null || plan.guard === undefined ? { term: true, safe: true } : expression(plan.guard, env, plan.variables, 'Bool');
+           safety.push(implies(matching, guard.safe));
+           const enabled = and(matching, guard.term);
+           if (enabled === false) return;
+           stats.outcomes++;
++          stats.successorBuilds++;
+           const next = Object.fromEntries(Object.entries(marking).map(([id, ts]) => [id, ts.filter((_, j) => !picks.some(p => p.place === id && p.index === j))]));
+           const produced = {}, outputSafety = [];
+           for (const output of plan.outs) {

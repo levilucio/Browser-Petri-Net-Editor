@@ -1,0 +1,58 @@
+[
+  {
+    "family": "workers",
+    "workers": 2,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true
+  },
+  {
+    "family": "workers",
+    "workers": 2,
+    "rounds": 6,
+    "audit": true,
+    "mutations": true
+  },
+  {
+    "family": "workers",
+    "workers": 4,
+    "rounds": 3,
+    "audit": true,
+    "mutations": true
+  },
+  {
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true
+  },
+  {
+    "family": "workers",
+    "workers": 4,
+    "rounds": 6,
+    "audit": true
+  },
+  {
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true
+  },
+  {
+    "family": "resource-apn",
+    "size": 64,
+    "mutations": true
+  },
+  {
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "maxHmlSelectionWork": 50000
+    }
+  }
+]

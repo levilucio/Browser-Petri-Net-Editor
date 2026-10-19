@@ -16,6 +16,11 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 26: HML rule and binding-prefix reuse](increment-26-hml-rule-reuse.md)
+resolves the four-worker/four-round audit model under the normal construction
+budget while retaining every history. It includes the measured timing trade-offs
+and a laptop GUI review guide.
+
 [Increment 25: HML expression reuse](increment-25-hml-expression-reuse.md) reduces
 repeated guard/output translation while preserving full audit histories. Paired
 measurements show lower construction work and selection times; the larger audit

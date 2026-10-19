@@ -4,6 +4,7 @@ import { checkCancelled, DomainError } from '../../domain/diagnostics.js';
 import { validateFormula, mapFormula } from './HmlFormula.js';
 import { termSort } from './SymbolicTerms.js';
 import { packTermGraph, termSize } from '../../domain/algebra/TermGraph.js';
+import { createHmlRuleEffects } from './HmlRuleEffects.js';
 
 import { createHmlTerms, not, combine, and, or, implies, eq, valueValid as range } from './HmlTerms.js';
 const unsupported = message => { throw new DomainError('unsupported-model', `Joint HML selection: ${message}`); };
@@ -23,12 +24,14 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
   const maxWork = options.maxHmlSelectionWork ?? 10000, maxNodes = options.maxHmlSelectionNodes ?? 2000;
   const deadline = Math.min(options.deadline ?? Infinity, Date.now() + (options.maxHmlSelectionTimeMs ?? 10000));
   if (![maxWork, maxNodes, options.maxHmlSelectionTimeMs ?? 10000, options.maxHmlConstraintSize ?? 100000].every(n => Number.isInteger(n) && n > 0)) invalid('HML selection budgets must be positive integers');
-  const stats = { work: 0, nodes: 0, cacheHits: 0, outcomes: 0 };
-  const tick = () => {
+  const stats = { work: 0, nodes: 0, cacheHits: 0, outcomes: 0, bindingVisits: 0, guardEvaluations: 0, successorBuilds: 0, ruleRequests: 0, workByPhase: {} };
+  const tick = (phase = 'other') => {
+    stats.workByPhase[phase] = (stats.workByPhase[phase] || 0) + 1;
     checkCancelled(options.signal);
     if (++stats.work > maxWork || Date.now() >= deadline) throw new DomainError('resource-limit', 'Joint HML constraint construction budget exhausted');
   };
-  const expression = createHmlTerms(algebra, tick, stats, options);
+  const expression = createHmlTerms(algebra, () => tick('expression'), stats, options);
+  const ruleEffects = createHmlRuleEffects(places, expression, tick, stats);
   const preconditions = [];
   const value = (raw, expected, depth = 0) => {
     if (depth > 64) invalid('HML value exceeds supported nesting depth');
@@ -80,7 +83,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
     return { ...node, stimulation: { method: method.name, arguments: arguments_ }, ...(observation ? { observation } : {}) };
   });
   const bagMatch = (actual, expected, exact = true, i = 0, used = []) => {
-    tick();
+    tick('observation');
     if (exact && actual.length !== expected.length || actual.length < expected.length) return false;
     if (i === expected.length) return true;
     const seen = new Set(), alternatives = [];
@@ -101,7 +104,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
   }));
   const memo = new WeakMap();
   const visit = async (node, marking) => {
-    tick();
+    tick('formula');
     const key = JSON.stringify(Object.entries(marking).map(([id, ts]) => [id, ts.map(t => JSON.stringify(t)).sort()]));
     if (memo.get(node)?.has(key)) { stats.cacheHits++; return memo.get(node).get(key); }
     if (++stats.nodes > maxNodes) throw new DomainError('resource-limit', 'Joint HML formula/state budget exhausted');
@@ -126,43 +129,23 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
       const terms = [], safety = [];
       let reached = true;
       for (const plan of compiled.plans[node.stimulation.method]) {
-        const bind = async (i, env, picks, matching) => {
-          tick();
-          if (matching === false) return;
-          if (i < plan.ins.length) {
-            const input = plan.ins[i], seen = new Set();
-            for (const [j, token] of marking[input.place].entries()) {
-              const tokenKey = JSON.stringify(token);
-              if (picks.some(p => p.place === input.place && p.index === j) || seen.has(tokenKey)) continue;
-              seen.add(tokenKey);
-              await bind(i + 1, { ...env, [input.variable]: token }, [...picks, { place: input.place, index: j }], and(matching, Object.hasOwn(env, input.variable) ? eq(env[input.variable], token) : true));
-            }
-            return;
-          }
-          const guard = plan.guard === null || plan.guard === undefined ? { term: true, safe: true } : expression(plan.guard, env, plan.variables, 'Bool');
-          safety.push(implies(matching, guard.safe));
-          const enabled = and(matching, guard.term);
-          if (enabled === false) return;
-          stats.outcomes++;
+        for (const event of ruleEffects(plan, node.stimulation.arguments, marking)) {
+          safety.push(event.guardSafety);
+          if (event.enabled === false) continue;
+          const { enabled, picks, produced } = event;
+          stats.outcomes++; stats.successorBuilds++;
           const next = Object.fromEntries(Object.entries(marking).map(([id, ts]) => [id, ts.filter((_, j) => !picks.some(p => p.place === id && p.index === j))]));
-          const produced = {}, outputSafety = [];
-          for (const output of plan.outs) {
-            const v = expression(output.ast, env, plan.variables, places.get(output.place).sort);
-            outputSafety.push(v.safe, range(v.term, places.get(output.place).sort));
-            next[output.place].push(v.term);
-            (produced[output.place] ||= []).push(v.term);
-          }
-          safety.push(implies(enabled, and(...outputSafety)));
+          for (const [id, tokens] of Object.entries(produced)) next[id].push(...tokens);
+          safety.push(event.outputSafety);
           let matches = node.observation ? and(...Object.entries(node.observation.outputs).map(([id, ts]) => bagMatch(produced[id] || [], ts)), markingMatches(next, node.observation.markings)) : true;
           if (node.excludeObservation) matches = not(matches);
           const eligible = and(enabled, matches);
-          if (eligible === false) return;
+          if (eligible === false) continue;
           const child = await visit(node.child, next);
           terms.push(node.op === 'diamond' ? and(eligible, child.truth) : implies(eligible, child.truth));
           safety.push(implies(and(reached, eligible), child.safe));
           reached = and(reached, not(and(eligible, node.op === 'diamond' ? child.truth : not(child.truth))));
-        };
-        await bind(0, node.stimulation.arguments, [], true);
+        }
       }
       result = { truth: combine(node.op === 'diamond' ? 'or' : 'and', terms), safe: and(...safety) };
     }
