@@ -224,6 +224,10 @@ before comparison. These are Node measurements, not browser-latency guarantees.
 
 ## Remaining boundary
 
+[Increment 25](increment-25-hml-expression-reuse.md) implements local guard/output
+translation reuse and records its measured effect. It preserves the distinct
+audit markings and does not yet resolve the larger audit-history controls.
+
 Audit history still creates genuinely distinct full markings during construction.
 The next useful target is repeated work during that exploration, before any
 attempt to increase limits. A future property-dependent state projection would

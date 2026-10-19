@@ -44,6 +44,9 @@ export function createHmlTerms(source, tick, stats, options = {}) {
   if (!Number.isInteger(depth) || depth < 1 || depth > 32) throw new DomainError('invalid-test', 'HML unfolding depth must be between 1 and 32');
   stats.equationExpansions = 0;
   stats.residualCalls = 0;
+  stats.preparedExpressions = 0;
+  stats.expressionRequests = 0;
+  stats.expressionCacheHits = 0;
   const memo = new Map();
   const run = (t, env, remaining, runtime) => {
     tick();
@@ -130,5 +133,29 @@ export function createHmlTerms(source, tick, stats, options = {}) {
     memo.set(key, result);
     return result;
   };
-  return (term, env, variables, expected) => run(elaborateTerm(term, variables, algebra, expected), env, depth, true);
+  // Local to this construction: algebra, unfolding depth and runtime semantics
+  // are fixed. Only bindings of free variables in an expression can affect its
+  // translation. Keep both its value and definedness; never cache a truth verdict
+  // or project places out of a marking. Hits still consume work/check cancellation.
+  const expressions = new Map();
+  return (term, env, variables, expected) => {
+    tick();
+    stats.expressionRequests++;
+    const key = JSON.stringify([term, variables, expected]);
+    let prepared = expressions.get(key);
+    if (!prepared) {
+      const typed = elaborateTerm(term, variables, algebra, expected);
+      prepared = { typed, dependencies: [...variablesIn(typed)].sort(), results: new Map() };
+      expressions.set(key, prepared);
+      stats.preparedExpressions++;
+    }
+    const bindings = JSON.stringify(prepared.dependencies.map(name => [name, env[name]]));
+    if (prepared.results.has(bindings)) {
+      stats.expressionCacheHits++;
+      return prepared.results.get(bindings);
+    }
+    const result = run(prepared.typed, env, depth, true);
+    prepared.results.set(bindings, result);
+    return result;
+  };
 }

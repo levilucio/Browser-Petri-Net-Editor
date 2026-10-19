@@ -16,6 +16,11 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 25: HML expression reuse](increment-25-hml-expression-reuse.md) reduces
+repeated guard/output translation while preserving full audit histories. Paired
+measurements show lower construction work and selection times; the larger audit
+cases remain unresolved at the unchanged limits.
+
 [Increment 24: shared HML term graphs](increment-24-shared-hml-terms.md) preserves
 expression sharing through substitution and SMT encoding. Eight-worker cases now
 resolve through eight rounds in the measured models; audit-history construction
