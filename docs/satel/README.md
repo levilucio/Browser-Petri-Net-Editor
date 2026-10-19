@@ -16,6 +16,11 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 22: reliable witnesses and Boolean search](increment-22-solver-reliability.md)
+retains validated witnesses across optional solver preferences, fixes typed prefix
+pruning, and avoids expanding solver-ready HML conditions during ADT unfolding.
+It records paired benchmarks with unchanged budgets and remaining scaling limits.
+
 [Increment 21: black-box campaigns](increment-21-black-box-campaigns.md) adds
 independent procedural SUTs, a **Black-box runs** GUI, compatible-reference-state
 tracking, and conservative per-execution HML evidence. It includes the laptop

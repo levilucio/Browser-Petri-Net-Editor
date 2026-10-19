@@ -135,7 +135,10 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     // A witness query can send a completed Boolean formula directly to SMT.
     // Class enumeration still splits alternatives to preserve its coverage
     // contract; residual algebraic calls still require narrowing first.
-    const logicalIndex = witnessOnly && options.preserveBooleanStructure && !found ? -1 : body.conditions.findIndex(c => splitGuard(c));
+    // An unrelated residual call must not expand an already solver-ready HML
+    // formula into paths. Undefined alternatives still need short-circuit splitting.
+    const logicalIndex = body.conditions.findIndex(c => splitGuard(c) &&
+      !(witnessOnly && options.preserveBooleanStructure && !findCall(c, algebra) && !undefinedReason(c)));
     if (logicalIndex >= 0) {
       const alternatives = splitGuard(body.conditions[logicalIndex]);
       if (expanded + alternatives.length > maxBranches) {
@@ -358,7 +361,8 @@ export async function createConstraintSearch(algebra, options = {}) {
     }),
     prefix: async (conditions, variables) => {
       checkCancelled(options.signal);
-      const usable = conditions.filter(c => !findCall(c, preparedAlgebra) && !undefinedReason(c));
+      const usable = conditions.map(c => elaborateTerm(c, variables, preparedAlgebra, 'Bool'))
+        .filter(c => !findCall(c, preparedAlgebra) && !undefinedReason(c));
       if (!usable.length) return {
         status: 'unknown',
         reason: 'No solver-ready prefix constraints'

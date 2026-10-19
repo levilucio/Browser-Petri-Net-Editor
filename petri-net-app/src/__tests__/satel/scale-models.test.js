@@ -21,9 +21,11 @@ test('regional orders conserve stock and wallet; visible faults fail while unobs
     expect(result.counts).toEqual(mutation === 'stock-leak' ? { pass: 1, fail: 0, error: 0 } : { pass: 0, fail: 1, error: 0 });
   }
 });
-test.each([false, true])('worker service with audit=%s is universally checked and detects both faults', async audit => {
-  const config = { workers: 2, rounds: 2, audit }, net = workerService(config);
-  const { suite } = await generateIntention(net.testIntentions[0], net);
+test.each([[2, 2, false], [2, 2, true], [4, 2, false], [2, 4, false], [2, 4, true]])('%i workers / %i rounds with audit=%s is universally checked and detects both faults', async (workers, rounds, audit) => {
+  const config = { workers, rounds, audit }, net = workerService(config);
+  // A branch allowance, rather than a wall-clock threshold, catches accidental
+  // re-expansion of solver-ready HML formulas during equation narrowing.
+  const { suite } = await generateIntention(net.testIntentions[0], net, { maxBranches: 32 });
   expect(suite.validation).toEqual({ generated: 1, referencePassed: 1 });
   for (const mutation of ['missing-worker', 'wrong-receipt']) expect((await evaluateOracleSuite(suite.selectedTests, workerService({ ...config, mutant: mutation }), suite.interface)).counts).toEqual({ pass: 0, fail: 1, error: 0 });
 });
