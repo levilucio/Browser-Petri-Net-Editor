@@ -81,7 +81,7 @@ test('independent Boolean formulas stay intact while a custom equation is unfold
     conditions.push(op('or', v(`b${i}`), op('not', v(`b${i}`))));
   }
   const solve = jest.fn(await createSymbolicSolver(a));
-  const result = await findConstraintWitness({ algebra: a, variables, conditions, maxDepth: 2 }, { solve, preserveBooleanStructure: true, maxBranches: 4 });
+  const result = await findConstraintWitness({ algebra: a, variables, conditions, maxDepth: 2 }, { solve, maxBranches: 4 });
   expect(result.status).toBe('sat');
   expect(solve.mock.calls.length).toBeLessThanOrEqual(3);
 });
@@ -93,8 +93,18 @@ test.each([
   [op('or', false, op('==', { undefined: 'required' }, true)), 'unknown'],
   [op('and', true, op('==', { undefined: 'required' }, true)), 'unknown'],
 ])('short-circuit definedness is preserved for %j', async (condition, expected) => {
-  const result = await findConstraintWitness({ algebra, variables: {}, conditions: [condition], maxDepth: 2 }, { preserveBooleanStructure: true });
+  const result = await findConstraintWitness({ algebra, variables: {}, conditions: [condition], maxDepth: 2 });
   expect(result.status).toBe(expected);
+});
+
+test('a completed scalar conjunction needs one witness query without Boolean branch expansion', async () => {
+  const conditions = Array.from({ length: 24 }, (_, i) => op('>=', v('n'), i));
+  const conjunction = conditions.reduce((a, b) => op('and', a, b));
+  const solve = jest.fn(await createSymbolicSolver(algebra));
+  const result = await findConstraintWitness({ algebra, variables: { n: 'Int' }, conditions: [conjunction, op('<=', v('n'), 23)] }, { solve, maxBranches: 1 });
+  expect(result.status).toBe('sat');
+  expect(result.witness.witnessBindings.n).toBe(23);
+  expect(solve).toHaveBeenCalledTimes(1);
 });
 
 test('class enumeration still separates both Boolean outcomes with preservation enabled', async () => {

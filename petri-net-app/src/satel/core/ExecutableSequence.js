@@ -252,7 +252,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
               conditions: substitute(cs, names),
               maxDepth: options.sequenceUnfoldingDepth ?? 32
             }, {
-              maxTimeMs: budget.deadline - Date.now(), preserveBooleanStructure: !!hml
+              maxTimeMs: budget.deadline - Date.now()
             });
             const witness = result.witness;
             if (!witness) {

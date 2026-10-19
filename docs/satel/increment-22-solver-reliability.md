@@ -173,6 +173,9 @@ patch. Preserve the raw records if a child reaches its deadline.
 
 ## Remaining work
 
+These were the remaining tasks at the end of increment 22. The first is addressed
+by [increment 23](increment-23-sequence-witness-search.md), with fresh measurements.
+
 1. **Avoid repeated scalar checks on ordinary sequence paths.** The coupled
    16-parameter allocator still makes 67 adapter calls; the 32/64-parameter cases
    remain unresolved. Its current sequence search does not request the Boolean

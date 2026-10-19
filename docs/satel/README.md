@@ -16,6 +16,11 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 23: ordinary sequence witness search](increment-23-sequence-witness-search.md)
+extends Boolean preservation to ordinary sequences and refusal companions. The
+existing coupled allocators now resolve through 64 resources in the measured
+cases, with reference/mutant replay and unchanged production search budgets.
+
 [Increment 22: reliable witnesses and Boolean search](increment-22-solver-reliability.md)
 retains validated witnesses across optional solver preferences, fixes typed prefix
 pruning, and avoids expanding solver-ready HML conditions during ADT unfolding.

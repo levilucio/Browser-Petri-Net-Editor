@@ -47,6 +47,10 @@ export function prepareAlgebra(source) {
 
 /** Shared narrowing machinery; enumeration and existential solving have separate contracts. */
 async function narrow(goal, options = {}, witnessOnly = false) {
+  // Existence queries do not need Boolean alternatives as separate classes.
+  // Apply the same default to ordinary sequences, refusals and joint HML goals;
+  // explicit false remains available for diagnostic comparisons.
+  const preserveBooleanStructure = witnessOnly && options.preserveBooleanStructure !== false;
   goal = {
     ...goal,
     algebra: options.preparedAlgebra || prepareAlgebra(goal.algebra)
@@ -106,7 +110,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
       terms: [patterns, body.result],
       conditions: constraints,
       variables: sorts,
-      witness: !found && !undefinedReason(body) && (witnessOnly && options.preserveBooleanStructure || !body.conditions.some(c => splitGuard(c)))
+      witness: !found && !undefinedReason(body) && (preserveBooleanStructure || !body.conditions.some(c => splitGuard(c)))
     });
     const record = {
       id: branch.rules.join('/') || 'root',
@@ -138,7 +142,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     // An unrelated residual call must not expand an already solver-ready HML
     // formula into paths. Undefined alternatives still need short-circuit splitting.
     const logicalIndex = body.conditions.findIndex(c => splitGuard(c) &&
-      !(witnessOnly && options.preserveBooleanStructure && !findCall(c, algebra) && !undefinedReason(c)));
+      !(preserveBooleanStructure && !findCall(c, algebra) && !undefinedReason(c)));
     if (logicalIndex >= 0) {
       const alternatives = splitGuard(body.conditions[logicalIndex]);
       if (expanded + alternatives.length > maxBranches) {

@@ -5,6 +5,7 @@ import { exerciseScenarios, createExerciseExample } from '../../satel/examples/e
 import { createExecutableSequenceExample } from '../../satel/examples/executable-sequence/editor.js';
 import { evaluateOracleSuite } from '../../satel/core/ValidatedSubuniformity.js';
 import { createRefusalExample } from '../../satel/examples/refusal/editor.js';
+import { builder } from '../../satel/examples/exercises/builder.js';
 
 jest.setTimeout(120000);
 test.each(exerciseScenarios)('$id: existing positive baseline and bounded companions pass reference; all existing mutants still detected', async scenario => {
@@ -69,4 +70,25 @@ test('solver unknown stays unresolved, never a no-refusal proof or a negative te
   const report = await selectNegativeCompanions(suite, { solve: async () => ({ status: 'unknown', reason: 'forced timeout' }), negativeLimits: { maxAttempts: 1 } });
   expect(report.unresolved).toHaveLength(1); expect(report.candidates).toEqual([]);
   expect(report.attempts[0].status).toBe('unresolved');
+});
+
+test('ordinary negative search jointly refuses every token binding and alternative rule within a small branch allowance', async () => {
+  const b = builder();
+  b.place('limits', 'Int', [1, 2]); b.place('out', 'Int', [], true);
+  b.rule('bounded', 'request', { n: 'Int' }, 'n >= 0 and n <= limit', [['limits', 'limit']], [['limits', 'limit'], ['out', 'n']]);
+  b.rule('special', 'request', { n: 'Int' }, 'n == 50', [], [['out', 'n']]);
+  // The seed has one enabled binding. Refusal search must nevertheless negate
+  // both available token bindings and the special rule at its initial marking.
+  const intention = { id: 'request', name: 'Request within capacity', testType: 'positive', variables: [], pairs: [{ stimulation: { method: 'request', arguments: { n: 2 } }, observation: { outputs: { out: [2] } } }] };
+  const { report, suite } = await generateIntention(intention, b.net, { includeNegative: true, maxBranches: 4 });
+  expect(report.negativeSelection.unresolved).toEqual([]);
+  const negatives = suite.selectedTests.filter(t => t.negativeSelection);
+  expect(negatives).toHaveLength(1);
+  const n = negatives[0].pairs[0].stimulation.arguments.n;
+  expect(n < 0 || n > 2).toBe(true); expect(n).not.toBe(50);
+  expect(negatives[0].referenceMarkings[1]).toEqual(negatives[0].referenceMarkings[0]);
+  expect((await evaluateOracleSuite(suite.selectedTests, b.net, suite.interface)).counts).toEqual({ pass: 2, fail: 0, error: 0 });
+  const mutant = structuredClone(b.net);
+  mutant.transitions.find(t => t.id === 'bounded').guard = 'true';
+  expect((await evaluateOracleSuite(negatives, mutant, suite.interface)).counts).toEqual({ pass: 0, fail: 1, error: 0 });
 });

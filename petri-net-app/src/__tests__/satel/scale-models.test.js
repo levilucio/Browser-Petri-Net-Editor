@@ -49,13 +49,13 @@ test('custom invoice uses defining equations; a deliberately small unfolding bud
   expect(limited.unresolved.some(x => /Unfolding budget/.test(x.reason))).toBe(true);
 });
 
-test('resource allocation solves coupled parameters and confirms exactly the debited quantities', async () => {
-  const net = allocationService({ size: 4 });
-  const { suite } = await generateIntention(net.testIntentions[0], net);
+test.each([4, 16, 32, 64])('allocation of %i resources jointly solves parameters and confirms exactly the debited quantities', async size => {
+  const net = allocationService({ size });
+  const { suite } = await generateIntention(net.testIntentions[0], net, { maxBranches: 8 });
   expect(suite.validation).toEqual({ generated: 1, referencePassed: 1 });
   const selected = suite.selectedTests[0], args = selected.steps[0].arguments;
-  const quantities = Array.from({ length: 4 }, (_, i) => args[`q${i}`]);
-  expect(quantities.reduce((a, b) => a + b, 0)).toBe(40);
+  const quantities = Array.from({ length: size }, (_, i) => args[`q${i}`]);
+  expect(quantities.reduce((a, b) => a + b, 0)).toBe(10 * size);
   const final = selected.referenceMarkings.at(-1);
   quantities.forEach((q, i) => {
     expect(q).toBeGreaterThanOrEqual(1); expect(q).toBeLessThanOrEqual(100);
@@ -63,5 +63,5 @@ test('resource allocation solves coupled parameters and confirms exactly the deb
     if (i) { expect(q + quantities[i - 1]).toBeGreaterThanOrEqual(12); expect(2 * q + quantities[i - 1]).toBeLessThanOrEqual(40); }
   });
   expect(final.phase).toEqual([0]); expect(final.plan).toEqual([[]]);
-  for (const mutant of ['missing-confirmation', 'wrong-allocation']) expect((await evaluateOracleSuite(suite.selectedTests, allocationService({ size: 4, mutant }), suite.interface)).counts).toEqual({ pass: 0, fail: 1, error: 0 });
+  for (const mutant of ['missing-confirmation', 'wrong-allocation']) expect((await evaluateOracleSuite(suite.selectedTests, allocationService({ size, mutant }), suite.interface)).counts).toEqual({ pass: 0, fail: 1, error: 0 });
 });
