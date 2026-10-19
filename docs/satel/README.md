@@ -16,6 +16,12 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 21: black-box campaigns](increment-21-black-box-campaigns.md) adds
+independent procedural SUTs, a **Black-box runs** GUI, compatible-reference-state
+tracking, and conservative per-execution HML evidence. It includes the laptop
+walkthrough and reproducible fault campaigns; statistical and universal
+black-box conformance guarantees are not claimed.
+
 For a practical walkthrough of the current GUI, see the [HML, nondeterminism and negative-test review guide](gui-review-2026-10-17.md).
 
 [Increment 16: HML properties and nondeterminism](increment-16-hml-nondeterminism.md)

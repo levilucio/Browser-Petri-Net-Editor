@@ -11,6 +11,7 @@ import { createSymbolicListIntention } from '../satel/examples/symbolic-list/edi
 import { compileSymbolicIntention } from '../satel/core/SymbolicSource.js';
 import { pairNotation, protocolCases } from '../satel/core/IntentionNotation.js';
 import OracleValidationPanel from './OracleValidationPanel';
+import BlackBoxPanel from './satel/BlackBoxPanel';
 const button = 'px-3 py-2 border rounded disabled:opacity-50';
 
 function SequencePreview({ intention }) {
@@ -18,7 +19,7 @@ function SequencePreview({ intention }) {
     const text = intention.formula ? formulaNotation(intention.formula) : intention.kind === 'symbolic'
       ? protocolCases(intention.symbolic.protocolSource || '').map(c => `${c.name}:\n${c.pairs.join(' .\n')}`).join('\n\n')
       : intention.pairs.map(pairNotation).join(' .\n');
-    return <pre className="mt-2 text-xs whitespace-pre-wrap break-words bg-slate-50 rounded p-2">{text || 'No pair sequence defined.'}{intention.branchingProperty ? `\nAdditional requirement: ${formulaNotation(intention.branchingProperty)}` : ''}</pre>;
+    return <pre className="mt-2 text-xs whitespace-pre-wrap break-words bg-slate-50 rounded p-2">{intention.formula ? `${intention.expectedTruth === false ? 'Must not hold' : 'Must hold'}: ` : ''}{text || 'No pair sequence defined.'}{intention.branchingProperty ? `\nAdditional requirement — ${intention.branchingExpectedTruth === false ? 'must not hold' : 'must hold'}: ${formulaNotation(intention.branchingProperty)}` : ''}</pre>;
   } catch { return <p>Edit this intention to review its sequence.</p>; }
 }
 export default function SatelPanel({ isOpen, onClose }) {
@@ -52,11 +53,12 @@ export default function SatelPanel({ isOpen, onClose }) {
     <div className="flex items-center justify-between p-4 border-b"><h2 className="text-lg font-semibold">SATEL Testing</h2><button aria-label="Close SATEL" onClick={onClose} className={button}>✕</button></div>
     {!isAlgebraic ? <p className="p-4">Switch to Algebraic mode in Settings to use SATEL.</p> : <>
       <nav className="flex border-b text-sm" aria-label="SATEL views">
-        {[['intentions', 'Intentions'], ['generated', 'Generated tests'], ['replay', 'Replay results']].map(([id, label]) => <button key={id} aria-current={activeTab === id ? 'page' : undefined} onClick={() => setActiveTab(id)} className={`flex-1 py-3 ${activeTab === id ? 'bg-blue-50 text-blue-700 font-semibold' : ''}`}>{label}</button>)}
+        {[['intentions', 'Intentions'], ['generated', 'Generated tests'], ['replay', 'Replay results'], ['blackbox', 'Black-box runs']].map(([id, label]) => <button key={id} aria-current={activeTab === id ? 'page' : undefined} onClick={() => setActiveTab(id)} className={`flex-1 py-3 ${activeTab === id ? 'bg-blue-50 text-blue-700 font-semibold' : ''}`}>{label}</button>)}
       </nav>
       {error && <div role="alert" className="m-3 p-3 bg-red-50 text-red-800 border rounded text-sm">{error}</div>}
       <div className="flex-1 overflow-y-auto min-w-0">
-        <div hidden={activeTab === 'intentions'}><OracleValidationPanel elements={elements} session={session} onSessionChange={setSession} selectedId={selectedId} onSelect={setSelectedId} view={activeTab === 'replay' ? 'replay' : 'generated'} onNavigate={setActiveTab} /></div>
+        <div hidden={!['generated', 'replay'].includes(activeTab)}><OracleValidationPanel elements={elements} session={session} onSessionChange={setSession} selectedId={selectedId} onSelect={setSelectedId} view={activeTab === 'replay' ? 'replay' : 'generated'} onNavigate={setActiveTab} /></div>
+        <div hidden={activeTab !== 'blackbox'}><BlackBoxPanel session={session} /></div>
         {activeTab === 'intentions' && (editing ?
           editing.kind === 'symbolic' ? <SymbolicIntentionEditor key={editing.id} intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> : <IntentionEditor key={editing.id} intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> :
           <div className="p-4 space-y-3 text-sm">

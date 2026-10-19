@@ -1,0 +1,3164 @@
+{
+  "generatedAt": "2026-10-19T10:37:17.098Z",
+  "command": "node tools/node/run-satel-black-box.js /tmp/satel-black-box-results.json",
+  "scope": "Deterministic seeded regression campaigns; counts are not operational probability estimates. Full per-step evidence can be regenerated with the command.",
+  "campaigns": [
+    {
+      "intention": "Both token orders, multiplicity and final refusal",
+      "sutName": "bag",
+      "referenceName": "SATEL Nondeterminism \u2014 Multiset reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 16,
+      "counts": {
+        "compatible": 16,
+        "mismatch": 0,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 16
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": null,
+      "paths": [
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "Both token orders, multiplicity and final refusal",
+      "sutName": "bag-missing-duplicate",
+      "referenceName": "SATEL Nondeterminism \u2014 Multiset reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 16,
+      "counts": {
+        "compatible": 0,
+        "mismatch": 16,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 16
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT refused the call, but every compatible reference state accepts it.",
+        "seed": 1,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "take",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "picked": [
+                  2
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "picked": [
+                    1
+                  ]
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "picked": [
+                    2
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "take",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "picked": [
+                  1
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "picked": [
+                    1
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "step": 3,
+            "stimulation": {
+              "method": "take",
+              "arguments": {}
+            },
+            "response": {
+              "status": "refused",
+              "outputs": {
+                "picked": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "picked": [
+                    1
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 7,
+          "durationMs": 1
+        },
+        "reasonCode": "unexpected-refusal",
+        "step": 3,
+        "testId": "bag-orders-1",
+        "pathIndex": 0,
+        "repetition": 0,
+        "calls": [
+          {
+            "method": "take",
+            "arguments": {}
+          },
+          {
+            "method": "take",
+            "arguments": {}
+          },
+          {
+            "method": "take",
+            "arguments": {}
+          },
+          {
+            "method": "take",
+            "arguments": {}
+          }
+        ],
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "paths": [
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "Both token orders, multiplicity and final refusal",
+      "sutName": "bag-wrong-output",
+      "referenceName": "SATEL Nondeterminism \u2014 Multiset reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 16,
+      "counts": {
+        "compatible": 0,
+        "mismatch": 16,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 16
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 1,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "take",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "picked": [
+                  99
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "picked": [
+                    1
+                  ]
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "picked": [
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 3,
+          "durationMs": 1
+        },
+        "reasonCode": "unexpected-output",
+        "step": 1,
+        "testId": "bag-orders-1",
+        "pathIndex": 0,
+        "repetition": 0,
+        "calls": [
+          {
+            "method": "take",
+            "arguments": {}
+          },
+          {
+            "method": "take",
+            "arguments": {}
+          },
+          {
+            "method": "take",
+            "arguments": {}
+          },
+          {
+            "method": "take",
+            "arguments": {}
+          }
+        ],
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "paths": [
+        {
+          "testId": "bag-orders-1",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            },
+            {
+              "method": "take",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "No third value may be reported",
+      "sutName": "bag",
+      "referenceName": "SATEL Nondeterminism \u2014 Multiset reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 16,
+      "counts": {
+        "compatible": 16,
+        "mismatch": 0,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 16
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": null,
+      "paths": [
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "take",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "No third value may be reported",
+      "sutName": "bag-wrong-output",
+      "referenceName": "SATEL Nondeterminism \u2014 Multiset reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 16,
+      "counts": {
+        "compatible": 0,
+        "mismatch": 16,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 16,
+        "inconclusive": 0
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        },
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "mismatch",
+          "propertyValue": false,
+          "propertyVerdict": "counterexample"
+        }
+      ],
+      "firstMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 1,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "take",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "picked": [
+                  99
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "picked": [
+                    1
+                  ]
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "picked": [
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 3,
+          "durationMs": 0
+        },
+        "reasonCode": "unexpected-output",
+        "step": 1,
+        "testId": "bag-no-third-1",
+        "pathIndex": 0,
+        "repetition": 0,
+        "calls": [
+          {
+            "method": "take",
+            "arguments": {}
+          }
+        ],
+        "propertyEvidence": {
+          "value": false,
+          "expectedTruth": true,
+          "verdict": "counterexample",
+          "reason": "This execution supplies decisive evidence against the required property polarity."
+        }
+      },
+      "paths": [
+        {
+          "testId": "bag-no-third-1",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "take",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "One open outcome retains both choices",
+      "sutName": "branch",
+      "referenceName": "SATEL Nondeterminism \u2014 Branching reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 32,
+      "counts": {
+        "compatible": 32,
+        "mismatch": 0,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 32
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": null,
+      "paths": [
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {}
+            },
+            {
+              "method": "left",
+              "arguments": {}
+            }
+          ]
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {}
+            },
+            {
+              "method": "right",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "One open outcome retains both choices",
+      "sutName": "branch-early-choice",
+      "referenceName": "SATEL Nondeterminism \u2014 Branching reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 32,
+      "counts": {
+        "compatible": 25,
+        "mismatch": 7,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 32
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT refused the call, but every compatible reference state accepts it.",
+        "seed": 387276958,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "reply": [
+                  0
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 2,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "reply": [
+                    0
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "left",
+              "arguments": {}
+            },
+            "response": {
+              "status": "refused",
+              "outputs": {
+                "reply": []
+              }
+            },
+            "compatibleBefore": 2,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "reply": [
+                    1
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 8,
+          "durationMs": 1
+        },
+        "reasonCode": "unexpected-refusal",
+        "step": 2,
+        "testId": "branch-both-1",
+        "pathIndex": 0,
+        "repetition": 5,
+        "calls": [
+          {
+            "method": "open",
+            "arguments": {}
+          },
+          {
+            "method": "left",
+            "arguments": {}
+          }
+        ],
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "paths": [
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {}
+            },
+            {
+              "method": "left",
+              "arguments": {}
+            }
+          ]
+        },
+        {
+          "testId": "branch-both-1",
+          "pathIndex": 1,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {}
+            },
+            {
+              "method": "right",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "Choose an amount allowing every open outcome to finish",
+      "sutName": "jobs",
+      "referenceName": "SATEL HML selection \u2014 Reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 32,
+      "counts": {
+        "compatible": 32,
+        "mismatch": 0,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 32
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": null,
+      "paths": [
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {
+                "n": 3
+              }
+            }
+          ]
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "finish",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "Choose an amount allowing every open outcome to finish",
+      "sutName": "jobs-missing-finish",
+      "referenceName": "SATEL HML selection \u2014 Reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 32,
+      "counts": {
+        "compatible": 23,
+        "mismatch": 9,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 32
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT refused the call, but every compatible reference state accepts it.",
+        "seed": 1,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {
+                "n": 3
+              }
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "reply": [
+                  3
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 2,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "reply": [
+                    3
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "finish",
+              "arguments": {}
+            },
+            "response": {
+              "status": "refused",
+              "outputs": {
+                "reply": []
+              }
+            },
+            "compatibleBefore": 2,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "reply": [
+                    0
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 12,
+          "durationMs": 0
+        },
+        "reasonCode": "unexpected-refusal",
+        "step": 2,
+        "testId": "positive.case",
+        "pathIndex": 1,
+        "repetition": 0,
+        "calls": [
+          {
+            "method": "open",
+            "arguments": {
+              "n": 3
+            }
+          },
+          {
+            "method": "finish",
+            "arguments": {}
+          }
+        ],
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "paths": [
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {
+                "n": 3
+              }
+            }
+          ]
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "finish",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "intention": "Choose an amount allowing every open outcome to finish",
+      "sutName": "jobs-wrong-receipt",
+      "referenceName": "SATEL HML selection \u2014 Reference",
+      "repetitions": 16,
+      "baseSeed": 1,
+      "total": 32,
+      "counts": {
+        "compatible": 16,
+        "mismatch": 16,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 32
+      },
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "runs": [
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "compatible",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 0,
+          "seed": 1,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 1,
+          "seed": 2654435770,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 2,
+          "seed": 1013904243,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 3,
+          "seed": 3668340012,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 4,
+          "seed": 2027808485,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 5,
+          "seed": 387276958,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 6,
+          "seed": 3041712727,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 7,
+          "seed": 1401181200,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 8,
+          "seed": 4055616969,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 9,
+          "seed": 2415085442,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 10,
+          "seed": 774553915,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 11,
+          "seed": 3428989684,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 12,
+          "seed": 1788458157,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 13,
+          "seed": 147926630,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 14,
+          "seed": 2802362399,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "repetition": 15,
+          "seed": 1161830872,
+          "verdict": "mismatch",
+          "propertyValue": null,
+          "propertyVerdict": "inconclusive"
+        }
+      ],
+      "firstMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 1,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {
+                "n": 3
+              }
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "reply": [
+                  3
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 2,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "reply": [
+                    3
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "finish",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "reply": [
+                  99
+                ]
+              }
+            },
+            "compatibleBefore": 2,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "reply": [
+                    0
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 12,
+          "durationMs": 1
+        },
+        "reasonCode": "unexpected-output",
+        "step": 2,
+        "testId": "positive.case",
+        "pathIndex": 1,
+        "repetition": 0,
+        "calls": [
+          {
+            "method": "open",
+            "arguments": {
+              "n": 3
+            }
+          },
+          {
+            "method": "finish",
+            "arguments": {}
+          }
+        ],
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "paths": [
+        {
+          "testId": "positive.case",
+          "pathIndex": 0,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {
+                "n": 3
+              }
+            }
+          ]
+        },
+        {
+          "testId": "positive.case",
+          "pathIndex": 1,
+          "calls": [
+            {
+              "method": "open",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "finish",
+              "arguments": {}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
