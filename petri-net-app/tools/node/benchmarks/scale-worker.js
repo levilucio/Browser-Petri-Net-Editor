@@ -1,3 +1,4 @@
+import { inventory, inventoryMutants } from '../../../src/satel/examples/inventory/models.js';
 import { performance } from 'node:perf_hooks';
 import { createSymbolicSolver } from '../../../src/satel/core/SymbolicZ3.js';
 import { deriveGenericSubdomains, findConstraintWitness, prepareAlgebra } from '../../../src/satel/core/GenericSubuniformity.js';
@@ -20,13 +21,22 @@ const warm = await createSymbolicSolver(parseSymbolicSource(''), limits);
 await warm({ terms: [], conditions: [true], variables: {}, witness: false });
 const initializationMs = round(performance.now() - initStart);
 for (let trial = 0; trial < (config.repeats ?? 3); trial++) {
-  let metrics = { calls: 0, adapterMs: 0, statuses: {}, unknownReasons: {}, maxDeclaredVariables: 0, maxConditions: 0, maxVariables: 0, maxTermNodes: 0 };
+  const queryKeys = new Set();
+  let metrics = { distinctQueries: 0, duplicateQueries: 0, queryKeyMs: 0, calls: 0, adapterMs: 0, statuses: {}, unknownReasons: {}, maxDeclaredVariables: 0, maxConditions: 0, maxVariables: 0, maxTermNodes: 0 };
   let started = performance.now();
-  const net = config.family === 'resource-apn' ? allocationService(config) : config.family === 'fulfilment' ? fulfilment(config) : config.family === 'workers' ? workerService(config) : null;
+  const net = config.family === 'inventory' ? inventory(config) : config.family === 'resource-apn' ? allocationService(config) : config.family === 'fulfilment' ? fulfilment(config) : config.family === 'workers' ? workerService(config) : null;
   const request = net ? compileSymbolicIntention(net.testIntentions[0]).goal : config.family === 'allocation' ? allocation(config) : config.family === 'invoice' ? invoice(config) : decomposition(config);
   const buildMs = performance.now() - started;
   const base = await createSymbolicSolver(prepareAlgebra(request.algebra), limits);
   const solve = async query => {
+    if (config.profileQueries) {
+      const keyStart = performance.now();
+      // Exact structural duplicates within one fixed-algebra solver instance.
+      // No query answers are reused, and witness mode stays part of the key.
+      const key = JSON.stringify(query);
+      metrics.queryKeyMs += performance.now() - keyStart;
+      if (queryKeys.has(key)) metrics.duplicateQueries++; else { queryKeys.add(key); metrics.distinctQueries++; }
+    }
     metrics.calls++; metrics.maxConditions = Math.max(metrics.maxConditions, query.conditions.length);
     metrics.maxVariables = Math.max(metrics.maxVariables, Object.keys(query.variables).length);
     metrics.maxDeclaredVariables = Math.max(metrics.maxDeclaredVariables, variablesIn(query.witness === false ? query.conditions : [query.terms, query.conditions]).size);
@@ -56,7 +66,7 @@ for (let trial = 0; trial < (config.repeats ?? 3); trial++) {
       result = await deriveIntention(net.testIntentions[0], net, { ...limits, solve });
       const e = result.execution;
       status = result.encodingError ? 'encoding-error' : result.decomposition.unresolved.length || e?.unresolved.length ? 'unresolved' : e?.blocked.length ? 'blocked' : e?.selected.length ? 'selected' : 'no-tests';
-      details = { places: net.places.length, transitions: net.transitions.length, arcs: net.arcs.length, jsonBytes: Buffer.byteLength(JSON.stringify(net)), sequencePairs: config.family === 'fulfilment' ? config.cycles * 5 : 2, propertyModalDepth: config.family === 'workers' ? config.rounds * 2 : 0, classes: result.decomposition.domains.length, visited: e?.visited, prefixChecks: e?.prefixChecks, pruned: e?.pruned, selected: e?.selected.map(x => ({ witness: x.witnessArgs, paths: x.execution.pathsTried, hml: x.execution.hmlSelection })), reasons: [result.encodingError, ...result.decomposition.unresolved.map(x => x.reason), ...(e?.unresolved || []).map(x => x.reason), ...(e?.blocked || []).map(x => x.reason)].filter(Boolean) };
+      details = { places: net.places.length, transitions: net.transitions.length, arcs: net.arcs.length, jsonBytes: Buffer.byteLength(JSON.stringify(net)), sequencePairs: ['fulfilment', 'inventory'].includes(config.family) ? (config.cycles || 1) * 5 : 2, propertyModalDepth: config.family === 'inventory' ? (config.rounds || 1) * 4 : config.family === 'workers' ? config.rounds * 2 : 0, classes: result.decomposition.domains.length, visited: e?.visited, prefixChecks: e?.prefixChecks, pruned: e?.pruned, selected: e?.selected.map(x => ({ witness: x.witnessArgs, paths: x.execution.pathsTried, hml: x.execution.hmlSelection })), reasons: [result.encodingError, ...result.decomposition.unresolved.map(x => x.reason), ...(e?.unresolved || []).map(x => x.reason), ...(e?.blocked || []).map(x => x.reason)].filter(Boolean) };
     }
     const selectionMs = performance.now() - started;
     if (net && status === 'selected') {
@@ -67,8 +77,8 @@ for (let trial = 0; trial < (config.repeats ?? 3); trial++) {
       if (replay.counts.pass !== suite.selectedTests.length || replay.counts.error || replay.counts.fail) throw new Error('Reference replay failed');
       details.reference = replay.counts;
       if (trial === 0 && config.mutations) {
-        for (const mutation of config.family === 'resource-apn' ? ['missing-confirmation', 'wrong-allocation'] : config.family === 'fulfilment' ? ['missing-dispatch', 'wrong-receipt', 'stock-leak'] : ['missing-worker', 'wrong-receipt']) {
-          const changed = config.family === 'resource-apn' ? allocationService({ ...config, mutant: mutation }) : config.family === 'fulfilment' ? fulfilment({ ...config, mutant: mutation }) : workerService({ ...config, mutant: mutation });
+        for (const mutation of config.family === 'inventory' ? inventoryMutants : config.family === 'resource-apn' ? ['missing-confirmation', 'wrong-allocation'] : config.family === 'fulfilment' ? ['missing-dispatch', 'wrong-receipt', 'stock-leak'] : ['missing-worker', 'wrong-receipt']) {
+          const changed = config.family === 'inventory' ? inventory({ ...config, mutant: mutation }) : config.family === 'resource-apn' ? allocationService({ ...config, mutant: mutation }) : config.family === 'fulfilment' ? fulfilment({ ...config, mutant: mutation }) : workerService({ ...config, mutant: mutation });
           const r = await evaluateOracleSuite(suite.selectedTests, changed, suite.interface, limits);
           mutants.push({ id: mutation, ...r.counts, failures: r.results.filter(x => x.verdict !== 'pass').map(x => ({ reason: x.reason, step: x.step })) });
           if (r.counts.error || mutation !== 'stock-leak' && !r.counts.fail) throw new Error(`Mutation control failed: ${mutation}`);

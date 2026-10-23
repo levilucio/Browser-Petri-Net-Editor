@@ -1,0 +1,1826 @@
+{
+  "recordedAt": "2026-10-23T21:41:03.785Z",
+  "baselineCommit": "db91024207819e19c3cbd29bb879a54b8cd8960f",
+  "dirty": true,
+  "sourceSha256": {
+    "src/satel/core/Admission.js": "517f5f6fb2145d1905e660a26fdd271279914b4b3a091d445ea175665f58e064",
+    "src/satel/core/BoundedOracleAdapter.js": "d457ec4fc7ad3e1cf5e83b10171d7aa73c0dff3e2ab56a290ad8ecd3776177ab",
+    "src/satel/core/BuiltinAlgebra.js": "7ea88be3c429fab927d8c761829a869691ccde34f5778776034604ce415bd40d",
+    "src/satel/core/Contracts.js": "eb85f2bc753f36bf76b385bed3103c11d757139170ebf74916fac9b543277f39",
+    "src/satel/core/DirectTransitionDriver.js": "a52932e470a97a4235fbb7cefb612af3a8ea90993aeaa7088eb642f30eb50c66",
+    "src/satel/core/ExecutableSequence.js": "efcf124ffd5088a64fd5db8b6543b69a1971bfba557173bf05d91d386ffd9227",
+    "src/satel/core/ExplicitSelection.js": "e039930d048443acbda1fa36efede9ce35caa9f972cc1aa0631287199db6fd6e",
+    "src/satel/core/GenericSubuniformity.js": "ae75f9d645a0c68b93b594b59242c8ef214f43afc82486e0e0d77944ca85eb66",
+    "src/satel/core/GroundTerms.js": "d62be4dc12390fbf37d083aee7fe8ae80fd734d06940e6ab4dc5f968e8abc069",
+    "src/satel/core/GuardLogic.js": "53519ce7d6b3163e193e15e1d11140dcc29e0b1017c421a0f5a760e2824838b8",
+    "src/satel/core/HmlCacheDiagnostics.js": "0c14b5c6ed01320034774b7bb9b2f6b18b2168d280bc30475a45ee1a7347b631",
+    "src/satel/core/HmlConstraints.js": "cfad41ba27981f2a0f98f0358443fc72e33e2baf98d5487313a632ae2fcfe247",
+    "src/satel/core/HmlEvaluator.js": "1e1eaec634f559335fd6e59e80a99b764fe7a18476e37810570678fbca3a00e2",
+    "src/satel/core/HmlExplanation.js": "4c39994277f1c0401769912589bef1c6ec92ec113b6e5564439b658b9ad4ecc2",
+    "src/satel/core/HmlFormula.js": "5c2d63fa53858ce4030d0e320c70b347db0e9ff203081f5be5416c9e2bdf89ac",
+    "src/satel/core/HmlRuleEffects.js": "adbe61faac645d13bf4628acf9b6db93f70fe3020507cfeadf04ce1404bbc433",
+    "src/satel/core/HmlTerms.js": "8562a4870897f3f44f175b3c6ecd3b6c2b79ed67385798f7c70ea4c6e292978b",
+    "src/satel/core/InitialMarking.js": "51529eca2900ccc475b4e56e8ff4bd8fa4f33a134c17cb64163bb8a49e0ae508",
+    "src/satel/core/IntentionNotation.js": "683f6b5ffe552c3e835e0be28ed9932624a6fd4036b726e6ccea6e18c08ad623",
+    "src/satel/core/IntentionPipeline.js": "b0c6f606dc524278726f9079de0e555b0ed0f78d576255c7cf4f75bf02a36e24",
+    "src/satel/core/IntentionSchema.js": "1726038112bb6a9156cf672f06262c43c4e2c718951334f709fab45f6a8f162a",
+    "src/satel/core/NegativeSelection.js": "95e6c2d03b8ca2767a6d31a5c5664a5d492aba55f2133a34e386cbcd3a4a12c3",
+    "src/satel/core/ObservationChecker.js": "5b6ffec82cb7ffd0cf8273e3be47f6c8d82ff5038bc519256ac22062d8b2977e",
+    "src/satel/core/Observations.js": "7806f9103ae20a3dcfe596f7412c0465ce798bdae57c17072446227923d1f278",
+    "src/satel/core/PartitionGenerator.js": "93fccc79c82af956b7929b9c12b2b54317d2b60f47f1f85fec4808034e13fcac",
+    "src/satel/core/PathConditionPartitioner.js": "4bc8347ab618d967bf9967bb0d41d9cb5fa11e4e83e1ef9c6e7932ed71f45391",
+    "src/satel/core/RefusalConstraints.js": "a48731ac299eeb30a6278b566d33cddbb19e920a8e8509dbdb5c69464184c33b",
+    "src/satel/core/Replay.js": "e73cfdcfa0be6eebfe92712368693a9c0213dfb820749b8dc1229a14a2a6e9b6",
+    "src/satel/core/SequenceRunner.js": "821aaa4264e208e15f501ac71dd40e5056791eaffafdd30beab582608ec6919d",
+    "src/satel/core/SymbolicIntention.js": "39171d1a5bf7b4fc9e9b0efd345ff76291068b27577bfefc456f2b13b8420ecb",
+    "src/satel/core/SymbolicSource.js": "2636e64692fd42c8b154c08c467fb5731efe6b94b8fa38e11d9921ca469473d9",
+    "src/satel/core/SymbolicSubuniformity.js": "a92f38646e20f76a30d9b0610fea71acf227350cfd0ff853dc1d2d23fb7d2a22",
+    "src/satel/core/SymbolicTerms.js": "58cfc15046ba0ebc22f307bab3b910d8f743c1bfe6b2e3409df46daddc68b2e8",
+    "src/satel/core/SymbolicZ3.js": "b54228967c10fd416b9ffbca3a403b562cf24b9362f6d7742dd2b97a71fb4d10",
+    "src/satel/core/TestCase.js": "1d3c32f364cf3acb9ec41df389dc34196abb5284b5363bc79c7a6169d0e9e716",
+    "src/satel/core/TestExecutor.js": "48cb1dbf4eda6e9541b045818b684dbbf39994cc01e8e41eedf5dc2e740bf416",
+    "src/satel/core/TestGenerator.js": "c4da34b06844b8a3569f3ecc6079362b663a9ce628d6c968886888c2650054d4",
+    "src/satel/core/ValidatedSubuniformity.js": "96a653810fe3e6a249d28e6e232aa94d410a94009ef9d223b381e2e4fb06a959",
+    "src/satel/core/VariableInstantiator.js": "e3ca27236007fa3539ddb3de7fa06112fa34f3415e7b5b4cc0cf17573969387b",
+    "src/satel/core/__tests__/all-fixes.test.js": "ac8e43da64d01e49174fb53321d296a4e69129dd9a8f568e71fc68d2db4017dd",
+    "src/satel/core/__tests__/path-subuniformity.test.js": "0e410dae9a62c3e4eefe91d84d31cf3614461c0e34708b2e418f37a8bcadbf41",
+    "src/satel/core/__tests__/priority-subuniformity.test.js": "d66db4cc66907bcb59aa1aa4ea5f99c58af2f2d216a7eb9260c49efeae796ee1",
+    "src/domain/diagnostics.js": "00fa91259d69b119a2b94997c7204de55e13ec19c49410feebf131fda484aeea",
+    "src/domain/snapshots.js": "41316b3d8fe5c5b122ce81e1e7fcfecc4a63f127aa008dc5715093930b1c4db2",
+    "src/domain/algebra/BuiltinAlgebra.js": "52d11e8ece3e65bccf2d31b813218758a26f0a9efa69a7c620e2b9d5e0f750e8",
+    "src/domain/algebra/GroundTerms.js": "dc4cc7467e4091c7f3f8719b89d0bb9c531d7b02ad9df16176cded5d8bcf93e9",
+    "src/domain/algebra/GuardLogic.js": "96f5a0417d43fc8b24a6e8c9be8a303c5afcbab23582d6c52ac54474aebee073",
+    "src/domain/algebra/Source.js": "9b8095af3c37dc2431c3740f3ab10008cf6a1c38d2f2f55de13ab8266fbed0dc",
+    "src/domain/algebra/SymbolicTerms.js": "0d7f90d22d9633086cef2b48ae0703843d1bf050c867dbc595e739fd80f5a65f",
+    "src/domain/algebra/TermGraph.js": "ac2e8d6dbdc7e0f7bf2d36963785c983eb59ba32b7e567f4a0d3b8532fd92226",
+    "src/domain/apn/MethodTerms.js": "cc0de0a9ddd7239ac67c96ae4dfd4ee9a40290f81da6ccf359b920f4850c050b",
+    "src/domain/apn/PublicMethods.js": "b683b89a466da3e1e94f1e845743a508f5a1dc8ce8261ccba5f726506f5147a2",
+    "src/domain/apn/SemanticNet.js": "1ba97eac03a084dc43c26c6bb5cec707d3396f29b9cc3007d35a0fa71786eafc",
+    "src/satel/examples/scale/models.js": "9aca1c5adff95db6fb8ca65ad3aaf1778a5dd41871a938252c2fdb432b379d46",
+    "src/satel/examples/inventory/editor.js": "53134792863ae658f888b534affa801a4eccb2ee203b9f5c1fe79feffb28cab3",
+    "src/satel/examples/inventory/models.js": "c31b29cdd49e68e9cbff1c510ac05ab6c2b8ea5a1471d6bb3f42f24100304453",
+    "tools/node/benchmarks/cache-cases.js": "b6219ed17a327d36bf39bc2a2109228ba5aa65b53d483d5207afe81a0bc16164",
+    "tools/node/benchmarks/export-inventory.js": "6f0769bfdca94c7b0e1920d5fc48303fcdb16cd2ce2252958ebaea77e3f1d9b2",
+    "tools/node/benchmarks/export-models.js": "88cf97460399f67d2a0826aa8ead5faf855e1fb8c2ae6c87c86f542bfb82597c",
+    "tools/node/benchmarks/hml-cache-comparison.js": "f959f18377161b8d6971725e9609bf8d3ed05d19f895b64a62ed2ec29b83057c",
+    "tools/node/benchmarks/run-scale.js": "ca68b7765ee2db08d24561c3bf96f80cb88ac76801c9bda53fdbea5aed2f90ae",
+    "tools/node/benchmarks/scale-worker.js": "495f535a4e856edfc1844900a47772b886d397ee5770e609c26e6c0f3272ff3f",
+    "tools/node/benchmarks/solver-cases.js": "628412a6222720733ec499b55e6a255d008684f922daabe4493d1f45a7617300"
+  },
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 9
+  },
+  "methodology": "One sequential child per configuration, repeated in-process trials after separately timed Z3 initialization and a trivial warm-up solver query. First trial has cold model caches; later trials reuse caches. SMT adapter time includes encoding, solving, extraction and independent checking. Peak RSS is process lifetime high-water including initialization, not incremental workload memory. Hard timeout kills the isolated child; completed trial records are retained. Unknown, partial and timeouts are not UNSAT or tests.",
+  "repeats": 1,
+  "hardTimeoutMs": 45000,
+  "results": [
+    {
+      "config": {
+        "id": "inventory-small",
+        "family": "inventory",
+        "cycles": 1,
+        "mutations": true,
+        "cacheMode": "all-profiled",
+        "profileQueries": true,
+        "limits": {
+          "profileHmlCaches": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 6.07,
+          "selectionMs": 263.41,
+          "admissionMs": 13.58,
+          "replayMs": 7.92,
+          "solver": {
+            "distinctQueries": 10,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0.1498460000001387,
+            "calls": 10,
+            "adapterMs": 229.86,
+            "statuses": {
+              "sat": 9,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 27,
+            "maxVariables": 4,
+            "maxTermNodes": 435
+          },
+          "details": {
+            "places": 8,
+            "transitions": 6,
+            "arcs": 48,
+            "jsonBytes": 12410,
+            "sequencePairs": 5,
+            "propertyModalDepth": 4,
+            "classes": 2,
+            "visited": 94,
+            "prefixChecks": 2,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 179,
+                  "nodes": 10,
+                  "cacheHits": 1,
+                  "outcomes": 8,
+                  "bindingVisits": 26,
+                  "guardEvaluations": 6,
+                  "successorBuilds": 8,
+                  "ruleRequests": 8,
+                  "workByPhase": {
+                    "formula": 11,
+                    "ruleLookup": 8,
+                    "binding": 21,
+                    "expression": 124,
+                    "observation": 12,
+                    "effectReplay": 2,
+                    "other": 1
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 17,
+                  "expressionRequests": 36,
+                  "expressionCacheHits": 19,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 72,
+                        "lookup": 72,
+                        "preparation": 17,
+                        "computation": 17
+                      },
+                      "milliseconds": {
+                        "key": 0.16902599999957602,
+                        "lookup": 0.04891499999962434,
+                        "preparation": 0.17291899999997895,
+                        "computation": 1.1895059999998239
+                      },
+                      "keyCharacters": 5913,
+                      "retained": {
+                        "prepared": 17,
+                        "results": 17
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 4,
+                        "lookup": 4
+                      },
+                      "milliseconds": {
+                        "key": 0.020723000000089087,
+                        "lookup": 0.007591000000047643
+                      },
+                      "keyCharacters": 324,
+                      "retained": {
+                        "results": 4
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 44,
+                        "lookup": 16,
+                        "bindingComputation": 21,
+                        "effectComputation": 6
+                      },
+                      "milliseconds": {
+                        "key": 6.719923000000222,
+                        "lookup": 0.11831000000006497,
+                        "bindingComputation": 0.3858709999999519,
+                        "effectComputation": 2.06632500000012
+                      },
+                      "keyCharacters": 997,
+                      "retained": {
+                        "argumentRoots": 5,
+                        "prefixes": 21,
+                        "bindingRecords": 21,
+                        "effectEvents": 6
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 11,
+                        "lookup": 11
+                      },
+                      "milliseconds": {
+                        "key": 0.1578580000002603,
+                        "lookup": 0.019046999999886793
+                      },
+                      "keyCharacters": 3694,
+                      "retained": {
+                        "results": 10
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 2,
+                  "bindingCacheHits": 1,
+                  "bindingPrefixArcsReused": 3,
+                  "effectReplays": 2,
+                  "constraintSize": 433,
+                  "expandedConstraintSize": 1144,
+                  "sharedTermNodes": 12
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 179,
+                  "nodes": 10,
+                  "cacheHits": 1,
+                  "outcomes": 8,
+                  "bindingVisits": 26,
+                  "guardEvaluations": 6,
+                  "successorBuilds": 8,
+                  "ruleRequests": 8,
+                  "workByPhase": {
+                    "formula": 11,
+                    "ruleLookup": 8,
+                    "binding": 21,
+                    "expression": 124,
+                    "observation": 12,
+                    "effectReplay": 2,
+                    "other": 1
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 17,
+                  "expressionRequests": 36,
+                  "expressionCacheHits": 19,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 72,
+                        "lookup": 72,
+                        "preparation": 17,
+                        "computation": 17
+                      },
+                      "milliseconds": {
+                        "key": 0.08626100000003589,
+                        "lookup": 0.028106999999977234,
+                        "preparation": 0.1340739999999414,
+                        "computation": 0.23800099999994018
+                      },
+                      "keyCharacters": 5913,
+                      "retained": {
+                        "prepared": 17,
+                        "results": 17
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 4,
+                        "lookup": 4
+                      },
+                      "milliseconds": {
+                        "key": 0.00636799999995219,
+                        "lookup": 0.0026239999999688735
+                      },
+                      "keyCharacters": 324,
+                      "retained": {
+                        "results": 4
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 44,
+                        "lookup": 16,
+                        "bindingComputation": 21,
+                        "effectComputation": 6
+                      },
+                      "milliseconds": {
+                        "key": 0.03499899999997069,
+                        "lookup": 0.009783999999967818,
+                        "bindingComputation": 0.0670830000000251,
+                        "effectComputation": 0.665164000000118
+                      },
+                      "keyCharacters": 997,
+                      "retained": {
+                        "argumentRoots": 5,
+                        "prefixes": 21,
+                        "bindingRecords": 21,
+                        "effectEvents": 6
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 11,
+                        "lookup": 11
+                      },
+                      "milliseconds": {
+                        "key": 0.061762999999700696,
+                        "lookup": 0.00697800000011739
+                      },
+                      "keyCharacters": 3694,
+                      "retained": {
+                        "results": 10
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 2,
+                  "bindingCacheHits": 1,
+                  "bindingPrefixArcsReused": 3,
+                  "effectReplays": 2,
+                  "constraintSize": 433,
+                  "expandedConstraintSize": 1144,
+                  "sharedTermNodes": 12
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "stock-leak",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "missing-cancel",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-held",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "lost-permit",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 240.11,
+          "peakRssMiB": 240.11
+        }
+      ],
+      "initializationMs": 299.79,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "profileHmlCaches": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 711
+    },
+    {
+      "config": {
+        "id": "inventory-repeated",
+        "family": "inventory",
+        "cycles": 2,
+        "permitKinds": 2,
+        "copies": 4,
+        "rounds": 2,
+        "cacheMode": "all-profiled",
+        "profileQueries": true,
+        "limits": {
+          "profileHmlCaches": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 4.61,
+          "selectionMs": 335.42,
+          "admissionMs": 25.57,
+          "replayMs": 21,
+          "solver": {
+            "distinctQueries": 12,
+            "duplicateQueries": 2,
+            "queryKeyMs": 0.26775400000019545,
+            "calls": 14,
+            "adapterMs": 281.61,
+            "statuses": {
+              "sat": 13,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 41,
+            "maxVariables": 4,
+            "maxTermNodes": 1507
+          },
+          "details": {
+            "places": 8,
+            "transitions": 6,
+            "arcs": 48,
+            "jsonBytes": 13200,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 186,
+            "prefixChecks": 6,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 526,
+                  "nodes": 27,
+                  "cacheHits": 8,
+                  "outcomes": 30,
+                  "bindingVisits": 78,
+                  "guardEvaluations": 22,
+                  "successorBuilds": 30,
+                  "ruleRequests": 20,
+                  "workByPhase": {
+                    "formula": 35,
+                    "ruleLookup": 20,
+                    "binding": 70,
+                    "expression": 348,
+                    "observation": 44,
+                    "effectReplay": 8,
+                    "other": 1
+                  },
+                  "equationExpansions": 5,
+                  "residualCalls": 0,
+                  "preparedExpressions": 17,
+                  "expressionRequests": 138,
+                  "expressionCacheHits": 110,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 276,
+                        "lookup": 276,
+                        "preparation": 17,
+                        "computation": 28
+                      },
+                      "milliseconds": {
+                        "key": 0.4992930000001934,
+                        "lookup": 0.21406500000034612,
+                        "preparation": 0.33219800000028954,
+                        "computation": 2.086261999999806
+                      },
+                      "keyCharacters": 24052,
+                      "retained": {
+                        "prepared": 17,
+                        "results": 28
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 12,
+                        "lookup": 12
+                      },
+                      "milliseconds": {
+                        "key": 0.06448900000020785,
+                        "lookup": 0.02029899999990903
+                      },
+                      "keyCharacters": 982,
+                      "retained": {
+                        "results": 7
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 108,
+                        "lookup": 40,
+                        "bindingComputation": 46,
+                        "effectComputation": 22
+                      },
+                      "milliseconds": {
+                        "key": 6.701401000000828,
+                        "lookup": 0.0688759999998183,
+                        "bindingComputation": 0.5664190000001099,
+                        "effectComputation": 4.205830999999989
+                      },
+                      "keyCharacters": 3556,
+                      "retained": {
+                        "argumentRoots": 5,
+                        "prefixes": 46,
+                        "bindingRecords": 58,
+                        "effectEvents": 22
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 35,
+                        "lookup": 35
+                      },
+                      "milliseconds": {
+                        "key": 0.452497000000335,
+                        "lookup": 0.04763199999979406
+                      },
+                      "keyCharacters": 17000,
+                      "retained": {
+                        "results": 27
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 4,
+                  "bindingCacheHits": 8,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 8,
+                  "constraintSize": 1549,
+                  "expandedConstraintSize": 35601,
+                  "sharedTermNodes": 40
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 526,
+                  "nodes": 27,
+                  "cacheHits": 8,
+                  "outcomes": 30,
+                  "bindingVisits": 78,
+                  "guardEvaluations": 22,
+                  "successorBuilds": 30,
+                  "ruleRequests": 20,
+                  "workByPhase": {
+                    "formula": 35,
+                    "ruleLookup": 20,
+                    "binding": 70,
+                    "expression": 348,
+                    "observation": 44,
+                    "effectReplay": 8,
+                    "other": 1
+                  },
+                  "equationExpansions": 5,
+                  "residualCalls": 0,
+                  "preparedExpressions": 17,
+                  "expressionRequests": 138,
+                  "expressionCacheHits": 110,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 276,
+                        "lookup": 276,
+                        "preparation": 17,
+                        "computation": 28
+                      },
+                      "milliseconds": {
+                        "key": 0.22716600000046583,
+                        "lookup": 0.0878269999997201,
+                        "preparation": 0.06890300000020488,
+                        "computation": 0.33193400000050133
+                      },
+                      "keyCharacters": 24052,
+                      "retained": {
+                        "prepared": 17,
+                        "results": 28
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 12,
+                        "lookup": 12
+                      },
+                      "milliseconds": {
+                        "key": 0.03048400000022866,
+                        "lookup": 0.0047870000000784785
+                      },
+                      "keyCharacters": 982,
+                      "retained": {
+                        "results": 7
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 108,
+                        "lookup": 40,
+                        "bindingComputation": 46,
+                        "effectComputation": 22
+                      },
+                      "milliseconds": {
+                        "key": 0.07141900000033274,
+                        "lookup": 0.02064399999972011,
+                        "bindingComputation": 0.18012300000043524,
+                        "effectComputation": 0.9876999999997906
+                      },
+                      "keyCharacters": 3556,
+                      "retained": {
+                        "argumentRoots": 5,
+                        "prefixes": 46,
+                        "bindingRecords": 58,
+                        "effectEvents": 22
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 35,
+                        "lookup": 35
+                      },
+                      "milliseconds": {
+                        "key": 0.2566739999999754,
+                        "lookup": 0.024307000000021617
+                      },
+                      "keyCharacters": 17000,
+                      "retained": {
+                        "results": 27
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 4,
+                  "bindingCacheHits": 8,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 8,
+                  "constraintSize": 1549,
+                  "expandedConstraintSize": 35601,
+                  "sharedTermNodes": 40
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 241.32,
+          "peakRssMiB": 241.45
+        }
+      ],
+      "initializationMs": 288.83,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "profileHmlCaches": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 775
+    },
+    {
+      "config": {
+        "id": "inventory-history",
+        "family": "inventory",
+        "cycles": 2,
+        "permitKinds": 2,
+        "copies": 4,
+        "rounds": 2,
+        "audit": true,
+        "cacheMode": "all-profiled",
+        "profileQueries": true,
+        "limits": {
+          "profileHmlCaches": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 5.12,
+          "selectionMs": 377.47,
+          "admissionMs": 60.34,
+          "replayMs": 63.17,
+          "solver": {
+            "distinctQueries": 12,
+            "duplicateQueries": 2,
+            "queryKeyMs": 0.45259299999997893,
+            "calls": 14,
+            "adapterMs": 298.7,
+            "statuses": {
+              "sat": 13,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 41,
+            "maxVariables": 4,
+            "maxTermNodes": 2899
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13692,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 6,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 1389,
+                  "nodes": 111,
+                  "cacheHits": 20,
+                  "outcomes": 120,
+                  "bindingVisits": 128,
+                  "guardEvaluations": 44,
+                  "successorBuilds": 120,
+                  "ruleRequests": 80,
+                  "workByPhase": {
+                    "formula": 131,
+                    "ruleLookup": 80,
+                    "binding": 120,
+                    "expression": 778,
+                    "observation": 200,
+                    "effectReplay": 76,
+                    "other": 4
+                  },
+                  "equationExpansions": 5,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 308,
+                  "expressionCacheHits": 260,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 616,
+                        "lookup": 616,
+                        "preparation": 18,
+                        "computation": 48
+                      },
+                      "milliseconds": {
+                        "key": 0.757626000000073,
+                        "lookup": 0.2792319999987285,
+                        "preparation": 0.2078540000003386,
+                        "computation": 4.4222139999993715
+                      },
+                      "keyCharacters": 61172,
+                      "retained": {
+                        "prepared": 18,
+                        "results": 48
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 72,
+                        "lookup": 72
+                      },
+                      "milliseconds": {
+                        "key": 0.11087499999985084,
+                        "lookup": 0.04666199999996934
+                      },
+                      "keyCharacters": 9884,
+                      "retained": {
+                        "results": 27
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 380,
+                        "lookup": 160,
+                        "bindingComputation": 76,
+                        "effectComputation": 44
+                      },
+                      "milliseconds": {
+                        "key": 6.53968399999826,
+                        "lookup": 0.16748300000074323,
+                        "bindingComputation": 0.8137200000010125,
+                        "effectComputation": 7.217861000000198
+                      },
+                      "keyCharacters": 15910,
+                      "retained": {
+                        "argumentRoots": 5,
+                        "prefixes": 76,
+                        "bindingRecords": 98,
+                        "effectEvents": 44
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 131,
+                        "lookup": 131
+                      },
+                      "milliseconds": {
+                        "key": 2.5838809999995647,
+                        "lookup": 0.2303770000003169
+                      },
+                      "keyCharacters": 122183,
+                      "retained": {
+                        "results": 111
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 47,
+                  "bindingCacheHits": 25,
+                  "bindingPrefixArcsReused": 77,
+                  "effectReplays": 76,
+                  "constraintSize": 2989,
+                  "expandedConstraintSize": 36105,
+                  "sharedTermNodes": 75
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 1389,
+                  "nodes": 111,
+                  "cacheHits": 20,
+                  "outcomes": 120,
+                  "bindingVisits": 128,
+                  "guardEvaluations": 44,
+                  "successorBuilds": 120,
+                  "ruleRequests": 80,
+                  "workByPhase": {
+                    "formula": 131,
+                    "ruleLookup": 80,
+                    "binding": 120,
+                    "expression": 778,
+                    "observation": 200,
+                    "effectReplay": 76,
+                    "other": 4
+                  },
+                  "equationExpansions": 5,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 308,
+                  "expressionCacheHits": 260,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 616,
+                        "lookup": 616,
+                        "preparation": 18,
+                        "computation": 48
+                      },
+                      "milliseconds": {
+                        "key": 0.6547630000004574,
+                        "lookup": 0.26023700000109784,
+                        "preparation": 0.06990800000016861,
+                        "computation": 2.0893620000001647
+                      },
+                      "keyCharacters": 61172,
+                      "retained": {
+                        "prepared": 18,
+                        "results": 48
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 72,
+                        "lookup": 72
+                      },
+                      "milliseconds": {
+                        "key": 0.0686229999993202,
+                        "lookup": 0.031905999999935375
+                      },
+                      "keyCharacters": 9884,
+                      "retained": {
+                        "results": 27
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 380,
+                        "lookup": 160,
+                        "bindingComputation": 76,
+                        "effectComputation": 44
+                      },
+                      "milliseconds": {
+                        "key": 0.23927900000035152,
+                        "lookup": 0.10487800000032621,
+                        "bindingComputation": 0.347238999999945,
+                        "effectComputation": 3.752130999999622
+                      },
+                      "keyCharacters": 15910,
+                      "retained": {
+                        "argumentRoots": 5,
+                        "prefixes": 76,
+                        "bindingRecords": 98,
+                        "effectEvents": 44
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 131,
+                        "lookup": 131
+                      },
+                      "milliseconds": {
+                        "key": 1.0236720000000332,
+                        "lookup": 0.20368600000097103
+                      },
+                      "keyCharacters": 122183,
+                      "retained": {
+                        "results": 111
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 47,
+                  "bindingCacheHits": 25,
+                  "bindingPrefixArcsReused": 77,
+                  "effectReplays": 76,
+                  "constraintSize": 2989,
+                  "expandedConstraintSize": 36105,
+                  "sharedTermNodes": 75
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 223.75,
+          "peakRssMiB": 246.45
+        }
+      ],
+      "initializationMs": 299.49,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "profileHmlCaches": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 908
+    },
+    {
+      "config": {
+        "id": "inventory-20",
+        "family": "inventory",
+        "sites": 4,
+        "cycles": 4,
+        "rounds": 2,
+        "audit": true,
+        "mutations": true,
+        "cacheMode": "all-profiled",
+        "profileQueries": true,
+        "limits": {
+          "profileHmlCaches": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 5.05,
+          "selectionMs": 874.23,
+          "admissionMs": 107.17,
+          "replayMs": 68.01,
+          "solver": {
+            "distinctQueries": 22,
+            "duplicateQueries": 48,
+            "queryKeyMs": 0.7954340000000002,
+            "calls": 70,
+            "adapterMs": 748.13,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 214,
+                        "lookup": 214,
+                        "preparation": 30,
+                        "computation": 47
+                      },
+                      "milliseconds": {
+                        "key": 0.3414529999996603,
+                        "lookup": 0.2511699999998882,
+                        "preparation": 0.3034180000000788,
+                        "computation": 1.4852489999999534
+                      },
+                      "keyCharacters": 24086,
+                      "retained": {
+                        "prepared": 30,
+                        "results": 47
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 10,
+                        "lookup": 10
+                      },
+                      "milliseconds": {
+                        "key": 0.034720999999990454,
+                        "lookup": 0.01235999999971682
+                      },
+                      "keyCharacters": 975,
+                      "retained": {
+                        "results": 6
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 624,
+                        "lookup": 240,
+                        "bindingComputation": 173,
+                        "effectComputation": 43
+                      },
+                      "milliseconds": {
+                        "key": 6.322048000001018,
+                        "lookup": 0.16491799999960222,
+                        "bindingComputation": 0.7730740000001788,
+                        "effectComputation": 4.221305000000257
+                      },
+                      "keyCharacters": 13685,
+                      "retained": {
+                        "argumentRoots": 40,
+                        "prefixes": 173,
+                        "bindingRecords": 173,
+                        "effectEvents": 43
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 37,
+                        "lookup": 37
+                      },
+                      "milliseconds": {
+                        "key": 0.7072760000002063,
+                        "lookup": 0.07715599999983169
+                      },
+                      "keyCharacters": 57558,
+                      "retained": {
+                        "results": 37
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 214,
+                        "lookup": 214,
+                        "preparation": 30,
+                        "computation": 47
+                      },
+                      "milliseconds": {
+                        "key": 0.2772090000001981,
+                        "lookup": 0.10957800000039697,
+                        "preparation": 0.38798600000029637,
+                        "computation": 0.6964219999997567
+                      },
+                      "keyCharacters": 24086,
+                      "retained": {
+                        "prepared": 30,
+                        "results": 47
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 10,
+                        "lookup": 10
+                      },
+                      "milliseconds": {
+                        "key": 0.012389000000212036,
+                        "lookup": 0.004277999999999338
+                      },
+                      "keyCharacters": 975,
+                      "retained": {
+                        "results": 6
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 624,
+                        "lookup": 240,
+                        "bindingComputation": 173,
+                        "effectComputation": 43
+                      },
+                      "milliseconds": {
+                        "key": 0.37327300000004016,
+                        "lookup": 0.10023800000010397,
+                        "bindingComputation": 0.49721599999998034,
+                        "effectComputation": 1.8533489999998665
+                      },
+                      "keyCharacters": 13685,
+                      "retained": {
+                        "argumentRoots": 40,
+                        "prefixes": 173,
+                        "bindingRecords": 173,
+                        "effectEvents": 43
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 37,
+                        "lookup": 37
+                      },
+                      "milliseconds": {
+                        "key": 0.6834509999995362,
+                        "lookup": 0.06033800000022893
+                      },
+                      "keyCharacters": 57558,
+                      "retained": {
+                        "results": 37
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "stock-leak",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "missing-cancel",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-held",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "lost-permit",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 250.79,
+          "peakRssMiB": 280.63
+        }
+      ],
+      "initializationMs": 284.86,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "profileHmlCaches": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 1535
+    },
+    {
+      "config": {
+        "id": "workers-audit",
+        "family": "workers",
+        "workers": 4,
+        "rounds": 4,
+        "audit": true,
+        "mutations": true,
+        "cacheMode": "all-profiled",
+        "profileQueries": true,
+        "limits": {
+          "profileHmlCaches": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 4.11,
+          "selectionMs": 510.24,
+          "admissionMs": 158.99,
+          "replayMs": 143.47,
+          "solver": {
+            "distinctQueries": 9,
+            "duplicateQueries": 0,
+            "queryKeyMs": 3.4138640000001033,
+            "calls": 9,
+            "adapterMs": 321.26,
+            "statuses": {
+              "sat": 8,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 1,
+            "maxConditions": 6,
+            "maxVariables": 8,
+            "maxTermNodes": 14207
+          },
+          "details": {
+            "places": 5,
+            "transitions": 8,
+            "arcs": 48,
+            "jsonBytes": 11479,
+            "sequencePairs": 2,
+            "propertyModalDepth": 8,
+            "classes": 1,
+            "visited": 16,
+            "prefixChecks": 1,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  {
+                    "ctor": "_Pair",
+                    "args": [
+                      {
+                        "ctor": "_AnyInt",
+                        "args": [
+                          3
+                        ]
+                      },
+                      {
+                        "ctor": "_AnyBool",
+                        "args": [
+                          true
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 9398,
+                  "nodes": 681,
+                  "cacheHits": 0,
+                  "outcomes": 680,
+                  "bindingVisits": 1424,
+                  "guardEvaluations": 1370,
+                  "successorBuilds": 680,
+                  "ruleRequests": 1700,
+                  "workByPhase": {
+                    "formula": 681,
+                    "ruleLookup": 1700,
+                    "binding": 1404,
+                    "expression": 4581,
+                    "observation": 680,
+                    "effectReplay": 330,
+                    "other": 22
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 17,
+                  "expressionRequests": 2760,
+                  "expressionCacheHits": 2395,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 5520,
+                        "lookup": 5520,
+                        "preparation": 17,
+                        "computation": 365
+                      },
+                      "milliseconds": {
+                        "key": 6.263524000006782,
+                        "lookup": 2.2256669999999303,
+                        "preparation": 0.17451299999987668,
+                        "computation": 30.723941999999738
+                      },
+                      "keyCharacters": 680500,
+                      "retained": {
+                        "prepared": 17,
+                        "results": 365
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 350,
+                        "lookup": 350
+                      },
+                      "milliseconds": {
+                        "key": 0.4499420000003056,
+                        "lookup": 0.2913460000002033
+                      },
+                      "keyCharacters": 82433,
+                      "retained": {
+                        "results": 344
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 6460,
+                        "lookup": 3400,
+                        "bindingComputation": 1404,
+                        "effectComputation": 1370
+                      },
+                      "milliseconds": {
+                        "key": 4.019411999997715,
+                        "lookup": 1.692221000001382,
+                        "bindingComputation": 3.4509800000007544,
+                        "effectComputation": 44.48857799999894
+                      },
+                      "keyCharacters": 483012,
+                      "retained": {
+                        "argumentRoots": 8,
+                        "prefixes": 1404,
+                        "bindingRecords": 1404,
+                        "effectEvents": 1370
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 681,
+                        "lookup": 681
+                      },
+                      "milliseconds": {
+                        "key": 5.289606000000049,
+                        "lookup": 1.2118529999980865
+                      },
+                      "keyCharacters": 603422,
+                      "retained": {
+                        "results": 681
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 330,
+                  "bindingCacheHits": 1350,
+                  "bindingPrefixArcsReused": 2696,
+                  "effectReplays": 330,
+                  "constraintSize": 14169,
+                  "expandedConstraintSize": 27962,
+                  "sharedTermNodes": 47
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-worker",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-receipt",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 249.88,
+          "peakRssMiB": 249.88
+        }
+      ],
+      "initializationMs": 284.19,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "profileHmlCaches": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 1215
+    },
+    {
+      "config": {
+        "id": "workers-merged",
+        "family": "workers",
+        "workers": 8,
+        "rounds": 8,
+        "audit": false,
+        "mutations": true,
+        "cacheMode": "all-profiled",
+        "profileQueries": true,
+        "limits": {
+          "profileHmlCaches": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 4.71,
+          "selectionMs": 262.35,
+          "admissionMs": 59.6,
+          "replayMs": 32.45,
+          "solver": {
+            "distinctQueries": 9,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0.7246320000000992,
+            "calls": 9,
+            "adapterMs": 212.06,
+            "statuses": {
+              "sat": 8,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 1,
+            "maxConditions": 6,
+            "maxVariables": 8,
+            "maxTermNodes": 2829
+          },
+          "details": {
+            "places": 4,
+            "transitions": 16,
+            "arcs": 80,
+            "jsonBytes": 18594,
+            "sequencePairs": 2,
+            "propertyModalDepth": 16,
+            "classes": 1,
+            "visited": 15,
+            "prefixChecks": 1,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  {
+                    "ctor": "_Pair",
+                    "args": [
+                      {
+                        "ctor": "_AnyInt",
+                        "args": [
+                          3
+                        ]
+                      },
+                      {
+                        "ctor": "_AnyBool",
+                        "args": [
+                          true
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 2016,
+                  "nodes": 73,
+                  "cacheHits": 56,
+                  "outcomes": 128,
+                  "bindingVisits": 224,
+                  "guardEvaluations": 93,
+                  "successorBuilds": 128,
+                  "ruleRequests": 576,
+                  "workByPhase": {
+                    "formula": 129,
+                    "ruleLookup": 576,
+                    "binding": 152,
+                    "expression": 545,
+                    "observation": 128,
+                    "effectReplay": 483,
+                    "other": 3
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 21,
+                  "expressionRequests": 204,
+                  "expressionCacheHits": 127,
+                  "cacheProfile": {
+                    "expressions": {
+                      "calls": {
+                        "key": 408,
+                        "lookup": 408,
+                        "preparation": 21,
+                        "computation": 77
+                      },
+                      "milliseconds": {
+                        "key": 0.5906430000001706,
+                        "lookup": 0.161361999999599,
+                        "preparation": 0.14542000000005828,
+                        "computation": 1.26890899999961
+                      },
+                      "keyCharacters": 34432,
+                      "retained": {
+                        "prepared": 21,
+                        "results": 77
+                      }
+                    },
+                    "operations": {
+                      "calls": {
+                        "key": 18,
+                        "lookup": 18
+                      },
+                      "milliseconds": {
+                        "key": 0.03988099999997985,
+                        "lookup": 0.014743000000009943
+                      },
+                      "keyCharacters": 1529,
+                      "retained": {
+                        "results": 4
+                      }
+                    },
+                    "rules": {
+                      "calls": {
+                        "key": 1728,
+                        "lookup": 1152,
+                        "bindingComputation": 152,
+                        "effectComputation": 93
+                      },
+                      "milliseconds": {
+                        "key": 0.8201430000008827,
+                        "lookup": 0.4224140000011971,
+                        "bindingComputation": 0.5301079999996432,
+                        "effectComputation": 3.0220359999998436
+                      },
+                      "keyCharacters": 69600,
+                      "retained": {
+                        "argumentRoots": 16,
+                        "prefixes": 152,
+                        "bindingRecords": 152,
+                        "effectEvents": 93
+                      }
+                    },
+                    "formulaStates": {
+                      "calls": {
+                        "key": 129,
+                        "lookup": 129
+                      },
+                      "milliseconds": {
+                        "key": 0.9161449999998581,
+                        "lookup": 0.1715210000001548
+                      },
+                      "keyCharacters": 92012,
+                      "retained": {
+                        "results": 73
+                      }
+                    }
+                  },
+                  "ruleCacheHits": 483,
+                  "bindingCacheHits": 21,
+                  "bindingPrefixArcsReused": 34,
+                  "effectReplays": 483,
+                  "constraintSize": 2791,
+                  "expandedConstraintSize": 1655851416,
+                  "sharedTermNodes": 72
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-worker",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-receipt",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 195.7,
+          "peakRssMiB": 195.7
+        }
+      ],
+      "initializationMs": 308.88,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "profileHmlCaches": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 776
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { cacheDiagnostics, hmlCacheEnabled } from './HmlCacheDiagnostics.js';
 import { prepareAlgebra } from './GenericSubuniformity.js';
 import { evaluateGroundTerm } from './GroundTerms.js';
 import { elaborateTerm, variablesIn } from './SymbolicTerms.js';
@@ -48,6 +49,9 @@ export function createHmlTerms(source, tick, stats, options = {}) {
   stats.expressionRequests = 0;
   stats.expressionCacheHits = 0;
   const memo = new Map();
+  const reuseOperations = hmlCacheEnabled(options, 'operations'), reuseExpressions = hmlCacheEnabled(options, 'expressions');
+  const profile = cacheDiagnostics(options, stats, 'expressions');
+  const operationProfile = cacheDiagnostics(options, stats, 'operations');
   const run = (t, env, remaining, runtime) => {
     tick();
     if (t?.var) return { term: env[t.var], safe: true };
@@ -76,12 +80,12 @@ export function createHmlTerms(source, tick, stats, options = {}) {
     const signature = algebra.operations[name];
     if (!signature?.builtin) throw new DomainError('unsupported-model', `Joint HML method operation is unsupported: ${name}`);
     if (signature.primitive) return { term: { call: name, args }, safe: true };
-    const key = JSON.stringify([name, args, remaining]);
-    if (memo.has(key)) return memo.get(key);
+    const key = reuseOperations ? operationProfile.measure('key', () => JSON.stringify([name, args, remaining])) : null;
+    if (reuseOperations && operationProfile.measure('lookup', () => memo.has(key))) return memo.get(key);
     if (!variablesIn(args).size) {
       try {
         const result = { term: evaluateGroundTerm({ call: name, args }, algebra, 1000), safe: true };
-        memo.set(key, result); return result;
+        if (reuseOperations) { memo.set(key, result); operationProfile.retain('results'); } return result;
       } catch (error) {
         if (error instanceof TypeError || error instanceof ReferenceError) throw error;
         if (error.code === 'resource-limit') stats.residualCalls++;
@@ -130,7 +134,7 @@ export function createHmlTerms(source, tick, stats, options = {}) {
       term: branches.reduceRight((rest, b) => choose(b.matches, b.term, rest), fallback(signature.result)),
       safe: and(...applicabilitySafety, ...unique, or(...branches.map(b => and(b.matches, b.safe))))
     };
-    memo.set(key, result);
+    if (reuseOperations) { memo.set(key, result); operationProfile.retain('results'); }
     return result;
   };
   // Local to this construction: algebra, unfolding depth and runtime semantics
@@ -141,21 +145,21 @@ export function createHmlTerms(source, tick, stats, options = {}) {
   return (term, env, variables, expected) => {
     tick();
     stats.expressionRequests++;
-    const key = JSON.stringify([term, variables, expected]);
-    let prepared = expressions.get(key);
+    const key = reuseExpressions ? profile.measure('key', () => JSON.stringify([term, variables, expected])) : null;
+    let prepared = reuseExpressions ? profile.measure('lookup', () => expressions.get(key)) : null;
     if (!prepared) {
-      const typed = elaborateTerm(term, variables, algebra, expected);
+      const typed = profile.measure('preparation', () => elaborateTerm(term, variables, algebra, expected));
       prepared = { typed, dependencies: [...variablesIn(typed)].sort(), results: new Map() };
-      expressions.set(key, prepared);
+      if (reuseExpressions) { expressions.set(key, prepared); profile.retain('prepared'); }
       stats.preparedExpressions++;
     }
-    const bindings = JSON.stringify(prepared.dependencies.map(name => [name, env[name]]));
-    if (prepared.results.has(bindings)) {
+    const bindings = reuseExpressions ? profile.measure('key', () => JSON.stringify(prepared.dependencies.map(name => [name, env[name]]))) : null;
+    if (reuseExpressions && profile.measure('lookup', () => prepared.results.has(bindings))) {
       stats.expressionCacheHits++;
       return prepared.results.get(bindings);
     }
-    const result = run(prepared.typed, env, depth, true);
-    prepared.results.set(bindings, result);
+    const result = profile.measure('computation', () => run(prepared.typed, env, depth, true));
+    if (reuseExpressions) { prepared.results.set(bindings, result); profile.retain('results'); }
     return result;
   };
 }

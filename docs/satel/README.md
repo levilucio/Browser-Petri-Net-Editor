@@ -16,6 +16,11 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 27: cache comparison and inventory reservations](increment-27-cache-comparison.md)
+adds cache-mode correctness checks and profiling, plus GUI examples with 5–20 pairs
+and matching mutants. The measurements identify repeated solver queries in longer
+sequences as a next optimization candidate; production caching defaults are unchanged.
+
 [Increment 26: HML rule and binding-prefix reuse](increment-26-hml-rule-reuse.md)
 resolves the four-worker/four-round audit model under the normal construction
 budget while retaining every history. It includes the measured timing trade-offs

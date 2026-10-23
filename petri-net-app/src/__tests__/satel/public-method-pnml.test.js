@@ -1,3 +1,4 @@
+import { createInventoryExample, inventoryExamples } from '../../satel/examples/inventory/editor.js';
 import { createExerciseExample, exerciseExamples } from '../../satel/examples/exercises/editor';
 import { exportToPNML, importFromPNML } from '../../utils/python/index';
 import { createOracleAccountExample } from '../../satel/examples/oracle-account/editor';
@@ -62,4 +63,14 @@ test.each(exerciseExamples)('$filename: exercise PNML preserves initial state, m
   expect(loaded.satelExample).toEqual(net.satelExample);
   expect(loaded.places.map(p => [p.id, p.sort, p.io_type, p.valueTokens])).toEqual(net.places.map(p => [p.id, p.sort, p.io_type, p.valueTokens]));
   expect(loaded.arcs.map(a => [a.id, a.binding || a.bindings?.[0]])).toEqual(net.arcs.map(a => [a.id, a.binding]));
+});
+
+
+test.each(inventoryExamples)('$filename: saved inventory PNML matches the GUI example', async entry => {
+  const file = resolve(__dirname, '../../satel/examples/inventory', `${entry.filename}.pnml`);
+  const loaded = await importFromPNML(readFileSync(file, 'utf8'));
+  const expected = await importFromPNML(await exportToPNML(createInventoryExample(entry.filename)));
+  expect(semanticFingerprint(loaded)).toBe(semanticFingerprint(expected));
+  expect(loaded.testIntentions).toEqual(expected.testIntentions);
+  expect(loaded.satelExample).toEqual(expected.satelExample);
 });

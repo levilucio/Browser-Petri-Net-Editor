@@ -1,3 +1,4 @@
+import { cacheDiagnostics, hmlCacheEnabled } from './HmlCacheDiagnostics.js';
 import { compilePublicNet, isMethodRule } from '../../domain/apn/PublicMethods.js';
 import { methodSorts, valueToSymbolic, validBuiltinValue } from '../../utils/builtin-values.js';
 import { checkCancelled, DomainError } from '../../domain/diagnostics.js';
@@ -31,7 +32,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
     if (++stats.work > maxWork || Date.now() >= deadline) throw new DomainError('resource-limit', 'Joint HML constraint construction budget exhausted');
   };
   const expression = createHmlTerms(algebra, () => tick('expression'), stats, options);
-  const ruleEffects = createHmlRuleEffects(places, expression, tick, stats);
+  const ruleEffects = createHmlRuleEffects(places, expression, tick, stats, options);
   const preconditions = [];
   const value = (raw, expected, depth = 0) => {
     if (depth > 64) invalid('HML value exceeds supported nesting depth');
@@ -103,10 +104,11 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
     return eq(marking[id].length === 0, c.empty);
   }));
   const memo = new WeakMap();
+  const reuseStates = hmlCacheEnabled(options, 'formulaStates'), profile = cacheDiagnostics(options, stats, 'formulaStates');
   const visit = async (node, marking) => {
     tick('formula');
-    const key = JSON.stringify(Object.entries(marking).map(([id, ts]) => [id, ts.map(t => JSON.stringify(t)).sort()]));
-    if (memo.get(node)?.has(key)) { stats.cacheHits++; return memo.get(node).get(key); }
+    const key = reuseStates ? profile.measure('key', () => JSON.stringify(Object.entries(marking).map(([id, ts]) => [id, ts.map(t => JSON.stringify(t)).sort()]))) : null;
+    if (reuseStates && profile.measure('lookup', () => memo.get(node)?.has(key))) { stats.cacheHits++; return memo.get(node).get(key); }
     if (++stats.nodes > maxNodes) throw new DomainError('resource-limit', 'Joint HML formula/state budget exhausted');
     if (stats.nodes % 32 === 0) { await new Promise(resolve => setTimeout(resolve, 0)); tick(); }
     let result;
@@ -149,8 +151,10 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
       }
       result = { truth: combine(node.op === 'diamond' ? 'or' : 'and', terms), safe: and(...safety) };
     }
-    if (!memo.has(node)) memo.set(node, new Map());
-    memo.get(node).set(key, result);
+    if (reuseStates) {
+      if (!memo.has(node)) memo.set(node, new Map());
+      memo.get(node).set(key, result); profile.retain('results');
+    }
     return result;
   };
   const result = await visit(symbolic, Object.fromEntries(net.places.map(p => [p.id, p.valueTokens.map(valueToSymbolic)])));

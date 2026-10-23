@@ -281,6 +281,14 @@ export default function useToolbarActions(params) {
       setError?.(null);
       setSuccess?.(null);
 
+      if (filename.startsWith('inventory-')) {
+        const { createInventoryExample } = await import('../../satel/examples/inventory/editor.js');
+        const net = createInventoryExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (filename.startsWith('hml-adt-')) {
         const { createHmlAlgebraicExample } = await import('../../satel/examples/hml-selection/algebraic.js');
         const net = createHmlAlgebraicExample(filename);

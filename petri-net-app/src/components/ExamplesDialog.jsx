@@ -1,3 +1,4 @@
+import { inventoryExamples } from '../satel/examples/inventory/editor.js';
 import { nondeterminismExamples } from '../satel/examples/nondeterminism/editor.js';
 import { hmlAlgebraicExamples } from '../satel/examples/hml-selection/algebraic.js';
 import { hmlSelectionExamples } from '../satel/examples/hml-selection/editor.js';
@@ -9,6 +10,7 @@ import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.j
 
 const EXAMPLES = [
   ...oracleAccountExamples,
+  ...inventoryExamples,
   ...refusalExamples,
   ...nondeterminismExamples,
   ...hmlSelectionExamples,
