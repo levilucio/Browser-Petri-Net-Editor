@@ -16,6 +16,11 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 29: recursive ADT unfolding measurements](increment-29-recursive-unfolding.md)
+separates equation expansion, feasibility queries and class-overlap checks. New
+list-membership/tree-lookup examples expose unresolved frontiers and the cost of
+pairwise disjointness checks; no new optimization or completeness claim is made.
+
 [Increment 28: bounded solver-query reuse](increment-28-solver-query-reuse.md)
 avoids repeated exact queries while revalidating cached witnesses. The 20-pair
 inventory model avoids 48 of 70 adapter calls; paired measurements also document

@@ -1,3 +1,4 @@
+import { recursiveDecomposition } from '../../../src/satel/examples/recursive-adt/models.js';
 import { inventory, inventoryMutants } from '../../../src/satel/examples/inventory/models.js';
 import { performance } from 'node:perf_hooks';
 import { createSymbolicSolver } from '../../../src/satel/core/SymbolicZ3.js';
@@ -8,6 +9,7 @@ import { evaluateOracleSuite } from '../../../src/satel/core/ValidatedSubuniform
 import { variablesIn } from '../../../src/satel/core/SymbolicTerms.js';
 import { compileSymbolicIntention, parseSymbolicSource } from '../../../src/satel/core/SymbolicSource.js';
 import { fulfilment, workerService, allocationService } from '../../../src/satel/examples/scale/models.js';
+import { checkDecompositionWitnesses } from './check-decomposition.js';
 import { allocation, invoice, decomposition } from './solver-cases.js';
 import { getContext } from '../../../src/utils/z3/context.js';
 import { setLogLevel } from '../../../src/utils/logger.js';
@@ -25,7 +27,7 @@ for (let trial = 0; trial < (config.repeats ?? 3); trial++) {
   let metrics = { distinctQueries: 0, duplicateQueries: 0, queryKeyMs: 0, calls: 0, adapterMs: 0, statuses: {}, unknownReasons: {}, maxDeclaredVariables: 0, maxConditions: 0, maxVariables: 0, maxTermNodes: 0 };
   let started = performance.now();
   const net = config.family === 'inventory' ? inventory(config) : config.family === 'resource-apn' ? allocationService(config) : config.family === 'fulfilment' ? fulfilment(config) : config.family === 'workers' ? workerService(config) : null;
-  const request = net ? compileSymbolicIntention(net.testIntentions[0]).goal : config.family === 'allocation' ? allocation(config) : config.family === 'invoice' ? invoice(config) : decomposition(config);
+  const request = net ? compileSymbolicIntention(net.testIntentions[0]).goal : config.family === 'allocation' ? allocation(config) : config.family === 'invoice' ? invoice(config) : config.family === 'recursive-adt' ? recursiveDecomposition(config) : decomposition(config);
   const buildMs = performance.now() - started;
   const base = await createSymbolicSolver(prepareAlgebra(request.algebra), limits);
   const solve = async query => {
@@ -58,10 +60,18 @@ for (let trial = 0; trial < (config.repeats ?? 3); trial++) {
       result = await findConstraintWitness(request, { ...limits, solve, preserveBooleanStructure: true }); status = result.status;
       details.unresolved = result.unresolved.slice(0, 3).map(x => x.reason);
       if (status === 'unsat') throw new Error('Known feasible invoice returned UNSAT');
-    } else if (config.family === 'decomposition') {
+    } else if (['decomposition', 'recursive-adt'].includes(config.family)) {
       result = await deriveGenericSubdomains(request, { ...limits, solve });
-      status = result.unresolved.length ? 'partial' : 'complete';
-      details = { classes: result.domains.length, unresolved: result.unresolved.length, overlaps: result.overlaps.length, unknownOverlapChecks: result.overlaps.filter(x => x.status === 'unknown').length, reasons: [...new Set(result.unresolved.map(x => x.reason))], coverage: result.coverage };
+      status = result.unresolved.length || result.overlaps.some(x => x.status === 'unknown') ? 'partial' : 'frontier-resolved';
+      details = { classes: result.domains.length, unresolved: result.unresolved.length, overlaps: result.overlaps.length, unknownOverlapChecks: result.overlaps.filter(x => x.status === 'unknown').length, reasons: [...new Set(result.unresolved.map(x => x.reason))], coverage: result.coverage,
+        unfolding: result.unfoldingProfile,
+        infeasible: result.infeasible.length,
+        checkedClassWitnesses: checkDecompositionWitnesses(config, result.domains),
+        frontierReasons: result.unresolved.reduce((counts, x) => { counts[x.reason] = (counts[x.reason] || 0) + 1; return counts; }, {}),
+        frontierRuleDepths: result.unresolved.reduce((counts, x) => { counts[x.rules.length] = (counts[x.rules.length] || 0) + 1; return counts; }, {}),
+        frontierSamples: result.unresolved.slice(0, 6).map(x => ({ rules: x.rules, reason: x.reason, patterns: x.patterns, conditions: x.conditions, resultPattern: x.resultPattern })),
+        // Bounded samples for reviewing what a class means; all counts above are exact.
+        classSamples: result.domains.slice(0, 3).map(x => ({ rules: x.rules, patterns: x.patterns, conditions: x.conditions, witnessArgs: x.witnessArgs, witnessResult: x.witnessResult })) };
     } else {
       result = await deriveIntention(net.testIntentions[0], net, { ...limits, solve });
       const e = result.execution;

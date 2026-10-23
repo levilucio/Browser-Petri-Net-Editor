@@ -72,6 +72,21 @@ async function narrow(goal, options = {}, witnessOnly = false) {
   const maxBranches = options.maxBranches ?? 256;
   if (!Number.isInteger(maxBranches) || maxBranches < 1 || maxBranches > 2048) throw new Error('Branch budget must be between 1 and 2048');
   const solve = options.solve || (await createSymbolicSolver(algebra, options));
+  // Opt-in measurements only; no branch ordering, budgets or solver queries change.
+  // Adapter time includes encoding/extraction/cache validation, not only SMT solving.
+  const profile = options.profileUnfolding ? {
+    visited: 0, peakPending: 0, equationAttempts: 0, equationMatches: 0,
+    booleanBranches: 0, feasibilityQueries: 0, overlapQueries: 0,
+    feasibilityMs: 0, overlapSolverMs: 0, equationExpansionMs: 0,
+    maxRulePath: 0, maxUnfoldingDepth: 0, infeasibleBranches: 0, operations: {}
+  } : null;
+  const searchStarted = profile ? performance.now() : 0;
+  const measuredSolve = async (query, phase) => {
+    profile[`${phase}Queries`]++;
+    const started = performance.now();
+    try { return await solve(query); }
+    finally { profile[phase === 'overlap' ? 'overlapSolverMs' : 'feasibilityMs'] += performance.now() - started; }
+  };
   const deadline = Date.now() + (options.maxTimeMs ?? 20000);
   const sorts = {
     ...variables
@@ -94,7 +109,12 @@ async function narrow(goal, options = {}, witnessOnly = false) {
   }];
   while (pending.length) {
     checkCancelled(options.signal);
+    if (profile) { profile.visited++; profile.peakPending = Math.max(profile.peakPending, pending.length); }
     const branch = pending.pop();
+    if (profile) {
+      profile.maxRulePath = Math.max(profile.maxRulePath, branch.rules.length);
+      profile.maxUnfoldingDepth = Math.max(profile.maxUnfoldingDepth, maxDepth - branch.remaining);
+    }
     const body = substitute({
       conditions: branch.conditions,
       result: branch.result
@@ -106,7 +126,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     const feasibility = Date.now() >= deadline ? {
       status: 'unknown',
       reason: 'Total derivation time budget exhausted'
-    } : await solve({
+    } : await (profile ? query => measuredSolve(query, 'feasibility') : solve)({
       terms: [patterns, body.result],
       conditions: constraints,
       variables: sorts,
@@ -120,6 +140,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
       resultPattern: body.result
     };
     if (feasibility.status === 'unsat') {
+      if (profile) profile.infeasibleBranches++;
       infeasible.push({
         ...record,
         status: 'infeasible'
@@ -154,6 +175,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
         continue;
       }
       expanded += alternatives.length;
+      if (profile) profile.booleanBranches += alternatives.length;
       alternatives.forEach((conditions, i) => pending.push({
         ...branch,
         ...body,
@@ -181,6 +203,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
         continue;
       }
       expanded += 2;
+      if (profile) profile.booleanBranches += 2;
       for (const value of [true, false]) pending.push({
         ...branch,
         ...body,
@@ -237,9 +260,12 @@ async function narrow(goal, options = {}, witnessOnly = false) {
       });
       continue;
     }
+    const expansionStarted = profile ? performance.now() : 0;
+    if (profile) profile.operations[found.term.call] = (profile.operations[found.term.call] || 0) + 1;
     let matched = false;
     for (const source of algebra.operations[found.term.call].rules) {
       expanded++;
+      if (profile) profile.equationAttempts++;
       const rename = new Map(Object.keys(source.variables || {}).map(n => [n, {
         var: `@${++serial}.${n}`
       }]));
@@ -264,6 +290,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
       };
       if (!rule.patterns.every((p, i) => match(p, found.term.args[i]))) continue;
       matched = true;
+      if (profile) profile.equationMatches++;
       const replaced = replace(body, found.path, rule.result);
       pending.push({
         bindings,
@@ -273,12 +300,14 @@ async function narrow(goal, options = {}, witnessOnly = false) {
         remaining: branch.remaining - 1
       });
     }
+    if (profile) profile.equationExpansionMs += performance.now() - expansionStarted;
     if (!matched) unresolved.push({
       ...record,
       status: 'residual',
       reason: 'No defining equation matches this call'
     });
   }
+  const overlapStarted = profile ? performance.now() : 0;
   // Domain intersections are checked independently of output values and of APN execution.
   for (let i = 0; !witnessOnly && i < domains.length; i++) for (let j = i + 1; j < domains.length; j++) {
     const a = domains[i],
@@ -296,7 +325,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     const check = Date.now() >= deadline ? {
       status: 'unknown',
       reason: 'Total derivation time budget exhausted'
-    } : await solve({
+    } : await (profile ? query => measuredSolve(query, 'overlap') : solve)({
       terms: [a.patterns, b.patterns],
       conditions,
       variables: sorts,
@@ -309,10 +338,17 @@ async function narrow(goal, options = {}, witnessOnly = false) {
       reason: check.reason
     });
   }
+  if (profile) {
+    profile.overlapPhaseMs = performance.now() - overlapStarted;
+    profile.searchMs = performance.now() - searchStarted;
+    profile.nonSolverMs = Math.max(0, profile.searchMs - profile.feasibilityMs - profile.overlapSolverMs);
+    profile.expandedBranches = expanded;
+  }
   domains.reverse(); // Preserve equation declaration order for review.
   return {
     operation,
     maxDepth,
+    ...(profile ? { unfoldingProfile: profile } : {}),
     domains,
     infeasible,
     unresolved,
