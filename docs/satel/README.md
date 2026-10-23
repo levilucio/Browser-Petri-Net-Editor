@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 33: feasibility query projection](increment-33-feasibility-query-projection.md)
+removes solver-irrelevant terms and declarations from feasibility requests so
+identical checks can reuse the existing cache, while retaining complete witnesses.
+
 [Increment 32: reusable equation-branch disjointness](increment-32-branch-disjointness.md)
 proves incompatible ancestor input regions once and reuses the result across
 descendant classes, with independent variable scopes and leaf-SMT fallback.

@@ -1,4 +1,5 @@
 import { createBranchDisjointness } from './BranchDisjointness.js';
+import { projectFeasibilityQuery } from './FeasibilityQuery.js';
 import { constructorPatternsDisjoint } from './ConstructorDisjointness.js';
 import { checkCancelled, diagnostic } from '../../domain/diagnostics.js';
 import { freeze } from '../../domain/snapshots.js';
@@ -80,6 +81,9 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     visited: 0, peakPending: 0, equationAttempts: 0, equationMatches: 0,
     booleanBranches: 0, feasibilityQueries: 0, overlapQueries: 0,
     feasibilityMs: 0, overlapSolverMs: 0, equationExpansionMs: 0,
+    feasibilityWitnessQueries: 0, feasibilityCheckQueries: 0,
+    feasibilityWitnessMs: 0, feasibilityCheckMs: 0,
+    maxFeasibilityVariables: 0, feasibilityVariableEntries: 0,
     overlapPairs: 0, constructorDisjointPairs: 0, constructorCheckMs: 0,
     maxOverlapVariables: 0, overlapVariableEntries: 0,
     branchProofQueries: 0, branchProofMs: 0, branchProofCacheHits: 0, branchDisjointPairs: 0, branchProofStatuses: {},
@@ -88,9 +92,15 @@ async function narrow(goal, options = {}, witnessOnly = false) {
   const searchStarted = profile ? performance.now() : 0;
   const measuredSolve = async (query, phase) => {
     profile[`${phase}Queries`]++;
+    const kind = query.witness === false ? 'Check' : 'Witness';
+    if (phase === 'feasibility') profile[`feasibility${kind}Queries`]++;
     const started = performance.now();
     try { return await solve(query); }
-    finally { profile[phase === 'overlap' ? 'overlapSolverMs' : 'feasibilityMs'] += performance.now() - started; }
+    finally {
+      const elapsed = performance.now() - started;
+      profile[phase === 'overlap' ? 'overlapSolverMs' : 'feasibilityMs'] += elapsed;
+      if (phase === 'feasibility') profile[`feasibility${kind}Ms`] += elapsed;
+    }
   };
   const deadline = Date.now() + (options.maxTimeMs ?? 20000);
   const branchProofs = !witnessOnly && options.branchDisjointness !== false ? createBranchDisjointness({
@@ -99,6 +109,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
   const sorts = {
     ...variables
   };
+  let feasibilityDeclarationCount = profile ? Object.keys(sorts).length : 0;
   let serial = 0,
     expanded = 0;
   const domains = [],
@@ -131,15 +142,22 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     const found = findCall(body, algebra);
     // Only fully unfolded conditions can be asserted; the others stay in the frontier.
     const constraints = body.conditions.filter(c => !findCall(c, algebra) && !undefinedReason(c));
-    const feasibility = Date.now() >= deadline ? {
-      status: 'unknown',
-      reason: 'Total derivation time budget exhausted'
-    } : await (profile ? query => measuredSolve(query, 'feasibility') : solve)({
+    let feasibilityQuery = {
       terms: [patterns, body.result],
       conditions: constraints,
       variables: sorts,
       witness: !found && !undefinedReason(body) && (preserveBooleanStructure || !body.conditions.some(c => splitGuard(c)))
-    });
+    };
+    if (options.feasibilityQueryProjection !== false) feasibilityQuery = projectFeasibilityQuery(feasibilityQuery);
+    if (profile) {
+      const count = options.feasibilityQueryProjection === false ? feasibilityDeclarationCount : Object.keys(feasibilityQuery.variables).length;
+      profile.maxFeasibilityVariables = Math.max(profile.maxFeasibilityVariables, count);
+      profile.feasibilityVariableEntries += count;
+    }
+    const feasibility = Date.now() >= deadline ? {
+      status: 'unknown',
+      reason: 'Total derivation time budget exhausted'
+    } : await (profile ? query => measuredSolve(query, 'feasibility') : solve)(feasibilityQuery);
     const record = {
       id: branch.rules.join('/') || 'root',
       rules: branch.rules,
@@ -279,7 +297,10 @@ async function narrow(goal, options = {}, witnessOnly = false) {
       const rename = new Map(Object.keys(source.variables || {}).map(n => [n, {
         var: `@${++serial}.${n}`
       }]));
-      for (const [n, v] of rename) sorts[v.var] = source.variables[n];
+      for (const [n, v] of rename) {
+        if (profile && !Object.hasOwn(sorts, v.var)) feasibilityDeclarationCount++;
+        sorts[v.var] = source.variables[n];
+      }
       const rule = substitute(source, rename),
         bindings = new Map(branch.bindings);
       // Constructor patterns narrow arguments; arithmetic equalities are residual constraints.
@@ -456,12 +477,13 @@ export async function createConstraintSearch(algebra, options = {}) {
         status: 'unknown',
         reason: 'No solver-ready prefix constraints'
       };
-      return solve({
+      const query = {
         terms: [],
         conditions: usable,
         variables,
         witness: false
-      });
+      };
+      return solve(options.feasibilityQueryProjection === false ? query : projectFeasibilityQuery(query));
     }
   };
 }
