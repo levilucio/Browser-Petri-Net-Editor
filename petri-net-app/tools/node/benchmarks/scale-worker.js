@@ -95,10 +95,10 @@ for (let trial = 0; trial < (config.repeats ?? 3); trial++) {
         }
       }
     }
-    const sample = { trial, status, buildMs: round(buildMs), selectionMs: round(selectionMs), admissionMs: round(admissionMs), replayMs: round(replayMs), solver: { ...metrics, adapterMs: round(metrics.adapterMs), cache: base.cacheStats }, details, mutants, rssMiB: round(process.memoryUsage().rss / 2 ** 20), peakRssMiB: round(process.resourceUsage().maxRSS / 1024) };
+    const sample = { trial, status, buildMs: round(buildMs), selectionMs: round(selectionMs), admissionMs: round(admissionMs), replayMs: round(replayMs), solver: { ...metrics, adapterMs: round(metrics.adapterMs), cache: base.cacheStats, backendProfile: base.solverProfile }, details, mutants, rssMiB: round(process.memoryUsage().rss / 2 ** 20), peakRssMiB: round(process.resourceUsage().maxRSS / 1024) };
     samples.push(sample); process.stdout.write(JSON.stringify({ type: 'sample', sample }) + '\n');
   } catch (error) {
-    const sample = { trial, status: 'error', reason: error.message, elapsedMs: round(performance.now() - started), solver: { ...metrics, cache: base.cacheStats } };
+    const sample = { trial, status: 'error', reason: error.message, elapsedMs: round(performance.now() - started), solver: { ...metrics, cache: base.cacheStats, backendProfile: base.solverProfile } };
     samples.push(sample); process.stdout.write(JSON.stringify({ type: 'sample', sample }) + '\n');
   }
 }

@@ -1,3 +1,4 @@
+import { createSolverProfile } from './SolverProfile.js';
 import { withSolverQueryCache } from './SolverQueryCache.js';
 import { copy, freeze } from '../../domain/snapshots.js';
 import { diagnostic, checkCancelled } from '../../domain/diagnostics.js';
@@ -76,6 +77,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
     }
     if (!conditions.every(condition => evaluateGround(substitute(condition, bindings)) === true)) throw new Error('Independent witness constraint check failed');
   };
+  const profiler = options.profileSolver ? createSolverProfile() : null;
   let checkId = 0;
   const backend = async function solve({
     terms,
@@ -84,10 +86,18 @@ export async function createSymbolicSolver(algebra, options = {}) {
     witness = true
   }) {
     checkCancelled(options.signal);
-    const solver = new ctx.Solver();
-    solver.set('timeout', options.timeoutMs ?? 3000);
-    let vector = null;
+    const trace = profiler?.start(witness);
+    let solver;
     try {
+      solver = new ctx.Solver();
+      solver.set('timeout', options.timeoutMs ?? 3000);
+    } catch (error) {
+      trace?.finish('error');
+      throw error;
+    }
+    let vector = null, outcome = 'error';
+    try {
+      trace?.phase('encode');
       const symbolNames = new Map([...variablesIn(witness ? [terms, conditions] : conditions)].map(n => [n, `${prefix}v${++checkId}`]));
       const graphDeclarations = [], graphAssertions = [];
       const encode = (t, resolveRef) => {
@@ -172,13 +182,20 @@ export async function createSymbolicSolver(algebra, options = {}) {
       // Preserve an AST handle for unconstrained variables as well, for model completion.
       const handles = [...symbolNames.values()].map(v => `(assert (= ${v} ${v}))`).join('\n');
       const assertions = [...symbolNames].map(([n, v]) => valid(variables[n], v)).concat(conditions.map(c => encode(c)));
-      solver.fromString(preamble + declarations + '\n' + graphDeclarations.join('\n') + '\n' + handles + '\n' + graphAssertions.join('\n') + '\n' + assertions.map(s => `(assert ${s})`).join('\n'));
+      const script = preamble + declarations + '\n' + graphDeclarations.join('\n') + '\n' + handles + '\n' + graphAssertions.join('\n') + '\n' + assertions.map(s => `(assert ${s})`).join('\n');
+      trace?.phase('parse');
+      solver.fromString(script);
+      trace?.phase('handles');
       // Own these handles explicitly. The wrapper's AstVector/Model finalizers
       // can otherwise release them during a later asynchronous check().
       vector = Z3.solver_get_assertions(c, solver.ptr);
       Z3.ast_vector_inc_ref(c, vector);
       const symbols = new Map([...symbolNames.keys()].map((n, i) => [n, Z3.get_app_arg(c, Z3.to_app(c, Z3.ast_vector_get(c, vector, i)), 0)]));
+      trace?.phase('check');
       const status = String(await solver.check());
+      trace?.phase('other');
+      trace?.checked(status);
+      outcome = status === 'sat' || status === 'unsat' ? status : 'unknown';
       checkCancelled(options.signal);
       if (status !== 'sat') return {
         status: status === 'unsat' ? 'unsat' : 'unknown',
@@ -188,6 +205,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
         status: 'sat'
       };
       const readWitness = () => {
+        trace?.phase('decode');
         const model = Z3.solver_get_model(c, solver.ptr);
         Z3.model_inc_ref(c, model);
         try {
@@ -220,7 +238,9 @@ export async function createSymbolicSolver(algebra, options = {}) {
             const value = decode(Z3.model_eval(c, model, x, true), variables[n]);
             return [n, value];
           }));
+          trace?.phase('validate');
           validateWitness({ terms, conditions, variables, witness }, bindings);
+          trace?.phase('other');
           return {
             status: 'sat',
             bindings
@@ -235,6 +255,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
       const preferred = [...symbols].filter(([n]) => ['Nat', 'Int'].includes(variables[n]));
       if (!preferred.length) return original;
       checkCancelled(options.signal);
+      trace?.phase('preferenceSetup');
       solver.push();
       try {
         const one = Z3.mk_numeral(c, '1', Z3.mk_int_sort(c));
@@ -244,7 +265,10 @@ export async function createSymbolicSolver(algebra, options = {}) {
         } finally {
           Z3.dec_ref(c, one);
         }
+        trace?.phase('preferenceCheck');
         const preferredStatus = String(await solver.check());
+        trace?.phase('other');
+        trace?.checked(preferredStatus, true);
         checkCancelled(options.signal);
         if (preferredStatus === 'sat') return readWitness();
       } catch (error) {
@@ -256,6 +280,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
       }
       return original;
     } catch (error) {
+      outcome = error.code === 'cancelled' ? 'cancelled' : 'unknown';
       if (error.code === 'cancelled') throw error;
       return {
         status: 'unknown',
@@ -263,9 +288,18 @@ export async function createSymbolicSolver(algebra, options = {}) {
         diagnostic: diagnostic(error, 'solver')
       };
     } finally {
-      if (vector !== null) Z3.ast_vector_dec_ref(c, vector);
-      solver.release();
+      trace?.phase('cleanup');
+      try {
+        if (vector !== null) Z3.ast_vector_dec_ref(c, vector);
+        solver.release();
+      } catch (error) {
+        outcome = 'error';
+        throw error;
+      } finally { trace?.finish(outcome); }
     }
   };
-  return withSolverQueryCache(backend, validateWitness, options);
+  const validateCached = profiler ? (query, bindings) => profiler.validateCached(validateWitness, query, bindings) : validateWitness;
+  const solve = withSolverQueryCache(backend, validateCached, options);
+  Object.defineProperty(solve, 'solverProfile', { get: () => profiler?.snapshot() });
+  return solve;
 }

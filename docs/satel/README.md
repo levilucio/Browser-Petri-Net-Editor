@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 34: solver phase profiling](increment-34-solver-phase-profiling.md)
+separates encoding, SMT parsing/checking, witness decoding and validation, with
+paired profiling-overhead measurements on the existing recursive/APN examples.
+
 [Increment 33: feasibility query projection](increment-33-feasibility-query-projection.md)
 removes solver-irrelevant terms and declarations from feasibility requests so
 identical checks can reuse the existing cache, while retaining complete witnesses.
