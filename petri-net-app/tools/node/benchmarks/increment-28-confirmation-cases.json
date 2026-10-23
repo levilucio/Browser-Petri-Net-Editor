@@ -1,0 +1,72 @@
+[
+  {
+    "id": "inventory-audit",
+    "family": "inventory",
+    "cycles": 2,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "inventory-audit",
+    "family": "inventory",
+    "cycles": 2,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "invoice-8",
+    "family": "invoice",
+    "size": 8,
+    "nonlinear": false,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "invoice-8",
+    "family": "invoice",
+    "size": 8,
+    "nonlinear": false,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  }
+]

@@ -1,3 +1,5 @@
+import { withSolverQueryCache } from './SolverQueryCache.js';
+import { copy, freeze } from '../../domain/snapshots.js';
 import { diagnostic, checkCancelled } from '../../domain/diagnostics.js';
 import { getContext } from '../../utils/z3/context.js';
 import { evaluateGround, substitute, variablesIn, termSort } from './SymbolicTerms.js';
@@ -28,6 +30,11 @@ function decodeString(text) {
 }
 /** Shared Z3 context, using SMT-LIB for strings absent from this JS wrapper's high-level API. */
 export async function createSymbolicSolver(algebra, options = {}) {
+  // One adapter owns one fixed semantic context. Caller mutation must not change
+  // either the generated datatype preamble or a previously solved query's meaning.
+  algebra = freeze(copy(algebra));
+  options = { ...options, ...(typeof options.solverQueryCache === 'object' && options.solverQueryCache ? { solverQueryCache: { ...options.solverQueryCache } } : {}) };
+  checkCancelled(options.signal);
   const {
     ctx,
     z3: {
@@ -61,8 +68,16 @@ export async function createSymbolicSolver(algebra, options = {}) {
     };
     preamble += `(define-funs-rec (${runtimeSorts.map(s => `(${prefix}runtime_${s} ((x ${sort(s)}) (d Int)) Bool)`).join(' ')}) (${runtimeSorts.map(s => `(and (>= d 0) ${descend(s)})`).join(' ')}))\n`;
   }
+  const validateWitness = ({ terms, conditions, variables }, bindings) => {
+    const required = variablesIn([terms, conditions]);
+    if (!(bindings instanceof Map) || bindings.size !== required.size) throw new Error('Independent witness variable check failed');
+    for (const n of required) {
+      if (!bindings.has(n) || termSort(bindings.get(n), {}, algebra, variables[n]) !== variables[n]) throw new Error('Independent witness sort check failed');
+    }
+    if (!conditions.every(condition => evaluateGround(substitute(condition, bindings)) === true)) throw new Error('Independent witness constraint check failed');
+  };
   let checkId = 0;
-  return async function solve({
+  const backend = async function solve({
     terms,
     conditions,
     variables,
@@ -164,6 +179,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
       Z3.ast_vector_inc_ref(c, vector);
       const symbols = new Map([...symbolNames.keys()].map((n, i) => [n, Z3.get_app_arg(c, Z3.to_app(c, Z3.ast_vector_get(c, vector, i)), 0)]));
       const status = String(await solver.check());
+      checkCancelled(options.signal);
       if (status !== 'sat') return {
         status: status === 'unsat' ? 'unsat' : 'unknown',
         reason: status === 'unsat' ? 'Contradictory constructor/arithmetic/Boolean/string constraints' : 'Z3 returned unknown (possibly timeout)'
@@ -202,10 +218,9 @@ export async function createSymbolicSolver(algebra, options = {}) {
           };
           const bindings = new Map([...symbols].map(([n, x]) => {
             const value = decode(Z3.model_eval(c, model, x, true), variables[n]);
-            if (termSort(value, {}, algebra, variables[n]) !== variables[n]) throw new Error('Independent witness sort check failed');
             return [n, value];
           }));
-          if (!conditions.every(c => evaluateGround(substitute(c, bindings)) === true)) throw new Error('Independent witness constraint check failed');
+          validateWitness({ terms, conditions, variables, witness }, bindings);
           return {
             status: 'sat',
             bindings
@@ -252,4 +267,5 @@ export async function createSymbolicSolver(algebra, options = {}) {
       solver.release();
     }
   };
+  return withSolverQueryCache(backend, validateWitness, options);
 }

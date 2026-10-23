@@ -1,0 +1,3753 @@
+{
+  "recordedAt": "2026-10-23T22:03:37.392Z",
+  "baselineCommit": "2060e9a066d1c1c2713fe7dcc5320f3e152c6173",
+  "dirty": true,
+  "sourceSha256": {
+    "src/satel/core/Admission.js": "517f5f6fb2145d1905e660a26fdd271279914b4b3a091d445ea175665f58e064",
+    "src/satel/core/BoundedOracleAdapter.js": "d457ec4fc7ad3e1cf5e83b10171d7aa73c0dff3e2ab56a290ad8ecd3776177ab",
+    "src/satel/core/BuiltinAlgebra.js": "7ea88be3c429fab927d8c761829a869691ccde34f5778776034604ce415bd40d",
+    "src/satel/core/Contracts.js": "eb85f2bc753f36bf76b385bed3103c11d757139170ebf74916fac9b543277f39",
+    "src/satel/core/DirectTransitionDriver.js": "a52932e470a97a4235fbb7cefb612af3a8ea90993aeaa7088eb642f30eb50c66",
+    "src/satel/core/ExecutableSequence.js": "efcf124ffd5088a64fd5db8b6543b69a1971bfba557173bf05d91d386ffd9227",
+    "src/satel/core/ExplicitSelection.js": "e039930d048443acbda1fa36efede9ce35caa9f972cc1aa0631287199db6fd6e",
+    "src/satel/core/GenericSubuniformity.js": "ae75f9d645a0c68b93b594b59242c8ef214f43afc82486e0e0d77944ca85eb66",
+    "src/satel/core/GroundTerms.js": "d62be4dc12390fbf37d083aee7fe8ae80fd734d06940e6ab4dc5f968e8abc069",
+    "src/satel/core/GuardLogic.js": "53519ce7d6b3163e193e15e1d11140dcc29e0b1017c421a0f5a760e2824838b8",
+    "src/satel/core/HmlCacheDiagnostics.js": "0c14b5c6ed01320034774b7bb9b2f6b18b2168d280bc30475a45ee1a7347b631",
+    "src/satel/core/HmlConstraints.js": "cfad41ba27981f2a0f98f0358443fc72e33e2baf98d5487313a632ae2fcfe247",
+    "src/satel/core/HmlEvaluator.js": "1e1eaec634f559335fd6e59e80a99b764fe7a18476e37810570678fbca3a00e2",
+    "src/satel/core/HmlExplanation.js": "4c39994277f1c0401769912589bef1c6ec92ec113b6e5564439b658b9ad4ecc2",
+    "src/satel/core/HmlFormula.js": "5c2d63fa53858ce4030d0e320c70b347db0e9ff203081f5be5416c9e2bdf89ac",
+    "src/satel/core/HmlRuleEffects.js": "adbe61faac645d13bf4628acf9b6db93f70fe3020507cfeadf04ce1404bbc433",
+    "src/satel/core/HmlTerms.js": "8562a4870897f3f44f175b3c6ecd3b6c2b79ed67385798f7c70ea4c6e292978b",
+    "src/satel/core/InitialMarking.js": "51529eca2900ccc475b4e56e8ff4bd8fa4f33a134c17cb64163bb8a49e0ae508",
+    "src/satel/core/IntentionNotation.js": "683f6b5ffe552c3e835e0be28ed9932624a6fd4036b726e6ccea6e18c08ad623",
+    "src/satel/core/IntentionPipeline.js": "b0c6f606dc524278726f9079de0e555b0ed0f78d576255c7cf4f75bf02a36e24",
+    "src/satel/core/IntentionSchema.js": "1726038112bb6a9156cf672f06262c43c4e2c718951334f709fab45f6a8f162a",
+    "src/satel/core/NegativeSelection.js": "95e6c2d03b8ca2767a6d31a5c5664a5d492aba55f2133a34e386cbcd3a4a12c3",
+    "src/satel/core/ObservationChecker.js": "5b6ffec82cb7ffd0cf8273e3be47f6c8d82ff5038bc519256ac22062d8b2977e",
+    "src/satel/core/Observations.js": "7806f9103ae20a3dcfe596f7412c0465ce798bdae57c17072446227923d1f278",
+    "src/satel/core/PartitionGenerator.js": "93fccc79c82af956b7929b9c12b2b54317d2b60f47f1f85fec4808034e13fcac",
+    "src/satel/core/PathConditionPartitioner.js": "4bc8347ab618d967bf9967bb0d41d9cb5fa11e4e83e1ef9c6e7932ed71f45391",
+    "src/satel/core/RefusalConstraints.js": "a48731ac299eeb30a6278b566d33cddbb19e920a8e8509dbdb5c69464184c33b",
+    "src/satel/core/Replay.js": "e73cfdcfa0be6eebfe92712368693a9c0213dfb820749b8dc1229a14a2a6e9b6",
+    "src/satel/core/SequenceRunner.js": "821aaa4264e208e15f501ac71dd40e5056791eaffafdd30beab582608ec6919d",
+    "src/satel/core/SolverQueryCache.js": "6e56622440c21966b27d965f1073fabc29a400ac24c9ca5cac26ffe7d6602d2e",
+    "src/satel/core/SymbolicIntention.js": "39171d1a5bf7b4fc9e9b0efd345ff76291068b27577bfefc456f2b13b8420ecb",
+    "src/satel/core/SymbolicSource.js": "2636e64692fd42c8b154c08c467fb5731efe6b94b8fa38e11d9921ca469473d9",
+    "src/satel/core/SymbolicSubuniformity.js": "a92f38646e20f76a30d9b0610fea71acf227350cfd0ff853dc1d2d23fb7d2a22",
+    "src/satel/core/SymbolicTerms.js": "58cfc15046ba0ebc22f307bab3b910d8f743c1bfe6b2e3409df46daddc68b2e8",
+    "src/satel/core/SymbolicZ3.js": "8366fcb253833c5913038e2b015a8ebb62d9bfb986561cb9c357ea0da20559fd",
+    "src/satel/core/TestCase.js": "1d3c32f364cf3acb9ec41df389dc34196abb5284b5363bc79c7a6169d0e9e716",
+    "src/satel/core/TestExecutor.js": "48cb1dbf4eda6e9541b045818b684dbbf39994cc01e8e41eedf5dc2e740bf416",
+    "src/satel/core/TestGenerator.js": "c4da34b06844b8a3569f3ecc6079362b663a9ce628d6c968886888c2650054d4",
+    "src/satel/core/ValidatedSubuniformity.js": "96a653810fe3e6a249d28e6e232aa94d410a94009ef9d223b381e2e4fb06a959",
+    "src/satel/core/VariableInstantiator.js": "e3ca27236007fa3539ddb3de7fa06112fa34f3415e7b5b4cc0cf17573969387b",
+    "src/satel/core/__tests__/all-fixes.test.js": "ac8e43da64d01e49174fb53321d296a4e69129dd9a8f568e71fc68d2db4017dd",
+    "src/satel/core/__tests__/path-subuniformity.test.js": "0e410dae9a62c3e4eefe91d84d31cf3614461c0e34708b2e418f37a8bcadbf41",
+    "src/satel/core/__tests__/priority-subuniformity.test.js": "d66db4cc66907bcb59aa1aa4ea5f99c58af2f2d216a7eb9260c49efeae796ee1",
+    "src/domain/diagnostics.js": "00fa91259d69b119a2b94997c7204de55e13ec19c49410feebf131fda484aeea",
+    "src/domain/snapshots.js": "41316b3d8fe5c5b122ce81e1e7fcfecc4a63f127aa008dc5715093930b1c4db2",
+    "src/domain/algebra/BuiltinAlgebra.js": "52d11e8ece3e65bccf2d31b813218758a26f0a9efa69a7c620e2b9d5e0f750e8",
+    "src/domain/algebra/GroundTerms.js": "dc4cc7467e4091c7f3f8719b89d0bb9c531d7b02ad9df16176cded5d8bcf93e9",
+    "src/domain/algebra/GuardLogic.js": "96f5a0417d43fc8b24a6e8c9be8a303c5afcbab23582d6c52ac54474aebee073",
+    "src/domain/algebra/Source.js": "9b8095af3c37dc2431c3740f3ab10008cf6a1c38d2f2f55de13ab8266fbed0dc",
+    "src/domain/algebra/SymbolicTerms.js": "0d7f90d22d9633086cef2b48ae0703843d1bf050c867dbc595e739fd80f5a65f",
+    "src/domain/algebra/TermGraph.js": "ac2e8d6dbdc7e0f7bf2d36963785c983eb59ba32b7e567f4a0d3b8532fd92226",
+    "src/domain/apn/MethodTerms.js": "cc0de0a9ddd7239ac67c96ae4dfd4ee9a40290f81da6ccf359b920f4850c050b",
+    "src/domain/apn/PublicMethods.js": "b683b89a466da3e1e94f1e845743a508f5a1dc8ce8261ccba5f726506f5147a2",
+    "src/domain/apn/SemanticNet.js": "1ba97eac03a084dc43c26c6bb5cec707d3396f29b9cc3007d35a0fa71786eafc",
+    "src/satel/examples/scale/models.js": "9aca1c5adff95db6fb8ca65ad3aaf1778a5dd41871a938252c2fdb432b379d46",
+    "src/satel/examples/inventory/editor.js": "53134792863ae658f888b534affa801a4eccb2ee203b9f5c1fe79feffb28cab3",
+    "src/satel/examples/inventory/models.js": "c31b29cdd49e68e9cbff1c510ac05ab6c2b8ea5a1471d6bb3f42f24100304453",
+    "tools/node/benchmarks/cache-cases.js": "b6219ed17a327d36bf39bc2a2109228ba5aa65b53d483d5207afe81a0bc16164",
+    "tools/node/benchmarks/export-inventory.js": "a503324e08260bcbcc6bebb83f0f50253018d6c95205e2647be30c811837c854",
+    "tools/node/benchmarks/export-models.js": "11902edf2014eae8a698a68cf5cd47cfb958d01100f1de95dfb22ad84e618b9b",
+    "tools/node/benchmarks/hml-cache-comparison.js": "f959f18377161b8d6971725e9609bf8d3ed05d19f895b64a62ed2ec29b83057c",
+    "tools/node/benchmarks/run-scale.js": "ca68b7765ee2db08d24561c3bf96f80cb88ac76801c9bda53fdbea5aed2f90ae",
+    "tools/node/benchmarks/scale-worker.js": "02643100f22c95520e06d43f444027d9b8963ead3d31336a37b694f15ab9fc44",
+    "tools/node/benchmarks/solver-cases.js": "628412a6222720733ec499b55e6a255d008684f922daabe4493d1f45a7617300"
+  },
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 9
+  },
+  "methodology": "One sequential child per configuration, repeated in-process trials after separately timed Z3 initialization and a trivial warm-up solver query. First trial has cold model caches; later trials reuse caches. SMT adapter time includes encoding, solving, extraction and independent checking. Peak RSS is process lifetime high-water including initialization, not incremental workload memory. Hard timeout kills the isolated child; completed trial records are retained. Unknown, partial and timeouts are not UNSAT or tests.",
+  "repeats": 5,
+  "hardTimeoutMs": 45000,
+  "results": [
+    {
+      "config": {
+        "id": "inventory-audit",
+        "family": "inventory",
+        "cycles": 2,
+        "rounds": 2,
+        "audit": true,
+        "mutations": true,
+        "solverCacheMode": "disabled",
+        "limits": {
+          "solverQueryCache": false
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 5.07,
+          "selectionMs": 315.09,
+          "admissionMs": 30.59,
+          "replayMs": 22.31,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 256.78,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 12,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 12,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "stock-leak",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "missing-cancel",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-held",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "lost-permit",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 243,
+          "peakRssMiB": 243
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 0.77,
+          "selectionMs": 136.5,
+          "admissionMs": 21.23,
+          "replayMs": 30.4,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 111.81,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 12,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 12,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 221.53,
+          "peakRssMiB": 253.26
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 0.69,
+          "selectionMs": 135.81,
+          "admissionMs": 22.45,
+          "replayMs": 21.06,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 105.47,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 12,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 12,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 235.16,
+          "peakRssMiB": 253.26
+        },
+        {
+          "trial": 3,
+          "status": "selected",
+          "buildMs": 0.91,
+          "selectionMs": 129.81,
+          "admissionMs": 21.54,
+          "replayMs": 19.81,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 105.43,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 12,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 12,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 238.16,
+          "peakRssMiB": 253.26
+        },
+        {
+          "trial": 4,
+          "status": "selected",
+          "buildMs": 0.67,
+          "selectionMs": 123,
+          "admissionMs": 20.08,
+          "replayMs": 19.27,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 100.82,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 12,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 12,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 239.53,
+          "peakRssMiB": 253.26
+        }
+      ],
+      "initializationMs": 301.93,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "solverQueryCache": false
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 1524
+    },
+    {
+      "config": {
+        "id": "inventory-audit",
+        "family": "inventory",
+        "cycles": 2,
+        "rounds": 2,
+        "audit": true,
+        "mutations": true,
+        "solverCacheMode": "enabled",
+        "limits": {
+          "solverQueryCache": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 4.57,
+          "selectionMs": 336.52,
+          "admissionMs": 31.72,
+          "replayMs": 21.87,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 280.69,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 12,
+              "backendCalls": 12,
+              "stores": 12,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 12,
+              "retainedCharacters": 28325,
+              "peakRetainedCharacters": 28325
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "stock-leak",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "missing-cancel",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-held",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "lost-permit",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 241.98,
+          "peakRssMiB": 241.98
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 0.75,
+          "selectionMs": 149.94,
+          "admissionMs": 25.06,
+          "replayMs": 30.73,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 123.24,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 12,
+              "backendCalls": 12,
+              "stores": 12,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 12,
+              "retainedCharacters": 28325,
+              "peakRetainedCharacters": 28325
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 224.03,
+          "peakRssMiB": 250.8
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 1.11,
+          "selectionMs": 137.33,
+          "admissionMs": 24.5,
+          "replayMs": 17.98,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 112.18,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 12,
+              "backendCalls": 12,
+              "stores": 12,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 12,
+              "retainedCharacters": 28325,
+              "peakRetainedCharacters": 28325
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 235.15,
+          "peakRssMiB": 250.8
+        },
+        {
+          "trial": 3,
+          "status": "selected",
+          "buildMs": 0.74,
+          "selectionMs": 136.26,
+          "admissionMs": 21.47,
+          "replayMs": 19.51,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 113.66,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 12,
+              "backendCalls": 12,
+              "stores": 12,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 12,
+              "retainedCharacters": 28325,
+              "peakRetainedCharacters": 28325
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 237.9,
+          "peakRssMiB": 250.8
+        },
+        {
+          "trial": 4,
+          "status": "selected",
+          "buildMs": 0.66,
+          "selectionMs": 130.39,
+          "admissionMs": 20.81,
+          "replayMs": 17.62,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 12,
+            "adapterMs": 107.37,
+            "statuses": {
+              "sat": 11,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 52,
+            "maxVariables": 4,
+            "maxTermNodes": 1095,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 12,
+              "hits": 0,
+              "misses": 12,
+              "backendCalls": 12,
+              "stores": 12,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 12,
+              "retainedCharacters": 28325,
+              "peakRetainedCharacters": 28325
+            }
+          },
+          "details": {
+            "places": 9,
+            "transitions": 6,
+            "arcs": 50,
+            "jsonBytes": 13680,
+            "sequencePairs": 10,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 190,
+            "prefixChecks": 4,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 474,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 52,
+                  "guardEvaluations": 14,
+                  "successorBuilds": 30,
+                  "ruleRequests": 30,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 30,
+                    "binding": 44,
+                    "expression": 297,
+                    "observation": 48,
+                    "effectReplay": 16,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 18,
+                  "expressionRequests": 94,
+                  "expressionCacheHits": 67,
+                  "ruleCacheHits": 16,
+                  "bindingCacheHits": 6,
+                  "bindingPrefixArcsReused": 18,
+                  "effectReplays": 16,
+                  "constraintSize": 1102,
+                  "expandedConstraintSize": 4505,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 239.28,
+          "peakRssMiB": 250.8
+        }
+      ],
+      "initializationMs": 302.55,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "solverQueryCache": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 1573
+    },
+    {
+      "config": {
+        "id": "inventory-20",
+        "family": "inventory",
+        "sites": 4,
+        "cycles": 4,
+        "rounds": 2,
+        "audit": true,
+        "mutations": true,
+        "solverCacheMode": "enabled",
+        "limits": {
+          "solverQueryCache": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 5.11,
+          "selectionMs": 501.21,
+          "admissionMs": 120.51,
+          "replayMs": 72.87,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 360.96,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 48,
+              "misses": 22,
+              "backendCalls": 22,
+              "stores": 22,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 22,
+              "retainedCharacters": 43599,
+              "peakRetainedCharacters": 43599
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "stock-leak",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "missing-cancel",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-held",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "lost-permit",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 274.68,
+          "peakRssMiB": 274.68
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 0.91,
+          "selectionMs": 297.39,
+          "admissionMs": 63.81,
+          "replayMs": 77.02,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 208.31,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 48,
+              "misses": 22,
+              "backendCalls": 22,
+              "stores": 22,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 22,
+              "retainedCharacters": 43599,
+              "peakRetainedCharacters": 43599
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 284.55,
+          "peakRssMiB": 284.55
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 1.13,
+          "selectionMs": 292.52,
+          "admissionMs": 84.47,
+          "replayMs": 78.4,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 199.15,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 48,
+              "misses": 22,
+              "backendCalls": 22,
+              "stores": 22,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 22,
+              "retainedCharacters": 43599,
+              "peakRetainedCharacters": 43599
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 350.93,
+          "peakRssMiB": 350.93
+        },
+        {
+          "trial": 3,
+          "status": "selected",
+          "buildMs": 1.31,
+          "selectionMs": 293.85,
+          "admissionMs": 70.35,
+          "replayMs": 69.59,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 206.25,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 48,
+              "misses": 22,
+              "backendCalls": 22,
+              "stores": 22,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 22,
+              "retainedCharacters": 43599,
+              "peakRetainedCharacters": 43599
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 352.05,
+          "peakRssMiB": 352.05
+        },
+        {
+          "trial": 4,
+          "status": "selected",
+          "buildMs": 0.97,
+          "selectionMs": 317.49,
+          "admissionMs": 68.24,
+          "replayMs": 63.96,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 206.88,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 48,
+              "misses": 22,
+              "backendCalls": 22,
+              "stores": 22,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 22,
+              "retainedCharacters": 43599,
+              "peakRetainedCharacters": 43599
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 354.8,
+          "peakRssMiB": 354.8
+        }
+      ],
+      "initializationMs": 304.98,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "solverQueryCache": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 3010
+    },
+    {
+      "config": {
+        "id": "inventory-20",
+        "family": "inventory",
+        "sites": 4,
+        "cycles": 4,
+        "rounds": 2,
+        "audit": true,
+        "mutations": true,
+        "solverCacheMode": "disabled",
+        "limits": {
+          "solverQueryCache": false
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 5.93,
+          "selectionMs": 971.95,
+          "admissionMs": 110.36,
+          "replayMs": 77.18,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 828.54,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 70,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 70,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "stock-leak",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "missing-cancel",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-held",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "lost-permit",
+              "pass": 0,
+              "fail": 2,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                },
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 280.86,
+          "peakRssMiB": 280.86
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 1.27,
+          "selectionMs": 683.49,
+          "admissionMs": 65.34,
+          "replayMs": 66.59,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 581.43,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 70,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 70,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 290.86,
+          "peakRssMiB": 290.86
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 1.03,
+          "selectionMs": 692.69,
+          "admissionMs": 76.59,
+          "replayMs": 62.16,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 589.73,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 70,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 70,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 360.7,
+          "peakRssMiB": 360.7
+        },
+        {
+          "trial": 3,
+          "status": "selected",
+          "buildMs": 1.1,
+          "selectionMs": 656.37,
+          "admissionMs": 65.14,
+          "replayMs": 65.12,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 568.91,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 70,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 70,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 367.82,
+          "peakRssMiB": 367.82
+        },
+        {
+          "trial": 4,
+          "status": "selected",
+          "buildMs": 0.94,
+          "selectionMs": 641.21,
+          "admissionMs": 61.23,
+          "replayMs": 62.71,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 70,
+            "adapterMs": 560.3,
+            "statuses": {
+              "sat": 69,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 2,
+            "maxConditions": 99,
+            "maxVariables": 4,
+            "maxTermNodes": 983,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 70,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 70,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 70,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "places": 27,
+            "transitions": 24,
+            "arcs": 200,
+            "jsonBytes": 47071,
+            "sequencePairs": 20,
+            "propertyModalDepth": 8,
+            "classes": 2,
+            "visited": 1854,
+            "prefixChecks": 62,
+            "pruned": 144,
+            "selected": [
+              {
+                "witness": [
+                  1
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              },
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 832,
+                  "nodes": 37,
+                  "cacheHits": 0,
+                  "outcomes": 30,
+                  "bindingVisits": 213,
+                  "guardEvaluations": 43,
+                  "successorBuilds": 30,
+                  "ruleRequests": 120,
+                  "workByPhase": {
+                    "formula": 37,
+                    "ruleLookup": 120,
+                    "binding": 173,
+                    "expression": 375,
+                    "observation": 48,
+                    "effectReplay": 77,
+                    "other": 2
+                  },
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "preparedExpressions": 30,
+                  "expressionRequests": 107,
+                  "expressionCacheHits": 60,
+                  "ruleCacheHits": 77,
+                  "bindingCacheHits": 3,
+                  "bindingPrefixArcsReused": 10,
+                  "effectReplays": 77,
+                  "constraintSize": 925,
+                  "expandedConstraintSize": 3689,
+                  "sharedTermNodes": 26
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 2,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 374.57,
+          "peakRssMiB": 374.57
+        }
+      ],
+      "initializationMs": 309.71,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "solverQueryCache": false
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 4910
+    },
+    {
+      "config": {
+        "id": "invoice-8",
+        "family": "invoice",
+        "size": 8,
+        "nonlinear": false,
+        "solverCacheMode": "disabled",
+        "limits": {
+          "solverQueryCache": false
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "sat",
+          "buildMs": 2.86,
+          "selectionMs": 228.53,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 223.4,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 10,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 10,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 223.25,
+          "peakRssMiB": 223.25
+        },
+        {
+          "trial": 1,
+          "status": "sat",
+          "buildMs": 0.43,
+          "selectionMs": 115.4,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 113.29,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 10,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 10,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 227.88,
+          "peakRssMiB": 227.88
+        },
+        {
+          "trial": 2,
+          "status": "sat",
+          "buildMs": 0.32,
+          "selectionMs": 110.21,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 108.14,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 10,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 10,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 228.11,
+          "peakRssMiB": 228.5
+        },
+        {
+          "trial": 3,
+          "status": "sat",
+          "buildMs": 0.28,
+          "selectionMs": 113.81,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 111.1,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 10,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 10,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 231.65,
+          "peakRssMiB": 232.11
+        },
+        {
+          "trial": 4,
+          "status": "sat",
+          "buildMs": 0.3,
+          "selectionMs": 110.12,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 108.42,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": false,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 0,
+              "backendCalls": 10,
+              "stores": 0,
+              "evictions": 0,
+              "bypasses": 10,
+              "validationFailures": 0,
+              "entries": 0,
+              "retainedCharacters": 0,
+              "peakRetainedCharacters": 0
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 232.53,
+          "peakRssMiB": 232.53
+        }
+      ],
+      "initializationMs": 290.89,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "solverQueryCache": false
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 1078
+    },
+    {
+      "config": {
+        "id": "invoice-8",
+        "family": "invoice",
+        "size": 8,
+        "nonlinear": false,
+        "solverCacheMode": "enabled",
+        "limits": {
+          "solverQueryCache": true
+        }
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "sat",
+          "buildMs": 2.64,
+          "selectionMs": 236.3,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 231.24,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 10,
+              "backendCalls": 10,
+              "stores": 10,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 10,
+              "retainedCharacters": 12314,
+              "peakRetainedCharacters": 12314
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 221.31,
+          "peakRssMiB": 221.43
+        },
+        {
+          "trial": 1,
+          "status": "sat",
+          "buildMs": 0.45,
+          "selectionMs": 122.07,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 119.78,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 10,
+              "backendCalls": 10,
+              "stores": 10,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 10,
+              "retainedCharacters": 12314,
+              "peakRetainedCharacters": 12314
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 222.37,
+          "peakRssMiB": 225.07
+        },
+        {
+          "trial": 2,
+          "status": "sat",
+          "buildMs": 0.36,
+          "selectionMs": 116.26,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 114.23,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 10,
+              "backendCalls": 10,
+              "stores": 10,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 10,
+              "retainedCharacters": 12314,
+              "peakRetainedCharacters": 12314
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 223.02,
+          "peakRssMiB": 225.07
+        },
+        {
+          "trial": 3,
+          "status": "sat",
+          "buildMs": 0.26,
+          "selectionMs": 122.41,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 119.58,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 10,
+              "backendCalls": 10,
+              "stores": 10,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 10,
+              "retainedCharacters": 12314,
+              "peakRetainedCharacters": 12314
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 228.92,
+          "peakRssMiB": 228.92
+        },
+        {
+          "trial": 4,
+          "status": "sat",
+          "buildMs": 0.25,
+          "selectionMs": 115.93,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "distinctQueries": 0,
+            "duplicateQueries": 0,
+            "queryKeyMs": 0,
+            "calls": 10,
+            "adapterMs": 113.84,
+            "statuses": {
+              "sat": 10
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 17,
+            "maxVariables": 35,
+            "maxTermNodes": 141,
+            "cache": {
+              "enabled": true,
+              "maxEntries": 128,
+              "maxCharacters": 1000000,
+              "requests": 10,
+              "hits": 0,
+              "misses": 10,
+              "backendCalls": 10,
+              "stores": 10,
+              "evictions": 0,
+              "bypasses": 0,
+              "validationFailures": 0,
+              "entries": 10,
+              "retainedCharacters": 12314,
+              "peakRetainedCharacters": 12314
+            }
+          },
+          "details": {
+            "unresolved": []
+          },
+          "mutants": [],
+          "rssMiB": 229.17,
+          "peakRssMiB": 229.17
+        }
+      ],
+      "initializationMs": 309.91,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000,
+        "solverQueryCache": true
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 1129
+    }
+  ]
+}

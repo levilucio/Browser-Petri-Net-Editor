@@ -16,6 +16,11 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 28: bounded solver-query reuse](increment-28-solver-query-reuse.md)
+avoids repeated exact queries while revalidating cached witnesses. The 20-pair
+inventory model avoids 48 of 70 adapter calls; paired measurements also document
+no-reuse overhead and the remaining deep-history limit.
+
 [Increment 27: cache comparison and inventory reservations](increment-27-cache-comparison.md)
 adds cache-mode correctness checks and profiling, plus GUI examples with 5–20 pairs
 and matching mutants. The measurements identify repeated solver queries in longer
