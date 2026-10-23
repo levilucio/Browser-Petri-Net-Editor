@@ -1,3 +1,4 @@
+import { createBranchDisjointness } from './BranchDisjointness.js';
 import { constructorPatternsDisjoint } from './ConstructorDisjointness.js';
 import { checkCancelled, diagnostic } from '../../domain/diagnostics.js';
 import { freeze } from '../../domain/snapshots.js';
@@ -81,6 +82,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     feasibilityMs: 0, overlapSolverMs: 0, equationExpansionMs: 0,
     overlapPairs: 0, constructorDisjointPairs: 0, constructorCheckMs: 0,
     maxOverlapVariables: 0, overlapVariableEntries: 0,
+    branchProofQueries: 0, branchProofMs: 0, branchProofCacheHits: 0, branchDisjointPairs: 0, branchProofStatuses: {},
     maxRulePath: 0, maxUnfoldingDepth: 0, infeasibleBranches: 0, operations: {}
   } : null;
   const searchStarted = profile ? performance.now() : 0;
@@ -91,6 +93,9 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     finally { profile[phase === 'overlap' ? 'overlapSolverMs' : 'feasibilityMs'] += performance.now() - started; }
   };
   const deadline = Date.now() + (options.maxTimeMs ?? 20000);
+  const branchProofs = !witnessOnly && options.branchDisjointness !== false ? createBranchDisjointness({
+    solve, deadline, signal: options.signal, profile, maxProofs: options.maxBranchProofs ?? 256
+  }) : null;
   const sorts = {
     ...variables
   };
@@ -244,6 +249,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
             var: n
           }, branch.bindings), feasibility.bindings))]))
         });
+        branchProofs?.record(domains[domains.length - 1], branch);
       } catch (e) {
         unresolved.push({
           ...record,
@@ -265,6 +271,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     }
     const expansionStarted = profile ? performance.now() : 0;
     if (profile) profile.operations[found.term.call] = (profile.operations[found.term.call] || 0) + 1;
+    const children = [];
     let matched = false;
     for (const source of algebra.operations[found.term.call].rules) {
       expanded++;
@@ -295,7 +302,8 @@ async function narrow(goal, options = {}, witnessOnly = false) {
       matched = true;
       if (profile) profile.equationMatches++;
       const replaced = replace(body, found.path, rule.result);
-      pending.push({
+      children.push({
+        lineage: branch.lineage,
         bindings,
         result: replaced.result,
         conditions: [...replaced.conditions, ...(rule.conditions || []), ...extra],
@@ -303,6 +311,14 @@ async function narrow(goal, options = {}, witnessOnly = false) {
         remaining: branch.remaining - 1
       });
     }
+    branchProofs?.split(branch, children, child => {
+      const patterns = substitute(args, child.bindings);
+      if (findCall(patterns, algebra) || undefinedReason(patterns)) return null;
+      const conditions = substitute(child.conditions, child.bindings)
+        .filter(c => !findCall(c, algebra) && !undefinedReason(c));
+      return { patterns, conditions, variables: Object.fromEntries([...variablesIn([patterns, conditions])].map(n => [n, sorts[n]])) };
+    });
+    pending.push(...children);
     if (profile) profile.equationExpansionMs += performance.now() - expansionStarted;
     if (!matched) unresolved.push({
       ...record,
@@ -325,6 +341,10 @@ async function narrow(goal, options = {}, witnessOnly = false) {
         if (profile) profile.constructorDisjointPairs++;
         continue;
       }
+    }
+    if (branchProofs && await branchProofs.disjoint(a, original)) {
+      if (profile) profile.branchDisjointPairs++;
+      continue;
     }
     const rename = new Map([...variablesIn([original.patterns, original.conditions])].map(n => [n, {
       var: `@${++serial}.overlap`
@@ -370,7 +390,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
   if (profile) {
     profile.overlapPhaseMs = performance.now() - overlapStarted;
     profile.searchMs = performance.now() - searchStarted;
-    profile.nonSolverMs = Math.max(0, profile.searchMs - profile.feasibilityMs - profile.overlapSolverMs);
+    profile.nonSolverMs = Math.max(0, profile.searchMs - profile.feasibilityMs - profile.overlapSolverMs - profile.branchProofMs);
     profile.expandedBranches = expanded;
   }
   domains.reverse(); // Preserve equation declaration order for review.

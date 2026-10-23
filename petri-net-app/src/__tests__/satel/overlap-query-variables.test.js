@@ -11,7 +11,7 @@ async function compare(goal) {
   for (const enabled of [false, true]) {
     const backend = await createSymbolicSolver(goal.algebra), queries = [];
     const result = await deriveGenericSubdomains(goal, {
-      overlapQueryVariables: enabled, profileUnfolding: true,
+      overlapQueryVariables: enabled, profileUnfolding: true, branchDisjointness: false,
       solve: query => { queries.push(JSON.parse(JSON.stringify(query))); return backend(query); }
     });
     const overlaps = queries.filter(q => Array.isArray(q.terms[1]));

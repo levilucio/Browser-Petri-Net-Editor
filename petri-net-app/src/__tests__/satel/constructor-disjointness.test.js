@@ -45,8 +45,8 @@ test.each(['membership', 'lookup', 'repeated'])('enabled/disabled checks preserv
   const goal = recursiveDecomposition({ kind, depth: kind === 'repeated' ? 8 : 3 });
   // Replay the same solver answers to compare reports without model-choice noise.
   const backend = await createSymbolicSolver(goal.algebra);
-  const baseline = await deriveGenericSubdomains(goal, { solve: backend, profileUnfolding: true, constructorDisjointness: false });
-  const optimized = await deriveGenericSubdomains(goal, { solve: backend, profileUnfolding: true });
+  const baseline = await deriveGenericSubdomains(goal, { solve: backend, profileUnfolding: true, branchDisjointness: false, constructorDisjointness: false });
+  const optimized = await deriveGenericSubdomains(goal, { solve: backend, profileUnfolding: true, branchDisjointness: false });
   expect(logical(optimized)).toEqual(logical(baseline));
   const p = optimized.unfoldingProfile;
   expect(p.constructorDisjointPairs).toBeGreaterThan(0);
@@ -59,13 +59,13 @@ test('overlapping equations and arithmetic patterns still require the solver', a
 rule one(n: Int): f(n) = true if n >= 0
 rule two(n: Int): f(n) = false if n >= 1`, operation: 'f', variablesText: 'x: Int', argsText: 'x + 1', maxDepth: 2
   } }).goal;
-  const r = await deriveGenericSubdomains(goal, { profileUnfolding: true });
+  const r = await deriveGenericSubdomains(goal, { profileUnfolding: true, branchDisjointness: false });
   expect(r.overlaps).toHaveLength(1);
   expect(r.overlaps[0].status).toBe('overlap');
   expect(r.unfoldingProfile.constructorDisjointPairs).toBe(0);
   expect(r.unfoldingProfile.overlapQueries).toBe(1);
   const backend = await createSymbolicSolver(goal.algebra);
-  const unknown = await deriveGenericSubdomains(goal, { profileUnfolding: true,
+  const unknown = await deriveGenericSubdomains(goal, { profileUnfolding: true, branchDisjointness: false,
     solve: query => Array.isArray(query.terms[1]) ? { status: 'unknown', reason: 'overlap control' } : backend(query)
   });
   expect(unknown.overlaps[0]).toMatchObject({ status: 'unknown', reason: 'overlap control' });

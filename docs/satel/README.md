@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 32: reusable equation-branch disjointness](increment-32-branch-disjointness.md)
+proves incompatible ancestor input regions once and reuses the result across
+descendant classes, with independent variable scopes and leaf-SMT fallback.
+
 [Increment 31: local overlap-query variable metadata](increment-31-overlap-query-variables.md)
 keeps fresh variables local to each class pair and removes irrelevant declarations
 from overlap-query metadata, with a baseline switch and differential measurements.
