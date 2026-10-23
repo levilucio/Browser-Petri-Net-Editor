@@ -80,6 +80,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     booleanBranches: 0, feasibilityQueries: 0, overlapQueries: 0,
     feasibilityMs: 0, overlapSolverMs: 0, equationExpansionMs: 0,
     overlapPairs: 0, constructorDisjointPairs: 0, constructorCheckMs: 0,
+    maxOverlapVariables: 0, overlapVariableEntries: 0,
     maxRulePath: 0, maxUnfoldingDepth: 0, infeasibleBranches: 0, operations: {}
   } : null;
   const searchStarted = profile ? performance.now() : 0;
@@ -310,6 +311,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     });
   }
   const overlapStarted = profile ? performance.now() : 0;
+  let overlapVariableCount = profile ? Object.keys(sorts).length : 0;
   // Domain intersections are checked independently of output values and of APN execution.
   for (let i = 0; !witnessOnly && i < domains.length; i++) for (let j = i + 1; j < domains.length; j++) {
     const a = domains[i],
@@ -327,20 +329,35 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     const rename = new Map([...variablesIn([original.patterns, original.conditions])].map(n => [n, {
       var: `@${++serial}.overlap`
     }]));
-    for (const [n, v] of rename) sorts[v.var] = sorts[n];
+    // Overlap-local names must not accumulate in unrelated pair queries.
+    const localSorts = new Map([...rename].map(([n, v]) => [v.var, sorts[n]]));
+    if (options.overlapQueryVariables === false) {
+      for (const [n, sort] of localSorts) {
+        if (profile && !Object.hasOwn(sorts, n)) overlapVariableCount++;
+        sorts[n] = sort;
+      }
+    }
     const b = substitute(original, rename);
     const conditions = [...a.conditions, ...b.conditions, ...a.patterns.map((p, k) => ({
       op: '==',
       left: p,
       right: b.patterns[k]
     }))];
+    const queryVariables = options.overlapQueryVariables === false ? sorts :
+      Object.fromEntries([...variablesIn([a.patterns, b.patterns, conditions])]
+        .map(n => [n, localSorts.has(n) ? localSorts.get(n) : sorts[n]]));
+    if (profile) {
+      const count = options.overlapQueryVariables === false ? overlapVariableCount : Object.keys(queryVariables).length;
+      profile.maxOverlapVariables = Math.max(profile.maxOverlapVariables, count);
+      profile.overlapVariableEntries += count;
+    }
     const check = Date.now() >= deadline ? {
       status: 'unknown',
       reason: 'Total derivation time budget exhausted'
     } : await (profile ? query => measuredSolve(query, 'overlap') : solve)({
       terms: [a.patterns, b.patterns],
       conditions,
-      variables: sorts,
+      variables: queryVariables,
       witness: false
     });
     if (check.status !== 'unsat') overlaps.push({

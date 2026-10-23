@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 31: local overlap-query variable metadata](increment-31-overlap-query-variables.md)
+keeps fresh variables local to each class pair and removes irrelevant declarations
+from overlap-query metadata, with a baseline switch and differential measurements.
+
 [Increment 30: constructor disjointness before SMT](increment-30-constructor-disjointness.md)
 adds a conservative free-constructor clash proof before class-overlap solver calls,
 with a baseline switch, differential tests and recursive/APN benchmark comparisons.
