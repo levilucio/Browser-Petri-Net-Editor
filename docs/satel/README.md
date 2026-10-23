@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 30: constructor disjointness before SMT](increment-30-constructor-disjointness.md)
+adds a conservative free-constructor clash proof before class-overlap solver calls,
+with a baseline switch, differential tests and recursive/APN benchmark comparisons.
+
 [Increment 29: recursive ADT unfolding measurements](increment-29-recursive-unfolding.md)
 separates equation expansion, feasibility queries and class-overlap checks. New
 list-membership/tree-lookup examples expose unresolved frontiers and the cost of

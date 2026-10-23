@@ -1,3 +1,4 @@
+import { constructorPatternsDisjoint } from './ConstructorDisjointness.js';
 import { checkCancelled, diagnostic } from '../../domain/diagnostics.js';
 import { freeze } from '../../domain/snapshots.js';
 import { addBuiltins } from './BuiltinAlgebra.js';
@@ -78,6 +79,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     visited: 0, peakPending: 0, equationAttempts: 0, equationMatches: 0,
     booleanBranches: 0, feasibilityQueries: 0, overlapQueries: 0,
     feasibilityMs: 0, overlapSolverMs: 0, equationExpansionMs: 0,
+    overlapPairs: 0, constructorDisjointPairs: 0, constructorCheckMs: 0,
     maxRulePath: 0, maxUnfoldingDepth: 0, infeasibleBranches: 0, operations: {}
   } : null;
   const searchStarted = profile ? performance.now() : 0;
@@ -312,6 +314,16 @@ async function narrow(goal, options = {}, witnessOnly = false) {
   for (let i = 0; !witnessOnly && i < domains.length; i++) for (let j = i + 1; j < domains.length; j++) {
     const a = domains[i],
       original = domains[j];
+    if (profile) profile.overlapPairs++;
+    if (options.constructorDisjointness !== false && Date.now() < deadline) {
+      const started = profile ? performance.now() : 0;
+      const disjoint = constructorPatternsDisjoint(a.patterns, original.patterns, algebra);
+      if (profile) profile.constructorCheckMs += performance.now() - started;
+      if (disjoint) {
+        if (profile) profile.constructorDisjointPairs++;
+        continue;
+      }
+    }
     const rename = new Map([...variablesIn([original.patterns, original.conditions])].map(n => [n, {
       var: `@${++serial}.overlap`
     }]));

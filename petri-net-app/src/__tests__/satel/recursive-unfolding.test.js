@@ -33,7 +33,7 @@ test('membership classes agree with finite independent membership and retain the
   expect(report.domains).toHaveLength(6);
   expect(report.unresolved).toHaveLength(1);
   expect(report.unresolved[0].resultPattern.call).toBe('member');
-  expect(report.unfoldingProfile).toMatchObject({ visited: 10, equationAttempts: 9, equationMatches: 9, feasibilityQueries: 10, overlapQueries: 15 });
+  expect(report.unfoldingProfile).toMatchObject({ visited: 10, equationAttempts: 9, equationMatches: 9, feasibilityQueries: 10, overlapPairs: 15 });
   expect(JSON.stringify(goal)).toBe(before);
 });
 
