@@ -14,3 +14,10 @@ Open a reference using the app’s Load action, then SATEL → Intentions / Gene
 | [workers-audit-stress](workers-audit-stress-reference.pnml) | 5 / 8 | [missing-worker](workers-audit-stress-missing-worker.pnml), [wrong-receipt](workers-audit-stress-wrong-receipt.pnml) |
 
 The stock-leak mutant is an expected survivor of the current bounded public observations; this exposes a coverage gap. Custom invoice/List/Tree ADT analysis workloads are defined in `tools/node/benchmarks/solver-cases.js`, separately from these executable built-in-sort APNs.
+
+## Inventory reservations
+
+[Inventory examples and mutants](inventory/README.md) provide 5-, 10- and 20-pair
+intentions with branching recovery requirements: three references and twelve mutants.
+Their PNML files include the intentions. Regenerate them from `petri-net-app` with
+`node tools/node/benchmarks/export-inventory.js`.

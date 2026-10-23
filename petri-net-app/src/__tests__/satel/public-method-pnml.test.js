@@ -67,7 +67,7 @@ test.each(exerciseExamples)('$filename: exercise PNML preserves initial state, m
 
 
 test.each(inventoryExamples)('$filename: saved inventory PNML matches the GUI example', async entry => {
-  const file = resolve(__dirname, '../../satel/examples/inventory', `${entry.filename}.pnml`);
+  const file = resolve(__dirname, '../../../../docs/satel/performance/models/inventory', `${entry.filename}.pnml`);
   const loaded = await importFromPNML(readFileSync(file, 'utf8'));
   const expected = await importFromPNML(await exportToPNML(createInventoryExample(entry.filename)));
   expect(semanticFingerprint(loaded)).toBe(semanticFingerprint(expected));

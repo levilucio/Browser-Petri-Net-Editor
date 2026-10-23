@@ -10,12 +10,19 @@ correctness checks, and an inventory/reservation example family. It does **not**
 introduce another result cache, change default limits, or remove existing caches
 from normal GUI execution.
 
-All new example sources and 15 PNML files are in
+The JavaScript example sources are in
 [`petri-net-app/src/satel/examples/inventory`](../../petri-net-app/src/satel/examples/inventory/README.md).
-This maps to Levi's requested Windows folder beneath
-`C:\Users\levil\cursor\Browser-Petri-Net-Editor\petri-net-app\src\satel\examples`.
-There are three references (5, 10 and 20 pairs) and four mutants per reference.
-They are also available directly in the GUI's **Examples** search.
+The 15 loadable PNML files are in
+[`docs/satel/performance/models/inventory`](performance/models/inventory/README.md),
+alongside the earlier scalability models. There are three references (5, 10 and
+20 pairs) and four mutants per reference. They are also available directly in the
+GUI's **Examples** search.
+
+The PNML files were initially stored beside their generators at the user's request.
+Following a repository layout review, they were moved to the existing model-export
+area. The exporter and import checks use the new path; model contents and GUI IDs
+are unchanged. On Windows, use
+`C:\Users\levil\cursor\Browser-Petri-Net-Editor\docs\satel\performance\models\inventory`.
 
 The reference starts with stock, permit tokens and idle warehouses. A five-pair
 cycle reserves `q`, inspects the reservation, cancels, observes restored stock and
@@ -212,3 +219,6 @@ the interface. The controls and profiler are for internal experiments only.
 
 Verification: the full SATEL suite passed **491 tests in 46 suites** (37.370 s).
 The production build passed in **5.71 s**, with the existing large-chunk warning.
+
+After relocating the PNML exports, regeneration preserved all 15 files byte for
+byte and the 52 PNML/import and inventory GUI tests passed (2.552 s).

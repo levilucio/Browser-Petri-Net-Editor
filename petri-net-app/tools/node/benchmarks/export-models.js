@@ -38,5 +38,6 @@ for (const [id] of entries) {
   guide.push(`| [${id}](${reference.filename}) | ${reference.places} / ${reference.transitions} | ${mutants.map(r => `[${r.mutant}](${r.filename})`).join(', ')} |`);
 }
 guide.push('', 'The stock-leak mutant is an expected survivor of the current bounded public observations; this exposes a coverage gap. Custom invoice/List/Tree ADT analysis workloads are defined in `tools/node/benchmarks/solver-cases.js`, separately from these executable built-in-sort APNs.', '');
+guide.push('## Inventory reservations', '', '[Inventory examples and mutants](inventory/README.md) provide 5-, 10- and 20-pair intentions with branching recovery requirements: three references and twelve mutants.', 'Their PNML files include the intentions. Regenerate them from `petri-net-app` with `node tools/node/benchmarks/export-inventory.js`.', '');
 writeFileSync(resolve(directory, 'README.md'), guide.join('\n'));
 console.log(`Exported ${index.length} loadable PNML models to ${directory}`); dom.window.close();
