@@ -1,3 +1,4 @@
+import { createOwnedSolver, runOwnedQuery } from '../../utils/z3/owned-solver.js';
 import { createSymbolicPreamble } from './SymbolicPreamble.js';
 import { refutesNumericPreference } from './NumericPreference.js';
 import { createSolverProfile } from './SolverProfile.js';
@@ -31,21 +32,18 @@ function decodeString(text) {
   }
   return out;
 }
-/** Shared Z3 context, using SMT-LIB for strings absent from this JS wrapper's high-level API. */
+/** SMT-LIB adapter. Projected queries own a context to isolate solver history. */
 export async function createSymbolicSolver(algebra, options = {}) {
   // One adapter owns one fixed semantic context. Caller mutation must not change
   // either the generated datatype preamble or a previously solved query's meaning.
   algebra = freeze(copy(algebra));
   options = { ...options, ...(typeof options.solverQueryCache === 'object' && options.solverQueryCache ? { solverQueryCache: { ...options.solverQueryCache } } : {}) };
+  const contextMode = options.solverContext ?? (options.smtPreambleProjection === true ? 'query' : 'shared');
+  if (!['shared', 'query'].includes(contextMode)) throw new Error('Unknown SATEL solver context mode');
   checkCancelled(options.signal);
-  const {
-    ctx,
-    z3: {
-      Z3
-    }
-  } = await getContext();
-  const c = ctx.ptr;
-  const prefix = `satel${++serial}_`;
+  const shared = await getContext();
+  const { Z3 } = shared.z3;
+  const prefix = contextMode === 'query' ? 'satel_' : `satel${++serial}_`;
   const preambles = createSymbolicPreamble(algebra, prefix);
   const { sort, nameOf, valid, runtimeValid } = preambles;
   const validateWitness = ({ terms, conditions, variables }, bindings) => {
@@ -57,8 +55,8 @@ export async function createSymbolicSolver(algebra, options = {}) {
     if (!conditions.every(condition => evaluateGround(substitute(condition, bindings)) === true)) throw new Error('Independent witness constraint check failed');
   };
   const profiler = options.profileSolver ? createSolverProfile() : null;
-  let checkId = 0;
-  const backend = async function solve({
+  let sharedCheckId = 0;
+  const execute = async function solve({
     terms,
     conditions,
     variables,
@@ -66,12 +64,16 @@ export async function createSymbolicSolver(algebra, options = {}) {
   }) {
     checkCancelled(options.signal);
     const trace = profiler?.start(witness);
+    let c;
+    let checkId = contextMode === 'query' ? 0 : sharedCheckId;
     let solver;
     try {
-      solver = new ctx.Solver();
+      solver = contextMode === 'query' ? createOwnedSolver(Z3) : new shared.ctx.Solver();
+      c = contextMode === 'query' ? solver.context : shared.ctx.ptr;
       solver.set('timeout', options.timeoutMs ?? 3000);
     } catch (error) {
-      trace?.finish('error');
+      try { solver?.release(); }
+      finally { trace?.finish('error'); }
       throw error;
     }
     let vector = null, outcome = 'error';
@@ -172,6 +174,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
       // Preserve an AST handle for unconstrained variables as well, for model completion.
       const handles = [...symbolNames.values()].map(v => `(assert (= ${v} ${v}))`).join('\n');
       const assertions = [...symbolNames].map(([n, v]) => valid(variables[n], v)).concat(conditions.map(c => encode(c)));
+      if (contextMode !== 'query') sharedCheckId = checkId;
       const preamble = preambles.select(requiredSorts, runtimeRequired, options.smtPreambleProjection === true);
       trace?.preamble(preamble, preambles.full);
       const script = preamble.text + declarations + '\n' + graphDeclarations.join('\n') + '\n' + handles + '\n' + graphAssertions.join('\n') + '\n' + assertions.map(s => `(assert ${s})`).join('\n');
@@ -290,14 +293,15 @@ export async function createSymbolicSolver(algebra, options = {}) {
     } finally {
       trace?.phase('cleanup');
       try {
-        if (vector !== null) Z3.ast_vector_dec_ref(c, vector);
-        solver.release();
+        try { if (vector !== null) Z3.ast_vector_dec_ref(c, vector); }
+        finally { solver.release(); }
       } catch (error) {
         outcome = 'error';
         throw error;
       } finally { trace?.finish(outcome); }
     }
   };
+  const backend = contextMode === 'query' ? query => runOwnedQuery(Z3, () => execute(query)) : execute;
   const validateCached = profiler ? (query, bindings) => profiler.validateCached(validateWitness, query, bindings) : validateWitness;
   const solve = withSolverQueryCache(backend, validateCached, options);
   Object.defineProperty(solve, 'solverProfile', { get: () => profiler?.snapshot() });

@@ -24,17 +24,23 @@ if (args.includes('--child')) {
   const { solverHistoryExamples } = await import('../../../src/satel/examples/hml-selection/solver-history.js');
   const { getContext } = await import('../../../src/utils/z3/context.js');
   const smtPreambleProjection = value('--mode', 'disabled') === 'enabled';
-  const { ctx } = await getContext();
-  const Original = ctx.Solver;
+  const context = value('--context', 'shared'), reuseAdapter = args.includes('--reuse-adapter');
+  const order = value('--order', 'forward');
+  const { z3 } = await getContext();
   let script;
-  // Observe actual parser input without changing assertion or symbol order.
-  ctx.Solver = class extends Original {
-    fromString(text) { script = text; return super.fromString(text); }
+  const fromString = z3.Z3.solver_from_string;
+  z3.Z3.solver_from_string = (context, solver, text) => {
+    script = text; return fromString(context, solver, text);
   };
   const algebra = parseSymbolicSource(''), rows = [];
-  for (const { sort, net, formula } of solverHistoryExamples()) {
+  let reusable;
+  let examples = solverHistoryExamples();
+  if (order === 'reverse') examples.reverse();
+  if (order === 'list-only') examples = examples.filter(x => x.sort === 'List');
+  for (const { sort, net, formula } of examples) {
     const constraints = await buildHmlConstraints(formula, net, publicInterface(net), { x: { var: 'x' } }, { x: sort }, algebra);
-    const solve = await createSymbolicSolver(algebra, { smtPreambleProjection, profileSolver: true });
+    const solve = reusable || await createSymbolicSolver(algebra, { smtPreambleProjection, profileSolver: true, solverContext: context });
+    if (reuseAdapter) reusable = solve;
     const started = performance.now();
     const result = await solve({ terms: [{ var: 'x' }], conditions: constraints.conditions, variables: { x: sort } });
     const row = { sort, status: result.status, reason: result.reason, ms: performance.now() - started,
@@ -44,30 +50,41 @@ if (args.includes('--child')) {
       const replay = await evaluateFormula(instantiateFormula(formula, { x: row.witness }), net, publicInterface(net));
       if (replay.value !== true) throw new Error('Witness failed concrete HML replay');
       row.replay = 'pass';
-    } else if (result.status !== 'unknown' || !smtPreambleProjection) {
+    } else if (result.status !== 'unknown' || !smtPreambleProjection || context !== 'shared') {
       throw new Error(`Unexpected ${result.status} for ${sort} in ${smtPreambleProjection ? 'enabled' : 'disabled'} mode`);
     }
     rows.push(row);
   }
-  console.log(JSON.stringify({ mode: smtPreambleProjection ? 'enabled' : 'disabled', rows }));
+  console.log(JSON.stringify({ mode: smtPreambleProjection ? 'enabled' : 'disabled', context, reuseAdapter, order, rows }));
   process.exit(0);
 }
 const output = resolve(value('--out', '../docs/satel/performance/increment-36-solver-history.json'));
 const repeats = Number(value('--runs', 3));
+const cases = args.includes('--ownership') ? [
+  ...[false, true].flatMap(reuseAdapter => [
+    { mode: 'disabled', context: 'shared', reuseAdapter },
+    { mode: 'enabled', context: 'shared', reuseAdapter },
+    { mode: 'enabled', context: 'query', reuseAdapter }
+  ]),
+  { mode: 'disabled', context: 'query', reuseAdapter: true },
+  { mode: 'enabled', context: 'query', reuseAdapter: true, order: 'reverse' },
+  { mode: 'enabled', context: 'query', reuseAdapter: true, order: 'list-only' }
+] : [{ mode: 'disabled', context: 'shared' }, { mode: 'enabled', context: 'shared' }];
 const sourceFiles = readdirSync('src/satel', { recursive: true }).filter(p => p.endsWith('.js')).map(p => 'src/satel/' + p);
-sourceFiles.push('tools/node/benchmarks/run-solver-history.js');
+sourceFiles.push('tools/node/benchmarks/run-solver-history.js', 'src/utils/z3/context.js', 'src/utils/z3/owned-solver.js', 'src/utils/z3/async-runtime.js');
 const report = { recordedAt: new Date().toISOString(), repeats,
-  methodology: 'Fresh child process per mode/trial, no solver warm-up. String -> List -> Pair APN/HML queries share the ordinary Z3 context. Actual SMT scripts hashed; SAT witnesses independently validated and concretely replayed. Unknown is unresolved, never a failed property or UNSAT. Baseline must solve all three cases.',
+  methodology: 'Fresh child process per configuration/trial, no solver warm-up. Explicit shared/query context ownership, adapter reuse and query order. Actual SMT scripts hashed; SAT witnesses independently validated and concretely replayed. Unknown is permitted only for the legacy shared/projected reproduction. Baseline and query-owned modes must solve every case.',
   environment: { node: process.version, platform: platform(), arch: arch(), cpu: cpus()[0]?.model, logicalCpus: cpus().length },
   sourceHashes: Object.fromEntries(sourceFiles.map(p => [p, hash(readFileSync(p))])), results: [] };
 for (let trial = 0; trial < repeats; trial++) {
-  for (const mode of trial % 2 ? ['enabled', 'disabled'] : ['disabled', 'enabled']) {
-    const child = spawnSync(process.execPath, [process.argv[1], '--child', '--mode', mode], { encoding: 'utf8', timeout: 30000 });
+  for (const config of trial % 2 ? [...cases].reverse() : cases) {
+    const { mode, context, reuseAdapter, order = 'forward' } = config;
+    const child = spawnSync(process.execPath, [process.argv[1], '--child', '--mode', mode, '--context', context, '--order', order, ...(reuseAdapter ? ['--reuse-adapter'] : [])], { encoding: 'utf8', timeout: 30000 });
     if (child.status !== 0) throw new Error(`History trial failed: ${child.error || child.stderr}`);
     const result = JSON.parse(child.stdout.trim());
     report.results.push({ trial, ...result });
     mkdirSync(dirname(output), { recursive: true }); writeFileSync(output, JSON.stringify(report, null, 2) + '\n');
-    console.log(`${trial} ${mode}: ${result.rows.map(r => `${r.sort} ${r.status} ${r.ms.toFixed(1)}ms`).join(', ')}`);
+    console.log(`${trial} ${context}/${mode}/${reuseAdapter ? 'reused' : 'separate'}/${order}: ${result.rows.map(r => `${r.sort} ${r.status} ${r.ms.toFixed(1)}ms`).join(', ')}`);
   }
 }
 console.log(`Saved ${output}`);

@@ -1,8 +1,10 @@
+import { serializeZ3AsyncCalls } from './async-runtime.js';
 import { logger } from '../logger.js';
 
 let z3InitPromise = null;
 
 function createContext(z3) {
+  serializeZ3AsyncCalls(z3.em);
   const ctx = new z3.Context('main');
   // The JS wrapper finalizes AST handles on the main thread while check() runs
   // in a WASM worker. Protect decrements against that concurrent solver work.

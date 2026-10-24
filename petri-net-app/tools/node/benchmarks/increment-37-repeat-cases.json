@@ -1,0 +1,124 @@
+[
+  {
+    "id": "tree-9",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 9,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "tree-9",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 9,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "fulfilment-20",
+    "family": "fulfilment",
+    "sites": 4,
+    "cycles": 4,
+    "policies": 8,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "fulfilment-20",
+    "family": "fulfilment",
+    "sites": 4,
+    "cycles": 4,
+    "policies": 8,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  }
+]

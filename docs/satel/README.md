@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 37: owned Z3 query contexts](increment-37-owned-query-contexts.md)
+fixes the opt-in projected-query history regression with deterministic native
+cleanup, bounded context allocation, concurrency checks and paired measurements.
+
 [Increment 36: SMT declaration projection and a shared-context regression](increment-36-smt-preamble-projection.md)
 adds opt-in datatype dependency projection, paired measurements and a reproducible
 HML timeout regression that keeps this optimization disabled by default.
