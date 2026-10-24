@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "status": "proposed-for-author-review",
+  "date": "2026-10-24",
+  "implementation": {
+    "id": "B0",
+    "commit": "f6a92c0e2a9364755393b9af5c1de70549354758",
+    "tree": "dc093c314b2f641e4297ea1afc76a131c69c32c6",
+    "branch": "codex/satel-public-methods",
+    "defaultSolver": "shared-context/full-preamble",
+    "hashScope": "Selected provenance anchors, not the full dependency graph; the Git tree pins all tracked files."
+  },
+  "evidence": {
+    "auditCommit": "34b6078e5fea48ccb4a1271e8c96acf680684c50",
+    "auditInspectedImplementation": "1fa8b65e2ef8192affe81b79e49145bb18b826ea",
+    "historicalCampaignDate": "2026-10-19",
+    "newCampaignExecutedForThisDraft": false
+  },
+  "thesis": {
+    "record": "https://archive-ouverte.unige.ch/unige:2498",
+    "download": "https://access.archive-ouverte.unige.ch/access/metadata/b010d34e-ad2c-4a39-8986-c0ace50e5f29/download",
+    "retrievedOn": "2026-10-24",
+    "downloadSha256": "a7efb3a7c0c772153cf0227693a85ee771c803293b8ffc4ab5d45eeb375d3a58",
+    "downloadPages": 257,
+    "interpretationStatus": "Targeted anchor reading; satisfaction and reduction rules require author review"
+  },
+  "sourceSha256": {
+    "petri-net-app/package-lock.json": "f116c243795075e57b055df32c6176f6d85e6827777732943d37570f5d7b9c70",
+    "petri-net-app/src/domain/apn/PublicMethods.js": "b683b89a466da3e1e94f1e845743a508f5a1dc8ce8261ccba5f726506f5147a2",
+    "petri-net-app/src/domain/apn/MethodTerms.js": "cc0de0a9ddd7239ac67c96ae4dfd4ee9a40290f81da6ccf359b920f4850c050b",
+    "petri-net-app/src/utils/builtin-values.js": "0a13e0ac7251d43961703d26e0a3268163f2fe754355310e8994bab9987da7a7",
+    "petri-net-app/src/satel/core/IntentionPipeline.js": "b0c6f606dc524278726f9079de0e555b0ed0f78d576255c7cf4f75bf02a36e24",
+    "petri-net-app/src/satel/core/Admission.js": "517f5f6fb2145d1905e660a26fdd271279914b4b3a091d445ea175665f58e064",
+    "petri-net-app/src/satel/core/HmlFormula.js": "5c2d63fa53858ce4030d0e320c70b347db0e9ff203081f5be5416c9e2bdf89ac",
+    "petri-net-app/src/satel/core/HmlEvaluator.js": "1e1eaec634f559335fd6e59e80a99b764fe7a18476e37810570678fbca3a00e2",
+    "petri-net-app/src/satel/core/Observations.js": "7806f9103ae20a3dcfe596f7412c0465ce798bdae57c17072446227923d1f278",
+    "petri-net-app/src/satel/blackbox/Campaign.js": "05dbb50156cd1e8cb125df5355a079f587c9b7f61467a6d8b79ce8f5218ff3a6",
+    "petri-net-app/src/satel/blackbox/Experiments.js": "fb35006d3ac11a70a0ad52bf52724c55976558f2f2fce314447645e3780eb272",
+    "petri-net-app/src/satel/blackbox/DemoSystems.js": "7b53912a5e790cccef6d6cb0907311191c0be2af394796f4807679a380b532a7",
+    "docs/satel/experiments/black-box-2026-10-19.json": "3a78fe1ed5d37ec769e4f3f8269d131298a17d402828e503ce0a0013863739d9",
+    "docs/satel/increment-39-gui-worker-pipeline.md": "bc5c5b73b37fbb28494215b8afdc36a644e468c2899dda73a2c2230560157bcb"
+  },
+  "openExperimentManifestFields": [
+    "explicit solver/search options",
+    "reference and intention hashes",
+    "admitted suite",
+    "target adapter version",
+    "seed and path schedule",
+    "runtime/platform",
+    "result artifact and verdict taxonomy"
+  ]
+}

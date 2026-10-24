@@ -1,0 +1,88 @@
+\section{Two distinct black-box evidence channels}
+\subsection{Response-history compatibility}
+For a history $h_k=(c_1,r_1)\cdots(c_k,r_k)$, define
+\begin{equation}\label{eq:belief}
+ B_0=\{m_0\},\qquad
+ B_{i+1}=\{m'\mid \exists m\in B_i:\;m\xrightarrow{c_{i+1},r_{i+1}}_R m'\}.
+\end{equation}
+All compatible full reference markings are retained. An empty set after complete
+exploration is a history mismatch. A nonempty set establishes compatibility of
+this finite observed history, not inclusion of all possible target behaviors.
+A reference exploration cutoff yields an inconclusive result; it must not discard
+alternatives and report a mismatch.
+
+\begin{obligation}[P1: belief invariant and mismatch soundness]
+Under correct complete reference enumeration and a faithful observation adapter,
+$B_k$ equals the reference states reachable by $h_k$. Consequently, $B_k=\varnothing$
+certifies that this history is not in the reference response language.
+\end{obligation}
+The mathematical invariant suggests induction on history length. Connecting this
+argument to the implementation additionally requires correct successor enumeration,
+full-state keys, response matching and resource-limit handling.
+
+\subsection{HML truth and partial evidence}
+Use the finite grammar
+\[
+ \varphi ::= \top\mid\bot\mid A\mid\neg\varphi
+ \mid\varphi\land\varphi\mid\varphi\lor\varphi
+ \mid\langle c,O\rangle\varphi\mid[c,O]\varphi,
+\]
+where $A$ is a state predicate and $O$ an optional edge observation predicate.
+Its complement, when requested, selects edges failing $O$. An omitted observation
+matches every accepted edge for the call. Ordinary two-valued HML satisfaction
+uses successor states:
+\begin{align*}
+ m\models\langle c,O\rangle\varphi
+ &\iff \exists o,m':\;m\xrightarrow{c,o}m'\land O(o,m')\land m'\models\varphi,\\
+ m\models[c,O]\varphi
+ &\iff \forall o,m':\;(m\xrightarrow{c,o}m'\land O(o,m'))\Rightarrow m'\models\varphi.
+\end{align*}
+
+For one authentic target execution $\rho$, the evidence function
+$E(\varphi,\rho)\in\{\T,\F,\U\}$ records knowledge about this two-valued truth.
+A matching observed accepted edge with child evidence $\T$ witnesses a diamond.
+One matching edge with child evidence $\F$ refutes a box. The converse conclusions
+do not follow from one branch. Negation flips $\T/\F$ and preserves $\U$;
+conjunction and disjunction combine conservative evidence at the same actual state.
+Missing or nonmatching edges, sampled refusals and unavailable nontrivial marking
+predicates give $\U$ where the required evidence cannot be obtained.
+
+\begin{center}
+\begin{tabular}{lll}\toprule
+Evidence & Required true & Required false\\\midrule
+$\T$ & Witnessed & Counterexample\\
+$\F$ & Counterexample & Witnessed\\
+$\U$ & Inconclusive & Inconclusive\\\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{obligation}[P2: soundness of definite evidence]
+For an authentic path starting at target state $s$, with faithful labels,
+observations and state interpretation, $E(\varphi,\rho)=\T$ implies
+$s\models\varphi$, and $E(\varphi,\rho)=\F$ implies $s\not\models\varphi$.
+\end{obligation}
+A structural induction is the intended proof approach. It must handle observation
+complements, polarity and unavailable predicates explicitly. No completeness claim
+is intended: even $[c]\top$ can remain inconclusive under the current rules.
+
+\subsection{Assumptions and limits}
+Each run resets to a declared initial configuration. Calls and responses must
+faithfully represent the target, and accepted calls must correspond to single
+synchronous transitions. The normal admitted-suite pipeline supplies provenance;
+the campaign API itself does not authenticate an arbitrary caller-supplied suite's
+admission flag. A deterministic seed is a reproducibility device, not a certificate
+that two post-prefix hidden states coincide or an IID sampling model.
+
+Evidence from different runs is not pooled by the implementation. For example,
+separate successful runs for $\langle open\rangle\langle left\rangle\top$ and
+$\langle open\rangle\langle right\rangle\top$ do not establish
+$\langle open\rangle(\langle left\rangle\top\land\langle right\rangle\top)$.
+The continuations may have started in different hidden states. The existing audit
+contains a refusal-aware finite-LTS illustration~\cite{audit}; this paper must
+state its exact capability assumptions before adopting it as a general limitation.
+
+Keep unresolved causes separate: symbolic residuals, reference search limits,
+adapter timeouts, absent sampled behavior, hidden-state limitations and conservative
+rule incompleteness. Errors are not failed semantic tests. Current campaigns can
+retain a decisive trustworthy prefix after a resource cutoff but suppress property
+evidence after an adapter/reference error.

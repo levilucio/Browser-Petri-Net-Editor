@@ -1,0 +1,63 @@
+\section{Correspondence with the thesis: first proposal}\label{sec:thesis}
+The thesis full text has now been consulted for the following anchors. Printed
+page numbers refer to the thesis, not its archive cover. This targeted reading
+locates obligations; it is not a complete audit of the thesis's semantics.
+
+\begin{center}\small
+\begin{tabularx}{\linewidth}{@{}p{28mm}p{15mm}X@{}}\toprule
+Thesis anchor & Pages & Proposed role\\\midrule
+5.4.10 & 101 & Context transition-system semantics; identify a flat fragment.\\
+6.2.3--6.2.4 & 116 & HML syntax and satisfaction.\\
+6.2.5--6.2.6 & 117 & Tests with truth polarity and oracle satisfaction.\\
+6.2.7--6.2.8 & 118 & Exhaustive tests and full-agreement setting; no finite prototype claim.\\
+8.3.1 & 160--162 & Expanded execution patterns; restrict data-variable scope.\\
+8.3.3--8.3.4 & 162--164 & Pattern validation and positive/negative substitutions.\\
+8.4.1--8.4.2 & 165--167 & Behavioral/coordination annotations with object identity.\\
+8.4.5 & 169--170 & Annotated pattern validation.\\
+8.4.7--8.4.8 & 171--172 & Reduced substitution families and selected test sets.\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\paragraph{Interpretation issue requiring author review.}
+The printed rules in Definition 8.3.3, p.~163, place the diamond continuation at
+source $q$ and include an existential failing-continuation rule in its negative
+relation. These details were checked visually in the PDF. Literal use is not the
+standard nondeterministic HML semantics specified in Section~\ref{sec:contract}
+and the preceding section: the continuation is evaluated at $q'$, and failure of
+one successor does not refute a diamond. We propose to state standard HML
+explicitly, then record an agreed interpretation or erratum before asserting
+correspondence with that definition. The annotated rules require the same review.
+This is an open interpretation issue, not a claimed correction accepted by the author.
+
+\paragraph{Subuniformity bridge.}
+Thesis annotations identify behavioral/coordination formulas and object instances.
+An equation-unfolding branch in the prototype is not itself such an annotation.
+Definition 8.4.7 constrains \emph{sets} of annotated substitutions, including
+consistency of chosen values under matching annotations; Definition 8.4.8 chooses
+from reduced families. We must decide whether the algorithm is intended to produce
+one member of such a family, cover feasible annotation classes, or satisfy a
+stronger equality. Its current one-witness-per-computed-region policy does not
+resolve this choice.
+
+\begin{obligation}[P5, initial restricted target: per-test preservation]
+For a declared thesis fragment and a translation $\tau$ of its states, labels and
+finite formulas, establish initial-state correspondence and truth preservation
+for each admitted ground test:
+\[
+ S_{\mathrm{th}},q_0\models\varphi
+ \quad\Longleftrightarrow\quad
+ S_{\mathrm{impl}},m_0\models\tau(\varphi).
+\]
+The interpretation of the thesis relation must first be agreed.
+\end{obligation}
+One sufficient route is a relation matching accepted steps in both directions and
+preserving the relevant observation predicates, followed by induction on finite
+HML. A one-way simulation is insufficient for unrestricted negation and boxes.
+This target deliberately precedes equality of reduced test sets, representative
+adequacy or bounded completeness. Ground evaluator/SMT agreement, integer bounds,
+partiality and constructor equality remain explicit premises to discharge.
+
+\todo{Agree the reading of Definitions 8.3.3 and 8.4.5; define the flat source
+fragment and translations; decide the reduction-family coverage target; choose the
+initial algebra subset. No theorem relating computed regions to thesis
+subuniformity classes is established in this draft.}

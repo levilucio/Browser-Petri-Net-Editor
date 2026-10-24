@@ -14,6 +14,11 @@ records proposed contributions, correspondence proofs, observability limitations
 statistical execution experiments, and related-work leads for the future paper.
 It separates research proposals from implemented functionality and proved results.
 
+The [proposed paper baseline and semantic contract](paper-baseline-semantic-contract.md)
+freezes an implementation candidate, locates exact thesis definitions and records
+interpretation/proof obligations. The [LaTeX paper draft](paper/README.md) contains
+the corresponding initial manuscript and build instructions.
+
 ## Nondeterminism and branching properties
 
 [Increment 39: GUI generation, admission and replay in a worker](increment-39-gui-worker-pipeline.md)

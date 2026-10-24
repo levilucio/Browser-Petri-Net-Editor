@@ -1,0 +1,61 @@
+\section{Proposed baseline and semantic contract}\label{sec:contract}
+\subsection{Versioned scope}
+Implementation baseline B0 is commit \baseline{}, through increment 39~\cite{implementation}.
+Its branch is \path{codex/satel-public-methods}. It includes the common
+selection/admission pipeline, APN replay and GUI worker integration. Shared solver
+contexts with full declaration preambles remain the default. Optional query-owned
+contexts and declaration projection are experimental configurations and must be
+identified in any measurement. The accompanying \code{baseline.json} records full
+commit identifiers and content hashes. A scientific experiment must additionally
+pin its model, intention, options, seeds, selected suite and target adapter.
+
+\subsection{States, calls and accepted steps}
+Let $P$ be a finite set of places and $D_p$ the supported carrier at place $p$.
+A marking is $m\in M=\prod_{p\in P}\bag(D_p)$, where $\bag(D)$ denotes finite
+multisets over $D$. State equality includes hidden places and token multiplicity,
+and ignores token order. The reference includes a fixed initial marking $m_0$.
+A ground call $c$ consists of a method name and its complete named typed arguments.
+
+\begin{definition}[Accepted reference step]
+Write $m\xrightarrow{c,o}m'$ when one rule for the called method has a binding
+consistent with the call parameters and available input tokens, its guard is true,
+all required evaluations are defined, and its consumption and production yield
+$m'$. The output $o$ projects this firing's produced tokens onto declared public
+output places.
+\end{definition}
+Input token occurrences cannot be consumed twice. Shared variables must agree.
+Different applicable rules and token bindings yield alternative successors. Public
+calls supply parameters, not additional marking tokens. The concrete fragment
+requires one binding and unit multiplicity on each arc; multiple arcs can require
+multiple tokens. Input bindings are variables. There are no autonomous transitions,
+transition action scripts or unmodelled inter-call state changes in this contract.
+
+The public-method value carriers are \code{Nat}, \code{Int}, \code{Bool},
+\code{String}, \code{List} and \code{Pair}. Integers lie in
+$[-2^{31},2^{31}-1]$, with naturals restricted to the nonnegative part. Overflow
+and undefined evaluation are errors, not silent wrapping or semantic refusal.
+Nested lists/pairs use the implementation's typed builtin representation and
+validation limits. Arbitrary declared ADTs can be analysed symbolically but are
+not thereby supported as executable public-method parameter sorts.
+\todo{For a correspondence theorem, choose an algebra subset and prove the
+encoding and ground evaluator agree on it. Audit Unicode string operations,
+partial operations, range checks and constructor equality. Do not assume that
+JavaScript strings and an unrestricted mathematical string algebra coincide.}
+
+\subsection{Output events and state observations}
+An output event records tokens newly produced by the call, not the accumulated
+marking of an output place. APN observations can constrain both these events and
+the successor marking. Output constraints use multiset equality on their normalized
+scope; marking assertions include equality, membership with multiplicity, length
+and emptiness. The black-box protocol exposes only the per-call output map. An
+output-place name does not imply access to its marking.
+
+\begin{definition}[Response relation]
+Let $R$ contain $m\xrightarrow{c,(\acc,o)}_R m'$ for every accepted step.
+Add $m\xrightarrow{c,(\refusalStatus,\varnothing_O)}_R m$ exactly if no accepted
+$c$-step exists, where $\varnothing_O$ maps every public output to an empty bag.
+\end{definition}
+A response must contain an acceptance/refusal status and one typed bag for every
+public output. A timeout is an unresolved operation, not a refusal. HML modalities
+below range over accepted steps; refusal self-loops belong to history monitoring
+and are not inserted into the HML transition relation.

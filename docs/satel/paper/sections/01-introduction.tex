@@ -1,0 +1,26 @@
+\section{Problem and intended contribution}
+A generated test is useful only if its expected behavior is justified by the
+reference semantics. A correct reference test, in turn, does not guarantee that a
+finite black-box experiment can determine its truth in an unknown implementation.
+These are separate problems when data values, state reachability and
+nondeterministic branching interact.
+
+SATEL's thesis framework relates test intentions, reduced test sets and oracle
+satisfaction~\cite{lucio2009}. Our prototype makes a restricted workflow executable:
+constructor/equation analysis guides symbolic selection; APN execution constrains
+reachable values; concrete replay admits ground tests; a public-method adapter
+exercises a target. We study the guarantees at these boundaries rather than claim
+an implementation of the entire language or of full CO-OPN synchronization.
+
+The proposed research question is: \emph{Which reference guarantees can be retained
+by bounded SATEL/APN selection, and which conclusions remain justified when tests
+are executed through a synchronous interface hiding the target's state?}
+The first part requires a correspondence argument; the second requires a precise
+observation contract and conservative evidence rules. Neither follows from solver
+speed or from the number of passing regression tests.
+
+The intended contributions are a declared executable fragment, separate history
+and modal evidence semantics, conditional soundness arguments, and experiments
+that expose both detected faults and unresolved properties. A claim of novelty
+requires comparison with algebraic testing, symbolic model-based testing, HML
+observability and related SATEL work; this comparison is not yet complete.
