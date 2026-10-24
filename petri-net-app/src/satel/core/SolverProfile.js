@@ -5,6 +5,7 @@ const phases = () => Object.fromEntries(phaseNames.map(name => [name, 0]));
 export function createSolverProfile(clock = () => performance.now()) {
   const mode = () => ({ queries: 0, ms: 0, phases: phases(), outcomes: {} });
   const stats = { backendQueries: 0, backendMs: 0, phases: phases(), byMode: { witness: mode(), check: mode() },
+    preambleChars: 0, fullPreambleChars: 0, datatypeSorts: 0, fullDatatypeSorts: 0,
     mainChecks: {}, preferenceChecks: {}, preferenceRefutationAttempts: 0, preferenceRefutations: 0, cacheWitnessChecks: 0, cacheValidationMs: 0 };
   return {
     snapshot: () => JSON.parse(JSON.stringify(stats)),
@@ -26,6 +27,10 @@ export function createSolverProfile(clock = () => performance.now()) {
         phase(name) {
           if (finished) return;
           account(); current = name;
+        },
+        preamble(selected, full) {
+          stats.preambleChars += selected.text.length; stats.fullPreambleChars += full.text.length;
+          stats.datatypeSorts += selected.sorts; stats.fullDatatypeSorts += full.sorts;
         },
         refutation(proved) {
           stats.preferenceRefutationAttempts++;

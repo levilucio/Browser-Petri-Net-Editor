@@ -1,3 +1,4 @@
+import { createSymbolicPreamble } from './SymbolicPreamble.js';
 import { refutesNumericPreference } from './NumericPreference.js';
 import { createSolverProfile } from './SolverProfile.js';
 import { withSolverQueryCache } from './SolverQueryCache.js';
@@ -45,31 +46,8 @@ export async function createSymbolicSolver(algebra, options = {}) {
   } = await getContext();
   const c = ctx.ptr;
   const prefix = `satel${++serial}_`;
-  const names = [...new Set(Object.values(algebra.constructors).map(c => c.result))];
-  const sort = s => s === 'Nat' ? 'Int' : ['Int', 'Bool', 'String'].includes(s) ? s : prefix + s;
-  const nameOf = n => prefix + n;
-  const bySort = Object.fromEntries(names.map(n => [n, Object.entries(algebra.constructors).filter(([, c]) => c.result === n)]));
-  const valid = (s, value) => s === 'Nat' ? `(>= ${value} 0)` : s === 'String' ? `(str.in_re ${value} (re.* (re.range "\\u{0}" "\\u{ffff}")))` : names.includes(s) ? `(${prefix}valid_${s} ${value})` : 'true';
-  let preamble = '';
-  if (names.length) {
-    preamble += `(declare-datatypes (${names.map(n => `(${sort(n)} 0)`).join(' ')}) (${names.map(n => `(${bySort[n].map(([c, sig]) => `(${nameOf(c)} ${sig.parameters.map((s, i) => `(${nameOf(c)}_${i} ${sort(s)})`).join(' ')})`).join(' ')})`).join(' ')}))\n`;
-    preamble += `(define-funs-rec (${names.map(n => `(${prefix}valid_${n} ((x ${sort(n)})) Bool)`).join(' ')}) (${names.map(n => `(or ${bySort[n].map(([c, sig]) => `(and ((_ is ${nameOf(c)}) x) ${sig.parameters.map((s, i) => valid(s, `(${nameOf(c)}_${i} x)`)).join(' ')})`).join(' ')})`).join(' ')}))\n`;
-  }
-  // Mirror validBuiltinValue, including bounded nested machine integers. Flat
-  // list tails do not consume nesting depth; Any wrappers do.
-  const runtimeSorts = ['List', 'Pair', 'Any'].filter(s => names.includes(s));
-  const runtimeValid = (s, x, d) => ['Nat', 'Int'].includes(s) ? `(and (>= ${d} 0) (>= ${x} ${s === 'Nat' ? 0 : '(- 2147483648)'}) (<= ${x} 2147483647))` : ['Bool', 'String'].includes(s) ? `(>= ${d} 0)` : runtimeSorts.includes(s) ? `(${prefix}runtime_${s} ${x} ${d})` : 'false';
-  if (runtimeSorts.length) {
-    const descend = s => {
-      const tag = ctor => `((_ is ${nameOf(ctor)}) x)`;
-      const field = (ctor, i) => `(${nameOf(ctor)}_${i} x)`;
-      const smaller = '(- d 1)';
-      if (s === 'List') return `(or ${tag('_ListNil')} (and ${tag('_ListCons')} ${runtimeValid('Any', field('_ListCons', 0), smaller)} ${runtimeValid('List', field('_ListCons', 1), 'd')}))`;
-      if (s === 'Pair') return `(and ${runtimeValid('Any', field('_Pair', 0), smaller)} ${runtimeValid('Any', field('_Pair', 1), smaller)})`;
-      return `(or ${['Int', 'Bool', 'String', 'List', 'Pair'].map(sort => `(and ${tag('_Any' + sort)} ${runtimeValid(sort, field('_Any' + sort, 0), smaller)})`).join(' ')})`;
-    };
-    preamble += `(define-funs-rec (${runtimeSorts.map(s => `(${prefix}runtime_${s} ((x ${sort(s)}) (d Int)) Bool)`).join(' ')}) (${runtimeSorts.map(s => `(and (>= d 0) ${descend(s)})`).join(' ')}))\n`;
-  }
+  const preambles = createSymbolicPreamble(algebra, prefix);
+  const { sort, nameOf, valid, runtimeValid } = preambles;
   const validateWitness = ({ terms, conditions, variables }, bindings) => {
     const required = variablesIn([terms, conditions]);
     if (!(bindings instanceof Map) || bindings.size !== required.size) throw new Error('Independent witness variable check failed');
@@ -100,6 +78,12 @@ export async function createSymbolicSolver(algebra, options = {}) {
     try {
       trace?.phase('encode');
       const symbolNames = new Map([...variablesIn(witness ? [terms, conditions] : conditions)].map(n => [n, `${prefix}v${++checkId}`]));
+      const requiredSorts = new Set([...symbolNames.keys()].map(n => variables[n]));
+      let runtimeRequired = false;
+      const requireConstructor = name => {
+        const signature = algebra.constructors[name];
+        if (signature) requiredSorts.add(signature.result);
+      };
       const graphDeclarations = [], graphAssertions = [];
       const encode = (t, resolveRef) => {
         const enc = child => encode(child, resolveRef);
@@ -114,6 +98,7 @@ export async function createSymbolicSolver(algebra, options = {}) {
               return ref;
             };
             nodeSorts.push(termSort(node, variables, algebra, undefined, ref => nodeSorts[checkedIndex(ref)]));
+            requiredSorts.add(nodeSorts[i]);
             const value = encode(node, ref => name + checkedIndex(ref));
             graphDeclarations.push(`(declare-const ${name}${i} ${sort(nodeSorts[i])})`);
             graphAssertions.push(`(assert (= ${name}${i} ${value}))`);
@@ -135,6 +120,10 @@ export async function createSymbolicSolver(algebra, options = {}) {
           return symbolNames.get(t.var);
         }
         if (t?.if !== undefined) return `(ite ${enc(t.if)} ${enc(t.then)} ${enc(t.else)})`;
+        if (t?.test) requireConstructor(t.test);
+        if (t?.field) requireConstructor(t.field);
+        if (t?.ctor) requireConstructor(t.ctor);
+        if (t?.valid && ['List', 'Pair', 'Any'].includes(t.valid)) runtimeRequired = true;
         if (t?.test) return `((_ is ${nameOf(t.test)}) ${enc(t.value)})`;
         if (t?.field) return `(${nameOf(t.field)}_${t.index} ${enc(t.value)})`;
         if (t?.valid) return runtimeValid(t.valid, enc(t.value), String(t.depth ?? 64));
@@ -183,7 +172,9 @@ export async function createSymbolicSolver(algebra, options = {}) {
       // Preserve an AST handle for unconstrained variables as well, for model completion.
       const handles = [...symbolNames.values()].map(v => `(assert (= ${v} ${v}))`).join('\n');
       const assertions = [...symbolNames].map(([n, v]) => valid(variables[n], v)).concat(conditions.map(c => encode(c)));
-      const script = preamble + declarations + '\n' + graphDeclarations.join('\n') + '\n' + handles + '\n' + graphAssertions.join('\n') + '\n' + assertions.map(s => `(assert ${s})`).join('\n');
+      const preamble = preambles.select(requiredSorts, runtimeRequired, options.smtPreambleProjection === true);
+      trace?.preamble(preamble, preambles.full);
+      const script = preamble.text + declarations + '\n' + graphDeclarations.join('\n') + '\n' + handles + '\n' + graphAssertions.join('\n') + '\n' + assertions.map(s => `(assert ${s})`).join('\n');
       trace?.phase('parse');
       solver.fromString(script);
       trace?.phase('handles');

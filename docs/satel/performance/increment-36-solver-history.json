@@ -1,0 +1,1629 @@
+{
+  "recordedAt": "2026-10-24T08:40:05.476Z",
+  "repeats": 3,
+  "methodology": "Fresh child process per mode/trial, no solver warm-up. String -> List -> Pair APN/HML queries share the ordinary Z3 context. Actual SMT scripts hashed; SAT witnesses independently validated and concretely replayed. Unknown is unresolved, never a failed property or UNSAT. Baseline must solve all three cases.",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 9
+  },
+  "sourceHashes": {
+    "src/satel/index.js": "4eec879861de76e8b5c960c20951dff39caf1d4577f21b1eef2e5730debac0a7",
+    "src/satel/blackbox/Campaign.js": "05dbb50156cd1e8cb125df5355a079f587c9b7f61467a6d8b79ce8f5218ff3a6",
+    "src/satel/blackbox/DemoSystems.js": "7b53912a5e790cccef6d6cb0907311191c0be2af394796f4807679a380b532a7",
+    "src/satel/blackbox/Experiments.js": "fb35006d3ac11a70a0ad52bf52724c55976558f2f2fce314447645e3780eb272",
+    "src/satel/core/Admission.js": "517f5f6fb2145d1905e660a26fdd271279914b4b3a091d445ea175665f58e064",
+    "src/satel/core/BoundedOracleAdapter.js": "d457ec4fc7ad3e1cf5e83b10171d7aa73c0dff3e2ab56a290ad8ecd3776177ab",
+    "src/satel/core/BranchDisjointness.js": "8de98e47df75876c0719e28a626c70815d36f88d7dd4f7472339dba46c0f0434",
+    "src/satel/core/BuiltinAlgebra.js": "7ea88be3c429fab927d8c761829a869691ccde34f5778776034604ce415bd40d",
+    "src/satel/core/ConstructorDisjointness.js": "4eeca2e7b845f858b35645a2d9af371275b34e203e6bcd7c357079ae75b38eb7",
+    "src/satel/core/Contracts.js": "eb85f2bc753f36bf76b385bed3103c11d757139170ebf74916fac9b543277f39",
+    "src/satel/core/DirectTransitionDriver.js": "a52932e470a97a4235fbb7cefb612af3a8ea90993aeaa7088eb642f30eb50c66",
+    "src/satel/core/ExecutableSequence.js": "efcf124ffd5088a64fd5db8b6543b69a1971bfba557173bf05d91d386ffd9227",
+    "src/satel/core/ExplicitSelection.js": "e039930d048443acbda1fa36efede9ce35caa9f972cc1aa0631287199db6fd6e",
+    "src/satel/core/FeasibilityQuery.js": "e809f907547a78db6dff70f6029857e1b2e08e8b9d538b9737d728d59917f6ba",
+    "src/satel/core/GenericSubuniformity.js": "53c4c8aff69c6e2c69896ec48bc0a7dc167c8aa27ac98258ed8085d3ae54849b",
+    "src/satel/core/GroundTerms.js": "d62be4dc12390fbf37d083aee7fe8ae80fd734d06940e6ab4dc5f968e8abc069",
+    "src/satel/core/GuardLogic.js": "53519ce7d6b3163e193e15e1d11140dcc29e0b1017c421a0f5a760e2824838b8",
+    "src/satel/core/HmlCacheDiagnostics.js": "0c14b5c6ed01320034774b7bb9b2f6b18b2168d280bc30475a45ee1a7347b631",
+    "src/satel/core/HmlConstraints.js": "cfad41ba27981f2a0f98f0358443fc72e33e2baf98d5487313a632ae2fcfe247",
+    "src/satel/core/HmlEvaluator.js": "1e1eaec634f559335fd6e59e80a99b764fe7a18476e37810570678fbca3a00e2",
+    "src/satel/core/HmlExplanation.js": "4c39994277f1c0401769912589bef1c6ec92ec113b6e5564439b658b9ad4ecc2",
+    "src/satel/core/HmlFormula.js": "5c2d63fa53858ce4030d0e320c70b347db0e9ff203081f5be5416c9e2bdf89ac",
+    "src/satel/core/HmlRuleEffects.js": "adbe61faac645d13bf4628acf9b6db93f70fe3020507cfeadf04ce1404bbc433",
+    "src/satel/core/HmlTerms.js": "8562a4870897f3f44f175b3c6ecd3b6c2b79ed67385798f7c70ea4c6e292978b",
+    "src/satel/core/InitialMarking.js": "51529eca2900ccc475b4e56e8ff4bd8fa4f33a134c17cb64163bb8a49e0ae508",
+    "src/satel/core/IntentionNotation.js": "683f6b5ffe552c3e835e0be28ed9932624a6fd4036b726e6ccea6e18c08ad623",
+    "src/satel/core/IntentionPipeline.js": "b0c6f606dc524278726f9079de0e555b0ed0f78d576255c7cf4f75bf02a36e24",
+    "src/satel/core/IntentionSchema.js": "1726038112bb6a9156cf672f06262c43c4e2c718951334f709fab45f6a8f162a",
+    "src/satel/core/NegativeSelection.js": "95e6c2d03b8ca2767a6d31a5c5664a5d492aba55f2133a34e386cbcd3a4a12c3",
+    "src/satel/core/NumericPreference.js": "295187b676391051f04d5ee32c757fe3a89bfa2c8e334465ae41c9cbf80e185c",
+    "src/satel/core/ObservationChecker.js": "5b6ffec82cb7ffd0cf8273e3be47f6c8d82ff5038bc519256ac22062d8b2977e",
+    "src/satel/core/Observations.js": "7806f9103ae20a3dcfe596f7412c0465ce798bdae57c17072446227923d1f278",
+    "src/satel/core/PartitionGenerator.js": "93fccc79c82af956b7929b9c12b2b54317d2b60f47f1f85fec4808034e13fcac",
+    "src/satel/core/PathConditionPartitioner.js": "4bc8347ab618d967bf9967bb0d41d9cb5fa11e4e83e1ef9c6e7932ed71f45391",
+    "src/satel/core/RefusalConstraints.js": "a48731ac299eeb30a6278b566d33cddbb19e920a8e8509dbdb5c69464184c33b",
+    "src/satel/core/Replay.js": "e73cfdcfa0be6eebfe92712368693a9c0213dfb820749b8dc1229a14a2a6e9b6",
+    "src/satel/core/SequenceRunner.js": "821aaa4264e208e15f501ac71dd40e5056791eaffafdd30beab582608ec6919d",
+    "src/satel/core/SolverProfile.js": "b528cefdaae22cf2c3422c773d5dbea2ca611a81dd6681c11ed69ff25f345b94",
+    "src/satel/core/SolverQueryCache.js": "6e56622440c21966b27d965f1073fabc29a400ac24c9ca5cac26ffe7d6602d2e",
+    "src/satel/core/SymbolicIntention.js": "39171d1a5bf7b4fc9e9b0efd345ff76291068b27577bfefc456f2b13b8420ecb",
+    "src/satel/core/SymbolicPreamble.js": "6a942368a5df1905f59267752f7a7834f8877116a10a1b5027c8d4fcde583f67",
+    "src/satel/core/SymbolicSource.js": "2636e64692fd42c8b154c08c467fb5731efe6b94b8fa38e11d9921ca469473d9",
+    "src/satel/core/SymbolicSubuniformity.js": "a92f38646e20f76a30d9b0610fea71acf227350cfd0ff853dc1d2d23fb7d2a22",
+    "src/satel/core/SymbolicTerms.js": "58cfc15046ba0ebc22f307bab3b910d8f743c1bfe6b2e3409df46daddc68b2e8",
+    "src/satel/core/SymbolicZ3.js": "b39fa5fa7548c42891508a90b494c9cdc9ffa26e1c80ab6489d9b31b78fed704",
+    "src/satel/core/TestCase.js": "1d3c32f364cf3acb9ec41df389dc34196abb5284b5363bc79c7a6169d0e9e716",
+    "src/satel/core/TestExecutor.js": "48cb1dbf4eda6e9541b045818b684dbbf39994cc01e8e41eedf5dc2e740bf416",
+    "src/satel/core/TestGenerator.js": "c4da34b06844b8a3569f3ecc6079362b663a9ce628d6c968886888c2650054d4",
+    "src/satel/core/ValidatedSubuniformity.js": "96a653810fe3e6a249d28e6e232aa94d410a94009ef9d223b381e2e4fb06a959",
+    "src/satel/core/VariableInstantiator.js": "e3ca27236007fa3539ddb3de7fa06112fa34f3415e7b5b4cc0cf17573969387b",
+    "src/satel/io/IOInterface.js": "49dd0fa8a42f21f1e7c38000190b4a5d0b35779114e0a720e09067545999abfb",
+    "src/satel/core/__tests__/all-fixes.test.js": "ac8e43da64d01e49174fb53321d296a4e69129dd9a8f568e71fc68d2db4017dd",
+    "src/satel/core/__tests__/path-subuniformity.test.js": "0e410dae9a62c3e4eefe91d84d31cf3614461c0e34708b2e418f37a8bcadbf41",
+    "src/satel/core/__tests__/priority-subuniformity.test.js": "d66db4cc66907bcb59aa1aa4ea5f99c58af2f2d216a7eb9260c49efeae796ee1",
+    "src/satel/examples/banking/intentions-v2-multistep.js": "ecab35f0f1c71705ec32174d9713a8a5434e4a92524ee3318a6aa57d04921540",
+    "src/satel/examples/banking/net.js": "29a674a100b05d9195b95783cdae522a6243bcf8a5cebf19ec7201f3482a07ad",
+    "src/satel/examples/compound-guard/editor.js": "7e4a17afbb3d529020eabc437e43fdb45d22d57c04f256a31f53ca264e1916c1",
+    "src/satel/examples/drinkVending/net.js": "1dfa3d8736418cedaaec6a849fde60acaaeddf0d23532bf133a66a0dc3b90eb0",
+    "src/satel/examples/executable-sequence/editor.js": "74eae50f02cf9e9a7498507bc2cc5a838ee312f90dc328717c6ebba94a662808",
+    "src/satel/examples/exercises/builder.js": "2976debca3b8817e6d2fa07be05e1424a262705ce925a25af88ccb57746e4f2e",
+    "src/satel/examples/exercises/coordinates.js": "21039b4d6ec7ef4d246afb8593d3e9dcbff373c021402d03857aeb372f2b8c46",
+    "src/satel/examples/exercises/door.js": "76008ee2dcde7d883cdccb4b586242c1ae3630d09bebc6700749f72f24be3bc2",
+    "src/satel/examples/exercises/editor.js": "ef247f0685aa808788a6c4ba8e84cb0297db3496f80cceca16bef7a68b17404b",
+    "src/satel/examples/exercises/journal.js": "0cfc28fe8307b24a5ed51eaadebf0ece3cd136b5995eceac9bb1fcbd775a55a7",
+    "src/satel/examples/exercises/kits.js": "5810654c9ab90a7ae1539860867591359fcb9184d4d514f507de982912742dd6",
+    "src/satel/examples/exercises/labels.js": "8ce50ccaee79a0f41362753109b436dcfb6ccecd5c1a0f7908801af93d985eae",
+    "src/satel/examples/exercises/parcel.js": "c9f19c7441876494b6bde522cf955edb71862a8c1f4a4162b5f230f6111d3ef1",
+    "src/satel/examples/exercises/queue.js": "a73a2998c8b04bb89e0f78ab532525953fed76aefef468b6a70bdafba7c4e112",
+    "src/satel/examples/exercises/quota.js": "561d17cde5d778f0b2e2fe7b93a23e84771f61077e98609da85eb72be0f9bc62",
+    "src/satel/examples/exercises/thermostat.js": "1ac470052e3ddf5454f842f0245a63a74e6919fe1a4924609e4184147f0fa3ae",
+    "src/satel/examples/exercises/tickets.js": "3d028bceb9ce0b7182aaf28872fe46a31cc37637e33919ce98f281b49fe2964d",
+    "src/satel/examples/fulfilment/editor.js": "814e4e4334cb6facbc94257ca40517deb5f2e4e48aa033b178fc6c955ae6f50a",
+    "src/satel/examples/hml-selection/algebraic.js": "230319f6038ffb12f2f554e9e0ea573e2408c3dbaa5172256126933eda84a8f9",
+    "src/satel/examples/hml-selection/editor.js": "c8af9ffdf906929fc74a2e41b559baedba5c7ed07c1ac44b100c718437c1ad20",
+    "src/satel/examples/hml-selection/solver-history.js": "c601c45d561b31f608ae8aa32ba999c0f15f79342249dd4ca8255249793b430a",
+    "src/satel/examples/inventory/editor.js": "53134792863ae658f888b534affa801a4eccb2ee203b9f5c1fe79feffb28cab3",
+    "src/satel/examples/inventory/models.js": "c31b29cdd49e68e9cbff1c510ac05ab6c2b8ea5a1471d6bb3f42f24100304453",
+    "src/satel/examples/list/net.js": "a7ff6c49cdd63262e35ce591411269392effee5664c273fe2bf57c754e57583d",
+    "src/satel/examples/manufacturing/adt.js": "38335b710dca7619e6c2fe0a3a88cae4aa9f60d4c8f3f3510179f4b91d5827cd",
+    "src/satel/examples/manufacturing/intentions-v2-multistep.js": "66c7b1aab2f0343ed33ce78026b2f3d9282dc92d0cf4874a47ebe512923fbb06",
+    "src/satel/examples/manufacturing/intentions-v2.js": "3c8e62cfec1972036805b104667cd27b9ff018646f3ef067886ebc3ab39c1fb8",
+    "src/satel/examples/manufacturing/net.js": "cf1eb9df9dccbadc2b1f598230929e1f47709899f81a1eff49a4e3001865be4e",
+    "src/satel/examples/nondeterminism/editor.js": "e798a46e745d6bf4f06034ef2acbc3bdc44d257bbe80d78b4e44e35462ce191d",
+    "src/satel/examples/option/adt.js": "84ed3c4af501b668d94b36be4dceb5f06a77b692594bb0c027c2b40d1f8282af",
+    "src/satel/examples/option/net.js": "f4672f1ae831679c42aa21a8b528f6f51e54996dba9dde3857564d322feeb393",
+    "src/satel/examples/oracle-account/algebra.js": "5eea9679b982be9910240892b23116b8815d324156cd7661d8859e0170e134c0",
+    "src/satel/examples/oracle-account/editor.js": "c4378fe85018372a2a941593a9b0e9aae73889722564f4c69c9032e9b06871b0",
+    "src/satel/examples/oracle-account/intentions.js": "46609d0f344ec1364063c6ae85ebe558c54b4691fed929060e7af539479eebb4",
+    "src/satel/examples/oracle-account/net.js": "00f7e625e8835c93b8fc55005999d7fbbcbedad49c0c348cd620191fa34a34d8",
+    "src/satel/examples/oracle-account/run.js": "27917fd69b8ef6ffa5748bbf03aaa60220a15b49b484d0a1eff655ef4beb6195",
+    "src/satel/examples/recursive-adt/models.js": "f5b0b91f77a6b1030f057c832d924a203f0c4794d45bff891e36c62d77d3748d",
+    "src/satel/examples/refusal/editor.js": "c03661b289227d5f45599b71849b4c96e131e986ad557c0a34d6f655d45e20b7",
+    "src/satel/examples/result/adt.js": "0b486a2a4c5bf2c6c5e670b8c135831c7861d461522c45b9231ed125e2f41904",
+    "src/satel/examples/result/net.js": "6c470df56eedb8101d1997f794bdf49d77840355af23c02f526de12c3640a9a6",
+    "src/satel/examples/scale/models.js": "9aca1c5adff95db6fb8ca65ad3aaf1778a5dd41871a938252c2fdb432b379d46",
+    "src/satel/examples/symbolic-list/editor.js": "035cbd897b19aa34f6d67157b5e8f5421453bc317f55b4f48421a8f51cf24ce9",
+    "src/satel/examples/typed-store/editor.js": "1e531e90bb6c912699ca6763ca8a12ae20c12c1d7e157c4fbc6a4a41c425c268",
+    "tools/node/benchmarks/run-solver-history.js": "4e616f798083aa3e9b947ca5226cf780520ebf4f627f4f4e2657cf152acc7c76"
+  },
+  "results": [
+    {
+      "trial": 0,
+      "mode": "disabled",
+      "rows": [
+        {
+          "sort": "String",
+          "status": "sat",
+          "ms": 185.58576899999997,
+          "scriptChars": 2582,
+          "scriptSha256": "8ff77db751e8cf893e4e936033e9cfa456a24387011f6b04740d00be500055d3",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 184.977036,
+            "phases": {
+              "create": 1.162797999999981,
+              "encode": 0.4909410000000207,
+              "parse": 25.890377,
+              "handles": 0.1881259999999827,
+              "check": 151.63018700000003,
+              "decode": 2.862033999999994,
+              "validate": 0.5342549999999733,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 1.9832230000000095,
+              "other": 0.23509500000000116
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 184.977036,
+                "phases": {
+                  "create": 1.162797999999981,
+                  "encode": 0.4909410000000207,
+                  "parse": 25.890377,
+                  "handles": 0.1881259999999827,
+                  "check": 151.63018700000003,
+                  "decode": 2.862033999999994,
+                  "validate": 0.5342549999999733,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 1.9832230000000095,
+                  "other": 0.23509500000000116
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": "ab",
+          "replay": "pass"
+        },
+        {
+          "sort": "List",
+          "status": "sat",
+          "ms": 26.94250199999999,
+          "scriptChars": 9521,
+          "scriptSha256": "7eccecab14f20b52649b0ee7a6bf238f445f2a310b3f754079caa91dc8cbbd0a",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 26.64482499999997,
+            "phases": {
+              "create": 0.15879300000000285,
+              "encode": 0.48770600000000286,
+              "parse": 4.963419999999985,
+              "handles": 0.030785999999977776,
+              "check": 18.822315000000003,
+              "decode": 0.99832600000002,
+              "validate": 0.7204179999999951,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.44074799999998504,
+              "other": 0.02231299999999692
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 26.64482499999997,
+                "phases": {
+                  "create": 0.15879300000000285,
+                  "encode": 0.48770600000000286,
+                  "parse": 4.963419999999985,
+                  "handles": 0.030785999999977776,
+                  "check": 18.822315000000003,
+                  "decode": 0.99832600000002,
+                  "validate": 0.7204179999999951,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.44074799999998504,
+                  "other": 0.02231299999999692
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": [],
+          "replay": "pass"
+        },
+        {
+          "sort": "Pair",
+          "status": "sat",
+          "ms": 20.51745500000004,
+          "scriptChars": 6395,
+          "scriptSha256": "8bf4dd6d5707df3759d05fdcc6a09a6b311d18b5d24b684b4e9d27580d5b0d45",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 20.343669999999975,
+            "phases": {
+              "create": 0.25583599999998796,
+              "encode": 0.2800409999999829,
+              "parse": 3.8128900000000385,
+              "handles": 0.026488999999969565,
+              "check": 14.415263000000039,
+              "decode": 0.8389920000000188,
+              "validate": 0.3954909999999927,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.30318499999998494,
+              "other": 0.015482999999960612
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 20.343669999999975,
+                "phases": {
+                  "create": 0.25583599999998796,
+                  "encode": 0.2800409999999829,
+                  "parse": 3.8128900000000385,
+                  "handles": 0.026488999999969565,
+                  "check": 14.415263000000039,
+                  "decode": 0.8389920000000188,
+                  "validate": 0.3954909999999927,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.30318499999998494,
+                  "other": 0.015482999999960612
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": {
+            "__pair__": true,
+            "fst": 2,
+            "snd": true
+          },
+          "replay": "pass"
+        }
+      ]
+    },
+    {
+      "trial": 0,
+      "mode": "enabled",
+      "rows": [
+        {
+          "sort": "String",
+          "status": "sat",
+          "ms": 178.24604000000002,
+          "scriptChars": 448,
+          "scriptSha256": "8de28961ff74a6ae9060d98c4c55d9208d549594cb6af55d0d6994854c3e4618",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 177.61956999999998,
+            "phases": {
+              "create": 0.8628970000000038,
+              "encode": 0.5480349999999987,
+              "parse": 18.027388000000002,
+              "handles": 0.1972899999999811,
+              "check": 152.83620900000003,
+              "decode": 2.774524999999983,
+              "validate": 0.4728550000000382,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 1.6320670000000064,
+              "other": 0.2683039999999437
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 177.61956999999998,
+                "phases": {
+                  "create": 0.8628970000000038,
+                  "encode": 0.5480349999999987,
+                  "parse": 18.027388000000002,
+                  "handles": 0.1972899999999811,
+                  "check": 152.83620900000003,
+                  "decode": 2.774524999999983,
+                  "validate": 0.4728550000000382,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 1.6320670000000064,
+                  "other": 0.2683039999999437
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 0,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 0,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": "ab",
+          "replay": "pass"
+        },
+        {
+          "sort": "List",
+          "status": "unknown",
+          "reason": "Z3 returned unknown (possibly timeout)",
+          "ms": 3136.369118,
+          "scriptChars": 9521,
+          "scriptSha256": "7eccecab14f20b52649b0ee7a6bf238f445f2a310b3f754079caa91dc8cbbd0a",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 3136.103318,
+            "phases": {
+              "create": 0.13943499999999176,
+              "encode": 0.5304990000000203,
+              "parse": 10.076809999999966,
+              "handles": 0.030555000000049404,
+              "check": 3124.7496330000004,
+              "decode": 0,
+              "validate": 0,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.5574790000000576,
+              "other": 0.018906999999671825
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 3136.103318,
+                "phases": {
+                  "create": 0.13943499999999176,
+                  "encode": 0.5304990000000203,
+                  "parse": 10.076809999999966,
+                  "handles": 0.030555000000049404,
+                  "check": 3124.7496330000004,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.5574790000000576,
+                  "other": 0.018906999999671825
+                },
+                "outcomes": {
+                  "unknown": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "unknown": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          }
+        },
+        {
+          "sort": "Pair",
+          "status": "sat",
+          "ms": 21.21235499999966,
+          "scriptChars": 6395,
+          "scriptSha256": "8bf4dd6d5707df3759d05fdcc6a09a6b311d18b5d24b684b4e9d27580d5b0d45",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 21.018911000000116,
+            "phases": {
+              "create": 0.19138100000009217,
+              "encode": 0.4350289999997585,
+              "parse": 3.5862170000000333,
+              "handles": 0.02549799999997049,
+              "check": 14.292101000000002,
+              "decode": 1.1029899999998634,
+              "validate": 0.9662990000001628,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.39888599999994767,
+              "other": 0.0205100000002858
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 21.018911000000116,
+                "phases": {
+                  "create": 0.19138100000009217,
+                  "encode": 0.4350289999997585,
+                  "parse": 3.5862170000000333,
+                  "handles": 0.02549799999997049,
+                  "check": 14.292101000000002,
+                  "decode": 1.1029899999998634,
+                  "validate": 0.9662990000001628,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.39888599999994767,
+                  "other": 0.0205100000002858
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": {
+            "__pair__": true,
+            "fst": 2,
+            "snd": true
+          },
+          "replay": "pass"
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "mode": "enabled",
+      "rows": [
+        {
+          "sort": "String",
+          "status": "sat",
+          "ms": 182.40060099999997,
+          "scriptChars": 448,
+          "scriptSha256": "8de28961ff74a6ae9060d98c4c55d9208d549594cb6af55d0d6994854c3e4618",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 181.64883700000001,
+            "phases": {
+              "create": 0.9839850000000183,
+              "encode": 0.6433250000000044,
+              "parse": 20.496274,
+              "handles": 0.19969299999999635,
+              "check": 153.44627400000002,
+              "decode": 3.2759320000000116,
+              "validate": 0.5338739999999689,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 1.8335440000000176,
+              "other": 0.23593599999998105
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 181.64883700000001,
+                "phases": {
+                  "create": 0.9839850000000183,
+                  "encode": 0.6433250000000044,
+                  "parse": 20.496274,
+                  "handles": 0.19969299999999635,
+                  "check": 153.44627400000002,
+                  "decode": 3.2759320000000116,
+                  "validate": 0.5338739999999689,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 1.8335440000000176,
+                  "other": 0.23593599999998105
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 0,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 0,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": "ab",
+          "replay": "pass"
+        },
+        {
+          "sort": "List",
+          "status": "unknown",
+          "reason": "Z3 returned unknown (possibly timeout)",
+          "ms": 3136.267707,
+          "scriptChars": 9521,
+          "scriptSha256": "7eccecab14f20b52649b0ee7a6bf238f445f2a310b3f754079caa91dc8cbbd0a",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 3136.000274,
+            "phases": {
+              "create": 0.1859829999999647,
+              "encode": 0.6955920000000333,
+              "parse": 11.32331099999999,
+              "handles": 0.034120999999970536,
+              "check": 3123.112714,
+              "decode": 0,
+              "validate": 0,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.6289440000000468,
+              "other": 0.01960899999994581
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 3136.000274,
+                "phases": {
+                  "create": 0.1859829999999647,
+                  "encode": 0.6955920000000333,
+                  "parse": 11.32331099999999,
+                  "handles": 0.034120999999970536,
+                  "check": 3123.112714,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.6289440000000468,
+                  "other": 0.01960899999994581
+                },
+                "outcomes": {
+                  "unknown": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "unknown": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          }
+        },
+        {
+          "sort": "Pair",
+          "status": "sat",
+          "ms": 21.824509000000035,
+          "scriptChars": 6395,
+          "scriptSha256": "8bf4dd6d5707df3759d05fdcc6a09a6b311d18b5d24b684b4e9d27580d5b0d45",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 21.53127799999993,
+            "phases": {
+              "create": 0.2557569999999032,
+              "encode": 0.3158640000001469,
+              "parse": 5.175228999999945,
+              "handles": 0.028321999999661784,
+              "check": 13.432560000000194,
+              "decode": 1.0910039999998844,
+              "validate": 0.8548070000001644,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.353139000000283,
+              "other": 0.02459599999974671
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 21.53127799999993,
+                "phases": {
+                  "create": 0.2557569999999032,
+                  "encode": 0.3158640000001469,
+                  "parse": 5.175228999999945,
+                  "handles": 0.028321999999661784,
+                  "check": 13.432560000000194,
+                  "decode": 1.0910039999998844,
+                  "validate": 0.8548070000001644,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.353139000000283,
+                  "other": 0.02459599999974671
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": {
+            "__pair__": true,
+            "fst": 2,
+            "snd": true
+          },
+          "replay": "pass"
+        }
+      ]
+    },
+    {
+      "trial": 1,
+      "mode": "disabled",
+      "rows": [
+        {
+          "sort": "String",
+          "status": "sat",
+          "ms": 185.50601600000002,
+          "scriptChars": 2582,
+          "scriptSha256": "8ff77db751e8cf893e4e936033e9cfa456a24387011f6b04740d00be500055d3",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 184.81978700000002,
+            "phases": {
+              "create": 0.8839000000000112,
+              "encode": 0.48556399999998234,
+              "parse": 24.79321300000001,
+              "handles": 0.1904299999999921,
+              "check": 152.18948000000003,
+              "decode": 3.416573000000028,
+              "validate": 0.5544160000000034,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 2.0390580000000114,
+              "other": 0.2671529999999507
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 184.81978700000002,
+                "phases": {
+                  "create": 0.8839000000000112,
+                  "encode": 0.48556399999998234,
+                  "parse": 24.79321300000001,
+                  "handles": 0.1904299999999921,
+                  "check": 152.18948000000003,
+                  "decode": 3.416573000000028,
+                  "validate": 0.5544160000000034,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 2.0390580000000114,
+                  "other": 0.2671529999999507
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": "ab",
+          "replay": "pass"
+        },
+        {
+          "sort": "List",
+          "status": "sat",
+          "ms": 29.87143500000002,
+          "scriptChars": 9521,
+          "scriptSha256": "7eccecab14f20b52649b0ee7a6bf238f445f2a310b3f754079caa91dc8cbbd0a",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 29.588659000000007,
+            "phases": {
+              "create": 0.1554179999999974,
+              "encode": 0.4397769999999923,
+              "parse": 4.622395999999981,
+              "handles": 0.03265800000002628,
+              "check": 22.31611700000002,
+              "decode": 0.9757740000000013,
+              "validate": 0.6766250000000014,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.34908300000000736,
+              "other": 0.020810999999980595
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 29.588659000000007,
+                "phases": {
+                  "create": 0.1554179999999974,
+                  "encode": 0.4397769999999923,
+                  "parse": 4.622395999999981,
+                  "handles": 0.03265800000002628,
+                  "check": 22.31611700000002,
+                  "decode": 0.9757740000000013,
+                  "validate": 0.6766250000000014,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.34908300000000736,
+                  "other": 0.020810999999980595
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": [],
+          "replay": "pass"
+        },
+        {
+          "sort": "Pair",
+          "status": "sat",
+          "ms": 21.230766000000017,
+          "scriptChars": 6395,
+          "scriptSha256": "8bf4dd6d5707df3759d05fdcc6a09a6b311d18b5d24b684b4e9d27580d5b0d45",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 21.03052100000002,
+            "phases": {
+              "create": 0.12662599999998747,
+              "encode": 0.2607929999999783,
+              "parse": 3.343667000000039,
+              "handles": 0.026037999999971362,
+              "check": 15.681256000000019,
+              "decode": 0.8789019999999823,
+              "validate": 0.3876900000000205,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.30676100000005135,
+              "other": 0.01878799999997227
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 21.03052100000002,
+                "phases": {
+                  "create": 0.12662599999998747,
+                  "encode": 0.2607929999999783,
+                  "parse": 3.343667000000039,
+                  "handles": 0.026037999999971362,
+                  "check": 15.681256000000019,
+                  "decode": 0.8789019999999823,
+                  "validate": 0.3876900000000205,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.30676100000005135,
+                  "other": 0.01878799999997227
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": {
+            "__pair__": true,
+            "fst": 2,
+            "snd": true
+          },
+          "replay": "pass"
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "mode": "disabled",
+      "rows": [
+        {
+          "sort": "String",
+          "status": "sat",
+          "ms": 184.345084,
+          "scriptChars": 2582,
+          "scriptSha256": "8ff77db751e8cf893e4e936033e9cfa456a24387011f6b04740d00be500055d3",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 183.70551299999997,
+            "phases": {
+              "create": 0.8976089999999886,
+              "encode": 0.4943670000000111,
+              "parse": 25.138642000000004,
+              "handles": 0.2462419999999952,
+              "check": 151.219689,
+              "decode": 2.81723199999999,
+              "validate": 0.5055629999999951,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 2.1002279999999587,
+              "other": 0.28594100000003664
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 183.70551299999997,
+                "phases": {
+                  "create": 0.8976089999999886,
+                  "encode": 0.4943670000000111,
+                  "parse": 25.138642000000004,
+                  "handles": 0.2462419999999952,
+                  "check": 151.219689,
+                  "decode": 2.81723199999999,
+                  "validate": 0.5055629999999951,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 2.1002279999999587,
+                  "other": 0.28594100000003664
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": "ab",
+          "replay": "pass"
+        },
+        {
+          "sort": "List",
+          "status": "sat",
+          "ms": 29.592660000000024,
+          "scriptChars": 9521,
+          "scriptSha256": "7eccecab14f20b52649b0ee7a6bf238f445f2a310b3f754079caa91dc8cbbd0a",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 29.303465000000017,
+            "phases": {
+              "create": 0.1735460000000444,
+              "encode": 0.6219839999999976,
+              "parse": 6.120578999999964,
+              "handles": 0.04843200000004799,
+              "check": 20.210555,
+              "decode": 0.9635169999999675,
+              "validate": 0.7513450000000148,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.386086999999975,
+              "other": 0.02742000000000644
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 29.303465000000017,
+                "phases": {
+                  "create": 0.1735460000000444,
+                  "encode": 0.6219839999999976,
+                  "parse": 6.120578999999964,
+                  "handles": 0.04843200000004799,
+                  "check": 20.210555,
+                  "decode": 0.9635169999999675,
+                  "validate": 0.7513450000000148,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.386086999999975,
+                  "other": 0.02742000000000644
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": [],
+          "replay": "pass"
+        },
+        {
+          "sort": "Pair",
+          "status": "sat",
+          "ms": 22.187662999999986,
+          "scriptChars": 6395,
+          "scriptSha256": "8bf4dd6d5707df3759d05fdcc6a09a6b311d18b5d24b684b4e9d27580d5b0d45",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 21.971325000000036,
+            "phases": {
+              "create": 0.29194000000001097,
+              "encode": 0.30655000000001564,
+              "parse": 3.941305,
+              "handles": 0.03239800000000059,
+              "check": 15.349798999999962,
+              "decode": 0.9360260000000267,
+              "validate": 0.6585589999999684,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.43402800000001207,
+              "other": 0.020720000000039818
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 21.971325000000036,
+                "phases": {
+                  "create": 0.29194000000001097,
+                  "encode": 0.30655000000001564,
+                  "parse": 3.941305,
+                  "handles": 0.03239800000000059,
+                  "check": 15.349798999999962,
+                  "decode": 0.9360260000000267,
+                  "validate": 0.6585589999999684,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.43402800000001207,
+                  "other": 0.020720000000039818
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": {
+            "__pair__": true,
+            "fst": 2,
+            "snd": true
+          },
+          "replay": "pass"
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "mode": "enabled",
+      "rows": [
+        {
+          "sort": "String",
+          "status": "sat",
+          "ms": 184.714427,
+          "scriptChars": 448,
+          "scriptSha256": "8de28961ff74a6ae9060d98c4c55d9208d549594cb6af55d0d6994854c3e4618",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 183.945005,
+            "phases": {
+              "create": 1.0066600000000108,
+              "encode": 0.5926809999999989,
+              "parse": 20.67289600000001,
+              "handles": 0.20221699999999032,
+              "check": 155.83367300000003,
+              "decode": 3.1206980000000044,
+              "validate": 0.5519120000000157,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 1.719918000000007,
+              "other": 0.24434999999994034
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 183.945005,
+                "phases": {
+                  "create": 1.0066600000000108,
+                  "encode": 0.5926809999999989,
+                  "parse": 20.67289600000001,
+                  "handles": 0.20221699999999032,
+                  "check": 155.83367300000003,
+                  "decode": 3.1206980000000044,
+                  "validate": 0.5519120000000157,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 1.719918000000007,
+                  "other": 0.24434999999994034
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 0,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 0,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": "ab",
+          "replay": "pass"
+        },
+        {
+          "sort": "List",
+          "status": "unknown",
+          "reason": "Z3 returned unknown (possibly timeout)",
+          "ms": 3136.9146969999997,
+          "scriptChars": 9521,
+          "scriptSha256": "7eccecab14f20b52649b0ee7a6bf238f445f2a310b3f754079caa91dc8cbbd0a",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 3136.574687,
+            "phases": {
+              "create": 0.17068000000000438,
+              "encode": 0.6882919999999899,
+              "parse": 12.609460000000013,
+              "handles": 0.03464099999996506,
+              "check": 3122.433637,
+              "decode": 0,
+              "validate": 0,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.6186290000000554,
+              "other": 0.019347999999808962
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 3136.574687,
+                "phases": {
+                  "create": 0.17068000000000438,
+                  "encode": 0.6882919999999899,
+                  "parse": 12.609460000000013,
+                  "handles": 0.03464099999996506,
+                  "check": 3122.433637,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.6186290000000554,
+                  "other": 0.019347999999808962
+                },
+                "outcomes": {
+                  "unknown": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "unknown": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          }
+        },
+        {
+          "sort": "Pair",
+          "status": "sat",
+          "ms": 20.882532000000083,
+          "scriptChars": 6395,
+          "scriptSha256": "8bf4dd6d5707df3759d05fdcc6a09a6b311d18b5d24b684b4e9d27580d5b0d45",
+          "profile": {
+            "backendQueries": 1,
+            "backendMs": 20.704189999999926,
+            "phases": {
+              "create": 0.19864099999995233,
+              "encode": 0.4698800000001029,
+              "parse": 3.832038999999895,
+              "handles": 0.023865000000114378,
+              "check": 14.132226999999602,
+              "decode": 1.0362019999997756,
+              "validate": 0.6718270000001212,
+              "preferenceRefute": 0,
+              "preferenceSetup": 0,
+              "preferenceCheck": 0,
+              "cleanup": 0.3191390000001775,
+              "other": 0.02037000000018452
+            },
+            "byMode": {
+              "witness": {
+                "queries": 1,
+                "ms": 20.704189999999926,
+                "phases": {
+                  "create": 0.19864099999995233,
+                  "encode": 0.4698800000001029,
+                  "parse": 3.832038999999895,
+                  "handles": 0.023865000000114378,
+                  "check": 14.132226999999602,
+                  "decode": 1.0362019999997756,
+                  "validate": 0.6718270000001212,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0.3191390000001775,
+                  "other": 0.02037000000018452
+                },
+                "outcomes": {
+                  "sat": 1
+                }
+              },
+              "check": {
+                "queries": 0,
+                "ms": 0,
+                "phases": {
+                  "create": 0,
+                  "encode": 0,
+                  "parse": 0,
+                  "handles": 0,
+                  "check": 0,
+                  "decode": 0,
+                  "validate": 0,
+                  "preferenceRefute": 0,
+                  "preferenceSetup": 0,
+                  "preferenceCheck": 0,
+                  "cleanup": 0,
+                  "other": 0
+                },
+                "outcomes": {}
+              }
+            },
+            "preambleChars": 2134,
+            "fullPreambleChars": 2134,
+            "datatypeSorts": 3,
+            "fullDatatypeSorts": 3,
+            "mainChecks": {
+              "sat": 1
+            },
+            "preferenceChecks": {},
+            "preferenceRefutationAttempts": 0,
+            "preferenceRefutations": 0,
+            "cacheWitnessChecks": 0,
+            "cacheValidationMs": 0
+          },
+          "witness": {
+            "__pair__": true,
+            "fst": 2,
+            "snd": true
+          },
+          "replay": "pass"
+        }
+      ]
+    }
+  ]
+}

@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 36: SMT declaration projection and a shared-context regression](increment-36-smt-preamble-projection.md)
+adds opt-in datatype dependency projection, paired measurements and a reproducible
+HML timeout regression that keeps this optimization disabled by default.
+
 [Increment 35: refuting impossible numeric preferences](increment-35-numeric-preference-refutation.md)
 keeps a validated witness when an independent numeric condition disproves the
 optional all-ones preference, with Z3 fallback and paired benchmark results.
