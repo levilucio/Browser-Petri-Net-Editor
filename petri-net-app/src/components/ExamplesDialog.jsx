@@ -1,8 +1,29 @@
-import React from 'react';
+import { inventoryExamples } from '../satel/examples/inventory/editor.js';
+import { nondeterminismExamples } from '../satel/examples/nondeterminism/editor.js';
+import { hmlAlgebraicExamples } from '../satel/examples/hml-selection/algebraic.js';
+import { hmlSelectionExamples } from '../satel/examples/hml-selection/editor.js';
+import { refusalExamples } from '../satel/examples/refusal/editor.js';
+import React, { useState } from 'react';
+import { exerciseExamples } from '../satel/examples/exercises/editor.js';
+import { fulfilmentExamples } from '../satel/examples/fulfilment/editor.js';
 import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.js';
 
 const EXAMPLES = [
   ...oracleAccountExamples,
+  ...inventoryExamples,
+  ...refusalExamples,
+  ...nondeterminismExamples,
+  ...hmlSelectionExamples,
+  ...hmlAlgebraicExamples,
+  ...fulfilmentExamples,
+  { filename: 'executable-sequence', displayName: 'SATEL Whole-sequence selection — Reference' },
+  { filename: 'executable-sequence-mutant', displayName: 'SATEL Whole-sequence selection — Mutant: no debit' },
+  { filename: 'typed-store', displayName: 'SATEL Typed store — Reference' },
+  { filename: 'typed-store-mutant', displayName: 'SATEL Typed store — Mutant: drops first item' },
+  { filename: 'builtin-types', displayName: 'SATEL Built-in types — Symbolic classes' },
+  { filename: 'compound-guard', displayName: 'SATEL Compound guard — Reference' },
+  { filename: 'compound-guard-mutant', displayName: 'SATEL Compound guard — Mutant: missing x = 10' },
+  { filename: 'symbolic-list', displayName: 'SATEL List — Symbolic membership classes' },
   { filename: 'petri-net-PT.pnml', displayName: 'Petri Net PT' },
   { filename: 'petri-net-algebraic1.pnml', displayName: 'Algebraic Net 1' },
   { filename: 'petri-net-algebraic2.pnml', displayName: 'Algebraic Net 2' },
@@ -13,7 +34,16 @@ const EXAMPLES = [
 ];
 
 export default function ExamplesDialog({ isOpen, onClose, onSelectExample }) {
+  const [search, setSearch] = useState('');
   if (!isOpen) return null;
+  const matches = example => `${example.displayName} ${example.description || ''}`.toLowerCase().includes(search.toLowerCase());
+  const renderExample = example => (
+    <button key={example.filename} className="w-full text-left px-4 py-3 border rounded hover:bg-gray-50 active:bg-gray-100 transition-colors"
+      onClick={() => handleSelect(example.filename)} data-testid={`example-${example.filename}`}>
+      <div className="font-medium text-gray-800">{example.displayName}</div>
+      {example.description && <div className="text-xs text-gray-600 mt-1">{example.description}</div>}
+    </button>
+  );
 
   const handleSelect = (filename) => {
     onSelectExample(filename);
@@ -33,17 +63,15 @@ export default function ExamplesDialog({ isOpen, onClose, onSelectExample }) {
           </button>
         </div>
         <div className="space-y-2">
-          {EXAMPLES.map((example) => (
-            <button
-              key={example.filename}
-              className="w-full text-left px-4 py-3 border rounded hover:bg-gray-50 active:bg-gray-100 transition-colors"
-              onClick={() => handleSelect(example.filename)}
-              data-testid={`example-${example.filename}`}
-            >
-              <div className="font-medium text-gray-800">{example.displayName}</div>
-              <div className="text-xs text-gray-500 mt-1">{example.filename}</div>
-            </button>
-          ))}
+          <label className="block text-sm">Find an example
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, type, or fault" className="block w-full border rounded p-2 mt-1" />
+          </label>
+          <details open={search ? true : undefined}>
+            <summary className="cursor-pointer font-semibold py-2">SATEL exercises — 10 references and 20 mutants</summary>
+            <p className="text-sm text-gray-600 mb-2">Generate on a reference, then load its mutant and replay the frozen suite.</p>
+            <div className="space-y-2">{exerciseExamples.filter(matches).map(renderExample)}</div>
+          </details>
+          {EXAMPLES.filter(matches).map(renderExample)}
         </div>
       </div>
     </div>

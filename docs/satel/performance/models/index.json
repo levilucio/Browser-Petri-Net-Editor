@@ -1,0 +1,368 @@
+[
+  {
+    "filename": "allocation-8-resources-reference.pnml",
+    "config": {
+      "size": 8
+    },
+    "mutant": null,
+    "places": 12,
+    "transitions": 2,
+    "arcs": 26,
+    "bytes": 13561,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "allocation-8-resources-missing-confirmation.pnml",
+    "config": {
+      "size": 8
+    },
+    "mutant": "missing-confirmation",
+    "places": 12,
+    "transitions": 2,
+    "arcs": 26,
+    "bytes": 13567,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "allocation-8-resources-wrong-allocation.pnml",
+    "config": {
+      "size": 8
+    },
+    "mutant": "wrong-allocation",
+    "places": 12,
+    "transitions": 2,
+    "arcs": 26,
+    "bytes": 13571,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "allocation-32-resources-reference.pnml",
+    "config": {
+      "size": 32
+    },
+    "mutant": null,
+    "places": 36,
+    "transitions": 2,
+    "arcs": 74,
+    "bytes": 39208,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "allocation-32-resources-missing-confirmation.pnml",
+    "config": {
+      "size": 32
+    },
+    "mutant": "missing-confirmation",
+    "places": 36,
+    "transitions": 2,
+    "arcs": 74,
+    "bytes": 39214,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "allocation-32-resources-wrong-allocation.pnml",
+    "config": {
+      "size": 32
+    },
+    "mutant": "wrong-allocation",
+    "places": 36,
+    "transitions": 2,
+    "arcs": 74,
+    "bytes": 39218,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-4-sites-reference.pnml",
+    "config": {
+      "sites": 4,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": null,
+    "places": 63,
+    "transitions": 20,
+    "arcs": 216,
+    "bytes": 89309,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-4-sites-missing-dispatch.pnml",
+    "config": {
+      "sites": 4,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "missing-dispatch",
+    "places": 63,
+    "transitions": 20,
+    "arcs": 216,
+    "bytes": 89323,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-4-sites-wrong-receipt.pnml",
+    "config": {
+      "sites": 4,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "wrong-receipt",
+    "places": 63,
+    "transitions": 20,
+    "arcs": 216,
+    "bytes": 89326,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-4-sites-stock-leak.pnml",
+    "config": {
+      "sites": 4,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "stock-leak",
+    "places": 63,
+    "transitions": 20,
+    "arcs": 216,
+    "bytes": 89291,
+    "note": "Expected survivor: current public observations do not inspect remaining inventory."
+  },
+  {
+    "filename": "fulfilment-16-sites-reference.pnml",
+    "config": {
+      "sites": 16,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": null,
+    "places": 243,
+    "transitions": 80,
+    "arcs": 864,
+    "bytes": 351458,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-16-sites-missing-dispatch.pnml",
+    "config": {
+      "sites": 16,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "missing-dispatch",
+    "places": 243,
+    "transitions": 80,
+    "arcs": 864,
+    "bytes": 351472,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-16-sites-wrong-receipt.pnml",
+    "config": {
+      "sites": 16,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "wrong-receipt",
+    "places": 243,
+    "transitions": 80,
+    "arcs": 864,
+    "bytes": 351523,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-16-sites-stock-leak.pnml",
+    "config": {
+      "sites": 16,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "stock-leak",
+    "places": 243,
+    "transitions": 80,
+    "arcs": 864,
+    "bytes": 351392,
+    "note": "Expected survivor: current public observations do not inspect remaining inventory."
+  },
+  {
+    "filename": "fulfilment-128-sites-reference.pnml",
+    "config": {
+      "sites": 128,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": null,
+    "places": 1923,
+    "transitions": 640,
+    "arcs": 6912,
+    "bytes": 2822768,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-128-sites-missing-dispatch.pnml",
+    "config": {
+      "sites": 128,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "missing-dispatch",
+    "places": 1923,
+    "transitions": 640,
+    "arcs": 6912,
+    "bytes": 2822782,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-128-sites-wrong-receipt.pnml",
+    "config": {
+      "sites": 128,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "wrong-receipt",
+    "places": 1923,
+    "transitions": 640,
+    "arcs": 6912,
+    "bytes": 2823281,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "fulfilment-128-sites-stock-leak.pnml",
+    "config": {
+      "sites": 128,
+      "policies": 8,
+      "cycles": 4
+    },
+    "mutant": "stock-leak",
+    "places": 1923,
+    "transitions": 640,
+    "arcs": 6912,
+    "bytes": 2822254,
+    "note": "Expected survivor: current public observations do not inspect remaining inventory."
+  },
+  {
+    "filename": "workers-audit-small-reference.pnml",
+    "config": {
+      "workers": 2,
+      "rounds": 2,
+      "audit": true
+    },
+    "mutant": null,
+    "places": 5,
+    "transitions": 4,
+    "arcs": 24,
+    "bytes": 10619,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "workers-audit-small-missing-worker.pnml",
+    "config": {
+      "workers": 2,
+      "rounds": 2,
+      "audit": true
+    },
+    "mutant": "missing-worker",
+    "places": 5,
+    "transitions": 4,
+    "arcs": 24,
+    "bytes": 10631,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "workers-audit-small-wrong-receipt.pnml",
+    "config": {
+      "workers": 2,
+      "rounds": 2,
+      "audit": true
+    },
+    "mutant": "wrong-receipt",
+    "places": 5,
+    "transitions": 4,
+    "arcs": 24,
+    "bytes": 10638,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "workers-merged-large-reference.pnml",
+    "config": {
+      "workers": 8,
+      "rounds": 8,
+      "audit": false
+    },
+    "mutant": null,
+    "places": 4,
+    "transitions": 16,
+    "arcs": 80,
+    "bytes": 30517,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "workers-merged-large-missing-worker.pnml",
+    "config": {
+      "workers": 8,
+      "rounds": 8,
+      "audit": false
+    },
+    "mutant": "missing-worker",
+    "places": 4,
+    "transitions": 16,
+    "arcs": 80,
+    "bytes": 30529,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "workers-merged-large-wrong-receipt.pnml",
+    "config": {
+      "workers": 8,
+      "rounds": 8,
+      "audit": false
+    },
+    "mutant": "wrong-receipt",
+    "places": 4,
+    "transitions": 16,
+    "arcs": 80,
+    "bytes": 30590,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "workers-audit-stress-reference.pnml",
+    "config": {
+      "workers": 4,
+      "rounds": 4,
+      "audit": true
+    },
+    "mutant": null,
+    "places": 5,
+    "transitions": 8,
+    "arcs": 48,
+    "bytes": 18865,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "workers-audit-stress-missing-worker.pnml",
+    "config": {
+      "workers": 4,
+      "rounds": 4,
+      "audit": true
+    },
+    "mutant": "missing-worker",
+    "places": 5,
+    "transitions": 8,
+    "arcs": 48,
+    "bytes": 18877,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  },
+  {
+    "filename": "workers-audit-stress-wrong-receipt.pnml",
+    "config": {
+      "workers": 4,
+      "rounds": 4,
+      "audit": true
+    },
+    "mutant": "wrong-receipt",
+    "places": 5,
+    "transitions": 8,
+    "arcs": 48,
+    "bytes": 18902,
+    "note": "Large/stress references may exhaust default budgets; a limit is not a failed test."
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {"family":"allocation","kind":"linear","size":64},
+  {"family":"allocation","kind":"slots","size":8,"unsat":true},
+  {"family":"invoice","size":16,"nonlinear":false},
+  {"family":"invoice","size":4,"nonlinear":true},
+  {"family":"decomposition","kind":"tree","depth":6},
+  {"family":"fulfilment","sites":4,"policies":8,"cycles":4,"mutations":true},
+  {"family":"fulfilment","sites":128,"policies":8,"cycles":4},
+  {"family":"fulfilment","sites":4,"policies":64,"cycles":4},
+  {"family":"workers","workers":4,"rounds":2,"audit":false,"mutations":true},
+  {"family":"workers","workers":2,"rounds":4,"audit":false,"mutations":true},
+  {"family":"workers","workers":2,"rounds":4,"audit":true,"mutations":true},
+  {"family":"workers","workers":4,"rounds":4,"audit":true},
+  {"family":"workers","workers":8,"rounds":4,"audit":false},
+  {"family":"resource-apn","size":16,"mutations":true},
+  {"family":"resource-apn","size":32},
+  {"family":"resource-apn","size":64}
+]

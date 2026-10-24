@@ -1,0 +1,206 @@
+{
+  "measuredAt": "2026-10-17T12:29:18.129Z",
+  "node": "v24.19.0",
+  "sourceCommit": "9042a45c7174c89918c29ba18f31ea4fdbb43a9b",
+  "dirty": true,
+  "scope": "single-process functional smoke; cold/warm timings mixed; no statistical performance claim",
+  "models": [
+    {
+      "family": "bag",
+      "reference": [
+        {
+          "intention": "bag-orders",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 8,
+          "evaluatedNodes": 9,
+          "successorSearches": 6,
+          "bindingVisits": 13,
+          "cacheHits": 2,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0
+        },
+        {
+          "intention": "bag-no-third",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 1,
+          "evaluatedNodes": 2,
+          "successorSearches": 1,
+          "bindingVisits": 3,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0
+        }
+      ],
+      "mutants": [
+        {
+          "id": "nondeterminism-bag-missing-choice",
+          "counts": {
+            "pass": 1,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "bag-orders-1",
+              "verdict": "fail",
+              "actualTruth": false
+            },
+            {
+              "id": "bag-no-third-1",
+              "verdict": "pass",
+              "actualTruth": true
+            }
+          ]
+        },
+        {
+          "id": "nondeterminism-bag-multiplicity",
+          "counts": {
+            "pass": 1,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "bag-orders-1",
+              "verdict": "fail",
+              "actualTruth": false
+            },
+            {
+              "id": "bag-no-third-1",
+              "verdict": "pass",
+              "actualTruth": true
+            }
+          ]
+        },
+        {
+          "id": "nondeterminism-bag-extra-output",
+          "counts": {
+            "pass": 1,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "bag-orders-1",
+              "verdict": "pass",
+              "actualTruth": true
+            },
+            {
+              "id": "bag-no-third-1",
+              "verdict": "fail",
+              "actualTruth": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "family": "branch",
+      "reference": [
+        {
+          "intention": "branch-both",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 0,
+          "evaluatedNodes": 6,
+          "successorSearches": 3,
+          "bindingVisits": 8,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0
+        },
+        {
+          "intention": "branch-restricted",
+          "expectedTruth": false,
+          "verdict": "pass",
+          "durationMs": 0,
+          "evaluatedNodes": 9,
+          "successorSearches": 5,
+          "bindingVisits": 12,
+          "cacheHits": 0,
+          "formulaCacheHits": 1,
+          "incompleteSearches": 0
+        },
+        {
+          "intention": "branch-progress",
+          "expectedTruth": true,
+          "verdict": "pass",
+          "durationMs": 2,
+          "evaluatedNodes": 6,
+          "successorSearches": 3,
+          "bindingVisits": 8,
+          "cacheHits": 0,
+          "formulaCacheHits": 1,
+          "incompleteSearches": 0
+        }
+      ],
+      "mutants": [
+        {
+          "id": "nondeterminism-branch-early-choice",
+          "counts": {
+            "pass": 2,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "branch-both-1",
+              "verdict": "fail",
+              "actualTruth": false
+            },
+            {
+              "id": "branch-restricted-1",
+              "verdict": "pass",
+              "actualTruth": false
+            },
+            {
+              "id": "branch-progress-1",
+              "verdict": "pass",
+              "actualTruth": true
+            }
+          ]
+        },
+        {
+          "id": "nondeterminism-branch-missing-restriction",
+          "counts": {
+            "pass": 2,
+            "fail": 1,
+            "error": 0
+          },
+          "properties": [
+            {
+              "id": "branch-both-1",
+              "verdict": "pass",
+              "actualTruth": true
+            },
+            {
+              "id": "branch-restricted-1",
+              "verdict": "fail",
+              "actualTruth": true
+            },
+            {
+              "id": "branch-progress-1",
+              "verdict": "pass",
+              "actualTruth": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "depth20": {
+    "tokenChoices": "ten 1s and ten 2s",
+    "completeValueOrders": 184756,
+    "expectedTruth": true,
+    "evaluatedNodes": 121,
+    "successorSearches": 121,
+    "bindingVisits": 341,
+    "cacheHits": 0,
+    "formulaCacheHits": 100,
+    "incompleteSearches": 0,
+    "durationMs": 15,
+    "serializedEvidenceBytes": 61232
+  }
+}

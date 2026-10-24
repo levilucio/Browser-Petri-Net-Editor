@@ -1,0 +1,566 @@
+[
+  {
+    "id": "list-16",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 16,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "list-16",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 16,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "tree-9",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 9,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "tree-9",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 9,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "membership-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "membership-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "lookup-4",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 4,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "lookup-4",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 4,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "lookup-5",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 5,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "lookup-5",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 5,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "repeated-12",
+    "family": "recursive-adt",
+    "kind": "repeated",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "repeated-12",
+    "family": "recursive-adt",
+    "kind": "repeated",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "membership-fixed-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "size": 12,
+    "depth": 13,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "membership-fixed-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "size": 12,
+    "depth": 13,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "lookup-branch-limit",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 8,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 32,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "lookup-branch-limit",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 8,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 32,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "list-time-limit",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 16,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 0,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "list-time-limit",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 16,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 0,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "fulfilment-20",
+    "family": "fulfilment",
+    "sites": 4,
+    "cycles": 4,
+    "policies": 8,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "fulfilment-20",
+    "family": "fulfilment",
+    "sites": 4,
+    "cycles": 4,
+    "policies": 8,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "lookup-6",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 6,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  },
+  {
+    "id": "lookup-6",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 6,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "lookup-7",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 7,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": true,
+      "solverContext": "query"
+    },
+    "solverMode": "owned-projected"
+  },
+  {
+    "id": "lookup-7",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 7,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true,
+      "smtPreambleProjection": false,
+      "solverContext": "shared"
+    },
+    "solverMode": "shared-full"
+  }
+]

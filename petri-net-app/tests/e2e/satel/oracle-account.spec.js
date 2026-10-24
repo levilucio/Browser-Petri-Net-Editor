@@ -14,33 +14,388 @@ async function openSatel(page) {
   }
 }
 
+test('fulfilment generates four ten-pair tests and detects all six independently loaded mutants', async ({ page }, testInfo) => {
+  test.setTimeout(150000);
+  await page.goto('/');
+  await openExamples(page);
+  await page.getByTestId('example-fulfilment-reference').click();
+  await openSatel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible({ timeout: 30000 });
+  await expect(page.getByLabel('Executable selection')).toContainText('4 executable classes · 0 blocked classes · 0 unresolved searches');
+  await expect(page.getByTestId('satel-pair-formula')).toHaveCount(40);
+  await expect(page.getByTestId('satel-pair-formula').nth(9)).toContainText('audit() with stockLevel(10) // walletBalance(78) // netRevenue(22) // loyalty(2) // shipmentCount(1) // returnCount(1)');
+  await page.getByTestId('satel-pair-formula').nth(9).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('fulfilment-reference.png') });
+  for (const [id, counts, step] of [
+    ['stock-not-reserved', '0 passed · 4 failed · 0 errors', 10],
+    ['payment-not-debited', '0 passed · 4 failed · 0 errors', 10],
+    ['express-bulk-fee', '3 passed · 1 failed · 0 errors', 6],
+    ['refund-not-credited', '0 passed · 4 failed · 0 errors', 10],
+    ['one-packing-crate', '0 passed · 4 failed · 0 errors', 5],
+    ['loyalty-before-return', '0 passed · 4 failed · 0 errors', 10],
+  ]) {
+    await page.getByLabel('Close SATEL').click();
+    await openExamples(page);
+    await page.getByTestId(`example-fulfilment-${id}`).click();
+    await openSatel(page);
+    await page.getByRole('button', { name: 'Replay results', exact: true }).click();
+    await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+    await expect(page.getByTestId('oracle-target-results')).toContainText(counts);
+    await expect(page.getByTestId('oracle-target-results')).toContainText(`fail at step ${step}`);
+    await expect(page.getByText(/4 frozen tests from/)).toBeVisible();
+  }
+});
+
+test('whole-sequence generation chooses an earlier amount from the final observation', async ({ page }) => {
+  await page.goto('/');
+  await openExamples(page);
+  await page.getByTestId('example-executable-sequence').click();
+  await openSatel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('2/2 tests passed the reference oracle')).toBeVisible();
+  await expect(page.getByLabel('Executable selection')).toContainText('2 executable classes · 0 blocked classes · 0 unresolved searches');
+  const pairs = page.getByTestId('satel-pair-formula');
+  await expect(pairs).toHaveCount(6);
+  await expect(pairs.nth(3)).toContainText('withdraw(3) with ack(1) // paidAmount(3)');
+  await expect(pairs.nth(4)).toContainText('withdraw(7)');
+  await expect(pairs.nth(5)).toContainText('query() with balanceResult(0)');
+  await page.getByLabel('Close SATEL').click();
+  await openExamples(page);
+  await page.getByTestId('example-executable-sequence-mutant').click();
+  await openSatel(page);
+  await page.getByRole('button', { name: 'Replay results', exact: true }).click();
+  await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+  await expect(page.getByTestId('oracle-target-results')).toContainText('0 passed · 2 failed · 0 errors');
+});
+
 test('reference suite survives loading a mutant and identifies the first mismatching observation', async ({ page }, testInfo) => {
   await page.goto('/');
   await openExamples(page);
   await page.getByTestId('example-oracle-account-reference').click();
+  // Exercise the actual GUI file path, including its PNML method metadata.
+  await page.evaluate(() => { window.showSaveFilePicker = undefined; });
+  if (await page.getByLabel('Open toolbar menu').isVisible()) await page.getByLabel('Open toolbar menu').click();
+  const downloaded = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  const download = await downloaded, savedPath = testInfo.outputPath('account.pnml');
+  await download.saveAs(savedPath);
+  if (await page.getByLabel('Open toolbar menu').isVisible()) await page.getByLabel('Open toolbar menu').click();
+  const choosing = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Load', exact: true }).click();
+  await (await choosing).setFiles(savedPath);
+  await expect(page.getByText(/Petri net loaded successfully with 4 places/)).toBeVisible();
   await openSatel(page);
-  await page.getByRole('button', { name: 'Generate and validate on loaded reference' }).click();
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
   await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible();
   await expect(page.getByText('Initial marking M₀', { exact: true })).toHaveCount(4);
   await expect(page.getByLabel('SATEL Testing')).not.toContainText('V2');
   const pairs = page.getByTestId('satel-pair-formula');
   await expect(pairs).toHaveCount(12);
+  await expect(page.getByLabel('SATEL Testing')).not.toContainText('HML(');
   await expect(pairs.nth(7)).toContainText('withdraw(10) with ack(1) // paidAmount(10)');
-  const equalityTest = page.locator('details').filter({ has: page.locator('summary', { hasText: /^Amount\(10\) · reference passed$/ }) }).first();
+  const equalityTest = page.getByTestId('satel-pair-formula').nth(7);
   await equalityTest.scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('instantiated-pairs.png') });
-  await page.getByRole('button', { name: 'intentions' }).click();
+  await page.getByRole('button', { name: 'Intentions' }).click();
   await expect(page.getByRole('button', { name: '+ Create Intention' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Create V1/ })).toHaveCount(0);
   await page.getByLabel('Close SATEL').click();
   await openExamples(page);
   await page.getByTestId('example-oracle-account-reject-exact-balance').click();
   await openSatel(page);
+  await page.getByRole('button', { name: 'Replay results', exact: true }).click();
   await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
   const result = page.getByTestId('oracle-target-results');
   await expect(result).toContainText('3 passed · 1 failed · 0 errors');
   await expect(result).toContainText('fail at step 2');
   await expect(result).toContainText('observation-mismatch');
-  await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible();
+  await expect(page.getByText(/4 frozen tests from/)).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('oracle-mutant.png') });
+  await page.getByLabel('Close SATEL').click();
+  await openExamples(page);
+  await page.getByTestId('example-oracle-account-wrong-initial-balance').click();
+  await openSatel(page);
+  await page.getByRole('button', { name: 'Replay results', exact: true }).click();
+  await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+  await expect(page.getByTestId('oracle-target-results')).toContainText('0 passed · 4 failed · 0 errors');
+});
+
+test('public calls accept arguments and preserve the marking between calls', async ({ page }, testInfo) => {
+  await page.goto('/');
+  await openExamples(page);
+  await page.getByTestId('example-oracle-account-reference').click();
+  await page.getByRole('button', { name: 'Call public method', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Call public method' });
+  await dialog.getByLabel('deposit argument n').fill('10');
+  await dialog.getByRole('button', { name: 'Call deposit', exact: true }).click();
+  await expect(dialog.getByRole('status').filter({ hasText: 'deposit(10)' })).toContainText('ack ↦ ⟦1⟧');
+  await dialog.getByLabel('withdraw argument n').fill('10');
+  await dialog.getByRole('button', { name: 'Call withdraw', exact: true }).click();
+  await expect(dialog.getByRole('status').filter({ hasText: 'withdraw(10)' })).toContainText('paidAmount ↦ ⟦10⟧');
+  await dialog.getByRole('button', { name: 'Call withdraw', exact: true }).click();
+  await expect(dialog.getByRole('status').filter({ hasText: 'withdraw(10)' })).toContainText('ack ↦ ⟦0⟧');
+  await dialog.getByRole('button', { name: 'Call query', exact: true }).click();
+  await expect(dialog.getByRole('status').filter({ hasText: 'query()' })).toContainText('balanceResult ↦ ⟦0⟧');
+  await page.screenshot({ path: testInfo.outputPath('public-calls.png') });
+  await page.getByLabel('Close method calls').click();
+  await openSatel(page);
+  await page.getByText('Advanced model and selection tools', { exact: true }).click();
+  await page.getByText('Observable interface', { exact: true }).click();
+  await expect(page.getByLabel('SATEL Testing')).toContainText('Public methods (4)');
+  await expect(page.getByLabel('SATEL Testing')).toContainText('withdraw(n: Nat)');
+});
+
+test('observations are edited as places and token multisets without JSON', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-oracle-account-reference').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  await page.getByRole('button', { name: '+ Create Intention' }).click();
+  await page.getByRole('button', { name: '+ Add Pair' }).click();
+  await page.getByLabel('Pair 1 argument n').fill('10');
+  const observation = page.getByRole('region', { name: 'Pair 1 observation' });
+  await expect(observation).not.toContainText('JSON');
+  await page.getByLabel('Pair 1 check outputs at ack').check();
+  await page.getByLabel('Pair 1 expected outputs at ack').fill('1,');
+  await expect(page.getByRole('button', { name: 'Save Intention' })).toBeDisabled();
+  await page.getByLabel('Pair 1 expected outputs at ack').fill('1');
+  await observation.getByText('Marking after this call (optional)', { exact: true }).click();
+  await page.getByLabel('Pair 1 marking check at balance', { exact: true }).selectOption('equals');
+  await page.getByLabel('Pair 1 expected marking at balance', { exact: true }).fill('10');
+  await page.getByLabel('Pair 1 marking check at ack').selectOption('equals');
+  await page.getByLabel('Pair 1 expected marking at ack').fill('1');
+  await observation.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('place-observation-editor.png') });
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await page.locator('article').filter({ has: page.getByText('New Test Intention', { exact: true }) }).getByRole('button', { name: 'Edit', exact: true }).click();
+  await expect(page.getByLabel('Pair 1 expected marking at balance', { exact: true })).toHaveValue('10');
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('1/1 tests passed the reference oracle')).toBeVisible();
+  await expect(page.getByTestId('satel-pair-formula')).toContainText('deposit(10) with ack(1)');
+});
+
+
+test('saved symbolic intentions expose a recursive list frontier and editable equation budget', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-symbolic-list').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  if (!(await page.getByText('Advanced details', { exact: true }).evaluate(el => el.parentElement.open))) await page.getByText('Advanced details', { exact: true }).click();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('4 feasible classes · 0 infeasible branches · 1 unresolved branches', { timeout: 30000 });
+  await expect(page.getByRole('region', { name: 'Unresolved symbolic branches' })).toContainText('Unfolding budget exhausted');
+  await expect(page.getByText('Class derivation only: these witnesses are not oracle-validated tests.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Generate tests', exact: true })).toBeDisabled();
+  await page.screenshot({ path: testInfo.outputPath('list-classes.png') });
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.getByText('Advanced selection settings', { exact: true }).click();
+  await expect(page.getByLabel('ADT constructors and operation equations')).toContainText('member(x, Cons(y, ys))');
+  await page.getByLabel('Unfolding budget').fill('3');
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await page.getByRole('button', { name: 'Use intention' }).click();
+  await expect(page.getByText('These tests belong to the saved intention/model snapshot. Generate again to use the current selection or edits.')).toBeVisible();
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  if (!(await page.getByText('Advanced details', { exact: true }).evaluate(el => el.parentElement.open))) await page.getByText('Advanced details', { exact: true }).click();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('6 feasible classes · 0 infeasible branches · 1 unresolved branches');
+});
+
+test('account symbolic goals are editable in Intentions and derive before oracle admission', async ({ page }) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-oracle-account-reference').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  const card = page.locator('article').filter({ has: page.getByText('Account — less / equal / greater', { exact: true }) });
+  await card.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.getByText('Advanced selection settings', { exact: true }).click();
+  await page.getByLabel('Symbolic goal arguments').fill('25, request');
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await card.getByRole('button', { name: 'Use intention' }).click();
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  if (!(await page.getByText('Advanced details', { exact: true }).evaluate(el => el.parentElement.open))) await page.getByText('Advanced details', { exact: true }).click();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('4 feasible classes', { timeout: 30000 });
+  await expect(page.getByRole('region', { name: 'Instantiated test sequences' }).locator('article')).toHaveCount(4);
+  await expect(page.getByTestId('satel-pair-formula').first()).toContainText('deposit(25)');
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible();
+});
+
+test('compound guard shared-variable classes become readable pairs and detect the missing disjunct mutant', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-compound-guard').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  if (!(await page.getByText('Advanced details', { exact: true }).evaluate(el => el.parentElement.open))) await page.getByText('Advanced details', { exact: true }).click();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('4 feasible classes', { timeout: 30000 });
+  await expect(page.getByTestId('symbolic-summary')).toContainText('0 unresolved branches');
+  await expect(page.getByRole('region', { name: 'Instantiated test sequences' }).locator('article')).toHaveCount(4);
+  await expect(page.getByTestId('satel-pair-formula').filter({ hasText: 'check(10)' })).toContainText('accepted(1)');
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible();
+  const ten = page.getByRole('region', { name: 'Instantiated stimulation/observation pairs', exact: true }).filter({ has: page.getByTestId('satel-pair-formula').filter({ hasText: 'check(10)' }) });
+  await expect(ten.getByLabel('Instantiated variables')).toContainText('x ↦ 10');
+  await page.getByTestId('satel-pair-formula').filter({ hasText: 'check(10)' }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('compound-guard-pairs.png') });
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit', exact: true }).click();
+  await page.getByText('Advanced selection settings', { exact: true }).click();
+  await expect(page.getByLabel('Symbolic goal kind')).toHaveValue('guard');
+  await expect(page.getByLabel('Symbolic guard')).toHaveValue('x > 0 and (x < 5 or x == 10)');
+  await page.getByLabel('Import transition guard').selectOption('refuse');
+  await expect(page.getByLabel('Symbolic guard')).toHaveValue('not (x > 0 and (x < 5 or x == 10))');
+  await expect(page.getByLabel('Symbolic pair protocol')).toHaveValue('');
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click();
+  await page.getByLabel('Close SATEL').click(); await openExamples(page);
+  await page.getByTestId('example-compound-guard-mutant').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Replay results', exact: true }).click();
+  await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+  await expect(page.getByTestId('oracle-target-results')).toContainText('3 passed · 1 failed · 0 errors');
+});
+
+test('built-in list partiality and String guards are visible in the real browser solver', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-builtin-types').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  if (!(await page.getByText('Advanced details', { exact: true }).evaluate(el => el.parentElement.open))) await page.getByText('Advanced details', { exact: true }).click();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('1 feasible classes', { timeout: 30000 });
+  await expect(page.getByRole('region', { name: 'Unresolved symbolic branches' })).toContainText('head requires a non-empty list');
+  await page.getByLabel('Intention to generate', { exact: true }).selectOption('builtin-string');
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  if (!(await page.getByText('Advanced details', { exact: true }).evaluate(el => el.parentElement.open))) await page.getByText('Advanced details', { exact: true }).click();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('3 feasible classes', { timeout: 30000 });
+  await expect(page.getByTestId('symbolic-summary')).toContainText('0 unresolved branches');
+  await expect(page.getByTestId('symbolic-summary')).toContainText('pairwise disjoint');
+  await expect(page.getByText('Class derivation only: these witnesses are not oracle-validated tests.')).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('builtin-string-classes.png') });
+});
+
+test('typed method classes produce two-pair tests and detect lost stored data', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-typed-store').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  if (!(await page.getByText('Advanced details', { exact: true }).evaluate(el => el.parentElement.open))) await page.getByText('Advanced details', { exact: true }).click();
+  await page.getByRole('button', { name: 'Derive classes without executing the APN' }).click();
+  await expect(page.getByTestId('symbolic-summary')).toContainText('5 feasible classes', { timeout: 30000 });
+  await expect(page.getByTestId('symbolic-summary')).toContainText('0 unresolved branches');
+  await expect(page.getByRole('region', { name: 'Instantiated test sequences' }).locator('article')).toHaveCount(5);
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('5/5 tests passed the reference oracle')).toBeVisible();
+  const formulas = page.getByTestId('satel-pair-formula');
+  await expect(formulas).toHaveCount(10);
+  await expect(formulas.filter({ hasText: 'read()' })).toHaveCount(5);
+  const accepted = formulas.filter({ hasText: 'ack(true)' });
+  await expect(accepted).toHaveCount(1); await expect(accepted).toContainText('metaOut((');
+  await accepted.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('typed-store-pairs.png') });
+  await page.getByLabel('Close SATEL').click(); await openExamples(page);
+  await page.getByTestId('example-typed-store-mutant').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Replay results', exact: true }).click();
+  await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+  await expect(page.getByTestId('oracle-target-results')).toContainText('4 passed · 1 failed · 0 errors');
+});
+
+test('typed call inputs preserve nested values and state between calls; intentions use readable values', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-typed-store').click();
+  await page.getByRole('button', { name: 'Call public method', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Call public method' });
+  await dialog.getByLabel('store argument items').fill('[1, true, ["nested"], ("key", false)]');
+  await dialog.getByLabel('store argument label').fill('"$cash"');
+  await dialog.getByLabel('store argument enabled').fill('true');
+  await dialog.getByLabel('store argument meta').fill('("$cash", false)');
+  await dialog.getByRole('button', { name: 'Call store', exact: true }).click();
+  await expect(dialog.getByRole('status').filter({ hasText: 'store(' })).toContainText('ack ↦ ⟦true⟧');
+  await expect(dialog.getByRole('status').filter({ hasText: 'store(' })).toContainText('labelOut ↦ ⟦"$cash"⟧');
+  await dialog.getByRole('button', { name: 'Call read', exact: true }).click();
+  await expect(dialog.getByRole('status').filter({ hasText: 'read()' })).toContainText('saved ↦ ⟦[1, true, ["nested"], ("key", false)]⟧');
+  await dialog.getByLabel('store argument enabled').fill('false');
+  await dialog.getByRole('button', { name: 'Call store', exact: true }).click();
+  await expect(dialog.getByRole('status').filter({ hasText: 'store(' })).toContainText('ack ↦ ⟦false⟧');
+  await dialog.getByRole('button', { name: 'Call read', exact: true }).click();
+  await expect(dialog.getByRole('status').filter({ hasText: 'read()' })).toContainText('saved ↦ ⟦[1, true, ["nested"], ("key", false)]⟧');
+  await dialog.getByRole('status').filter({ hasText: 'read()' }).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('typed-method-calls.png') });
+  await page.getByLabel('Close method calls').click(); await openSatel(page);
+  await page.getByRole('button', { name: 'Intentions', exact: true }).click();
+  await page.getByRole('button', { name: '+ Create Intention' }).click();
+  await page.getByRole('button', { name: '+ Add Pair' }).click();
+  await page.getByLabel('Pair 1 argument items').fill('[1,');
+  await expect(page.getByRole('button', { name: 'Save Intention' })).toBeDisabled();
+  await page.getByLabel('Pair 1 argument items').fill('[1, true]');
+  await page.getByLabel('Pair 1 argument label').fill('"a"');
+  await page.getByLabel('Pair 1 argument enabled').fill('true');
+  await page.getByLabel('Pair 1 argument meta').fill('("a", false)');
+  await page.getByLabel('Pair 1 check outputs at ack').check();
+  await page.getByLabel('Pair 1 expected outputs at ack').fill('true');
+  await page.getByLabel('Pair 1 check outputs at echoed').check();
+  await page.getByLabel('Pair 1 expected outputs at echoed').fill('[1, true]');
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('1/1 tests passed the reference oracle')).toBeVisible();
+  await expect(page.getByTestId('satel-pair-formula')).toContainText('store([1, true], "a", true, ("a", false))');
+});
+
+test('intention workspace foregrounds editable thesis-style sequences and keeps invalid drafts', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-oracle-account-reference').click(); await openSatel(page);
+  await expect(page.getByRole('button', { name: 'Intentions', exact: true })).toHaveAttribute('aria-current', 'page');
+  const card = page.locator('article').filter({ has: page.getByText('Account — less / equal / greater', { exact: true }) });
+  await card.getByRole('button', { name: 'Edit', exact: true }).click();
+  await expect(page.getByLabel('ADT constructors and operation equations')).not.toBeVisible();
+  const sequence = page.getByLabel('Sequence: paid');
+  const original = await sequence.inputValue();
+  await sequence.fill('{ withdraw(n= }');
+  await expect(page.getByRole('button', { name: 'Save Intention' })).toBeDisabled();
+  await expect(sequence).toHaveValue('{ withdraw(n= }');
+  await sequence.fill(original.replace('deposit(n=b)', 'deposit(n=10)'));
+  await expect(page.getByRole('button', { name: 'Save Intention' })).toBeEnabled();
+  await sequence.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('intention-sequence-editor.png') });
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await card.getByRole('button', { name: 'Edit', exact: true }).click();
+  await expect(page.getByLabel('Sequence: paid')).toContainText('deposit(n=10)');
+  await page.getByText('Advanced selection settings', { exact: true }).click();
+  await expect(page.getByLabel('Symbolic pair protocol')).toContainText('result Result(remaining, Paid(paid))');
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await card.getByRole('button', { name: 'Use intention' }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('4/4 tests passed the reference oracle')).toBeVisible();
+  await expect(page.getByText('Advanced details', { exact: true }).locator('..')).not.toHaveAttribute('open');
+});
+
+test('new intentions select explicit values with conditions through the shared generation workflow', async ({ page }, testInfo) => {
+  await page.goto('/'); await openExamples(page);
+  await page.getByTestId('example-oracle-account-reference').click(); await openSatel(page);
+  await page.getByRole('button', { name: '+ Create Intention' }).click();
+  await page.getByRole('button', { name: '+ Add Variable' }).click();
+  await page.getByLabel('Variable variable-0 name').fill('amount');
+  await page.getByLabel('amount values').fill('0, 5, 10');
+  await page.getByLabel('Intention conditions').fill('amount > 0 and amount <= 5');
+  await page.getByRole('button', { name: '+ Add Pair' }).click();
+  await page.getByLabel('Pair 1 argument n').fill('$amount');
+  await page.getByLabel('Pair 1 check outputs at ack').check();
+  await page.getByLabel('Pair 1 expected outputs at ack').fill('1');
+  await expect(page.getByText('Intention notation preview').locator('..')).toContainText('deposit(n=$amount) with ack(1)');
+  await page.getByText('Intention notation preview').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: testInfo.outputPath('finite-intention-preview.png') });
+  await page.getByRole('button', { name: 'Save Intention' }).click();
+  await page.getByRole('button', { name: 'Generated tests', exact: true }).click();
+  await page.getByRole('button', { name: 'Generate tests', exact: true }).click();
+  await expect(page.getByText('1/1 tests passed the reference oracle')).toBeVisible();
+  await expect(page.getByTestId('satel-pair-formula')).toContainText('deposit(5) with ack(1)');
+  await page.getByRole('button', { name: 'Continue to replay' }).click();
+  await page.getByRole('button', { name: 'Replay frozen suite on loaded APN' }).click();
+  await expect(page.getByTestId('oracle-target-results')).toContainText('1 passed · 0 failed · 0 errors');
 });

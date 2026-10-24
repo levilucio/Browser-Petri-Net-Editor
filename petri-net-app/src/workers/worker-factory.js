@@ -32,3 +32,10 @@ export function createPtValidationWorker() {
 }
 
 
+/** Return null only for unsupported environments; startup failures are errors. */
+export function createSatelWorker() {
+  if (typeof window === 'undefined' || typeof Worker === 'undefined') return null;
+  // Z3's Node SDK installs a worker_threads global during Jest execution.
+  if (typeof process !== 'undefined' && process.env?.JEST_WORKER_ID) return null;
+  return new Worker(new URL('./satel-generator.worker.js', import.meta.url), { type: 'module' });
+}

@@ -1,3 +1,4 @@
+import { writeSatelMetadata } from './satel-metadata.js';
 // PNML Writer: generate PNML XML from Petri net JSON
 
 const APN_NS = 'http://example.org/apn';
@@ -23,8 +24,8 @@ export function generatePNML(petriNetJson) {
     netElement.setAttribute('type', 'http://www.pnml.org/version-2009/grammar/ptnet');
     pnmlElement.appendChild(netElement);
 
-    if (petriNetJson.netMode) {
-      netElement.setAttribute('netMode', petriNetJson.netMode);
+    if (petriNetJson.netMode || petriNetJson.mode) {
+      netElement.setAttribute('netMode', petriNetJson.netMode || petriNetJson.mode);
     }
 
     const netNameElement = xmlDoc.createElement('name');
@@ -66,15 +67,7 @@ export function generatePNML(petriNetJson) {
 
       const formatToken = (v) => {
         if (typeof v === 'boolean') return v ? 'T' : 'F';
-        if (typeof v === 'string') {
-          const escaped = v
-            .replace(/\\/g, '\\\\')
-            .replace(/'/g, "\\'")
-            .replace(/\n/g, '\\n')
-            .replace(/\t/g, '\\t')
-            .replace(/\r/g, '\\r');
-          return `'${escaped}'`;
-        }
+        if (typeof v === 'string') return JSON.stringify(v).replace(/[\ufffe\uffff]/g, ch => '\\u' + ch.charCodeAt(0).toString(16));
         if (Array.isArray(v)) {
           const elements = v.map(formatToken);
           return `[${elements.join(', ')}]`;
@@ -279,6 +272,7 @@ export function generatePNML(petriNetJson) {
       }
     }
 
+    apnUsed = writeSatelMetadata(xmlDoc, netElement, petriNetJson) || apnUsed;
     if (apnUsed) {
       pnmlElement.setAttribute('xmlns:apn', APN_NS);
     }

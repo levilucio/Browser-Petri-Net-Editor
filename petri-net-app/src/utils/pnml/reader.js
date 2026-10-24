@@ -1,3 +1,4 @@
+import { readSatelMetadata } from './satel-metadata.js';
 import { parsePnmlDocument, getNetElement, getPageElement, createNamespaceHelpers, getElementsWithFallback } from './dom-utils.js';
 import { createLayoutOptions, shouldAutoLayout } from './position-utils.js';
 import { parsePlaces } from './parsers/places.js';
@@ -19,6 +20,7 @@ export function parsePNML(pnmlString) {
     const netMode = netElement.getAttribute('netMode');
     if (netMode) {
       result.netMode = netMode;
+      result.mode = netMode;
     }
 
     const pageElement = getPageElement(netElement, PNML_NS);
@@ -42,6 +44,8 @@ export function parsePNML(pnmlString) {
       transitionIds: result.transitions.map(t => t.id),
     });
 
+    readSatelMetadata(netElement, result);
+
     // Parse properties from toolspecific section
     const rawProperties = parseProperties(netElement, PNML_NS);
     if (rawProperties.length > 0) {
@@ -51,6 +55,7 @@ export function parsePNML(pnmlString) {
 
     return result;
   } catch (error) {
+    if (error.satelMetadata) throw error;
     console.error('Error parsing PNML:', error);
     return result;
   }

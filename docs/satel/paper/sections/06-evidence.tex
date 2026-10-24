@@ -1,0 +1,62 @@
+\section{Existing evidence and planned evaluation}
+\subsection{Evidence provenance}
+The scientific foundation note and audit are pinned at
+\code{34b6078e5fea} on a separate documentation branch~\cite{audit}. They inspected
+increment 38 at \code{1fa8b65e2ef8}, not B0. The original campaign artifact is dated
+19 October 2026; the audit reports a fresh replay matching all 240 run identities
+and verdicts. Increment 39 changes GUI execution transport; inspected SATEL/APN
+semantic-core files are unchanged between these two implementation baselines.
+This observation is not a new campaign rerun on B0.
+
+The campaign uses three procedural families, eight variants including three
+baselines, and five deliberately faulty variants. They are architecturally separate
+from the APN simulator but were not built under a blinded independent-development
+protocol. Aggregate joint outcomes are:
+\begin{center}
+\begin{tabular}{lrrr}\toprule
+History outcome & HML witnessed & HML counterexample & HML inconclusive\\\midrule
+Compatible & 0 & 0 & 160\\
+Mismatch & 0 & 16 & 64\\\midrule
+Total & 0 & 16 & 224\\\bottomrule
+\end{tabular}
+\end{center}
+There are 80 mismatch executions, not 80 distinct bugs. All five faulty variants
+produce at least one mismatch. The 16 counterexamples refute one forbidden-output
+property on one faulty variant. No complete selected property is witnessed in
+these campaigns, and 224 inconclusive outcomes are not satisfactions.
+
+Path denominators matter. Worker campaigns contain 16 open-only paths and 16 paths
+that also exercise completion. On completion paths the failed-worker target yields
+9/16 mismatches and the wrong-receipt target 16/16. The Choice target's seven
+mismatches occur on 16 open-left paths; its 16 open-right paths remain compatible.
+These designed fixtures and deterministic seed schedules do not support
+population-level detection rates or probabilistic confidence intervals.
+
+The audit also reports 2,480 checks against independent exact truth on a small
+synthetic LTS corpus: 332 definite results and no definite-value disagreement.
+This bounded check supports the evidence rules but does not prove P2. Increment
+39 separately reports 750 unit/integration checks and 46 browser checks in each
+of development and built modes~\cite{increment39}. Those are engineering regression
+results with different scope, not additional black-box campaign executions.
+
+\subsection{Next experiments, not yet results}
+\paragraph{X2: independent evidence-rule checking.}
+Enumerate tiny finite LTSs and bounded formulas across the implemented operators,
+observations and complements. Compare every definite evidence value with an
+independent exact evaluator, using both required polarities. Include refusals,
+private predicates, timeouts and cutoffs. Retain corpus dimensions, unknown counts
+and minimized counterexamples; do not report only a zero-disagreement headline.
+
+\paragraph{X3: controlled selection ablation.}
+Use the existing worker reference and targets, fixed completion-capable paths and
+identical seeds. Compare legal sequence-only selection (for example amount 1) with
+joint sequence/HML selection (amount 3), retaining open-only paths as a separate
+control. Measure admission and per-path mismatch/evidence outcomes. The expected
+difference is currently a source-based hypothesis, not a measured result.
+
+\paragraph{Optional transfer study.}
+If independent software applicability is central, construct one synchronous service
+from an API/requirements contract with a recorded development protocol, frozen
+tests and a fault ledger. Include an intentionally unobservable or insufficient-depth
+fault. Do not introduce HTTP, asynchronous behavior or larger benchmarks solely
+to enlarge the implementation before the semantic claims are settled.

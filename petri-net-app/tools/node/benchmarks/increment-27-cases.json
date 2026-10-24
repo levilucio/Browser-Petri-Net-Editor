@@ -1,0 +1,602 @@
+[
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "cacheMode": "all",
+    "limits": {
+      "hmlCaches": {}
+    }
+  },
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "cacheMode": "without-ruleEffects",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false
+      }
+    }
+  },
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "cacheMode": "without-bindingPrefixes",
+    "limits": {
+      "hmlCaches": {
+        "bindingPrefixes": false
+      }
+    }
+  },
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "cacheMode": "without-expressions",
+    "limits": {
+      "hmlCaches": {
+        "expressions": false
+      }
+    }
+  },
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "cacheMode": "without-operations",
+    "limits": {
+      "hmlCaches": {
+        "operations": false
+      }
+    }
+  },
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "cacheMode": "without-formulaStates",
+    "limits": {
+      "hmlCaches": {
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "cacheMode": "none",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false,
+        "bindingPrefixes": false,
+        "expressions": false,
+        "operations": false,
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "cacheMode": "none",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false,
+        "bindingPrefixes": false,
+        "expressions": false,
+        "operations": false,
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "cacheMode": "without-formulaStates",
+    "limits": {
+      "hmlCaches": {
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "cacheMode": "without-operations",
+    "limits": {
+      "hmlCaches": {
+        "operations": false
+      }
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "cacheMode": "without-expressions",
+    "limits": {
+      "hmlCaches": {
+        "expressions": false
+      }
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "cacheMode": "without-bindingPrefixes",
+    "limits": {
+      "hmlCaches": {
+        "bindingPrefixes": false
+      }
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "cacheMode": "without-ruleEffects",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false
+      }
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "cacheMode": "all",
+    "limits": {
+      "hmlCaches": {}
+    }
+  },
+  {
+    "id": "inventory-history",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "audit": true,
+    "cacheMode": "all",
+    "limits": {
+      "hmlCaches": {}
+    }
+  },
+  {
+    "id": "inventory-history",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "audit": true,
+    "cacheMode": "without-ruleEffects",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false
+      }
+    }
+  },
+  {
+    "id": "inventory-history",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "audit": true,
+    "cacheMode": "without-bindingPrefixes",
+    "limits": {
+      "hmlCaches": {
+        "bindingPrefixes": false
+      }
+    }
+  },
+  {
+    "id": "inventory-history",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "audit": true,
+    "cacheMode": "without-expressions",
+    "limits": {
+      "hmlCaches": {
+        "expressions": false
+      }
+    }
+  },
+  {
+    "id": "inventory-history",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "audit": true,
+    "cacheMode": "without-operations",
+    "limits": {
+      "hmlCaches": {
+        "operations": false
+      }
+    }
+  },
+  {
+    "id": "inventory-history",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "audit": true,
+    "cacheMode": "without-formulaStates",
+    "limits": {
+      "hmlCaches": {
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "inventory-history",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "audit": true,
+    "cacheMode": "none",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false,
+        "bindingPrefixes": false,
+        "expressions": false,
+        "operations": false,
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "none",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false,
+        "bindingPrefixes": false,
+        "expressions": false,
+        "operations": false,
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-formulaStates",
+    "limits": {
+      "hmlCaches": {
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-operations",
+    "limits": {
+      "hmlCaches": {
+        "operations": false
+      }
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-expressions",
+    "limits": {
+      "hmlCaches": {
+        "expressions": false
+      }
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-bindingPrefixes",
+    "limits": {
+      "hmlCaches": {
+        "bindingPrefixes": false
+      }
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-ruleEffects",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false
+      }
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "all",
+    "limits": {
+      "hmlCaches": {}
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "all",
+    "limits": {
+      "hmlCaches": {}
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-ruleEffects",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false
+      }
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-bindingPrefixes",
+    "limits": {
+      "hmlCaches": {
+        "bindingPrefixes": false
+      }
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-expressions",
+    "limits": {
+      "hmlCaches": {
+        "expressions": false
+      }
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-operations",
+    "limits": {
+      "hmlCaches": {
+        "operations": false
+      }
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "without-formulaStates",
+    "limits": {
+      "hmlCaches": {
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "none",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false,
+        "bindingPrefixes": false,
+        "expressions": false,
+        "operations": false,
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "cacheMode": "none",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false,
+        "bindingPrefixes": false,
+        "expressions": false,
+        "operations": false,
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "cacheMode": "without-formulaStates",
+    "limits": {
+      "hmlCaches": {
+        "formulaStates": false
+      }
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "cacheMode": "without-operations",
+    "limits": {
+      "hmlCaches": {
+        "operations": false
+      }
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "cacheMode": "without-expressions",
+    "limits": {
+      "hmlCaches": {
+        "expressions": false
+      }
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "cacheMode": "without-bindingPrefixes",
+    "limits": {
+      "hmlCaches": {
+        "bindingPrefixes": false
+      }
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "cacheMode": "without-ruleEffects",
+    "limits": {
+      "hmlCaches": {
+        "ruleEffects": false
+      }
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "cacheMode": "all",
+    "limits": {
+      "hmlCaches": {}
+    }
+  }
+]

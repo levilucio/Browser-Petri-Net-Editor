@@ -1,0 +1,292 @@
+[
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "inventory-audit",
+    "family": "inventory",
+    "cycles": 2,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "inventory-audit",
+    "family": "inventory",
+    "cycles": 2,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "rounds": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "rounds": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "workers-audit-limit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 6,
+    "audit": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "workers-audit-limit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 6,
+    "audit": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "fulfilment-20",
+    "family": "fulfilment",
+    "sites": 4,
+    "policies": 8,
+    "cycles": 4,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "fulfilment-20",
+    "family": "fulfilment",
+    "sites": 4,
+    "policies": 8,
+    "cycles": 4,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "allocation-64",
+    "family": "resource-apn",
+    "size": 64,
+    "mutations": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "allocation-64",
+    "family": "resource-apn",
+    "size": 64,
+    "mutations": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "invoice-8",
+    "family": "invoice",
+    "size": 8,
+    "nonlinear": false,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "invoice-8",
+    "family": "invoice",
+    "size": 8,
+    "nonlinear": false,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "custom-list",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 4,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "custom-list",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 4,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "custom-tree",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 3,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  },
+  {
+    "id": "custom-tree",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 3,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "unsat-slots",
+    "family": "allocation",
+    "kind": "slots",
+    "size": 6,
+    "unsat": true,
+    "solverCacheMode": "disabled",
+    "limits": {
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "unsat-slots",
+    "family": "allocation",
+    "kind": "slots",
+    "size": 6,
+    "unsat": true,
+    "solverCacheMode": "enabled",
+    "limits": {
+      "solverQueryCache": true
+    }
+  }
+]

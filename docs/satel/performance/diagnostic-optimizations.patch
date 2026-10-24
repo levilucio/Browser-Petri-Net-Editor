@@ -1,0 +1,36 @@
+diff --git a/petri-net-app/src/satel/core/GenericSubuniformity.js b/petri-net-app/src/satel/core/GenericSubuniformity.js
+index 35bdecd..9e94ad3 100644
+--- a/petri-net-app/src/satel/core/GenericSubuniformity.js
++++ b/petri-net-app/src/satel/core/GenericSubuniformity.js
+@@ -135,7 +135,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
+     // A witness query can send a completed Boolean formula directly to SMT.
+     // Class enumeration still splits alternatives to preserve its coverage
+     // contract; residual algebraic calls still require narrowing first.
+-    const logicalIndex = witnessOnly && options.preserveBooleanStructure && !found ? -1 : body.conditions.findIndex(c => splitGuard(c));
++    const logicalIndex = body.conditions.findIndex(c => splitGuard(c) && !(witnessOnly && options.preserveBooleanStructure && !findCall(c, algebra)));
+     if (logicalIndex >= 0) {
+       const alternatives = splitGuard(body.conditions[logicalIndex]);
+       if (expanded + alternatives.length > maxBranches) {
+@@ -358,7 +358,7 @@ export async function createConstraintSearch(algebra, options = {}) {
+     }),
+     prefix: async (conditions, variables) => {
+       checkCancelled(options.signal);
+-      const usable = conditions.filter(c => !findCall(c, preparedAlgebra) && !undefinedReason(c));
++      const usable = conditions.map(c => elaborateTerm(c, variables, preparedAlgebra, 'Bool')).filter(c => !findCall(c, preparedAlgebra) && !undefinedReason(c));
+       if (!usable.length) return {
+         status: 'unknown',
+         reason: 'No solver-ready prefix constraints'
+diff --git a/petri-net-app/src/satel/core/SymbolicZ3.js b/petri-net-app/src/satel/core/SymbolicZ3.js
+index 5228202..154c479 100644
+--- a/petri-net-app/src/satel/core/SymbolicZ3.js
++++ b/petri-net-app/src/satel/core/SymbolicZ3.js
+@@ -146,7 +146,8 @@ export async function createSymbolicSolver(algebra, options = {}) {
+       if (!witness) return {
+         status: 'sat'
+       };
+-      const preferred = [...symbols].filter(([n]) => ['Nat', 'Int'].includes(variables[n]));
++      // Diagnostic experiment: retain the first satisfiable model.
++      const preferred = [];
+       if (preferred.length) {
+         solver.push();
+         const one = Z3.mk_numeral(c, '1', Z3.mk_int_sort(c));

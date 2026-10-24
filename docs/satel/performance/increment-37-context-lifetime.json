@@ -1,0 +1,536 @@
+{
+  "recordedAt": "2026-10-24T09:06:43.271Z",
+  "methodology": "Fresh child per configuration. One retained adapter, distinct integer equality queries, answer caching disabled. Query mode must allocate/delete exactly one context per backend call, with at most one live, including burst requests. SDK-context is a bounded diagnostic of the rejected wrapper-based approach, with explicit GC requests and no retained Context references; it is not a fair end-to-end speed comparison. RSS/WASM high-water memory need not shrink after native objects are freed.",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 9
+  },
+  "sourceSha256": {
+    "src/satel/core/SymbolicZ3.js": "fcf8417cdf8e3e8f0b9de1863c2a6aa89d60c06278e619fd8d6413c19db2c1cd",
+    "src/utils/z3/context.js": "9f66100b6abfebfbff63725a083d5caf717b75e2185b35f5d071672886139faf",
+    "src/utils/z3/owned-solver.js": "46573f48eae422ddf5637133922746ccbbf5889b6db3457b092c679fb87b9839",
+    "src/utils/z3/async-runtime.js": "725455d1b2df1870eb31bd475e0a254318b05f6622fb405769691abbbb6fa0b5",
+    "tools/node/benchmarks/run-context-lifetime.js": "fb50208593ce2e08b5226461f98b3292365687c1545c9d8a1b5b92da187ec211"
+  },
+  "results": [
+    {
+      "mode": "shared",
+      "count": 150,
+      "batch": 1,
+      "forcedGc": false,
+      "points": [
+        {
+          "completed": 0,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 96.9140625,
+          "peakRssMiB": 118.80078125,
+          "wasmMiB": 2048,
+          "elapsedMs": 0.21852899999998954
+        },
+        {
+          "completed": 10,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 160.2890625,
+          "peakRssMiB": 160.2890625,
+          "wasmMiB": 2048,
+          "elapsedMs": 348.03842399999996
+        },
+        {
+          "completed": 20,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 161.0390625,
+          "peakRssMiB": 161.0390625,
+          "wasmMiB": 2048,
+          "elapsedMs": 414.24519799999996
+        },
+        {
+          "completed": 30,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 167.0390625,
+          "peakRssMiB": 167.0390625,
+          "wasmMiB": 2048,
+          "elapsedMs": 473.80824399999995
+        },
+        {
+          "completed": 40,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 168.1640625,
+          "peakRssMiB": 168.1640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 529.697517
+        },
+        {
+          "completed": 50,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 168.5390625,
+          "peakRssMiB": 168.5390625,
+          "wasmMiB": 2048,
+          "elapsedMs": 588.705994
+        },
+        {
+          "completed": 60,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 169.6640625,
+          "peakRssMiB": 169.6640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 644.546396
+        },
+        {
+          "completed": 70,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 170.2890625,
+          "peakRssMiB": 170.2890625,
+          "wasmMiB": 2048,
+          "elapsedMs": 700.420107
+        },
+        {
+          "completed": 80,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 170.7890625,
+          "peakRssMiB": 170.7890625,
+          "wasmMiB": 2048,
+          "elapsedMs": 760.095167
+        },
+        {
+          "completed": 90,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 171.4140625,
+          "peakRssMiB": 171.4140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 816.7304989999999
+        },
+        {
+          "completed": 100,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 173.9140625,
+          "peakRssMiB": 173.9140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 870.90865
+        },
+        {
+          "completed": 110,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 175.4140625,
+          "peakRssMiB": 175.4140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 926.319905
+        },
+        {
+          "completed": 120,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 175.6640625,
+          "peakRssMiB": 175.6640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 981.758005
+        },
+        {
+          "completed": 130,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 175.9140625,
+          "peakRssMiB": 175.9140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 1039.933571
+        },
+        {
+          "completed": 140,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 176.0390625,
+          "peakRssMiB": 176.0390625,
+          "wasmMiB": 2048,
+          "elapsedMs": 1092.7426879999998
+        },
+        {
+          "completed": 150,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 176.1640625,
+          "peakRssMiB": 176.1640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 1146.796868
+        }
+      ]
+    },
+    {
+      "mode": "query",
+      "count": 150,
+      "batch": 1,
+      "forcedGc": false,
+      "points": [
+        {
+          "completed": 0,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 96.19140625,
+          "peakRssMiB": 118.03515625,
+          "wasmMiB": 2048,
+          "elapsedMs": 0.17021800000000553
+        },
+        {
+          "completed": 10,
+          "created": 10,
+          "deleted": 10,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 169.94140625,
+          "peakRssMiB": 169.94140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 313.565192
+        },
+        {
+          "completed": 20,
+          "created": 20,
+          "deleted": 20,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 171.31640625,
+          "peakRssMiB": 171.31640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 390.41969299999994
+        },
+        {
+          "completed": 30,
+          "created": 30,
+          "deleted": 30,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 177.06640625,
+          "peakRssMiB": 177.06640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 451.402568
+        },
+        {
+          "completed": 40,
+          "created": 40,
+          "deleted": 40,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 177.31640625,
+          "peakRssMiB": 177.31640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 512.464472
+        },
+        {
+          "completed": 50,
+          "created": 50,
+          "deleted": 50,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 177.56640625,
+          "peakRssMiB": 177.56640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 573.6913969999999
+        },
+        {
+          "completed": 60,
+          "created": 60,
+          "deleted": 60,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 177.56640625,
+          "peakRssMiB": 177.56640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 631.508018
+        },
+        {
+          "completed": 70,
+          "created": 70,
+          "deleted": 70,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 178.31640625,
+          "peakRssMiB": 178.31640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 692.02051
+        },
+        {
+          "completed": 80,
+          "created": 80,
+          "deleted": 80,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 178.69140625,
+          "peakRssMiB": 178.69140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 751.0229879999999
+        },
+        {
+          "completed": 90,
+          "created": 90,
+          "deleted": 90,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 179.69140625,
+          "peakRssMiB": 179.69140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 811.623038
+        },
+        {
+          "completed": 100,
+          "created": 100,
+          "deleted": 100,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 179.81640625,
+          "peakRssMiB": 179.81640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 871.2891649999999
+        },
+        {
+          "completed": 110,
+          "created": 110,
+          "deleted": 110,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 179.94140625,
+          "peakRssMiB": 179.94140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 925.8196350000001
+        },
+        {
+          "completed": 120,
+          "created": 120,
+          "deleted": 120,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 179.94140625,
+          "peakRssMiB": 179.94140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 985.035439
+        },
+        {
+          "completed": 130,
+          "created": 130,
+          "deleted": 130,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 179.94140625,
+          "peakRssMiB": 179.94140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 1051.04735
+        },
+        {
+          "completed": 140,
+          "created": 140,
+          "deleted": 140,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 180.06640625,
+          "peakRssMiB": 180.06640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 1114.096935
+        },
+        {
+          "completed": 150,
+          "created": 150,
+          "deleted": 150,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 180.06640625,
+          "peakRssMiB": 180.06640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 1175.288699
+        }
+      ]
+    },
+    {
+      "mode": "query",
+      "count": 150,
+      "batch": 15,
+      "forcedGc": false,
+      "points": [
+        {
+          "completed": 0,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 96.94140625,
+          "peakRssMiB": 118.71875,
+          "wasmMiB": 2048,
+          "elapsedMs": 0.17549600000000964
+        },
+        {
+          "completed": 30,
+          "created": 30,
+          "deleted": 30,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 176.81640625,
+          "peakRssMiB": 176.81640625,
+          "wasmMiB": 2048,
+          "elapsedMs": 434.02536699999996
+        },
+        {
+          "completed": 60,
+          "created": 60,
+          "deleted": 60,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 177.69140625,
+          "peakRssMiB": 177.69140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 604.38067
+        },
+        {
+          "completed": 90,
+          "created": 90,
+          "deleted": 90,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 178.94140625,
+          "peakRssMiB": 178.94140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 775.188038
+        },
+        {
+          "completed": 120,
+          "created": 120,
+          "deleted": 120,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 180.69140625,
+          "peakRssMiB": 180.69140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 974.708366
+        },
+        {
+          "completed": 150,
+          "created": 150,
+          "deleted": 150,
+          "live": 0,
+          "peakLive": 1,
+          "rssMiB": 180.69140625,
+          "peakRssMiB": 180.69140625,
+          "wasmMiB": 2048,
+          "elapsedMs": 1143.9551450000001
+        }
+      ]
+    },
+    {
+      "mode": "sdk-context",
+      "count": 50,
+      "batch": 1,
+      "forcedGc": true,
+      "points": [
+        {
+          "completed": 0,
+          "created": 0,
+          "deleted": 0,
+          "live": 0,
+          "peakLive": 0,
+          "rssMiB": 96.6953125,
+          "peakRssMiB": 118.484375,
+          "wasmMiB": 2048,
+          "elapsedMs": 0.18607200000002422
+        },
+        {
+          "completed": 10,
+          "created": 10,
+          "deleted": 0,
+          "live": 10,
+          "peakLive": 10,
+          "rssMiB": 242.6953125,
+          "peakRssMiB": 242.6953125,
+          "wasmMiB": 2048,
+          "elapsedMs": 361.581863
+        },
+        {
+          "completed": 20,
+          "created": 20,
+          "deleted": 0,
+          "live": 20,
+          "peakLive": 20,
+          "rssMiB": 327.1953125,
+          "peakRssMiB": 327.1953125,
+          "wasmMiB": 2048,
+          "elapsedMs": 509.23115900000005
+        },
+        {
+          "completed": 30,
+          "created": 30,
+          "deleted": 0,
+          "live": 30,
+          "peakLive": 30,
+          "rssMiB": 411.8203125,
+          "peakRssMiB": 411.8203125,
+          "wasmMiB": 2048,
+          "elapsedMs": 658.494415
+        },
+        {
+          "completed": 40,
+          "created": 40,
+          "deleted": 0,
+          "live": 40,
+          "peakLive": 40,
+          "rssMiB": 500.9453125,
+          "peakRssMiB": 500.9453125,
+          "wasmMiB": 2048,
+          "elapsedMs": 817.6149969999999
+        },
+        {
+          "completed": 50,
+          "created": 50,
+          "deleted": 0,
+          "live": 50,
+          "peakLive": 50,
+          "rssMiB": 585.5703125,
+          "peakRssMiB": 585.5703125,
+          "wasmMiB": 2048,
+          "elapsedMs": 985.786222
+        }
+      ]
+    }
+  ]
+}

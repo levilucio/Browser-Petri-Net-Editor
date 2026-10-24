@@ -4,7 +4,7 @@ import {
   generateValidatedSubuniformitySuite, validateOracleCandidates,
   replayOracleTest, evaluateOracleSuite, evaluateSpecMutants,
 } from '../../satel/core/ValidatedSubuniformity.js';
-import { accountNet, accountInterface, accountMutants, accountInitialMarking } from '../../satel/examples/oracle-account/net.js';
+import { accountNet, accountInterface, accountMutants } from '../../satel/examples/oracle-account/net.js';
 import { withdrawalGoal, coarseWithdrawalGoal, encodeAccountWitness, requestSteps } from '../../satel/examples/oracle-account/algebra.js';
 import { runOracleAccountExample } from '../../satel/examples/oracle-account/run.js';
 
@@ -104,7 +104,7 @@ describe('Specification admission and fixed-oracle mutation execution', () => {
       [{ ctor: 'All', args: [] }, 1, [10], 0],
     ];
     for (const [request, ack, paidAmount, balance] of cases) {
-      const result = await observeBoundedTrace(accountNet, accountInterface, requestSteps(request), accountInitialMarking(request));
+      const result = await observeBoundedTrace(accountNet, accountInterface, requestSteps(request));
       expect(result.observations).toEqual([
         { ack: [1], paidAmount: [], balanceResult: [] },
         { ack: [ack], paidAmount, balanceResult: [] },
@@ -123,9 +123,9 @@ describe('Specification admission and fixed-oracle mutation execution', () => {
   });
 
   test('detects all three mutations, while coarse symbolic equations miss the boundary fault', () => {
-    expect(example.mutants.map(m => m.selected.status)).toEqual(['killed', 'killed', 'killed']);
-    expect(example.mutants.map(m => m.audit.status)).toEqual(['killed', 'killed', 'killed']);
-    expect(example.coarse.mutants.map(m => m.selected.status)).toEqual(['killed', 'killed', 'survived']);
+    expect(example.mutants.map(m => m.selected.status)).toEqual(['killed', 'killed', 'killed', 'killed']);
+    expect(example.mutants.map(m => m.audit.status)).toEqual(['killed', 'killed', 'killed', 'killed']);
+    expect(example.coarse.mutants.map(m => m.selected.status)).toEqual(['killed', 'killed', 'survived', 'killed']);
     expect(example.mutants[2].selected.results.find(r => r.verdict === 'fail')).toMatchObject({
       id: 'withdraw.amount.accept/affordable.equal', step: 2, reason: 'observation-mismatch',
       expected: { ack: [1], paidAmount: [10], balanceResult: [] },
@@ -154,30 +154,31 @@ describe('Specification admission and fixed-oracle mutation execution', () => {
     broken.arcs.find(a => a.id === 'withdrawAccepted-balance').binding = 'missing';
     const [result] = await evaluateSpecMutants(example.suite, [{ id: 'malformed', net: broken }]);
     expect(result.selected.status).toBe('error');
+    // Compilation validates the complete public-method definition before any call.
     expect(result.selected.counts).toEqual({ pass: 0, fail: 0, error: 4 });
     const test = copy(example.suite.selectedTests[0]);
-    test.steps[0].action = 'unknown';
+    test.steps[0].method = 'unknown';
     expect(await replayOracleTest(test, accountNet, accountInterface)).toMatchObject({ verdict: 'error' });
   });
 
   test('a blocked target is a failure, while a blocked reference rejects generation', async () => {
     const blocked = copy(accountNet);
-    blocked.transitions.find(t => t.id === 'withdrawAll').guard = 'q > 0';
+    blocked.transitions.find(t => t.id === 'withdrawAll').guard = 'b < 0';
     expect(await replayOracleTest(example.suite.selectedTests[0], blocked, accountInterface)).toMatchObject({
       verdict: 'fail', reason: 'request-blocked', step: 2,
     });
-    await expect(generate({ referenceNet: blocked })).rejects.toThrow(/Reference rejected candidate/);
+    await expect(generate({ referenceNet: blocked })).rejects.toThrow(/Reference validation failed/);
   });
 
-  test('refuses nondeterminism, illegal Nat values and writes to internal places', async () => {
+  test('accepts possible nondeterministic traces but rejects illegal Nat values and writes to internal places', async () => {
     const ambiguous = copy(accountNet);
     ambiguous.transitions.find(t => t.id === 'withdrawRefused').guard = '';
-    expect(await replayOracleTest(example.suite.selectedTests[1], ambiguous, accountInterface)).toMatchObject({ verdict: 'error' });
+    expect(await replayOracleTest(example.suite.selectedTests[1], ambiguous, accountInterface)).toMatchObject({ verdict: 'pass', branchingSequence: true });
     const negative = copy(example.suite.selectedTests[1]);
-    negative.steps[1].value = -1;
+    negative.steps[1].arguments.n = -1;
     expect(await replayOracleTest(negative, accountNet, accountInterface)).toMatchObject({ verdict: 'error' });
     const internal = copy(accountInterface);
-    internal.actions.withdraw = 'balance';
+    internal.methods[1].name = 'balance';
     expect(await replayOracleTest(example.suite.selectedTests[1], accountNet, internal)).toMatchObject({ verdict: 'error' });
   });
 

@@ -1,0 +1,224 @@
+{
+  "mode": "development GUI, unchanged shared/full default",
+  "sourceFingerprint": "ffdec5cb925d680b4355bee6bdfa27534caa0d9e1c83f6fd4a03d676a35bec16",
+  "statistics": {
+    "startTime": "2026-10-24T09:38:10.850Z",
+    "duration": 108419.339,
+    "expected": 35,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "trials": [
+    {
+      "title": "black-box campaign keeps the saved oracle and exposes multiplicity failures",
+      "status": "passed",
+      "durationMs": 4863,
+      "errors": []
+    },
+    {
+      "title": "same-prefix continuations are not pooled into an HML proof",
+      "status": "passed",
+      "durationMs": 2504,
+      "errors": []
+    },
+    {
+      "title": "Thermostat: 2 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 4190,
+      "errors": []
+    },
+    {
+      "title": "Door interlock: 4 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 2776,
+      "errors": []
+    },
+    {
+      "title": "Ticket booklet: 6 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 2623,
+      "errors": []
+    },
+    {
+      "title": "Label editor: 8 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 3343,
+      "errors": []
+    },
+    {
+      "title": "Coordinate cursor: 10 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 3309,
+      "errors": []
+    },
+    {
+      "title": "FIFO queue: 12 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 2737,
+      "errors": []
+    },
+    {
+      "title": "Parcel lifecycle: 14 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 3513,
+      "errors": []
+    },
+    {
+      "title": "Resource quota: 16 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 3385,
+      "errors": []
+    },
+    {
+      "title": "Assembly kits: 18 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 2860,
+      "errors": []
+    },
+    {
+      "title": "Sensor journal: 20 pairs and both separately loaded mutants",
+      "status": "passed",
+      "durationMs": 4449,
+      "errors": []
+    },
+    {
+      "title": "string: joint algebraic selection and frozen mutant replay",
+      "status": "passed",
+      "durationMs": 2782,
+      "errors": []
+    },
+    {
+      "title": "list: joint algebraic selection and frozen mutant replay",
+      "status": "passed",
+      "durationMs": 2447,
+      "errors": []
+    },
+    {
+      "title": "pair: joint algebraic selection and frozen mutant replay",
+      "status": "passed",
+      "durationMs": 3022,
+      "errors": []
+    },
+    {
+      "title": "joint HML selection true: reference admission and frozen mutant replay",
+      "status": "passed",
+      "durationMs": 2511,
+      "errors": []
+    },
+    {
+      "title": "joint HML selection false: reference admission and frozen mutant replay",
+      "status": "passed",
+      "durationMs": 2385,
+      "errors": []
+    },
+    {
+      "title": "edit and generate branching property; frozen replay distinguishes identical traces",
+      "status": "passed",
+      "durationMs": 2117,
+      "errors": []
+    },
+    {
+      "title": "negative HML property detects a missing alternative; bag example validates multiplicity",
+      "status": "passed",
+      "durationMs": 2093,
+      "errors": []
+    },
+    {
+      "title": "output mismatch explanation opens the rejected firing and its marking",
+      "status": "passed",
+      "durationMs": 2889,
+      "errors": []
+    },
+    {
+      "title": "fulfilment generates four ten-pair tests and detects all six independently loaded mutants",
+      "status": "passed",
+      "durationMs": 6188,
+      "errors": []
+    },
+    {
+      "title": "whole-sequence generation chooses an earlier amount from the final observation",
+      "status": "passed",
+      "durationMs": 2955,
+      "errors": []
+    },
+    {
+      "title": "reference suite survives loading a mutant and identifies the first mismatching observation",
+      "status": "passed",
+      "durationMs": 3810,
+      "errors": []
+    },
+    {
+      "title": "public calls accept arguments and preserve the marking between calls",
+      "status": "passed",
+      "durationMs": 2150,
+      "errors": []
+    },
+    {
+      "title": "observations are edited as places and token multisets without JSON",
+      "status": "passed",
+      "durationMs": 2186,
+      "errors": []
+    },
+    {
+      "title": "saved symbolic intentions expose a recursive list frontier and editable equation budget",
+      "status": "passed",
+      "durationMs": 2777,
+      "errors": []
+    },
+    {
+      "title": "account symbolic goals are editable in Intentions and derive before oracle admission",
+      "status": "passed",
+      "durationMs": 3095,
+      "errors": []
+    },
+    {
+      "title": "compound guard shared-variable classes become readable pairs and detect the missing disjunct mutant",
+      "status": "passed",
+      "durationMs": 4154,
+      "errors": []
+    },
+    {
+      "title": "built-in list partiality and String guards are visible in the real browser solver",
+      "status": "passed",
+      "durationMs": 2458,
+      "errors": []
+    },
+    {
+      "title": "typed method classes produce two-pair tests and detect lost stored data",
+      "status": "passed",
+      "durationMs": 3186,
+      "errors": []
+    },
+    {
+      "title": "typed call inputs preserve nested values and state between calls; intentions use readable values",
+      "status": "passed",
+      "durationMs": 2275,
+      "errors": []
+    },
+    {
+      "title": "intention workspace foregrounds editable thesis-style sequences and keeps invalid drafts",
+      "status": "passed",
+      "durationMs": 2799,
+      "errors": []
+    },
+    {
+      "title": "new intentions select explicit values with conditions through the shared generation workflow",
+      "status": "passed",
+      "durationMs": 2011,
+      "errors": []
+    },
+    {
+      "title": "refusal notation, reference admission, marking evidence and mutant replay",
+      "status": "passed",
+      "durationMs": 2368,
+      "errors": []
+    },
+    {
+      "title": "automatic companions explain relaxed terminal conditions and bounded coverage",
+      "status": "passed",
+      "durationMs": 2615,
+      "errors": []
+    }
+  ]
+}

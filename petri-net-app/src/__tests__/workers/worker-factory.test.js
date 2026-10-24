@@ -72,3 +72,24 @@ describe('createSimulationWorker', () => {
 });
 
 
+
+describe('createSatelWorker', () => {
+  const { createSatelWorker } = require('../../workers/worker-factory');
+  const originalWorker = global.Worker, originalId = process.env.JEST_WORKER_ID;
+  afterEach(() => {
+    global.Worker = originalWorker;
+    if (originalId === undefined) delete process.env.JEST_WORKER_ID; else process.env.JEST_WORKER_ID = originalId;
+  });
+  test('does not mistake the Z3 Node SDK Worker global for a browser worker in Jest', () => {
+    process.env.JEST_WORKER_ID = '1'; global.Worker = jest.fn();
+    expect(createSatelWorker()).toBeNull(); expect(global.Worker).not.toHaveBeenCalled();
+  });
+  test('creates the browser entry point and propagates startup errors', () => {
+    delete process.env.JEST_WORKER_ID;
+    global.Worker = jest.fn(() => ({ id: 'worker' }));
+    expect(createSatelWorker()).toEqual({ id: 'worker' });
+    expect(global.Worker.mock.calls[0][0].toString()).toContain('satel-generator.worker.js');
+    global.Worker.mockImplementation(() => { throw Error('CSP rejected worker'); });
+    expect(() => createSatelWorker()).toThrow('CSP rejected worker');
+  });
+});

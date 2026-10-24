@@ -1,0 +1,10 @@
+[
+  {"family":"resource-apn","size":4,"mutations":true},
+  {"family":"resource-apn","size":8,"mutations":true},
+  {"family":"resource-apn","size":16,"mutations":true},
+  {"family":"resource-apn","size":32,"mutations":true},
+  {"family":"resource-apn","size":64,"mutations":true},
+  {"family":"fulfilment","sites":4,"policies":8,"cycles":4,"mutations":true},
+  {"family":"workers","workers":2,"rounds":4,"audit":true,"mutations":true},
+  {"family":"decomposition","kind":"tree","depth":6}
+]

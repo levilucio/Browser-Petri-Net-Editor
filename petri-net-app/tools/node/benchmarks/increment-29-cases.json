@@ -1,0 +1,317 @@
+[
+  {
+    "id": "list-2",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 2,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "list-4",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 4,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "list-8",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 8,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "list-16",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 16,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "tree-3",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 3,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "tree-5",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 5,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "tree-7",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 7,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "tree-9",
+    "family": "decomposition",
+    "kind": "tree",
+    "depth": 9,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "membership-2",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 2,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "membership-4",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 4,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "membership-8",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 8,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "membership-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "lookup-2",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 2,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "lookup-3",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 3,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "lookup-4",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 4,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "lookup-5",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 5,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "repeated-4",
+    "family": "recursive-adt",
+    "kind": "repeated",
+    "depth": 4,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "repeated-8",
+    "family": "recursive-adt",
+    "kind": "repeated",
+    "depth": 8,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "repeated-12",
+    "family": "recursive-adt",
+    "kind": "repeated",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "membership-fixed-4",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "size": 4,
+    "depth": 5,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "membership-fixed-8",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "size": 8,
+    "depth": 9,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "membership-fixed-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "size": 12,
+    "depth": 13,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "lookup-branch-limit",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 8,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 32
+    }
+  },
+  {
+    "id": "list-time-limit",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 16,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 0,
+      "maxBranches": 2048
+    }
+  },
+  {
+    "id": "list-8-cache-off",
+    "family": "decomposition",
+    "kind": "list",
+    "depth": 8,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "membership-8-cache-off",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 8,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "lookup-4-cache-off",
+    "family": "recursive-adt",
+    "kind": "lookup",
+    "depth": 4,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "solverQueryCache": false
+    }
+  },
+  {
+    "id": "repeated-12-cache-off",
+    "family": "recursive-adt",
+    "kind": "repeated",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "solverQueryCache": false
+    }
+  }
+]

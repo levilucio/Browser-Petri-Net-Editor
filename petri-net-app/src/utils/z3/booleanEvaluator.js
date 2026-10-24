@@ -1,3 +1,4 @@
+import { equalValues } from '../value-equality.js';
 import { evaluateArithmeticWithBindings } from './eval-arith.js';
 
 export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
@@ -38,6 +39,7 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
       case 'boolVar':
         return toBool(bindings?.[node.name]);
       case 'boolFuncall': {
+        if (node.name === 'isSublistOf') return evaluateArithmeticWithBindings({ ...node, type: 'funcall' }, bindings || {});
         if (node.name === 'isSubstringOf' && node.args && node.args.length === 2) {
           const sub = evaluateArithmeticWithBindings(node.args[0], bindings || {});
           const str = evaluateArithmeticWithBindings(node.args[1], bindings || {});
@@ -60,9 +62,7 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
         return (left && !right) || (!left && right);
       }
       case 'implies': {
-        const left = evalBool(node.left);
-        const right = evalBool(node.right);
-        return (!left) || right;
+        return !evalBool(node.left) || evalBool(node.right);
       }
       case 'iff': {
         const left = evalBool(node.left);
@@ -72,36 +72,7 @@ export function evaluateBooleanWithBindings(ast, bindings, parseArithmetic) {
       case 'cmp': {
         const left = tryEvalAnyTerm(node.left);
         const right = tryEvalAnyTerm(node.right);
-        const eq = (a, b) => {
-          if (
-            a &&
-            typeof a === 'object' &&
-            a.__pair__ &&
-            b &&
-            typeof b === 'object' &&
-            b.__pair__
-          ) {
-            return eq(a.fst, b.fst) && eq(a.snd, b.snd);
-          }
-          // ADT term comparison
-          if (
-            a &&
-            typeof a === 'object' &&
-            a.__adt__ === true &&
-            b &&
-            typeof b === 'object' &&
-            b.__adt__ === true
-          ) {
-            if (a.constructor !== b.constructor) return false;
-            if (!a.args && !b.args) return true;
-            if (!a.args || !b.args || a.args.length !== b.args.length) return false;
-            for (let i = 0; i < a.args.length; i++) {
-              if (!eq(a.args[i], b.args[i])) return false;
-            }
-            return true;
-          }
-          return a === b;
-        };
+        const eq = equalValues;
         switch (node.op) {
           case '==':
             return eq(left, right);

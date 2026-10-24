@@ -1,0 +1,60 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,tabularx,array}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!45!black,citecolor=blue!45!black,urlcolor=blue!45!black,
+ pdftitle={From SATEL Intentions to Observable Evidence},pdfauthor={Levi Lucio}}
+\newcommand{\todo}[1]{\par\smallskip\noindent\textcolor{red!55!black}{\textbf{Open obligation.} #1}\par\smallskip}
+\newcommand{\baseline}{\texttt{f6a92c0e2a93}}
+\newcommand{\T}{\mathsf{T}}
+\newcommand{\F}{\mathsf{F}}
+\newcommand{\U}{\mathsf{U}}
+\newcommand{\acc}{\mathsf{accepted}}
+\newcommand{\refusalStatus}{\mathsf{refused}}
+\newcommand{\bag}{\mathcal{B}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newtheorem{definition}{Definition}
+\newtheorem{obligation}{Proof obligation}
+\title{From SATEL Intentions to Observable Evidence:\\
+A Bounded APN Workflow for Nondeterministic Systems}
+\author{Levi L\'ucio\\\small Working authorship and affiliation to be finalized}
+\date{Working draft --- 24 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+SATEL describes test intentions over algebraic, state-based specifications.
+This working paper studies a restricted synchronous implementation in which
+symbolic selection produces ground tests, concrete reference execution admits
+those tests, and software implementations are exercised through public calls.
+We distinguish compatibility of an observed response history from evidence about
+a branching requirement. A set-valued reference oracle retains nondeterministic
+alternatives, while a conservative per-run evaluator supplies witnesses,
+counterexamples or inconclusive HML evidence. Existing reproducible campaigns
+cover three procedural service families and five deliberately faulty variants;
+their results demonstrate observable mismatches without establishing general
+conformance. This draft fixes a proposed implementation baseline and semantic
+contract, identifies precise thesis anchors, and separates measured evidence from
+pending correspondence and soundness obligations.
+\end{abstract}
+\noindent\textbf{Draft status.} Definitions below are a proposed paper contract.
+Proof obligations are not established theorems. Reported experiments predate this
+draft; no new campaign or performance result is claimed here.
+\input{sections/01-introduction}
+\input{sections/02-contract}
+\input{sections/03-selection}
+\input{sections/04-black-box}
+\input{sections/05-correspondence}
+\input{sections/06-evidence}
+\input{sections/07-roadmap}
+\clearpage
+\begingroup
+\small\raggedright
+\bibliographystyle{plain}
+\bibliography{references}
+\endgroup
+\end{document}

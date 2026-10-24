@@ -1,23 +1,191 @@
 # SATEL for Algebraic Petri Nets
 
-SATEL is an experimental partial implementation of test selection from algebraic Petri nets. The editor supports **typed test intentions**: typed variables and stimulation/observation pairs.
+SATEL is an experimental partial implementation of test selection from algebraic Petri nets. The editor supports **typed test intentions**: typed variables, stimulation/observation sequences and branching HML properties.
+
+## Development record and paper preparation
+
+See the [development and decision summary (16 October 2026)](development-summary-2026-10-16.md)
+for the complete conversation-derived implementation history, current semantics,
+validation evidence, historical deferrals, and research questions. See the later increments for implemented negative and nondeterministic testing.
+It distinguishes established prototype behaviour from unproved mathematical claims.
+
+The [publication and black-box testing planning note (18 October 2026)](paper-planning-publishability-and-black-box-testing.md)
+records proposed contributions, correspondence proofs, observability limitations,
+statistical execution experiments, and related-work leads for the future paper.
+It separates research proposals from implemented functionality and proved results.
+
+The [proposed paper baseline and semantic contract](paper-baseline-semantic-contract.md)
+freezes an implementation candidate, locates exact thesis definitions and records
+interpretation/proof obligations. The [LaTeX paper draft](paper/README.md) contains
+the corresponding initial manuscript and build instructions.
+
+## Nondeterminism and branching properties
+
+[Increment 39: GUI generation, admission and replay in a worker](increment-39-gui-worker-pipeline.md)
+connects the full pipeline to the editor with progress reports, immediate worker
+cancellation, frozen-suite preservation and worker/direct regression checks.
+
+[Increment 38: browser and worker lifecycle validation](increment-38-browser-worker-lifecycle.md)
+checks owned queries in development and bundled browsers, repairs worker asset
+loading and cancellation, and prevents stale GUI progress after restart.
+
+[Increment 37: owned Z3 query contexts](increment-37-owned-query-contexts.md)
+fixes the opt-in projected-query history regression with deterministic native
+cleanup, bounded context allocation, concurrency checks and paired measurements.
+
+[Increment 36: SMT declaration projection and a shared-context regression](increment-36-smt-preamble-projection.md)
+adds opt-in datatype dependency projection, paired measurements and a reproducible
+HML timeout regression that keeps this optimization disabled by default.
+
+[Increment 35: refuting impossible numeric preferences](increment-35-numeric-preference-refutation.md)
+keeps a validated witness when an independent numeric condition disproves the
+optional all-ones preference, with Z3 fallback and paired benchmark results.
+
+[Increment 34: solver phase profiling](increment-34-solver-phase-profiling.md)
+separates encoding, SMT parsing/checking, witness decoding and validation, with
+paired profiling-overhead measurements on the existing recursive/APN examples.
+
+[Increment 33: feasibility query projection](increment-33-feasibility-query-projection.md)
+removes solver-irrelevant terms and declarations from feasibility requests so
+identical checks can reuse the existing cache, while retaining complete witnesses.
+
+[Increment 32: reusable equation-branch disjointness](increment-32-branch-disjointness.md)
+proves incompatible ancestor input regions once and reuses the result across
+descendant classes, with independent variable scopes and leaf-SMT fallback.
+
+[Increment 31: local overlap-query variable metadata](increment-31-overlap-query-variables.md)
+keeps fresh variables local to each class pair and removes irrelevant declarations
+from overlap-query metadata, with a baseline switch and differential measurements.
+
+[Increment 30: constructor disjointness before SMT](increment-30-constructor-disjointness.md)
+adds a conservative free-constructor clash proof before class-overlap solver calls,
+with a baseline switch, differential tests and recursive/APN benchmark comparisons.
+
+[Increment 29: recursive ADT unfolding measurements](increment-29-recursive-unfolding.md)
+separates equation expansion, feasibility queries and class-overlap checks. New
+list-membership/tree-lookup examples expose unresolved frontiers and the cost of
+pairwise disjointness checks; no new optimization or completeness claim is made.
+
+[Increment 28: bounded solver-query reuse](increment-28-solver-query-reuse.md)
+avoids repeated exact queries while revalidating cached witnesses. The 20-pair
+inventory model avoids 48 of 70 adapter calls; paired measurements also document
+no-reuse overhead and the remaining deep-history limit.
+
+[Increment 27: cache comparison and inventory reservations](increment-27-cache-comparison.md)
+adds cache-mode correctness checks and profiling, plus GUI examples with 5–20 pairs
+and matching mutants. The measurements identify repeated solver queries in longer
+sequences as a next optimization candidate; production caching defaults are unchanged.
+
+[Increment 26: HML rule and binding-prefix reuse](increment-26-hml-rule-reuse.md)
+resolves the four-worker/four-round audit model under the normal construction
+budget while retaining every history. It includes the measured timing trade-offs
+and a laptop GUI review guide.
+
+[Increment 25: HML expression reuse](increment-25-hml-expression-reuse.md) reduces
+repeated guard/output translation while preserving full audit histories. Paired
+measurements show lower construction work and selection times; the larger audit
+cases remain unresolved at the unchanged limits.
+
+[Increment 24: shared HML term graphs](increment-24-shared-hml-terms.md) preserves
+expression sharing through substitution and SMT encoding. Eight-worker cases now
+resolve through eight rounds in the measured models; audit-history construction
+still exposes a separate limit.
+
+[Increment 23: ordinary sequence witness search](increment-23-sequence-witness-search.md)
+extends Boolean preservation to ordinary sequences and refusal companions. The
+existing coupled allocators now resolve through 64 resources in the measured
+cases, with reference/mutant replay and unchanged production search budgets.
+
+[Increment 22: reliable witnesses and Boolean search](increment-22-solver-reliability.md)
+retains validated witnesses across optional solver preferences, fixes typed prefix
+pruning, and avoids expanding solver-ready HML conditions during ADT unfolding.
+It records paired benchmarks with unchanged budgets and remaining scaling limits.
+
+[Increment 21: black-box campaigns](increment-21-black-box-campaigns.md) adds
+independent procedural SUTs, a **Black-box runs** GUI, compatible-reference-state
+tracking, and conservative per-execution HML evidence. It includes the laptop
+walkthrough and reproducible fault campaigns; statistical and universal
+black-box conformance guarantees are not claimed.
+
+For a practical walkthrough of the current GUI, see the [HML, nondeterminism and negative-test review guide](gui-review-2026-10-17.md).
+
+[Increment 16: HML properties and nondeterminism](increment-16-hml-nondeterminism.md)
+adds multiset/rule successor exploration, an approachable branching editor,
+expected-true/false properties, bounded verdicts, and two references with five
+mutants. It includes the laptop walkthrough, performance results and the limit
+on symbolic representative selection for additional branching requirements.
+
+[Increment 17: HML failure explanations](increment-17-hml-failure-explanations.md)
+adds linked plain-language explanations beside formal results, retains rejected
+outcomes and their output/marking mismatches, and includes actual examples from
+the mutants plus a selectable stock-marking property.
+
+[Increment 18: joint sequence and HML selection](increment-18-joint-hml-selection.md)
+selects shared Nat/Int/Bool parameters satisfying the sequence and additional
+branching requirement together. A new reference and two mutants demonstrate
+replacing a sequence-valid value of 1 with a branching-valid value of 3, including
+an expected-false requirement.
+
+[Increment 19: algebraic HML selection](increment-19-algebraic-hml-selection.md)
+extends joint selection to String, List and Pair with guarded operation unfolding.
+[Increment 20: scalability experiments](increment-20-scalability.md) measures
+solver constraints, custom ADT analysis and larger executable APN abstractions.
+
+## Negative tests and generation explanations
+
+[Increment 13: explicit final refusals](increment-13-explicit-refusals.md) adds
+reachable positive prefixes ending in a call that must be blocked, with quota and
+thermostat reference/mutant examples. [Increment 14: bounded refusal companions](increment-14-bounded-negative-selection.md)
+adds opt-in automatic selection from validated positive prefixes. [Increment 15:
+generation explanations and verification](increment-15-generation-explanations.md)
+provides the laptop walkthrough, baseline results and performance observations.
+
+A refused call has no enabled method rule or token binding and preserves the
+marking. An accepted call returning an error response, such as Account's `ack(0)`,
+is a different observation. Exhausted searches never become refusal tests.
+
+## Unified testing pipeline
+
+[Increment 12: unified selection, admission and replay](increment-12-unified-pipeline.md)
+documents the common test representation, stepwise verdicts, compiled models,
+search improvements, compatibility changes and measured performance.
+
+## Typed exercise collection
+
+[Increment 11: ten reference APNs, twenty mutants and performance results](increment-11-typed-exercise-collection.md)
+adds examples spanning Int, Nat, Bool, String, Pair and List, with sequences from
+2 to 20 pairs. Open **Examples → SATEL exercises**, generate on a reference,
+then replay its frozen suite on the matching mutants. The guide includes the
+mutation matrix, timing measurements, CLI export command and remaining limits.
 
 ## Start with the oracle-validated example
 
 1. Load **Examples → SATEL Account — Reference**.
-2. Open **SATEL → Oracle validation** and generate the refined suite. Four tests must pass the reference oracle before admission.
+2. Open **SATEL → Generated tests** and generate the refined suite. Four tests must pass the reference oracle before admission.
 3. Close the panel and load an account mutant from Examples.
 4. Reopen SATEL and replay the frozen suite. Inspect the first mismatching observation.
 
-See [continuous initial-marking execution](increment-03-initial-marking.md) for the current execution contract and review steps.
+See [typed public methods](increment-07-typed-methods.md) for execution with Bool/String/Pair/List, readable argument entry, two-pair reference/mutant examples and current runtime limits.
+
+See [built-in ADTs and compound guards](increment-06-builtins-compound-guards.md) for current type coverage, shared-variable conditions, guard import, reference/mutant examples and laptop review steps. [Increment 5](increment-05-generic-symbolic-z3.md) introduces editable equations and recursive custom ADTs.
+
+See [parameterized public methods](increment-04-public-methods.md) for the original public-method execution contract, GUI review steps, and scope. [Increment 3](increment-03-initial-marking.md) describes the earlier direct-transition contract.
 
 See [the GUI review guide](increment-02-gui-v2.md) for the exact steps, expected outcomes, V1 removal, and current limitations. [Increment 1](increment-01-symbolic-oracle.md) explains constructor/conditional-equation unfolding and its supported fragment. The CLI remains available with `cd petri-net-app && npm run satel:oracle-example`.
 
-The classes are derived from ADT constructor patterns and conditional operation equations, not from enumerated executions. The account equation model and APN encoding are currently supplied by the example. General editor-ADT translation and symbolic generation from arbitrary intentions are not implemented yet.
+The classes are derived from ADT constructor patterns and conditional operation equations, not from enumerated executions. Symbolic intentions now save editable typed equations, goals and declarative pair protocols. The GUI uses generic bounded unfolding with Z3 constructor/arithmetic solving. Custom editor ADT XML can be imported for the supported oriented-equation fragment. Unresolved branches and overlap checks are visible; exhaustive coverage is not claimed. See increments 6 and 7 for current assumptions and remaining limits.
+
+See [whole-sequence executable selection](increment-09-executable-sequences.md) for
+marking-aware parameter selection and a reference/mutant example where the final
+observation determines an earlier withdrawal. The [intention workspace](increment-08-intention-workspace.md)
+describes the current GUI.
+
+For a larger example, see [fulfilment and six mutants](increment-10-fulfilment-example.md):
+34 places, 17 rules, and four tests of ten stimulation/observation pairs each.
 
 ## General intentions
 
-Use **SATEL → intentions** to create or edit a typed-variable intention. **Generate and validate suite** instantiates it, then checks every candidate on the reference APN. Failures/errors prevent admission and are shown in Results. An admitted suite can be replayed against the loaded APN with unchanged expectations.
+Use **SATEL → Intentions** to create or edit a typed-variable intention. **Generated tests → Generate tests** instantiates it, then checks every candidate on the reference APN. Failures/errors prevent admission and are shown in Generated tests. An admitted suite can be replayed against the loaded APN with unchanged expectations.
 
 The general generator/checker remains experimental and less restrictive than the account adapter. In particular, the manufacturing examples still have known semantic/test failures. Their presence in Examples does not imply all their intentions are correct.
 

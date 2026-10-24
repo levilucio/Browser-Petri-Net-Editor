@@ -1,0 +1,80 @@
+[
+  {
+    "id": "inventory-small",
+    "family": "inventory",
+    "cycles": 1,
+    "mutations": true,
+    "cacheMode": "all-profiled",
+    "profileQueries": true,
+    "limits": {
+      "profileHmlCaches": true
+    }
+  },
+  {
+    "id": "inventory-repeated",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "cacheMode": "all-profiled",
+    "profileQueries": true,
+    "limits": {
+      "profileHmlCaches": true
+    }
+  },
+  {
+    "id": "inventory-history",
+    "family": "inventory",
+    "cycles": 2,
+    "permitKinds": 2,
+    "copies": 4,
+    "rounds": 2,
+    "audit": true,
+    "cacheMode": "all-profiled",
+    "profileQueries": true,
+    "limits": {
+      "profileHmlCaches": true
+    }
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "all-profiled",
+    "profileQueries": true,
+    "limits": {
+      "profileHmlCaches": true
+    }
+  },
+  {
+    "id": "workers-audit",
+    "family": "workers",
+    "workers": 4,
+    "rounds": 4,
+    "audit": true,
+    "mutations": true,
+    "cacheMode": "all-profiled",
+    "profileQueries": true,
+    "limits": {
+      "profileHmlCaches": true
+    }
+  },
+  {
+    "id": "workers-merged",
+    "family": "workers",
+    "workers": 8,
+    "rounds": 8,
+    "audit": false,
+    "mutations": true,
+    "cacheMode": "all-profiled",
+    "profileQueries": true,
+    "limits": {
+      "profileHmlCaches": true
+    }
+  }
+]

@@ -201,47 +201,22 @@ export function parseBooleanExpr(input, parseArithmetic) {
       return { type: 'boolLit', value: false };
     }
 
-    if (src.slice(i).startsWith('isSubstringOf')) {
-      i += 'isSubstringOf'.length;
-      skipWs();
-      if (src[i] !== '(') throw new Error(`Expected '('`);
-      let startArgs = i + 1;
-      let d = 1;
-      i++;
-      for (; i < src.length && d > 0; i++) {
+    const booleanFunction = ['isSubstringOf', 'isSublistOf'].find(name => src.slice(i).startsWith(name) && isWordBoundaryAt(i, name.length));
+    if (booleanFunction) {
+      i += booleanFunction.length; skipWs();
+      if (src[i++] !== '(') throw new Error("Expected '('");
+      const parts = []; let start = i, depth = 0, quote = null, closed = false;
+      for (; i < src.length; i++) {
         const ch = src[i];
-        if (ch === '(') d++;
-        else if (ch === ')') d--;
+        if (quote) { if (ch === '\\') i++; else if (ch === quote) quote = null; continue; }
+        if (ch === '"' || ch === "'") { quote = ch; continue; }
+        if (ch === ')' && depth === 0) { parts.push(src.slice(start, i).trim()); i++; closed = true; break; }
+        if ('(['.includes(ch)) depth++;
+        else if (')]'.includes(ch)) depth--;
+        else if (ch === ',' && depth === 0) { parts.push(src.slice(start, i).trim()); start = i + 1; }
       }
-      if (d !== 0) throw new Error('Unterminated isSubstringOf arguments');
-      const inside = src.slice(startArgs, i - 1).trim();
-      let depth = 0;
-      let cur = '';
-      const parts = [];
-      for (let k = 0; k < inside.length; k++) {
-        const ch = inside[k];
-        if (ch === '(') {
-          depth++;
-          cur += ch;
-          continue;
-        }
-        if (ch === ')') {
-          depth = Math.max(0, depth - 1);
-          cur += ch;
-          continue;
-        }
-        if (ch === ',' && depth === 0) {
-          parts.push(cur.trim());
-          cur = '';
-          continue;
-        }
-        cur += ch;
-      }
-      if (cur.trim().length) parts.push(cur.trim());
-      if (parts.length !== 2) throw new Error('isSubstringOf expects two arguments');
-      const a0 = parseArithmetic(parts[0]);
-      const a1 = parseArithmetic(parts[1]);
-      return { type: 'boolFuncall', name: 'isSubstringOf', args: [a0, a1] };
+      if (!closed || parts.length !== 2 || parts.some(p => !p)) throw new Error(`${booleanFunction} expects two arguments`);
+      return { type: 'boolFuncall', name: booleanFunction, args: parts.map(parseArithmetic) };
     }
 
     const ops = ['>=', '<=', '==', '!=', '>', '<'];

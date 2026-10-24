@@ -1,0 +1,2016 @@
+{
+  "recordedAt": "2026-10-19T11:55:42.938Z",
+  "baselineCommit": "9c20ba745ff0a0ae39c27df67c1fb33d87431156",
+  "dirty": true,
+  "sourceSha256": {
+    "src/satel/core/Admission.js": "517f5f6fb2145d1905e660a26fdd271279914b4b3a091d445ea175665f58e064",
+    "src/satel/core/BoundedOracleAdapter.js": "d457ec4fc7ad3e1cf5e83b10171d7aa73c0dff3e2ab56a290ad8ecd3776177ab",
+    "src/satel/core/BuiltinAlgebra.js": "7ea88be3c429fab927d8c761829a869691ccde34f5778776034604ce415bd40d",
+    "src/satel/core/Contracts.js": "eb85f2bc753f36bf76b385bed3103c11d757139170ebf74916fac9b543277f39",
+    "src/satel/core/DirectTransitionDriver.js": "a52932e470a97a4235fbb7cefb612af3a8ea90993aeaa7088eb642f30eb50c66",
+    "src/satel/core/ExecutableSequence.js": "efcf124ffd5088a64fd5db8b6543b69a1971bfba557173bf05d91d386ffd9227",
+    "src/satel/core/ExplicitSelection.js": "e039930d048443acbda1fa36efede9ce35caa9f972cc1aa0631287199db6fd6e",
+    "src/satel/core/GenericSubuniformity.js": "ae75f9d645a0c68b93b594b59242c8ef214f43afc82486e0e0d77944ca85eb66",
+    "src/satel/core/GroundTerms.js": "d62be4dc12390fbf37d083aee7fe8ae80fd734d06940e6ab4dc5f968e8abc069",
+    "src/satel/core/GuardLogic.js": "53519ce7d6b3163e193e15e1d11140dcc29e0b1017c421a0f5a760e2824838b8",
+    "src/satel/core/HmlConstraints.js": "6603c97ba515370d8c2d2f6c68afb978f0dba334177611fc2c45ba3b194c3a0e",
+    "src/satel/core/HmlEvaluator.js": "1e1eaec634f559335fd6e59e80a99b764fe7a18476e37810570678fbca3a00e2",
+    "src/satel/core/HmlExplanation.js": "4c39994277f1c0401769912589bef1c6ec92ec113b6e5564439b658b9ad4ecc2",
+    "src/satel/core/HmlFormula.js": "5c2d63fa53858ce4030d0e320c70b347db0e9ff203081f5be5416c9e2bdf89ac",
+    "src/satel/core/HmlTerms.js": "cd62367253b665dd2b138bb9cc41f51e2f003034d4ee4aad9378f5930973bdbd",
+    "src/satel/core/InitialMarking.js": "51529eca2900ccc475b4e56e8ff4bd8fa4f33a134c17cb64163bb8a49e0ae508",
+    "src/satel/core/IntentionNotation.js": "683f6b5ffe552c3e835e0be28ed9932624a6fd4036b726e6ccea6e18c08ad623",
+    "src/satel/core/IntentionPipeline.js": "b0c6f606dc524278726f9079de0e555b0ed0f78d576255c7cf4f75bf02a36e24",
+    "src/satel/core/IntentionSchema.js": "1726038112bb6a9156cf672f06262c43c4e2c718951334f709fab45f6a8f162a",
+    "src/satel/core/NegativeSelection.js": "95e6c2d03b8ca2767a6d31a5c5664a5d492aba55f2133a34e386cbcd3a4a12c3",
+    "src/satel/core/ObservationChecker.js": "5b6ffec82cb7ffd0cf8273e3be47f6c8d82ff5038bc519256ac22062d8b2977e",
+    "src/satel/core/Observations.js": "7806f9103ae20a3dcfe596f7412c0465ce798bdae57c17072446227923d1f278",
+    "src/satel/core/PartitionGenerator.js": "93fccc79c82af956b7929b9c12b2b54317d2b60f47f1f85fec4808034e13fcac",
+    "src/satel/core/PathConditionPartitioner.js": "4bc8347ab618d967bf9967bb0d41d9cb5fa11e4e83e1ef9c6e7932ed71f45391",
+    "src/satel/core/RefusalConstraints.js": "a48731ac299eeb30a6278b566d33cddbb19e920a8e8509dbdb5c69464184c33b",
+    "src/satel/core/Replay.js": "e73cfdcfa0be6eebfe92712368693a9c0213dfb820749b8dc1229a14a2a6e9b6",
+    "src/satel/core/SequenceRunner.js": "821aaa4264e208e15f501ac71dd40e5056791eaffafdd30beab582608ec6919d",
+    "src/satel/core/SymbolicIntention.js": "39171d1a5bf7b4fc9e9b0efd345ff76291068b27577bfefc456f2b13b8420ecb",
+    "src/satel/core/SymbolicSource.js": "2636e64692fd42c8b154c08c467fb5731efe6b94b8fa38e11d9921ca469473d9",
+    "src/satel/core/SymbolicSubuniformity.js": "a92f38646e20f76a30d9b0610fea71acf227350cfd0ff853dc1d2d23fb7d2a22",
+    "src/satel/core/SymbolicTerms.js": "58cfc15046ba0ebc22f307bab3b910d8f743c1bfe6b2e3409df46daddc68b2e8",
+    "src/satel/core/SymbolicZ3.js": "01f9a1d39d3e86c99fb35f7c22d0e899e3c0c52b157e735a40450e49800572c8",
+    "src/satel/core/TestCase.js": "1d3c32f364cf3acb9ec41df389dc34196abb5284b5363bc79c7a6169d0e9e716",
+    "src/satel/core/TestExecutor.js": "48cb1dbf4eda6e9541b045818b684dbbf39994cc01e8e41eedf5dc2e740bf416",
+    "src/satel/core/TestGenerator.js": "c4da34b06844b8a3569f3ecc6079362b663a9ce628d6c968886888c2650054d4",
+    "src/satel/core/ValidatedSubuniformity.js": "96a653810fe3e6a249d28e6e232aa94d410a94009ef9d223b381e2e4fb06a959",
+    "src/satel/core/VariableInstantiator.js": "e3ca27236007fa3539ddb3de7fa06112fa34f3415e7b5b4cc0cf17573969387b",
+    "src/satel/core/__tests__/all-fixes.test.js": "ac8e43da64d01e49174fb53321d296a4e69129dd9a8f568e71fc68d2db4017dd",
+    "src/satel/core/__tests__/path-subuniformity.test.js": "0e410dae9a62c3e4eefe91d84d31cf3614461c0e34708b2e418f37a8bcadbf41",
+    "src/satel/core/__tests__/priority-subuniformity.test.js": "d66db4cc66907bcb59aa1aa4ea5f99c58af2f2d216a7eb9260c49efeae796ee1",
+    "src/domain/diagnostics.js": "00fa91259d69b119a2b94997c7204de55e13ec19c49410feebf131fda484aeea",
+    "src/domain/snapshots.js": "41316b3d8fe5c5b122ce81e1e7fcfecc4a63f127aa008dc5715093930b1c4db2",
+    "src/domain/algebra/BuiltinAlgebra.js": "52d11e8ece3e65bccf2d31b813218758a26f0a9efa69a7c620e2b9d5e0f750e8",
+    "src/domain/algebra/GroundTerms.js": "68466a12e0c5e652317d241f60a196d21dda6707f060c2c81e23f2b96021baa7",
+    "src/domain/algebra/GuardLogic.js": "96f5a0417d43fc8b24a6e8c9be8a303c5afcbab23582d6c52ac54474aebee073",
+    "src/domain/algebra/Source.js": "9b8095af3c37dc2431c3740f3ab10008cf6a1c38d2f2f55de13ab8266fbed0dc",
+    "src/domain/algebra/SymbolicTerms.js": "1858fe4ea5c7dd1b23b07114d6901132b1e0db613cbd577da896120f3cc0cf1f",
+    "src/domain/apn/MethodTerms.js": "cc0de0a9ddd7239ac67c96ae4dfd4ee9a40290f81da6ccf359b920f4850c050b",
+    "src/domain/apn/PublicMethods.js": "b683b89a466da3e1e94f1e845743a508f5a1dc8ce8261ccba5f726506f5147a2",
+    "src/domain/apn/SemanticNet.js": "1ba97eac03a084dc43c26c6bb5cec707d3396f29b9cc3007d35a0fa71786eafc",
+    "src/satel/examples/scale/models.js": "9aca1c5adff95db6fb8ca65ad3aaf1778a5dd41871a938252c2fdb432b379d46",
+    "tools/node/benchmarks/export-models.js": "88cf97460399f67d2a0826aa8ead5faf855e1fb8c2ae6c87c86f542bfb82597c",
+    "tools/node/benchmarks/run-scale.js": "6deea31647e00eb4dcaf12c8521ed75bc7418860bd86b47f13323ae449f208bc",
+    "tools/node/benchmarks/scale-worker.js": "aa453d4b3d68643aa1851a4709cb682c3c455cd865c064b0fb6fccab36c61fc3",
+    "tools/node/benchmarks/solver-cases.js": "628412a6222720733ec499b55e6a255d008684f922daabe4493d1f45a7617300"
+  },
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "logicalCpus": 9
+  },
+  "methodology": "One sequential child per configuration, repeated in-process trials after separately timed Z3 initialization and a trivial warm-up solver query. First trial has cold model caches; later trials reuse caches. SMT adapter time includes encoding, solving, extraction and independent checking. Peak RSS is process lifetime high-water including initialization, not incremental workload memory. Hard timeout kills the isolated child; completed trial records are retained. Unknown, partial and timeouts are not UNSAT or tests.",
+  "repeats": 3,
+  "hardTimeoutMs": 45000,
+  "results": [
+    {
+      "config": {
+        "family": "resource-apn",
+        "size": 4,
+        "mutations": true
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 24.86,
+          "selectionMs": 567.81,
+          "admissionMs": 31.66,
+          "replayMs": 2.99,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 521.63,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 4,
+            "maxConditions": 18,
+            "maxVariables": 8,
+            "maxTermNodes": 328
+          },
+          "details": {
+            "places": 8,
+            "transitions": 2,
+            "arcs": 18,
+            "jsonBytes": 5619,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 19,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  27,
+                  1,
+                  11,
+                  1
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-confirmation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "request-blocked",
+                  "step": 2
+                }
+              ]
+            },
+            {
+              "id": "wrong-allocation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "observation-mismatch",
+                  "step": 2
+                }
+              ]
+            }
+          ],
+          "rssMiB": 222.55,
+          "peakRssMiB": 223.73
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 0.9,
+          "selectionMs": 103.9,
+          "admissionMs": 7.29,
+          "replayMs": 2.44,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 91.14,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 4,
+            "maxConditions": 18,
+            "maxVariables": 8,
+            "maxTermNodes": 328
+          },
+          "details": {
+            "places": 8,
+            "transitions": 2,
+            "arcs": 18,
+            "jsonBytes": 5619,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 19,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  27,
+                  1,
+                  11,
+                  1
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 226.41,
+          "peakRssMiB": 226.41
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 1.07,
+          "selectionMs": 100.66,
+          "admissionMs": 3.26,
+          "replayMs": 4.78,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 90.67,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 4,
+            "maxConditions": 18,
+            "maxVariables": 8,
+            "maxTermNodes": 328
+          },
+          "details": {
+            "places": 8,
+            "transitions": 2,
+            "arcs": 18,
+            "jsonBytes": 5619,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 19,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  27,
+                  1,
+                  11,
+                  1
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 229.09,
+          "peakRssMiB": 229.09
+        }
+      ],
+      "initializationMs": 1199.4,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 2700
+    },
+    {
+      "config": {
+        "family": "resource-apn",
+        "size": 8,
+        "mutations": true
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 17.17,
+          "selectionMs": 624.76,
+          "admissionMs": 31.36,
+          "replayMs": 5.38,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 568.04,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 34,
+            "maxVariables": 16,
+            "maxTermNodes": 668
+          },
+          "details": {
+            "places": 12,
+            "transitions": 2,
+            "arcs": 26,
+            "jsonBytes": 8207,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 23,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  18,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  14,
+                  13
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-confirmation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "request-blocked",
+                  "step": 2
+                }
+              ]
+            },
+            {
+              "id": "wrong-allocation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "observation-mismatch",
+                  "step": 2
+                }
+              ]
+            }
+          ],
+          "rssMiB": 203.74,
+          "peakRssMiB": 203.74
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 2.91,
+          "selectionMs": 115.38,
+          "admissionMs": 11.58,
+          "replayMs": 8.28,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 93.84,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 34,
+            "maxVariables": 16,
+            "maxTermNodes": 668
+          },
+          "details": {
+            "places": 12,
+            "transitions": 2,
+            "arcs": 26,
+            "jsonBytes": 8207,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 23,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  18,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  14,
+                  13
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 210.37,
+          "peakRssMiB": 210.37
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 2.14,
+          "selectionMs": 110.9,
+          "admissionMs": 5.48,
+          "replayMs": 7.78,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 89.8,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 8,
+            "maxConditions": 34,
+            "maxVariables": 16,
+            "maxTermNodes": 668
+          },
+          "details": {
+            "places": 12,
+            "transitions": 2,
+            "arcs": 26,
+            "jsonBytes": 8207,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 23,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  18,
+                  11,
+                  1,
+                  11,
+                  11,
+                  1,
+                  14,
+                  13
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 211.24,
+          "peakRssMiB": 211.24
+        }
+      ],
+      "initializationMs": 748.69,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 1976
+    },
+    {
+      "config": {
+        "family": "resource-apn",
+        "size": 16,
+        "mutations": true
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 11.92,
+          "selectionMs": 724.57,
+          "admissionMs": 36.53,
+          "replayMs": 8.61,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 641.81,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 16,
+            "maxConditions": 66,
+            "maxVariables": 32,
+            "maxTermNodes": 1348
+          },
+          "details": {
+            "places": 20,
+            "transitions": 2,
+            "arcs": 42,
+            "jsonBytes": 13568,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 31,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  30,
+                  5,
+                  16,
+                  12,
+                  14,
+                  13,
+                  11,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-confirmation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "request-blocked",
+                  "step": 2
+                }
+              ]
+            },
+            {
+              "id": "wrong-allocation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "observation-mismatch",
+                  "step": 2
+                }
+              ]
+            }
+          ],
+          "rssMiB": 231.67,
+          "peakRssMiB": 231.67
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 1.7,
+          "selectionMs": 135.17,
+          "admissionMs": 10.37,
+          "replayMs": 7.84,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 109.57,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 16,
+            "maxConditions": 66,
+            "maxVariables": 32,
+            "maxTermNodes": 1348
+          },
+          "details": {
+            "places": 20,
+            "transitions": 2,
+            "arcs": 42,
+            "jsonBytes": 13568,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 31,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  38,
+                  1,
+                  18,
+                  10,
+                  14,
+                  13,
+                  7,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 234.39,
+          "peakRssMiB": 235.62
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 0.77,
+          "selectionMs": 113.7,
+          "admissionMs": 7.8,
+          "replayMs": 6.41,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 95.7,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 16,
+            "maxConditions": 66,
+            "maxVariables": 32,
+            "maxTermNodes": 1348
+          },
+          "details": {
+            "places": 20,
+            "transitions": 2,
+            "arcs": 42,
+            "jsonBytes": 13568,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 31,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  32,
+                  4,
+                  14,
+                  12,
+                  14,
+                  13,
+                  12,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 235.28,
+          "peakRssMiB": 238.86
+        }
+      ],
+      "initializationMs": 688.1,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 2010
+    },
+    {
+      "config": {
+        "family": "resource-apn",
+        "size": 32,
+        "mutations": true
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 7.87,
+          "selectionMs": 628.15,
+          "admissionMs": 87.41,
+          "replayMs": 16.74,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 517.03,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 32,
+            "maxConditions": 130,
+            "maxVariables": 64,
+            "maxTermNodes": 2708
+          },
+          "details": {
+            "places": 36,
+            "transitions": 2,
+            "arcs": 74,
+            "jsonBytes": 24400,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 47,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  36,
+                  2,
+                  19,
+                  2,
+                  19,
+                  6,
+                  16,
+                  8,
+                  16,
+                  8,
+                  16,
+                  8,
+                  16,
+                  12,
+                  14,
+                  12,
+                  14,
+                  12,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-confirmation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "request-blocked",
+                  "step": 2
+                }
+              ]
+            },
+            {
+              "id": "wrong-allocation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "observation-mismatch",
+                  "step": 2
+                }
+              ]
+            }
+          ],
+          "rssMiB": 239.62,
+          "peakRssMiB": 239.62
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 1.58,
+          "selectionMs": 247.34,
+          "admissionMs": 13.64,
+          "replayMs": 13.44,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 191.78,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 32,
+            "maxConditions": 130,
+            "maxVariables": 64,
+            "maxTermNodes": 2708
+          },
+          "details": {
+            "places": 36,
+            "transitions": 2,
+            "arcs": 74,
+            "jsonBytes": 24400,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 47,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  38,
+                  1,
+                  18,
+                  11,
+                  1,
+                  15,
+                  12,
+                  10,
+                  15,
+                  12,
+                  14,
+                  12,
+                  14,
+                  12,
+                  14,
+                  13,
+                  13,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 243.37,
+          "peakRssMiB": 243.37
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 2.37,
+          "selectionMs": 339.82,
+          "admissionMs": 11.84,
+          "replayMs": 15.9,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 286.62,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 32,
+            "maxConditions": 130,
+            "maxVariables": 64,
+            "maxTermNodes": 2708
+          },
+          "details": {
+            "places": 36,
+            "transitions": 2,
+            "arcs": 74,
+            "jsonBytes": 24400,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 47,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  20,
+                  10,
+                  2,
+                  19,
+                  8,
+                  16,
+                  12,
+                  14,
+                  13,
+                  12,
+                  14,
+                  8,
+                  16,
+                  8,
+                  16,
+                  12,
+                  14,
+                  13,
+                  10,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 244.75,
+          "peakRssMiB": 244.75
+        }
+      ],
+      "initializationMs": 716.08,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 2346
+    },
+    {
+      "config": {
+        "family": "resource-apn",
+        "size": 64,
+        "mutations": true
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 11.26,
+          "selectionMs": 1043.95,
+          "admissionMs": 78.91,
+          "replayMs": 40.93,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 787.62,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 64,
+            "maxConditions": 258,
+            "maxVariables": 128,
+            "maxTermNodes": 5428
+          },
+          "details": {
+            "places": 68,
+            "transitions": 2,
+            "arcs": 138,
+            "jsonBytes": 46064,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 79,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  38,
+                  1,
+                  11,
+                  14,
+                  8,
+                  4,
+                  8,
+                  16,
+                  12,
+                  11,
+                  1,
+                  18,
+                  11,
+                  14,
+                  1,
+                  18,
+                  11,
+                  1,
+                  11,
+                  2,
+                  10,
+                  2,
+                  16,
+                  12,
+                  14,
+                  2,
+                  16,
+                  12,
+                  14,
+                  2,
+                  16,
+                  12,
+                  14,
+                  11,
+                  1,
+                  19,
+                  1,
+                  18,
+                  11,
+                  1,
+                  18,
+                  11,
+                  14,
+                  13,
+                  7,
+                  16,
+                  12,
+                  14,
+                  13,
+                  13,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-confirmation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "request-blocked",
+                  "step": 2
+                }
+              ]
+            },
+            {
+              "id": "wrong-allocation",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "observation-mismatch",
+                  "step": 2
+                }
+              ]
+            }
+          ],
+          "rssMiB": 247.42,
+          "peakRssMiB": 247.42
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 3.64,
+          "selectionMs": 559.2,
+          "admissionMs": 40.72,
+          "replayMs": 31.61,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 346.45,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 64,
+            "maxConditions": 258,
+            "maxVariables": 128,
+            "maxTermNodes": 5428
+          },
+          "details": {
+            "places": 68,
+            "transitions": 2,
+            "arcs": 138,
+            "jsonBytes": 46064,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 79,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  1,
+                  16,
+                  12,
+                  14,
+                  12,
+                  14,
+                  13,
+                  2,
+                  18,
+                  11,
+                  1,
+                  18,
+                  11,
+                  1,
+                  16,
+                  12,
+                  14,
+                  12,
+                  14,
+                  2,
+                  16,
+                  12,
+                  14,
+                  12,
+                  14,
+                  13,
+                  11,
+                  1,
+                  19,
+                  3,
+                  18,
+                  11,
+                  9,
+                  14,
+                  12,
+                  14,
+                  8,
+                  16,
+                  12,
+                  12,
+                  14,
+                  12,
+                  14,
+                  13,
+                  13,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 228.91,
+          "peakRssMiB": 250.05
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 1.9,
+          "selectionMs": 568.31,
+          "admissionMs": 43.71,
+          "replayMs": 25.3,
+          "solver": {
+            "calls": 4,
+            "adapterMs": 374.03,
+            "statuses": {
+              "sat": 3,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 64,
+            "maxConditions": 258,
+            "maxVariables": 128,
+            "maxTermNodes": 5428
+          },
+          "details": {
+            "places": 68,
+            "transitions": 2,
+            "arcs": 138,
+            "jsonBytes": 46064,
+            "sequencePairs": 2,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 79,
+            "prefixChecks": 0,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  11,
+                  1,
+                  11,
+                  1,
+                  18,
+                  11,
+                  1,
+                  18,
+                  11,
+                  1,
+                  18,
+                  11,
+                  1,
+                  19,
+                  1,
+                  19,
+                  10,
+                  15,
+                  1,
+                  11,
+                  1,
+                  18,
+                  11,
+                  1,
+                  11,
+                  1,
+                  19,
+                  10,
+                  15,
+                  3,
+                  18,
+                  10,
+                  15,
+                  2,
+                  16,
+                  12,
+                  14,
+                  10,
+                  2,
+                  19,
+                  2,
+                  18,
+                  8,
+                  16,
+                  8,
+                  16,
+                  8,
+                  16,
+                  12,
+                  14,
+                  12,
+                  14,
+                  12,
+                  14,
+                  13,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11,
+                  1,
+                  11
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 230.91,
+          "peakRssMiB": 250.05
+        }
+      ],
+      "initializationMs": 652.19,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 3390
+    },
+    {
+      "config": {
+        "family": "fulfilment",
+        "sites": 4,
+        "policies": 8,
+        "cycles": 4,
+        "mutations": true
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 13.76,
+          "selectionMs": 2292.24,
+          "admissionMs": 118.23,
+          "replayMs": 86.02,
+          "solver": {
+            "calls": 64,
+            "adapterMs": 2017.54,
+            "statuses": {
+              "sat": 51,
+              "unsat": 13
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 1,
+            "maxConditions": 94,
+            "maxVariables": 61,
+            "maxTermNodes": 1127
+          },
+          "details": {
+            "places": 63,
+            "transitions": 20,
+            "arcs": 216,
+            "jsonBytes": 52470,
+            "sequencePairs": 20,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 551,
+            "prefixChecks": 31,
+            "pruned": 30,
+            "selected": [
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-dispatch",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "request-blocked",
+                  "step": 3
+                }
+              ]
+            },
+            {
+              "id": "wrong-receipt",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "observation-mismatch",
+                  "step": 4
+                }
+              ]
+            },
+            {
+              "id": "stock-leak",
+              "pass": 1,
+              "fail": 0,
+              "error": 0,
+              "failures": []
+            }
+          ],
+          "rssMiB": 237.51,
+          "peakRssMiB": 237.51
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 2.05,
+          "selectionMs": 1709.28,
+          "admissionMs": 84.69,
+          "replayMs": 73.33,
+          "solver": {
+            "calls": 64,
+            "adapterMs": 1572.71,
+            "statuses": {
+              "sat": 51,
+              "unsat": 13
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 1,
+            "maxConditions": 94,
+            "maxVariables": 61,
+            "maxTermNodes": 1127
+          },
+          "details": {
+            "places": 63,
+            "transitions": 20,
+            "arcs": 216,
+            "jsonBytes": 52470,
+            "sequencePairs": 20,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 551,
+            "prefixChecks": 31,
+            "pruned": 30,
+            "selected": [
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 211.71,
+          "peakRssMiB": 237.76
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 1.44,
+          "selectionMs": 1782.27,
+          "admissionMs": 71.13,
+          "replayMs": 174.34,
+          "solver": {
+            "calls": 64,
+            "adapterMs": 1644.08,
+            "statuses": {
+              "sat": 51,
+              "unsat": 13
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 1,
+            "maxConditions": 94,
+            "maxVariables": 61,
+            "maxTermNodes": 1127
+          },
+          "details": {
+            "places": 63,
+            "transitions": 20,
+            "arcs": 216,
+            "jsonBytes": 52470,
+            "sequencePairs": 20,
+            "propertyModalDepth": 0,
+            "classes": 1,
+            "visited": 551,
+            "prefixChecks": 31,
+            "pruned": 30,
+            "selected": [
+              {
+                "witness": [
+                  3
+                ],
+                "paths": 1
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 238.46,
+          "peakRssMiB": 238.46
+        }
+      ],
+      "initializationMs": 752.35,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 7559
+    },
+    {
+      "config": {
+        "family": "workers",
+        "workers": 2,
+        "rounds": 4,
+        "audit": true,
+        "mutations": true
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "selected",
+          "buildMs": 6.09,
+          "selectionMs": 581.62,
+          "admissionMs": 45.13,
+          "replayMs": 22.71,
+          "solver": {
+            "calls": 9,
+            "adapterMs": 450.33,
+            "statuses": {
+              "sat": 8,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 1,
+            "maxConditions": 15,
+            "maxVariables": 8,
+            "maxTermNodes": 3087
+          },
+          "details": {
+            "places": 5,
+            "transitions": 4,
+            "arcs": 24,
+            "jsonBytes": 6843,
+            "sequencePairs": 2,
+            "propertyModalDepth": 8,
+            "classes": 1,
+            "visited": 16,
+            "prefixChecks": 1,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  {
+                    "ctor": "_Pair",
+                    "args": [
+                      {
+                        "ctor": "_AnyInt",
+                        "args": [
+                          3
+                        ]
+                      },
+                      {
+                        "ctor": "_AnyBool",
+                        "args": [
+                          true
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 1412,
+                  "nodes": 61,
+                  "cacheHits": 0,
+                  "outcomes": 60,
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "constraintSize": 3049
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [
+            {
+              "id": "missing-worker",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            },
+            {
+              "id": "wrong-receipt",
+              "pass": 0,
+              "fail": 1,
+              "error": 0,
+              "failures": [
+                {
+                  "reason": "The test fails: the property was expected to be true, but it is false. The required behaviour is not satisfied."
+                }
+              ]
+            }
+          ],
+          "rssMiB": 216.28,
+          "peakRssMiB": 216.28
+        },
+        {
+          "trial": 1,
+          "status": "selected",
+          "buildMs": 1.24,
+          "selectionMs": 256.87,
+          "admissionMs": 29.09,
+          "replayMs": 21.27,
+          "solver": {
+            "calls": 9,
+            "adapterMs": 202.28,
+            "statuses": {
+              "sat": 8,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 1,
+            "maxConditions": 15,
+            "maxVariables": 8,
+            "maxTermNodes": 3087
+          },
+          "details": {
+            "places": 5,
+            "transitions": 4,
+            "arcs": 24,
+            "jsonBytes": 6843,
+            "sequencePairs": 2,
+            "propertyModalDepth": 8,
+            "classes": 1,
+            "visited": 16,
+            "prefixChecks": 1,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  {
+                    "ctor": "_Pair",
+                    "args": [
+                      {
+                        "ctor": "_AnyInt",
+                        "args": [
+                          3
+                        ]
+                      },
+                      {
+                        "ctor": "_AnyBool",
+                        "args": [
+                          true
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 1412,
+                  "nodes": 61,
+                  "cacheHits": 0,
+                  "outcomes": 60,
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "constraintSize": 3049
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 218.5,
+          "peakRssMiB": 220.6
+        },
+        {
+          "trial": 2,
+          "status": "selected",
+          "buildMs": 0.71,
+          "selectionMs": 288.16,
+          "admissionMs": 24.45,
+          "replayMs": 48.24,
+          "solver": {
+            "calls": 9,
+            "adapterMs": 221.91,
+            "statuses": {
+              "sat": 8,
+              "unsat": 1
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 1,
+            "maxConditions": 15,
+            "maxVariables": 8,
+            "maxTermNodes": 3087
+          },
+          "details": {
+            "places": 5,
+            "transitions": 4,
+            "arcs": 24,
+            "jsonBytes": 6843,
+            "sequencePairs": 2,
+            "propertyModalDepth": 8,
+            "classes": 1,
+            "visited": 16,
+            "prefixChecks": 1,
+            "pruned": 0,
+            "selected": [
+              {
+                "witness": [
+                  {
+                    "ctor": "_Pair",
+                    "args": [
+                      {
+                        "ctor": "_AnyInt",
+                        "args": [
+                          3
+                        ]
+                      },
+                      {
+                        "ctor": "_AnyBool",
+                        "args": [
+                          true
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "paths": 1,
+                "hml": {
+                  "policy": "joint-sequence-and-hml",
+                  "expectedTruth": true,
+                  "work": 1412,
+                  "nodes": 61,
+                  "cacheHits": 0,
+                  "outcomes": 60,
+                  "equationExpansions": 3,
+                  "residualCalls": 0,
+                  "constraintSize": 3049
+                }
+              }
+            ],
+            "reasons": [],
+            "reference": {
+              "pass": 1,
+              "fail": 0,
+              "error": 0
+            }
+          },
+          "mutants": [],
+          "rssMiB": 220.02,
+          "peakRssMiB": 220.98
+        }
+      ],
+      "initializationMs": 584.99,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 2231
+    },
+    {
+      "config": {
+        "family": "decomposition",
+        "kind": "tree",
+        "depth": 6
+      },
+      "samples": [
+        {
+          "trial": 0,
+          "status": "partial",
+          "buildMs": 4.65,
+          "selectionMs": 700.33,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "calls": 53,
+            "adapterMs": 678.41,
+            "statuses": {
+              "sat": 47,
+              "unsat": 6
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 6,
+            "maxConditions": 1,
+            "maxVariables": 80,
+            "maxTermNodes": 45
+          },
+          "details": {
+            "classes": 4,
+            "unresolved": 20,
+            "overlaps": 0,
+            "unknownOverlapChecks": 0,
+            "reasons": [
+              "Unfolding budget exhausted"
+            ],
+            "coverage": "not-proved"
+          },
+          "mutants": [],
+          "rssMiB": 195.87,
+          "peakRssMiB": 195.87
+        },
+        {
+          "trial": 1,
+          "status": "partial",
+          "buildMs": 0.51,
+          "selectionMs": 398.02,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "calls": 53,
+            "adapterMs": 384.32,
+            "statuses": {
+              "sat": 47,
+              "unsat": 6
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 6,
+            "maxConditions": 1,
+            "maxVariables": 80,
+            "maxTermNodes": 45
+          },
+          "details": {
+            "classes": 4,
+            "unresolved": 20,
+            "overlaps": 0,
+            "unknownOverlapChecks": 0,
+            "reasons": [
+              "Unfolding budget exhausted"
+            ],
+            "coverage": "not-proved"
+          },
+          "mutants": [],
+          "rssMiB": 194.29,
+          "peakRssMiB": 198
+        },
+        {
+          "trial": 2,
+          "status": "partial",
+          "buildMs": 0.48,
+          "selectionMs": 446.44,
+          "admissionMs": 0,
+          "replayMs": 0,
+          "solver": {
+            "calls": 53,
+            "adapterMs": 433.13,
+            "statuses": {
+              "sat": 47,
+              "unsat": 6
+            },
+            "unknownReasons": {},
+            "maxDeclaredVariables": 6,
+            "maxConditions": 1,
+            "maxVariables": 80,
+            "maxTermNodes": 45
+          },
+          "details": {
+            "classes": 4,
+            "unresolved": 20,
+            "overlaps": 0,
+            "unknownOverlapChecks": 0,
+            "reasons": [
+              "Unfolding budget exhausted"
+            ],
+            "coverage": "not-proved"
+          },
+          "mutants": [],
+          "rssMiB": 196.42,
+          "peakRssMiB": 198
+        }
+      ],
+      "initializationMs": 575.52,
+      "limits": {
+        "timeoutMs": 1000,
+        "maxTimeMs": 4000,
+        "maxBranches": 256,
+        "maxSequenceTimeMs": 5000,
+        "maxSequenceBranches": 100000,
+        "maxHmlSelectionTimeMs": 4000
+      },
+      "exitCode": 0,
+      "signal": null,
+      "processWallMs": 2328
+    }
+  ]
+}

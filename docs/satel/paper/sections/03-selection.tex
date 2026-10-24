@@ -1,0 +1,44 @@
+\section{Intentions, symbolic regions and admission}
+A finite intention has typed data variables $X$, constraints $K$, and a finite
+sequence or branching formula $\Phi$. A ground substitution $\theta$ is shared
+across the entire intention, including branches. This draft excludes variables
+ranging over method names, observation names and paths.
+
+For a sequence of calls and observations $(c_i,O_i)_{i=1}^n$, a selection obligation
+for computed region $C$ has the schematic form
+\begin{equation}\label{eq:selection}
+ C(\theta)\land K(\theta)\land
+ \exists m_1,\ldots,m_n,o_1,\ldots,o_n\;
+ \bigwedge_{i=1}^{n}
+ \left(m_{i-1}\xrightarrow{c_i\theta,o_i}m_i
+ \land O_i\theta(o_i,m_i)\right).
+\end{equation}
+For a joint branching intention, add the required satisfaction of its ground
+branching formula at $m_0$. Equation~\eqref{eq:selection} expresses the semantic
+goal, not a claim that the program literally enumerates all such states. The
+implementation combines symbolic markings, reachable token bindings, guards,
+constructor/equation unfolding and SMT-assisted solving. Constraints arising late
+in the sequence can restrict earlier parameter choices.
+
+Computed regions are implementation-level symbolic cases, potentially with
+residual constraints. They are not automatically the semantic subuniformity
+classes of the thesis. Feasibility, disjointness, domain coverage, annotation
+correspondence and the hypothesis that a representative stands for untested values
+are separate obligations. A ground witness establishes only that witness's case.
+Unannotated variables do not license generation of an infinite exhaustive suite:
+a completeness claim must declare a finite domain or a justified selection rule.
+
+\paragraph{Admission.}
+Each candidate undergoes concrete replay on the saved reference from $m_0$.
+Symbolic admission rejects unresolved or blocked execution classes, unresolved
+decomposition and overlapping or unproved-disjoint regions. A class-analysis report
+alone is not an admitted suite. Successful admission freezes the reference,
+interface, selected tests and expected polarities; a later target is checked against
+these expectations, never used to regenerate them.
+
+A ground test is $(\varphi,b)$ with $b\in\{\mathsf{true},\mathsf{false}\}$.
+Reference correctness requires its implemented reference evaluation to agree with
+$b$. Thus ``all admitted tests pass the reference'' does not mean all formulas are
+true. An expected-false formula differs from an expected-true refusal assertion
+$[c]\bot$. The implemented bounded refusal companions are not an implementation
+of the thesis's exhaustive negative substitution set.

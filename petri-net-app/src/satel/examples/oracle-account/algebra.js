@@ -1,4 +1,3 @@
-import { accountInitialMarking } from './net.js';
 const v = name => ({ var: name });
 const ctor = (name, ...args) => ({ ctor: name, args });
 const call = (name, ...args) => ({ call: name, args });
@@ -62,11 +61,11 @@ export function coarseWithdrawalGoal() {
 /** Explicit constructor-to-public-request encoding for the current numeric APN. */
 export function requestSteps(request) {
   let withdrawal;
-  if (request?.ctor === 'All' && request.args?.length === 0) withdrawal = { action: 'withdrawAll', value: 0 };
+  if (request?.ctor === 'All' && request.args?.length === 0) withdrawal = { method: 'withdrawAll', arguments: {} };
   else if (request?.ctor === 'Amount' && request.args?.length === 1 && Number.isInteger(request.args[0]) && request.args[0] >= 0 && request.args[0] <= 2147483647) {
-    withdrawal = { action: 'withdraw', value: request.args[0] };
+    withdrawal = { method: 'withdraw', arguments: { n: request.args[0] } };
   } else throw new Error('Unsupported withdrawal constructor');
-  return [{ action: 'deposit', value: 10 }, withdrawal, { action: 'query', value: 0 }];
+  return [{ method: 'deposit', arguments: { n: 10 } }, withdrawal, { method: 'query', arguments: {} }];
 }
 
 // The APN protocol represents Paid/Refused by ack 1/0, observes the actual paid
@@ -76,7 +75,6 @@ export function encodeAccountWitness(args, result) {
   const [balance, reply] = result.args;
   if (!['Paid', 'Refused'].includes(reply?.ctor) || reply.args?.length !== 1) throw new Error('Unsupported reply constructor');
   return {
-    initialMarking: accountInitialMarking(args[1]),
     steps: requestSteps(args[1]),
     expected: [
       { ack: [1], paidAmount: [], balanceResult: [] },
