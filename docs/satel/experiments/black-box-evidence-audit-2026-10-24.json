@@ -1,0 +1,1089 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-24T09:50:59.508Z",
+  "inspectedCommit": "1fa8b65e2ef8192affe81b79e49145bb18b826ea",
+  "environment": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "scope": "Historical arithmetic audit, optional fresh replay comparison, and synthetic finite-LTS observability check. No thesis-correspondence or general implementation proof.",
+  "historical": {
+    "executions": 240,
+    "counts": {
+      "compatible": 160,
+      "mismatch": 80
+    },
+    "evidenceCounts": {
+      "inconclusive": 224,
+      "counterexample": 16
+    },
+    "jointCounts": {
+      "compatible/inconclusive": 160,
+      "mismatch/inconclusive": 64,
+      "mismatch/counterexample": 16
+    },
+    "campaigns": [
+      {
+        "intention": "Both token orders, multiplicity and final refusal",
+        "sut": "bag",
+        "total": 16,
+        "counts": {
+          "compatible": 16,
+          "mismatch": 0,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 16
+        },
+        "jointCounts": {
+          "compatible/inconclusive": 16
+        },
+        "paths": [
+          {
+            "testId": "bag-orders-1",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          }
+        ]
+      },
+      {
+        "intention": "Both token orders, multiplicity and final refusal",
+        "sut": "bag-missing-duplicate",
+        "total": 16,
+        "counts": {
+          "compatible": 0,
+          "mismatch": 16,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 16
+        },
+        "jointCounts": {
+          "mismatch/inconclusive": 16
+        },
+        "paths": [
+          {
+            "testId": "bag-orders-1",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "mismatch": 16
+            }
+          }
+        ]
+      },
+      {
+        "intention": "Both token orders, multiplicity and final refusal",
+        "sut": "bag-wrong-output",
+        "total": 16,
+        "counts": {
+          "compatible": 0,
+          "mismatch": 16,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 16
+        },
+        "jointCounts": {
+          "mismatch/inconclusive": 16
+        },
+        "paths": [
+          {
+            "testId": "bag-orders-1",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              },
+              {
+                "method": "take",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "mismatch": 16
+            }
+          }
+        ]
+      },
+      {
+        "intention": "No third value may be reported",
+        "sut": "bag",
+        "total": 16,
+        "counts": {
+          "compatible": 16,
+          "mismatch": 0,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 16
+        },
+        "jointCounts": {
+          "compatible/inconclusive": 16
+        },
+        "paths": [
+          {
+            "testId": "bag-no-third-1",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "take",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          }
+        ]
+      },
+      {
+        "intention": "No third value may be reported",
+        "sut": "bag-wrong-output",
+        "total": 16,
+        "counts": {
+          "compatible": 0,
+          "mismatch": 16,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 16,
+          "inconclusive": 0
+        },
+        "jointCounts": {
+          "mismatch/counterexample": 16
+        },
+        "paths": [
+          {
+            "testId": "bag-no-third-1",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "take",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "mismatch": 16
+            }
+          }
+        ]
+      },
+      {
+        "intention": "One open outcome retains both choices",
+        "sut": "branch",
+        "total": 32,
+        "counts": {
+          "compatible": 32,
+          "mismatch": 0,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 32
+        },
+        "jointCounts": {
+          "compatible/inconclusive": 32
+        },
+        "paths": [
+          {
+            "testId": "branch-both-1",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {}
+              },
+              {
+                "method": "left",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          },
+          {
+            "testId": "branch-both-1",
+            "pathIndex": 1,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {}
+              },
+              {
+                "method": "right",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          }
+        ]
+      },
+      {
+        "intention": "One open outcome retains both choices",
+        "sut": "branch-early-choice",
+        "total": 32,
+        "counts": {
+          "compatible": 25,
+          "mismatch": 7,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 32
+        },
+        "jointCounts": {
+          "compatible/inconclusive": 25,
+          "mismatch/inconclusive": 7
+        },
+        "paths": [
+          {
+            "testId": "branch-both-1",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {}
+              },
+              {
+                "method": "left",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "compatible": 9,
+              "mismatch": 7
+            }
+          },
+          {
+            "testId": "branch-both-1",
+            "pathIndex": 1,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {}
+              },
+              {
+                "method": "right",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          }
+        ]
+      },
+      {
+        "intention": "Choose an amount allowing every open outcome to finish",
+        "sut": "jobs",
+        "total": 32,
+        "counts": {
+          "compatible": 32,
+          "mismatch": 0,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 32
+        },
+        "jointCounts": {
+          "compatible/inconclusive": 32
+        },
+        "paths": [
+          {
+            "testId": "positive.case",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {
+                  "n": 3
+                }
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          },
+          {
+            "testId": "positive.case",
+            "pathIndex": 1,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              {
+                "method": "finish",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          }
+        ]
+      },
+      {
+        "intention": "Choose an amount allowing every open outcome to finish",
+        "sut": "jobs-missing-finish",
+        "total": 32,
+        "counts": {
+          "compatible": 23,
+          "mismatch": 9,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 32
+        },
+        "jointCounts": {
+          "compatible/inconclusive": 23,
+          "mismatch/inconclusive": 9
+        },
+        "paths": [
+          {
+            "testId": "positive.case",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {
+                  "n": 3
+                }
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          },
+          {
+            "testId": "positive.case",
+            "pathIndex": 1,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              {
+                "method": "finish",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "mismatch": 9,
+              "compatible": 7
+            }
+          }
+        ]
+      },
+      {
+        "intention": "Choose an amount allowing every open outcome to finish",
+        "sut": "jobs-wrong-receipt",
+        "total": 32,
+        "counts": {
+          "compatible": 16,
+          "mismatch": 16,
+          "inconclusive": 0,
+          "error": 0
+        },
+        "evidenceCounts": {
+          "witnessed": 0,
+          "counterexample": 0,
+          "inconclusive": 32
+        },
+        "jointCounts": {
+          "compatible/inconclusive": 16,
+          "mismatch/inconclusive": 16
+        },
+        "paths": [
+          {
+            "testId": "positive.case",
+            "pathIndex": 0,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {
+                  "n": 3
+                }
+              }
+            ],
+            "counts": {
+              "compatible": 16
+            }
+          },
+          {
+            "testId": "positive.case",
+            "pathIndex": 1,
+            "calls": [
+              {
+                "method": "open",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              {
+                "method": "finish",
+                "arguments": {}
+              }
+            ],
+            "counts": {
+              "mismatch": 16
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "freshReplay": {
+    "generatedAt": "2026-10-24T09:49:30.635Z",
+    "all240RunIdentitiesAndVerdictsMatch": true,
+    "note": "Comparison excludes timings; historical data retains full step evidence only for representative mismatches.",
+    "semanticRunsSha256": "f82245934f88a19d4b14e1d71d31a23510cbd7741700c3abe2e5158f4d6d9550",
+    "summary": {
+      "executions": 240,
+      "counts": {
+        "compatible": 160,
+        "mismatch": 80
+      },
+      "evidenceCounts": {
+        "inconclusive": 224,
+        "counterexample": 16
+      },
+      "jointCounts": {
+        "compatible/inconclusive": 160,
+        "mismatch/inconclusive": 64,
+        "mismatch/counterexample": 16
+      },
+      "campaigns": [
+        {
+          "intention": "Both token orders, multiplicity and final refusal",
+          "sut": "bag",
+          "total": 16,
+          "counts": {
+            "compatible": 16,
+            "mismatch": 0,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 16
+          },
+          "jointCounts": {
+            "compatible/inconclusive": 16
+          },
+          "paths": [
+            {
+              "testId": "bag-orders-1",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            }
+          ]
+        },
+        {
+          "intention": "Both token orders, multiplicity and final refusal",
+          "sut": "bag-missing-duplicate",
+          "total": 16,
+          "counts": {
+            "compatible": 0,
+            "mismatch": 16,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 16
+          },
+          "jointCounts": {
+            "mismatch/inconclusive": 16
+          },
+          "paths": [
+            {
+              "testId": "bag-orders-1",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "mismatch": 16
+              }
+            }
+          ]
+        },
+        {
+          "intention": "Both token orders, multiplicity and final refusal",
+          "sut": "bag-wrong-output",
+          "total": 16,
+          "counts": {
+            "compatible": 0,
+            "mismatch": 16,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 16
+          },
+          "jointCounts": {
+            "mismatch/inconclusive": 16
+          },
+          "paths": [
+            {
+              "testId": "bag-orders-1",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                },
+                {
+                  "method": "take",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "mismatch": 16
+              }
+            }
+          ]
+        },
+        {
+          "intention": "No third value may be reported",
+          "sut": "bag",
+          "total": 16,
+          "counts": {
+            "compatible": 16,
+            "mismatch": 0,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 16
+          },
+          "jointCounts": {
+            "compatible/inconclusive": 16
+          },
+          "paths": [
+            {
+              "testId": "bag-no-third-1",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "take",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            }
+          ]
+        },
+        {
+          "intention": "No third value may be reported",
+          "sut": "bag-wrong-output",
+          "total": 16,
+          "counts": {
+            "compatible": 0,
+            "mismatch": 16,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 16,
+            "inconclusive": 0
+          },
+          "jointCounts": {
+            "mismatch/counterexample": 16
+          },
+          "paths": [
+            {
+              "testId": "bag-no-third-1",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "take",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "mismatch": 16
+              }
+            }
+          ]
+        },
+        {
+          "intention": "One open outcome retains both choices",
+          "sut": "branch",
+          "total": 32,
+          "counts": {
+            "compatible": 32,
+            "mismatch": 0,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 32
+          },
+          "jointCounts": {
+            "compatible/inconclusive": 32
+          },
+          "paths": [
+            {
+              "testId": "branch-both-1",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {}
+                },
+                {
+                  "method": "left",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            },
+            {
+              "testId": "branch-both-1",
+              "pathIndex": 1,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {}
+                },
+                {
+                  "method": "right",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            }
+          ]
+        },
+        {
+          "intention": "One open outcome retains both choices",
+          "sut": "branch-early-choice",
+          "total": 32,
+          "counts": {
+            "compatible": 25,
+            "mismatch": 7,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 32
+          },
+          "jointCounts": {
+            "compatible/inconclusive": 25,
+            "mismatch/inconclusive": 7
+          },
+          "paths": [
+            {
+              "testId": "branch-both-1",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {}
+                },
+                {
+                  "method": "left",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "compatible": 9,
+                "mismatch": 7
+              }
+            },
+            {
+              "testId": "branch-both-1",
+              "pathIndex": 1,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {}
+                },
+                {
+                  "method": "right",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            }
+          ]
+        },
+        {
+          "intention": "Choose an amount allowing every open outcome to finish",
+          "sut": "jobs",
+          "total": 32,
+          "counts": {
+            "compatible": 32,
+            "mismatch": 0,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 32
+          },
+          "jointCounts": {
+            "compatible/inconclusive": 32
+          },
+          "paths": [
+            {
+              "testId": "positive.case",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {
+                    "n": 3
+                  }
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            },
+            {
+              "testId": "positive.case",
+              "pathIndex": 1,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {
+                    "n": 3
+                  }
+                },
+                {
+                  "method": "finish",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            }
+          ]
+        },
+        {
+          "intention": "Choose an amount allowing every open outcome to finish",
+          "sut": "jobs-missing-finish",
+          "total": 32,
+          "counts": {
+            "compatible": 23,
+            "mismatch": 9,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 32
+          },
+          "jointCounts": {
+            "compatible/inconclusive": 23,
+            "mismatch/inconclusive": 9
+          },
+          "paths": [
+            {
+              "testId": "positive.case",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {
+                    "n": 3
+                  }
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            },
+            {
+              "testId": "positive.case",
+              "pathIndex": 1,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {
+                    "n": 3
+                  }
+                },
+                {
+                  "method": "finish",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "mismatch": 9,
+                "compatible": 7
+              }
+            }
+          ]
+        },
+        {
+          "intention": "Choose an amount allowing every open outcome to finish",
+          "sut": "jobs-wrong-receipt",
+          "total": 32,
+          "counts": {
+            "compatible": 16,
+            "mismatch": 16,
+            "inconclusive": 0,
+            "error": 0
+          },
+          "evidenceCounts": {
+            "witnessed": 0,
+            "counterexample": 0,
+            "inconclusive": 32
+          },
+          "jointCounts": {
+            "compatible/inconclusive": 16,
+            "mismatch/inconclusive": 16
+          },
+          "paths": [
+            {
+              "testId": "positive.case",
+              "pathIndex": 0,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {
+                    "n": 3
+                  }
+                }
+              ],
+              "counts": {
+                "compatible": 16
+              }
+            },
+            {
+              "testId": "positive.case",
+              "pathIndex": 1,
+              "calls": [
+                {
+                  "method": "open",
+                  "arguments": {
+                    "n": 3
+                  }
+                },
+                {
+                  "method": "finish",
+                  "arguments": {}
+                }
+              ],
+              "counts": {
+                "mismatch": 16
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "synthetic": {
+    "definitions": {
+      "plus": [
+        "both",
+        "left",
+        "right"
+      ],
+      "minus": [
+        "left",
+        "right"
+      ]
+    },
+    "refusalTraceLanguageEquality": {
+      "equal": true,
+      "statesVisited": 6,
+      "depthBound": null
+    },
+    "originalChoiceDistinguishedByRefusals": {
+      "equal": false,
+      "statesVisited": 5,
+      "distinguishingHistory": [
+        [
+          "open",
+          "accepted",
+          0
+        ],
+        [
+          "left",
+          "refused",
+          null
+        ]
+      ]
+    },
+    "sharedBranchingTruth": {
+      "plus": true,
+      "minus": false
+    },
+    "evidenceChecks": {
+      "maxCalls": 3,
+      "formulaCount": 8,
+      "polarities": 2,
+      "historiesChecked": 155,
+      "evidenceChecks": 2480,
+      "definiteChecks": 332,
+      "disagreements": 0,
+      "sharedEvidence": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 155
+      }
+    },
+    "caveat": "Language equality is exhaustive for these finite models; traceEvidence checking is bounded to the listed formulas and histories. No probabilistic or seed-control equivalence is asserted."
+  },
+  "sourceSha256": {
+    "docs/satel/experiments/black-box-2026-10-19.json": "3a78fe1ed5d37ec769e4f3f8269d131298a17d402828e503ce0a0013863739d9",
+    "petri-net-app/src/satel/blackbox/Campaign.js": "05dbb50156cd1e8cb125df5355a079f587c9b7f61467a6d8b79ce8f5218ff3a6",
+    "petri-net-app/src/satel/blackbox/Experiments.js": "fb35006d3ac11a70a0ad52bf52724c55976558f2f2fce314447645e3780eb272",
+    "petri-net-app/src/satel/blackbox/DemoSystems.js": "7b53912a5e790cccef6d6cb0907311191c0be2af394796f4807679a380b532a7",
+    "petri-net-app/src/domain/apn/PublicMethods.js": "b683b89a466da3e1e94f1e845743a508f5a1dc8ce8261ccba5f726506f5147a2",
+    "petri-net-app/src/satel/core/HmlEvaluator.js": "1e1eaec634f559335fd6e59e80a99b764fe7a18476e37810570678fbca3a00e2",
+    "petri-net-app/src/satel/core/Observations.js": "7806f9103ae20a3dcfe596f7412c0465ce798bdae57c17072446227923d1f278",
+    "petri-net-app/tools/node/run-satel-black-box.js": "70f852f4af77aba0a59169dc3e62a1c67aa056688787a82542a5844ca3b19fe1",
+    "petri-net-app/tools/node/audit-satel-black-box-evidence.js": "131d78a873990db384c874b97432b8a49d5a32fffeadd7e922c6e0d11ad10e5f"
+  }
+}
