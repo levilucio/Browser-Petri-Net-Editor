@@ -26,3 +26,19 @@ test('cancelled and unmounted jobs cannot overwrite the current session', async 
   await act(async () => { second.resolve({ suite: { id: 'unmounted' } }); await newJob; });
   expect(publish.mock.calls.some(([value]) => value?.suite)).toBe(false);
 });
+
+test('late progress from a cancelled job cannot replace a newer job status', async () => {
+  generateIntention.mockClear();
+  const first = deferred(), second = deferred();
+  generateIntention.mockImplementationOnce(() => first.promise).mockImplementationOnce(() => second.promise);
+  const { result } = renderHook(() => useOracleSession({ elements: accountNet, selected, session: null, onSessionChange: jest.fn() }));
+  let oldJob, newJob;
+  act(() => { oldJob = result.current.generate(); });
+  const oldOptions = generateIntention.mock.calls[0][2];
+  act(() => result.current.cancel());
+  act(() => { newJob = result.current.generate(); });
+  act(() => generateIntention.mock.calls[1][2].onPhase('Current job'));
+  act(() => oldOptions.onPhase('Stale job'));
+  expect(result.current.progress).toBe('Current job');
+  await act(async () => { first.resolve({}); second.resolve({}); await Promise.all([oldJob, newJob]); });
+});

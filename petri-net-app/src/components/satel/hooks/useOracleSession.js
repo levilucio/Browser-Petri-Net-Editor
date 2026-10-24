@@ -58,7 +58,9 @@ export function useOracleSession({
       signal,
       classesOnly,
       includeNegative: !classesOnly && includeNegative,
-      onPhase: setProgress,
+      onPhase: message => {
+        if (job.current?.signal === signal && !signal.aborted) setProgress(message);
+      },
       onSelection: report => publish({
         ...next,
         report

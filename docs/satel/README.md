@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 38: browser and worker lifecycle validation](increment-38-browser-worker-lifecycle.md)
+checks owned queries in development and bundled browsers, repairs worker asset
+loading and cancellation, and prevents stale GUI progress after restart.
+
 [Increment 37: owned Z3 query contexts](increment-37-owned-query-contexts.md)
 fixes the opt-in projected-query history regression with deterministic native
 cleanup, bounded context allocation, concurrency checks and paired measurements.
