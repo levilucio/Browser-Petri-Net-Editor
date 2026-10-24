@@ -1,3 +1,4 @@
+import { refutesNumericPreference } from './NumericPreference.js';
 import { createSolverProfile } from './SolverProfile.js';
 import { withSolverQueryCache } from './SolverQueryCache.js';
 import { copy, freeze } from '../../domain/snapshots.js';
@@ -255,6 +256,14 @@ export async function createSymbolicSolver(algebra, options = {}) {
       const preferred = [...symbols].filter(([n]) => ['Nat', 'Int'].includes(variables[n]));
       if (!preferred.length) return original;
       checkCancelled(options.signal);
+      if (options.numericPreferenceRefutation !== false) {
+        trace?.phase('preferenceRefute');
+        const refuted = refutesNumericPreference(conditions, preferred.map(([name]) => name));
+        trace?.refutation(refuted);
+        trace?.phase('other');
+        checkCancelled(options.signal);
+        if (refuted) return original;
+      }
       trace?.phase('preferenceSetup');
       solver.push();
       try {

@@ -65,7 +65,7 @@ test.each(['Nat', 'Int', 'Bool', 'String', 'Pair', 'List'])('%s: profiling prese
 });
 
 test('preferred-value checks are measured separately and preserve the original witness on UNSAT', async () => {
-  const solve = await createSymbolicSolver(algebra, { profileSolver: true, solverQueryCache: false });
+  const solve = await createSymbolicSolver(algebra, { profileSolver: true, solverQueryCache: false, numericPreferenceRefutation: false });
   for (const n of [1, 2]) {
     const r = await solve({ terms: [v('n')], conditions: [eq(v('n'), n)], variables: { n: 'Int' } });
     expect(r.bindings.get('n')).toBe(n);

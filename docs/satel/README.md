@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 35: refuting impossible numeric preferences](increment-35-numeric-preference-refutation.md)
+keeps a validated witness when an independent numeric condition disproves the
+optional all-ones preference, with Z3 fallback and paired benchmark results.
+
 [Increment 34: solver phase profiling](increment-34-solver-phase-profiling.md)
 separates encoding, SMT parsing/checking, witness decoding and validation, with
 paired profiling-overhead measurements on the existing recursive/APN examples.

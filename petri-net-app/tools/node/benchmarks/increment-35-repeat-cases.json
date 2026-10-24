@@ -1,0 +1,114 @@
+[
+  {
+    "id": "membership-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true
+    },
+    "preferenceMode": "enabled"
+  },
+  {
+    "id": "membership-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "depth": 12,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": false
+    },
+    "preferenceMode": "disabled"
+  },
+  {
+    "id": "membership-fixed-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "size": 12,
+    "depth": 13,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true
+    },
+    "preferenceMode": "enabled"
+  },
+  {
+    "id": "membership-fixed-12",
+    "family": "recursive-adt",
+    "kind": "membership",
+    "size": 12,
+    "depth": 13,
+    "limits": {
+      "profileUnfolding": true,
+      "maxTimeMs": 10000,
+      "maxBranches": 2048,
+      "constructorDisjointness": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": false
+    },
+    "preferenceMode": "disabled"
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": false
+    },
+    "preferenceMode": "disabled"
+  },
+  {
+    "id": "inventory-20",
+    "family": "inventory",
+    "sites": 4,
+    "cycles": 4,
+    "rounds": 2,
+    "audit": true,
+    "mutations": true,
+    "limits": {
+      "constructorDisjointness": true,
+      "profileUnfolding": true,
+      "overlapQueryVariables": true,
+      "branchDisjointness": true,
+      "feasibilityQueryProjection": true,
+      "profileSolver": true,
+      "numericPreferenceRefutation": true
+    },
+    "preferenceMode": "enabled"
+  }
+]

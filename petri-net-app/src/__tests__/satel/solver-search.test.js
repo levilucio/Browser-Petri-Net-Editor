@@ -11,8 +11,8 @@ const op = (name, left, right) => ({ op: name, left, right });
 const algebra = parseSymbolicSource('');
 const numeric = conditions => ({ terms: [v('n')], variables: { n: 'Int' }, conditions });
 
-test.each(['unsat', 'unknown', 'error'])('a failed optional preference (%s) retains the first validated witness without a third check', async outcome => {
-  const { ctx } = await getContext(), solve = await createSymbolicSolver(algebra);
+test.each(['unsat', 'unknown', 'error'].flatMap(outcome => [false, true].map(enabled => [outcome, enabled])))('a failed optional preference (%s, refutation=%s) retains the first validated witness without a third check', async (outcome, enabled) => {
+  const { ctx } = await getContext(), solve = await createSymbolicSolver(algebra, { numericPreferenceRefutation: enabled });
   const check = ctx.Solver.prototype.check;
   const spy = jest.spyOn(ctx.Solver.prototype, 'check')
     .mockImplementationOnce(function (...args) { return check.apply(this, args); })
@@ -21,7 +21,10 @@ test.each(['unsat', 'unknown', 'error'])('a failed optional preference (%s) reta
       return outcome;
     });
   try {
-    const request = numeric([op('>=', v('n'), 3)]), result = await solve(request);
+    // The unfixed Boolean keeps the enabled case on the real SMT fallback.
+    const request = enabled ? { terms: [v('n'), v('b')], variables: { n: 'Int', b: 'Bool' },
+      conditions: [op('and', op('>=', v('n'), 3), v('b'))] } : numeric([op('>=', v('n'), 3)]);
+    const result = await solve(request);
     expect(result.status).toBe('sat');
     expect(result.bindings.get('n')).toBeGreaterThanOrEqual(3);
     expect(request.conditions.every(c => evaluateGround(substitute(c, result.bindings)))).toBe(true);
