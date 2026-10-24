@@ -14,6 +14,12 @@ records proposed contributions, correspondence proofs, observability limitations
 statistical execution experiments, and related-work leads for the future paper.
 It separates research proposals from implemented functionality and proved results.
 
+The [black-box claim–evidence–assumption matrix (24 October 2026)](paper-black-box-claim-evidence-assumptions.md)
+audits the current implementation and campaign results, separates observable
+mismatches from HML evidence, states proof obligations and gives a minimal
+experimental plan. It includes a reproduced campaign audit and a refusal-aware
+trace/branching counterexample with a reusable checking script.
+
 ## Nondeterminism and branching properties
 
 [Increment 38: browser and worker lifecycle validation](increment-38-browser-worker-lifecycle.md)

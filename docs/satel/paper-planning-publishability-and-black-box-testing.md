@@ -8,6 +8,12 @@ mutants to independently implemented, nondeterministic black-box systems.
 It is a paper-planning record, not a completed novelty review or a statement that
 the proposed proofs or black-box execution facilities already exist.
 
+Follow-up: the [24 October claim–evidence–assumption matrix](paper-black-box-claim-evidence-assumptions.md)
+assesses the subsequent black-box implementation against this plan, reproduces
+the campaign verdicts, and distinguishes proved model-level observations from
+proposed implementation/thesis theorems. The original discussion below is retained
+as the historical planning baseline.
+
 Implementation baseline at the time of discussion: branch
 `codex/satel-public-methods`, commit `464d181398b016bce8ccbc077db47bc87cb16664`.
 See the [development summary](development-summary-2026-10-16.md),
