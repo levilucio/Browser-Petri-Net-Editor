@@ -25,7 +25,8 @@ export default function OracleValidationPanel({
   selectedId,
   onSelect,
   view = 'generated',
-  onNavigate
+  onNavigate,
+  enabled = true
 }) {
   const [includeNegative, setIncludeNegative] = useState(false);
   const intentions = elements.testIntentions || [];
@@ -45,7 +46,8 @@ export default function OracleValidationPanel({
     elements,
     selected,
     session,
-    onSessionChange
+    onSessionChange,
+    enabled
   });
   const suite = session?.suite,
     report = session?.report;

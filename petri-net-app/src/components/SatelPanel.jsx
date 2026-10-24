@@ -57,7 +57,7 @@ export default function SatelPanel({ isOpen, onClose }) {
       </nav>
       {error && <div role="alert" className="m-3 p-3 bg-red-50 text-red-800 border rounded text-sm">{error}</div>}
       <div className="flex-1 overflow-y-auto min-w-0">
-        <div hidden={!['generated', 'replay'].includes(activeTab)}><OracleValidationPanel elements={elements} session={session} onSessionChange={setSession} selectedId={selectedId} onSelect={setSelectedId} view={activeTab === 'replay' ? 'replay' : 'generated'} onNavigate={setActiveTab} /></div>
+        <div hidden={!['generated', 'replay'].includes(activeTab)}><OracleValidationPanel enabled={isOpen} elements={elements} session={session} onSessionChange={setSession} selectedId={selectedId} onSelect={setSelectedId} view={activeTab === 'replay' ? 'replay' : 'generated'} onNavigate={setActiveTab} /></div>
         <div hidden={activeTab !== 'blackbox'}><BlackBoxPanel session={session} /></div>
         {activeTab === 'intentions' && (editing ?
           editing.kind === 'symbolic' ? <SymbolicIntentionEditor key={editing.id} intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> : <IntentionEditor key={editing.id} intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> :

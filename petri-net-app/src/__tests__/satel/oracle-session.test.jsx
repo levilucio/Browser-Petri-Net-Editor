@@ -42,3 +42,20 @@ test('late progress from a cancelled job cannot replace a newer job status', asy
   expect(result.current.progress).toBe('Current job');
   await act(async () => { first.resolve({}); second.resolve({}); await Promise.all([oldJob, newJob]); });
 });
+
+test('closing the hidden panel cancels work and reopening can start a new job', async () => {
+  generateIntention.mockClear();
+  const first = deferred(); generateIntention.mockImplementationOnce(() => first.promise).mockResolvedValueOnce({ suite: { id: 'new' } });
+  const publish = jest.fn();
+  const { result, rerender } = renderHook(({ enabled }) => useOracleSession({ elements: accountNet, selected, session: null, onSessionChange: publish, enabled }), { initialProps: { enabled: true } });
+  let old;
+  act(() => { old = result.current.generate(); });
+  const signal = generateIntention.mock.calls[0][2].signal;
+  rerender({ enabled: false }); expect(signal.aborted).toBe(true);
+  expect(result.current.busy).toBe(false);
+  rerender({ enabled: true });
+  await act(async () => { await result.current.generate(); });
+  await act(async () => { first.resolve({ suite: { id: 'late' } }); await old; });
+  expect(publish.mock.calls.some(([value]) => value?.suite?.id === 'late')).toBe(false);
+  expect(publish.mock.calls.at(-1)[0].suite.id).toBe('new');
+});

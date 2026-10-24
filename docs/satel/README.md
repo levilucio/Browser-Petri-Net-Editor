@@ -16,6 +16,10 @@ It separates research proposals from implemented functionality and proved result
 
 ## Nondeterminism and branching properties
 
+[Increment 39: GUI generation, admission and replay in a worker](increment-39-gui-worker-pipeline.md)
+connects the full pipeline to the editor with progress reports, immediate worker
+cancellation, frozen-suite preservation and worker/direct regression checks.
+
 [Increment 38: browser and worker lifecycle validation](increment-38-browser-worker-lifecycle.md)
 checks owned queries in development and bundled browsers, repairs worker asset
 loading and cancellation, and prevents stale GUI progress after restart.

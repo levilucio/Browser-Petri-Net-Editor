@@ -33,3 +33,22 @@ test.each(['domain', 'abort', 'error'])('%s terminal outcome leaves worker usabl
   expect(messages[0]).not.toHaveProperty('requestId');
   await handler(start()); expect(messages[1].type).toBe('SUCCESS');
 });
+
+test('shared job protocol carries full selection/admission progress and replay without changing operations', async () => {
+  const { createSatelJobHandler } = await import('../../workers/satel-generation-handler.js');
+  const messages = [], report = { candidates: [1], referenceResults: [] };
+  const generate = jest.fn(async (payload, options) => {
+    expect(payload.intention).toEqual({ id: 'one' }); expect(options.includeNegative).toBe(true);
+    options.onSelection(report); options.onPhase('Validating');
+    report.referenceResults.push({ verdict: 'pass' }); options.onSelection(report);
+    return { report, suite: { oracleValidated: true } };
+  });
+  const replay = jest.fn().mockResolvedValue({ counts: { fail: 1 } });
+  const handler = createSatelJobHandler({ GENERATE_INTENTION: generate, REPLAY: replay }, message => messages.push(JSON.parse(JSON.stringify(message))));
+  await handler({ data: { type: 'GENERATE_INTENTION', requestId: 1, payload: { intention: { id: 'one' }, options: { includeNegative: true } } } });
+  expect(messages.map(m => m.type)).toEqual(['SELECTION', 'PHASE', 'SELECTION', 'SUCCESS']);
+  expect(messages[0].payload.referenceResults).toHaveLength(0); expect(messages[2].payload.referenceResults).toHaveLength(1);
+  expect(messages[3].payload.suite.oracleValidated).toBe(true);
+  await handler({ data: { type: 'REPLAY', requestId: 2, payload: { tests: [1] } } });
+  expect(messages.at(-1)).toMatchObject({ type: 'SUCCESS', requestId: 2, payload: { counts: { fail: 1 } } });
+});

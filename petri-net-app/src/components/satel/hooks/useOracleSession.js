@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { generateIntention } from '../../../satel/core/IntentionPipeline.js';
-import { evaluateOracleSuite } from '../../../satel/core/ValidatedSubuniformity.js';
+import { createSatelClient } from '../../../workers/satel-client.js';
 import { semanticFingerprint } from '../../../domain/apn/SemanticNet.js';
 import { copy } from '../../../domain/snapshots.js';
 
@@ -9,21 +8,28 @@ export function useOracleSession({
   elements,
   selected,
   session,
-  onSessionChange
+  onSessionChange,
+  enabled = true
 }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(null),
     [progress, setProgress] = useState('');
-  const job = useRef(null);
-  useEffect(() => () => {
-    job.current?.abort();
-    job.current = null;
-  }, []);
+  const job = useRef(null), client = useRef(null);
+  const executor = () => client.current || (client.current = createSatelClient());
+  useEffect(() => {
+    if (!enabled) { setBusy(false); setProgress(''); }
+    return () => {
+      job.current?.abort();
+      job.current = null;
+      client.current?.dispose();
+      client.current = null;
+    };
+  }, [enabled]);
   const fingerprint = useMemo(() => semanticFingerprint(elements, { intentions: true }), [elements]);
   const targetFingerprint = useMemo(() => semanticFingerprint(elements), [elements]);
   const currentName = elements.satelExample?.name || 'Current editor APN';
   const run = async work => {
-    if (job.current) return;
+    if (!enabled || job.current) return;
     const controller = new AbortController();
     job.current = controller;
     const publish = value => {
@@ -54,7 +60,7 @@ export function useOracleSession({
     };
     publish(null);
     setProgress('Selecting values and instantiating the pair sequences…');
-    const result = await generateIntention(intention, net, {
+    const result = await executor().generate(intention, net, {
       signal,
       classesOnly,
       includeNegative: !classesOnly && includeNegative,
@@ -75,7 +81,7 @@ export function useOracleSession({
     const saved = session,
       net = copy(elements);
     setProgress('Replaying frozen expectations…');
-    const target = await evaluateOracleSuite(saved.suite.selectedTests, net, saved.suite.interface, {
+    const target = await executor().replay(saved.suite.selectedTests, net, saved.suite.interface, {
       signal
     });
     publish({
