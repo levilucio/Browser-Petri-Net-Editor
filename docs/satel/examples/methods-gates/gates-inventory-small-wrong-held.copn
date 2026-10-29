@@ -1,0 +1,38 @@
+Class inventory_small_wrong_held;
+
+Interface
+  Methods
+    reserve : Nat Int;
+    inspect : Nat;
+    cancel : Nat;
+    stock : Nat;
+    ready : Nat;
+  Gates
+    ack : Bool;
+    held : Int;
+    available : Int;
+
+Body
+  Places
+    stock_0 : Int;
+    phase_0 : Bool;
+    reservation_0 : Pair;
+    route_0 : Bool;
+    permits_0 : Int;
+  Initial
+    stock_0 (6), phase_0 (false), reservation_0 ((0, 0)), route_0 (false), permits_0 (1), permits_0 (1);
+  Axioms
+    reserve_0_false: reserve w q With this.ack (true) ::
+      w == 0 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_0 s, phase_0 busy, reservation_0 old, route_0 oldRoute, permits_0 k, permits_0 k -> stock_0 (s - q), phase_0 (true), reservation_0 ((q, k)), route_0 (false);
+    reserve_0_true: reserve w q With this.ack (true) ::
+      w == 0 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_0 s, phase_0 busy, reservation_0 old, route_0 oldRoute, permits_0 k, permits_0 k -> stock_0 (s - q), phase_0 (true), reservation_0 ((q, k)), route_0 (true);
+    inspect_0: inspect w With this.held (asInt(fst(r)) + 1) ::
+      w == 0 and busy => phase_0 busy, reservation_0 r -> phase_0 (busy), reservation_0 (r);
+    cancel_0: cancel w With this.ack (true) ::
+      w == 0 and busy => phase_0 busy, stock_0 s, reservation_0 r, route_0 route -> phase_0 (false), stock_0 (s + asInt(fst(r))), reservation_0 ((0, 0)), route_0 (false), permits_0 (asInt(snd(r))), permits_0 (asInt(snd(r)));
+    report_stock_0: stock w With this.available (s) ::
+      w == 0 => stock_0 s -> stock_0 (s);
+    ready_0: ready w With this.ack (true) ::
+      w == 0 and not busy => phase_0 busy, permits_0 k, permits_0 k -> phase_0 (busy), permits_0 (k), permits_0 (k);
+
+End inventory_small_wrong_held;

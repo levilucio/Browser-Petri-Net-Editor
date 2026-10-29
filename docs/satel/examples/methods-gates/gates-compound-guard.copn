@@ -1,0 +1,20 @@
+Class compound_guard;
+
+Interface
+  Methods
+    check : Int;
+  Gates
+    accepted : Int;
+
+Body
+  Places
+    ready : Int;
+  Initial
+    ready (1);
+  Axioms
+    accept: check x With this.accepted (1) ::
+      x > 0 and (x < 5 or x == 10) => ready r -> ready (r);
+    refuse: check x With this.accepted (0) ::
+      not (x > 0 and (x < 5 or x == 10)) => ready r -> ready (r);
+
+End compound_guard;

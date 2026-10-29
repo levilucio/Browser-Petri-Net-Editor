@@ -1,3 +1,4 @@
+import { validGateValue } from '../../domain/apn/Gates.js';
 import { compilePublicNet, enumerateMethodSuccessors, isMethodRule, markingKey } from '../../domain/apn/PublicMethods.js';
 import { publicInterface } from '../core/TestCase.js';
 import { checkInterface } from '../core/SequenceRunner.js';
@@ -16,7 +17,7 @@ function checkResponse(response, io) {
   if (response.status === 'timeout') return;
   const outputs = response.outputs;
   if (!outputs || Array.isArray(outputs) || JSON.stringify(Object.keys(outputs).sort()) !== JSON.stringify([...io.outputs].sort())
-    || io.outputs.some(p => !Array.isArray(outputs[p]) || !outputs[p].every(v => validBuiltinValue(v, io.outputSorts[p])))
+    || io.outputs.some(p => !Array.isArray(outputs[p]) || !outputs[p].every(v => { const g = io.gates?.find(g => g.name === p); return g ? validGateValue(g, v) : validBuiltinValue(v, io.outputSorts[p]); }))
     || response.status === 'refused' && Object.values(outputs).some(tokens => tokens.length)) {
     throw new DomainError('adapter-error', 'SUT response must contain one typed token list per public output; a refusal produces none');
   }

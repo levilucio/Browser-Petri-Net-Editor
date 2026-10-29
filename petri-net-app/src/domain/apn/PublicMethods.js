@@ -1,4 +1,5 @@
 /** Checked, synchronous public methods for the built-in APN values. */
+import { getGates, emptyGates, validGateValue, gateValueSort } from './Gates.js';
 import { compileMethodTerm, evaluateMethodTerm } from './MethodTerms.js';
 import { methodSorts, validBuiltinValue, builtinValueKey } from '../../utils/builtin-values.js';
 import { equalValues } from '../../utils/value-equality.js';
@@ -71,9 +72,19 @@ export function compileMethodRule(net, method, ruleId) {
     place: target(a),
     ast: compileMethodTerm(binding(a), variables, places.get(target(a)).sort)
   }));
+  const declarations = getGates(net);
+  requireThat(t.gates === undefined || Array.isArray(t.gates), `Invalid gate synchronizations on ${t.id}`);
+  const gates = (t.gates || []).map(call => {
+    const gate = declarations.find(g => g.name === call?.gate);
+    requireThat(gate && Array.isArray(call.arguments) && call.arguments.length === gate.parameters.length && call.arguments.every(a => typeof a === 'string'), `Invalid gate call on ${t.id}`);
+    const args = call.arguments.map((a, i) => compileMethodTerm(a, variables, gate.parameters[i].sort));
+    const ast = args.length === 1 ? args[0] : compileMethodTerm(`[${call.arguments.join(', ')}]`, variables, 'List');
+    return { gate: gate.name, declaration: gate, args, ast, sort: gateValueSort(gate) };
+  });
   return {
     ins,
     outs,
+    gates,
     guard,
     variables
   };
@@ -88,6 +99,11 @@ export function compilePublicNet(net) {
   if (compiledModels.has(key)) return compiledModels.get(key);
   const ids = [...net.places, ...net.transitions, ...net.arcs].map(x => x.id);
   requireThat(ids.every(id => typeof id === 'string' && id) && new Set(ids).size === ids.length, 'Net IDs must be nonempty and unique');
+  getGates(net);
+  for (const t of net.transitions) {
+    requireThat(t.gates === undefined || Array.isArray(t.gates), `Invalid gate synchronizations on ${t.id}`);
+    requireThat(!t.gates?.length || isMethodRule(t), 'Gate synchronizations require a public method rule');
+  }
   const methods = getPublicMethods(net);
   const plans = Object.fromEntries(methods.map(method => [method.name, method.rules.map(id => ({
     id,
@@ -127,6 +143,7 @@ export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
       id: ruleId,
       ins,
       outs,
+      gates,
       guard
     } of plans[name]) {
       const choose = (i, env, picks) => {
@@ -168,7 +185,8 @@ export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
             }))
           },
           nextPlaces = new Map(next.places.map(p => [p.id, p]));
-        const produced = {};
+        const produced = emptyGates(net);
+        const stateProduced = {};
         [...picks].sort((a, b) => b.tokenIndex - a.tokenIndex).forEach(p => nextPlaces.get(p.srcId).valueTokens.splice(p.tokenIndex, 1));
         for (const out of outs) {
           const value = evaluateMethodTerm(out.ast, env),
@@ -176,6 +194,12 @@ export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
           requireThat(validMethodValue(value, p.sort), `Method output leaves ${p.sort} range at ${p.id}`);
           p.valueTokens.push(copy(value));
           (produced[p.id] ||= []).push(copy(value));
+          (stateProduced[p.id] ||= []).push(copy(value));
+        }
+        for (const gate of gates) {
+          const value = evaluateMethodTerm(gate.ast, env);
+          requireThat(validGateValue(gate.declaration, value), `Invalid value at gate ${gate.gate}`);
+          produced[gate.gate].push(copy(value));
         }
         next.places.forEach(p => {
           p.tokens = p.valueTokens.length;
@@ -188,6 +212,7 @@ export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
             env,
             picks,
             produced,
+            stateProduced,
             next
           });
         }

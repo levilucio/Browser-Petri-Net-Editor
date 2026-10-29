@@ -1,0 +1,24 @@
+Class hml_selection_missing_finish;
+
+Interface
+  Methods
+    open : Nat;
+    finish : ;
+  Gates
+    reply : Nat;
+
+Body
+  Places
+    state : Int;
+    amount : Nat;
+  Initial
+    state (0), amount (0);
+  Axioms
+    openA: open n With this.reply (n) ::
+      s == 0 => state s, amount old -> state (1), amount (n);
+    openB: open n With this.reply (n) ::
+      s == 0 => state s, amount old -> state (2), amount (n);
+    finish: finish With this.reply (0) ::
+      s == 1 => state s, amount a -> state (3), amount (a);
+
+End hml_selection_missing_finish;

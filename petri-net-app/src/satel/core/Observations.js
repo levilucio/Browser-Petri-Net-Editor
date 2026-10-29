@@ -6,10 +6,13 @@ export function checkObservation(observation, marking, producedTokens = {}) {
     outputs,
     markings
   } = observation;
-  for (const place of [...Object.keys(outputs || {}), ...Object.keys(markings || {})]) {
+  for (const place of Object.keys(markings || {})) {
     if (!Object.hasOwn(marking, place)) throw new Error(`Unknown observation place: ${place}`);
   }
 
+  for (const id of Object.keys(outputs || {})) {
+    if (!Object.hasOwn(marking, id) && !Object.hasOwn(producedTokens, id)) throw new Error(`Unknown observation channel: ${id}`);
+  }
   // 1. Check output tokens (use produced tokens from this firing, not marking)
   for (const [place, expectedTokens] of Object.entries(outputs || {})) {
     // Only this firing's production is observable; old tokens are not new events.

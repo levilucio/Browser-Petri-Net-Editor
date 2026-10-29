@@ -1,3 +1,4 @@
+import { emptyGates, getGates } from '../../domain/apn/Gates.js';
 import { AlgebraicSimulator } from '../../features/simulation/algebraic-simulator.js';
 import { isMethodRule } from '../../domain/apn/PublicMethods.js';
 import { initialMarkingOf, withInitialMarking } from './InitialMarking.js';
@@ -9,6 +10,17 @@ export function checkInterface(net, io) {
   const actual = publicInterface(net);
   const signatures = methods => JSON.stringify([...methods].sort((a, b) => a.name.localeCompare(b.name)));
   if (!Array.isArray(io.methods) || signatures(actual.methods) !== signatures(io.methods)) throw new DomainError('interface-mismatch', 'Public method interface does not match the saved contract');
+  if (Object.hasOwn(io, 'gates')) {
+    // Gate formal names are documentation: occurrences carry ordered arguments.
+    // Method formal names remain significant because calls use a named map.
+    const gateSignatures = gates => signatures(gates.map(g => ({ name: g.name, sorts: g.parameters.map(p => p.sort) })));
+    let declared;
+    try { declared = getGates({ gates: io.gates }); }
+    catch { throw new DomainError('interface-mismatch', 'Malformed gate signatures in the saved contract'); }
+    if (gateSignatures(actual.gates || []) !== gateSignatures(declared)) throw new DomainError('interface-mismatch', 'Gate signatures do not match the saved contract');
+  } else if (actual.gates?.some(g => g.parameters.length !== 1)) {
+    throw new DomainError('interface-mismatch', 'Zero- and multi-argument gates require explicit signatures in the saved contract');
+  }
   if (!Array.isArray(io.outputs) || new Set(io.outputs).size !== io.outputs.length || io.outputs.some(id => !actual.outputs.includes(id))) throw new DomainError('interface-mismatch', 'Invalid public output interface');
   if (io.outputSorts && io.outputs.some(id => io.outputSorts[id] !== actual.outputSorts[id])) throw new DomainError('interface-mismatch', 'Public output sorts do not match the saved contract');
 }
@@ -61,7 +73,7 @@ export async function runSequence(net, pairs, io, options = {}) {
         }
       }
       const marking = initialMarkingOf(sim.getCurrentState());
-      const produced = copy(call?.produced || {});
+      const produced = copy(call?.produced || emptyGates(net));
       const outputs = io?.outputs ? Object.fromEntries(io.outputs.map(id => [id, produced[id] || []])) : produced;
       const event = {
         step: index + 1,

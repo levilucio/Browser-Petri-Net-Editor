@@ -1,0 +1,20 @@
+Class nondeterminism_bag_extra_output;
+
+Interface
+  Methods
+    take : ;
+  Gates
+    picked : Int;
+
+Body
+  Places
+    stock : Int;
+  Initial
+    stock (1), stock (1), stock (2);
+  Axioms
+    take: take With this.picked (x) ::
+      stock x -> empty;
+    takeBad: take With this.picked (99) ::
+      stock x -> empty;
+
+End nondeterminism_bag_extra_output;

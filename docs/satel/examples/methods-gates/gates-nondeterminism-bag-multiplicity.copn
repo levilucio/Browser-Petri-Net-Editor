@@ -1,0 +1,18 @@
+Class nondeterminism_bag_multiplicity;
+
+Interface
+  Methods
+    take : ;
+  Gates
+    picked : Int;
+
+Body
+  Places
+    stock : Int;
+  Initial
+    stock (1), stock (2);
+  Axioms
+    take: take With this.picked (x) ::
+      stock x -> empty;
+
+End nondeterminism_bag_multiplicity;

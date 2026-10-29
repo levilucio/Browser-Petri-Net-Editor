@@ -1,0 +1,38 @@
+Class exercise_kits_missing_part;
+
+Interface
+  Methods
+    take : ;
+    inspectLoan : ;
+    assemble : Bool;
+    inspectProduct : ;
+    disassemble : ;
+    returnParts : ;
+  Gates
+    ack : Bool;
+    parts : Pair;
+    kit : Pair;
+
+Body
+  Places
+    stock : Pair;
+    loan : Pair;
+    product : Pair;
+    idle : Bool;
+  Initial
+    stock (("bolt", true)), idle (true);
+  Axioms
+    take: take With this.ack (ready) ::
+      stock part, stock part, idle ready -> loan (part), loan (part);
+    inspectLoan: inspectLoan With this.parts (part) // this.parts (part) ::
+      loan part, loan part -> loan (part), loan (part);
+    assemble: assemble recyclable With this.ack (true) ::
+      loan part, loan part -> product (("kit", recyclable));
+    inspectProduct: inspectProduct With this.kit (p) ::
+      product p -> product (p);
+    disassemble: disassemble With this.ack (true) ::
+      product p -> loan (("bolt", true)), loan (("bolt", true));
+    returnParts: returnParts With this.ack (true) ::
+      loan part, loan part -> stock (part), stock (part), idle (true);
+
+End exercise_kits_missing_part;

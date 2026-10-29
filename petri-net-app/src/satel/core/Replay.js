@@ -1,3 +1,4 @@
+import { validObservationValue } from '../../domain/apn/Gates.js';
 import { replayProperty } from './HmlEvaluator.js';
 import { sequenceFormula } from './HmlFormula.js';
 import { equalTokenBags } from '../../utils/builtin-values.js';
@@ -20,7 +21,8 @@ export async function replayTest(source, net, io, options = {}) {
     } of test.pairs) {
       for (const [id, tokens] of Object.entries(observation.outputs || {})) {
         const place = net.places.find(p => p.id === id);
-        if (!place || !Array.isArray(tokens) || test.pairs[0].stimulation.method && !tokens.every(t => validBuiltinValue(t, io?.outputSorts?.[id] || place.sort))) throw new Error(`Malformed oracle observation at ${id}`);
+        const channel = place || net.gates?.find(g => g.name === id);
+        if (!channel || !Array.isArray(tokens) || test.pairs[0].stimulation.method && !tokens.every(t => validObservationValue(net, id, t))) throw new Error(`Malformed oracle observation at ${id}`);
       }
     }
     execution = await runSequence(net, test.pairs, io, {

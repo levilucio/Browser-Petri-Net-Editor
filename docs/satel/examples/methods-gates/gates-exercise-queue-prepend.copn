@@ -1,0 +1,32 @@
+Class exercise_queue_prepend;
+
+Interface
+  Methods
+    load : List;
+    enqueue : Int;
+    read : ;
+    dequeue : ;
+    clear : ;
+  Gates
+    ack : Bool;
+    items : List;
+    removed : Int;
+
+Body
+  Places
+    queue : List;
+  Initial
+    queue ([]);
+  Axioms
+    load: load xs With this.ack (true) ::
+      queue old -> queue (xs);
+    enqueue: enqueue n With this.ack (true) ::
+      queue xs -> queue ([n | xs]);
+    read: read With this.items (xs) ::
+      queue xs -> queue (xs);
+    dequeue: dequeue With this.removed (asInt(head(xs))) ::
+      length(xs) > 0 => queue xs -> queue (tail(xs));
+    clear: clear With this.ack (true) ::
+      queue xs -> queue ([]);
+
+End exercise_queue_prepend;

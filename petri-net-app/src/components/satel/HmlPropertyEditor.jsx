@@ -1,3 +1,4 @@
+import { observationChannels } from '../../domain/apn/Gates';
 import React, { useCallback, useEffect, useState } from 'react';
 import { getPublicMethods, methodSignature } from '../../domain/apn/PublicMethods';
 import { defaultMethodValue } from '../../utils/builtin-values';
@@ -77,7 +78,7 @@ export default function HmlPropertyEditor({ formula, onChange, elements, onValid
   useEffect(() => { onValidityChange?.(invalid); }, [invalid, onValidityChange]);
   return <section aria-label="Branching property editor" className="space-y-3">
     <p className="text-sm">Describe possible and required continuations. Every branch shares the same variable values. The whole property starts from the model’s initial marking; nested calls continue from the marking reached in their branch.</p>
-    <PropertyNode node={formula} onChange={onChange} methods={methods} places={elements.places || []} path="1" validity={validity} />
+    <PropertyNode node={formula} onChange={onChange} methods={methods} places={observationChannels(elements)} path="1" validity={validity} />
     <details className="border rounded p-3"><summary>HML notation</summary><pre className="text-xs whitespace-pre-wrap break-words mt-2">{formulaNotation(formula)}</pre>
       <p className="text-xs mt-2">⟨a⟩: some matching successor; [a]: every matching successor; ∧: both at the same state; ∨: either; ¬: negation; ⊤: true; ⊥: false. * matches any observation.</p>
     </details>

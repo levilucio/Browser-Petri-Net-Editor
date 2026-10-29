@@ -54,6 +54,9 @@ const Transition = ({
     mode,
     arcStart
   } = usePetriNet();
+  const publicRule = elements?.transitions?.find(t => t.id === id);
+  const hasGates = publicRule?.gates !== undefined;
+  const gateText = (publicRule?.gates || []).map(g => `${g.gate}(${g.arguments.map(a => a.replace(/\s*[\r\n]+\s*/g, ' ')).join(', ')})`).join(' // ');
   // netMode provided by context
   
   // Throttle state updates during drag to prevent crashes from vigorous shaking
@@ -251,15 +254,16 @@ const Transition = ({
         strokeWidth={isSelected ? 3 : (isEnabled ? 3 : 2)}
       />
       <Text
-        text={label}
+        text={hasGates ? `${publicRule.method?.name || label}(${publicRule.method?.parameters.map(p => p.name).join(', ') || ''})` : label}
         fontSize={14}
         fill="black"
-        x={-baseWidth / 2}
+        x={hasGates ? -100 : -baseWidth / 2}
         y={(baseHeight / 2) + 5}
-        width={baseWidth}
+        width={hasGates ? 200 : baseWidth}
         align="center"
         listening={false}
       />
+      {hasGates && <Text text={gateText ? `With ${gateText}` : 'No gate output'} fontSize={11} fill="#1d4ed8" x={-110} y={48} width={220} align="center" listening={false} />}
       {netMode === 'algebraic-int' && guardText && (
         <Text
           text={guardText}

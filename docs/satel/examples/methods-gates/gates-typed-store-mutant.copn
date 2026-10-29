@@ -1,0 +1,27 @@
+Class typed_store_mutant;
+
+Interface
+  Methods
+    store : List String Bool Pair;
+    read : ;
+  Gates
+    ack : Bool;
+    echoed : List;
+    labelOut : String;
+    metaOut : Pair;
+    saved : List;
+
+Body
+  Places
+    storage : List;
+  Initial
+    storage ([]);
+  Axioms
+    accept: store items label enabled meta With this.ack (true) // this.echoed (items) // this.labelOut (label) // this.metaOut (meta) ::
+      enabled and length(items) > 0 and length(label) > 0 and fst(meta) == label => storage old -> storage (tail(items));
+    refuse: store items label enabled meta With this.ack (false) ::
+      not (enabled and length(items) > 0 and length(label) > 0 and fst(meta) == label) => storage old -> storage (old);
+    read: read With this.saved (old) ::
+      storage old -> storage (old);
+
+End typed_store_mutant;

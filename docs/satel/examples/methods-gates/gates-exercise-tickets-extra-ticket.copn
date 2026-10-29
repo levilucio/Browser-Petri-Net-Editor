@@ -1,0 +1,28 @@
+Class exercise_tickets_extra_ticket;
+
+Interface
+  Methods
+    issue : Nat;
+    use : ;
+    inspect : ;
+    finish : ;
+  Gates
+    ack : Bool;
+    count : Nat;
+
+Body
+  Places
+    remaining : Nat;
+  Initial
+    remaining (0);
+  Axioms
+    issue: issue n With this.ack (true) ::
+      n >= 2 and n <= 4 => remaining old -> remaining (n + 1);
+    use: use With this.ack (true) ::
+      n > 0 => remaining n -> remaining (n - 1);
+    inspect: inspect With this.count (n) ::
+      remaining n -> remaining (n);
+    finish: finish With this.count (n) ::
+      remaining n -> remaining (0);
+
+End exercise_tickets_extra_ticket;

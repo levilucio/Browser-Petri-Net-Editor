@@ -1,0 +1,25 @@
+Class exercise_journal_reverse_log;
+
+Interface
+  Methods
+    record : Int Bool;
+    read : ;
+  Gates
+    alarm : Bool;
+    records : List;
+    source : String;
+
+Body
+  Places
+    current : Int;
+    journal : List;
+    label : String;
+  Initial
+    current (0), journal ([]), label ("sensor");
+  Axioms
+    record: record delta armed With this.alarm (armed and delta > 0) ::
+      delta >= -2 and delta <= 2 and delta != 0 => current v, journal xs -> current (v + delta), journal ([(v + delta, armed) | xs]);
+    read: read With this.records (xs) // this.source (s) ::
+      journal xs, label s -> journal (xs), label (s);
+
+End exercise_journal_reverse_log;

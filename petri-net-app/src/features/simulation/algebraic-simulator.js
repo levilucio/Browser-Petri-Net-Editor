@@ -418,7 +418,7 @@ export class AlgebraicSimulator extends BaseSimulator {
       const call = options[methodInvocation];
       if (!call || call.transitionId !== transitionId) throw new Error('Invalid checked method call');
       consumeTokens(call.picks, placesById);
-      for (const [id, values] of Object.entries(call.produced)) {
+      for (const [id, values] of Object.entries(call.stateProduced || call.produced)) {
         placesById[id].valueTokens.push(...JSON.parse(JSON.stringify(values)));
         placesById[id].tokens = placesById[id].valueTokens.length;
       }

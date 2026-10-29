@@ -1,0 +1,25 @@
+Class hml_adt_string_missing_finish;
+
+Interface
+  Methods
+    open : String;
+    finish : ;
+  Gates
+    ack : Bool;
+    item : String;
+
+Body
+  Places
+    state : Int;
+    value : String;
+  Initial
+    state (0), value ("");
+  Axioms
+    openA: open x With this.ack (true) ::
+      s == 0 => state s, value old -> state (1), value (x);
+    openB: open x With this.ack (true) ::
+      s == 0 => state s, value old -> state (2), value (x);
+    finish: finish With this.ack (true) // this.item (v) ::
+      s == 1 => state s, value v -> state (3), value (v);
+
+End hml_adt_string_missing_finish;

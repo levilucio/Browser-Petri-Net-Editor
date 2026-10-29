@@ -8,6 +8,7 @@ export default function PublicMethodEditor({ transition, elements, setElements, 
   const [error, setError] = useState('');
   const save = method => {
     try {
+      if (!method && transition.gates?.length) throw new Error('Remove this rule’s gate synchronizations in APN source before making it internal.');
       const next = { ...elements, transitions: elements.transitions.map(t => {
         if (t.id !== transition.id) return t;
         const changed = { ...t };
@@ -19,6 +20,10 @@ export default function PublicMethodEditor({ transition, elements, setElements, 
   };
   return <section className="border-t pt-3 space-y-2 mb-4">
     <h3 className="font-semibold">Public method</h3>
+    {transition.gates !== undefined && <div className="text-xs text-blue-800">
+      <p className="font-mono">{transition.gates.length ? `With ${transition.gates.map(g => `this.${g.gate}(${g.arguments.join(', ')})`).join(' // ')}` : 'No gate output'}</p>
+      <p>Edit gates and their declarations in SATEL → APN source.</p>
+    </div>}
     <p className="text-xs text-gray-600">Rules with the same signature implement alternatives of one method. Undeclared transitions remain internal.</p>
     <label className="block text-sm">Method name<input aria-label="Method name" className="border rounded w-full p-2" value={name} onChange={e => setName(e.target.value)} /></label>
     {parameters.map((p, i) => <div key={i} className="flex gap-1">

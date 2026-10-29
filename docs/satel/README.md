@@ -19,6 +19,13 @@ freezes an implementation candidate, locates exact thesis definitions and record
 interpretation/proof obligations. The [LaTeX paper draft](paper/README.md) contains
 the corresponding initial manuscript and build instructions.
 
+## Methods and gates
+
+[Increment 40: synchronous methods and gates](increment-40-methods-gates.md)
+adds a flat CO-OPN-style class syntax, typed transient gate occurrences, editable
+source in the GUI and [86 converted reference/mutant examples](examples/methods-gates/README.md).
+This work is on `codex/satel-methods-gates`; the earlier paper baseline remains fixed.
+
 ## Nondeterminism and branching properties
 
 [Increment 39: GUI generation, admission and replay in a worker](increment-39-gui-worker-pipeline.md)

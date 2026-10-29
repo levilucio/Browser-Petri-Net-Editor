@@ -1,3 +1,4 @@
+import { getGates } from '../../domain/apn/Gates.js';
 import { getPublicMethods, isMethodRule } from '../../features/simulation/PublicMethods.js';
 /**
  * I/O Interface Manager
@@ -90,6 +91,7 @@ export function getOutputTransitions(petriNet) {
 export function extractInterface(petriNet) {
   return {
     methods: getPublicMethods(petriNet),
+    gates: getGates(petriNet),
     inputPlaces: getInputPlaces(petriNet),
     outputPlaces: getOutputPlaces(petriNet),
     inputTransitions: getInputTransitions(petriNet),
@@ -116,7 +118,7 @@ export function validateInterface(petriNet) {
     warnings.push('No input places or transitions defined. Reactive system needs inputs (stimulations).');
   }
   
-  if (outputPlaces.length === 0 && outputTransitions.length === 0) {
+  if (outputPlaces.length === 0 && outputTransitions.length === 0 && getGates(petriNet).length === 0) {
     warnings.push('No output places or transitions defined. Reactive system needs outputs (observations).');
   }
   

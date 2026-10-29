@@ -1,0 +1,93 @@
+Class inventory_large_wrong_held;
+
+Interface
+  Methods
+    reserve : Nat Int;
+    inspect : Nat;
+    cancel : Nat;
+    stock : Nat;
+    ready : Nat;
+  Gates
+    ack : Bool;
+    held : Int;
+    available : Int;
+
+Body
+  Places
+    stock_0 : Int;
+    phase_0 : Bool;
+    reservation_0 : Pair;
+    route_0 : Bool;
+    permits_0 : Int;
+    audit_0 : List;
+    stock_1 : Int;
+    phase_1 : Bool;
+    reservation_1 : Pair;
+    route_1 : Bool;
+    permits_1 : Int;
+    audit_1 : List;
+    stock_2 : Int;
+    phase_2 : Bool;
+    reservation_2 : Pair;
+    route_2 : Bool;
+    permits_2 : Int;
+    audit_2 : List;
+    stock_3 : Int;
+    phase_3 : Bool;
+    reservation_3 : Pair;
+    route_3 : Bool;
+    permits_3 : Int;
+    audit_3 : List;
+  Initial
+    stock_0 (6), phase_0 (false), reservation_0 ((0, 0)), route_0 (false), permits_0 (1), permits_0 (1), audit_0 ([]), stock_1 (6), phase_1 (false), reservation_1 ((0, 0)), route_1 (false), permits_1 (1), permits_1 (1), audit_1 ([]), stock_2 (6), phase_2 (false), reservation_2 ((0, 0)), route_2 (false), permits_2 (1), permits_2 (1), audit_2 ([]), stock_3 (6), phase_3 (false), reservation_3 ((0, 0)), route_3 (false), permits_3 (1), permits_3 (1), audit_3 ([]);
+  Axioms
+    reserve_0_false: reserve w q With this.ack (true) ::
+      w == 0 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_0 s, phase_0 busy, reservation_0 old, route_0 oldRoute, permits_0 k, permits_0 k -> stock_0 (s - q), phase_0 (true), reservation_0 ((q, k)), route_0 (false);
+    reserve_0_true: reserve w q With this.ack (true) ::
+      w == 0 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_0 s, phase_0 busy, reservation_0 old, route_0 oldRoute, permits_0 k, permits_0 k -> stock_0 (s - q), phase_0 (true), reservation_0 ((q, k)), route_0 (true);
+    inspect_0: inspect w With this.held (asInt(fst(r)) + 1) ::
+      w == 0 and busy => phase_0 busy, reservation_0 r -> phase_0 (busy), reservation_0 (r);
+    cancel_0: cancel w With this.ack (true) ::
+      w == 0 and busy => phase_0 busy, stock_0 s, reservation_0 r, route_0 route, audit_0 xs -> phase_0 (false), stock_0 (s + asInt(fst(r))), reservation_0 ((0, 0)), route_0 (false), permits_0 (asInt(snd(r))), permits_0 (asInt(snd(r))), audit_0 (append(xs, (route, asInt(snd(r)))));
+    report_stock_0: stock w With this.available (s) ::
+      w == 0 => stock_0 s -> stock_0 (s);
+    ready_0: ready w With this.ack (true) ::
+      w == 0 and not busy => phase_0 busy, permits_0 k, permits_0 k -> phase_0 (busy), permits_0 (k), permits_0 (k);
+    reserve_1_false: reserve w q With this.ack (true) ::
+      w == 1 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_1 s, phase_1 busy, reservation_1 old, route_1 oldRoute, permits_1 k, permits_1 k -> stock_1 (s - q), phase_1 (true), reservation_1 ((q, k)), route_1 (false);
+    reserve_1_true: reserve w q With this.ack (true) ::
+      w == 1 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_1 s, phase_1 busy, reservation_1 old, route_1 oldRoute, permits_1 k, permits_1 k -> stock_1 (s - q), phase_1 (true), reservation_1 ((q, k)), route_1 (true);
+    inspect_1: inspect w With this.held (asInt(fst(r)) + 1) ::
+      w == 1 and busy => phase_1 busy, reservation_1 r -> phase_1 (busy), reservation_1 (r);
+    cancel_1: cancel w With this.ack (true) ::
+      w == 1 and busy => phase_1 busy, stock_1 s, reservation_1 r, route_1 route, audit_1 xs -> phase_1 (false), stock_1 (s + asInt(fst(r))), reservation_1 ((0, 0)), route_1 (false), permits_1 (asInt(snd(r))), permits_1 (asInt(snd(r))), audit_1 (append(xs, (route, asInt(snd(r)))));
+    report_stock_1: stock w With this.available (s) ::
+      w == 1 => stock_1 s -> stock_1 (s);
+    ready_1: ready w With this.ack (true) ::
+      w == 1 and not busy => phase_1 busy, permits_1 k, permits_1 k -> phase_1 (busy), permits_1 (k), permits_1 (k);
+    reserve_2_false: reserve w q With this.ack (true) ::
+      w == 2 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_2 s, phase_2 busy, reservation_2 old, route_2 oldRoute, permits_2 k, permits_2 k -> stock_2 (s - q), phase_2 (true), reservation_2 ((q, k)), route_2 (false);
+    reserve_2_true: reserve w q With this.ack (true) ::
+      w == 2 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_2 s, phase_2 busy, reservation_2 old, route_2 oldRoute, permits_2 k, permits_2 k -> stock_2 (s - q), phase_2 (true), reservation_2 ((q, k)), route_2 (true);
+    inspect_2: inspect w With this.held (asInt(fst(r)) + 1) ::
+      w == 2 and busy => phase_2 busy, reservation_2 r -> phase_2 (busy), reservation_2 (r);
+    cancel_2: cancel w With this.ack (true) ::
+      w == 2 and busy => phase_2 busy, stock_2 s, reservation_2 r, route_2 route, audit_2 xs -> phase_2 (false), stock_2 (s + asInt(fst(r))), reservation_2 ((0, 0)), route_2 (false), permits_2 (asInt(snd(r))), permits_2 (asInt(snd(r))), audit_2 (append(xs, (route, asInt(snd(r)))));
+    report_stock_2: stock w With this.available (s) ::
+      w == 2 => stock_2 s -> stock_2 (s);
+    ready_2: ready w With this.ack (true) ::
+      w == 2 and not busy => phase_2 busy, permits_2 k, permits_2 k -> phase_2 (busy), permits_2 (k), permits_2 (k);
+    reserve_3_false: reserve w q With this.ack (true) ::
+      w == 3 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_3 s, phase_3 busy, reservation_3 old, route_3 oldRoute, permits_3 k, permits_3 k -> stock_3 (s - q), phase_3 (true), reservation_3 ((q, k)), route_3 (false);
+    reserve_3_true: reserve w q With this.ack (true) ::
+      w == 3 and not busy and q > 0 and q <= s and (q <= 2 or q >= 3) and k > 0 => stock_3 s, phase_3 busy, reservation_3 old, route_3 oldRoute, permits_3 k, permits_3 k -> stock_3 (s - q), phase_3 (true), reservation_3 ((q, k)), route_3 (true);
+    inspect_3: inspect w With this.held (asInt(fst(r)) + 1) ::
+      w == 3 and busy => phase_3 busy, reservation_3 r -> phase_3 (busy), reservation_3 (r);
+    cancel_3: cancel w With this.ack (true) ::
+      w == 3 and busy => phase_3 busy, stock_3 s, reservation_3 r, route_3 route, audit_3 xs -> phase_3 (false), stock_3 (s + asInt(fst(r))), reservation_3 ((0, 0)), route_3 (false), permits_3 (asInt(snd(r))), permits_3 (asInt(snd(r))), audit_3 (append(xs, (route, asInt(snd(r)))));
+    report_stock_3: stock w With this.available (s) ::
+      w == 3 => stock_3 s -> stock_3 (s);
+    ready_3: ready w With this.ack (true) ::
+      w == 3 and not busy => phase_3 busy, permits_3 k, permits_3 k -> phase_3 (busy), permits_3 (k), permits_3 (k);
+
+End inventory_large_wrong_held;

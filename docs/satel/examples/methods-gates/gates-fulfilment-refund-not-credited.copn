@@ -1,0 +1,91 @@
+Class fulfilment_refund_not_credited;
+
+Interface
+  Methods
+    open : Bool;
+    add : Nat;
+    reserve : ;
+    pay : ;
+    pack : ;
+    ship : ;
+    deliver : ;
+    returnItems : Nat;
+    close : ;
+    audit : ;
+  Gates
+    ack : Bool;
+    cartAmount : Nat;
+    reservedAmount : Nat;
+    charged : Nat;
+    packedAmount : Nat;
+    shippingFee : Nat;
+    deliveredAmount : Nat;
+    refunded : Nat;
+    stockLevel : Nat;
+    walletBalance : Nat;
+    netRevenue : Nat;
+    loyalty : Nat;
+    shipmentCount : Nat;
+    returnCount : Nat;
+
+Body
+  Places
+    idle : Nat;
+    draft : Nat;
+    cart : Nat;
+    reserved : Nat;
+    paid : Nat;
+    packed : Nat;
+    transit : Nat;
+    delivered : Nat;
+    returned : Nat;
+    stock : Nat;
+    wallet : Nat;
+    revenue : Nat;
+    points : Nat;
+    shipments : Nat;
+    returns : Nat;
+    crates : Nat;
+    crateLoan : Nat;
+    deliveryMode : Bool;
+    escrow : Nat;
+    returnedQuantity : Nat;
+  Initial
+    idle (1), stock (12), wallet (100), revenue (0), points (0), shipments (0), returns (0), crates (1), crates (1);
+  Axioms
+    open: open rush With this.ack (true) ::
+      idle ready -> draft (ready), deliveryMode (rush);
+    add: add quantity With this.cartAmount (quantity) ::
+      quantity > 0 and quantity <= s => draft ready, stock s -> cart (quantity), stock (s);
+    addRefused: add quantity With this.ack (false) ::
+      quantity == 0 or quantity > s => draft ready, stock s -> draft (ready), stock (s);
+    reserve: reserve With this.reservedAmount (q) ::
+      q <= s => cart q, stock s -> reserved (q), stock (s - q);
+    reserveRefused: reserve With this.ack (false) ::
+      q > s => cart q, stock s -> cart (q), stock (s);
+    pay: pay With this.charged (10 * q) ::
+      cash >= 10 * q => reserved q, wallet cash -> paid (q), wallet (cash - 10 * q), escrow (10 * q);
+    payRefused: pay With this.ack (false) ::
+      cash < 10 * q => reserved q, wallet cash -> reserved (q), wallet (cash);
+    pack: pack With this.packedAmount (q) ::
+      paid q, crates c, crates c -> packed (q), crateLoan (c), crateLoan (c);
+    shipStandardSmall: ship With this.shippingFee (2) ::
+      not rush and q < 4 and cash >= 2 => packed q, deliveryMode rush, wallet cash, revenue rev -> transit (q), wallet (cash - 2), revenue (rev + 2);
+    shipStandardBulk: ship With this.shippingFee (0) ::
+      not rush and q >= 4 and cash >= 0 => packed q, deliveryMode rush, wallet cash, revenue rev -> transit (q), wallet (cash - 0), revenue (rev + 0);
+    shipExpressSmall: ship With this.shippingFee (5) ::
+      rush and q < 4 and cash >= 5 => packed q, deliveryMode rush, wallet cash, revenue rev -> transit (q), wallet (cash - 5), revenue (rev + 5);
+    shipExpressBulk: ship With this.shippingFee (3) ::
+      rush and q >= 4 and cash >= 3 => packed q, deliveryMode rush, wallet cash, revenue rev -> transit (q), wallet (cash - 3), revenue (rev + 3);
+    deliver: deliver With this.deliveredAmount (q) ::
+      transit q, crateLoan c, crateLoan c, shipments s -> delivered (q), crates (c), crates (c), shipments (s + 1);
+    returnItems: returnItems quantity With this.refunded (10 * quantity) ::
+      quantity > 0 and quantity <= q => delivered q, stock s, wallet cash, escrow held, returns r -> returned (q - quantity), returnedQuantity (quantity), stock (s + quantity), wallet (cash), escrow (held - 10 * quantity), returns (r + 1);
+    returnRefused: returnItems quantity With this.ack (false) ::
+      quantity == 0 or quantity > q => delivered q -> delivered (q);
+    close: close With this.ack (true) ::
+      returned q, returnedQuantity returned, escrow held, revenue rev, points p -> idle (1), revenue (rev + held), points (p + q);
+    audit: audit With this.stockLevel (s) // this.walletBalance (cash) // this.netRevenue (rev) // this.loyalty (p) // this.shipmentCount (sent) // this.returnCount (r) ::
+      idle ready, stock s, wallet cash, revenue rev, points p, shipments sent, returns r -> idle (ready), stock (s), wallet (cash), revenue (rev), points (p), shipments (sent), returns (r);
+
+End fulfilment_refund_not_credited;

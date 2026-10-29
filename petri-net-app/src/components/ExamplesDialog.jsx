@@ -1,3 +1,4 @@
+import { methodGateExamples } from '../satel/examples/methods-gates/editor.js';
 import { inventoryExamples } from '../satel/examples/inventory/editor.js';
 import { nondeterminismExamples } from '../satel/examples/nondeterminism/editor.js';
 import { hmlAlgebraicExamples } from '../satel/examples/hml-selection/algebraic.js';
@@ -66,6 +67,11 @@ export default function ExamplesDialog({ isOpen, onClose, onSelectExample }) {
           <label className="block text-sm">Find an example
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, type, or fault" className="block w-full border rounded p-2 mt-1" />
           </label>
+          <details open>
+            <summary className="cursor-pointer font-semibold py-2">Methods &amp; gates — {methodGateExamples.length} converted examples</summary>
+            <p className="text-sm text-gray-600 mb-2">Typed gates replace output places. Inspect the class in SATEL → APN source.</p>
+            <div className="space-y-2">{methodGateExamples.filter(matches).map(renderExample)}</div>
+          </details>
           <details open={search ? true : undefined}>
             <summary className="cursor-pointer font-semibold py-2">SATEL exercises — 10 references and 20 mutants</summary>
             <p className="text-sm text-gray-600 mb-2">Generate on a reference, then load its mutant and replay the frozen suite.</p>

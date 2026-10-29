@@ -16,6 +16,7 @@ export function semanticNet(net, {
   });
   return {
     mode: net.mode,
+    gates: net.gates,
     places,
     transitions: (net.transitions || []).map(strip),
     arcs: (net.arcs || []).map(strip),

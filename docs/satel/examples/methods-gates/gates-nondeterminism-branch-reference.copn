@@ -1,0 +1,26 @@
+Class nondeterminism_branch_reference;
+
+Interface
+  Methods
+    open : ;
+    left : ;
+    right : ;
+  Gates
+    reply : Int;
+
+Body
+  Places
+    state : Int;
+  Initial
+    state (0);
+  Axioms
+    openBoth: open With this.reply (0) ::
+      s == 0 => state s -> state (1);
+    openLeft: open With this.reply (0) ::
+      s == 0 => state s -> state (2);
+    left: left With this.reply (1) ::
+      s == 1 or s == 2 => state s -> state (3);
+    right: right With this.reply (2) ::
+      s == 1 or s == 4 => state s -> state (3);
+
+End nondeterminism_branch_reference;

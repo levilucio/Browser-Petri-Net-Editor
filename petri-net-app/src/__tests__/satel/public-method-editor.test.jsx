@@ -30,3 +30,12 @@ test('editor rejects an inconsistent shared method signature without changing th
   expect(screen.getByRole('alert')).toHaveTextContent('Inconsistent signatures');
   expect(setElements).not.toHaveBeenCalled();
 });
+
+test('editor cannot turn a gate-synchronizing rule into an autonomous transition', () => {
+  const transition = { id: 'rule', method: { name: 'query', parameters: [] }, gates: [{ gate: 'reply', arguments: ['1'] }] };
+  const elements = { places: [], transitions: [transition], arcs: [] }, setElements = jest.fn();
+  render(<PublicMethodEditor transition={transition} elements={elements} setElements={setElements} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Make internal' }));
+  expect(screen.getByRole('alert')).toHaveTextContent('Remove this rule’s gate synchronizations');
+  expect(setElements).not.toHaveBeenCalled();
+});

@@ -1,0 +1,26 @@
+Class exercise_thermostat_reference;
+
+Interface
+  Methods
+    adjust : Int;
+    read : ;
+  Gates
+    band : Int;
+    reading : Int;
+
+Body
+  Places
+    temperature : Int;
+  Initial
+    temperature (20);
+  Axioms
+    cold: adjust delta With this.band (-1) ::
+      delta < 0 and delta >= -5 and delta <= 5 => temperature t -> temperature (t + delta);
+    steady: adjust delta With this.band (0) ::
+      delta == 0 and delta >= -5 and delta <= 5 => temperature t -> temperature (t + delta);
+    warm: adjust delta With this.band (1) ::
+      delta > 0 and delta >= -5 and delta <= 5 => temperature t -> temperature (t + delta);
+    read: read With this.reading (t) ::
+      temperature t -> temperature (t);
+
+End exercise_thermostat_reference;
