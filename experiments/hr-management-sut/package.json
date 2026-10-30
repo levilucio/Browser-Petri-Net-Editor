@@ -1,0 +1,16 @@
+{
+  "name": "hr-management-sut",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python backend/app.py",
+    "generate": "node experiments/generate.mjs",
+    "test:baseline": "node experiments/campaign.mjs --out baseline",
+    "test:mutants": "node experiments/campaign.mjs --mutants auto-approve-special,manager-scope,take-pending,double-charge,correction-no-audit,cross-tenant-hr,wrong-total --out mutations",
+    "stress": "node experiments/stress.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.57.0"
+  }
+}

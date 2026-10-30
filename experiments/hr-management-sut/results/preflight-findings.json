@@ -1,0 +1,35 @@
+{
+  "findings": [
+    {
+      "area": "specification",
+      "issue": "Initial place and transition IDs collided for balance queries",
+      "resolution": "Distinct query transition IDs; compilation now succeeds"
+    },
+    {
+      "area": "Playwright adapter",
+      "issue": "data-command selector also matched the completed response element",
+      "resolution": "Scope action locators to button elements"
+    },
+    {
+      "area": "SATEL selection",
+      "issue": "Default 10000 whole-sequence branch budget exhausted for 25 work-log classes on the 432-transition APN",
+      "resolution": "Measure separately, then prune only ground-false method guard conjuncts before exploring irrelevant rules; retain uncertainty and compare selected tests"
+    },
+    {
+      "area": "Campaign fixture isolation",
+      "issue": "Concurrent browser campaigns originally reset a shared test database, invalidating another run session",
+      "resolution": "Unique database per process and variant; complete clean baseline rerun and per-server readiness checks"
+    },
+    {
+      "area": "HTTP routing",
+      "issue": "Unsupported resource suffixes and excess path segments could be dispatched as valid reads",
+      "resolution": "Explicit route shapes and HTTP regression assertions; malformed JSON arrays return 400"
+    },
+    {
+      "area": "APN graphical layout",
+      "issue": "Exhaustive corridor search for 432 gate edges delayed editor rendering",
+      "resolution": "Deduplicate corridors, check shortest routes first, stop at first clear route, preindex incoming gate edges; unchanged notation"
+    }
+  ],
+  "initialMutationMode": "none"
+}

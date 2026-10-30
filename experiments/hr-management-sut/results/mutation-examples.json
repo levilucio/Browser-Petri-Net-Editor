@@ -1,0 +1,349 @@
+[
+  {
+    "mutant": "auto-approve-special",
+    "intention": "exercise-hr-work-log",
+    "test": "reviews.standard/reviews.trip/reviews.end",
+    "reason": "The SUT output matches no outcome from any compatible reference state.",
+    "step": 4,
+    "divergence": {
+      "step": 4,
+      "stimulation": {
+        "method": "readTime",
+        "arguments": {
+          "actor": 1001,
+          "employee": 1001,
+          "record": 9010012
+        }
+      },
+      "response": {
+        "status": "accepted",
+        "outputs": {
+          "ack": [],
+          "timeRecord": [
+            {
+              "__pair__": true,
+              "fst": 1,
+              "snd": {
+                "__pair__": true,
+                "fst": 15,
+                "snd": 2
+              }
+            }
+          ],
+          "vacationRecord": [],
+          "remaining": [],
+          "approvedMinutes": [],
+          "changes": []
+        }
+      },
+      "compatibleBefore": 1,
+      "compatibleAfter": 0,
+      "expected": [
+        {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [
+              {
+                "__pair__": true,
+                "fst": 1,
+                "snd": {
+                  "__pair__": true,
+                  "fst": 15,
+                  "snd": 1
+                }
+              }
+            ],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "mutant": "manager-scope",
+    "intention": "exercise-hr-role-decideTime",
+    "test": "actor102",
+    "reason": "The SUT accepted the call, but every compatible reference state refuses it.",
+    "step": 2,
+    "divergence": {
+      "step": 2,
+      "stimulation": {
+        "method": "decideTime",
+        "arguments": {
+          "actor": 102,
+          "employee": 1001,
+          "record": 9010011,
+          "approve": true
+        }
+      },
+      "response": {
+        "status": "accepted",
+        "outputs": {
+          "ack": [
+            true
+          ],
+          "timeRecord": [],
+          "vacationRecord": [],
+          "remaining": [],
+          "approvedMinutes": [],
+          "changes": []
+        }
+      },
+      "compatibleBefore": 1,
+      "compatibleAfter": 0,
+      "expected": [
+        {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "mutant": "take-pending",
+    "intention": "exercise-hr-vacation-take-pending",
+    "test": "short",
+    "reason": "The SUT accepted the call, but every compatible reference state refuses it.",
+    "step": 2,
+    "divergence": {
+      "step": 2,
+      "stimulation": {
+        "method": "takeVacation",
+        "arguments": {
+          "actor": 1001,
+          "employee": 1001,
+          "record": 19010011
+        }
+      },
+      "response": {
+        "status": "accepted",
+        "outputs": {
+          "ack": [
+            true
+          ],
+          "timeRecord": [],
+          "vacationRecord": [],
+          "remaining": [],
+          "approvedMinutes": [],
+          "changes": []
+        }
+      },
+      "compatibleBefore": 1,
+      "compatibleAfter": 0,
+      "expected": [
+        {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "mutant": "double-charge",
+    "intention": "exercise-hr-vacation-approved",
+    "test": "short",
+    "reason": "The SUT output matches no outcome from any compatible reference state.",
+    "step": 5,
+    "divergence": {
+      "step": 5,
+      "stimulation": {
+        "method": "balance",
+        "arguments": {
+          "actor": 1001,
+          "employee": 1001
+        }
+      },
+      "response": {
+        "status": "accepted",
+        "outputs": {
+          "ack": [],
+          "timeRecord": [],
+          "vacationRecord": [],
+          "remaining": [
+            28
+          ],
+          "approvedMinutes": [],
+          "changes": []
+        }
+      },
+      "compatibleBefore": 1,
+      "compatibleAfter": 0,
+      "expected": [
+        {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [
+              29
+            ],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "mutant": "correction-no-audit",
+    "intention": "exercise-hr-work-log",
+    "test": "reviews.standard/reviews.standard/reviews.end",
+    "reason": "The SUT output matches no outcome from any compatible reference state.",
+    "step": 9,
+    "divergence": {
+      "step": 9,
+      "stimulation": {
+        "method": "auditCount",
+        "arguments": {
+          "actor": 11,
+          "employee": 1001
+        }
+      },
+      "response": {
+        "status": "accepted",
+        "outputs": {
+          "ack": [],
+          "timeRecord": [],
+          "vacationRecord": [],
+          "remaining": [],
+          "approvedMinutes": [],
+          "changes": [
+            2
+          ]
+        }
+      },
+      "compatibleBefore": 1,
+      "compatibleAfter": 0,
+      "expected": [
+        {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": [
+              3
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "mutant": "cross-tenant-hr",
+    "intention": "exercise-hr-role-correctTime",
+    "test": "actor21",
+    "reason": "The SUT accepted the call, but every compatible reference state refuses it.",
+    "step": 2,
+    "divergence": {
+      "step": 2,
+      "stimulation": {
+        "method": "correctTime",
+        "arguments": {
+          "actor": 21,
+          "employee": 1001,
+          "record": 9010011,
+          "kind": 0,
+          "minutes": 120,
+          "status": 2
+        }
+      },
+      "response": {
+        "status": "accepted",
+        "outputs": {
+          "ack": [
+            true
+          ],
+          "timeRecord": [],
+          "vacationRecord": [],
+          "remaining": [],
+          "approvedMinutes": [],
+          "changes": []
+        }
+      },
+      "compatibleBefore": 1,
+      "compatibleAfter": 0,
+      "expected": [
+        {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "mutant": "wrong-total",
+    "intention": "exercise-hr-work-log",
+    "test": "reviews.standard/reviews.trip/reviews.end",
+    "reason": "The SUT output matches no outcome from any compatible reference state.",
+    "step": 5,
+    "divergence": {
+      "step": 5,
+      "stimulation": {
+        "method": "totals",
+        "arguments": {
+          "actor": 1001,
+          "employee": 1001
+        }
+      },
+      "response": {
+        "status": "accepted",
+        "outputs": {
+          "ack": [],
+          "timeRecord": [],
+          "vacationRecord": [],
+          "remaining": [],
+          "approvedMinutes": [
+            30
+          ],
+          "changes": []
+        }
+      },
+      "compatibleBefore": 1,
+      "compatibleAfter": 0,
+      "expected": [
+        {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [
+              15
+            ],
+            "changes": []
+          }
+        }
+      ]
+    }
+  }
+]

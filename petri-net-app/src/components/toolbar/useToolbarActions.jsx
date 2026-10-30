@@ -322,6 +322,14 @@ export default function useToolbarActions(params) {
         updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
         setIsMobileMenuOpen?.(false); return;
       }
+      if (filename === 'hr-management-reference') {
+        const { createHrExample } = await import('../../satel/examples/hr/editor.js');
+        const net = createHrExample();
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.('Loaded HR management. Open SATEL → Generated tests or APN source.');
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (filename.startsWith('gates-')) {
         const { createMethodGateExample } = await import('../../satel/examples/methods-gates/editor.js');
         const net = createMethodGateExample(filename);

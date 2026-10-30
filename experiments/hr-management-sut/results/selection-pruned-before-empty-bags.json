@@ -1,0 +1,9 @@
+{
+  "visited": 10243,
+  "pruned": 24210,
+  "prefixChecks": 235,
+  "policy": "one executable representative per algebraic class; whole-sequence constraints; bounded symbolic execution",
+  "selected": 25,
+  "blocked": 0,
+  "unresolved": 0
+}

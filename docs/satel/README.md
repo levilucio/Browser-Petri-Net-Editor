@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+See [HR management stress experiment](increment-43-hr-management-stress.md) for a 432-transition APN, independent REST/SQLite web SUT, generated API and Playwright campaigns, and measured recursive-ADT/subuniformity limits.
+
 See [quota web SUT testing](increment-42-quota-web-sut.md) to run generated methods/gates tests against an independent browser application and inspect detected implementation faults.
 
 See [thesis graphical notation](increment-41-graphical-methods-gates.md) for the APN boundary, method/gate ports, synchronization edges and a screenshot of the converted quota example.

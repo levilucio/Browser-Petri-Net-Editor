@@ -12,6 +12,18 @@ const eq = (left, right) => ({
   right
 });
 const copy = x => JSON.parse(JSON.stringify(x));
+
+// Simultaneous substitution preserves method-local versus intention scopes.
+// Only a ground false conjunct can exclude a plan; symbolic/undefined terms stay.
+function instantiateKnown(term, env) {
+  if (term?.var) return Object.hasOwn(env, term.var) ? env[term.var] : term;
+  if (Array.isArray(term)) return term.map(t => instantiateKnown(t, env));
+  return term && typeof term === 'object' ? Object.fromEntries(Object.entries(term).map(([k, v]) => [k, instantiateKnown(v, env)])) : term;
+}
+function falseConjunct(term) {
+  return term === false || term?.op === 'and' && (falseConjunct(term.left) || falseConjunct(term.right));
+}
+
 const fail = message => {
   throw new Error(message);
 };
@@ -28,7 +40,7 @@ function range(term, sort) {
 }
 
 /** Continuous positive prefixes, optionally ending with a universally blocked call. */
-async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, initialConditions) {
+async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, initialConditions, options = {}) {
   if (!pairs.length || pairs.length > 32) fail('Executable sequences require 1–32 pairs');
   const {
     methods,
@@ -106,7 +118,12 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
       }]);
       return;
     }
-    for (const plan of plans[name]) {
+    const compatiblePlans = options.pruneGroundMethodGuards === false ? plans[name] : plans[name].filter(plan => {
+      const excluded = falseConjunct(foldGroundTerms(instantiateKnown(plan.guard, args), algebra));
+      if (excluded) budget.pruned++;
+      return !excluded;
+    });
+    for (const plan of compatiblePlans) {
       async function* bind(i, env, picks, constraints) {
         tick();
         if (i < plan.ins.length) {
@@ -135,7 +152,9 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
         // Method-local variable names may equal intention names. This is a
         // simultaneous substitution: inserted terms already belong to the
         // intention scope and must not be substituted again as method locals.
-        const instantiate = t => t?.var ? env[t.var] : Array.isArray(t) ? t.map(instantiate) : t && typeof t === 'object' ? Object.fromEntries(Object.entries(t).map(([k, v]) => [k, instantiate(v)])) : t;
+        const instantiate = t => instantiateKnown(t, env);
+        const guard = foldGroundTerms(instantiate(plan.guard), algebra);
+        if (options.pruneGroundMethodGuards !== false && falseConjunct(guard)) { budget.pruned++; return; }
         const next = Object.fromEntries(Object.entries(marking).map(([id, tokens]) => [id, tokens.filter((_, k) => !picks.some(p => p.place === id && p.tokenIndex === k))]));
         const produced = Object.fromEntries(io.outputs.map(id => [id, []]));
         const cs = [];
@@ -150,7 +169,7 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
           produced[gate.gate].push(instantiate(gate.ast));
           gate.args.forEach((arg, i) => cs.push(...range(instantiate(arg), gate.declaration.parameters[i].sort)));
         }
-        const branched = plans[name].length > 1 || plan.ins.some(input => new Set(marking[input.place].map(t => JSON.stringify(t))).size > 1) ||
+        const branched = compatiblePlans.length > 1 || plan.ins.some(input => new Set(marking[input.place].map(t => JSON.stringify(t))).size > 1) ||
           Object.values(produced).some(tokens => new Set(tokens.map(t => JSON.stringify(t))).size > 1);
         async function* observe(i, conditions) {
           if (i === io.outputs.length) {
@@ -163,6 +182,10 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
             return;
           }
           const id = io.outputs[i];
+          // Two empty bags have exactly one match and introduce no constraint.
+          if (!produced[id].length && !(pair.observation.outputs[id] || []).length) {
+            yield* observe(i + 1, conditions); return;
+          }
           for await (const matched of matchBag(produced[id], pair.observation.outputs[id] || [], conditions)) yield* observe(i + 1, matched);
         }
         yield* observe(0, [...constraints, ...foldGroundTerms(cs, algebra)]);
@@ -230,7 +253,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
         const hml = options.branchingProperty ? await buildHmlConstraints(options.branchingProperty, net, io, projection.roots, sorts, goal.algebra, {
           ...options, deadline: budget.deadline, expectedTruth: options.branchingExpectedTruth ?? true
         }) : null;
-        for await (const path of paths(compiled, net, io, substitute(c.pairs, caseBindings), goal.algebra, sorts, budget, search, domainConditions)) {
+        for await (const path of paths(compiled, net, io, substitute(c.pairs, caseBindings), goal.algebra, sorts, budget, search, domainConditions, options)) {
           attempts++;
           const conditions = [...path.conditions, ...(hml?.conditions || [])];
           // Preserve the previous representative when it satisfies the COMPLETE

@@ -22,11 +22,13 @@ function routeSynchronization(t, end, frame, nodes) {
   const direct = [start, end];
   if (clear(direct)) return direct;
   const ys = [frame.y + 28, frame.y + frame.height - 30, ...nodes.flatMap(n => [n.y - 48, n.y + 78])];
-  const candidates = ys.filter(y => y > frame.y + 20 && y < frame.y + frame.height - 20).map(y => [
+  const candidates = [...new Set(ys)].filter(y => y > frame.y + 20 && y < frame.y + frame.height - 20).map(y => [
     { x: t.x, y: t.y + (y < t.y ? -25 : 25) }, { x: t.x, y }, { x: end.x - 24, y }, { x: end.x - 24, y: end.y }, end,
-  ]).filter(clear);
+  ]);
   const length = path => path.slice(1).reduce((sum, p, i) => sum + Math.hypot(p.x-path[i].x, p.y-path[i].y), 0);
-  return candidates.sort((a,b) => length(a)-length(b))[0] || direct;
+  // Test the shortest corridors first and stop at the first clear one. This
+  // selects the same route without checking every corridor against every node.
+  return candidates.sort((a,b) => length(a)-length(b)).find(clear) || direct;
 }
 
 // Presentation only: ports and synchronization edges are derived, never net arcs.
@@ -55,12 +57,17 @@ export function apnInterfaceLayout(net) {
     label: `${g.name}(${g.parameters.map(p => p.sort).join(', ')})`,
   }));
   const connections = [];
+  const incomingByGate = new Map();
+  for (const rule of net.transitions || []) for (const [index, call] of (Array.isArray(rule.gates) ? rule.gates : []).entries()) {
+    if (!incomingByGate.has(call.gate)) incomingByGate.set(call.gate, []);
+    incomingByGate.get(call.gate).push({ rule: rule.id, index });
+  }
   for (const t of net.transitions || []) {
     if (!Number.isFinite(t.x) || !Number.isFinite(t.y)) continue;
     for (const [index, call] of (Array.isArray(t.gates) ? t.gates : []).entries()) {
       const port = gatePorts.find(g => g.name === call.gate);
       if (!port || !Array.isArray(call.arguments)) continue;
-      const incoming = (net.transitions || []).flatMap(rule => (Array.isArray(rule.gates) ? rule.gates : []).map((g, i) => ({ rule: rule.id, index: i, gate: g.gate }))).filter(g => g.gate === call.gate);
+      const incoming = incomingByGate.get(call.gate);
       const slot = incoming.findIndex(g => g.rule === t.id && g.index === index);
       const end = { x: port.x - 7, y: port.y + ((slot + 1) / (incoming.length + 1) - 0.5) * 28 };
       const path = routeSynchronization(t, end, frame, positions);

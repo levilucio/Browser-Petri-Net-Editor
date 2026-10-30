@@ -1,0 +1,119 @@
+{
+  "baseline": {
+    "none": {
+      "api": {
+        "compatible": 82,
+        "mismatch": 0,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "ui": {
+        "compatible": 82,
+        "mismatch": 0,
+        "inconclusive": 0,
+        "error": 0
+      }
+    }
+  },
+  "mutants": {
+    "auto-approve-special": {
+      "api": {
+        "compatible": 57,
+        "mismatch": 25,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "ui": {
+        "compatible": 57,
+        "mismatch": 25,
+        "inconclusive": 0,
+        "error": 0
+      }
+    },
+    "manager-scope": {
+      "api": {
+        "compatible": 80,
+        "mismatch": 2,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "ui": {
+        "compatible": 80,
+        "mismatch": 2,
+        "inconclusive": 0,
+        "error": 0
+      }
+    },
+    "take-pending": {
+      "api": {
+        "compatible": 79,
+        "mismatch": 3,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "ui": {
+        "compatible": 79,
+        "mismatch": 3,
+        "inconclusive": 0,
+        "error": 0
+      }
+    },
+    "double-charge": {
+      "api": {
+        "compatible": 79,
+        "mismatch": 2,
+        "inconclusive": 0,
+        "error": 1
+      },
+      "ui": {
+        "compatible": 79,
+        "mismatch": 2,
+        "inconclusive": 0,
+        "error": 1
+      }
+    },
+    "correction-no-audit": {
+      "api": {
+        "compatible": 42,
+        "mismatch": 40,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "ui": {
+        "compatible": 42,
+        "mismatch": 40,
+        "inconclusive": 0,
+        "error": 0
+      }
+    },
+    "cross-tenant-hr": {
+      "api": {
+        "compatible": 81,
+        "mismatch": 1,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "ui": {
+        "compatible": 81,
+        "mismatch": 1,
+        "inconclusive": 0,
+        "error": 0
+      }
+    },
+    "wrong-total": {
+      "api": {
+        "compatible": 58,
+        "mismatch": 24,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "ui": {
+        "compatible": 58,
+        "mismatch": 24,
+        "inconclusive": 0,
+        "error": 0
+      }
+    }
+  },
+  "transportAgreement": true
+}

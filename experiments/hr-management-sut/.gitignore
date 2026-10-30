@@ -1,0 +1,13 @@
+node_modules/
+__pycache__/
+*.pyc
+data/*.sqlite3
+data/runs/
+specification/hr.apn.json
+results/*
+!results/summary.json
+!results/stress.json
+!results/generation-verification.json
+!results/preflight-findings.json
+!results/mutation-examples.json
+!results/selection-pruned-before-empty-bags.json
