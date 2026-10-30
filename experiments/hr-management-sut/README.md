@@ -1,5 +1,18 @@
 # HR management SUT
 
+The latest [scaling measurements](SCALE_RESULTS.md) extend the fixed-marking
+depth experiment with exact scalar feasibility checks, compact region metadata
+and larger explicit branch budgets. The application and original frozen tests
+are unchanged. Reproduce the new measurements sequentially:
+
+```sh
+node experiments/depth-benchmark.mjs --mode scale
+node experiments/depth-report.mjs scale-benchmark --out scale-audit
+node --test experiments/depth-audit.test.mjs
+node experiments/verify-index.mjs --out scale-verification
+node experiments/scale-summary.mjs
+```
+
 A standalone research application for model-based testing: browser frontend,
 Python REST backend and a persistent SQLite relational database. The application
 has no dependency on SATEL. The optional experiment scripts use the separate

@@ -29,3 +29,8 @@ results/*
 !results/depth-audit.json
 !results/depth-verification.json
 !results/depth-summary.json
+
+!results/scale-benchmark.json
+!results/scale-audit.json
+!results/scale-summary.json
+!results/scale-verification.json

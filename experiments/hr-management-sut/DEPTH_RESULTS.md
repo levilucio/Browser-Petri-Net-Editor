@@ -1,5 +1,8 @@
 # Recursive WorkLog depth: measured limits and finite coverage
 
+Historical Increment 46 measurements. [SCALE_RESULTS.md](SCALE_RESULTS.md)
+records the follow-up with larger explicit branch budgets and faster feasibility.
+
 Recorded 30 October 2026. This follows [token indexing](INDEX_RESULTS.md).
 The HR backend, frontend, database seed, existing intentions and APN business
 rules are unchanged. The experiment holds the marking fixed at 12 employees and

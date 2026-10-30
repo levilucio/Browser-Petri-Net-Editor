@@ -1,5 +1,8 @@
 # Increment 46: recursive WorkLog depth and finite coverage audit
 
+The follow-up is [Increment 47](increment-47-hr-scalar-feasibility.md), which
+addresses the measured feasibility cost and branch ceiling below.
+
 The HR SUT, existing intentions, source equations and business transitions remain
 unchanged. The new experiment increases WorkLog length from one to five over a
 fixed 12-employee, five-slot marking. A single generic benchmark protocol records
