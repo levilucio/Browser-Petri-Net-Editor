@@ -1,5 +1,8 @@
 # Generic HR APN: results and limits
 
+This records the pre-index generic implementation. See [INDEX_RESULTS.md](INDEX_RESULTS.md)
+for the subsequent token-index measurements and validation.
+
 Recorded 30 October 2026. This replaces the employee/slot-expanded default model.
 The standalone SUT's implementation, database seed, public API and adapters are
 unchanged. The earlier experiment remains in `EXPANDED_RESULTS.md`, with compact

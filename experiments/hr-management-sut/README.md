@@ -204,3 +204,15 @@ employee and record. Approved minutes are maintained incrementally; differential
 tests compare them against the expanded model's independent summation across
 interleaved employees and every old/new approval-state correction combination.
 This uses existing Pair/Nat/Bool support, not a new custom Employee-sort runtime.
+
+## Indexed selection follow-up
+
+[INDEX_RESULTS.md](INDEX_RESULTS.md) records the follow-up profiling and indexing
+experiment. `node experiments/index-benchmark.mjs` runs the 256-person, two/eight
+slot cases with a five-minute sequence budget. Use `--configs` with a JSON array
+of `{employees, slots, indexed, sequenceTimeMs}` to compare indexed and exhaustive
+candidate scanning. `--out NAME` writes `results/NAME.json`. Run timing experiments
+sequentially without competing test/build/campaign jobs; Z3 initialization is
+recorded separately. `node experiments/verify-index.mjs` regenerates and admits
+all nine intentions, compares every test pair with `results/suites.json`, and
+writes `results/index-verification.json` without overwriting the frozen suite.

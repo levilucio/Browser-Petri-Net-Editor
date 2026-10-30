@@ -34,9 +34,13 @@ export async function selectNegativeCompanions(suite, options = {}) {
       const attempt = { seedId: seed.id, pair: index + 1, method: methodName };
       report.attempts.push(attempt);
       try {
-        const tick = () => {
+        const checkIndex = () => {
           checkCancelled(options.signal);
-          if (++visited > limits.maxBindings || Date.now() >= deadline) throw new DomainError('resource-limit', 'Negative selection budget exhausted');
+          if (Date.now() >= deadline) throw new DomainError('resource-limit', 'Negative selection budget exhausted');
+        };
+        const tick = () => {
+          checkIndex();
+          if (++visited > limits.maxBindings) throw new DomainError('resource-limit', 'Negative selection budget exhausted');
         };
         tick();
         const method = compiled.methods.find(m => m.name === methodName);
@@ -45,7 +49,7 @@ export async function selectNegativeCompanions(suite, options = {}) {
         const before = seed.referenceMarkings?.[index];
         if (!before) throw new DomainError('missing-evidence', 'Negative selection requires admitted prefix markings');
         const marking = Object.fromEntries(Object.entries(before).map(([id, tokens]) => [id, tokens.map(valueToSymbolic)]));
-        const refusal = refusalConstraints(compiled.plans[methodName], marking, args, algebra, tick);
+        const refusal = refusalConstraints(compiled.plans[methodName], marking, args, algebra, tick, { ...options, checkIndex });
         const conditions = [...method.parameters.flatMap(p => parameterRange(args[p.name], p.sort)), ...refusal.conditions];
         const result = await search.witness({ algebra, variables, conditions }, { maxTimeMs: Math.max(1, deadline - Date.now()) });
         checkCancelled(options.signal);

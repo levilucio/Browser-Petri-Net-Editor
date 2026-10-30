@@ -1,3 +1,4 @@
+import { createTokenIndex } from '../../domain/apn/TokenIndex.js';
 import { guardConjuncts, groundGuardIsFalse } from '../../domain/apn/BoundGuards.js';
 import { foldGroundTerms } from './GroundTerms.js';
 import { integerBounds } from '../../utils/builtin-values.js';
@@ -16,15 +17,18 @@ export const instantiateLocals = (term, env) => term?.var ? env[term.var]
  * tick must throw on cancellation/resource exhaustion; no partial formula escapes. */
 export function refusalConstraints(plans, marking, args, algebra, tick, options = {}) {
   const conditions = [], evidence = [];
+  const tokenCandidates = options.tokenCandidates || createTokenIndex({ symbolic: true, algebra, check: options.checkIndex || tick });
   for (const plan of plans) {
-    let bindings = 0, prunedBindings = 0;
+    let bindings = 0, prunedBindings = 0, indexedOutOccurrences = 0;
     const checks=plan.guardChecks || guardConjuncts(plan.guard);
     function bind(i, env, picks, equalities) {
       tick();
       if (options.pruneGroundMethodGuards !== false && groundGuardIsFalse(checks,env,algebra)) { prunedBindings++; return; }
       if (i < plan.ins.length) {
         const input = plan.ins[i], seen = new Set();
-        for (const [tokenIndex, value] of marking[input.place].entries()) {
+        const candidates = tokenCandidates(marking[input.place], input.variable, checks, env, options.useTokenIndex !== false);
+        if (Array.isArray(candidates)) indexedOutOccurrences += marking[input.place].length - candidates.length;
+        for (const [tokenIndex, value] of candidates) {
           if (picks.some(p => p.place === input.place && p.tokenIndex === tokenIndex)) continue;
           const key = JSON.stringify(value);
           if (seen.has(key)) continue;
@@ -39,7 +43,7 @@ export function refusalConstraints(plans, marking, args, algebra, tick, options 
       conditions.push(foldGroundTerms({ op: 'not', left: enabled }, algebra));
     }
     bind(0, args, [], []);
-    evidence.push({ transitionId: plan.id, bindings, prunedBindings });
+    evidence.push({ transitionId: plan.id, bindings, prunedBindings, indexedOutOccurrences });
   }
   return { conditions, evidence };
 }

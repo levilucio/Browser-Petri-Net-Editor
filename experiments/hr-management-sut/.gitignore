@@ -18,3 +18,8 @@ results/*
 !results/generic-comparison.json
 !results/generic-stress.json
 !results/generic-evidence.zip
+
+!results/index-comparison.json
+!results/index-long-baseline.json
+!results/index-verification.json
+!results/index-summary.json

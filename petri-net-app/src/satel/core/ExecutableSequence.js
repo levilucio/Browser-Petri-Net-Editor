@@ -1,3 +1,4 @@
+import { createTokenIndex } from '../../domain/apn/TokenIndex.js';
 import { instantiateKnown, groundGuardIsFalse } from '../../domain/apn/BoundGuards.js';
 import { refusalConstraints } from './RefusalConstraints.js';
 import { foldGroundTerms } from './GroundTerms.js';
@@ -58,7 +59,10 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
     plans
   } = compiled;
   const places = new Map(net.places.map(p => [p.id, p]));
-  const initial = Object.fromEntries(net.places.map(p => [p.id, p.valueTokens.map(valueTerm)]));
+  const profile = budget.profile;
+  const timed = (name, fn) => { if (!profile) return fn(); const start=performance.now(); try {return fn();} finally {profile[name]+=performance.now()-start;} };
+  const falseGuard = (plan,env) => {if(profile)profile.guardChecks++;return timed('guardMs',()=>groundGuardIsFalse(plan.guardChecks,env,algebra));};
+  const initial = budget.initial;
   const tick = () => {
     checkCancelled(budget.signal);
     if (++budget.visited > budget.max || Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
@@ -94,7 +98,10 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
     // Deterministic paths are checked once by the complete-path witness solver.
     if (conditions.length && branched && index < pairs.length) {
       budget.prefixChecks++;
-      if ((await search.prefix(conditions, sorts)).status === 'unsat') {
+      const prefixStart=profile?performance.now():0;
+      const prefixResult=await search.prefix(conditions, sorts);
+      if(profile)profile.prefixSolverMs+=performance.now()-prefixStart;
+      if (prefixResult.status === 'unsat') {
         budget.pruned++;
         return;
       }
@@ -123,14 +130,14 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
     }
     for (const id of Object.keys(pair.observation.outputs)) if (!io.outputs.includes(id)) fail(`Unknown public output in protocol: ${id}`);
     if (pair.assertion === 'blocked') {
-      const refusal = refusalConstraints(plans[name], marking, args, algebra, tick, options);
+      const refusal = refusalConstraints(plans[name], marking, args, algebra, tick, { ...options, tokenCandidates: budget.tokenCandidates });
       yield* walk(index + 1, marking, [...conditions, ...parameterConditions, ...refusal.conditions], [...trace, {
         assertion: 'blocked', picks: [], marking, refusal: refusal.evidence
       }]);
       return;
     }
     const compatiblePlans = options.pruneGroundMethodGuards === false ? plans[name] : plans[name].filter(plan => {
-      const excluded = groundGuardIsFalse(plan.guardChecks, args, algebra);
+      const excluded = falseGuard(plan,args);
       if (excluded) budget.pruned++;
       return !excluded;
     });
@@ -138,12 +145,13 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
       async function* bind(i, env, picks, constraints) {
         checkCancelled(budget.signal);
         if (Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
-        if (options.pruneGroundMethodGuards !== false && groundGuardIsFalse(plan.guardChecks, env, algebra)) { budget.pruned++; return; }
+        if (options.pruneGroundMethodGuards !== false && falseGuard(plan,env)) { budget.pruned++; return; }
         tick();
         if (i < plan.ins.length) {
           const input = plan.ins[i];
           const equivalent = new Set();
-          for (const [tokenIndex, value] of marking[input.place].entries()) {
+          for (const [tokenIndex, value] of budget.tokenCandidates(marking[input.place], input.variable, plan.guardChecks, env, options.useTokenIndex !== false)) {
+            if(profile)profile.tokenScans++;
             if (picks.some(p => p.place === input.place && p.tokenIndex === tokenIndex)) continue;
             const key = JSON.stringify(value);
             if (equivalent.has(key)) continue;
@@ -167,12 +175,14 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
         // simultaneous substitution: inserted terms already belong to the
         // intention scope and must not be substituted again as method locals.
         const instantiate = t => instantiateKnown(t, env);
+        const stateStart=profile?performance.now():0;
         const next = Object.fromEntries(Object.entries(marking).map(([id, tokens]) => [id, tokens.filter((_, k) => !picks.some(p => p.place === id && p.tokenIndex === k))]));
+        if(profile)profile.stateBuildMs+=performance.now()-stateStart;
         const produced = Object.fromEntries(io.outputs.map(id => [id, []]));
         const cs = [];
         if (plan.guard !== null && plan.guard !== undefined) cs.push(instantiate(plan.guard));
         for (const out of plan.outs) {
-          const value = foldGroundTerms(elaborateTerm(instantiate(out.ast), sorts, algebra, places.get(out.place).sort), algebra);
+          const value = timed('projectionMs',()=>foldGroundTerms(elaborateTerm(instantiate(out.ast), sorts, algebra, places.get(out.place).sort), algebra));
           next[out.place].push(value);
           if (produced[out.place]) produced[out.place].push(value);
           cs.push(...range(value, places.get(out.place).sort));
@@ -225,6 +235,13 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
     max: options.maxSequenceBranches ?? 10000,
     deadline: Date.now() + (options.maxSequenceTimeMs ?? 20000)
   };
+  const profile = options.profileSelection ? {tokenScans:0,guardChecks:0,guardMs:0,projectionMs:0,stateBuildMs:0,prefixSolverMs:0,witnessSolverMs:0,indexBuildMs:0,indexBuilds:0,indexLookups:0,indexTokens:0,indexCandidates:0,indexExcluded:0,indexFallbacks:0,projectionCacheHits:0} : null;
+  budget.profile = profile;
+  budget.initial = Object.fromEntries(net.places.map(p => [p.id, p.valueTokens.map(valueTerm)]));
+  budget.tokenCandidates = createTokenIndex({ symbolic: true, algebra: goal.algebra, profile, check: () => {
+    checkCancelled(budget.signal);
+    if (Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
+  } });
   const selected = [],
     blocked = [],
     unresolved = [];
@@ -286,6 +303,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
             }]));
             const variables = Object.fromEntries(used.map(n => [names.get(n).var, sorts[n]]));
             if (Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
+            const witnessStart=profile?performance.now():0;
             const result = await search.witness({
               algebra: goal.algebra,
               variables,
@@ -294,6 +312,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
             }, {
               maxTimeMs: budget.deadline - Date.now()
             });
+            if(profile)profile.witnessSolverMs+=performance.now()-witnessStart;
             const witness = result.witness;
             if (!witness) {
               if (choiceIndex === choices.length - 1 && hml?.stats.residualCalls) unresolved.push({ id: domain.id, reason: 'HML equation unfolding left residual calls; absence of a witness is not infeasibility' });
@@ -355,6 +374,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
     }
   }
   return {
+    ...(profile ? {profile} : {}),
     selected,
     blocked,
     unresolved,

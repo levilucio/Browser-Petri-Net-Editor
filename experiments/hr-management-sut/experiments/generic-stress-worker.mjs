@@ -8,8 +8,8 @@ const ids=[...new Set([...defaultEmployees,...hrPeople().map(p=>p.id)])].slice(0
 const net=config.expanded?createExpandedHrExample({employees:ids}):createHrExample({employees:ids,slots:config.slots});
 const init=performance.now();await getContext();const initMs=performance.now()-init;
 const start=performance.now();
-const report=await deriveIntention(net.testIntentions[0],net,{profileUnfolding:true,maxBranches:2048,maxTimeMs:60000,maxSequenceTimeMs:60000,maxSequenceBranches:10000});
+const report=await deriveIntention(net.testIntentions[0],net,{profileUnfolding:true,profileSelection:true,useTokenIndex:config.indexed??true,maxBranches:2048,maxTimeMs:60000,maxSequenceTimeMs:config.sequenceTimeMs??60000,maxSequenceBranches:10000});
 const d=report.decomposition,e=report.execution;
 const frozen=JSON.parse(readFileSync(resolve(root,'results/suites.json'))).suites[0];
-const row={config,initMs,elapsedMs:performance.now()-start,places:net.places.length,transitions:net.transitions.length,arcs:net.arcs.length,marking:net.places.map(p=>({place:p.id,tokens:p.tokens})),classes:d.domains.length,algebraUnresolved:d.unresolved.length,overlaps:d.overlaps.length,selected:e.selected.length,blocked:e.blocked.length,unresolved:e.unresolved,visited:e.visited,pruned:e.pruned,prefixChecks:e.prefixChecks,rss:process.memoryUsage().rss,sameFrozenPairs:JSON.stringify(report.candidates.map(t=>t.pairs))===JSON.stringify(frozen.selectedTests.map(t=>t.pairs))};
+const row={config,initMs,elapsedMs:performance.now()-start,places:net.places.length,transitions:net.transitions.length,arcs:net.arcs.length,marking:net.places.map(p=>({place:p.id,tokens:p.tokens})),classes:d.domains.length,algebraUnresolved:d.unresolved.length,overlaps:d.overlaps.length,selectionProfile:e.profile,algebraProfile:d.unfoldingProfile,selected:e.selected.length,blocked:e.blocked.length,unresolved:e.unresolved,visited:e.visited,pruned:e.pruned,prefixChecks:e.prefixChecks,rss:process.memoryUsage().rss,sameFrozenPairs:JSON.stringify(report.candidates.map(t=>t.pairs))===JSON.stringify(frozen.selectedTests.map(t=>t.pairs))};
 console.log('GENERIC_RESULT '+JSON.stringify(row));process.exit();

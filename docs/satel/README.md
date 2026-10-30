@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+See [guard-derived token indexing](increment-45-token-index.md) for the follow-up on generic HR selection, profiling and exhaustive-scan comparisons.
+
 See [generic HR bindings](increment-44-generic-hr.md) for the current four-place, 21-transition HR reference, its retained expanded benchmark, and measurements with up to 256 employee tokens.
 
 See [HR management stress experiment](increment-43-hr-management-stress.md) for a 432-transition APN, independent REST/SQLite web SUT, generated API and Playwright campaigns, and measured recursive-ADT/subuniformity limits.

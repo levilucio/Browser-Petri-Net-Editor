@@ -1,0 +1,619 @@
+{
+  "recordedAt": "2026-10-30T21:32:28.734Z",
+  "node": "v24.22.1",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "methodology": "Sequential isolated children; no competing experiment jobs. Z3 initialization excluded. Profiled executable selection, not admission or SUT runs. Hard process limit is sequence budget + 90 seconds. Frozen specification, intentions and SUT.",
+  "sourceSha256": {
+    "src/satel/examples/hr/editor.js": "6a1e1b978223e372acf5d0fb371e15a82412863f5a14e3b228a0865e5bd4e100",
+    "src/satel/examples/hr/intentions.js": "3a10ededd6c5fdefa627e790c94df9721da554c261b4019adf9d2405b17bf754",
+    "src/satel/core/ExecutableSequence.js": "423a2f6839caf593cea7f9eeb88f72c48df20ca75c0c879105835800b74028e2",
+    "src/domain/apn/PublicMethods.js": "d68a6a899f67f09dcb86c91a42c5a7c2c8f8655ee8176ff54b8dbee7b477de66",
+    "src/domain/apn/TokenIndex.js": "09deace5dba7ad0e913c7805ad95bf1848bdbfc15bee4b2b9452e764116b9096",
+    "src/domain/apn/BoundGuards.js": "1cf6cf7bddb1dda413e8919ce21bb0e1edf36668592cb4cd0224eb823c7dd6a0",
+    "src/domain/algebra/GroundTerms.js": "c339ec7086a58ab46066393bdbfa5a2d5bffc7e3545a114f58dd55fc0db6fe8d"
+  },
+  "results": [
+    {
+      "config": {
+        "employees": 12,
+        "slots": 2,
+        "indexed": true
+      },
+      "initMs": 166.84793399999998,
+      "elapsedMs": 6095.5718640000005,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 12
+        },
+        {
+          "place": "principals",
+          "tokens": 27
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 24
+        },
+        {
+          "place": "vacations",
+          "tokens": 24
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selectionProfile": {
+        "tokenScans": 855,
+        "guardChecks": 1635,
+        "guardMs": 337.33784100001685,
+        "projectionMs": 274.9050459999835,
+        "stateBuildMs": 4.437391999994361,
+        "prefixSolverMs": 2607.2211849999903,
+        "witnessSolverMs": 20.53985300000113,
+        "indexBuildMs": 40.74588900001163,
+        "indexBuilds": 768,
+        "indexLookups": 855,
+        "indexTokens": 15903,
+        "indexCandidates": 855,
+        "indexExcluded": 16875,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 15075
+      },
+      "algebraProfile": {
+        "visited": 116,
+        "peakPending": 9,
+        "equationAttempts": 186,
+        "equationMatches": 55,
+        "booleanBranches": 60,
+        "feasibilityQueries": 116,
+        "overlapQueries": 50,
+        "feasibilityMs": 1716.920487,
+        "overlapSolverMs": 414.5781510000006,
+        "equationExpansionMs": 6.538476999999716,
+        "feasibilityWitnessQueries": 25,
+        "feasibilityCheckQueries": 91,
+        "feasibilityWitnessMs": 308.78494399999977,
+        "feasibilityCheckMs": 1408.1355430000003,
+        "maxFeasibilityVariables": 4,
+        "feasibilityVariableEntries": 430,
+        "overlapPairs": 300,
+        "constructorDisjointPairs": 0,
+        "constructorCheckMs": 2.153571000004831,
+        "maxOverlapVariables": 8,
+        "overlapVariableEntries": 400,
+        "branchProofQueries": 10,
+        "branchProofMs": 78.98472500000025,
+        "branchProofCacheHits": 240,
+        "branchDisjointPairs": 250,
+        "branchProofStatuses": {
+          "unsat": 10
+        },
+        "maxRulePath": 3,
+        "maxUnfoldingDepth": 3,
+        "infeasibleBranches": 0,
+        "operations": {
+          "reviews": 31
+        },
+        "overlapPhaseMs": 506.66193599999997,
+        "searchMs": 2250.605991,
+        "nonSolverMs": 40.12262799999894,
+        "expandedBranches": 246
+      },
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2420,
+      "pruned": 445,
+      "prefixChecks": 285,
+      "rss": 359641088,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 120,
+        "slots": 2,
+        "indexed": true
+      },
+      "initMs": 133.44457200000002,
+      "elapsedMs": 6075.706980000001,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 120
+        },
+        {
+          "place": "principals",
+          "tokens": 130
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 240
+        },
+        {
+          "place": "vacations",
+          "tokens": 240
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selectionProfile": {
+        "tokenScans": 855,
+        "guardChecks": 1635,
+        "guardMs": 324.6337250000133,
+        "projectionMs": 271.8154820000018,
+        "stateBuildMs": 10.504793000003701,
+        "prefixSolverMs": 2435.6072619999977,
+        "witnessSolverMs": 19.421845000002122,
+        "indexBuildMs": 117.20101699999987,
+        "indexBuilds": 768,
+        "indexLookups": 855,
+        "indexTokens": 119690,
+        "indexCandidates": 855,
+        "indexExcluded": 133045,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 118435
+      },
+      "algebraProfile": {
+        "visited": 116,
+        "peakPending": 9,
+        "equationAttempts": 186,
+        "equationMatches": 55,
+        "booleanBranches": 60,
+        "feasibilityQueries": 116,
+        "overlapQueries": 50,
+        "feasibilityMs": 1703.1310610000005,
+        "overlapSolverMs": 390.9070719999979,
+        "equationExpansionMs": 6.720498000000248,
+        "feasibilityWitnessQueries": 25,
+        "feasibilityCheckQueries": 91,
+        "feasibilityWitnessMs": 314.97766400000023,
+        "feasibilityCheckMs": 1388.153397,
+        "maxFeasibilityVariables": 4,
+        "feasibilityVariableEntries": 430,
+        "overlapPairs": 300,
+        "constructorDisjointPairs": 0,
+        "constructorCheckMs": 2.0188700000007884,
+        "maxOverlapVariables": 8,
+        "overlapVariableEntries": 400,
+        "branchProofQueries": 10,
+        "branchProofMs": 76.33278499999915,
+        "branchProofCacheHits": 240,
+        "branchDisjointPairs": 250,
+        "branchProofStatuses": {
+          "unsat": 10
+        },
+        "maxRulePath": 3,
+        "maxUnfoldingDepth": 3,
+        "infeasibleBranches": 0,
+        "operations": {
+          "reviews": 31
+        },
+        "overlapPhaseMs": 480.19759999999997,
+        "searchMs": 2208.246698,
+        "nonSolverMs": 37.87578000000235,
+        "expandedBranches": 246
+      },
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2420,
+      "pruned": 445,
+      "prefixChecks": 285,
+      "rss": 426401792,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 256,
+        "slots": 2,
+        "indexed": true
+      },
+      "initMs": 141.063372,
+      "elapsedMs": 6438.354421,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 256
+        },
+        {
+          "place": "principals",
+          "tokens": 256
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 512
+        },
+        {
+          "place": "vacations",
+          "tokens": 512
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selectionProfile": {
+        "tokenScans": 855,
+        "guardChecks": 1635,
+        "guardMs": 343.19180599999527,
+        "projectionMs": 295.19239300000254,
+        "stateBuildMs": 20.3621160000057,
+        "prefixSolverMs": 2602.2241190000045,
+        "witnessSolverMs": 20.62253000000146,
+        "indexBuildMs": 216.21236400001044,
+        "indexBuilds": 768,
+        "indexLookups": 855,
+        "indexTokens": 249344,
+        "indexCandidates": 855,
+        "indexExcluded": 278185,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 247555
+      },
+      "algebraProfile": {
+        "visited": 116,
+        "peakPending": 9,
+        "equationAttempts": 186,
+        "equationMatches": 55,
+        "booleanBranches": 60,
+        "feasibilityQueries": 116,
+        "overlapQueries": 50,
+        "feasibilityMs": 1503.4871810000006,
+        "overlapSolverMs": 359.2875530000015,
+        "equationExpansionMs": 6.153146999999535,
+        "feasibilityWitnessQueries": 25,
+        "feasibilityCheckQueries": 91,
+        "feasibilityWitnessMs": 263.41713400000015,
+        "feasibilityCheckMs": 1240.0700470000006,
+        "maxFeasibilityVariables": 4,
+        "feasibilityVariableEntries": 430,
+        "overlapPairs": 300,
+        "constructorDisjointPairs": 0,
+        "constructorCheckMs": 1.8598000000008597,
+        "maxOverlapVariables": 8,
+        "overlapVariableEntries": 400,
+        "branchProofQueries": 10,
+        "branchProofMs": 66.18491299999982,
+        "branchProofCacheHits": 240,
+        "branchDisjointPairs": 250,
+        "branchProofStatuses": {
+          "unsat": 10
+        },
+        "maxRulePath": 3,
+        "maxUnfoldingDepth": 3,
+        "infeasibleBranches": 0,
+        "operations": {
+          "reviews": 31
+        },
+        "overlapPhaseMs": 437.26620100000014,
+        "searchMs": 1963.232739,
+        "nonSolverMs": 34.27309199999809,
+        "expandedBranches": 246
+      },
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2420,
+      "pruned": 445,
+      "prefixChecks": 285,
+      "rss": 444801024,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 256,
+        "slots": 8,
+        "indexed": true
+      },
+      "initMs": 144.961206,
+      "elapsedMs": 6345.278161,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 256
+        },
+        {
+          "place": "principals",
+          "tokens": 256
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 2048
+        },
+        {
+          "place": "vacations",
+          "tokens": 2048
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selectionProfile": {
+        "tokenScans": 855,
+        "guardChecks": 1635,
+        "guardMs": 312.8347959999883,
+        "projectionMs": 248.4755669999854,
+        "stateBuildMs": 46.14853900000162,
+        "prefixSolverMs": 2455.1309590000164,
+        "witnessSolverMs": 22.52818600000228,
+        "indexBuildMs": 402.8396400000065,
+        "indexBuilds": 768,
+        "indexLookups": 855,
+        "indexTokens": 565760,
+        "indexCandidates": 855,
+        "indexExcluded": 639145,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 562435
+      },
+      "algebraProfile": {
+        "visited": 116,
+        "peakPending": 9,
+        "equationAttempts": 186,
+        "equationMatches": 55,
+        "booleanBranches": 60,
+        "feasibilityQueries": 116,
+        "overlapQueries": 50,
+        "feasibilityMs": 1527.3484219999987,
+        "overlapSolverMs": 349.2628590000006,
+        "equationExpansionMs": 5.990875999999389,
+        "feasibilityWitnessQueries": 25,
+        "feasibilityCheckQueries": 91,
+        "feasibilityWitnessMs": 251.6557419999997,
+        "feasibilityCheckMs": 1275.692679999999,
+        "maxFeasibilityVariables": 4,
+        "feasibilityVariableEntries": 430,
+        "overlapPairs": 300,
+        "constructorDisjointPairs": 0,
+        "constructorCheckMs": 2.1222769999965294,
+        "maxOverlapVariables": 8,
+        "overlapVariableEntries": 400,
+        "branchProofQueries": 10,
+        "branchProofMs": 73.23475700000063,
+        "branchProofCacheHits": 240,
+        "branchDisjointPairs": 250,
+        "branchProofStatuses": {
+          "unsat": 10
+        },
+        "maxRulePath": 3,
+        "maxUnfoldingDepth": 3,
+        "infeasibleBranches": 0,
+        "operations": {
+          "reviews": 31
+        },
+        "overlapPhaseMs": 434.3697420000001,
+        "searchMs": 1985.1140010000001,
+        "nonSolverMs": 35.267963000000236,
+        "expandedBranches": 246
+      },
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2420,
+      "pruned": 445,
+      "prefixChecks": 285,
+      "rss": 545681408,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 256,
+        "slots": 2,
+        "indexed": false,
+        "sequenceTimeMs": 300000
+      },
+      "initMs": 138.449487,
+      "elapsedMs": 64432.036774,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 256
+        },
+        {
+          "place": "principals",
+          "tokens": 256
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 512
+        },
+        {
+          "place": "vacations",
+          "tokens": 512
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selectionProfile": {
+        "tokenScans": 231208,
+        "guardChecks": 231988,
+        "guardMs": 56043.091618999606,
+        "projectionMs": 278.575075999991,
+        "stateBuildMs": 27.240996000028645,
+        "prefixSolverMs": 3180.5112859999276,
+        "witnessSolverMs": 26.841944999981024,
+        "indexBuildMs": 0,
+        "indexBuilds": 0,
+        "indexLookups": 0,
+        "indexTokens": 0,
+        "indexCandidates": 0,
+        "indexExcluded": 0,
+        "indexFallbacks": 855,
+        "projectionCacheHits": 0
+      },
+      "algebraProfile": {
+        "visited": 116,
+        "peakPending": 9,
+        "equationAttempts": 186,
+        "equationMatches": 55,
+        "booleanBranches": 60,
+        "feasibilityQueries": 116,
+        "overlapQueries": 50,
+        "feasibilityMs": 1637.8998699999993,
+        "overlapSolverMs": 393.2904550000003,
+        "equationExpansionMs": 6.125255000000379,
+        "feasibilityWitnessQueries": 25,
+        "feasibilityCheckQueries": 91,
+        "feasibilityWitnessMs": 348.86896699999943,
+        "feasibilityCheckMs": 1289.0309029999996,
+        "maxFeasibilityVariables": 4,
+        "feasibilityVariableEntries": 430,
+        "overlapPairs": 300,
+        "constructorDisjointPairs": 0,
+        "constructorCheckMs": 2.190301000003501,
+        "maxOverlapVariables": 8,
+        "overlapVariableEntries": 400,
+        "branchProofQueries": 10,
+        "branchProofMs": 79.25450200000091,
+        "branchProofCacheHits": 240,
+        "branchDisjointPairs": 250,
+        "branchProofStatuses": {
+          "unsat": 10
+        },
+        "maxRulePath": 3,
+        "maxUnfoldingDepth": 3,
+        "infeasibleBranches": 0,
+        "operations": {
+          "reviews": 31
+        },
+        "overlapPhaseMs": 488.6885639999998,
+        "searchMs": 2149.287469,
+        "nonSolverMs": 38.84264199999939,
+        "expandedBranches": 246
+      },
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2832,
+      "pruned": 230798,
+      "prefixChecks": 388,
+      "rss": 432533504,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 256,
+        "slots": 8,
+        "indexed": false,
+        "sequenceTimeMs": 300000
+      },
+      "initMs": 151.36010800000003,
+      "elapsedMs": 204064.426652,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 256
+        },
+        {
+          "place": "principals",
+          "tokens": 256
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 2048
+        },
+        {
+          "place": "vacations",
+          "tokens": 2048
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selectionProfile": {
+        "tokenScans": 515368,
+        "guardChecks": 516148,
+        "guardMs": 192841.8195269865,
+        "projectionMs": 290.29230299967594,
+        "stateBuildMs": 79.68588100011766,
+        "prefixSolverMs": 3314.284316999859,
+        "witnessSolverMs": 22.969204999975773,
+        "indexBuildMs": 0,
+        "indexBuilds": 0,
+        "indexLookups": 0,
+        "indexTokens": 0,
+        "indexCandidates": 0,
+        "indexExcluded": 0,
+        "indexFallbacks": 855,
+        "projectionCacheHits": 0
+      },
+      "algebraProfile": {
+        "visited": 116,
+        "peakPending": 9,
+        "equationAttempts": 186,
+        "equationMatches": 55,
+        "booleanBranches": 60,
+        "feasibilityQueries": 116,
+        "overlapQueries": 50,
+        "feasibilityMs": 1620.9933570000014,
+        "overlapSolverMs": 397.3394309999985,
+        "equationExpansionMs": 6.459247999999661,
+        "feasibilityWitnessQueries": 25,
+        "feasibilityCheckQueries": 91,
+        "feasibilityWitnessMs": 277.19730700000036,
+        "feasibilityCheckMs": 1343.796050000001,
+        "maxFeasibilityVariables": 4,
+        "feasibilityVariableEntries": 430,
+        "overlapPairs": 300,
+        "constructorDisjointPairs": 0,
+        "constructorCheckMs": 2.2799500000010084,
+        "maxOverlapVariables": 8,
+        "overlapVariableEntries": 400,
+        "branchProofQueries": 10,
+        "branchProofMs": 72.77944500000012,
+        "branchProofCacheHits": 240,
+        "branchDisjointPairs": 250,
+        "branchProofStatuses": {
+          "unsat": 10
+        },
+        "maxRulePath": 3,
+        "maxUnfoldingDepth": 3,
+        "infeasibleBranches": 0,
+        "operations": {
+          "reviews": 31
+        },
+        "overlapPhaseMs": 482.68794300000036,
+        "searchMs": 2129.147839,
+        "nonSolverMs": 38.03560600000014,
+        "expandedBranches": 246
+      },
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2832,
+      "pruned": 514958,
+      "prefixChecks": 388,
+      "rss": 472039424,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}
