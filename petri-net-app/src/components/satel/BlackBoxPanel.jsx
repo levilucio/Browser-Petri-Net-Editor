@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { runBlackBoxCampaign } from '../../satel/blackbox/Campaign.js';
 import { createDemoSystem, demoSystems } from '../../satel/blackbox/DemoSystems.js';
+import { createQuotaBrowserSystem, quotaWebSystems, quotaPageUrl } from '../../satel/blackbox/web/QuotaBrowserAdapter.js';
 import { checkInterface } from '../../satel/core/SequenceRunner.js';
 import { PlaceObservations, formatSatelTerm } from '../SatelTestDisplay.jsx';
 
@@ -8,7 +9,7 @@ const button = 'border rounded px-3 py-2 disabled:opacity-50';
 const callText = call => `${call.method}(${Object.entries(call.arguments).map(([key, value]) => `${key}=${formatSatelTerm(value)}`).join(', ')})`;
 export default function BlackBoxPanel({ session }) {
   const suite = session?.suite;
-  const systems = useMemo(() => !suite ? [] : demoSystems.filter(s => {
+  const systems = useMemo(() => !suite ? [] : [...demoSystems, ...quotaWebSystems].filter(s => {
     try {
       checkInterface(suite.referenceNet, s.interface);
       return JSON.stringify([...s.interface.outputs].sort()) === JSON.stringify([...suite.interface.outputs].sort());
@@ -16,20 +17,21 @@ export default function BlackBoxPanel({ session }) {
   }), [suite]);
   const [selected, setSelected] = useState(''), [repetitions, setRepetitions] = useState(16);
   const [report, setReport] = useState(null), [error, setError] = useState(null), [progress, setProgress] = useState(null), [index, setIndex] = useState(0);
-  const job = useRef(null);
+  const job = useRef(null), browserFrame = useRef(null);
   useEffect(() => {
     job.current?.abort(); job.current = null;
     setReport(null); setError(null); setProgress(null); setSelected('');
     return () => { job.current?.abort(); job.current = null; };
   }, [suite]);
   const system = systems.find(s => s.id === selected) || systems[0];
-  const cancel = () => { job.current?.abort(); job.current = null; setProgress(null); };
+  const cancel = () => { job.current?.abort(); job.current = null; setProgress(null); if (browserFrame.current) browserFrame.current.src = 'about:blank'; };
   const run = async () => {
     if (job.current || !system) return;
     const controller = new AbortController(); job.current = controller;
     setReport(null); setError(null); setProgress({ current: 0 });
     try {
-      const result = await runBlackBoxCampaign({ suite, createSut: () => createDemoSystem(system.id), sutName: system.name, repetitions }, {
+      const result = await runBlackBoxCampaign({ suite, createSut: () => system.transport === 'browser'
+        ? createQuotaBrowserSystem({ frame: browserFrame.current, variant: system.variant }) : createDemoSystem(system.id), sutName: system.name, repetitions }, {
         signal: controller.signal, onProgress: value => { if (job.current === controller) setProgress(value); }
       });
       if (job.current === controller) { setReport(result); setIndex(Math.max(0, result.runs.findIndex(r => r.verdict === 'mismatch'))); }
@@ -43,17 +45,24 @@ export default function BlackBoxPanel({ session }) {
   const observed = report?.runs[index];
   return <section aria-label="Black-box campaigns" className="p-4 space-y-3 text-sm">
     <h3 className="font-semibold text-lg">Black-box runs</h3>
-    <p>Call an independent JavaScript service and observe its responses. Its private state and implementation choices are not available to the tester.</p>
-    {!suite ? <p>Generate tests first. To try this increment, load SATEL Nondeterminism — Multiset reference, Branching reference, or SATEL HML selection — Reference.</p> : <>
+    <p>Call an independent implementation and observe its public responses. Browser systems are exercised through their controls; their private state is not read by the tester.</p>
+    {!suite ? <p>Generate tests first. To try this increment, load SATEL Nondeterminism — Multiset reference, Branching reference, SATEL HML selection — Reference, or Methods & gates — Resource quota reference.</p> : <>
       <p><strong>Saved reference:</strong> {session.referenceName} · {session.intentionName}</p>
       <p>The saved APN is the oracle even if another model is loaded in the editor.</p>
-      {!systems.length ? <p>No bundled service matches this suite’s public interface. This increment includes the multiset, branching-choice, and parameterized HML-selection services. Other systems need a reset/invoke adapter.</p> : <>
+      {!systems.length ? <p>No bundled service matches this suite’s public interface. This increment includes the multiset, branching-choice, parameterized HML-selection services, and the quota web app. Other systems need a reset/invoke adapter.</p> : <>
         <label className="block">System under test<select aria-label="Black-box system" className="block border rounded p-2 w-full" disabled={!!progress} value={system.id} onChange={e => { setSelected(e.target.value); setReport(null); setError(null); }}>
           {systems.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select></label>
         <p>{system.description}</p>
+        {system.transport === 'browser' && <div className="space-y-2">
+          <p>Each run reloads the web app. One call completes before the next begins; a response timeout remains inconclusive.</p>
+          <a className="text-blue-700 underline" href={quotaPageUrl(system.variant)} target="_blank" rel="noreferrer">Open quota app separately</a>
+          <div inert={progress ? '' : undefined}>
+            <iframe ref={browserFrame} title="Quota web SUT" src={quotaPageUrl(system.variant)} className="w-full h-96 border rounded" />
+          </div>
+        </div>}
         <label className="block">Runs per experimental path<select aria-label="Black-box repetitions" className="block border rounded p-2 w-full" value={repetitions} disabled={!!progress} onChange={e => { setRepetitions(Number(e.target.value)); setReport(null); }}>
-          {[4, 16, 32, 64].map(n => <option key={n} value={n}>{n}</option>)}
+          {[1, 4, 16, 32, 64].map(n => <option key={n} value={n}>{n}</option>)}
         </select></label>
         <button className={`${button} bg-blue-700 text-white w-full`} disabled={!!progress} onClick={run}>Run black-box campaign</button>
       </>}

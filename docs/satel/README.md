@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+See [quota web SUT testing](increment-42-quota-web-sut.md) to run generated methods/gates tests against an independent browser application and inspect detected implementation faults.
+
 See [thesis graphical notation](increment-41-graphical-methods-gates.md) for the APN boundary, method/gate ports, synchronization edges and a screenshot of the converted quota example.
 
 SATEL is an experimental partial implementation of test selection from algebraic Petri nets. The editor supports **typed test intentions**: typed variables, stimulation/observation sequences and branching HML properties.

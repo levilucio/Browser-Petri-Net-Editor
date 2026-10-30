@@ -1,0 +1,7931 @@
+{
+  "schemaVersion": 1,
+  "recordedDate": "2026-10-30",
+  "application": "bundled browser build",
+  "baseCommit": "d89c8e3b0741ef07883682281ec818dc16f2b254",
+  "reference": {
+    "mode": "algebraic",
+    "places": [
+      {
+        "id": "available",
+        "label": "available",
+        "sort": "Nat",
+        "io_type": "internal",
+        "valueTokens": [
+          10
+        ],
+        "tokens": 1,
+        "x": 140,
+        "y": 100
+      },
+      {
+        "id": "held",
+        "label": "held",
+        "sort": "Nat",
+        "io_type": "internal",
+        "valueTokens": [
+          0
+        ],
+        "tokens": 1,
+        "x": 140,
+        "y": 240
+      }
+    ],
+    "transitions": [
+      {
+        "id": "reserve",
+        "label": "reserve",
+        "x": 430,
+        "y": 130,
+        "guard": "n > 0 and n <= free",
+        "method": {
+          "name": "reserve",
+          "parameters": [
+            {
+              "name": "n",
+              "sort": "Nat"
+            }
+          ]
+        },
+        "gates": [
+          {
+            "gate": "eligible",
+            "arguments": [
+              "n > 0 and (n < 4 or n == 7)"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "release",
+        "label": "release",
+        "x": 690,
+        "y": 130,
+        "guard": "n > 0 and n <= h",
+        "method": {
+          "name": "release",
+          "parameters": [
+            {
+              "name": "n",
+              "sort": "Nat"
+            }
+          ]
+        },
+        "gates": [
+          {
+            "gate": "ack",
+            "arguments": [
+              "true"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "audit",
+        "label": "audit",
+        "x": 430,
+        "y": 330,
+        "guard": "",
+        "method": {
+          "name": "audit",
+          "parameters": []
+        },
+        "gates": [
+          {
+            "gate": "free",
+            "arguments": [
+              "free"
+            ]
+          },
+          {
+            "gate": "reserved",
+            "arguments": [
+              "h"
+            ]
+          }
+        ]
+      }
+    ],
+    "arcs": [
+      {
+        "id": "reserve-in-available-0",
+        "source": "available",
+        "target": "reserve",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "free",
+        "weight": 1
+      },
+      {
+        "id": "reserve-in-held-1",
+        "source": "held",
+        "target": "reserve",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "h",
+        "weight": 1
+      },
+      {
+        "id": "reserve-out-available-0",
+        "source": "reserve",
+        "target": "available",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "free - n",
+        "weight": 1
+      },
+      {
+        "id": "reserve-out-held-1",
+        "source": "reserve",
+        "target": "held",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "h + n",
+        "weight": 1
+      },
+      {
+        "id": "release-in-available-0",
+        "source": "available",
+        "target": "release",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "free",
+        "weight": 1
+      },
+      {
+        "id": "release-in-held-1",
+        "source": "held",
+        "target": "release",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "h",
+        "weight": 1
+      },
+      {
+        "id": "release-out-available-0",
+        "source": "release",
+        "target": "available",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "free + n",
+        "weight": 1
+      },
+      {
+        "id": "release-out-held-1",
+        "source": "release",
+        "target": "held",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "h - n",
+        "weight": 1
+      },
+      {
+        "id": "audit-in-available-0",
+        "source": "available",
+        "target": "audit",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "free",
+        "weight": 1
+      },
+      {
+        "id": "audit-in-held-1",
+        "source": "held",
+        "target": "audit",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "h",
+        "weight": 1
+      },
+      {
+        "id": "audit-out-available-0",
+        "source": "audit",
+        "target": "available",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "free",
+        "weight": 1
+      },
+      {
+        "id": "audit-out-held-1",
+        "source": "audit",
+        "target": "held",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "h",
+        "weight": 1
+      }
+    ],
+    "testIntentions": [
+      {
+        "id": "exercise-quota",
+        "name": "Resource quota \u2014 whole-sequence feasibility (16 pairs)",
+        "kind": "symbolic",
+        "symbolic": {
+          "source": "operation priority(Nat): Bool\nrule small(n: Nat): priority(n) = true if n > 0 and n < 4\nrule special(n: Nat): priority(n) = true if n == 7\nrule ordinary(n: Nat): priority(n) = false if n >= 4 and n != 7",
+          "variablesText": "n: Nat",
+          "argsText": "n",
+          "operation": "priority",
+          "conditionsText": "n > 0 and n <= 8",
+          "protocolSource": "case run(n: Nat, ok: Bool):\ninputs n\nresult ok\npair reserve(n=n) => eligible(ok)\npair audit() => free(10 - n), reserved(n)\npair release(n=3) => ack(true)\npair audit() => free(13 - n), reserved(n - 3)\npair reserve(n=4) => eligible(false)\npair audit() => free(9 - n), reserved(n + 1)\npair release(n=n) => ack(true)\npair audit() => free(9), reserved(1)\npair reserve(n=1) => eligible(true)\npair audit() => free(8), reserved(2)\npair release(n=2) => ack(true)\npair audit() => free(10), reserved(0)\npair reserve(n=3) => eligible(true)\npair audit() => free(7), reserved(3)\npair release(n=3) => ack(true)\npair audit() => free(10), reserved(0)",
+          "maxDepth": 12
+        },
+        "description": "Repeated reservations/releases; a later release forces n \u2265 3. 3 algebraic classes; 16 stimulation/observation pairs per test."
+      }
+    ],
+    "satelExample": {
+      "id": "gates-exercise-quota-reference",
+      "name": "Methods & gates \u2014 Resource quota reference \u2014 16 pairs",
+      "role": "reference",
+      "description": "Repeated reservations/releases; a later release forces n \u2265 3."
+    },
+    "gates": [
+      {
+        "name": "eligible",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Bool"
+          }
+        ]
+      },
+      {
+        "name": "ack",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Bool"
+          }
+        ]
+      },
+      {
+        "name": "free",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Nat"
+          }
+        ]
+      },
+      {
+        "name": "reserved",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Nat"
+          }
+        ]
+      }
+    ],
+    "apnClass": "exercise_quota_reference",
+    "gateMigration": {
+      "retainedState": {}
+    }
+  },
+  "interface": {
+    "methods": [
+      {
+        "name": "reserve",
+        "parameters": [
+          {
+            "name": "n",
+            "sort": "Nat"
+          }
+        ]
+      },
+      {
+        "name": "release",
+        "parameters": [
+          {
+            "name": "n",
+            "sort": "Nat"
+          }
+        ]
+      },
+      {
+        "name": "audit",
+        "parameters": []
+      }
+    ],
+    "gates": [
+      {
+        "name": "eligible",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Bool"
+          }
+        ]
+      },
+      {
+        "name": "ack",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Bool"
+          }
+        ]
+      },
+      {
+        "name": "free",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Nat"
+          }
+        ]
+      },
+      {
+        "name": "reserved",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Nat"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      "eligible",
+      "ack",
+      "free",
+      "reserved"
+    ],
+    "outputSorts": {
+      "eligible": "Bool",
+      "ack": "Bool",
+      "free": "Nat",
+      "reserved": "Nat"
+    }
+  },
+  "tests": [
+    {
+      "steps": [
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 4
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 1
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 2
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        }
+      ],
+      "expected": [
+        {
+          "eligible": [
+            true
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            7
+          ],
+          "reserved": [
+            3
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            10
+          ],
+          "reserved": [
+            0
+          ]
+        },
+        {
+          "eligible": [
+            false
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            6
+          ],
+          "reserved": [
+            4
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            9
+          ],
+          "reserved": [
+            1
+          ]
+        },
+        {
+          "eligible": [
+            true
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            8
+          ],
+          "reserved": [
+            2
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            10
+          ],
+          "reserved": [
+            0
+          ]
+        },
+        {
+          "eligible": [
+            true
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            7
+          ],
+          "reserved": [
+            3
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            10
+          ],
+          "reserved": [
+            0
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                true
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                7
+              ],
+              "reserved": [
+                3
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                10
+              ],
+              "reserved": [
+                0
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 4
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                false
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                6
+              ],
+              "reserved": [
+                4
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                9
+              ],
+              "reserved": [
+                1
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 1
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                true
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                8
+              ],
+              "reserved": [
+                2
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 2
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                10
+              ],
+              "reserved": [
+                0
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                true
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                7
+              ],
+              "reserved": [
+                3
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                10
+              ],
+              "reserved": [
+                0
+              ]
+            },
+            "scope": "public"
+          }
+        }
+      ],
+      "id": "small",
+      "symbolicDomain": {
+        "id": "small",
+        "rules": [
+          "small"
+        ],
+        "patterns": [
+          {
+            "var": "n"
+          }
+        ],
+        "conditions": [
+          {
+            "op": ">",
+            "left": {
+              "var": "n"
+            },
+            "right": 0
+          },
+          {
+            "op": "<=",
+            "left": {
+              "var": "n"
+            },
+            "right": 8
+          },
+          {
+            "op": ">",
+            "left": {
+              "var": "n"
+            },
+            "right": 0
+          },
+          {
+            "op": "<",
+            "left": {
+              "var": "n"
+            },
+            "right": 4
+          }
+        ],
+        "resultPattern": true,
+        "status": "feasible",
+        "witnessArgs": [
+          3
+        ],
+        "witnessResult": true,
+        "variables": {
+          "n": "Nat",
+          "@1.n": "Nat",
+          "@2.n": "Nat",
+          "@3.n": "Nat"
+        },
+        "goalBindings": {
+          "n": {
+            "var": "n"
+          }
+        },
+        "witnessBindings": {
+          "n": 3
+        },
+        "staticWitness": {
+          "args": [
+            1
+          ],
+          "result": true,
+          "bindings": {
+            "n": 1
+          }
+        },
+        "execution": {
+          "status": "selected",
+          "policy": "one executable representative per algebraic class",
+          "caseId": "run",
+          "pathsTried": 1,
+          "representative": "solved jointly from whole sequence",
+          "assertions": [
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "interface": {
+        "methods": [
+          {
+            "name": "reserve",
+            "parameters": [
+              {
+                "name": "n",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "release",
+            "parameters": [
+              {
+                "name": "n",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "audit",
+            "parameters": []
+          }
+        ],
+        "gates": [
+          {
+            "name": "eligible",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "ack",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "free",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "reserved",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          "eligible",
+          "ack",
+          "free",
+          "reserved"
+        ],
+        "outputSorts": {
+          "eligible": "Bool",
+          "ack": "Bool",
+          "free": "Nat",
+          "reserved": "Nat"
+        }
+      },
+      "schemaVersion": 7,
+      "referenceInitialMarking": {
+        "available": [
+          10
+        ],
+        "held": [
+          0
+        ]
+      },
+      "referenceMarkings": [
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            7
+          ],
+          "held": [
+            3
+          ]
+        },
+        {
+          "available": [
+            7
+          ],
+          "held": [
+            3
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            6
+          ],
+          "held": [
+            4
+          ]
+        },
+        {
+          "available": [
+            6
+          ],
+          "held": [
+            4
+          ]
+        },
+        {
+          "available": [
+            9
+          ],
+          "held": [
+            1
+          ]
+        },
+        {
+          "available": [
+            9
+          ],
+          "held": [
+            1
+          ]
+        },
+        {
+          "available": [
+            8
+          ],
+          "held": [
+            2
+          ]
+        },
+        {
+          "available": [
+            8
+          ],
+          "held": [
+            2
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            7
+          ],
+          "held": [
+            3
+          ]
+        },
+        {
+          "available": [
+            7
+          ],
+          "held": [
+            3
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        }
+      ],
+      "referenceAnnotations": [
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit"
+      ]
+    },
+    {
+      "steps": [
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 7
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 4
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 7
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 1
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 2
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        }
+      ],
+      "expected": [
+        {
+          "eligible": [
+            true
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            3
+          ],
+          "reserved": [
+            7
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            6
+          ],
+          "reserved": [
+            4
+          ]
+        },
+        {
+          "eligible": [
+            false
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            2
+          ],
+          "reserved": [
+            8
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            9
+          ],
+          "reserved": [
+            1
+          ]
+        },
+        {
+          "eligible": [
+            true
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            8
+          ],
+          "reserved": [
+            2
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            10
+          ],
+          "reserved": [
+            0
+          ]
+        },
+        {
+          "eligible": [
+            true
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            7
+          ],
+          "reserved": [
+            3
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            10
+          ],
+          "reserved": [
+            0
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 7
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                true
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                3
+              ],
+              "reserved": [
+                7
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                6
+              ],
+              "reserved": [
+                4
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 4
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                false
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                2
+              ],
+              "reserved": [
+                8
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 7
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                9
+              ],
+              "reserved": [
+                1
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 1
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                true
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                8
+              ],
+              "reserved": [
+                2
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 2
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                10
+              ],
+              "reserved": [
+                0
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                true
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                7
+              ],
+              "reserved": [
+                3
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                10
+              ],
+              "reserved": [
+                0
+              ]
+            },
+            "scope": "public"
+          }
+        }
+      ],
+      "id": "special",
+      "symbolicDomain": {
+        "id": "special",
+        "rules": [
+          "special"
+        ],
+        "patterns": [
+          {
+            "var": "n"
+          }
+        ],
+        "conditions": [
+          {
+            "op": ">",
+            "left": {
+              "var": "n"
+            },
+            "right": 0
+          },
+          {
+            "op": "<=",
+            "left": {
+              "var": "n"
+            },
+            "right": 8
+          },
+          {
+            "op": "==",
+            "left": {
+              "var": "n"
+            },
+            "right": 7
+          }
+        ],
+        "resultPattern": true,
+        "status": "feasible",
+        "witnessArgs": [
+          7
+        ],
+        "witnessResult": true,
+        "variables": {
+          "n": "Nat",
+          "@1.n": "Nat",
+          "@2.n": "Nat",
+          "@3.n": "Nat"
+        },
+        "goalBindings": {
+          "n": {
+            "var": "n"
+          }
+        },
+        "witnessBindings": {
+          "n": 7
+        },
+        "staticWitness": {
+          "args": [
+            7
+          ],
+          "result": true,
+          "bindings": {
+            "n": 7
+          }
+        },
+        "execution": {
+          "status": "selected",
+          "policy": "one executable representative per algebraic class",
+          "caseId": "run",
+          "pathsTried": 1,
+          "representative": "existing witness satisfies whole sequence",
+          "assertions": [
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "interface": {
+        "methods": [
+          {
+            "name": "reserve",
+            "parameters": [
+              {
+                "name": "n",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "release",
+            "parameters": [
+              {
+                "name": "n",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "audit",
+            "parameters": []
+          }
+        ],
+        "gates": [
+          {
+            "name": "eligible",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "ack",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "free",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "reserved",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          "eligible",
+          "ack",
+          "free",
+          "reserved"
+        ],
+        "outputSorts": {
+          "eligible": "Bool",
+          "ack": "Bool",
+          "free": "Nat",
+          "reserved": "Nat"
+        }
+      },
+      "schemaVersion": 7,
+      "referenceInitialMarking": {
+        "available": [
+          10
+        ],
+        "held": [
+          0
+        ]
+      },
+      "referenceMarkings": [
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            3
+          ],
+          "held": [
+            7
+          ]
+        },
+        {
+          "available": [
+            3
+          ],
+          "held": [
+            7
+          ]
+        },
+        {
+          "available": [
+            6
+          ],
+          "held": [
+            4
+          ]
+        },
+        {
+          "available": [
+            6
+          ],
+          "held": [
+            4
+          ]
+        },
+        {
+          "available": [
+            2
+          ],
+          "held": [
+            8
+          ]
+        },
+        {
+          "available": [
+            2
+          ],
+          "held": [
+            8
+          ]
+        },
+        {
+          "available": [
+            9
+          ],
+          "held": [
+            1
+          ]
+        },
+        {
+          "available": [
+            9
+          ],
+          "held": [
+            1
+          ]
+        },
+        {
+          "available": [
+            8
+          ],
+          "held": [
+            2
+          ]
+        },
+        {
+          "available": [
+            8
+          ],
+          "held": [
+            2
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            7
+          ],
+          "held": [
+            3
+          ]
+        },
+        {
+          "available": [
+            7
+          ],
+          "held": [
+            3
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        }
+      ],
+      "referenceAnnotations": [
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit"
+      ]
+    },
+    {
+      "steps": [
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 4
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 4
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 4
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 1
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 2
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "reserve",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        },
+        {
+          "method": "release",
+          "arguments": {
+            "n": 3
+          }
+        },
+        {
+          "method": "audit",
+          "arguments": {}
+        }
+      ],
+      "expected": [
+        {
+          "eligible": [
+            false
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            6
+          ],
+          "reserved": [
+            4
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            9
+          ],
+          "reserved": [
+            1
+          ]
+        },
+        {
+          "eligible": [
+            false
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            5
+          ],
+          "reserved": [
+            5
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            9
+          ],
+          "reserved": [
+            1
+          ]
+        },
+        {
+          "eligible": [
+            true
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            8
+          ],
+          "reserved": [
+            2
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            10
+          ],
+          "reserved": [
+            0
+          ]
+        },
+        {
+          "eligible": [
+            true
+          ],
+          "ack": [],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            7
+          ],
+          "reserved": [
+            3
+          ]
+        },
+        {
+          "eligible": [],
+          "ack": [
+            true
+          ],
+          "free": [],
+          "reserved": []
+        },
+        {
+          "eligible": [],
+          "ack": [],
+          "free": [
+            10
+          ],
+          "reserved": [
+            0
+          ]
+        }
+      ],
+      "pairs": [
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 4
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                false
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                6
+              ],
+              "reserved": [
+                4
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                9
+              ],
+              "reserved": [
+                1
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 4
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                false
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                5
+              ],
+              "reserved": [
+                5
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 4
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                9
+              ],
+              "reserved": [
+                1
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 1
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                true
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                8
+              ],
+              "reserved": [
+                2
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 2
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                10
+              ],
+              "reserved": [
+                0
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "reserve",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [
+                true
+              ],
+              "ack": [],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                7
+              ],
+              "reserved": [
+                3
+              ]
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "release",
+            "arguments": {
+              "n": 3
+            }
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [
+                true
+              ],
+              "free": [],
+              "reserved": []
+            },
+            "scope": "public"
+          }
+        },
+        {
+          "stimulation": {
+            "method": "audit",
+            "arguments": {}
+          },
+          "assertion": "required",
+          "observation": {
+            "outputs": {
+              "eligible": [],
+              "ack": [],
+              "free": [
+                10
+              ],
+              "reserved": [
+                0
+              ]
+            },
+            "scope": "public"
+          }
+        }
+      ],
+      "id": "ordinary",
+      "symbolicDomain": {
+        "id": "ordinary",
+        "rules": [
+          "ordinary"
+        ],
+        "patterns": [
+          {
+            "var": "n"
+          }
+        ],
+        "conditions": [
+          {
+            "op": ">",
+            "left": {
+              "var": "n"
+            },
+            "right": 0
+          },
+          {
+            "op": "<=",
+            "left": {
+              "var": "n"
+            },
+            "right": 8
+          },
+          {
+            "op": ">=",
+            "left": {
+              "var": "n"
+            },
+            "right": 4
+          },
+          {
+            "op": "!=",
+            "left": {
+              "var": "n"
+            },
+            "right": 7
+          }
+        ],
+        "resultPattern": false,
+        "status": "feasible",
+        "witnessArgs": [
+          4
+        ],
+        "witnessResult": false,
+        "variables": {
+          "n": "Nat",
+          "@1.n": "Nat",
+          "@2.n": "Nat",
+          "@3.n": "Nat"
+        },
+        "goalBindings": {
+          "n": {
+            "var": "n"
+          }
+        },
+        "witnessBindings": {
+          "n": 4
+        },
+        "staticWitness": {
+          "args": [
+            4
+          ],
+          "result": false,
+          "bindings": {
+            "n": 4
+          }
+        },
+        "execution": {
+          "status": "selected",
+          "policy": "one executable representative per algebraic class",
+          "caseId": "run",
+          "pathsTried": 1,
+          "representative": "existing witness satisfies whole sequence",
+          "assertions": [
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "reserve",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "release",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            },
+            {
+              "kind": "required",
+              "transitionId": "audit",
+              "inputOccurrences": [
+                {
+                  "place": "available",
+                  "tokenIndex": 0
+                },
+                {
+                  "place": "held",
+                  "tokenIndex": 0
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "interface": {
+        "methods": [
+          {
+            "name": "reserve",
+            "parameters": [
+              {
+                "name": "n",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "release",
+            "parameters": [
+              {
+                "name": "n",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "audit",
+            "parameters": []
+          }
+        ],
+        "gates": [
+          {
+            "name": "eligible",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "ack",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "free",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "reserved",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          "eligible",
+          "ack",
+          "free",
+          "reserved"
+        ],
+        "outputSorts": {
+          "eligible": "Bool",
+          "ack": "Bool",
+          "free": "Nat",
+          "reserved": "Nat"
+        }
+      },
+      "schemaVersion": 7,
+      "referenceInitialMarking": {
+        "available": [
+          10
+        ],
+        "held": [
+          0
+        ]
+      },
+      "referenceMarkings": [
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            6
+          ],
+          "held": [
+            4
+          ]
+        },
+        {
+          "available": [
+            6
+          ],
+          "held": [
+            4
+          ]
+        },
+        {
+          "available": [
+            9
+          ],
+          "held": [
+            1
+          ]
+        },
+        {
+          "available": [
+            9
+          ],
+          "held": [
+            1
+          ]
+        },
+        {
+          "available": [
+            5
+          ],
+          "held": [
+            5
+          ]
+        },
+        {
+          "available": [
+            5
+          ],
+          "held": [
+            5
+          ]
+        },
+        {
+          "available": [
+            9
+          ],
+          "held": [
+            1
+          ]
+        },
+        {
+          "available": [
+            9
+          ],
+          "held": [
+            1
+          ]
+        },
+        {
+          "available": [
+            8
+          ],
+          "held": [
+            2
+          ]
+        },
+        {
+          "available": [
+            8
+          ],
+          "held": [
+            2
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            7
+          ],
+          "held": [
+            3
+          ]
+        },
+        {
+          "available": [
+            7
+          ],
+          "held": [
+            3
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        },
+        {
+          "available": [
+            10
+          ],
+          "held": [
+            0
+          ]
+        }
+      ],
+      "referenceAnnotations": [
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit",
+        "reserve",
+        "audit",
+        "release",
+        "audit"
+      ]
+    }
+  ],
+  "reports": [
+    {
+      "variant": "reference",
+      "schemaVersion": 1,
+      "sutName": "Quota web app",
+      "repetitions": 1,
+      "baseSeed": 1,
+      "total": 3,
+      "counts": {
+        "compatible": 3,
+        "mismatch": 0,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 3,
+        "counterexample": 0,
+        "inconclusive": 0
+      },
+      "runs": [
+        {
+          "verdict": "compatible",
+          "reason": "This observed execution is permitted by the reference. Unobserved alternatives remain unchecked.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    7
+                  ],
+                  "reserved": [
+                    3
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      7
+                    ],
+                    "reserved": [
+                      3
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 3,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 4,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    10
+                  ],
+                  "reserved": [
+                    0
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      10
+                    ],
+                    "reserved": [
+                      0
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 5,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 4
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    false
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      false
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 6,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    6
+                  ],
+                  "reserved": [
+                    4
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      6
+                    ],
+                    "reserved": [
+                      4
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 7,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 8,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    9
+                  ],
+                  "reserved": [
+                    1
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      9
+                    ],
+                    "reserved": [
+                      1
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 9,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 1
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 10,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    8
+                  ],
+                  "reserved": [
+                    2
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      8
+                    ],
+                    "reserved": [
+                      2
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 11,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 2
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 12,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    10
+                  ],
+                  "reserved": [
+                    0
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      10
+                    ],
+                    "reserved": [
+                      0
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 13,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 14,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    7
+                  ],
+                  "reserved": [
+                    3
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      7
+                    ],
+                    "reserved": [
+                      3
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 15,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 16,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    10
+                  ],
+                  "reserved": [
+                    0
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      10
+                    ],
+                    "reserved": [
+                      0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 48,
+            "durationMs": 435
+          },
+          "testId": "small",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": true,
+            "expectedTruth": true,
+            "verdict": "witnessed",
+            "reason": "This execution supplies decisive evidence for the required property polarity."
+          }
+        },
+        {
+          "verdict": "compatible",
+          "reason": "This observed execution is permitted by the reference. Unobserved alternatives remain unchecked.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 7
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    3
+                  ],
+                  "reserved": [
+                    7
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      3
+                    ],
+                    "reserved": [
+                      7
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 3,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 4,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    6
+                  ],
+                  "reserved": [
+                    4
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      6
+                    ],
+                    "reserved": [
+                      4
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 5,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 4
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    false
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      false
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 6,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    2
+                  ],
+                  "reserved": [
+                    8
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      2
+                    ],
+                    "reserved": [
+                      8
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 7,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 7
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 8,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    9
+                  ],
+                  "reserved": [
+                    1
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      9
+                    ],
+                    "reserved": [
+                      1
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 9,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 1
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 10,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    8
+                  ],
+                  "reserved": [
+                    2
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      8
+                    ],
+                    "reserved": [
+                      2
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 11,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 2
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 12,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    10
+                  ],
+                  "reserved": [
+                    0
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      10
+                    ],
+                    "reserved": [
+                      0
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 13,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 14,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    7
+                  ],
+                  "reserved": [
+                    3
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      7
+                    ],
+                    "reserved": [
+                      3
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 15,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 16,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    10
+                  ],
+                  "reserved": [
+                    0
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      10
+                    ],
+                    "reserved": [
+                      0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 48,
+            "durationMs": 692
+          },
+          "testId": "special",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": true,
+            "expectedTruth": true,
+            "verdict": "witnessed",
+            "reason": "This execution supplies decisive evidence for the required property polarity."
+          }
+        },
+        {
+          "verdict": "compatible",
+          "reason": "This observed execution is permitted by the reference. Unobserved alternatives remain unchecked.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 4
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    false
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      false
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    6
+                  ],
+                  "reserved": [
+                    4
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      6
+                    ],
+                    "reserved": [
+                      4
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 3,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 4,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    9
+                  ],
+                  "reserved": [
+                    1
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      9
+                    ],
+                    "reserved": [
+                      1
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 5,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 4
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    false
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      false
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 6,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    5
+                  ],
+                  "reserved": [
+                    5
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      5
+                    ],
+                    "reserved": [
+                      5
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 7,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 4
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 8,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    9
+                  ],
+                  "reserved": [
+                    1
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      9
+                    ],
+                    "reserved": [
+                      1
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 9,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 1
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 10,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    8
+                  ],
+                  "reserved": [
+                    2
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      8
+                    ],
+                    "reserved": [
+                      2
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 11,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 2
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 12,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    10
+                  ],
+                  "reserved": [
+                    0
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      10
+                    ],
+                    "reserved": [
+                      0
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 13,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 14,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    7
+                  ],
+                  "reserved": [
+                    3
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      7
+                    ],
+                    "reserved": [
+                      3
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 15,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 16,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    10
+                  ],
+                  "reserved": [
+                    0
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      10
+                    ],
+                    "reserved": [
+                      0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 48,
+            "durationMs": 434
+          },
+          "testId": "ordinary",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": true,
+            "expectedTruth": true,
+            "verdict": "witnessed",
+            "reason": "This execution supplies decisive evidence for the required property polarity."
+          }
+        }
+      ],
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "referenceName": "Methods & gates \u2014 Resource quota reference \u2014 16 pairs"
+    },
+    {
+      "variant": "wrong-reservation",
+      "schemaVersion": 1,
+      "sutName": "Quota web fault: wrong reservation",
+      "repetitions": 1,
+      "baseSeed": 1,
+      "total": 3,
+      "counts": {
+        "compatible": 0,
+        "mismatch": 3,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 3
+      },
+      "runs": [
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    8
+                  ],
+                  "reserved": [
+                    2
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      7
+                    ],
+                    "reserved": [
+                      3
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 6,
+            "durationMs": 66
+          },
+          "reasonCode": "unexpected-output",
+          "step": 2,
+          "testId": "small",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        },
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 7
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    4
+                  ],
+                  "reserved": [
+                    6
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      3
+                    ],
+                    "reserved": [
+                      7
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 6,
+            "durationMs": 66
+          },
+          "reasonCode": "unexpected-output",
+          "step": 2,
+          "testId": "special",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        },
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 4
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    false
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      false
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    7
+                  ],
+                  "reserved": [
+                    3
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      6
+                    ],
+                    "reserved": [
+                      4
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 6,
+            "durationMs": 74
+          },
+          "reasonCode": "unexpected-output",
+          "step": 2,
+          "testId": "ordinary",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        }
+      ],
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "referenceName": "Methods & gates \u2014 Resource quota reference \u2014 16 pairs"
+    },
+    {
+      "variant": "lost-release",
+      "schemaVersion": 1,
+      "sutName": "Quota web fault: lost release",
+      "repetitions": 1,
+      "baseSeed": 1,
+      "total": 3,
+      "counts": {
+        "compatible": 0,
+        "mismatch": 3,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 3
+      },
+      "runs": [
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    7
+                  ],
+                  "reserved": [
+                    3
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      7
+                    ],
+                    "reserved": [
+                      3
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 3,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 4,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    7
+                  ],
+                  "reserved": [
+                    0
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      10
+                    ],
+                    "reserved": [
+                      0
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 12,
+            "durationMs": 122
+          },
+          "reasonCode": "unexpected-output",
+          "step": 4,
+          "testId": "small",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        },
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 7
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    3
+                  ],
+                  "reserved": [
+                    7
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      3
+                    ],
+                    "reserved": [
+                      7
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 3,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 4,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    3
+                  ],
+                  "reserved": [
+                    4
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      6
+                    ],
+                    "reserved": [
+                      4
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 12,
+            "durationMs": 117
+          },
+          "reasonCode": "unexpected-output",
+          "step": 4,
+          "testId": "special",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        },
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 4
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    false
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      false
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    6
+                  ],
+                  "reserved": [
+                    4
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      6
+                    ],
+                    "reserved": [
+                      4
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "step": 3,
+              "stimulation": {
+                "method": "release",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [
+                    true
+                  ],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [
+                      true
+                    ],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 4,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    6
+                  ],
+                  "reserved": [
+                    1
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      9
+                    ],
+                    "reserved": [
+                      1
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 12,
+            "durationMs": 121
+          },
+          "reasonCode": "unexpected-output",
+          "step": 4,
+          "testId": "ordinary",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        }
+      ],
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "referenceName": "Methods & gates \u2014 Resource quota reference \u2014 16 pairs"
+    },
+    {
+      "variant": "wrong-audit",
+      "schemaVersion": 1,
+      "sutName": "Quota web fault: wrong audit",
+      "repetitions": 1,
+      "baseSeed": 1,
+      "total": 3,
+      "counts": {
+        "compatible": 0,
+        "mismatch": 3,
+        "inconclusive": 0,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 3
+      },
+      "runs": [
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 3
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    8
+                  ],
+                  "reserved": [
+                    3
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      7
+                    ],
+                    "reserved": [
+                      3
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 6,
+            "durationMs": 67
+          },
+          "reasonCode": "unexpected-output",
+          "step": 2,
+          "testId": "small",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        },
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 7
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    true
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      true
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    4
+                  ],
+                  "reserved": [
+                    7
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      3
+                    ],
+                    "reserved": [
+                      7
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 6,
+            "durationMs": 66
+          },
+          "reasonCode": "unexpected-output",
+          "step": 2,
+          "testId": "special",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        },
+        {
+          "verdict": "mismatch",
+          "reason": "The SUT output matches no outcome from any compatible reference state.",
+          "seed": 1,
+          "events": [
+            {
+              "step": 1,
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "n": 4
+                }
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [
+                    false
+                  ],
+                  "ack": [],
+                  "free": [],
+                  "reserved": []
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 1,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [
+                      false
+                    ],
+                    "ack": [],
+                    "free": [],
+                    "reserved": []
+                  }
+                }
+              ]
+            },
+            {
+              "step": 2,
+              "stimulation": {
+                "method": "audit",
+                "arguments": {}
+              },
+              "response": {
+                "status": "accepted",
+                "outputs": {
+                  "eligible": [],
+                  "ack": [],
+                  "free": [
+                    7
+                  ],
+                  "reserved": [
+                    4
+                  ]
+                }
+              },
+              "compatibleBefore": 1,
+              "compatibleAfter": 0,
+              "expected": [
+                {
+                  "status": "accepted",
+                  "outputs": {
+                    "eligible": [],
+                    "ack": [],
+                    "free": [
+                      6
+                    ],
+                    "reserved": [
+                      4
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "stats": {
+            "bindingVisits": 6,
+            "durationMs": 65
+          },
+          "reasonCode": "unexpected-output",
+          "step": 2,
+          "testId": "ordinary",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        }
+      ],
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "referenceName": "Methods & gates \u2014 Resource quota reference \u2014 16 pairs"
+    },
+    {
+      "variant": "timeout",
+      "schemaVersion": 1,
+      "sutName": "Quota web experiment: no response",
+      "repetitions": 1,
+      "baseSeed": 1,
+      "total": 3,
+      "counts": {
+        "compatible": 0,
+        "mismatch": 0,
+        "inconclusive": 3,
+        "error": 0
+      },
+      "evidenceCounts": {
+        "witnessed": 0,
+        "counterexample": 0,
+        "inconclusive": 3
+      },
+      "runs": [
+        {
+          "verdict": "inconclusive",
+          "reason": "SUT operation timed out; enabledness is unknown",
+          "seed": 1,
+          "events": [],
+          "stats": {
+            "bindingVisits": 3,
+            "durationMs": 2019
+          },
+          "diagnostic": {
+            "code": "adapter-timeout",
+            "stage": "black-box-replay",
+            "message": "SUT operation timed out; enabledness is unknown"
+          },
+          "step": 1,
+          "testId": "small",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        },
+        {
+          "verdict": "inconclusive",
+          "reason": "SUT operation timed out; enabledness is unknown",
+          "seed": 1,
+          "events": [],
+          "stats": {
+            "bindingVisits": 3,
+            "durationMs": 2025
+          },
+          "diagnostic": {
+            "code": "adapter-timeout",
+            "stage": "black-box-replay",
+            "message": "SUT operation timed out; enabledness is unknown"
+          },
+          "step": 1,
+          "testId": "special",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 7
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        },
+        {
+          "verdict": "inconclusive",
+          "reason": "SUT operation timed out; enabledness is unknown",
+          "seed": 1,
+          "events": [],
+          "stats": {
+            "bindingVisits": 3,
+            "durationMs": 2014
+          },
+          "diagnostic": {
+            "code": "adapter-timeout",
+            "stage": "black-box-replay",
+            "message": "SUT operation timed out; enabledness is unknown"
+          },
+          "step": 1,
+          "testId": "ordinary",
+          "pathIndex": 0,
+          "repetition": 0,
+          "calls": [
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 4
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 1
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 2
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "reserve",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            },
+            {
+              "method": "release",
+              "arguments": {
+                "n": 3
+              }
+            },
+            {
+              "method": "audit",
+              "arguments": {}
+            }
+          ],
+          "propertyEvidence": {
+            "value": null,
+            "expectedTruth": true,
+            "verdict": "inconclusive",
+            "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+          }
+        }
+      ],
+      "policy": "Fresh instance and declared initial configuration per path/run; deterministic seed schedule; no confidence or exhaustive HML claim.",
+      "referenceName": "Methods & gates \u2014 Resource quota reference \u2014 16 pairs"
+    }
+  ]
+}
