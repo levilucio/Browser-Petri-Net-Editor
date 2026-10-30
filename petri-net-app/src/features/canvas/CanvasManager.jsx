@@ -12,6 +12,8 @@ import SnapIndicator from '../../components/SnapIndicator';
 import { logger } from '../../utils/logger.js';
 import { remapIdsForPaste } from '../selection/clipboard-utils';
 import { v4 as uuidv4 } from 'uuid';
+import APNInterface from '../apn/APNInterface';
+import { apnInterfaceLayout } from '../apn/interface-layout';
 
 const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isSelectionActiveRef, activateSingleFingerPan }) => {
   // Get UI state from EditorUIContext
@@ -20,6 +22,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
     virtualCanvasDimensions,
     canvasScroll, setCanvasScroll,
     zoomLevel,
+    setZoomLevel,
     setContainerRef,
     stageRef,
     gridSize,
@@ -51,6 +54,20 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
   } = useElementManager();
 
   const localContainerRef = useRef(null);
+  const interfaceLayout = React.useMemo(() => apnInterfaceLayout(elements), [elements]);
+  const fittedModelRef = useRef(null);
+  const fitAPN = useCallback(() => {
+    if (!interfaceLayout || !stageDimensions.width || !stageDimensions.height) return;
+    const b = interfaceLayout.bounds;
+    const scale = Math.max(0.1, Math.min(1, (stageDimensions.width - 36) / (b.right - b.left), (stageDimensions.height - 36) / (b.bottom - b.top)));
+    setZoomLevel(scale);
+    setCanvasScroll({ x: Math.max(0, b.left - 18 / scale), y: Math.max(0, b.top - 18 / scale) });
+  }, [interfaceLayout, stageDimensions, setZoomLevel, setCanvasScroll]);
+  useEffect(() => {
+    if (!interfaceLayout) { fittedModelRef.current = null; return; }
+    const key = `${elements.satelExample?.id || 'custom'}:${stageDimensions.width}:${stageDimensions.height}`;
+    if (fittedModelRef.current !== key) { fittedModelRef.current = key; fitAPN(); }
+  }, [interfaceLayout, elements.satelExample?.id, stageDimensions, fitAPN]);
   const selectingRef = useRef({ isSelecting: false, start: null });
   const [selectionRect, setSelectionRect] = useState(null); // {x,y,w,h}
   const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -930,6 +947,7 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
             elementType={snapIndicator.elementType}
           />
         </Layer>
+        <APNInterface layout={interfaceLayout} />
         <ElementManager 
           elements={elements}
           selectedElement={selectedElement}
@@ -939,6 +957,8 @@ const CanvasManager = ({ handleZoom, ZOOM_STEP, isSingleFingerPanningActive, isS
         />
         <ArcManager />
       </Stage>
+      {interfaceLayout && <button className="absolute bottom-5 left-3 rounded border bg-white px-3 py-1 text-sm shadow-sm" onClick={fitAPN}>Fit APN</button>}
+      {interfaceLayout && <div className="sr-only" role="img" aria-label={`${interfaceLayout.title}: APN boundary with ${interfaceLayout.methods.length} black method ports, ${interfaceLayout.gates.length} white gate ports and ${interfaceLayout.connections.length} gate synchronization edges. Methods synchronize with transitions by name.`} />}
       {!isTouchDevice && stageDimensions.width > 0 && virtualCanvasDimensions.width > stageDimensions.width / zoomLevel && (
           <CustomScrollbar
               orientation="horizontal"

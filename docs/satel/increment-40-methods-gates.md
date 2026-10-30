@@ -17,7 +17,8 @@ Parent: `f269f595542ea14c9b58c52711017ec7bb21645d` on
 5. Load the corresponding `no-debit` mutant and replay the frozen suite. It
    produces two failures and two passes, with no errors.
 6. **Call public method** executes a single deterministic call and displays its
-   public response. The graph labels rules with their method and `With` gates.
+   public response. The graph now uses a class boundary, black method ports, white gate ports and
+   dashed gate synchronization edges; see [increment 41](increment-41-graphical-methods-gates.md).
 
 All 86 converted examples have committed, readable
 [`.copn` sources and PNML files](examples/methods-gates/README.md).
