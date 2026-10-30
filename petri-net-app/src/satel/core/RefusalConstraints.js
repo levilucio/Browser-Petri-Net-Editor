@@ -1,3 +1,4 @@
+import { guardConjuncts, groundGuardIsFalse } from '../../domain/apn/BoundGuards.js';
 import { foldGroundTerms } from './GroundTerms.js';
 import { integerBounds } from '../../utils/builtin-values.js';
 
@@ -13,12 +14,14 @@ export const instantiateLocals = (term, env) => term?.var ? env[term.var]
  * distinct input binding of EVERY rule. Finite token occurrences come from the
  * current marking. Output computation errors are not alternative refusal cases.
  * tick must throw on cancellation/resource exhaustion; no partial formula escapes. */
-export function refusalConstraints(plans, marking, args, algebra, tick) {
+export function refusalConstraints(plans, marking, args, algebra, tick, options = {}) {
   const conditions = [], evidence = [];
   for (const plan of plans) {
-    let bindings = 0;
+    let bindings = 0, prunedBindings = 0;
+    const checks=plan.guardChecks || guardConjuncts(plan.guard);
     function bind(i, env, picks, equalities) {
       tick();
+      if (options.pruneGroundMethodGuards !== false && groundGuardIsFalse(checks,env,algebra)) { prunedBindings++; return; }
       if (i < plan.ins.length) {
         const input = plan.ins[i], seen = new Set();
         for (const [tokenIndex, value] of marking[input.place].entries()) {
@@ -36,7 +39,7 @@ export function refusalConstraints(plans, marking, args, algebra, tick) {
       conditions.push(foldGroundTerms({ op: 'not', left: enabled }, algebra));
     }
     bind(0, args, [], []);
-    evidence.push({ transitionId: plan.id, bindings });
+    evidence.push({ transitionId: plan.id, bindings, prunedBindings });
   }
   return { conditions, evidence };
 }

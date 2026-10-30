@@ -5,6 +5,10 @@ const builtinAlgebra = addBuiltins({
   constructors: {},
   operations: {}
 });
+// Do not erase an undefined/partial computation in an unselected field.
+const definedConstructorField = t => t === null || typeof t !== 'object' || !!t.var ||
+  !!t.ctor && t.args.every(definedConstructorField) ||
+  ['+', '-', '*'].includes(t.op) && definedConstructorField(t.left) && definedConstructorField(t.right);
 /** Evaluate an instantiated term using its oriented equations, including the
  * built-in equations. Ground evaluation never invents bindings for input data.
  * Ambiguous, undefined and nonterminating definitions remain errors. */
@@ -61,7 +65,8 @@ export function evaluateGroundTerm(term, algebra = builtinAlgebra, maxSteps = 10
   return run(elaborateTerm(term, {}, algebra));
 }
 
-/** Fold only ground subexpressions. Failed/undefined reductions stay symbolic
+/** Fold ground subexpressions and defined typed-constructor projections.
+ * No variable values are chosen. Failed/undefined reductions stay symbolic
  * so the bounded narrowing engine retains responsibility for diagnostics.
  * This does not select paths, erase constraints or prune symbolic alternatives. */
 export function foldGroundTerms(term, algebra) {
@@ -71,6 +76,18 @@ export function foldGroundTerms(term, algebra) {
   if (term.termGraph) return term;
   if (Array.isArray(term)) return term.map(t => foldGroundTerms(t, algebra));
   if (term.var) return term;
+  // Unconditional built-in destructor equations can expose a known field even
+  // when another field is symbolic. Keep Any tags: a wrong cast stays undefined.
+  if (['_pair_fst', '_pair_snd', '_asInt', '_asBool', '_asString', '_asList', '_asPair'].includes(term.call)) {
+    const args = term.args.map(t => foldGroundTerms(t, algebra));
+    term = { ...term, args };
+    const value = args[0];
+    if (['_pair_fst', '_pair_snd'].includes(term.call) && value?.ctor === '_Pair' && definedConstructorField(value)) {
+      const selected = value.args[term.call === '_pair_fst' ? 0 : 1];
+      if (['_AnyInt', '_AnyBool', '_AnyString', '_AnyList', '_AnyPair'].includes(selected?.ctor)) return selected;
+    }
+    if (term.call.startsWith('_as') && value?.ctor === `_Any${term.call.slice(3)}`) return value.args[0];
+  }
   // Preserve Any tags before reducing comparisons or projected components.
   if (!variablesIn(term).size && (term.call || term.op || term.ctor)) {
     try {

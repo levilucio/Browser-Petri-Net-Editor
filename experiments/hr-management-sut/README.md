@@ -111,10 +111,17 @@ November test fixtures and sessions while retaining historical mock data.
 
 `specification/hr.copn` is the concrete APN source; `hr.apn.json` includes the
 initial marking and test intentions. The editor also exposes **HR management —
-Reference** in Examples. The bounded APN has 72 places, 432 transitions, 12 public
-methods and six gates. It models 12 staff members with two work and two vacation
-slots each in November 2026. The seeded database is intentionally much larger.
+Reference** in Examples. The generic APN has four shared places, 21 transitions, 12 public methods and
+six gates. Its default initial marking contains 12 staff members with two work
+and two vacation slots each in November 2026. Employee identities, company and
+manager relationships, and record IDs are data in tokens; no rule is specialized
+to an employee or record slot. Increasing the roster or the slot bound changes
+only the initial marking. The seeded database is intentionally much larger.
 The APN is an abstraction of the tested scope, not a model of every historical row.
+
+The previous expanded model remains in **Examples → HR management — Expanded
+benchmark** and `specification/hr-expanded.copn`. Its earlier measurements are
+in `EXPANDED_RESULTS.md` and `results/expanded/`.
 
 Nine intentions cover all 25 ordered pairs of the five work types, four vacation
 scenarios, three authorization scenarios and all 12 modeled staff members.
@@ -142,12 +149,13 @@ manager, taking pending vacation, double charging taken leave, omitted correctio
 audit rows, HR crossing company boundaries, and including pending work in totals.
 The model and generated expected results remain fixed across those runs.
 
-`results/generation.json`, `baseline.json`, `mutations.json` and `stress.json`
-contain measured evidence. See `RESULTS.md` for outcomes and limitations. Reference
-baseline checks are performed before mutation campaigns. `preflight-findings.json`
-records authoring/harness issues found and fixed during the unmutated stage.
-The download includes the full frozen suites and traces. The repository copy
-keeps compact reports; run `npm run generate` before campaigns in a fresh checkout.
+`results/generic-evidence.zip` contains the tested generic APN JSON, frozen
+suites, generation results and all baseline/mutation traces. Compact current
+measurements are in `results/generic-summary.json` and `generic-stress.json`. See `RESULTS.md` for outcomes and limitations. Reference
+baseline checks are performed before mutation campaigns. `results/expanded/preflight-findings.json`
+records the original authoring/harness issues.
+Run `npm run generate` before campaigns in a fresh checkout, or extract
+`results/generic-evidence.zip` at this project root to reuse the exact tested suite.
 The double-charge mutant deliberately violates the Nat gate type for long leave;
 this is retained as an interface error, so the full mutant command exits nonzero.
 Use `node experiments/probe-type-error.mjs` to inspect that output independently.
@@ -171,3 +179,28 @@ The custom WorkLog ADT belongs to symbolic test derivation. Executable APN recor
 tokens use the supported Pair/Nat/Bool representation; it is not a new arbitrary
 custom-sort runtime. Increasing mock DB volume, APN breadth, sequence length and
 ADT depth are separate dimensions and must not be conflated.
+
+## Generic marking benchmark
+
+Run `node experiments/generic-stress.mjs` without other experiment jobs. It
+compares the expanded reference with the generic reference, then increases the
+generic roster to 48, 120 and 256 staff, and finally uses eight slots per person.
+The same two-entry WorkLog intention is derived in each configuration. This
+measures symbolic selection over larger shared markings; it does not claim
+SUT coverage of every employee or record in those enlarged configurations.
+
+The four shared places use right-nested built-in Pair values:
+
+| Place | Token fields, in order |
+| --- | --- |
+| `employees` | ID, company, manager, remaining days, audit count, approved minutes |
+| `principals` | ID, company, role (1 employee, 2 manager, 3 HR) |
+| `timeEntries` | Record ID, employee ID, work type, minutes, status |
+| `vacations` | Record ID, employee ID, days, status |
+
+Empty reserved records have status 0; the normal statuses are unchanged. Read
+operations consume and reproduce the same tokens. Writes update only the matched
+employee and record. Approved minutes are maintained incrementally; differential
+tests compare them against the expanded model's independent summation across
+interleaved employees and every old/new approval-state correction combination.
+This uses existing Pair/Nat/Bool support, not a new custom Employee-sort runtime.

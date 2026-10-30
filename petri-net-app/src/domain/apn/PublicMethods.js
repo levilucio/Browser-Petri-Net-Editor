@@ -1,3 +1,4 @@
+import { guardConjuncts, boundGuardIsFalse } from './BoundGuards.js';
 /** Checked, synchronous public methods for the built-in APN values. */
 import { getGates, emptyGates, validGateValue, gateValueSort } from './Gates.js';
 import { compileMethodTerm, evaluateMethodTerm } from './MethodTerms.js';
@@ -86,7 +87,8 @@ export function compileMethodRule(net, method, ruleId) {
     outs,
     gates,
     guard,
-    variables
+    variables,
+    guardChecks: guardConjuncts(guard)
   };
 }
 
@@ -144,10 +146,12 @@ export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
       ins,
       outs,
       gates,
-      guard
+      guard,
+      guardChecks
     } of plans[name]) {
       const choose = (i, env, picks) => {
         checkCancelled(options.signal);
+        if (options.pruneBoundGuards !== false && boundGuardIsFalse(guardChecks,env)) return;
         if (++visited > maxBindings) throw new DomainError('resource-limit', 'Method binding search limit reached; result is unresolved');
         options.onVisit?.();
         if (i < ins.length) {

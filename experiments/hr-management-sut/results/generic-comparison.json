@@ -1,0 +1,14 @@
+{
+  "sameFrozenPairs": {
+    "exercise-hr-work-log": true,
+    "exercise-hr-vacation-approved": true,
+    "exercise-hr-vacation-declined": true,
+    "exercise-hr-vacation-take-pending": true,
+    "exercise-hr-vacation-balance-exhaustion": true,
+    "exercise-hr-role-correctTime": true,
+    "exercise-hr-role-decideTime": true,
+    "exercise-hr-role-decideVacation": true,
+    "exercise-hr-roster": true
+  },
+  "expandedSourceCommit": "200007acc7df11efe935d3e191929c1b3778d57a"
+}

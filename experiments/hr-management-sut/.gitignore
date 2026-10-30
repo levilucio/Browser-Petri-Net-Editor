@@ -11,3 +11,10 @@ results/*
 !results/preflight-findings.json
 !results/mutation-examples.json
 !results/selection-pruned-before-empty-bags.json
+
+!results/expanded/
+!results/expanded/*.json
+!results/generic-summary.json
+!results/generic-comparison.json
+!results/generic-stress.json
+!results/generic-evidence.zip

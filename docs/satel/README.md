@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+See [generic HR bindings](increment-44-generic-hr.md) for the current four-place, 21-transition HR reference, its retained expanded benchmark, and measurements with up to 256 employee tokens.
+
 See [HR management stress experiment](increment-43-hr-management-stress.md) for a 432-transition APN, independent REST/SQLite web SUT, generated API and Playwright campaigns, and measured recursive-ADT/subuniformity limits.
 
 See [quota web SUT testing](increment-42-quota-web-sut.md) to run generated methods/gates tests against an independent browser application and inspect detected implementation faults.

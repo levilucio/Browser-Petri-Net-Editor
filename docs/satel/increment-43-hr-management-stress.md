@@ -1,5 +1,10 @@
 # Increment 43: HR management, two transports and recursive ADT stress
 
+Historical expanded-model experiment. [Increment 44](increment-44-generic-hr.md)
+replaces the default HR reference with generic employee/record bindings and retains
+this model as a benchmark. The old measurements are in
+[EXPANDED_RESULTS.md](../../experiments/hr-management-sut/EXPANDED_RESULTS.md).
+
 Branch: `codex/satel-hr-stress`, based on `codex/satel-methods-gates`.
 
 The [standalone HR SUT](../../experiments/hr-management-sut/README.md) implements

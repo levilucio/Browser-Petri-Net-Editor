@@ -1,75 +1,60 @@
-# HR management experiment results
+# Generic HR APN: results and limits
 
-Recorded 30 October 2026. This is a bounded research experiment, not a proof of
-HR-system correctness or an estimate of real-world defect-detection rates.
+Recorded 30 October 2026. This replaces the employee/slot-expanded default model.
+The standalone SUT's implementation, database seed, public API and adapters are
+unchanged. The earlier experiment remains in `EXPANDED_RESULTS.md`, with compact
+historical evidence in `results/expanded/`.
 
-## Deliverables and scale
+## What changed
 
-- Independent vanilla browser UI, Python HTTP/JSON backend and persistent SQLite
-  database. The backend has no SATEL dependency.
-- Seeded data: **2 companies, 12 departments, 256 staff, 7,680 time records,
-  512 historical vacation requests and 256 audit records**. SQLite integrity
-  and foreign-key checks pass. The distributed database has no login sessions.
-- APN: **72 places, 432 transitions, 1,872 arcs, 12 methods and 6 gates**.
-  The synchronous method/gate convention and thesis graphical notation remain.
-- Nine intentions generate **64 tests**, admitted by reference replay. Refusal
-  formulas also exercise positive prefixes, resulting in **82 runs per transport**.
-  Frozen tests are identical across baseline and mutants; a later independent
-  re-derivation reproduced all nine suites' stimulation/observation pairs exactly.
-- Model scope: 12 staff, two time-entry slots and two vacation slots per person,
-  November 2026, initially empty slots and 30 vacation-day units each. The much
-  larger historical database is outside that marking abstraction.
+| Property | Expanded benchmark | Generic default |
+| --- | ---: | ---: |
+| Places | 72 | 4 |
+| Transitions | 432 | 21 |
+| Arcs | 1,872 | 120 |
+| Methods / gates | 12 / 6 | 12 / 6 |
+| Default modeled staff | 12 | 12 |
+| Default slots of each record kind per person | 2 | 2 |
 
-## Unmutated stage
+The four places are `employees`, `principals`, `timeEntries` and `vacations`.
+Identities, company and manager relationships, authorization roles, balances,
+record IDs and states are token data. Rules bind a generic employee, actor and
+record, then check their relationships. Increasing the roster or reserved slots
+changes only the initial marking. A structural test verifies identical rules and
+arcs between one employee/one slot and 256 employees/eight slots. A further test
+uses entirely different employee, manager, HR and company IDs.
 
-**82/82 REST executions and 82/82 Playwright executions were compatible.**
-There were zero mismatches, errors or inconclusive baseline verdicts after fixes.
-This means no remaining business-behavior discrepancy was found by these tests;
-it does not establish correctness beyond the specified scope.
+Remaining transition alternatives represent business cases: standard/special
+work, approval/decline, and the four old/new contribution combinations for HR
+corrections. There is no transition per employee or per record slot.
 
-Issues found and corrected before accepting the baseline:
+Tokens use right-nested built-in Pair values, described in `README.md`. This
+change does not introduce arbitrary custom domain sorts into the executable APN
+runtime. WorkLog remains a custom recursive ADT used for symbolic test derivation.
 
-1. A specification-authoring collision reused balance place IDs for transitions.
-   Query transition IDs now have distinct names. Concrete syntax round-trips the
-   compiled semantics, initial marking, methods and gates.
-2. A broad browser selector matched the response element as well as action
-   buttons. It now targets buttons explicitly.
-3. Concurrent campaigns initially shared a resettable database, invalidating a
-   different run's session. Each process/variant now owns a separate database;
-   campaign setup also verifies its own server has started. Clean baseline
-   reruns passed. This was a harness fault, not an established HR business fault.
-4. HTTP review found unsupported route suffixes/excess segments could be
-   dispatched as reads. Explicit route-shape validation and regression checks
-   now reject them. Non-object JSON bodies return a 400 response.
-5. SATEL whole-sequence selection exhausted its default 10,000 branch budget on
-   the 432-transition model. The fix prunes only ground-false method guards and
-   skips matching two empty gate-output bags. Unknown conditions are retained.
-   The completed work-log selection now visits **5,723 branches**, prunes
-   **24,210 irrelevant alternatives**, performs 235 prefix
-   checks, and selects all 25 classes with zero unresolved/blocked classes.
-   With guard pruning but before the empty-bag optimization, it needed 10,243
-   visits under an enlarged budget. The initial failed run reached 10,025 visits
-   and left 25 classes unresolved. Those stages should not be conflated.
-6. Drawing 432 gate edges exposed redundant corridor calculations. The renderer
-   now deduplicates corridors, checks shortest routes first and preindexes gate
-   endpoints. The notation and chosen shortest clear routes are preserved.
+The default initial marking still abstracts 12 selected staff and reserved
+November records; it does not include all historical database rows. The SUT
+retains its 256 staff, 7,680 historical time entries and 512 vacation requests.
 
-Independent checks: **9 Python backend/HTTP tests**, including role restrictions,
-actor spoofing, atomic corrections, persistence and simultaneous approvals that
-cannot overdraw the allowance; **1,015 editor/SATEL regression tests in 95 suites**;
-**6 built-editor Playwright tests** covering HR worker generation, graphical
-notation and the previous quota browser SUT. Both production and browser-test
-builds pass. The five graphical-layout unit tests passed again after its
-optimization. The regression count refers to the targeted suites, not every
-unrelated test in the repository.
+## Behavioral checks and SUT campaigns
 
-## Mutation stage
+- All nine intentions produce **64 admitted tests**, with exactly the same
+  stimulation/observation pairs as the frozen expanded-model suites.
+- **82/82 REST and 82/82 Playwright baseline executions are compatible**, with
+  no mismatches, errors or inconclusive results. Negative formulas account for
+  the additional positive-prefix executions beyond the 64 generated tests.
+- **All seven mutants are detected through both transports** across 1,148 mutant
+  executions. Every API/UI verdict and recorded interaction event agrees. Verdict
+  counts are identical to those obtained with the expanded reference.
+- A differential test compares both APNs across 282 successive calls, interleaving
+  four employees including a manager and another company. It exercises cross-owner
+  refusals, self-approval refusal, every old/new approved-total contribution case,
+  vacation charge/refund corrections and insufficient-balance refusal.
+- Generic approved-minute totals are maintained incrementally in employee tokens.
+  The differential comparison uses the expanded model's independent sum across
+  work records, including observations of other employees after each correction.
 
-Each mutation is a separately launched backend. The frozen specification, test
-expectations, mock-data seed and adapters stay fixed. Both transports exercise
-all 82 runs for each of seven mutants: **1,148 mutant executions** in total.
-
-| Mutation | REST mismatches | UI mismatches | REST / UI interface errors |
+| Mutant | REST mismatches | UI mismatches | REST / UI type errors |
 | --- | ---: | ---: | ---: |
 | `auto-approve-special` | 25 | 25 | 0 / 0 |
 | `manager-scope` | 2 | 2 | 0 / 0 |
@@ -79,90 +64,100 @@ all 82 runs for each of seven mutants: **1,148 mutant executions** in total.
 | `cross-tenant-hr` | 1 | 1 | 0 / 0 |
 | `wrong-total` | 24 | 24 | 0 / 0 |
 
-**All seven mutants are detected by ordinary mismatches in both transports.**
-All per-test verdicts and recorded interaction events agree between REST and UI.
-There are no inconclusive mutation verdicts. Counts indicate affected executions,
-not independent defects or mutation-score confidence intervals.
+Double charging retains one error per transport: taking 21 days returns -12
+remaining days, outside the declared Nat gate type. The checker currently calls
+this an adapter error; it is not silently counted as an ordinary mismatch.
+There are no inconclusive mutation verdicts. Mutation counts describe this
+bounded fixture, not an estimated probability of detecting real defects.
 
-The double-charge mutant also returns **-12** remaining days after taking a
-21-day vacation from an allowance of 30. The public `remaining` gate is `Nat`.
-The current checker therefore reports the long-vacation case as an
-`adapter-error` at step 5 rather than an ordinary observation mismatch. A separate
-probe retains the same invalid output from both API and UI in
-`results/type-error-probe.json`. We preserve this diagnostic instead of counting
-it as a pass or silently converting it into a mismatch. Future work should
-separate malformed SUT outputs from implementation errors in the adapter.
-Consequently `npm run test:mutants` exits nonzero for this retained contract error;
-inspect the recorded verdicts rather than treating the exit code as a clean run.
+## Generic binding and selection improvements
 
-## Recursive ADT unfolding and subuniformity stress
+The first generic attempt exposed genuine search costs that employee-specific
+expansion had avoided. The implementation now:
 
-`WorkLog = End | Entry(kind, minutes, rest)` has five conditional recursive
-`reviews` equations, plus the empty-list equation. `reviews` counts non-standard
-entries requiring review. The executable two-entry suite derives 25 classes
-through the symbolic engine; its protocol then drives work submission, manager
-approval/decline, HR correction, totals and audit observations.
+1. Rejects input-binding prefixes only when a bound guard establishes that they
+   cannot enable the rule. Concrete execution preserves left-to-right guard/error
+   behavior. Symbolic refusal checks also exclude provably disabled prefixes;
+   every remaining binding is still covered and limits remain explicit.
+2. Normalizes typed Pair values and evaluates unconditional constructor projections
+   even when a neighboring field is symbolic. Any tags are preserved, wrong casts
+   stay undefined, and partial computations in unselected fields are not erased.
+3. Propagates scalar equalities already required by an algebraic class before
+   enumerating paths. For example, a class requiring employee = 1001 constrains
+   token binding immediately. This is not fixing arbitrary variables to a preferred
+   witness; unconstrained values remain symbolic and whole-sequence constraints
+   still determine executable representatives.
 
-The separate stress experiment varies known list lengths and unknown-shape depth
-bounds. Each configuration runs in a new process with two sequential trials,
-after separately timed Z3 initialization. Both trials share that process, so
-warming can affect the second trial. No other experiment jobs ran alongside the
-matrix. Limits are 2,048 branch alternatives, a **5-second soft derivation
-budget**, and a 35-second hard child-process limit. Environment: Node
-v24.22.1, AMD EPYC 9V74 80-Core Processor (9 reported logical CPUs).
-Raw solver/branch profiles, memory and source hashes are in `stress.json`.
+The default two-entry WorkLog selection visits 2,832 search nodes, within the
+10,000 default sequence bound. Both enabled outcomes and refusal obligations are
+checked with pruning disabled on smaller fixtures. Counters separate visited
+nodes from pruned alternatives; they are not a count of all token-scan work.
 
-Numbers below are first / second trial. Unproved overlap checks are unresolved
-proof obligations, **not evidence that classes actually overlap**.
+Validation: **1,019 targeted regression tests in 95 suites**, plus **seven built
+editor Playwright tests**, including generic generation and loading the expanded
+benchmark. Both production and isolated browser-test builds pass. A refusal UI
+unit suite was rerun after updating the explanation of pruned binding prefixes.
+The unchanged backend's nine Python tests passed in the preceding experiment.
+These checks are empirical evidence, not a proof of general semantic equivalence.
 
-| Input | Depth | Emitted classes | Unfinished branches | Unproved overlap checks | Seconds |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| Known length 1 | 2 | 5 / 5 | 0 / 0 | 0 / 0 | 0.81 / 0.38 |
-| Known length 2 | 3 | 25 / 25 | 0 / 0 | 0 / 0 | 2.29 / 1.63 |
-| Known length 3 | 4 | 90 / 100 | 3 / 1 | 4005 / 4950 | 7.00 / 7.97 |
-| Known length 4 | 5 | 82 / 91 | 11 / 10 | 3321 / 4095 | 6.78 / 7.25 |
-| Known length 5 | 6 | 77 / 91 | 16 / 14 | 2926 / 4095 | 6.53 / 7.36 |
-| Unknown shape | 2 | 6 / 6 | 25 / 25 | 0 / 0 | 1.58 / 1.08 |
-| Unknown shape | 3 | 25 / 25 | 111 / 116 | 300 / 300 | 5.04 / 5.04 |
-| Unknown shape | 4 | 18 / 21 | 93 / 105 | 153 / 210 | 5.02 / 5.04 |
-| Unknown shape | 6 | 19 / 20 | 107 / 111 | 171 / 190 | 5.03 / 5.02 |
-| Unknown shape | 8 | 18 / 20 | 113 / 121 | 153 / 190 | 5.03 / 5.05 |
+## Isolated marking-size benchmark
 
-All **769 emitted witnesses** pass an independent procedural evaluation of their
-constructor shape, type/minute constraints and review count. No hard timeout or
-witness failure occurred. This checks representative values, not universal
-coverage of their classes.
+Each configuration runs in a new process, sequentially, with no competing
+experiment jobs. Z3 initialization is timed separately and excluded below.
+There is one measured trial per configuration: these timings are exploratory.
+The same two-entry WorkLog intention derives 25 algebraic classes. Limits are
+60 seconds for algebraic derivation, 60 seconds for executable selection,
+10,000 sequence search nodes and a 150-second hard process limit.
 
-Known lengths one and two resolve fully within the chosen unfolding frontier.
-At length three (125 potential work-type combinations) and beyond, the budget
-expires before derivation/disjointness certification finishes. Returned classes
-from these partial runs must not be treated as fully certified test partitions.
-Unknown-shape inputs retain recursive residual branches even at shallow bounds;
-increasing depth alone does not ensure more completed classes within a fixed
-wall-clock budget. Time-limited results can vary across machines and trials.
+This benchmark measures **derivation and executable selection only**. It does
+not perform admission or SUT campaigns for the enlarged markings. The default
+12-person model has the separate full admission and SUT evidence above.
 
-The soft budget is not a strict wall-clock cap: bookkeeping and overlap-obligation
-construction continue after the search deadline, causing observed overruns of
-roughly two to three seconds in the larger known-shape cases. Once the deadline
-is exhausted, the quadratic class-pair phase can produce thousands of unknown
-checks. These are the main remaining scaling findings. A useful next experiment
-would budget class generation and disjointness separately, retain unresolved
-pairs compactly, and measure constructor/guard indexing before increasing depth.
+| Model | Staff | Slots per kind/person | Initial tokens | Transitions | Selected | Unresolved | Seconds |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Expanded | 12 | 2 | 72 | 432 | 25 | 0 | 3.59 |
+| Generic | 12 | 2 | 87 | 21 | 25 | 0 | 9.31 |
+| Generic | 48 | 2 | 301 | 21 | 25 | 0 | 18.42 |
+| Generic | 120 | 2 | 730 | 21 | 25 | 0 | 34.89 |
+| Generic | 256 | 2 | 1536 | 21 | 23 | 2 | 62.02 |
+| Generic | 256 | 8 | 4608 | 21 | 8 | 17 | 62.23 |
 
-The custom WorkLog ADT is used by symbolic test derivation. Executable APN tokens
-remain supported Pair/Nat/Bool values. Database volume, APN breadth, sequence
-length and recursive ADT depth are separate stress dimensions.
+The first three generic configurations select all 25 tests and reproduce the
+frozen pairs. At 256 staff, the 60-second selection budget leaves unresolved
+classes: two with two slots, and seventeen with eight slots. Every configuration
+still completes the algebraic decomposition into 25 classes with no unresolved
+algebraic branches or overlap obligations. No hard process timeout occurred.
 
-## Reproduce and inspect
+The expanded comparison uses the **current engine** and the same selection-only
+measurement, rather than its earlier end-to-end timing. Its faster result at the
+12-person bound shows why fewer transitions alone do not imply faster execution.
+Generic rules require scans and projections over larger shared token multisets.
+That cost increases despite a nearly constant count of viable search nodes.
+Candidate indexing by stable token fields is a sensible next optimization to
+measure, with exhaustive fallback and equivalence tests.
 
-See `README.md` for Windows startup, demo accounts, endpoint contracts and commands.
-Use the editor branch **codex/satel-hr-stress**. Open **Examples → HR management —
-Reference**, then **SATEL → APN source** or **Generated tests**. The first intention
-should generate and admit 25/25 work-log tests in the worker.
+The earlier recursive-depth experiment is preserved in
+`results/expanded/stress.json`; it has not been rerun or relabeled as a new result.
+Its depth-related unresolved branches and quadratic disjointness obligations
+remain separate from this marking-size benchmark. The new experiment combines
+the same recursive WorkLog derivation with generic APN selection; it does not
+establish unbounded ADT support or coverage of all modeled employees.
 
-Evidence includes the concrete APN source and JSON, frozen suites, generation
-profiles, baseline/mutation traces, preflight findings, the type-error probe and
-the stress matrix. `experiments/verify-generation.mjs` rechecks exact frozen pair
-reproduction without replacing the original suites. The downloadable standalone
-package includes full raw evidence; the repository keeps source and compact
-reports so the SUT can be copied into its own experiment directory.
+## Inspect and reproduce
+
+On branch `codex/satel-hr-stress`:
+
+- **Examples → HR management — Reference** loads the generic model.
+- **Examples → HR management — Expanded benchmark** loads the retained model.
+- **SATEL → APN source** shows the textual class. Source snapshots are
+  `specification/hr.copn` and `specification/hr-expanded.copn`.
+- `npm run generate`, `npm run test:baseline` and `npm run test:mutants` regenerate
+  and replay the default suites. The mutant command exits nonzero for the retained
+  Nat-contract errors; inspect the recorded verdicts.
+- `node experiments/generic-stress.mjs` reproduces the marking-size experiment.
+- `node experiments/verify-generation.mjs` checks exact frozen-pair reproduction.
+
+`results/generic-evidence.zip` contains the generic APN JSON, frozen suites,
+generation data, full baseline/mutant traces and compact summaries. Extract it at
+this standalone project's root to reproduce against the exact tested suite.
+All seven mutants are separate SUT variants; expected results remain fixed.

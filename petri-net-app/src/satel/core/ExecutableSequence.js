@@ -1,9 +1,10 @@
+import { instantiateKnown, groundGuardIsFalse } from '../../domain/apn/BoundGuards.js';
 import { refusalConstraints } from './RefusalConstraints.js';
 import { foldGroundTerms } from './GroundTerms.js';
 import { compilePublicNet, isMethodRule } from '../../domain/apn/PublicMethods.js';
 import { validBuiltinValue, valueToSymbolic as valueTerm, integerBounds } from '../../utils/builtin-values.js';
 import { createConstraintSearch } from './GenericSubuniformity.js';
-import { substitute, variablesIn, evaluateGround, termSort, unify } from './SymbolicTerms.js';
+import { substitute, variablesIn, evaluateGround, termSort, unify, elaborateTerm } from './SymbolicTerms.js';
 import { checkCancelled, diagnostic, DomainError } from '../../domain/diagnostics.js';
 import { buildHmlConstraints } from './HmlConstraints.js';
 const eq = (left, right) => ({
@@ -13,15 +14,25 @@ const eq = (left, right) => ({
 });
 const copy = x => JSON.parse(JSON.stringify(x));
 
-// Simultaneous substitution preserves method-local versus intention scopes.
-// Only a ground false conjunct can exclude a plan; symbolic/undefined terms stay.
-function instantiateKnown(term, env) {
-  if (term?.var) return Object.hasOwn(env, term.var) ? env[term.var] : term;
-  if (Array.isArray(term)) return term.map(t => instantiateKnown(t, env));
-  return term && typeof term === 'object' ? Object.fromEntries(Object.entries(term).map(([k, v]) => [k, instantiateKnown(v, env)])) : term;
-}
-function falseConjunct(term) {
-  return term === false || term?.op === 'and' && (falseConjunct(term.left) || falseConjunct(term.right));
+// Propagate only equalities already required by the algebraic class. This is
+// not a preference for its witness: every representative satisfies these facts.
+function bindClassLiterals(conditions, bindings, algebra) {
+  const terms = [];
+  const flatten = t => { if (t?.op === 'and') { flatten(t.left); flatten(t.right); } else terms.push(t); };
+  conditions.forEach(flatten);
+  for (let pass = 0; pass <= terms.length; pass++) {
+    let changed = false;
+    for (const t of terms) {
+      const eq = foldGroundTerms(substitute(t, bindings), algebra);
+      if (eq?.op !== '==') continue;
+      for (const [variable, value] of [[eq.left, eq.right], [eq.right, eq.left]]) {
+        if (variable?.var && ['number', 'boolean', 'string'].includes(typeof value)) {
+          bindings.set(variable.var, value); changed = true; break;
+        }
+      }
+    }
+    if (!changed) break;
+  }
 }
 
 const fail = message => {
@@ -112,19 +123,22 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
     }
     for (const id of Object.keys(pair.observation.outputs)) if (!io.outputs.includes(id)) fail(`Unknown public output in protocol: ${id}`);
     if (pair.assertion === 'blocked') {
-      const refusal = refusalConstraints(plans[name], marking, args, algebra, tick);
+      const refusal = refusalConstraints(plans[name], marking, args, algebra, tick, options);
       yield* walk(index + 1, marking, [...conditions, ...parameterConditions, ...refusal.conditions], [...trace, {
         assertion: 'blocked', picks: [], marking, refusal: refusal.evidence
       }]);
       return;
     }
     const compatiblePlans = options.pruneGroundMethodGuards === false ? plans[name] : plans[name].filter(plan => {
-      const excluded = falseConjunct(foldGroundTerms(instantiateKnown(plan.guard, args), algebra));
+      const excluded = groundGuardIsFalse(plan.guardChecks, args, algebra);
       if (excluded) budget.pruned++;
       return !excluded;
     });
     for (const plan of compatiblePlans) {
       async function* bind(i, env, picks, constraints) {
+        checkCancelled(budget.signal);
+        if (Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
+        if (options.pruneGroundMethodGuards !== false && groundGuardIsFalse(plan.guardChecks, env, algebra)) { budget.pruned++; return; }
         tick();
         if (i < plan.ins.length) {
           const input = plan.ins[i];
@@ -153,14 +167,12 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
         // simultaneous substitution: inserted terms already belong to the
         // intention scope and must not be substituted again as method locals.
         const instantiate = t => instantiateKnown(t, env);
-        const guard = foldGroundTerms(instantiate(plan.guard), algebra);
-        if (options.pruneGroundMethodGuards !== false && falseConjunct(guard)) { budget.pruned++; return; }
         const next = Object.fromEntries(Object.entries(marking).map(([id, tokens]) => [id, tokens.filter((_, k) => !picks.some(p => p.place === id && p.tokenIndex === k))]));
         const produced = Object.fromEntries(io.outputs.map(id => [id, []]));
         const cs = [];
         if (plan.guard !== null && plan.guard !== undefined) cs.push(instantiate(plan.guard));
         for (const out of plan.outs) {
-          const value = instantiate(out.ast);
+          const value = foldGroundTerms(elaborateTerm(instantiate(out.ast), sorts, algebra, places.get(out.place).sort), algebra);
           next[out.place].push(value);
           if (produced[out.place]) produced[out.place].push(value);
           cs.push(...range(value, places.get(out.place).sort));
@@ -244,6 +256,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
           return unify(a, b, bindings);
         };
         if (!c.patterns.every((p, i) => match(p, domain.patterns[i], caseBindings, extra)) || !match(c.result, domain.resultPattern, caseBindings, extra)) continue;
+        bindClassLiterals([...domain.conditions, ...extra], caseBindings, goal.algebra);
         const projection = substitute({
           patterns: domain.patterns,
           result: domain.resultPattern,
