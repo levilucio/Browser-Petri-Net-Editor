@@ -1,3 +1,4 @@
+import { literalRegionFields, literalFieldsDisjoint } from './LiteralDisjointness.js';
 import { createBranchDisjointness } from './BranchDisjointness.js';
 import { projectFeasibilityQuery } from './FeasibilityQuery.js';
 import { constructorPatternsDisjoint } from './ConstructorDisjointness.js';
@@ -85,6 +86,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     feasibilityWitnessMs: 0, feasibilityCheckMs: 0,
     maxFeasibilityVariables: 0, feasibilityVariableEntries: 0,
     overlapPairs: 0, constructorDisjointPairs: 0, constructorCheckMs: 0,
+    literalDisjointPairs: 0, literalIndexMs: 0, literalCheckMs: 0, deadlineOverlapPairs: 0,
     maxOverlapVariables: 0, overlapVariableEntries: 0,
     branchProofQueries: 0, branchProofMs: 0, branchProofCacheHits: 0, branchDisjointPairs: 0, branchProofStatuses: {},
     maxRulePath: 0, maxUnfoldingDepth: 0, infeasibleBranches: 0, operations: {}
@@ -349,11 +351,35 @@ async function narrow(goal, options = {}, witnessOnly = false) {
   }
   const overlapStarted = profile ? performance.now() : 0;
   let overlapVariableCount = profile ? Object.keys(sorts).length : 0;
+  const literalFields = new WeakMap();
+  const fields = region => {
+    if (!literalFields.has(region)) {
+      const start = profile ? performance.now() : 0;
+      literalFields.set(region, literalRegionFields(region, algebra));
+      if (profile) profile.literalIndexMs += performance.now() - start;
+    }
+    return literalFields.get(region);
+  };
   // Domain intersections are checked independently of output values and of APN execution.
   for (let i = 0; !witnessOnly && i < domains.length; i++) for (let j = i + 1; j < domains.length; j++) {
     const a = domains[i],
       original = domains[j];
+    checkCancelled(options.signal);
     if (profile) profile.overlapPairs++;
+    // Retain every unfinished obligation, but do not build/rename its large
+    // solver query after the shared budget has already expired.
+    if (Date.now() >= deadline && options.deferExpiredOverlapQueries !== false) {
+      overlaps.push({ left: a.id, right: original.id, status: 'unknown', reason: 'Total derivation time budget exhausted' });
+      if (profile) profile.deadlineOverlapPairs++;
+      continue;
+    }
+    if (options.literalDisjointness !== false && Date.now() < deadline) {
+      const leftFields = fields(a), rightFields = fields(original);
+      const start = profile ? performance.now() : 0;
+      const disjoint = literalFieldsDisjoint(leftFields, rightFields);
+      if (profile) profile.literalCheckMs += performance.now() - start;
+      if (disjoint) { if (profile) profile.literalDisjointPairs++; continue; }
+    }
     if (options.constructorDisjointness !== false && Date.now() < deadline) {
       const started = profile ? performance.now() : 0;
       const disjoint = constructorPatternsDisjoint(a.patterns, original.patterns, algebra);

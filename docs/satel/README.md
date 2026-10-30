@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+See [recursive HR depth and finite coverage audit](increment-46-hr-depth.md) for stage profiling, conservative overlap certificates, and the remaining branch-budget limit.
+
 See [guard-derived token indexing](increment-45-token-index.md) for the follow-up on generic HR selection, profiling and exhaustive-scan comparisons.
 
 See [generic HR bindings](increment-44-generic-hr.md) for the current four-place, 21-transition HR reference, its retained expanded benchmark, and measurements with up to 256 employee tokens.

@@ -1,0 +1,1780 @@
+{
+  "checker": "Independent pattern matcher, guard interpreter and procedural WorkLog oracle; no engine/solver imports.",
+  "results": [
+    {
+      "run": "depth-baseline",
+      "label": "baseline-1",
+      "config": {
+        "length": 1,
+        "timeMs": 10000,
+        "optimized": false,
+        "label": "baseline-1"
+      },
+      "classes": 5,
+      "frontierUnresolved": 0,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "8373520932c4f7e2a703e5c3c02cf3d9149437de520a5cc602261daaef81e828",
+      "audit": {
+        "length": 1,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 24,
+        "definedInputs": 10,
+        "coveredInputs": 10,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 5,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-baseline",
+      "label": "baseline-2",
+      "config": {
+        "length": 2,
+        "timeMs": 10000,
+        "optimized": false,
+        "label": "baseline-2"
+      },
+      "classes": 25,
+      "frontierUnresolved": 0,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "56c0f2c9764317f853a846fca6a2783649d6048d4750b7b3c769857762eb8701",
+      "audit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-baseline",
+      "label": "baseline-3",
+      "config": {
+        "length": 3,
+        "timeMs": 10000,
+        "optimized": false,
+        "label": "baseline-3"
+      },
+      "classes": 125,
+      "frontierUnresolved": 0,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "3fa8458f7bed2d4e248ae0af20a6be7830499d4007cd8238f0b8d119f7e2ed46",
+      "audit": {
+        "length": 3,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 13824,
+        "definedInputs": 1000,
+        "coveredInputs": 1000,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 125,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-baseline",
+      "label": "baseline-4",
+      "config": {
+        "length": 4,
+        "timeMs": 10000,
+        "optimized": false,
+        "label": "baseline-4"
+      },
+      "classes": 160,
+      "frontierUnresolved": 13,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "8907eed7d6ebb45ae062d9f522bb8330572074796168bae0362e203987c975ae",
+      "audit": {
+        "length": 4,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "minutes": [
+          15
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 625,
+        "definedInputs": 625,
+        "coveredInputs": 160,
+        "missingInputs": 465,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 160,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            1,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            2,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            3,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            4,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "finiteCoverageComplete": false,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-baseline",
+      "label": "baseline-5",
+      "config": {
+        "length": 5,
+        "timeMs": 10000,
+        "optimized": false,
+        "label": "baseline-5"
+      },
+      "classes": 156,
+      "frontierUnresolved": 17,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "ece24a1dab926f459ad25c400293c8ffbc5fd4ff5b1e4536a4c77a85c366e5b8",
+      "audit": {
+        "length": 5,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "minutes": [
+          15
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 3125,
+        "definedInputs": 3125,
+        "coveredInputs": 156,
+        "missingInputs": 2969,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 156,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                0,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                1,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                2,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                3,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                4,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "finiteCoverageComplete": false,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "final-1",
+      "config": {
+        "length": 1,
+        "timeMs": 10000,
+        "optimized": true,
+        "execute": true,
+        "label": "final-1"
+      },
+      "classes": 5,
+      "frontierUnresolved": 0,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "0611a3fd49e8d6bd676d1cc4216cea9c69be91498d598d302c8d69d0e1077ea2",
+      "audit": {
+        "length": 1,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 24,
+        "definedInputs": 10,
+        "coveredInputs": 10,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 5,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "final-2",
+      "config": {
+        "length": 2,
+        "timeMs": 10000,
+        "optimized": true,
+        "execute": true,
+        "label": "final-2"
+      },
+      "classes": 25,
+      "frontierUnresolved": 0,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "7de0439e808aeb03176c99959cd23230977d8221a0b975f902bb7a999845a393",
+      "audit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "final-3",
+      "config": {
+        "length": 3,
+        "timeMs": 10000,
+        "optimized": true,
+        "execute": true,
+        "label": "final-3"
+      },
+      "classes": 125,
+      "frontierUnresolved": 0,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "9b6a3a444349f7b1109ab7c94ca780076aa6bd55585d721d47db22db504b83c1",
+      "audit": {
+        "length": 3,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 13824,
+        "definedInputs": 1000,
+        "coveredInputs": 1000,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 125,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "final-4",
+      "config": {
+        "length": 4,
+        "timeMs": 10000,
+        "optimized": true,
+        "execute": true,
+        "label": "final-4"
+      },
+      "classes": 181,
+      "frontierUnresolved": 12,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "aab28ffa5ea735f4794a4f4f3368723fc9f76c9ab2dc350dbaacf11018210b9c",
+      "audit": {
+        "length": 4,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "minutes": [
+          15
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 625,
+        "definedInputs": 625,
+        "coveredInputs": 181,
+        "missingInputs": 444,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 181,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            1,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            2,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            3,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            4,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "finiteCoverageComplete": false,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "final-5",
+      "config": {
+        "length": 5,
+        "timeMs": 10000,
+        "optimized": true,
+        "execute": true,
+        "label": "final-5"
+      },
+      "classes": 164,
+      "frontierUnresolved": 13,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "2042b8d4267905a1766a2bd3944c205e201ba250ba9a7b463928bb80860f3b1d",
+      "audit": {
+        "length": 5,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "minutes": [
+          15
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 3125,
+        "definedInputs": 3125,
+        "coveredInputs": 164,
+        "missingInputs": 2961,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 164,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                0,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                1,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                2,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                3,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                4,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "finiteCoverageComplete": false,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "control-3",
+      "config": {
+        "length": 3,
+        "timeMs": 30000,
+        "optimized": false,
+        "label": "control-3"
+      },
+      "classes": 125,
+      "frontierUnresolved": 0,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "131e4ae34c5a44394b616cae5771c61afbe239dbd3ffacc00752c1056bcde57b",
+      "audit": {
+        "length": 3,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 13824,
+        "definedInputs": 1000,
+        "coveredInputs": 1000,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 125,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "repeat-3",
+      "config": {
+        "length": 3,
+        "timeMs": 30000,
+        "optimized": true,
+        "label": "repeat-3"
+      },
+      "classes": 125,
+      "frontierUnresolved": 0,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "18f904b17b75f54c7ff5903baeb4b7e17d1ea1226b706636f2875f29963ec1fd",
+      "audit": {
+        "length": 3,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 13824,
+        "definedInputs": 1000,
+        "coveredInputs": 1000,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 125,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "final-long-4",
+      "config": {
+        "length": 4,
+        "timeMs": 30000,
+        "optimized": true,
+        "execute": true,
+        "label": "final-long-4"
+      },
+      "classes": 203,
+      "frontierUnresolved": 10,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "c4b741ebec6b94947b88617f3a705958e536e99cdb7ca6d33f2cfa13a63dd824",
+      "audit": {
+        "length": 4,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "minutes": [
+          15
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 625,
+        "definedInputs": 625,
+        "coveredInputs": 203,
+        "missingInputs": 422,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 203,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            1,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            2,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            3,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            4,
+                            15,
+                            {
+                              "ctor": "End",
+                              "args": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "finiteCoverageComplete": false,
+        "partitionAndWitnessChecksPass": true
+      }
+    },
+    {
+      "run": "depth-final",
+      "label": "final-long-5",
+      "config": {
+        "length": 5,
+        "timeMs": 30000,
+        "optimized": true,
+        "execute": true,
+        "label": "final-long-5"
+      },
+      "classes": 202,
+      "frontierUnresolved": 15,
+      "unexpectedCoverageGap": false,
+      "domainFileSha256": "1c8f879b5ad428dcb12a16f30cbbaf900a21b9038d19df5308356d8496bcdf12",
+      "audit": {
+        "length": 5,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "minutes": [
+          15
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 3125,
+        "definedInputs": 3125,
+        "coveredInputs": 202,
+        "missingInputs": 2923,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 202,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                0,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                1,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                2,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                3,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "kind": "missing",
+            "input": {
+              "ctor": "Entry",
+              "args": [
+                0,
+                15,
+                {
+                  "ctor": "Entry",
+                  "args": [
+                    0,
+                    15,
+                    {
+                      "ctor": "Entry",
+                      "args": [
+                        0,
+                        15,
+                        {
+                          "ctor": "Entry",
+                          "args": [
+                            0,
+                            15,
+                            {
+                              "ctor": "Entry",
+                              "args": [
+                                4,
+                                15,
+                                {
+                                  "ctor": "End",
+                                  "args": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "finiteCoverageComplete": false,
+        "partitionAndWitnessChecksPass": true
+      }
+    }
+  ],
+  "allPartitionAndWitnessChecksPass": true
+}

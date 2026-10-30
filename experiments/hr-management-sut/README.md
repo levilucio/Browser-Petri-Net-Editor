@@ -216,3 +216,29 @@ sequentially without competing test/build/campaign jobs; Z3 initialization is
 recorded separately. `node experiments/verify-index.mjs` regenerates and admits
 all nine intentions, compares every test pair with `results/suites.json`, and
 writes `results/index-verification.json` without overwriting the frozen suite.
+
+
+## Recursive depth and finite coverage audit
+
+[DEPTH_RESULTS.md](DEPTH_RESULTS.md) varies WorkLog lengths 1–5 over an identical
+12-person, five-slot marking, using the same HR equations and business rules.
+It separates algebraic feasibility/unfolding, overlap checks, executable selection
+and concrete admission. An independent finite enumerator checks membership,
+coverage, overlap, results and representatives, including invalid boundary values.
+
+Run the following sequentially, without other test or build jobs during timing:
+
+```sh
+node experiments/depth-benchmark.mjs --mode baseline
+node experiments/depth-benchmark.mjs --mode final
+node experiments/depth-report.mjs depth-baseline depth-final
+node --test experiments/depth-audit.test.mjs
+node experiments/verify-index.mjs --out depth-verification
+node experiments/depth-summary.mjs
+```
+
+Compact reports are committed under `results/depth-*.json`. Full intermediate
+`depth-domains-*.json` files are generated locally for the independent audit.
+The audit interprets this WorkLog fixture's restricted term/guard language; an
+unsupported expression makes its check incomplete. Finite coverage results do
+not replace the engine's unresolved branches or establish thesis-level coverage.

@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {auditDomains} from './depth-audit.mjs';
+const v=varName=>({var:varName}),op=(name,left,right)=>({op:name,left,right});
+const domains=()=>Array.from({length:5},(_,kind)=>({id:String(kind),patterns:[{ctor:'Entry',args:[v('k'),v('m'),{ctor:'End',args:[]}]}],conditions:[op('==',v('k'),kind),op('>=',v('m'),15),op('<=',v('m'),720)],resultPattern:Number(kind!==0),witnessArgs:[{ctor:'Entry',args:[kind,15,{ctor:'End',args:[]}]}],witnessResult:Number(kind!==0)}));
+test('independent finite oracle accepts the full partition including boundary exclusions',()=>{const r=auditDomains(domains(),1);assert.equal(r.inputs,24);assert.equal(r.definedInputs,10);assert.equal(r.coveredInputs,10);assert.equal(r.partitionAndWitnessChecksPass,true);assert.equal(r.finiteCoverageComplete,true);});
+test('removing a region exposes uncovered valid inputs',()=>{const d=domains();d.pop();const r=auditDomains(d,1);assert.equal(r.missingInputs,2);assert.equal(r.finiteCoverageComplete,false);});
+test('duplicating a region exposes overlaps',()=>{const d=domains();d.push(d[0]);assert.equal(auditDomains(d,1).multiplyCoveredInputs,2);});
+test('broadening a boundary exposes undefined inputs',()=>{const d=domains();d[0].conditions[1].right=14;assert.equal(auditDomains(d,1).undefinedCoveredInputs,1);});
+test('wrong results and invalid representatives are detected independently',()=>{const d=domains();d[0].resultPattern=1;d[1].witnessArgs[0].args[1]=14;const r=auditDomains(d,1);assert.equal(r.wrongResults,2);assert.equal(r.witnessFailures,2);});
+test('unsupported constraints cannot be silently counted as covered',()=>{const d=domains();d[0].conditions.push({call:'mystery',args:[]});const r=auditDomains(d,1);assert.ok(r.unsupported>0);assert.equal(r.finiteCoverageComplete,false);assert.equal(r.partitionAndWitnessChecksPass,false);});

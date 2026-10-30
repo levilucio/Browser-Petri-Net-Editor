@@ -23,3 +23,9 @@ results/*
 !results/index-long-baseline.json
 !results/index-verification.json
 !results/index-summary.json
+
+!results/depth-baseline.json
+!results/depth-final.json
+!results/depth-audit.json
+!results/depth-verification.json
+!results/depth-summary.json

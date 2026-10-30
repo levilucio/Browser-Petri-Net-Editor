@@ -1,0 +1,167 @@
+{
+  "fixedMarkingAcrossLengths": true,
+  "markingSha256": "4f88707846f933101152194912cab23d19c04394a8da6492f2173ea7e9262928",
+  "lengthThreeControlVsOptimizedRegionsIdentical": true,
+  "lengthThreeControlVsOptimizedWitnessesIdentical": true,
+  "allReturnedCandidatesSelectedAndReplayed": true,
+  "incompleteSuitesRejected": true,
+  "allFinitePartitionAndWitnessChecksPass": true,
+  "unchangedFrozenTests": 64,
+  "finiteCoverage": [
+    {
+      "label": "baseline-1",
+      "classes": 5,
+      "inputs": 24,
+      "definedInputs": 10,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "baseline-2",
+      "classes": 25,
+      "inputs": 576,
+      "definedInputs": 100,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "baseline-3",
+      "classes": 125,
+      "inputs": 13824,
+      "definedInputs": 1000,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "baseline-4",
+      "classes": 160,
+      "inputs": 625,
+      "definedInputs": 625,
+      "missingInputs": 465,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": false
+    },
+    {
+      "label": "baseline-5",
+      "classes": 156,
+      "inputs": 3125,
+      "definedInputs": 3125,
+      "missingInputs": 2969,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": false
+    },
+    {
+      "label": "final-1",
+      "classes": 5,
+      "inputs": 24,
+      "definedInputs": 10,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "final-2",
+      "classes": 25,
+      "inputs": 576,
+      "definedInputs": 100,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "final-3",
+      "classes": 125,
+      "inputs": 13824,
+      "definedInputs": 1000,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "final-4",
+      "classes": 181,
+      "inputs": 625,
+      "definedInputs": 625,
+      "missingInputs": 444,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": false
+    },
+    {
+      "label": "final-5",
+      "classes": 164,
+      "inputs": 3125,
+      "definedInputs": 3125,
+      "missingInputs": 2961,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": false
+    },
+    {
+      "label": "control-3",
+      "classes": 125,
+      "inputs": 13824,
+      "definedInputs": 1000,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "repeat-3",
+      "classes": 125,
+      "inputs": 13824,
+      "definedInputs": 1000,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "final-long-4",
+      "classes": 203,
+      "inputs": 625,
+      "definedInputs": 625,
+      "missingInputs": 422,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": false
+    },
+    {
+      "label": "final-long-5",
+      "classes": 202,
+      "inputs": 3125,
+      "definedInputs": 3125,
+      "missingInputs": 2923,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": false
+    }
+  ],
+  "scope": "Finite enumerated inputs only; engine coverage remains not-proved. Fixed-length five-type combination count is not independently a theorem about thesis subuniformity classes."
+}
