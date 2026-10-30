@@ -54,6 +54,8 @@ const Transition = ({
     mode,
     arcStart
   } = usePetriNet();
+  const publicRule = elements?.transitions?.find(t => t.id === id);
+  const hasGates = Array.isArray(elements?.gates);
   // netMode provided by context
   
   // Throttle state updates during drag to prevent crashes from vigorous shaking
@@ -200,7 +202,7 @@ const Transition = ({
     onChange(newVirtualPos);
   };
 
-  const guardText = netMode === 'algebraic-int' ? String(guard || '') : '';
+  const guardText = netMode === 'algebraic-int' || hasGates ? String(guard || '') : '';
 
   let guardWidth = baseWidth;
   let guardWrap = 'none';
@@ -246,27 +248,27 @@ const Transition = ({
         y={-baseHeight / 2}
         width={baseWidth}
         height={baseHeight}
-        fill={isEnabled ? 'rgba(255, 255, 0, 0.8)' : 'gray'}
+        fill={isEnabled ? 'rgba(255, 255, 0, 0.8)' : hasGates ? 'black' : 'gray'}
         stroke={isSelected ? 'blue' : (isEnabled ? 'rgba(255, 180, 0, 1)' : 'black')}
         strokeWidth={isSelected ? 3 : (isEnabled ? 3 : 2)}
       />
       <Text
-        text={label}
+        text={hasGates ? `${publicRule.method?.name || label}(${publicRule.method?.parameters.map(p => p.name).join(', ') || ''})` : label}
         fontSize={14}
         fill="black"
-        x={-baseWidth / 2}
+        x={hasGates ? -100 : -baseWidth / 2}
         y={(baseHeight / 2) + 5}
-        width={baseWidth}
+        width={hasGates ? 200 : baseWidth}
         align="center"
         listening={false}
       />
-      {netMode === 'algebraic-int' && guardText && (
+      {guardText && (
         <Text
           text={guardText}
           fontSize={GUARD_FONT_SIZE}
                       fill="#333"
           x={-guardWidth / 2}
-          y={-baseHeight / 2 - 14}
+          y={hasGates ? 48 : -baseHeight / 2 - 14}
           width={guardWidth}
           align="center"
           wrap={guardWrap}

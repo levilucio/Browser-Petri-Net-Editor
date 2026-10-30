@@ -1,0 +1,187 @@
+{
+  "date": "2026-10-29",
+  "branch": "codex/satel-methods-gates",
+  "scope": "Synchronous methods and gates; increment 40",
+  "browser": "Chromium 153 via SATEL_CHROMIUM override",
+  "development": {
+    "command": "SATEL_CHROMIUM=/tmp/satel-chromium npx playwright test --config=playwright.satel.config.js methods-gates.spec.js worker-session.spec.js",
+    "passed": 8,
+    "failed": 0,
+    "durationSeconds": 53.4
+  },
+  "bundled": {
+    "command": "SATEL_BUILT=1 SATEL_CHROMIUM=/tmp/satel-chromium npx playwright test --config=playwright.satel.config.js methods-gates.spec.js worker-session.spec.js",
+    "stats": {
+      "startTime": "2026-10-29T19:59:56.639Z",
+      "duration": 34999.515,
+      "expected": 8,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "tests": [
+      {
+        "title": "converted account: inspect/edit source, generate in worker and replay frozen suite on a mutant",
+        "file": "methods-gates.spec.js",
+        "line": 19,
+        "results": [
+          {
+            "status": "expected",
+            "attempts": [
+              {
+                "status": "passed",
+                "durationMs": 5027
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "GUI public call reports gates without accumulating output places",
+        "file": "methods-gates.spec.js",
+        "line": 70,
+        "results": [
+          {
+            "status": "expected",
+            "attempts": [
+              {
+                "status": "passed",
+                "durationMs": 3194
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "string: gate-based joint selection and replay in browser worker",
+        "file": "methods-gates.spec.js",
+        "line": 101,
+        "results": [
+          {
+            "status": "expected",
+            "attempts": [
+              {
+                "status": "passed",
+                "durationMs": 3230
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "list: gate-based joint selection and replay in browser worker",
+        "file": "methods-gates.spec.js",
+        "line": 101,
+        "results": [
+          {
+            "status": "expected",
+            "attempts": [
+              {
+                "status": "passed",
+                "durationMs": 3233
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "pair: gate-based joint selection and replay in browser worker",
+        "file": "methods-gates.spec.js",
+        "line": 101,
+        "results": [
+          {
+            "status": "expected",
+            "attempts": [
+              {
+                "status": "passed",
+                "durationMs": 3350
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "full worker pipeline agrees with direct generation and preserves frozen suites and negative companions",
+        "file": "worker-session.spec.js",
+        "line": 53,
+        "results": [
+          {
+            "status": "expected",
+            "attempts": [
+              {
+                "status": "passed",
+                "durationMs": 4491
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "GUI cancels an initializing worker, restarts, reuses it, and releases it on close",
+        "file": "worker-session.spec.js",
+        "line": 201,
+        "results": [
+          {
+            "status": "expected",
+            "attempts": [
+              {
+                "status": "passed",
+                "durationMs": 4432
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "GUI surfaces worker startup failure and permits a fresh retry without claiming a test failure",
+        "file": "worker-session.spec.js",
+        "line": 270,
+        "results": [
+          {
+            "status": "expected",
+            "attempts": [
+              {
+                "status": "passed",
+                "durationMs": 5939
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "exports": {
+    "copn": 86,
+    "pnml": 86
+  },
+  "builds": {
+    "production": "passed",
+    "satelBrowserHarness": "passed"
+  },
+  "regression": {
+    "suites": 91,
+    "passed": 990,
+    "failed": 0,
+    "durationSeconds": 124.035
+  },
+  "review": {
+    "additionalRegressionTests": 20,
+    "exportsRegeneratedUnchanged": true,
+    "checks": [
+      "thesis definitions and synchronous interaction contract",
+      "multiline and malformed source",
+      "gate signature compatibility",
+      "PNML gate metadata rejection",
+      "safe source and method editing",
+      "symbolic sequence and HML selection with typed multi-argument gates",
+      "stateless repeated gate occurrences"
+    ],
+    "finalLabelCleanupValidation": {
+      "transitionTestsPassed": 8,
+      "bundledAccountWorkflowPassed": 1,
+      "productionBuild": "passed",
+      "browserHarnessBuild": "passed",
+      "screenshotInspected": true
+    }
+  }
+}

@@ -78,7 +78,17 @@ export function createHmlRuleEffects(places, expression, tick, stats, options = 
             safety.push(v.safe, valueValid(v.term, sort));
             (produced[output.place] ||= []).push(v.term);
           }
-          Object.assign(event, { produced, outputSafety: implies(event.enabled, and(...safety)) });
+          const stateProduced = { ...produced };
+          for (const gate of plan.gates || []) {
+            const v = expression(gate.ast, env, plan.variables, gate.sort);
+            safety.push(v.safe);
+            gate.args.forEach((arg, i) => {
+              const sort = gate.declaration.parameters[i].sort, p = expression(arg, env, plan.variables, sort);
+              safety.push(p.safe, valueValid(p.term, sort));
+            });
+            (produced[gate.gate] ||= []).push(v.term);
+          }
+          Object.assign(event, { produced, stateProduced, outputSafety: implies(event.enabled, and(...safety)) });
         }
         return event;
       });

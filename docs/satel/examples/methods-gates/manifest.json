@@ -1,0 +1,865 @@
+{
+  "sourceBranch": "codex/satel-methods-gates",
+  "examples": [
+    {
+      "id": "gates-oracle-account-reference",
+      "name": "Methods & gates — SATEL Account — Reference",
+      "role": "reference",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-oracle-account-no-debit",
+      "name": "Methods & gates — SATEL Account — Mutant: no-debit",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-oracle-account-refusal-resets-balance",
+      "name": "Methods & gates — SATEL Account — Mutant: refusal-resets-balance",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-oracle-account-reject-exact-balance",
+      "name": "Methods & gates — SATEL Account — Mutant: reject-exact-balance",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-oracle-account-wrong-initial-balance",
+      "name": "Methods & gates — SATEL Account — Mutant: wrong-initial-balance",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-thermostat-reference",
+      "name": "Methods & gates — Thermostat — Reference (2 pairs)",
+      "role": "reference",
+      "places": 1,
+      "rules": 4,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-thermostat-wrong-direction",
+      "name": "Methods & gates — Thermostat — Mutant: Wrong cooling direction",
+      "role": "mutant",
+      "places": 1,
+      "rules": 4,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-thermostat-wrong-initial",
+      "name": "Methods & gates — Thermostat — Mutant: Wrong initial temperature",
+      "role": "mutant",
+      "places": 1,
+      "rules": 4,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-door-reference",
+      "name": "Methods & gates — Door interlock — Reference (4 pairs)",
+      "role": "reference",
+      "places": 2,
+      "rules": 4,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-door-ignore-jam",
+      "name": "Methods & gates — Door interlock — Mutant: Ignores obstruction",
+      "role": "mutant",
+      "places": 2,
+      "rules": 4,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-door-stuck-open",
+      "name": "Methods & gates — Door interlock — Mutant: Reset leaves door open",
+      "role": "mutant",
+      "places": 2,
+      "rules": 4,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-tickets-reference",
+      "name": "Methods & gates — Ticket booklet — Reference (6 pairs)",
+      "role": "reference",
+      "places": 1,
+      "rules": 4,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-tickets-free-use",
+      "name": "Methods & gates — Ticket booklet — Mutant: Use does not debit",
+      "role": "mutant",
+      "places": 1,
+      "rules": 4,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-tickets-extra-ticket",
+      "name": "Methods & gates — Ticket booklet — Mutant: Issues an extra ticket",
+      "role": "mutant",
+      "places": 1,
+      "rules": 4,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-labels-reference",
+      "name": "Methods & gates — Label editor — Reference (8 pairs)",
+      "role": "reference",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-labels-wrong-prefix",
+      "name": "Methods & gates — Label editor — Mutant: Wrong prefix",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-labels-stale-clear",
+      "name": "Methods & gates — Label editor — Mutant: Clear keeps text",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-coordinates-reference",
+      "name": "Methods & gates — Coordinate cursor — Reference (10 pairs)",
+      "role": "reference",
+      "places": 1,
+      "rules": 5,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-coordinates-swapped-axes",
+      "name": "Methods & gates — Coordinate cursor — Mutant: Swapped movement axes",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-coordinates-bad-origin",
+      "name": "Methods & gates — Coordinate cursor — Mutant: Wrong reset origin",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 2,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-queue-reference",
+      "name": "Methods & gates — FIFO queue — Reference (12 pairs)",
+      "role": "reference",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-queue-prepend",
+      "name": "Methods & gates — FIFO queue — Mutant: Enqueues at the front",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-queue-no-removal",
+      "name": "Methods & gates — FIFO queue — Mutant: Dequeue keeps head",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-parcel-reference",
+      "name": "Methods & gates — Parcel lifecycle — Reference (14 pairs)",
+      "role": "reference",
+      "places": 2,
+      "rules": 8,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-parcel-not-fragile",
+      "name": "Methods & gates — Parcel lifecycle — Mutant: Loses fragile flag",
+      "role": "mutant",
+      "places": 2,
+      "rules": 8,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-parcel-no-return-label",
+      "name": "Methods & gates — Parcel lifecycle — Mutant: Missing return label",
+      "role": "mutant",
+      "places": 2,
+      "rules": 8,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-quota-reference",
+      "name": "Methods & gates — Resource quota — Reference (16 pairs)",
+      "role": "reference",
+      "places": 2,
+      "rules": 3,
+      "gates": 4,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-quota-lost-release",
+      "name": "Methods & gates — Resource quota — Mutant: Release loses capacity",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 4,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-quota-missing-special",
+      "name": "Methods & gates — Resource quota — Mutant: Missing priority boundary",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 4,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-kits-reference",
+      "name": "Methods & gates — Assembly kits — Reference (18 pairs)",
+      "role": "reference",
+      "places": 4,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-kits-missing-part",
+      "name": "Methods & gates — Assembly kits — Mutant: Only one initial part",
+      "role": "mutant",
+      "places": 4,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-kits-wrong-material",
+      "name": "Methods & gates — Assembly kits — Mutant: Wrong recycling flag",
+      "role": "mutant",
+      "places": 4,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-journal-reference",
+      "name": "Methods & gates — Sensor journal — Reference (20 pairs)",
+      "role": "reference",
+      "places": 3,
+      "rules": 2,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-journal-reverse-log",
+      "name": "Methods & gates — Sensor journal — Mutant: Newest record first",
+      "role": "mutant",
+      "places": 3,
+      "rules": 2,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-exercise-journal-no-accumulation",
+      "name": "Methods & gates — Sensor journal — Mutant: Forgets accumulated value",
+      "role": "mutant",
+      "places": 3,
+      "rules": 2,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-small-reference",
+      "name": "Methods & gates — SATEL Inventory — 5 pairs — reference",
+      "role": "reference",
+      "places": 5,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-small-stock-leak",
+      "name": "Methods & gates — SATEL Inventory — 5 pairs — stock-leak",
+      "role": "mutant",
+      "places": 5,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-small-missing-cancel",
+      "name": "Methods & gates — SATEL Inventory — 5 pairs — missing-cancel",
+      "role": "mutant",
+      "places": 5,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-small-wrong-held",
+      "name": "Methods & gates — SATEL Inventory — 5 pairs — wrong-held",
+      "role": "mutant",
+      "places": 5,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-small-lost-permit",
+      "name": "Methods & gates — SATEL Inventory — 5 pairs — lost-permit",
+      "role": "mutant",
+      "places": 5,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-medium-reference",
+      "name": "Methods & gates — SATEL Inventory — 10 pairs / audit — reference",
+      "role": "reference",
+      "places": 6,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-medium-stock-leak",
+      "name": "Methods & gates — SATEL Inventory — 10 pairs / audit — stock-leak",
+      "role": "mutant",
+      "places": 6,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-medium-missing-cancel",
+      "name": "Methods & gates — SATEL Inventory — 10 pairs / audit — missing-cancel",
+      "role": "mutant",
+      "places": 6,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-medium-wrong-held",
+      "name": "Methods & gates — SATEL Inventory — 10 pairs / audit — wrong-held",
+      "role": "mutant",
+      "places": 6,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-medium-lost-permit",
+      "name": "Methods & gates — SATEL Inventory — 10 pairs / audit — lost-permit",
+      "role": "mutant",
+      "places": 6,
+      "rules": 6,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-large-reference",
+      "name": "Methods & gates — SATEL Inventory — 20 pairs / 4 warehouses — reference",
+      "role": "reference",
+      "places": 24,
+      "rules": 24,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-large-stock-leak",
+      "name": "Methods & gates — SATEL Inventory — 20 pairs / 4 warehouses — stock-leak",
+      "role": "mutant",
+      "places": 24,
+      "rules": 24,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-large-missing-cancel",
+      "name": "Methods & gates — SATEL Inventory — 20 pairs / 4 warehouses — missing-cancel",
+      "role": "mutant",
+      "places": 24,
+      "rules": 24,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-large-wrong-held",
+      "name": "Methods & gates — SATEL Inventory — 20 pairs / 4 warehouses — wrong-held",
+      "role": "mutant",
+      "places": 24,
+      "rules": 24,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-inventory-large-lost-permit",
+      "name": "Methods & gates — SATEL Inventory — 20 pairs / 4 warehouses — lost-permit",
+      "role": "mutant",
+      "places": 24,
+      "rules": 24,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-refusal-quota-reference",
+      "name": "Methods & gates — SATEL Refusal — Quota reference",
+      "role": "reference",
+      "places": 2,
+      "rules": 3,
+      "gates": 4,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-refusal-quota-mutant",
+      "name": "Methods & gates — SATEL Refusal — Quota mutant: accepts zero",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 4,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-refusal-thermostat-reference",
+      "name": "Methods & gates — SATEL Refusal — Thermostat reference",
+      "role": "reference",
+      "places": 1,
+      "rules": 4,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-refusal-thermostat-mutant",
+      "name": "Methods & gates — SATEL Refusal — Thermostat mutant: missing upper bound",
+      "role": "mutant",
+      "places": 1,
+      "rules": 4,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-nondeterminism-bag-reference",
+      "name": "Methods & gates — SATEL Nondeterminism — Multiset reference",
+      "role": "reference",
+      "places": 1,
+      "rules": 1,
+      "gates": 1,
+      "intentions": 3,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-nondeterminism-bag-missing-choice",
+      "name": "Methods & gates — SATEL Nondeterminism — Multiset mutant: missing choice",
+      "role": "mutant",
+      "places": 1,
+      "rules": 1,
+      "gates": 1,
+      "intentions": 3,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-nondeterminism-bag-multiplicity",
+      "name": "Methods & gates — SATEL Nondeterminism — Multiset mutant: missing duplicate",
+      "role": "mutant",
+      "places": 1,
+      "rules": 1,
+      "gates": 1,
+      "intentions": 3,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-nondeterminism-bag-extra-output",
+      "name": "Methods & gates — SATEL Nondeterminism — Multiset mutant: extra output",
+      "role": "mutant",
+      "places": 1,
+      "rules": 2,
+      "gates": 1,
+      "intentions": 3,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-nondeterminism-branch-reference",
+      "name": "Methods & gates — SATEL Nondeterminism — Branching reference",
+      "role": "reference",
+      "places": 1,
+      "rules": 4,
+      "gates": 1,
+      "intentions": 3,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-nondeterminism-branch-early-choice",
+      "name": "Methods & gates — SATEL Nondeterminism — Branching mutant: early choice",
+      "role": "mutant",
+      "places": 1,
+      "rules": 4,
+      "gates": 1,
+      "intentions": 3,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-nondeterminism-branch-missing-restriction",
+      "name": "Methods & gates — SATEL Nondeterminism — Branching mutant: lost alternative",
+      "role": "mutant",
+      "places": 1,
+      "rules": 4,
+      "gates": 1,
+      "intentions": 3,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-selection-reference",
+      "name": "Methods & gates — SATEL HML selection — Reference",
+      "role": "reference",
+      "places": 2,
+      "rules": 3,
+      "gates": 1,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-selection-missing-finish",
+      "name": "Methods & gates — SATEL HML selection — Mutant: missing finish",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 1,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-selection-wrong-receipt",
+      "name": "Methods & gates — SATEL HML selection — Mutant: wrong receipt",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 1,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-string-reference",
+      "name": "Methods & gates — SATEL HML ADT selection — String label — Reference",
+      "role": "reference",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-string-missing-finish",
+      "name": "Methods & gates — SATEL HML ADT selection — String label — Mutant: missing finish",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-string-wrong-value",
+      "name": "Methods & gates — SATEL HML ADT selection — String label — Mutant: wrong value",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-list-reference",
+      "name": "Methods & gates — SATEL HML ADT selection — List queue — Reference",
+      "role": "reference",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-list-missing-finish",
+      "name": "Methods & gates — SATEL HML ADT selection — List queue — Mutant: missing finish",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-list-wrong-value",
+      "name": "Methods & gates — SATEL HML ADT selection — List queue — Mutant: wrong value",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-pair-reference",
+      "name": "Methods & gates — SATEL HML ADT selection — Pair permit — Reference",
+      "role": "reference",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-pair-missing-finish",
+      "name": "Methods & gates — SATEL HML ADT selection — Pair permit — Mutant: missing finish",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-hml-adt-pair-wrong-value",
+      "name": "Methods & gates — SATEL HML ADT selection — Pair permit — Mutant: wrong value",
+      "role": "mutant",
+      "places": 2,
+      "rules": 3,
+      "gates": 2,
+      "intentions": 2,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-fulfilment-reference",
+      "name": "Methods & gates — SATEL Fulfilment — Reference (10 pairs)",
+      "role": "reference",
+      "places": 20,
+      "rules": 17,
+      "gates": 14,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-fulfilment-stock-not-reserved",
+      "name": "Methods & gates — SATEL Fulfilment — Mutant: Stock not reserved",
+      "role": "mutant",
+      "places": 20,
+      "rules": 17,
+      "gates": 14,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-fulfilment-payment-not-debited",
+      "name": "Methods & gates — SATEL Fulfilment — Mutant: Payment not debited",
+      "role": "mutant",
+      "places": 20,
+      "rules": 17,
+      "gates": 14,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-fulfilment-express-bulk-fee",
+      "name": "Methods & gates — SATEL Fulfilment — Mutant: Wrong express bulk fee",
+      "role": "mutant",
+      "places": 20,
+      "rules": 17,
+      "gates": 14,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-fulfilment-refund-not-credited",
+      "name": "Methods & gates — SATEL Fulfilment — Mutant: Refund not credited",
+      "role": "mutant",
+      "places": 20,
+      "rules": 17,
+      "gates": 14,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-fulfilment-one-packing-crate",
+      "name": "Methods & gates — SATEL Fulfilment — Mutant: Only one packing crate",
+      "role": "mutant",
+      "places": 20,
+      "rules": 17,
+      "gates": 14,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-fulfilment-loyalty-before-return",
+      "name": "Methods & gates — SATEL Fulfilment — Mutant: Loyalty ignores returns",
+      "role": "mutant",
+      "places": 20,
+      "rules": 17,
+      "gates": 14,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-executable-sequence",
+      "name": "Methods & gates — Whole-sequence selection — Reference",
+      "role": "reference",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-executable-sequence-mutant",
+      "name": "Methods & gates — Whole-sequence selection — Mutant",
+      "role": "mutant",
+      "places": 1,
+      "rules": 5,
+      "gates": 3,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-typed-store",
+      "name": "Methods & gates — Typed store — Reference",
+      "role": "reference",
+      "places": 1,
+      "rules": 3,
+      "gates": 5,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-typed-store-mutant",
+      "name": "Methods & gates — Typed store — Mutant",
+      "role": "mutant",
+      "places": 1,
+      "rules": 3,
+      "gates": 5,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-compound-guard",
+      "name": "Methods & gates — Compound guard — Reference",
+      "role": "reference",
+      "places": 1,
+      "rules": 2,
+      "gates": 1,
+      "intentions": 1,
+      "retainedState": {}
+    },
+    {
+      "id": "gates-compound-guard-mutant",
+      "name": "Methods & gates — Compound guard — Mutant",
+      "role": "mutant",
+      "places": 1,
+      "rules": 2,
+      "gates": 1,
+      "intentions": 1,
+      "retainedState": {}
+    }
+  ]
+}

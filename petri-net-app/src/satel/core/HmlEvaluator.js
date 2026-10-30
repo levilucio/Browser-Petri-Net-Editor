@@ -1,3 +1,4 @@
+import { validObservationValue, observationChannels } from '../../domain/apn/Gates.js';
 import { enumerateMethodSuccessors, markingKey, isMethodRule, getPublicMethods, compilePublicNet } from '../../domain/apn/PublicMethods.js';
 import { checkInterface } from './SequenceRunner.js';
 import { initialMarkingOf } from './InitialMarking.js';
@@ -32,8 +33,8 @@ export async function evaluateFormula(formula, sourceNet, io, options = {}) {
     if (!m || JSON.stringify(Object.keys(args).sort()) !== JSON.stringify(m.parameters.map(p => p.name).sort()) || m.parameters.some(p => !validBuiltinValue(args[p.name], p.sort))) throw new DomainError('invalid-test', 'Invalid method signature or argument in property');
     if (node.observation) {
       for (const [id, tokens] of Object.entries(node.observation.outputs)) {
-        const p = net.places.find(p => p.id === id);
-        if (!p || !tokens.every(t => validBuiltinValue(t, p.sort))) throw new DomainError('invalid-test', `Invalid property observation at ${id}`);
+        const p = observationChannels(net).find(p => p.id === id);
+        if (!p || !tokens.every(t => validObservationValue(net, id, t))) throw new DomainError('invalid-test', `Invalid property observation at ${id}`);
       }
       if (node.observation.scope === 'public' && (!io || JSON.stringify(Object.keys(node.observation.outputs).sort()) !== JSON.stringify([...io.outputs].sort()))) throw new DomainError('invalid-test', 'Public observations must list every public output');
       // Exercise validation of marking predicates independently of their truth value.

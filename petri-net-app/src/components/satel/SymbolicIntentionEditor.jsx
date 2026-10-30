@@ -40,7 +40,7 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
     </section>
     <section aria-label="Intention pair sequences" className="space-y-4">
       <h4 className="font-semibold">Stimulation / observation sequences</h4>
-      <p className="text-xs text-gray-600">Write one {'{ method(parameter=value) with place(token) // place(token) }'} pair per line. A dot separates successive pairs. Observations here describe tokens produced by the call; unmentioned public places produce none. Use “none” for no produced tokens from an accepted call, or “refused” for a final call that must be blocked with the marking unchanged.</p>
+      <p className="text-xs text-gray-600">Write one {'{ method(parameter=value) with gate(value) // gate(value) }'} pair per line. A dot separates successive pairs. Observations here describe tokens produced by the call; unmentioned public outputs produce none. Use “none” for no produced tokens from an accepted call, or “refused” for a final call that must be blocked with the marking unchanged.</p>
       {cases.map((c, index) => <div key={`${index}:${c.name}`} className="border rounded p-3 bg-blue-50 space-y-2">
         <p className="font-mono text-xs break-words">{c.header[0].replace(/^case /, '').replace(/:$/, '')}</p>
         <SequenceCase label={`Sequence: ${c.name}`} value={c.pairs.join(' .\n')} onValidityChange={sequenceValidity} onChange={text => {
@@ -91,7 +91,7 @@ export default function SymbolicIntentionEditor({ intention, onChange, onSave, o
     <label className="block">Stimulation/observation protocol (optional)
       <textarea aria-label="Symbolic pair protocol" spellCheck={false} className="block w-full border rounded p-2 font-mono text-xs" rows={12} value={s.protocolSource || ''} onChange={e => update('protocolSource', e.target.value)} />
     </label>
-    <p className="text-xs text-gray-600">Each case matches operation inputs and its equation result, then lists pairs such as “pair withdraw(n=amount) =&gt; ack(1), paidAmount(amount)”. Use “pair withdraw(n=amount) =&gt; refused” for a forbidden final call. Outputs are tokens produced by an accepted call; unmentioned public places produce none. Leave blank for class derivation only. Public APN methods support Nat, Int, Bool, String, Pair and List parameters and observations. Strings use quotes; lists and pairs may be nested.</p>
+    <p className="text-xs text-gray-600">Each case matches operation inputs and its equation result, then lists pairs such as “pair withdraw(n=amount) =&gt; ack(1), paidAmount(amount)”. Use “pair withdraw(n=amount) =&gt; refused” for a forbidden final call. Outputs are tokens produced by an accepted call; unmentioned public outputs produce none. Leave blank for class derivation only. Public APN methods support Nat, Int, Bool, String, Pair and List parameters and observations. Strings use quotes; lists and pairs may be nested.</p>
     </details>
     {invalid && <p role="status" className="text-amber-900 bg-amber-50 p-2 rounded">{invalid}</p>}
     <div className="flex gap-2"><button disabled={!!invalid || propertyInvalid || Object.values(sequenceErrors).some(Boolean)} onClick={onSave} className="bg-blue-700 text-white rounded p-2 disabled:opacity-50">Save Intention</button><button className="border rounded p-2" onClick={onCancel}>Cancel</button></div>

@@ -146,6 +146,10 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
           if (produced[out.place]) produced[out.place].push(value);
           cs.push(...range(value, places.get(out.place).sort));
         }
+        for (const gate of plan.gates) {
+          produced[gate.gate].push(instantiate(gate.ast));
+          gate.args.forEach((arg, i) => cs.push(...range(instantiate(arg), gate.declaration.parameters[i].sort)));
+        }
         const branched = plans[name].length > 1 || plan.ins.some(input => new Set(marking[input.place].map(t => JSON.stringify(t))).size > 1) ||
           Object.values(produced).some(tokens => new Set(tokens.map(t => JSON.stringify(t))).size > 1);
         async function* observe(i, conditions) {

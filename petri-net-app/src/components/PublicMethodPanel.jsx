@@ -1,3 +1,4 @@
+import { observationChannels } from '../domain/apn/Gates';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { usePetriNet } from '../contexts/PetriNetContext';
@@ -48,7 +49,7 @@ export default function PublicMethodPanel() {
     <p className="text-sm text-gray-600">Calls supply arguments; firings change the current marking. Automatic simulation runs internal transitions only.</p>
     {disabled && <p>Stop automatic simulation before making a call.</p>}
     {!methods.length && <p className="text-sm">Select a transition in the editor to declare a public method.</p>}
-    {methods.map(m => <MethodCall key={methodSignature(m) + m.rules.join(',')} method={m} disabled={disabled} invoke={invokePublicMethod} outputIds={(elements.places || []).filter(p => p.io_type === 'output').map(p => p.id)} />)}
+    {methods.map(m => <MethodCall key={methodSignature(m) + m.rules.join(',')} method={m} disabled={disabled} invoke={invokePublicMethod} outputIds={observationChannels(elements).filter(p => p.io_type === 'output').map(p => p.id)} />)}
   </section>;
 }
 

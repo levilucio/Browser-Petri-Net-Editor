@@ -1,0 +1,31 @@
+Class exercise_coordinates_swapped_axes;
+
+Interface
+  Methods
+    load : Pair;
+    read : ;
+    move : Int Int;
+    mirror : ;
+    reset : ;
+  Gates
+    ack : Bool;
+    point : Pair;
+
+Body
+  Places
+    position : Pair;
+  Initial
+    position ((0, 0));
+  Axioms
+    load: load p With this.ack (true) ::
+      position old -> position (p);
+    read: read With this.point (p) ::
+      position p -> position (p);
+    move: move dx dy With this.ack (true) ::
+      position p -> position ((asInt(fst(p)) + dy, asInt(snd(p)) + dx));
+    mirror: mirror With this.ack (true) ::
+      position p -> position ((-asInt(fst(p)), -asInt(snd(p))));
+    reset: reset With this.ack (true) ::
+      position p -> position ((0, 0));
+
+End exercise_coordinates_swapped_axes;

@@ -1,3 +1,4 @@
+import MethodGateSourceEditor from './satel/MethodGateSourceEditor';
 import { formulaNotation } from '../satel/core/HmlFormula';
 import { methodSignature } from '../features/simulation/PublicMethods';
 import PublicMethodPanel from './PublicMethodPanel';
@@ -53,12 +54,13 @@ export default function SatelPanel({ isOpen, onClose }) {
     <div className="flex items-center justify-between p-4 border-b"><h2 className="text-lg font-semibold">SATEL Testing</h2><button aria-label="Close SATEL" onClick={onClose} className={button}>✕</button></div>
     {!isAlgebraic ? <p className="p-4">Switch to Algebraic mode in Settings to use SATEL.</p> : <>
       <nav className="flex border-b text-sm" aria-label="SATEL views">
-        {[['intentions', 'Intentions'], ['generated', 'Generated tests'], ['replay', 'Replay results'], ['blackbox', 'Black-box runs']].map(([id, label]) => <button key={id} aria-current={activeTab === id ? 'page' : undefined} onClick={() => setActiveTab(id)} className={`flex-1 py-3 ${activeTab === id ? 'bg-blue-50 text-blue-700 font-semibold' : ''}`}>{label}</button>)}
+        {[['model', 'APN source'], ['intentions', 'Intentions'], ['generated', 'Generated tests'], ['replay', 'Replay results'], ['blackbox', 'Black-box runs']].map(([id, label]) => <button key={id} aria-current={activeTab === id ? 'page' : undefined} onClick={() => setActiveTab(id)} className={`flex-1 py-3 ${activeTab === id ? 'bg-blue-50 text-blue-700 font-semibold' : ''}`}>{label}</button>)}
       </nav>
       {error && <div role="alert" className="m-3 p-3 bg-red-50 text-red-800 border rounded text-sm">{error}</div>}
       <div className="flex-1 overflow-y-auto min-w-0">
         <div hidden={!['generated', 'replay'].includes(activeTab)}><OracleValidationPanel enabled={isOpen} elements={elements} session={session} onSessionChange={setSession} selectedId={selectedId} onSelect={setSelectedId} view={activeTab === 'replay' ? 'replay' : 'generated'} onNavigate={setActiveTab} /></div>
         <div hidden={activeTab !== 'blackbox'}><BlackBoxPanel session={session} /></div>
+        {activeTab === 'model' && <MethodGateSourceEditor key={elements.satelExample?.id || 'custom'} />}
         {activeTab === 'intentions' && (editing ?
           editing.kind === 'symbolic' ? <SymbolicIntentionEditor key={editing.id} intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> : <IntentionEditor key={editing.id} intention={editing} onChange={setEditing} onSave={save} onCancel={() => setEditing(null)} elements={elements} /> :
           <div className="p-4 space-y-3 text-sm">
@@ -96,7 +98,7 @@ const InterfaceTab = ({ ioInterface }) => {
     );
   }
 
-  const { inputPlaces, outputPlaces, inputTransitions, outputTransitions, validation, methods = [] } = ioInterface;
+  const { inputPlaces, outputPlaces, inputTransitions, outputTransitions, validation, methods = [], gates = [] } = ioInterface;
 
   return (
     <div className="p-4 space-y-6">
@@ -145,6 +147,11 @@ const InterfaceTab = ({ ioInterface }) => {
         )}
       </div>}
 
+      {gates.length > 0 && <section className="space-y-2">
+        <h3 className="text-sm font-semibold">Gates ({gates.length})</h3>
+        {gates.map(g => <div key={g.name} className="font-mono text-sm border rounded p-2">{methodSignature(g)}</div>)}
+        <p className="text-xs text-gray-600">Each completed call reports gate occurrences independently of internal marking.</p>
+      </section>}
       <div>
         <h3 className="text-sm font-semibold text-gray-700 mb-2">Output Places ({outputPlaces.length})</h3>
         {outputPlaces.length === 0 ? (

@@ -1,3 +1,4 @@
+import { getGates, observationChannels } from '../../domain/apn/Gates.js';
 import { validateFormula } from './HmlFormula.js';
 import { getPublicMethods } from '../../domain/apn/PublicMethods.js';
 import { copy } from '../../domain/snapshots.js';
@@ -10,7 +11,7 @@ import { DomainError } from '../../domain/diagnostics.js';
  * assertion = 'required' | 'blocked'; it never inverts an entire test verdict.
  */
 export function publicInterface(net) {
-  const outputs = net.places.filter(p => p.io_type === 'output');
+  const outputs = observationChannels(net).filter(p => p.io_type === 'output');
   return {
     methods: getPublicMethods(net).map(({
       name,
@@ -19,6 +20,7 @@ export function publicInterface(net) {
       name,
       parameters
     })),
+    ...(net.gates ? { gates: copy(getGates(net)) } : {}),
     outputs: outputs.map(p => p.id),
     outputSorts: Object.fromEntries(outputs.map(p => [p.id, p.sort]))
   };

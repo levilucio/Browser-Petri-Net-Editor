@@ -62,7 +62,7 @@ test('plain-language output mismatch links open the exact rejected outcome and s
   fireEvent.click(link);
   expect(outcome.closest('details').open).toBe(true);
   expect(outcome).toHaveFocus();
-  expect(outcome).toHaveTextContent('produced ⟦1⟧; the observation requires ⟦99⟧');
+  expect(outcome).toHaveTextContent('reported ⟦1⟧; the observation requires ⟦99⟧');
   expect(outcome).toHaveTextContent('x ↦ 1');
   expect(screen.getByText(/M\[1\] ⊭/)).toBeInTheDocument();
 });

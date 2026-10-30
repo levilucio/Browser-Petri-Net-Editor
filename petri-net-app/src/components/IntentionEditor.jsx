@@ -13,6 +13,7 @@ import { getPublicMethods, methodSignature } from '../features/simulation/Public
  */
 
 import ObservationEditor from './satel/ObservationEditor';
+import { observationChannels } from '../domain/apn/Gates';
 import React, { useState, useRef, useCallback } from 'react';
 
 const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) => {
@@ -289,7 +290,7 @@ const IntentionEditor = ({ intention, onChange, onSave, onCancel, elements }) =>
                   <option value="blocked" disabled={idx !== intention.pairs.length - 1}>Refused; marking unchanged (final pair)</option>
                 </select>
               </label>}
-              {pair.assertion === 'blocked' || pair.observation.type === 'notEnabled' ? <p className="text-xs p-2">The final call must have no enabled rule or token binding. It produces no tokens and leaves the marking unchanged.</p> : <ObservationEditor observation={pair.observation} places={places} pairNumber={idx + 1}
+              {pair.assertion === 'blocked' || pair.observation.type === 'notEnabled' ? <p className="text-xs p-2">The final call must have no enabled rule or token binding. It produces no tokens and leaves the marking unchanged.</p> : <ObservationEditor observation={pair.observation} places={observationChannels(elements)} pairNumber={idx + 1}
                 onChange={value => updatePair(idx, 'observation', value)}
                 onValidityChange={invalid => observationValidity(pairKeys.current[idx], invalid)} />}
             </div>

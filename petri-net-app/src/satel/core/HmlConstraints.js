@@ -1,3 +1,4 @@
+import { observationChannels } from '../../domain/apn/Gates.js';
 import { cacheDiagnostics, hmlCacheEnabled } from './HmlCacheDiagnostics.js';
 import { compilePublicNet, isMethodRule } from '../../domain/apn/PublicMethods.js';
 import { methodSorts, valueToSymbolic, validBuiltinValue } from '../../utils/builtin-values.js';
@@ -75,8 +76,15 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
     let observation;
     if (node.observation) {
       const outputs = Object.fromEntries(Object.entries(node.observation.outputs).map(([id, ts]) => {
-        if (!places.has(id)) invalid(`Unknown observation place: ${id}`);
-        return [id, ts.map(t => value(t, places.get(id).sort))];
+        const channel = observationChannels(net).find(p => p.id === id);
+        if (!channel) invalid(`Unknown observation channel: ${id}`);
+        return [id, ts.map(t => {
+          if (channel.gate && channel.gate.parameters.length !== 1) {
+            if (!Array.isArray(t) || t.length !== channel.gate.parameters.length) invalid(`Wrong gate arity: ${id}`);
+            t.forEach((arg, i) => value(arg, channel.gate.parameters[i].sort));
+          }
+          return value(t, channel.sort);
+        })];
       }));
       if (node.observation.scope === 'public' && JSON.stringify(Object.keys(outputs).sort()) !== JSON.stringify([...io.outputs].sort())) invalid('Public observations must list every public output');
       observation = { outputs, markings: markings(node.observation.markings) };
@@ -137,7 +145,7 @@ export async function buildHmlConstraints(formula, net, io, roots, sorts, algebr
           const { enabled, picks, produced } = event;
           stats.outcomes++; stats.successorBuilds++;
           const next = Object.fromEntries(Object.entries(marking).map(([id, ts]) => [id, ts.filter((_, j) => !picks.some(p => p.place === id && p.index === j))]));
-          for (const [id, tokens] of Object.entries(produced)) next[id].push(...tokens);
+          for (const [id, tokens] of Object.entries(event.stateProduced || produced)) next[id].push(...tokens);
           safety.push(event.outputSafety);
           let matches = node.observation ? and(...Object.entries(node.observation.outputs).map(([id, ts]) => bagMatch(produced[id] || [], ts)), markingMatches(next, node.observation.markings)) : true;
           if (node.excludeObservation) matches = not(matches);

@@ -1,0 +1,42 @@
+Class exercise_parcel_not_fragile;
+
+Interface
+  Methods
+    create : Pair;
+    relabel : ;
+    markFragile : ;
+    dispatch : ;
+    deliver : ;
+    returnToSender : ;
+    reset : ;
+    read : ;
+  Gates
+    ack : Bool;
+    metadata : Pair;
+    stage : Nat;
+
+Body
+  Places
+    parcel : Pair;
+    phase : Nat;
+  Initial
+    parcel (("", false)), phase (0);
+  Axioms
+    create: create meta With this.ack (true) ::
+      stageNo == 0 => parcel p, phase stageNo -> parcel (meta), phase (1);
+    relabel: relabel With this.ack (true) ::
+      stageNo == 1 => parcel p, phase stageNo -> parcel ((concat("ID:", asString(fst(p))), snd(p))), phase (2);
+    markFragile: markFragile With this.ack (true) ::
+      stageNo == 2 => parcel p, phase stageNo -> parcel ((fst(p), false)), phase (3);
+    dispatch: dispatch With this.ack (true) ::
+      stageNo == 3 => parcel p, phase stageNo -> parcel (p), phase (4);
+    deliver: deliver With this.ack (true) ::
+      stageNo == 4 => parcel p, phase stageNo -> parcel (p), phase (5);
+    returnToSender: returnToSender With this.ack (true) ::
+      stageNo == 5 => parcel p, phase stageNo -> parcel ((concat(asString(fst(p)), ":RETURN"), snd(p))), phase (6);
+    reset: reset With this.ack (true) ::
+      stageNo == 6 => parcel p, phase stageNo -> parcel (("", false)), phase (0);
+    read: read With this.metadata (p) // this.stage (s) ::
+      parcel p, phase s -> parcel (p), phase (s);
+
+End exercise_parcel_not_fragile;

@@ -1,0 +1,30 @@
+Class exercise_door_ignore_jam;
+
+Interface
+  Methods
+    configure : Bool Bool;
+    attempt : ;
+    reset : ;
+    inspect : ;
+  Gates
+    ack : Bool;
+    access : Bool;
+    doorState : Bool;
+
+Body
+  Places
+    settings : Pair;
+    opened : Bool;
+  Initial
+    settings ((false, false)), opened (false);
+  Axioms
+    configure: configure enabled jammed With this.ack (true) ::
+      settings old -> settings ((enabled, jammed));
+    attempt: attempt With this.access (asBool(fst(s))) ::
+      settings s, opened old -> settings (s), opened (asBool(fst(s)) and not asBool(snd(s)));
+    reset: reset With this.ack (true) ::
+      opened old -> opened (false);
+    inspect: inspect With this.doorState (v) ::
+      opened v -> opened (v);
+
+End exercise_door_ignore_jam;

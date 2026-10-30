@@ -1,0 +1,31 @@
+Class oracle_account_reject_exact_balance;
+
+Interface
+  Methods
+    deposit : Nat;
+    withdraw : Nat;
+    withdrawAll : ;
+    query : ;
+  Gates
+    ack : Nat;
+    paidAmount : Nat;
+    balanceResult : Nat;
+
+Body
+  Places
+    balance : Nat;
+  Initial
+    balance (0);
+  Axioms
+    deposit: deposit n With this.ack (1) ::
+      balance b -> balance (b + n);
+    withdrawAccepted: withdraw n With this.ack (1) // this.paidAmount (n) ::
+      n < b => balance b -> balance (b - n);
+    withdrawRefused: withdraw n With this.ack (0) ::
+      n >= b => balance b -> balance (b);
+    withdrawAll: withdrawAll With this.ack (1) // this.paidAmount (b) ::
+      balance b -> balance (0);
+    query: query With this.balanceResult (b) ::
+      balance b -> balance (b);
+
+End oracle_account_reject_exact_balance;

@@ -21,10 +21,13 @@ export default function ObservationEditor({ observation, places, pairNumber, onC
     onChange({ ...observation, [kind]: next });
   };
   // Include saved place IDs even if a place has since been removed from the net.
-  const ids = [...new Set([...places.map(p => p.id), ...Object.keys(observation.outputs || {}), ...Object.keys(observation.markings || {})])];
+  const hasGates = places.some(p => p.gate);
+  const outputPlaces = hasGates ? places.filter(p => p.gate) : places;
+  const outputIds = [...new Set([...outputPlaces.map(p => p.id), ...Object.keys(observation.outputs || {})])];
+  const markingIds = [...new Set([...places.filter(p => !p.gate).map(p => p.id), ...Object.keys(observation.markings || {})])];
   const placeName = id => {
     const p = places.find(p => p.id === id);
-    return p ? `${p.label || id}${p.label && p.label !== id ? ` (${id})` : ''}${p.io_type === 'internal' ? ' · internal' : ''}` : `${id} · missing place`;
+    return p ? `${p.label || id}${p.label && p.label !== id ? ` (${id})` : ''}${p.gate ? ' · gate' : p.io_type === 'internal' ? ' · internal' : ''}` : `${id} · missing place`;
   };
   const tokensField = (key, values, label, commit) => {
     let formatted, unsupported;
@@ -48,14 +51,14 @@ export default function ObservationEditor({ observation, places, pairNumber, onC
         const next = { ...observation };
         if (e.target.value === 'blocked') next.type = 'notEnabled'; else delete next.type;
         onChange(next);
-      }}><option value="fires">Call fires: check places</option><option value="blocked">Call is blocked: marking unchanged</option></select>
+      }}><option value="fires">Call fires: check observations</option><option value="blocked">Call is blocked: marking unchanged</option></select>
     </label>}
     {blocked ? <p className="text-xs text-gray-600">Checks that no rule can accept this stimulation. No firing occurs; place checks are inactive.</p> : <>
       <p className="text-xs text-gray-600">List tokens separated by commas. Repeat a token for multiplicity. Use $variable or constructor terms, e.g. Order(10, High()). An empty field means ∅.</p>
       {!markingsOnly && <fieldset className="space-y-2">
-        <legend className="text-sm font-semibold mb-1">Tokens produced by this call</legend>
-        <p className="text-xs text-gray-600">Check a place to assert its exact new outputs. Unchecked places are unconstrained. Earlier tokens do not count.</p>
-        {ids.map(id => <div key={id} className="border rounded p-2 space-y-1">
+        <legend className="text-sm font-semibold mb-1">{hasGates ? 'Gate occurrences from this call' : 'Tokens produced by this call'}</legend>
+        <p className="text-xs text-gray-600">Select a channel to assert its exact occurrences in this interaction. Unchecked channels are unconstrained. Earlier occurrences do not count.</p>
+        {outputIds.map(id => <div key={id} className="border rounded p-2 space-y-1">
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" aria-label={`Pair ${pairNumber} check outputs at ${id}`}
             checked={Object.hasOwn(observation.outputs || {}, id)} onChange={e => { clear(`outputs:${id}`); updateMap('outputs', id, e.target.checked ? [] : undefined); }} />{placeName(id)}</label>
           {Object.hasOwn(observation.outputs || {}, id) && tokensField(`outputs:${id}`, observation.outputs[id], `Pair ${pairNumber} expected outputs at ${id}`, value => updateMap('outputs', id, value))}
@@ -64,7 +67,7 @@ export default function ObservationEditor({ observation, places, pairNumber, onC
       <details open={markingsOnly || Object.keys(observation.markings || {}).length > 0} className="border-t pt-2">
         <summary className="text-sm font-semibold cursor-pointer">Marking after this call (optional)</summary>
         <p className="text-xs text-gray-600 my-2">Checks all tokens remaining at a place, including earlier tokens.</p>
-        <div className="space-y-2">{ids.map(id => {
+        <div className="space-y-2">{markingIds.map(id => {
           const constraint = observation.markings?.[id], kind = constraintKind(constraint), key = `markings:${id}`;
           return <div key={id} className="border rounded p-2 space-y-1">
             <label className="block text-sm">{placeName(id)}

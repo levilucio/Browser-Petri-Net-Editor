@@ -1,0 +1,18 @@
+Class nondeterminism_bag_missing_choice;
+
+Interface
+  Methods
+    take : ;
+  Gates
+    picked : Int;
+
+Body
+  Places
+    stock : Int;
+  Initial
+    stock (1), stock (1), stock (2);
+  Axioms
+    take: take With this.picked (x) ::
+      x == 1 => stock x -> empty;
+
+End nondeterminism_bag_missing_choice;

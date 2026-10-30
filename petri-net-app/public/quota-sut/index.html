@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resource quota — web application</title>
+  <style>
+    *{box-sizing:border-box}body{font:15px system-ui,sans-serif;color:#18313c;background:#f2f7f7;margin:0;padding:22px}
+    main{max-width:680px;margin:auto}h1{font-size:24px;margin:0 0 8px}p{line-height:1.5}small{color:#52646b}
+    .controls{display:flex;flex-wrap:wrap;align-items:end;gap:10px;margin:22px 0}label{display:grid;gap:6px}
+    input{width:110px;padding:9px;border:1px solid #8a9fa5;border-radius:6px;font:inherit}
+    button{padding:10px 16px;border:1px solid #17655e;border-radius:6px;background:#17655e;color:white;font:inherit;cursor:pointer}
+    button:disabled{opacity:.5;cursor:wait}button:focus-visible,input:focus-visible{outline:3px solid #ebad39;outline-offset:2px}
+    output{display:block;border:1px solid #b5c8cb;background:white;border-radius:8px;padding:16px;min-height:105px}
+    output p{margin:4px 0}#variant{display:block;margin:8px 0}a{color:#17655e}
+  </style>
+</head>
+<body><main>
+  <h1>Resource quota</h1>
+  <small id="variant"></small>
+  <p>Reserve and release resources from a pool of ten. Audit reports the current availability.
+    Priority eligibility is reported separately; a non-priority reservation still reserves resources.</p>
+  <div class="controls">
+    <label>Quantity<input id="quantity" type="number" min="0" step="1" value="3"></label>
+    <button id="reserve" type="button" disabled>Reserve</button>
+    <button id="release" type="button" disabled>Release</button>
+    <button id="audit" type="button" disabled>Audit</button>
+  </div>
+  <output id="response" aria-live="polite" data-request="0" data-state="idle">Starting…</output>
+  <p><small>Reload this page to start with ten available resources and none held.</small></p>
+</main><script type="module" src="./app.js"></script></body>
+</html>

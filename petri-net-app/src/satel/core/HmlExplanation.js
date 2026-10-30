@@ -15,7 +15,7 @@ export function observationMismatch(check) {
   if (!check || check.success) return null;
   if (check.reason === 'output_mismatch') return {
     code: 'output-mismatch',
-    text: `At place ${check.place}, this firing produced ${bag(check.actual)}; the observation requires ${bag(check.expected)}. These are produced tokens, not the whole resulting marking.`,
+    text: `At output channel ${check.place}, this firing reported ${bag(check.actual)}; the observation requires ${bag(check.expected)}. These are occurrences from this interaction, separate from the resulting marking.`,
   };
   if (check.reason === 'marking_constraint_failed') return {
     code: 'marking-mismatch',

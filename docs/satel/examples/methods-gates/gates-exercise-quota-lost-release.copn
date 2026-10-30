@@ -1,0 +1,28 @@
+Class exercise_quota_lost_release;
+
+Interface
+  Methods
+    reserve : Nat;
+    release : Nat;
+    audit : ;
+  Gates
+    eligible : Bool;
+    ack : Bool;
+    free : Nat;
+    reserved : Nat;
+
+Body
+  Places
+    available : Nat;
+    held : Nat;
+  Initial
+    available (10), held (0);
+  Axioms
+    reserve: reserve n With this.eligible (n > 0 and (n < 4 or n == 7)) ::
+      n > 0 and n <= free => available free, held h -> available (free - n), held (h + n);
+    release: release n With this.ack (true) ::
+      n > 0 and n <= h => available free, held h -> available (free), held (h - n);
+    audit: audit With this.free (free) // this.reserved (h) ::
+      available free, held h -> available (free), held (h);
+
+End exercise_quota_lost_release;

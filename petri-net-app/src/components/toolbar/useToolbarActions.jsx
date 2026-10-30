@@ -198,6 +198,7 @@ export default function useToolbarActions(params) {
         const safeJson = {
           ...(petriNetJson.netMode ? { netMode: petriNetJson.netMode, mode: petriNetJson.netMode } : {}),
           ...(petriNetJson.testIntentions ? { testIntentions: petriNetJson.testIntentions } : {}),
+          ...(petriNetJson.gates !== undefined ? { gates: petriNetJson.gates, apnClass: petriNetJson.apnClass } : {}),
           ...(petriNetJson.satelExample ? { satelExample: petriNetJson.satelExample } : {}),
           places: Array.isArray(petriNetJson.places) ? petriNetJson.places : [],
           transitions: Array.isArray(petriNetJson.transitions) ? petriNetJson.transitions : [],
@@ -319,6 +320,14 @@ export default function useToolbarActions(params) {
         forceSimulatorReset?.(); setElements(net);
         setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
         updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
+        setIsMobileMenuOpen?.(false); return;
+      }
+      if (filename.startsWith('gates-')) {
+        const { createMethodGateExample } = await import('../../satel/examples/methods-gates/editor.js');
+        const net = createMethodGateExample(filename);
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → APN source to inspect methods and gates.`);
         setIsMobileMenuOpen?.(false); return;
       }
       if (filename.startsWith('exercise-')) {

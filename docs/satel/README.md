@@ -1,5 +1,9 @@
 # SATEL for Algebraic Petri Nets
 
+See [quota web SUT testing](increment-42-quota-web-sut.md) to run generated methods/gates tests against an independent browser application and inspect detected implementation faults.
+
+See [thesis graphical notation](increment-41-graphical-methods-gates.md) for the APN boundary, method/gate ports, synchronization edges and a screenshot of the converted quota example.
+
 SATEL is an experimental partial implementation of test selection from algebraic Petri nets. The editor supports **typed test intentions**: typed variables, stimulation/observation sequences and branching HML properties.
 
 ## Development record and paper preparation
@@ -18,6 +22,13 @@ The [proposed paper baseline and semantic contract](paper-baseline-semantic-cont
 freezes an implementation candidate, locates exact thesis definitions and records
 interpretation/proof obligations. The [LaTeX paper draft](paper/README.md) contains
 the corresponding initial manuscript and build instructions.
+
+## Methods and gates
+
+[Increment 40: synchronous methods and gates](increment-40-methods-gates.md)
+adds a flat CO-OPN-style class syntax, typed transient gate occurrences, editable
+source in the GUI and [86 converted reference/mutant examples](examples/methods-gates/README.md).
+This work is on `codex/satel-methods-gates`; the earlier paper baseline remains fixed.
 
 ## Nondeterminism and branching properties
 

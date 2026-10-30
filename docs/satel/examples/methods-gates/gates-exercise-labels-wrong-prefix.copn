@@ -1,0 +1,32 @@
+Class exercise_labels_wrong_prefix;
+
+Interface
+  Methods
+    register : String;
+    read : ;
+    prefix : ;
+    suffix : ;
+    clear : ;
+  Gates
+    accepted : Bool;
+    text : String;
+    ack : Bool;
+
+Body
+  Places
+    label : String;
+  Initial
+    label ("");
+  Axioms
+    register: register s With this.accepted (length(s) > 0 and length(s) <= 3) ::
+      length(s) <= 6 => label old -> label (s);
+    read: read With this.text (s) ::
+      label s -> label (s);
+    prefix: prefix With this.ack (true) ::
+      label s -> label (concat("@", s));
+    suffix: suffix With this.ack (true) ::
+      label s -> label (concat(s, "!"));
+    clear: clear With this.ack (true) ::
+      label s -> label ("");
+
+End exercise_labels_wrong_prefix;
