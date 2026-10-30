@@ -1,0 +1,4276 @@
+{
+  "manifestSha256": "1e5466a96f808fcf22877a45de2d3fe4fd73d60b2a6f741795ba54e88ed6d010",
+  "baseline": {
+    "apiTests": 465,
+    "uiTests": 6,
+    "allCompatible": true
+  },
+  "generation": [
+    {
+      "length": 1,
+      "regions": 5,
+      "tests": 15,
+      "browserTests": 2,
+      "selectedMs": 1738.317701,
+      "totalMs": 2365.356503,
+      "rss": 327872512,
+      "sha256": "9f3d6d5bc9896bd0bc05bdc902f5226e7cd57468411e9a6d3981aeacb5ab9b67",
+      "finiteAudit": {
+        "length": 1,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 24,
+        "definedInputs": 10,
+        "coveredInputs": 10,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 5,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "selectedMinutes": [
+        623
+      ],
+      "decomposition": {
+        "unresolved": 0,
+        "overlaps": 0
+      },
+      "execution": {
+        "selected": 5,
+        "unresolved": 0,
+        "blocked": 0
+      },
+      "validation": {
+        "generated": 5,
+        "referencePassed": 5
+      }
+    },
+    {
+      "length": 2,
+      "regions": 25,
+      "tests": 75,
+      "browserTests": 2,
+      "selectedMs": 7682.9595850000005,
+      "totalMs": 11262.830718000001,
+      "rss": 436199424,
+      "sha256": "64fa1847eb7d15dbe25eedf1909027ae603a23d0e6759a11f9ae0c9f0e791c75",
+      "finiteAudit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "selectedMinutes": [
+        15
+      ],
+      "decomposition": {
+        "unresolved": 0,
+        "overlaps": 0
+      },
+      "execution": {
+        "selected": 25,
+        "unresolved": 0,
+        "blocked": 0
+      },
+      "validation": {
+        "generated": 25,
+        "referencePassed": 25
+      }
+    },
+    {
+      "length": 3,
+      "regions": 125,
+      "tests": 375,
+      "browserTests": 2,
+      "selectedMs": 45282.631895,
+      "totalMs": 65548.441572,
+      "rss": 821387264,
+      "sha256": "a833d6515a319316c043940002c02999f530c67ecb849bf9809114a7afaa5d98",
+      "finiteAudit": {
+        "length": 3,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 13824,
+        "definedInputs": 1000,
+        "coveredInputs": 1000,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 125,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "selectedMinutes": [
+        15
+      ],
+      "decomposition": {
+        "unresolved": 0,
+        "overlaps": 0
+      },
+      "execution": {
+        "selected": 125,
+        "unresolved": 0,
+        "blocked": 0
+      },
+      "validation": {
+        "generated": 125,
+        "referencePassed": 125
+      }
+    }
+  ],
+  "policyTotals": [
+    {
+      "policy": "selected",
+      "testsPerVariant": 155,
+      "detectedMutants": [
+        "overwrite-earlier",
+        "approval-double-count",
+        "correction-adds-old",
+        "cross-employee-correction",
+        "wrong-total"
+      ]
+    },
+    {
+      "policy": "interior",
+      "testsPerVariant": 155,
+      "detectedMutants": [
+        "overwrite-earlier",
+        "approval-double-count",
+        "correction-adds-old",
+        "cross-employee-correction",
+        "wrong-total"
+      ]
+    },
+    {
+      "policy": "upper",
+      "testsPerVariant": 155,
+      "detectedMutants": [
+        "overwrite-earlier",
+        "approval-double-count",
+        "correction-adds-old",
+        "cross-employee-correction",
+        "cap-long-duration",
+        "wrong-total"
+      ]
+    },
+    {
+      "policy": "union",
+      "testsPerVariant": 465,
+      "detectedMutants": [
+        "overwrite-earlier",
+        "approval-double-count",
+        "correction-adds-old",
+        "cross-employee-correction",
+        "cap-long-duration",
+        "wrong-total"
+      ]
+    }
+  ],
+  "matrix": [
+    {
+      "mutant": "none",
+      "length": 1,
+      "policy": "selected",
+      "tests": 5,
+      "mismatches": 0,
+      "executedCalls": 78,
+      "runSeconds": 0.397,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 1,
+      "policy": "interior",
+      "tests": 5,
+      "mismatches": 0,
+      "executedCalls": 78,
+      "runSeconds": 0.338,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 1,
+      "policy": "upper",
+      "tests": 5,
+      "mismatches": 0,
+      "executedCalls": 78,
+      "runSeconds": 0.292,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 1,
+      "policy": "union",
+      "tests": 15,
+      "mismatches": 0,
+      "executedCalls": 234,
+      "runSeconds": 1.0270000000000001,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 2,
+      "policy": "selected",
+      "tests": 25,
+      "mismatches": 0,
+      "executedCalls": 480,
+      "runSeconds": 1.835,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 2,
+      "policy": "interior",
+      "tests": 25,
+      "mismatches": 0,
+      "executedCalls": 480,
+      "runSeconds": 1.8840000000000001,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 2,
+      "policy": "upper",
+      "tests": 25,
+      "mismatches": 0,
+      "executedCalls": 480,
+      "runSeconds": 1.6709999999999998,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 2,
+      "policy": "union",
+      "tests": 75,
+      "mismatches": 0,
+      "executedCalls": 1440,
+      "runSeconds": 5.389999999999999,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 3,
+      "policy": "selected",
+      "tests": 125,
+      "mismatches": 0,
+      "executedCalls": 2850,
+      "runSeconds": 10.294,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 3,
+      "policy": "interior",
+      "tests": 125,
+      "mismatches": 0,
+      "executedCalls": 2850,
+      "runSeconds": 9.800000000000004,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 3,
+      "policy": "upper",
+      "tests": 125,
+      "mismatches": 0,
+      "executedCalls": 2850,
+      "runSeconds": 10.494000000000007,
+      "status": "survived"
+    },
+    {
+      "mutant": "none",
+      "length": 3,
+      "policy": "union",
+      "tests": 375,
+      "mismatches": 0,
+      "executedCalls": 8550,
+      "runSeconds": 30.58799999999997,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 1,
+      "policy": "selected",
+      "tests": 5,
+      "mismatches": 0,
+      "executedCalls": 78,
+      "runSeconds": 0.388,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 1,
+      "policy": "interior",
+      "tests": 5,
+      "mismatches": 0,
+      "executedCalls": 78,
+      "runSeconds": 0.325,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 1,
+      "policy": "upper",
+      "tests": 5,
+      "mismatches": 0,
+      "executedCalls": 78,
+      "runSeconds": 0.311,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 1,
+      "policy": "union",
+      "tests": 15,
+      "mismatches": 0,
+      "executedCalls": 234,
+      "runSeconds": 1.0239999999999998,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 2,
+      "policy": "selected",
+      "tests": 25,
+      "mismatches": 0,
+      "executedCalls": 480,
+      "runSeconds": 1.897,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 2,
+      "policy": "interior",
+      "tests": 25,
+      "mismatches": 0,
+      "executedCalls": 480,
+      "runSeconds": 1.65,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 2,
+      "policy": "upper",
+      "tests": 25,
+      "mismatches": 0,
+      "executedCalls": 480,
+      "runSeconds": 1.8800000000000003,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 2,
+      "policy": "union",
+      "tests": 75,
+      "mismatches": 0,
+      "executedCalls": 1440,
+      "runSeconds": 5.427000000000001,
+      "status": "survived"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 3,
+      "policy": "selected",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 625,
+      "runSeconds": 3.5649999999999964,
+      "status": "detected"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 3,
+      "policy": "interior",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 625,
+      "runSeconds": 3.446999999999998,
+      "status": "detected"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 3,
+      "policy": "upper",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 625,
+      "runSeconds": 3.4809999999999977,
+      "status": "detected"
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "length": 3,
+      "policy": "union",
+      "tests": 375,
+      "mismatches": 375,
+      "executedCalls": 1875,
+      "runSeconds": 10.492999999999983,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 1,
+      "policy": "selected",
+      "tests": 5,
+      "mismatches": 3,
+      "executedCalls": 51,
+      "runSeconds": 0.218,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 1,
+      "policy": "interior",
+      "tests": 5,
+      "mismatches": 3,
+      "executedCalls": 51,
+      "runSeconds": 0.197,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 1,
+      "policy": "upper",
+      "tests": 5,
+      "mismatches": 3,
+      "executedCalls": 51,
+      "runSeconds": 0.215,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 1,
+      "policy": "union",
+      "tests": 15,
+      "mismatches": 9,
+      "executedCalls": 153,
+      "runSeconds": 0.63,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 2,
+      "policy": "selected",
+      "tests": 25,
+      "mismatches": 21,
+      "executedCalls": 291,
+      "runSeconds": 1.261,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 2,
+      "policy": "interior",
+      "tests": 25,
+      "mismatches": 21,
+      "executedCalls": 291,
+      "runSeconds": 1.333,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 2,
+      "policy": "upper",
+      "tests": 25,
+      "mismatches": 21,
+      "executedCalls": 291,
+      "runSeconds": 1.9079999999999997,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 2,
+      "policy": "union",
+      "tests": 75,
+      "mismatches": 63,
+      "executedCalls": 873,
+      "runSeconds": 4.502,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 3,
+      "policy": "selected",
+      "tests": 125,
+      "mismatches": 117,
+      "executedCalls": 1797,
+      "runSeconds": 7.813000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 3,
+      "policy": "interior",
+      "tests": 125,
+      "mismatches": 117,
+      "executedCalls": 1797,
+      "runSeconds": 7.909000000000002,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 3,
+      "policy": "upper",
+      "tests": 125,
+      "mismatches": 117,
+      "executedCalls": 1797,
+      "runSeconds": 7.269000000000005,
+      "status": "detected"
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 3,
+      "policy": "union",
+      "tests": 375,
+      "mismatches": 351,
+      "executedCalls": 5391,
+      "runSeconds": 22.990999999999975,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 1,
+      "policy": "selected",
+      "tests": 5,
+      "mismatches": 5,
+      "executedCalls": 51,
+      "runSeconds": 0.21600000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 1,
+      "policy": "interior",
+      "tests": 5,
+      "mismatches": 5,
+      "executedCalls": 51,
+      "runSeconds": 0.222,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 1,
+      "policy": "upper",
+      "tests": 5,
+      "mismatches": 5,
+      "executedCalls": 51,
+      "runSeconds": 0.21200000000000002,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 1,
+      "policy": "union",
+      "tests": 15,
+      "mismatches": 15,
+      "executedCalls": 153,
+      "runSeconds": 0.6500000000000001,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 2,
+      "policy": "selected",
+      "tests": 25,
+      "mismatches": 25,
+      "executedCalls": 345,
+      "runSeconds": 1.3620000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 2,
+      "policy": "interior",
+      "tests": 25,
+      "mismatches": 25,
+      "executedCalls": 345,
+      "runSeconds": 1.3200000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 2,
+      "policy": "upper",
+      "tests": 25,
+      "mismatches": 25,
+      "executedCalls": 345,
+      "runSeconds": 1.3790000000000002,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 2,
+      "policy": "union",
+      "tests": 75,
+      "mismatches": 75,
+      "executedCalls": 1035,
+      "runSeconds": 4.061000000000002,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 3,
+      "policy": "selected",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 2175,
+      "runSeconds": 9.457999999999998,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 3,
+      "policy": "interior",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 2175,
+      "runSeconds": 8.332,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 3,
+      "policy": "upper",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 2175,
+      "runSeconds": 8.173000000000004,
+      "status": "detected"
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 3,
+      "policy": "union",
+      "tests": 375,
+      "mismatches": 375,
+      "executedCalls": 6525,
+      "runSeconds": 25.963,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 1,
+      "policy": "selected",
+      "tests": 5,
+      "mismatches": 5,
+      "executedCalls": 68,
+      "runSeconds": 0.252,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 1,
+      "policy": "interior",
+      "tests": 5,
+      "mismatches": 5,
+      "executedCalls": 68,
+      "runSeconds": 0.269,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 1,
+      "policy": "upper",
+      "tests": 5,
+      "mismatches": 5,
+      "executedCalls": 68,
+      "runSeconds": 0.254,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 1,
+      "policy": "union",
+      "tests": 15,
+      "mismatches": 15,
+      "executedCalls": 204,
+      "runSeconds": 0.7750000000000002,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 2,
+      "policy": "selected",
+      "tests": 25,
+      "mismatches": 25,
+      "executedCalls": 430,
+      "runSeconds": 1.5940000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 2,
+      "policy": "interior",
+      "tests": 25,
+      "mismatches": 25,
+      "executedCalls": 430,
+      "runSeconds": 1.6810000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 2,
+      "policy": "upper",
+      "tests": 25,
+      "mismatches": 25,
+      "executedCalls": 430,
+      "runSeconds": 1.6290000000000004,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 2,
+      "policy": "union",
+      "tests": 75,
+      "mismatches": 75,
+      "executedCalls": 1290,
+      "runSeconds": 4.904000000000001,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 3,
+      "policy": "selected",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 2600,
+      "runSeconds": 9.329999999999998,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 3,
+      "policy": "interior",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 2600,
+      "runSeconds": 9.533000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 3,
+      "policy": "upper",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 2600,
+      "runSeconds": 9.415000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 3,
+      "policy": "union",
+      "tests": 375,
+      "mismatches": 375,
+      "executedCalls": 7800,
+      "runSeconds": 28.278000000000038,
+      "status": "detected"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "policy": "selected",
+      "tests": 5,
+      "mismatches": 0,
+      "executedCalls": 78,
+      "runSeconds": 0.265,
+      "status": "survived"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "policy": "interior",
+      "tests": 5,
+      "mismatches": 0,
+      "executedCalls": 78,
+      "runSeconds": 0.258,
+      "status": "survived"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "policy": "upper",
+      "tests": 5,
+      "mismatches": 5,
+      "executedCalls": 15,
+      "runSeconds": 0.088,
+      "status": "detected"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "policy": "union",
+      "tests": 15,
+      "mismatches": 5,
+      "executedCalls": 171,
+      "runSeconds": 0.6110000000000001,
+      "status": "detected"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "policy": "selected",
+      "tests": 25,
+      "mismatches": 0,
+      "executedCalls": 480,
+      "runSeconds": 1.7810000000000001,
+      "status": "survived"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "policy": "interior",
+      "tests": 25,
+      "mismatches": 0,
+      "executedCalls": 480,
+      "runSeconds": 1.9350000000000003,
+      "status": "survived"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "policy": "upper",
+      "tests": 25,
+      "mismatches": 25,
+      "executedCalls": 100,
+      "runSeconds": 0.5680000000000002,
+      "status": "detected"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "policy": "union",
+      "tests": 75,
+      "mismatches": 25,
+      "executedCalls": 1060,
+      "runSeconds": 4.284000000000001,
+      "status": "detected"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "policy": "selected",
+      "tests": 125,
+      "mismatches": 0,
+      "executedCalls": 2850,
+      "runSeconds": 9.794,
+      "status": "survived"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "policy": "interior",
+      "tests": 125,
+      "mismatches": 0,
+      "executedCalls": 2850,
+      "runSeconds": 9.571,
+      "status": "survived"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "policy": "upper",
+      "tests": 125,
+      "mismatches": 125,
+      "executedCalls": 625,
+      "runSeconds": 3.5239999999999982,
+      "status": "detected"
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "policy": "union",
+      "tests": 375,
+      "mismatches": 125,
+      "executedCalls": 6325,
+      "runSeconds": 22.889000000000006,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 1,
+      "policy": "selected",
+      "tests": 5,
+      "mismatches": 4,
+      "executedCalls": 30,
+      "runSeconds": 0.16399999999999998,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 1,
+      "policy": "interior",
+      "tests": 5,
+      "mismatches": 4,
+      "executedCalls": 30,
+      "runSeconds": 0.133,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 1,
+      "policy": "upper",
+      "tests": 5,
+      "mismatches": 4,
+      "executedCalls": 30,
+      "runSeconds": 0.12200000000000001,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 1,
+      "policy": "union",
+      "tests": 15,
+      "mismatches": 12,
+      "executedCalls": 90,
+      "runSeconds": 0.41900000000000004,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 2,
+      "policy": "selected",
+      "tests": 25,
+      "mismatches": 24,
+      "executedCalls": 160,
+      "runSeconds": 0.7060000000000003,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 2,
+      "policy": "interior",
+      "tests": 25,
+      "mismatches": 24,
+      "executedCalls": 160,
+      "runSeconds": 0.6780000000000004,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 2,
+      "policy": "upper",
+      "tests": 25,
+      "mismatches": 24,
+      "executedCalls": 160,
+      "runSeconds": 0.7060000000000004,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 2,
+      "policy": "union",
+      "tests": 75,
+      "mismatches": 72,
+      "executedCalls": 480,
+      "runSeconds": 2.0899999999999994,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 3,
+      "policy": "selected",
+      "tests": 125,
+      "mismatches": 124,
+      "executedCalls": 1010,
+      "runSeconds": 4.0059999999999985,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 3,
+      "policy": "interior",
+      "tests": 125,
+      "mismatches": 124,
+      "executedCalls": 1010,
+      "runSeconds": 4.365999999999999,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 3,
+      "policy": "upper",
+      "tests": 125,
+      "mismatches": 124,
+      "executedCalls": 1010,
+      "runSeconds": 4.073999999999998,
+      "status": "detected"
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 3,
+      "policy": "union",
+      "tests": 375,
+      "mismatches": 372,
+      "executedCalls": 3030,
+      "runSeconds": 12.446000000000009,
+      "status": "detected"
+    }
+  ],
+  "transport": [
+    {
+      "mutant": "none",
+      "compared": 6,
+      "allEventsAndVerdictsIdentical": true,
+      "apiSeconds": 38.49080566799999,
+      "uiSeconds": 19.754048269,
+      "apiRss": 294457344,
+      "uiRss": 155209728
+    },
+    {
+      "mutant": "overwrite-earlier",
+      "compared": 6,
+      "allEventsAndVerdictsIdentical": true,
+      "apiSeconds": 18.239075807000003,
+      "uiSeconds": 14.227114369,
+      "apiRss": 278540288,
+      "uiRss": 151781376
+    },
+    {
+      "mutant": "approval-double-count",
+      "compared": 6,
+      "allEventsAndVerdictsIdentical": true,
+      "apiSeconds": 29.472970565000004,
+      "uiSeconds": 10.370152642,
+      "apiRss": 288407552,
+      "uiRss": 157294592
+    },
+    {
+      "mutant": "correction-adds-old",
+      "compared": 6,
+      "allEventsAndVerdictsIdentical": true,
+      "apiSeconds": 32.01224419100001,
+      "uiSeconds": 14.686385577000001,
+      "apiRss": 293601280,
+      "uiRss": 158613504
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "compared": 6,
+      "allEventsAndVerdictsIdentical": true,
+      "apiSeconds": 35.312999379999994,
+      "uiSeconds": 18.470374547,
+      "apiRss": 297185280,
+      "uiRss": 213372928
+    },
+    {
+      "mutant": "cap-long-duration",
+      "compared": 6,
+      "allEventsAndVerdictsIdentical": true,
+      "apiSeconds": 29.103456113000007,
+      "uiSeconds": 11.972352994999994,
+      "apiRss": 302243840,
+      "uiRss": 215552000
+    },
+    {
+      "mutant": "wrong-total",
+      "compared": 6,
+      "allEventsAndVerdictsIdentical": true,
+      "apiSeconds": 16.227643607000005,
+      "uiSeconds": 5.828717691000013,
+      "apiRss": 302538752,
+      "uiRss": 219893760
+    }
+  ],
+  "withinRegionContrasts": [
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "region": "reviews.standard/reviews.end",
+      "selectedTest": "reviews.standard/reviews.end",
+      "selectedMinutes": [
+        623
+      ],
+      "additionalTest": "reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "region": "reviews.trip/reviews.end",
+      "selectedTest": "reviews.trip/reviews.end",
+      "selectedMinutes": [
+        623
+      ],
+      "additionalTest": "reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "region": "reviews.home/reviews.end",
+      "selectedTest": "reviews.home/reviews.end",
+      "selectedMinutes": [
+        623
+      ],
+      "additionalTest": "reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "region": "reviews.training/reviews.end",
+      "selectedTest": "reviews.training/reviews.end",
+      "selectedMinutes": [
+        623
+      ],
+      "additionalTest": "reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "region": "reviews.oncall/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        623
+      ],
+      "additionalTest": "reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.standard/reviews.standard/reviews.end",
+      "selectedTest": "reviews.standard/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.standard/reviews.trip/reviews.end",
+      "selectedTest": "reviews.standard/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.standard/reviews.home/reviews.end",
+      "selectedTest": "reviews.standard/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.standard/reviews.training/reviews.end",
+      "selectedTest": "reviews.standard/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.standard/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.standard/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.trip/reviews.standard/reviews.end",
+      "selectedTest": "reviews.trip/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.trip/reviews.trip/reviews.end",
+      "selectedTest": "reviews.trip/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.trip/reviews.home/reviews.end",
+      "selectedTest": "reviews.trip/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.trip/reviews.training/reviews.end",
+      "selectedTest": "reviews.trip/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.trip/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.trip/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.home/reviews.standard/reviews.end",
+      "selectedTest": "reviews.home/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.home/reviews.trip/reviews.end",
+      "selectedTest": "reviews.home/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.home/reviews.home/reviews.end",
+      "selectedTest": "reviews.home/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.home/reviews.training/reviews.end",
+      "selectedTest": "reviews.home/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.home/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.home/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.training/reviews.standard/reviews.end",
+      "selectedTest": "reviews.training/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.training/reviews.trip/reviews.end",
+      "selectedTest": "reviews.training/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.training/reviews.home/reviews.end",
+      "selectedTest": "reviews.training/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.training/reviews.training/reviews.end",
+      "selectedTest": "reviews.training/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.training/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.training/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.oncall/reviews.standard/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.oncall/reviews.trip/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.oncall/reviews.home/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.oncall/reviews.training/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 2,
+      "region": "reviews.oncall/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.standard/reviews.standard/reviews.end",
+      "selectedTest": "reviews.standard/reviews.standard/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.standard/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.standard/reviews.trip/reviews.end",
+      "selectedTest": "reviews.standard/reviews.standard/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.standard/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.standard/reviews.home/reviews.end",
+      "selectedTest": "reviews.standard/reviews.standard/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.standard/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.standard/reviews.training/reviews.end",
+      "selectedTest": "reviews.standard/reviews.standard/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.standard/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.standard/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.standard/reviews.standard/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.standard/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.trip/reviews.standard/reviews.end",
+      "selectedTest": "reviews.standard/reviews.trip/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.trip/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.trip/reviews.trip/reviews.end",
+      "selectedTest": "reviews.standard/reviews.trip/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.trip/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.trip/reviews.home/reviews.end",
+      "selectedTest": "reviews.standard/reviews.trip/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.trip/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.trip/reviews.training/reviews.end",
+      "selectedTest": "reviews.standard/reviews.trip/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.trip/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.trip/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.standard/reviews.trip/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.trip/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.home/reviews.standard/reviews.end",
+      "selectedTest": "reviews.standard/reviews.home/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.home/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.home/reviews.trip/reviews.end",
+      "selectedTest": "reviews.standard/reviews.home/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.home/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.home/reviews.home/reviews.end",
+      "selectedTest": "reviews.standard/reviews.home/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.home/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.home/reviews.training/reviews.end",
+      "selectedTest": "reviews.standard/reviews.home/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.home/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.home/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.standard/reviews.home/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.home/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.training/reviews.standard/reviews.end",
+      "selectedTest": "reviews.standard/reviews.training/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.training/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.training/reviews.trip/reviews.end",
+      "selectedTest": "reviews.standard/reviews.training/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.training/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.training/reviews.home/reviews.end",
+      "selectedTest": "reviews.standard/reviews.training/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.training/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.training/reviews.training/reviews.end",
+      "selectedTest": "reviews.standard/reviews.training/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.training/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.training/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.standard/reviews.training/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.training/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.oncall/reviews.standard/reviews.end",
+      "selectedTest": "reviews.standard/reviews.oncall/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.oncall/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.oncall/reviews.trip/reviews.end",
+      "selectedTest": "reviews.standard/reviews.oncall/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.oncall/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.oncall/reviews.home/reviews.end",
+      "selectedTest": "reviews.standard/reviews.oncall/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.oncall/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.oncall/reviews.training/reviews.end",
+      "selectedTest": "reviews.standard/reviews.oncall/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.oncall/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.standard/reviews.standard/reviews.end",
+      "selectedTest": "reviews.trip/reviews.standard/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.standard/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.standard/reviews.trip/reviews.end",
+      "selectedTest": "reviews.trip/reviews.standard/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.standard/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.standard/reviews.home/reviews.end",
+      "selectedTest": "reviews.trip/reviews.standard/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.standard/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.standard/reviews.training/reviews.end",
+      "selectedTest": "reviews.trip/reviews.standard/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.standard/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.standard/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.trip/reviews.standard/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.standard/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.trip/reviews.standard/reviews.end",
+      "selectedTest": "reviews.trip/reviews.trip/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.trip/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.trip/reviews.trip/reviews.end",
+      "selectedTest": "reviews.trip/reviews.trip/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.trip/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.trip/reviews.home/reviews.end",
+      "selectedTest": "reviews.trip/reviews.trip/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.trip/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.trip/reviews.training/reviews.end",
+      "selectedTest": "reviews.trip/reviews.trip/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.trip/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.trip/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.trip/reviews.trip/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.trip/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.home/reviews.standard/reviews.end",
+      "selectedTest": "reviews.trip/reviews.home/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.home/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.home/reviews.trip/reviews.end",
+      "selectedTest": "reviews.trip/reviews.home/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.home/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.home/reviews.home/reviews.end",
+      "selectedTest": "reviews.trip/reviews.home/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.home/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.home/reviews.training/reviews.end",
+      "selectedTest": "reviews.trip/reviews.home/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.home/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.home/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.trip/reviews.home/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.home/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.training/reviews.standard/reviews.end",
+      "selectedTest": "reviews.trip/reviews.training/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.training/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.training/reviews.trip/reviews.end",
+      "selectedTest": "reviews.trip/reviews.training/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.training/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.training/reviews.home/reviews.end",
+      "selectedTest": "reviews.trip/reviews.training/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.training/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.training/reviews.training/reviews.end",
+      "selectedTest": "reviews.trip/reviews.training/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.training/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.training/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.trip/reviews.training/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.training/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.oncall/reviews.standard/reviews.end",
+      "selectedTest": "reviews.trip/reviews.oncall/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.oncall/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.oncall/reviews.trip/reviews.end",
+      "selectedTest": "reviews.trip/reviews.oncall/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.oncall/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.oncall/reviews.home/reviews.end",
+      "selectedTest": "reviews.trip/reviews.oncall/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.oncall/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.oncall/reviews.training/reviews.end",
+      "selectedTest": "reviews.trip/reviews.oncall/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.oncall/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.standard/reviews.standard/reviews.end",
+      "selectedTest": "reviews.home/reviews.standard/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.standard/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.standard/reviews.trip/reviews.end",
+      "selectedTest": "reviews.home/reviews.standard/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.standard/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.standard/reviews.home/reviews.end",
+      "selectedTest": "reviews.home/reviews.standard/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.standard/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.standard/reviews.training/reviews.end",
+      "selectedTest": "reviews.home/reviews.standard/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.standard/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.standard/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.home/reviews.standard/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.standard/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.trip/reviews.standard/reviews.end",
+      "selectedTest": "reviews.home/reviews.trip/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.trip/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.trip/reviews.trip/reviews.end",
+      "selectedTest": "reviews.home/reviews.trip/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.trip/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.trip/reviews.home/reviews.end",
+      "selectedTest": "reviews.home/reviews.trip/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.trip/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.trip/reviews.training/reviews.end",
+      "selectedTest": "reviews.home/reviews.trip/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.trip/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.trip/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.home/reviews.trip/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.trip/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.home/reviews.standard/reviews.end",
+      "selectedTest": "reviews.home/reviews.home/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.home/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.home/reviews.trip/reviews.end",
+      "selectedTest": "reviews.home/reviews.home/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.home/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.home/reviews.home/reviews.end",
+      "selectedTest": "reviews.home/reviews.home/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.home/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.home/reviews.training/reviews.end",
+      "selectedTest": "reviews.home/reviews.home/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.home/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.home/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.home/reviews.home/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.home/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.training/reviews.standard/reviews.end",
+      "selectedTest": "reviews.home/reviews.training/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.training/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.training/reviews.trip/reviews.end",
+      "selectedTest": "reviews.home/reviews.training/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.training/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.training/reviews.home/reviews.end",
+      "selectedTest": "reviews.home/reviews.training/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.training/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.training/reviews.training/reviews.end",
+      "selectedTest": "reviews.home/reviews.training/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.training/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.training/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.home/reviews.training/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.training/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.oncall/reviews.standard/reviews.end",
+      "selectedTest": "reviews.home/reviews.oncall/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.oncall/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.oncall/reviews.trip/reviews.end",
+      "selectedTest": "reviews.home/reviews.oncall/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.oncall/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.oncall/reviews.home/reviews.end",
+      "selectedTest": "reviews.home/reviews.oncall/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.oncall/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.oncall/reviews.training/reviews.end",
+      "selectedTest": "reviews.home/reviews.oncall/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.oncall/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.home/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.home/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.home/reviews.oncall/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.standard/reviews.standard/reviews.end",
+      "selectedTest": "reviews.training/reviews.standard/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.standard/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.standard/reviews.trip/reviews.end",
+      "selectedTest": "reviews.training/reviews.standard/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.standard/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.standard/reviews.home/reviews.end",
+      "selectedTest": "reviews.training/reviews.standard/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.standard/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.standard/reviews.training/reviews.end",
+      "selectedTest": "reviews.training/reviews.standard/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.standard/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.standard/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.training/reviews.standard/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.standard/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.trip/reviews.standard/reviews.end",
+      "selectedTest": "reviews.training/reviews.trip/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.trip/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.trip/reviews.trip/reviews.end",
+      "selectedTest": "reviews.training/reviews.trip/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.trip/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.trip/reviews.home/reviews.end",
+      "selectedTest": "reviews.training/reviews.trip/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.trip/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.trip/reviews.training/reviews.end",
+      "selectedTest": "reviews.training/reviews.trip/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.trip/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.trip/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.training/reviews.trip/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.trip/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.home/reviews.standard/reviews.end",
+      "selectedTest": "reviews.training/reviews.home/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.home/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.home/reviews.trip/reviews.end",
+      "selectedTest": "reviews.training/reviews.home/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.home/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.home/reviews.home/reviews.end",
+      "selectedTest": "reviews.training/reviews.home/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.home/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.home/reviews.training/reviews.end",
+      "selectedTest": "reviews.training/reviews.home/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.home/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.home/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.training/reviews.home/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.home/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.training/reviews.standard/reviews.end",
+      "selectedTest": "reviews.training/reviews.training/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.training/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.training/reviews.trip/reviews.end",
+      "selectedTest": "reviews.training/reviews.training/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.training/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.training/reviews.home/reviews.end",
+      "selectedTest": "reviews.training/reviews.training/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.training/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.training/reviews.training/reviews.end",
+      "selectedTest": "reviews.training/reviews.training/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.training/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.training/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.training/reviews.training/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.training/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.oncall/reviews.standard/reviews.end",
+      "selectedTest": "reviews.training/reviews.oncall/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.oncall/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.oncall/reviews.trip/reviews.end",
+      "selectedTest": "reviews.training/reviews.oncall/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.oncall/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.oncall/reviews.home/reviews.end",
+      "selectedTest": "reviews.training/reviews.oncall/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.oncall/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.oncall/reviews.training/reviews.end",
+      "selectedTest": "reviews.training/reviews.oncall/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.oncall/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.training/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.training/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.training/reviews.oncall/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.standard/reviews.standard/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.standard/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.standard/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.standard/reviews.trip/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.standard/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.standard/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.standard/reviews.home/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.standard/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.standard/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.standard/reviews.training/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.standard/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.standard/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.trip/reviews.standard/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.trip/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.trip/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.trip/reviews.trip/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.trip/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.trip/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.trip/reviews.home/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.trip/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.trip/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.trip/reviews.training/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.trip/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.trip/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.home/reviews.standard/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.home/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.home/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.home/reviews.trip/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.home/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.home/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.home/reviews.home/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.home/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.home/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.home/reviews.training/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.home/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.home/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.home/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.home/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.home/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.training/reviews.standard/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.training/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.training/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.training/reviews.trip/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.training/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.training/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.training/reviews.home/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.training/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.training/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.training/reviews.training/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.training/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.training/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.training/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.training/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.training/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.oncall/reviews.home/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.oncall/reviews.home/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.oncall/reviews.home/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.oncall/reviews.training/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.oncall/reviews.training/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.oncall/reviews.training/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 3,
+      "region": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedTest": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end",
+      "selectedMinutes": [
+        15,
+        15,
+        15
+      ],
+      "additionalTest": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end-upper",
+      "additionalPolicy": "upper",
+      "additionalMinutes": [
+        720,
+        720,
+        720
+      ]
+    }
+  ],
+  "firstCounterexamples": [
+    {
+      "mutant": "overwrite-earlier",
+      "length": 3,
+      "testId": "reviews.standard/reviews.standard/reviews.standard/reviews.end",
+      "region": "reviews.standard/reviews.standard/reviews.standard/reviews.end",
+      "policy": "selected",
+      "kinds": [
+        0,
+        0,
+        0
+      ],
+      "minutes": [
+        15,
+        15,
+        15
+      ],
+      "browser": false,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 5,
+      "durationMs": 40,
+      "eventCount": 5,
+      "eventSha256": "074ece2a4234bbbcf72fa1c77723e0f65dc65b65e0e50c8fbd66a1a6546063e7",
+      "lastEvent": {
+        "step": 5,
+        "stimulation": {
+          "method": "readTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [
+              {
+                "__pair__": true,
+                "fst": 0,
+                "snd": {
+                  "__pair__": true,
+                  "fst": 30,
+                  "snd": 2
+                }
+              }
+            ],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [
+                {
+                  "__pair__": true,
+                  "fst": 0,
+                  "snd": {
+                    "__pair__": true,
+                    "fst": 15,
+                    "snd": 2
+                  }
+                }
+              ],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "approval-double-count",
+      "length": 1,
+      "testId": "reviews.trip/reviews.end",
+      "region": "reviews.trip/reviews.end",
+      "policy": "selected",
+      "kinds": [
+        1
+      ],
+      "minutes": [
+        623
+      ],
+      "browser": true,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 7,
+      "durationMs": 35,
+      "eventCount": 7,
+      "eventSha256": "b03897b26cddb57e6e037699654d32832e237a428288950dedeee53ae1aa420c",
+      "lastEvent": {
+        "step": 7,
+        "stimulation": {
+          "method": "totals",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [
+              1246
+            ],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [
+                623
+              ],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "correction-adds-old",
+      "length": 1,
+      "testId": "reviews.standard/reviews.end",
+      "region": "reviews.standard/reviews.end",
+      "policy": "selected",
+      "kinds": [
+        0
+      ],
+      "minutes": [
+        623
+      ],
+      "browser": false,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 8,
+      "durationMs": 32,
+      "eventCount": 8,
+      "eventSha256": "79eaa061ece526582ac85b3e7d9e2d980c229381c3c8dc6f64b2f017208ba34e",
+      "lastEvent": {
+        "step": 8,
+        "stimulation": {
+          "method": "totals",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [
+              683
+            ],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [
+                60
+              ],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "cross-employee-correction",
+      "length": 1,
+      "testId": "reviews.standard/reviews.end",
+      "region": "reviews.standard/reviews.end",
+      "policy": "selected",
+      "kinds": [
+        0
+      ],
+      "minutes": [
+        623
+      ],
+      "browser": false,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 12,
+      "durationMs": 44,
+      "eventCount": 12,
+      "eventSha256": "6fecac2005cfe6657066e54797afad6999aac8e211d2930b38cc41d95c7e47a3",
+      "lastEvent": {
+        "step": 12,
+        "stimulation": {
+          "method": "readTime",
+          "arguments": {
+            "actor": 1002,
+            "employee": 1002,
+            "record": 9010021
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [
+              {
+                "__pair__": true,
+                "fst": 0,
+                "snd": {
+                  "__pair__": true,
+                  "fst": 120,
+                  "snd": 2
+                }
+              }
+            ],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [
+                {
+                  "__pair__": true,
+                  "fst": 0,
+                  "snd": {
+                    "__pair__": true,
+                    "fst": 45,
+                    "snd": 2
+                  }
+                }
+              ],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "cap-long-duration",
+      "length": 1,
+      "testId": "reviews.standard/reviews.end-upper",
+      "region": "reviews.standard/reviews.end",
+      "policy": "upper",
+      "kinds": [
+        0
+      ],
+      "minutes": [
+        720
+      ],
+      "browser": false,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 3,
+      "durationMs": 18,
+      "eventCount": 3,
+      "eventSha256": "c8abba01ec85030352c87d74339768ce90ecb04b90e7230216cd6997ccfaa9a6",
+      "lastEvent": {
+        "step": 3,
+        "stimulation": {
+          "method": "readTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [
+              {
+                "__pair__": true,
+                "fst": 0,
+                "snd": {
+                  "__pair__": true,
+                  "fst": 719,
+                  "snd": 2
+                }
+              }
+            ],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [
+                {
+                  "__pair__": true,
+                  "fst": 0,
+                  "snd": {
+                    "__pair__": true,
+                    "fst": 720,
+                    "snd": 2
+                  }
+                }
+              ],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "wrong-total",
+      "length": 1,
+      "testId": "reviews.trip/reviews.end",
+      "region": "reviews.trip/reviews.end",
+      "policy": "selected",
+      "kinds": [
+        1
+      ],
+      "minutes": [
+        623
+      ],
+      "browser": true,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 4,
+      "durationMs": 26,
+      "eventCount": 4,
+      "eventSha256": "5ceee443c977d5ef15c17dd4de6fcf46ecd9bbdec60393d97b77f302e8ab672c",
+      "lastEvent": {
+        "step": 4,
+        "stimulation": {
+          "method": "totals",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [
+              623
+            ],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [
+                0
+              ],
+              "changes": []
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "scope": "Complete finite kind regions at lengths 1–3; three concrete members per region, not all durations. UI is a predeclared six-test subset. Mutation score is descriptive for deliberately seeded faults, not an unbiased estimate of real fault detection. Compatible does not mean correct; survived means no mismatch in these runs."
+}

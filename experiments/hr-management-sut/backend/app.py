@@ -4,7 +4,9 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 ROOT = Path(__file__).resolve().parents[1]
-MUTANTS = ['none', 'auto-approve-special', 'manager-scope', 'take-pending', 'double-charge', 'correction-no-audit', 'cross-tenant-hr', 'wrong-total']
+MUTANTS = ['none', 'auto-approve-special', 'manager-scope', 'take-pending', 'double-charge', 'correction-no-audit', 'cross-tenant-hr', 'wrong-total',
+           'overwrite-earlier', 'approval-double-count', 'correction-adds-old',
+           'cross-employee-correction', 'cap-long-duration']
 KINDS = ['standard', 'business_trip', 'home_office', 'training', 'on_call']
 STATUSES = ['empty', 'pending', 'approved', 'declined', 'taken']
 PASSWORD = 'research-demo'
@@ -90,7 +92,16 @@ def perform(c,actor,method,body):
     if method=='totals':
         period=body.get('period','2026-11')
         row=c.execute('SELECT COALESCE(SUM(minutes),0) AS minutes FROM time_entries WHERE employee_id=? AND work_date LIKE ? AND '+('status IN (1,2)' if CONFIG.mutant=='wrong-total' else 'status=2'),(eid,period+'%')).fetchone()
-        return {'minutes':row['minutes']}
+        total=row['minutes']
+        # Deliberate experiment faults: add contributions already represented by
+        # the stored approved records. The unmutated path is the SQL sum above.
+        if CONFIG.mutant in ['approval-double-count','correction-adds-old']:
+            action='decideTime' if CONFIG.mutant=='approval-double-count' else 'correct'
+            changes=c.execute("SELECT before_json,after_json FROM audit WHERE employee_id=? AND entity='time_entries' AND period=? AND action=?",(eid,period,action)).fetchall()
+            for change in changes:
+                value=json.loads(change['after_json'] if action=='decideTime' else change['before_json'])
+                if value and value['status']==2: total+=value['minutes']
+        return {'minutes':total}
     if method=='auditCount': return {'count':c.execute('SELECT COUNT(*) FROM audit WHERE employee_id=? AND period=?',(eid,body.get('period','2026-11'))).fetchone()[0]}
     table='time_entries' if method.endswith('Time') else 'vacations'
     rid=integer(body.get('record'),'record',1)
@@ -101,8 +112,14 @@ def perform(c,actor,method,body):
         if c.execute(f'SELECT 1 FROM {table} WHERE id=?',(rid,)).fetchone(): raise Refusal('Reference number already exists')
         if method=='logTime':
             kind=integer(body.get('kind'),'kind',0,4); minutes=integer(body.get('minutes'),'minutes',15,720)
+            if CONFIG.mutant=='cap-long-duration': minutes=min(minutes,719)
             status=2 if kind==0 or CONFIG.mutant=='auto-approve-special' else 1
             c.execute('INSERT INTO time_entries(id,employee_id,work_date,kind,minutes,status) VALUES (?,?,?,?,?,?)',(rid,eid,date(body.get('date')),kind,minutes,status))
+            if CONFIG.mutant=='overwrite-earlier':
+                prior=c.execute('SELECT id,minutes FROM time_entries WHERE employee_id=? AND work_date=? ORDER BY id',(eid,date(body.get('date')))).fetchall()
+                if len(prior)>=3:
+                    first=prior[0]
+                    c.execute('UPDATE time_entries SET minutes=? WHERE id=?',(first['minutes']+15 if first['minutes']<=705 else first['minutes']-15,first['id']))
         else:
             days=integer(body.get('days'),'days',1,30); start=date(body.get('date'))
             c.execute('INSERT INTO vacations(id,employee_id,start_date,year,days,status) VALUES (?,?,?,?,?,1)',(rid,eid,start,int(start[:4]),days))
@@ -124,6 +141,8 @@ def perform(c,actor,method,body):
             if method=='correctTime':
                 kind=integer(body.get('kind'),'kind',0,4); minutes=integer(body.get('minutes'),'minutes',15,720); status=integer(body.get('status'),'status',1,3)
                 c.execute('UPDATE time_entries SET kind=?,minutes=?,status=?,version=version+1 WHERE id=?',(kind,minutes,status,rid))
+                if CONFIG.mutant=='cross-employee-correction':
+                    c.execute('UPDATE time_entries SET minutes=? WHERE employee_id<>? AND work_date=?',(minutes,eid,before['work_date']))
             else:
                 days=integer(body.get('days'),'days',1,30); status=integer(body.get('status'),'status',1,4)
                 refunded=before['days'] if before['status'] in [2,4] else 0

@@ -1,5 +1,7 @@
 # Larger WorkLog depths: feasibility and retained metadata
 
+The next [effectiveness experiment](EFFECTIVENESS_RESULTS.md) adds richer observations and runs separate frozen suites against the real SUT. This scaling benchmark remains unchanged.
+
 Recorded 30 October 2026, following [Increment 46](DEPTH_RESULTS.md). The HR SUT,
 APN business rules, defining equations, original nine intentions and frozen tests
 are unchanged. All configurations use the same 12-person, five-slot, 159-token

@@ -34,3 +34,11 @@ results/*
 !results/scale-audit.json
 !results/scale-summary.json
 !results/scale-verification.json
+
+# Observable-history experiments: commit witnesses and compact evidence only.
+specification/hr-effectiveness.apn.json
+!results/effectiveness-manifest.json
+!results/effectiveness-summary.json
+!results/effectiveness-preflight-findings.json
+!results/effectiveness-baseline-repeats.json
+!results/effectiveness-original-verification.json

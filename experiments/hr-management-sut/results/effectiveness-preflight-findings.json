@@ -1,0 +1,188 @@
+{
+  "stage": "Repeated unmutated API campaign after adding inactive mutation switches",
+  "counts": {
+    "compatible": 445,
+    "mismatch": 2,
+    "error": 18
+  },
+  "backendSha256": "f0b73768678f055bc4b5697b162970dac7332684a70251a5250a5b8b865619cf",
+  "sqliteQuickCheck": [
+    [
+      "*** in database main ***\nFreelist: freelist leaf count too big on page 141\nFreelist: invalid page number 218103808\nTree 8 page 8 cell 0: 2nd reference to page 141"
+    ],
+    [
+      "wrong # of entries in index audit_employee_period"
+    ]
+  ],
+  "firstMismatches": [
+    {
+      "length": 3,
+      "testId": "reviews.home/reviews.home/reviews.trip/reviews.end-interior",
+      "region": "reviews.home/reviews.home/reviews.trip/reviews.end",
+      "policy": "interior",
+      "kinds": [
+        2,
+        2,
+        1
+      ],
+      "minutes": [
+        60,
+        60,
+        60
+      ],
+      "browser": false,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 12,
+      "durationMs": 59,
+      "eventCount": 12,
+      "eventSha256": "a8c64f2fc34181622156866f3397ef8c1440b957647242882e5caf37d693c35c",
+      "lastEvent": {
+        "step": 12,
+        "stimulation": {
+          "method": "readTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010012
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [
+              {
+                "__pair__": true,
+                "fst": 2,
+                "snd": {
+                  "__pair__": true,
+                  "fst": 60,
+                  "snd": 1
+                }
+              }
+            ],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [
+                {
+                  "__pair__": true,
+                  "fst": 2,
+                  "snd": {
+                    "__pair__": true,
+                    "fst": 60,
+                    "snd": 2
+                  }
+                }
+              ],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "length": 3,
+      "testId": "reviews.oncall/reviews.trip/reviews.trip/reviews.end-upper",
+      "region": "reviews.oncall/reviews.trip/reviews.trip/reviews.end",
+      "policy": "upper",
+      "kinds": [
+        4,
+        1,
+        1
+      ],
+      "minutes": [
+        720,
+        720,
+        720
+      ],
+      "browser": false,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 18,
+      "durationMs": 101,
+      "eventCount": 18,
+      "eventSha256": "a3097a91dd47abca29aaf7087b94e90e8dbd5754f52dd60e3028f6addbaf3e6c",
+      "lastEvent": {
+        "step": 18,
+        "stimulation": {
+          "method": "totals",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [
+              720
+            ],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [
+                1500
+              ],
+              "changes": []
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "firstError": {
+    "length": 3,
+    "testId": "reviews.oncall/reviews.trip/reviews.home/reviews.end-upper",
+    "region": "reviews.oncall/reviews.trip/reviews.home/reviews.end",
+    "policy": "upper",
+    "kinds": [
+      4,
+      1,
+      2
+    ],
+    "minutes": [
+      720,
+      720,
+      720
+    ],
+    "browser": false,
+    "verdict": "error",
+    "reason": "500: {\"error\":\"DatabaseError: database disk image is malformed\"}",
+    "step": 1,
+    "durationMs": 3,
+    "eventCount": 0,
+    "eventSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "status": "Isolated corruption occurrence retained. Exact cause unresolved; excluded from mutant evidence.",
+  "containment": "Live DB and event logs moved to OS temporary directories; reports published atomically; campaigns require SQLite quick_check.",
+  "followUp": "Two consecutive fresh 465-test API and six-test UI baselines passed with quick_check=ok; see effectiveness-baseline-repeats.json."
+}

@@ -1,5 +1,7 @@
 # HR management SUT
 
+[Observable-history results](EFFECTIVENESS_RESULTS.md) add a separate richer protocol, frozen representatives, real REST/Playwright campaigns and within-region fault-detection comparisons. Run `node experiments/effectiveness-export.mjs` to create an editor-importable APN containing the three new intentions. The original examples and frozen suite remain intact.
+
 The latest [scaling measurements](SCALE_RESULTS.md) extend the fixed-marking
 depth experiment with exact scalar feasibility checks, compact region metadata
 and larger explicit branch budgets. The application and original frozen tests

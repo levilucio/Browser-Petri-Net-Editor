@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+See [observable HR histories and representative sensitivity](increment-48-hr-effectiveness.md) for real REST/browser campaigns, seeded history faults and within-region comparisons.
+
 See [scalar feasibility and larger HR depth budgets](increment-47-hr-scalar-feasibility.md) for the follow-up on feasibility costs, retained region metadata and complete fixed-length selection experiments.
 
 See [recursive HR depth and finite coverage audit](increment-46-hr-depth.md) for stage profiling, conservative overlap certificates, and the remaining branch-budget limit.
