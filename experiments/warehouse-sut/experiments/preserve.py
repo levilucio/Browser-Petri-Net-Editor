@@ -1,7 +1,7 @@
 """Freeze an observed failure BEFORE editing the implicated implementation."""
 import argparse,datetime,hashlib,json,pathlib,platform,shutil,subprocess,sqlite3
 root=pathlib.Path(__file__).resolve().parents[1];repo=root.parents[1]
-p=argparse.ArgumentParser();p.add_argument('name');p.add_argument('--report',required=True);p.add_argument('--description',required=True);p.add_argument('--reproduce',required=True);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('name');p.add_argument('--report',required=True);p.add_argument('--description',required=True);p.add_argument('--reproduce',required=True);p.add_argument('--artifact',action='append',default=[]);a=p.parse_args()
 if not a.name.replace('-','').isalnum():raise SystemExit('Use letters/numbers/hyphens for evidence name')
 out=root/'evidence'/a.name
 if out.exists():raise SystemExit('Evidence already exists; refusing overwrite')
@@ -10,6 +10,8 @@ paths=[]
 for directory in [root/'backend',root/'frontend',root/'experiments',root/'specification',root/'tests',repo/'petri-net-app/src/satel/examples/warehouse']:
     paths.extend(f for f in directory.rglob('*') if f.is_file() and '__pycache__' not in f.parts)
 paths.extend(f for f in [root/'CONTRACT.md',root/'results/suites.json',root/'results/generation.json'] if f.exists())
+for name in a.artifact:
+    f=pathlib.Path(name).resolve();f.relative_to(repo);paths.append(f)
 hashes={}
 for f in paths:
     rel=f.relative_to(repo);dest=out/'snapshot'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(f,dest);hashes[str(rel)]=hashlib.sha256(f.read_bytes()).hexdigest()

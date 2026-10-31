@@ -113,3 +113,11 @@ Do not execute restored snapshots against a non-experiment database.
 
 See [BASELINE_RESULTS.md](BASELINE_RESULTS.md) for measured outcomes and the
 unseeded-defect inventory. No mutations are enabled in this baseline SUT.
+
+## Scaling and mutation experiments
+
+See [SCALING_MUTATION_RESULTS.md](SCALING_MUTATION_RESULTS.md) for the separate
+basket-depth, token-population and history-length experiments, opt-in fault
+injection, fixed browser subset, reconstruction commands and evidence limits.
+The normal app.py entry point remains unchanged; faults require the separate
+mutation_server.py runner.

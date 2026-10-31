@@ -57,3 +57,7 @@ No new release/tag, runtime change or experiment is part of this draft.
 The [warehouse/order baseline](../../../experiments/warehouse-sut/BASELINE_RESULTS.md)
 adds a second domain and a preserved unseeded model-abstraction discrepancy.
 It is an increment-52 supplement, not a rewrite of the historical B0 baseline.
+
+[Warehouse scaling and mutation results](../../../experiments/warehouse-sut/SCALING_MUTATION_RESULTS.md)
+add controlled three-axis measurements and separate canonical, post-refusal and
+long-history fault detections (increment 53).

@@ -13,3 +13,8 @@ results/*
 !results/transition-coverage.json
 !results/exercise-warehouse-basket-domains.json
 !results/allocation-check.json
+!results/stress-manifest.json
+!results/stress-preflight.json
+!results/stress-summary.json
+!results/mutation-summary.json
+!results/stress-replay-summary.json
