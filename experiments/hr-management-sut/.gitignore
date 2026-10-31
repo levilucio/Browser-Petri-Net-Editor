@@ -48,3 +48,8 @@ specification/hr-negative.apn.json
 !results/negative-manifest.json
 !results/negative-summary.json
 !results/negative-original-verification.json
+
+# Post-refusal trace probes: finite plans and compact experimental evidence.
+!results/post-refusal-manifest.json
+!results/post-refusal-summary.json
+!results/post-refusal-original-verification.json

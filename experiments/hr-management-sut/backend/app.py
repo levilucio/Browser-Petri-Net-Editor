@@ -6,7 +6,8 @@ from urllib.parse import urlparse, parse_qs
 ROOT = Path(__file__).resolve().parents[1]
 MUTANTS = ['none', 'auto-approve-special', 'manager-scope', 'take-pending', 'double-charge', 'correction-no-audit', 'cross-tenant-hr', 'wrong-total',
            'overwrite-earlier', 'approval-double-count', 'correction-adds-old',
-           'cross-employee-correction', 'cap-long-duration', 'repeat-decision', 'employee-correction']
+           'cross-employee-correction', 'cap-long-duration', 'repeat-decision', 'employee-correction',
+           'refusal-time-write', 'refusal-vacation-write', 'refusal-balance-charge', 'refusal-audit-write']
 KINDS = ['standard', 'business_trip', 'home_office', 'training', 'on_call']
 STATUSES = ['empty', 'pending', 'approved', 'declined', 'taken']
 PASSWORD = 'research-demo'
@@ -86,6 +87,40 @@ def get_record(c,table,rid,eid):
     if r is None: raise Refusal('Record does not exist for this employee')
     return dict(r)
 def perform(c,actor,method,body):
+    try:
+        return perform_operation(c,actor,method,body)
+    except Refusal:
+        # Deliberate experiment faults: an erroneous write escapes the rollback,
+        # while the caller still receives exactly the original refusal response.
+        # These opt-in faults touch only experiment records, never historical data.
+        if CONFIG.mutant.startswith('refusal-'):
+            persist_refusal_fault(c,actor,method,body)
+        raise
+
+def persist_refusal_fault(c,actor,method,body):
+    table='time_entries' if method.endswith('Time') else 'vacations'
+    if method not in ['correctTime','correctVacation','decideVacation','takeVacation']: return
+    row=c.execute(f'SELECT * FROM {table} WHERE id=? AND employee_id=?',(body.get('record'),body.get('employee'))).fetchone()
+    if row is None: return
+    before=dict(row);period=(before.get('work_date') or before['start_date'])[:7]
+    if period!='2026-11': return
+    eid=before['employee_id'];rid=before['id'];mutant=CONFIG.mutant
+    if mutant=='refusal-time-write' and method=='correctTime':
+        c.execute('UPDATE time_entries SET kind=?,minutes=?,status=?,version=version+1 WHERE id=?',
+                  (integer(body.get('kind'),'kind',0,4),integer(body.get('minutes'),'minutes',15,720),integer(body.get('status'),'status',1,3),rid))
+    elif mutant=='refusal-vacation-write' and method=='decideVacation' and isinstance(body.get('approve'),bool):
+        c.execute('UPDATE vacations SET status=?,version=version+1 WHERE id=?',(2 if body['approve'] else 3,rid))
+    elif mutant=='refusal-balance-charge' and method=='takeVacation' and actor['id']==eid and before['status']==1:
+        # An orphan reservation charges one day; reading the requested record
+        # still returns its unchanged pending state. A balance probe is needed.
+        c.execute('INSERT INTO vacations(id,employee_id,start_date,year,days,status) VALUES (?,?,?,?,?,?)',
+                  (900000000+eid,eid,'2026-11-01',2026,1,2))
+    elif mutant=='refusal-audit-write' and method in ['correctTime','correctVacation']:
+        audit(c,actor,eid,table,rid,'failed-write',before,before,period,'Deliberate refusal-side-effect mutant')
+    else: return
+    c.commit()
+
+def perform_operation(c,actor,method,body):
     eid=integer(body.get('employee'), 'employee'); employee=person(c,eid)
     if not can_read(actor,employee) and method in ['readTime','readVacation','balance','totals','auditCount']: raise Refusal('Not allowed to read this employee')
     if method=='balance': return {'remaining':available(c,eid,integer(body.get('year',2026),'year',2000,2100))}

@@ -1,5 +1,7 @@
 # HR management SUT
 
+[Post-refusal probe results](POST_REFUSAL_RESULTS.md) extend the frozen negative tests with APN-derived record, aggregate and audit observations. These separate trace experiments check observable effects after refusal; they do not extend the editor's terminal-refusal intention syntax.
+
 [Automatic refusal results](NEGATIVE_RESULTS.md) document 160 scoped prefix/method targets, generated negative companions and real REST/browser checks. Run `node experiments/negative-export.mjs` to create an editor-importable APN of the frozen positive controls and negative tests.
 
 [Observable-history results](EFFECTIVENESS_RESULTS.md) add a separate richer protocol, frozen representatives, real REST/Playwright campaigns and within-region fault-detection comparisons. Run `node experiments/effectiveness-export.mjs` to create an editor-importable APN containing the three new intentions. The original examples and frozen suite remain intact.
