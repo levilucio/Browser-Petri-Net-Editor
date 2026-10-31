@@ -1,5 +1,7 @@
 # HR management SUT
 
+[Automatic refusal results](NEGATIVE_RESULTS.md) document 160 scoped prefix/method targets, generated negative companions and real REST/browser checks. Run `node experiments/negative-export.mjs` to create an editor-importable APN of the frozen positive controls and negative tests.
+
 [Observable-history results](EFFECTIVENESS_RESULTS.md) add a separate richer protocol, frozen representatives, real REST/Playwright campaigns and within-region fault-detection comparisons. Run `node experiments/effectiveness-export.mjs` to create an editor-importable APN containing the three new intentions. The original examples and frozen suite remain intact.
 
 The latest [scaling measurements](SCALE_RESULTS.md) extend the fixed-marking

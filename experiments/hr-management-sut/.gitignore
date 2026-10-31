@@ -42,3 +42,9 @@ specification/hr-effectiveness.apn.json
 !results/effectiveness-preflight-findings.json
 !results/effectiveness-baseline-repeats.json
 !results/effectiveness-original-verification.json
+
+# Scoped refusal experiment: keep frozen tests and compact evidence.
+specification/hr-negative.apn.json
+!results/negative-manifest.json
+!results/negative-summary.json
+!results/negative-original-verification.json

@@ -6,7 +6,7 @@ from urllib.parse import urlparse, parse_qs
 ROOT = Path(__file__).resolve().parents[1]
 MUTANTS = ['none', 'auto-approve-special', 'manager-scope', 'take-pending', 'double-charge', 'correction-no-audit', 'cross-tenant-hr', 'wrong-total',
            'overwrite-earlier', 'approval-double-count', 'correction-adds-old',
-           'cross-employee-correction', 'cap-long-duration']
+           'cross-employee-correction', 'cap-long-duration', 'repeat-decision', 'employee-correction']
 KINDS = ['standard', 'business_trip', 'home_office', 'training', 'on_call']
 STATUSES = ['empty', 'pending', 'approved', 'declined', 'taken']
 PASSWORD = 'research-demo'
@@ -127,7 +127,7 @@ def perform(c,actor,method,body):
         before=get_record(c,table,rid,eid)
         if method in ['decideTime','decideVacation']:
             if not manager(actor,employee): raise Refusal('Only the assigned manager can decide')
-            if before['status']!=1: raise Refusal('Only pending records can be decided')
+            if before['status']!=1 and CONFIG.mutant!='repeat-decision': raise Refusal('Only pending records can be decided')
             approve=body.get('approve')
             if not isinstance(approve,bool): raise Invalid('approve must be Boolean')
             if method=='decideVacation' and approve and available(c,eid,before['year'])<before['days']: raise Refusal('Insufficient vacation balance')
@@ -136,7 +136,7 @@ def perform(c,actor,method,body):
             if actor['id']!=eid or before['status']!=2 and not(CONFIG.mutant=='take-pending' and before['status']==1): raise Refusal('Vacation must be approved before it is taken')
             c.execute('UPDATE vacations SET status=4,version=version+1 WHERE id=?',(rid,))
         elif method in ['correctTime','correctVacation']:
-            if not is_hr(actor,employee): raise Refusal('Only HR from this company can correct records')
+            if not is_hr(actor,employee) and not(CONFIG.mutant=='employee-correction' and actor['id']==eid): raise Refusal('Only HR from this company can correct records')
             if not isinstance(body.get('reason'),str) or not body['reason'].strip(): raise Invalid('A correction reason is required')
             if method=='correctTime':
                 kind=integer(body.get('kind'),'kind',0,4); minutes=integer(body.get('minutes'),'minutes',15,720); status=integer(body.get('status'),'status',1,3)
