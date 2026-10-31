@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Waypoint · Reservations</title><link rel="stylesheet" href="/style.css"></head>
+<body><header><span class="brand">W / WAYPOINT</span><span>Warehouse reservations</span></header>
+<main><div class="eyebrow">FULFILMENT DESK</div><h1>One reservation.<br>Two ways forward.</h1><p class="intro">Open a reservation, choose a warehouse or let us allocate one, then collect your receipt.</p>
+<section class="workspace"><div class="actions"><div class="step">01 / START</div><h2>Your reservation</h2><p>Each reservation holds one item. Both warehouses serve this catalogue.</p><button data-method="open">Open reservation</button>
+<div class="step">02 / ALLOCATE</div><div class="warehouses"><article><span class="badge">A</span><h3>North warehouse</h3><p>Reserve from the northern hub.</p><button data-method="reserve" data-warehouse="1" class="secondary">Choose North</button></article><article><span class="badge">B</span><h3>South warehouse</h3><p>Reserve from the southern hub.</p><button data-method="reserve" data-warehouse="2" class="secondary">Choose South</button></article></div><button data-method="allocate" class="wide">Allocate automatically</button>
+<div class="step">03 / COMPLETE</div><button data-method="finish" class="secondary">Complete reservation</button></div>
+<aside aria-live="polite"><div class="step">ACTIVITY</div><h2 id="status">Ready when you are</h2><p id="message">Open a reservation to begin.</p><ol id="activity"></ol><details><summary>Response details</summary><pre id="response" data-request="0">{}</pre></details></aside></section>
+<footer>Waypoint research application · Changes are stored in a relational database.</footer></main><script src="/app.js"></script></body></html>

@@ -1,0 +1,13 @@
+{
+  "name": "reservation-hml-sut",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python backend/app.py",
+    "generate": "node experiments/generate.mjs",
+    "test:backend": "python -m unittest discover -s tests -p '*_test.py'",
+    "test:campaign": "node experiments/campaign.mjs",
+    "summarize": "node experiments/summarize.mjs",
+    "test:controlled": "node --test tests/controlled.test.mjs"
+  }
+}

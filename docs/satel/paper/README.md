@@ -1,5 +1,8 @@
 # SATEL/APN paper working draft
 
+See [reservation HML results](../../../experiments/reservation-sut/RESULTS.md) for the controlled comparison of public trace evidence and branching-property decisions.
+
+
 The [HR claim–evidence–assumption matrix](hr-claim-evidence-assumptions.md) consolidates the later methods/gates, scaling, representative-sensitivity and negative-test experiments. It supplements this draft without changing its frozen B0 baseline or treating open correspondence obligations as proved.
 
 Start with [main.tex](main.tex). The first substantive content is the proposed

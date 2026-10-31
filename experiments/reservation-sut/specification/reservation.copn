@@ -1,0 +1,35 @@
+Class ReservationChoices;
+
+Interface
+  Methods
+    open : ;
+    allocate : ;
+    reserve : Nat;
+    finish : ;
+  Gates
+    ready : Bool;
+    allocated : Nat;
+    receipt : Nat;
+
+Body
+  Places
+    state : Nat;
+  Initial
+    state (0);
+  Axioms
+    open_ready: open With this.ready (true) ::
+      s == 0 => state s -> state (1);
+    auto_1: allocate With this.allocated (1) ::
+      s == 1 => state s -> state (2);
+    reserve_1: reserve warehouse With this.allocated (warehouse) ::
+      s == 1 and warehouse == 1 => state s -> state (2);
+    finish_1: finish With this.receipt (1) ::
+      s == 2 => state s -> state (4);
+    auto_2: allocate With this.allocated (2) ::
+      s == 1 => state s -> state (3);
+    reserve_2: reserve warehouse With this.allocated (warehouse) ::
+      s == 1 and warehouse == 2 => state s -> state (3);
+    finish_2: finish With this.receipt (2) ::
+      s == 3 => state s -> state (4);
+
+End ReservationChoices;

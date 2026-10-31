@@ -1,0 +1,82 @@
+[
+  {
+    "file": "bad-b-receipt-api.json",
+    "sha256": "5dab6ae13820ba63c69cdab590e28ede4014732ffdf58878befafbfde4ab1658",
+    "complete": false,
+    "ordinary": 65,
+    "controlled": 3,
+    "error": null
+  },
+  {
+    "file": "bad-b-receipt-ui.json",
+    "sha256": "5390f7c358c7eaa784b5452d544de3a539792b54a41ccb55b1e2543b4d83e20b",
+    "complete": false,
+    "ordinary": 96,
+    "controlled": 4,
+    "error": null
+  },
+  {
+    "file": "early-commitment-api.json",
+    "sha256": "37f79fa6d846ff19fd1142101aa7cee8788f45ce3e3b6710855827e8f621f111",
+    "complete": false,
+    "ordinary": 83,
+    "controlled": 4,
+    "error": null
+  },
+  {
+    "file": "early-commitment-ui.json",
+    "sha256": "a5c95362c2f4d39824f4db653376237f49734e15e4847ccbaf1abaab638e6d3a",
+    "complete": true,
+    "ordinary": 96,
+    "controlled": 5,
+    "error": null
+  },
+  {
+    "file": "illegal-output-api.json",
+    "sha256": "207b9065c0f7c11b6afc5412dc31c8289b16286d57ab5e0d14e9e0ceae0a435c",
+    "complete": true,
+    "ordinary": 96,
+    "controlled": 5,
+    "error": null
+  },
+  {
+    "file": "illegal-output-ui.json",
+    "sha256": "73284f6e26b7846968cb90085e941cb063d0a899da795ed144bcbe4f25b197c4",
+    "complete": false,
+    "ordinary": 96,
+    "controlled": 4,
+    "error": null
+  },
+  {
+    "file": "missing-b-api.json",
+    "sha256": "64da13763bf1072894ba5ce427a9f3c59c1287ce2778f76c3959f3103f13f58e",
+    "complete": true,
+    "ordinary": 96,
+    "controlled": 5,
+    "error": null
+  },
+  {
+    "file": "missing-b-ui.json",
+    "sha256": "cf2f9f9bec1303588e95e2c5f3d774aaf7840d08fc65c274e8982ab9b6c84767",
+    "complete": true,
+    "ordinary": 96,
+    "controlled": 5,
+    "error": null
+  },
+  {
+    "file": "none-api.json",
+    "sha256": "de5a21c184e6c099b4d3560a9c2690e362f19df690bd971cf120088d5be74a01",
+    "complete": true,
+    "ordinary": 96,
+    "controlled": 5,
+    "error": null
+  },
+  {
+    "file": "none-ui.json",
+    "sha256": "f948c1ab0d30f79e759bf3188b86c6e922979eeec0596702db2b1c2c11ffae6d",
+    "complete": true,
+    "ordinary": 96,
+    "controlled": 5,
+    "error": null
+  }
+]
