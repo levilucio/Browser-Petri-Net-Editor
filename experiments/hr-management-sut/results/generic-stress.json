@@ -1,0 +1,713 @@
+{
+  "recordedAt": "2026-10-30T20:43:26.282Z",
+  "node": "v24.22.1",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "methodology": "Sequential isolated child per configuration, Z3 initialization excluded; 60-second algebra and 60-second sequence soft budgets, 10000 sequence branches, 150-second process limit. Selection only: no admission or SUT execution for enlarged markings. No competing experiment jobs. One measured trial per configuration.",
+  "sourceSha256": {
+    "src/satel/examples/hr/editor.js": "6a1e1b978223e372acf5d0fb371e15a82412863f5a14e3b228a0865e5bd4e100",
+    "src/satel/examples/hr/intentions.js": "3a10ededd6c5fdefa627e790c94df9721da554c261b4019adf9d2405b17bf754",
+    "src/satel/core/ExecutableSequence.js": "d1e7fde77ae518ab7398c51e81599dcfc1a370799e797feaf7e6f7c0bdeef966",
+    "src/domain/algebra/GroundTerms.js": "c339ec7086a58ab46066393bdbfa5a2d5bffc7e3545a114f58dd55fc0db6fe8d",
+    "src/domain/apn/PublicMethods.js": "c0f224b19cb5a65a751c79aeb46c6473f60250f31bd1ef324d14909db53624ab"
+  },
+  "results": [
+    {
+      "config": {
+        "employees": 12,
+        "slots": 2,
+        "expanded": true
+      },
+      "initMs": 128.46828999999997,
+      "elapsedMs": 3590.564009,
+      "places": 72,
+      "transitions": 432,
+      "arcs": 1872,
+      "marking": [
+        {
+          "place": "balance_1001",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1001",
+          "tokens": 1
+        },
+        {
+          "place": "time_1001_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1001_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1001_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1001_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1002",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1002",
+          "tokens": 1
+        },
+        {
+          "place": "time_1002_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1002_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1002_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1002_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1003",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1003",
+          "tokens": 1
+        },
+        {
+          "place": "time_1003_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1003_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1003_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1003_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1004",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1004",
+          "tokens": 1
+        },
+        {
+          "place": "time_1004_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1004_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1004_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1004_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1005",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1005",
+          "tokens": 1
+        },
+        {
+          "place": "time_1005_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1005_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1005_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1005_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1006",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1006",
+          "tokens": 1
+        },
+        {
+          "place": "time_1006_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1006_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1006_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1006_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1007",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1007",
+          "tokens": 1
+        },
+        {
+          "place": "time_1007_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1007_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1007_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1007_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1008",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1008",
+          "tokens": 1
+        },
+        {
+          "place": "time_1008_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1008_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1008_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1008_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1009",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1009",
+          "tokens": 1
+        },
+        {
+          "place": "time_1009_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1009_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1009_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1009_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_1010",
+          "tokens": 1
+        },
+        {
+          "place": "audit_1010",
+          "tokens": 1
+        },
+        {
+          "place": "time_1010_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1010_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_1010_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_1010_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_101",
+          "tokens": 1
+        },
+        {
+          "place": "audit_101",
+          "tokens": 1
+        },
+        {
+          "place": "time_101_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_101_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_101_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_101_1",
+          "tokens": 1
+        },
+        {
+          "place": "balance_2001",
+          "tokens": 1
+        },
+        {
+          "place": "audit_2001",
+          "tokens": 1
+        },
+        {
+          "place": "time_2001_0",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_2001_0",
+          "tokens": 1
+        },
+        {
+          "place": "time_2001_1",
+          "tokens": 1
+        },
+        {
+          "place": "vacation_2001_1",
+          "tokens": 1
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2405,
+      "pruned": 10290,
+      "prefixChecks": 115,
+      "rss": 362217472,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 12,
+        "slots": 2
+      },
+      "initMs": 141.516145,
+      "elapsedMs": 9310.264173,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 12
+        },
+        {
+          "place": "principals",
+          "tokens": 27
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 24
+        },
+        {
+          "place": "vacations",
+          "tokens": 24
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2832,
+      "pruned": 14184,
+      "prefixChecks": 388,
+      "rss": 400674816,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 48,
+        "slots": 2
+      },
+      "initMs": 147.086212,
+      "elapsedMs": 18422.864235,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 48
+        },
+        {
+          "place": "principals",
+          "tokens": 61
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 96
+        },
+        {
+          "place": "vacations",
+          "tokens": 96
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2832,
+      "pruned": 46638,
+      "prefixChecks": 388,
+      "rss": 404774912,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 120,
+        "slots": 2
+      },
+      "initMs": 145.307013,
+      "elapsedMs": 34891.391493999996,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 120
+        },
+        {
+          "place": "principals",
+          "tokens": 130
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 240
+        },
+        {
+          "place": "vacations",
+          "tokens": 240
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2832,
+      "pruned": 111807,
+      "prefixChecks": 388,
+      "rss": 410873856,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 256,
+        "slots": 2
+      },
+      "initMs": 129.41884399999998,
+      "elapsedMs": 62020.039874,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 256
+        },
+        {
+          "place": "principals",
+          "tokens": 256
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 512
+        },
+        {
+          "place": "vacations",
+          "tokens": 512
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selected": 23,
+      "blocked": 0,
+      "unresolved": [
+        {
+          "id": "reviews.oncall/reviews.training/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        }
+      ],
+      "visited": 2666,
+      "pruned": 217638,
+      "prefixChecks": 366,
+      "rss": 553037824,
+      "sameFrozenPairs": false,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 256,
+        "slots": 8
+      },
+      "initMs": 138.71120900000003,
+      "elapsedMs": 62227.861682999996,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 256
+        },
+        {
+          "place": "principals",
+          "tokens": 256
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 2048
+        },
+        {
+          "place": "vacations",
+          "tokens": 2048
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selected": 8,
+      "blocked": 0,
+      "unresolved": [
+        {
+          "id": "reviews.trip/reviews.training/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.end",
+          "reason": "Sequence search budget exhausted",
+          "diagnostic": {
+            "code": "resource-limit",
+            "stage": "sequence-search",
+            "message": "Sequence search budget exhausted"
+          }
+        }
+      ],
+      "visited": 871,
+      "pruned": 160927,
+      "prefixChecks": 125,
+      "rss": 647667712,
+      "sameFrozenPairs": false,
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

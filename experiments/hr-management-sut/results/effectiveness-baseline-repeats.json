@@ -1,0 +1,58 @@
+[
+  {
+    "transport": "api",
+    "startedAt": "2026-10-30T23:28:58.523Z",
+    "counts": {
+      "compatible": 465
+    },
+    "databaseIntegrity": [
+      [
+        "ok"
+      ]
+    ],
+    "backendSha256": "f0b73768678f055bc4b5697b162970dac7332684a70251a5250a5b8b865619cf",
+    "manifestSha256": "1e5466a96f808fcf22877a45de2d3fe4fd73d60b2a6f741795ba54e88ed6d010"
+  },
+  {
+    "transport": "ui",
+    "startedAt": "2026-10-30T23:29:39.672Z",
+    "counts": {
+      "compatible": 6
+    },
+    "databaseIntegrity": [
+      [
+        "ok"
+      ]
+    ],
+    "backendSha256": "f0b73768678f055bc4b5697b162970dac7332684a70251a5250a5b8b865619cf",
+    "manifestSha256": "1e5466a96f808fcf22877a45de2d3fe4fd73d60b2a6f741795ba54e88ed6d010"
+  },
+  {
+    "transport": "api",
+    "startedAt": "2026-10-30T23:30:04.461Z",
+    "counts": {
+      "compatible": 465
+    },
+    "databaseIntegrity": [
+      [
+        "ok"
+      ]
+    ],
+    "backendSha256": "f0b73768678f055bc4b5697b162970dac7332684a70251a5250a5b8b865619cf",
+    "manifestSha256": "1e5466a96f808fcf22877a45de2d3fe4fd73d60b2a6f741795ba54e88ed6d010"
+  },
+  {
+    "transport": "ui",
+    "startedAt": "2026-10-30T23:30:43.304Z",
+    "counts": {
+      "compatible": 6
+    },
+    "databaseIntegrity": [
+      [
+        "ok"
+      ]
+    ],
+    "backendSha256": "f0b73768678f055bc4b5697b162970dac7332684a70251a5250a5b8b865619cf",
+    "manifestSha256": "1e5466a96f808fcf22877a45de2d3fe4fd73d60b2a6f741795ba54e88ed6d010"
+  }
+]

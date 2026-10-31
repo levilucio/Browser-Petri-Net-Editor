@@ -1,3 +1,5 @@
+import { createTokenIndex } from './TokenIndex.js';
+import { guardConjuncts, boundGuardIsFalse } from './BoundGuards.js';
 /** Checked, synchronous public methods for the built-in APN values. */
 import { getGates, emptyGates, validGateValue, gateValueSort } from './Gates.js';
 import { compileMethodTerm, evaluateMethodTerm } from './MethodTerms.js';
@@ -86,7 +88,8 @@ export function compileMethodRule(net, method, ruleId) {
     outs,
     gates,
     guard,
-    variables
+    variables,
+    guardChecks: guardConjuncts(guard)
   };
 }
 
@@ -135,6 +138,7 @@ export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
   const places = new Map(net.places.map(p => [p.id, p]));
   const candidates = [],
     seen = new Set();
+  const tokenCandidates = createTokenIndex({ check: () => checkCancelled(options.signal) });
   let visited = 0;
   const maxBindings = options.maxBindings ?? 10000;
   requireThat(Number.isInteger(maxBindings) && maxBindings > 0, 'maxBindings must be a positive integer');
@@ -144,21 +148,23 @@ export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
       ins,
       outs,
       gates,
-      guard
+      guard,
+      guardChecks
     } of plans[name]) {
       const choose = (i, env, picks) => {
         checkCancelled(options.signal);
+        if (options.pruneBoundGuards !== false && boundGuardIsFalse(guardChecks,env)) return;
         if (++visited > maxBindings) throw new DomainError('resource-limit', 'Method binding search limit reached; result is unresolved');
         options.onVisit?.();
         if (i < ins.length) {
           const input = ins[i];
           const equivalent = new Set();
-          places.get(input.place).valueTokens.forEach((value, tokenIndex) => {
-            if (picks.some(p => p.srcId === input.place && p.tokenIndex === tokenIndex)) return;
+          for (const [tokenIndex, value] of tokenCandidates(places.get(input.place).valueTokens, input.variable, guardChecks, env, options.useTokenIndex !== false)) {
+            if (picks.some(p => p.srcId === input.place && p.tokenIndex === tokenIndex)) continue;
             const key = builtinValueKey(value);
-            if (equivalent.has(key)) return;
+            if (equivalent.has(key)) continue;
             equivalent.add(key);
-            if (Object.hasOwn(env, input.variable) && !equalValues(env[input.variable], value)) return;
+            if (Object.hasOwn(env, input.variable) && !equalValues(env[input.variable], value)) continue;
             choose(i + 1, {
               ...env,
               [input.variable]: value
@@ -169,7 +175,7 @@ export function enumerateMethodSuccessors(net, name, args = {}, options = {}) {
               value,
               countFallback: false
             }]);
-          });
+          }
           return;
         }
         if (guard !== null && guard !== undefined) {

@@ -1,0 +1,1175 @@
+{
+  "schemaVersion": 1,
+  "manifestSha256": "b455ca128bf756aa201172a7c288f3100ae819b814386d1e5ef2ad1c5c203de7",
+  "sourceNegativeTests": 129,
+  "probeExperiments": 387,
+  "rejectedProbes": 0,
+  "positiveControls": 2,
+  "terminalControls": 129,
+  "probeLengthRange": [
+    3,
+    10
+  ],
+  "generationMs": 1100.210545,
+  "generationRss": 97796096,
+  "boundedProbe": {
+    "maxTotalBindings": 1,
+    "outcome": "resource-limit",
+    "partialPlansPublished": false
+  },
+  "variants": [
+    {
+      "mutant": "none",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 387,
+          "compatible": 387,
+          "mismatches": 0
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 24,
+          "compatible": 24,
+          "mismatches": 0
+        }
+      },
+      "byProbe": {
+        "readTime": {
+          "api": {
+            "runs": 47,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "totals": {
+          "api": {
+            "runs": 47,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "readVacation": {
+          "api": {
+            "runs": 82,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "balance": {
+          "api": {
+            "runs": 82,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "auditCount": {
+          "api": {
+            "runs": 129,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 8,
+            "mismatches": 0
+          }
+        }
+      },
+      "apiMs": 14348.961872,
+      "uiMs": 28521.876691,
+      "apiRss": 268013568,
+      "uiRss": 169586688,
+      "matchedTransportRuns": 34,
+      "identicalEventsAndVerdicts": true,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 516
+      }
+    },
+    {
+      "mutant": "refusal-time-write",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 387,
+          "compatible": 367,
+          "mismatches": 20
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 24,
+          "compatible": 22,
+          "mismatches": 2
+        }
+      },
+      "byProbe": {
+        "readTime": {
+          "api": {
+            "runs": 47,
+            "mismatches": 12
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 2
+          }
+        },
+        "totals": {
+          "api": {
+            "runs": 47,
+            "mismatches": 8
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "readVacation": {
+          "api": {
+            "runs": 82,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "balance": {
+          "api": {
+            "runs": 82,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "auditCount": {
+          "api": {
+            "runs": 129,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 8,
+            "mismatches": 0
+          }
+        }
+      },
+      "apiMs": 14652.983605,
+      "uiMs": 29041.861572,
+      "apiRss": 271601664,
+      "uiRss": 166969344,
+      "matchedTransportRuns": 34,
+      "identicalEventsAndVerdicts": true,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 516
+      }
+    },
+    {
+      "mutant": "refusal-vacation-write",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 387,
+          "compatible": 363,
+          "mismatches": 24
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 24,
+          "compatible": 22,
+          "mismatches": 2
+        }
+      },
+      "byProbe": {
+        "readTime": {
+          "api": {
+            "runs": 47,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "totals": {
+          "api": {
+            "runs": 47,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "readVacation": {
+          "api": {
+            "runs": 82,
+            "mismatches": 14
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 1
+          }
+        },
+        "balance": {
+          "api": {
+            "runs": 82,
+            "mismatches": 10
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 1
+          }
+        },
+        "auditCount": {
+          "api": {
+            "runs": 129,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 8,
+            "mismatches": 0
+          }
+        }
+      },
+      "apiMs": 13979.001329,
+      "uiMs": 28835.618647,
+      "apiRss": 273903616,
+      "uiRss": 222003200,
+      "matchedTransportRuns": 34,
+      "identicalEventsAndVerdicts": true,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 516
+      }
+    },
+    {
+      "mutant": "refusal-balance-charge",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 387,
+          "compatible": 386,
+          "mismatches": 1
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 24,
+          "compatible": 23,
+          "mismatches": 1
+        }
+      },
+      "byProbe": {
+        "readTime": {
+          "api": {
+            "runs": 47,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "totals": {
+          "api": {
+            "runs": 47,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "readVacation": {
+          "api": {
+            "runs": 82,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "balance": {
+          "api": {
+            "runs": 82,
+            "mismatches": 1
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 1
+          }
+        },
+        "auditCount": {
+          "api": {
+            "runs": 129,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 8,
+            "mismatches": 0
+          }
+        }
+      },
+      "apiMs": 15770.910355,
+      "uiMs": 28591.503885000006,
+      "apiRss": 275787776,
+      "uiRss": 225857536,
+      "matchedTransportRuns": 34,
+      "identicalEventsAndVerdicts": true,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 516
+      }
+    },
+    {
+      "mutant": "refusal-audit-write",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 387,
+          "compatible": 359,
+          "mismatches": 28
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatches": 0
+        },
+        "terminal-refusal": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatches": 0
+        },
+        "post-refusal-probe": {
+          "runs": 24,
+          "compatible": 22,
+          "mismatches": 2
+        }
+      },
+      "byProbe": {
+        "readTime": {
+          "api": {
+            "runs": 47,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "totals": {
+          "api": {
+            "runs": 47,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "readVacation": {
+          "api": {
+            "runs": 82,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "balance": {
+          "api": {
+            "runs": 82,
+            "mismatches": 0
+          },
+          "ui": {
+            "runs": 4,
+            "mismatches": 0
+          }
+        },
+        "auditCount": {
+          "api": {
+            "runs": 129,
+            "mismatches": 28
+          },
+          "ui": {
+            "runs": 8,
+            "mismatches": 2
+          }
+        }
+      },
+      "apiMs": 14307.751312,
+      "uiMs": 28342.423158000005,
+      "apiRss": 278093824,
+      "uiRss": 226426880,
+      "matchedTransportRuns": 34,
+      "identicalEventsAndVerdicts": true,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 516
+      }
+    }
+  ],
+  "counterexamples": [
+    {
+      "mutant": "refusal-time-write",
+      "counterexampleKind": "trace-conformance-after-refusal",
+      "testId": "negative-seed-time-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion::probe-0",
+      "sourceTestId": "negative-seed-time-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-time:1:correctTime:actor1001",
+      "kind": "post-refusal-probe",
+      "browser": true,
+      "probe": "readTime",
+      "refusalStep": 2,
+      "callCount": 3,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 3,
+      "durationMs": 17,
+      "eventCount": 3,
+      "eventSha256": "bb11320a9224f07e4726e8813f32e2d0949f1436365f6a63288f14fe8dffbe53",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "propertyEvidenceScope": "original-terminal-refusal-property",
+      "reasonCode": "unexpected-output",
+      "refusalEvent": {
+        "step": 2,
+        "stimulation": {
+          "method": "correctTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011,
+            "kind": 0,
+            "minutes": 60,
+            "status": 1
+          }
+        },
+        "response": {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      },
+      "lastEvent": {
+        "step": 3,
+        "stimulation": {
+          "method": "readTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [
+              {
+                "__pair__": true,
+                "fst": 0,
+                "snd": {
+                  "__pair__": true,
+                  "fst": 60,
+                  "snd": 1
+                }
+              }
+            ],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [
+                {
+                  "__pair__": true,
+                  "fst": 2,
+                  "snd": {
+                    "__pair__": true,
+                    "fst": 60,
+                    "snd": 1
+                  }
+                }
+              ],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "refusal-time-write",
+      "counterexampleKind": "trace-conformance-after-refusal",
+      "testId": "negative-seed-time-refusal-4-companion-companion-companion-companion-companion-companion-companion-companion-companion-companion::probe-1",
+      "sourceTestId": "negative-seed-time-refusal-4-companion-companion-companion-companion-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-time:3:correctTime:actor1001",
+      "kind": "post-refusal-probe",
+      "browser": false,
+      "probe": "totals",
+      "refusalStep": 4,
+      "callCount": 5,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 5,
+      "durationMs": 23,
+      "eventCount": 5,
+      "eventSha256": "ab8a7957ebdab9c35f2fc3f54296f1bd6b345d2695829ab06016ac916cfdb5a2",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "propertyEvidenceScope": "original-terminal-refusal-property",
+      "reasonCode": "unexpected-output",
+      "refusalEvent": {
+        "step": 4,
+        "stimulation": {
+          "method": "correctTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011,
+            "kind": 0,
+            "minutes": 60,
+            "status": 1
+          }
+        },
+        "response": {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      },
+      "lastEvent": {
+        "step": 5,
+        "stimulation": {
+          "method": "totals",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [
+              0
+            ],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [
+                60
+              ],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "refusal-vacation-write",
+      "counterexampleKind": "trace-conformance-after-refusal",
+      "testId": "negative-seed-vacation-refusal-2-companion-companion-companion-companion-companion::probe-0",
+      "sourceTestId": "negative-seed-vacation-refusal-2-companion-companion-companion-companion-companion",
+      "target": "negative-seed-vacation:1:decideVacation:actor1001",
+      "kind": "post-refusal-probe",
+      "browser": false,
+      "probe": "readVacation",
+      "refusalStep": 2,
+      "callCount": 3,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 3,
+      "durationMs": 14,
+      "eventCount": 3,
+      "eventSha256": "cc27c60224eaabf0717f51236d53cddba2061ac3f855b6b929a894534527c385",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "propertyEvidenceScope": "original-terminal-refusal-property",
+      "reasonCode": "unexpected-output",
+      "refusalEvent": {
+        "step": 2,
+        "stimulation": {
+          "method": "decideVacation",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 19010011,
+            "approve": false
+          }
+        },
+        "response": {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      },
+      "lastEvent": {
+        "step": 3,
+        "stimulation": {
+          "method": "readVacation",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 19010011
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [
+              {
+                "__pair__": true,
+                "fst": 5,
+                "snd": 3
+              }
+            ],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [
+                {
+                  "__pair__": true,
+                  "fst": 5,
+                  "snd": 1
+                }
+              ],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "refusal-vacation-write",
+      "counterexampleKind": "trace-conformance-after-refusal",
+      "testId": "negative-seed-vacation-refusal-4-companion-companion-companion-companion-companion::probe-1",
+      "sourceTestId": "negative-seed-vacation-refusal-4-companion-companion-companion-companion-companion",
+      "target": "negative-seed-vacation:3:decideVacation:actor1001",
+      "kind": "post-refusal-probe",
+      "browser": false,
+      "probe": "balance",
+      "refusalStep": 4,
+      "callCount": 5,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 5,
+      "durationMs": 20,
+      "eventCount": 5,
+      "eventSha256": "f0d4e228d4d505d4435a6de9a88a295d549530055eb1065f7522df20ae4254d6",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "propertyEvidenceScope": "original-terminal-refusal-property",
+      "reasonCode": "unexpected-output",
+      "refusalEvent": {
+        "step": 4,
+        "stimulation": {
+          "method": "decideVacation",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 19010011,
+            "approve": false
+          }
+        },
+        "response": {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      },
+      "lastEvent": {
+        "step": 5,
+        "stimulation": {
+          "method": "balance",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [
+              30
+            ],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [
+                25
+              ],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "refusal-balance-charge",
+      "counterexampleKind": "trace-conformance-after-refusal",
+      "testId": "negative-seed-vacation-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion::probe-1",
+      "sourceTestId": "negative-seed-vacation-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-vacation:1:takeVacation:actor1001",
+      "kind": "post-refusal-probe",
+      "browser": true,
+      "probe": "balance",
+      "refusalStep": 2,
+      "callCount": 3,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 3,
+      "durationMs": 19,
+      "eventCount": 3,
+      "eventSha256": "1939a21d18746463e8e8bd0bfc639433729deaecf38ccd7a1b76a32b8960f04e",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "propertyEvidenceScope": "original-terminal-refusal-property",
+      "reasonCode": "unexpected-output",
+      "refusalEvent": {
+        "step": 2,
+        "stimulation": {
+          "method": "takeVacation",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 19010011
+          }
+        },
+        "response": {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      },
+      "lastEvent": {
+        "step": 3,
+        "stimulation": {
+          "method": "balance",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [
+              29
+            ],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [
+                30
+              ],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "refusal-audit-write",
+      "counterexampleKind": "trace-conformance-after-refusal",
+      "testId": "negative-seed-time-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion::probe-2",
+      "sourceTestId": "negative-seed-time-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-time:1:correctTime:actor1001",
+      "kind": "post-refusal-probe",
+      "browser": true,
+      "probe": "auditCount",
+      "refusalStep": 2,
+      "callCount": 3,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "step": 3,
+      "durationMs": 17,
+      "eventCount": 3,
+      "eventSha256": "1d6ede790e0f00795ab2575351302051075d2f28b2672c76402204dd65a79010",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "propertyEvidenceScope": "original-terminal-refusal-property",
+      "reasonCode": "unexpected-output",
+      "refusalEvent": {
+        "step": 2,
+        "stimulation": {
+          "method": "correctTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011,
+            "kind": 0,
+            "minutes": 60,
+            "status": 1
+          }
+        },
+        "response": {
+          "status": "refused",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      },
+      "lastEvent": {
+        "step": 3,
+        "stimulation": {
+          "method": "auditCount",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": [
+              2
+            ]
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": [
+                1
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "scope": "Finite supplied probe calls with APN-derived outcomes and all-compatible-state admission. Separate trace experiments, not extended HML sequences or complete side-effect coverage. Each probe uses a fresh reset; no hidden states are merged across runs."
+}

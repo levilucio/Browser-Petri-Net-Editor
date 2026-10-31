@@ -1,0 +1,622 @@
+{
+  "manifestSha256": "cefba03ceefe3a2ab3543d3bd151eaba2cdb9df17c53065d946d48077c53b07b",
+  "targets": 160,
+  "generationMs": 1228.575059,
+  "negativeTests": 129,
+  "positiveControls": 2,
+  "noRefusal": 31,
+  "unresolved": 0,
+  "unvisited": 0,
+  "duplicates": 0,
+  "concreteValuations": 565,
+  "boundedProbe": {
+    "attempts": 1,
+    "unvisited": 159,
+    "truncated": true
+  },
+  "variants": [
+    {
+      "mutant": "none",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatch": 0
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatch": 0
+        }
+      },
+      "matchedTransportRuns": 18,
+      "identicalEventsAndVerdicts": true,
+      "apiMs": 7632.6477079999995,
+      "uiMs": 12968.897116,
+      "apiRss": 245649408,
+      "uiRss": 159416320,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 258
+      }
+    },
+    {
+      "mutant": "manager-scope",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 129,
+          "compatible": 127,
+          "mismatch": 2
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 8,
+          "compatible": 7,
+          "mismatch": 1
+        }
+      },
+      "matchedTransportRuns": 18,
+      "identicalEventsAndVerdicts": true,
+      "apiMs": 7092.511951,
+      "uiMs": 12775.726427,
+      "apiRss": 245645312,
+      "uiRss": 158584832,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 258
+      }
+    },
+    {
+      "mutant": "cross-tenant-hr",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 129,
+          "compatible": 115,
+          "mismatch": 14
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 8,
+          "compatible": 7,
+          "mismatch": 1
+        }
+      },
+      "matchedTransportRuns": 18,
+      "identicalEventsAndVerdicts": true,
+      "apiMs": 7312.241125,
+      "uiMs": 12440.477911,
+      "apiRss": 254771200,
+      "uiRss": 170795008,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 258
+      }
+    },
+    {
+      "mutant": "take-pending",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 129,
+          "compatible": 128,
+          "mismatch": 1
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 8,
+          "compatible": 7,
+          "mismatch": 1
+        }
+      },
+      "matchedTransportRuns": 18,
+      "identicalEventsAndVerdicts": true,
+      "apiMs": 6856.297243999999,
+      "uiMs": 12430.373268000003,
+      "apiRss": 259743744,
+      "uiRss": 183111680,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 258
+      }
+    },
+    {
+      "mutant": "repeat-decision",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 129,
+          "compatible": 124,
+          "mismatch": 5
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 8,
+          "compatible": 5,
+          "mismatch": 3
+        }
+      },
+      "matchedTransportRuns": 18,
+      "identicalEventsAndVerdicts": true,
+      "apiMs": 6292.562150999998,
+      "uiMs": 12757.950677,
+      "apiRss": 260841472,
+      "uiRss": 237953024,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 258
+      }
+    },
+    {
+      "mutant": "employee-correction",
+      "api": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 129,
+          "compatible": 129,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 129,
+          "compatible": 122,
+          "mismatch": 7
+        }
+      },
+      "ui": {
+        "positive-control": {
+          "runs": 2,
+          "compatible": 2,
+          "mismatch": 0
+        },
+        "positive-prefix": {
+          "runs": 8,
+          "compatible": 8,
+          "mismatch": 0
+        },
+        "refusal": {
+          "runs": 8,
+          "compatible": 7,
+          "mismatch": 1
+        }
+      },
+      "matchedTransportRuns": 18,
+      "identicalEventsAndVerdicts": true,
+      "apiMs": 6257.654105000001,
+      "uiMs": 12449.124188000002,
+      "apiRss": 262664192,
+      "uiRss": 239009792,
+      "propertyEvidence": {
+        "witnessed": 2,
+        "inconclusive": 258
+      }
+    }
+  ],
+  "counterexamples": [
+    {
+      "mutant": "manager-scope",
+      "counterexampleKind": "trace-conformance",
+      "testId": "negative-seed-time-refusal-2-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-time:1:decideTime:actor102",
+      "kind": "negative",
+      "browser": true,
+      "pathIndex": 0,
+      "phase": "refusal",
+      "verdict": "mismatch",
+      "reason": "The SUT accepted the call, but every compatible reference state refuses it.",
+      "step": 2,
+      "durationMs": 17,
+      "eventCount": 2,
+      "eventSha256": "9fe73ae6d24e376007dffee8a61172a54737435e9f98b7f7f72d10d25ea9534b",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "reasonCode": "unexpected-acceptance",
+      "lastEvent": {
+        "step": 2,
+        "stimulation": {
+          "method": "decideTime",
+          "arguments": {
+            "actor": 102,
+            "employee": 1001,
+            "record": 9010011,
+            "approve": false
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [
+              true
+            ],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "cross-tenant-hr",
+      "counterexampleKind": "trace-conformance",
+      "testId": "negative-seed-time-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-time:1:correctTime:actor21",
+      "kind": "negative",
+      "browser": true,
+      "pathIndex": 0,
+      "phase": "refusal",
+      "verdict": "mismatch",
+      "reason": "The SUT accepted the call, but every compatible reference state refuses it.",
+      "step": 2,
+      "durationMs": 15,
+      "eventCount": 2,
+      "eventSha256": "691551dd84635d743ade254c3cc4199a5666daa9404c0607e056b691b4aba67c",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "reasonCode": "unexpected-acceptance",
+      "lastEvent": {
+        "step": 2,
+        "stimulation": {
+          "method": "correctTime",
+          "arguments": {
+            "actor": 21,
+            "employee": 1001,
+            "record": 9010011,
+            "kind": 0,
+            "minutes": 60,
+            "status": 1
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [
+              true
+            ],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "take-pending",
+      "counterexampleKind": "trace-conformance",
+      "testId": "negative-seed-vacation-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-vacation:1:takeVacation:actor1001",
+      "kind": "negative",
+      "browser": true,
+      "pathIndex": 0,
+      "phase": "refusal",
+      "verdict": "mismatch",
+      "reason": "The SUT accepted the call, but every compatible reference state refuses it.",
+      "step": 2,
+      "durationMs": 14,
+      "eventCount": 2,
+      "eventSha256": "0b2d80ffe0b88e552859d825a689633f86304503da39e5532705c4c2bc7f592e",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "reasonCode": "unexpected-acceptance",
+      "lastEvent": {
+        "step": 2,
+        "stimulation": {
+          "method": "takeVacation",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 19010011
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [
+              true
+            ],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "repeat-decision",
+      "counterexampleKind": "trace-conformance",
+      "testId": "negative-seed-time-refusal-4-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-time:3:decideTime:actor101",
+      "kind": "negative",
+      "browser": true,
+      "pathIndex": 0,
+      "phase": "refusal",
+      "verdict": "mismatch",
+      "reason": "The SUT accepted the call, but every compatible reference state refuses it.",
+      "step": 4,
+      "durationMs": 20,
+      "eventCount": 4,
+      "eventSha256": "3f3b4c764c7f0e0a72282b1a28f9f585293f54251e8fe05e0c4e83082e277c4d",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "reasonCode": "unexpected-acceptance",
+      "lastEvent": {
+        "step": 4,
+        "stimulation": {
+          "method": "decideTime",
+          "arguments": {
+            "actor": 101,
+            "employee": 1001,
+            "record": 9010011,
+            "approve": false
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [
+              true
+            ],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "employee-correction",
+      "counterexampleKind": "trace-conformance",
+      "testId": "negative-seed-time-refusal-2-companion-companion-companion-companion-companion-companion-companion-companion-companion",
+      "target": "negative-seed-time:1:correctTime:actor1001",
+      "kind": "negative",
+      "browser": true,
+      "pathIndex": 0,
+      "phase": "refusal",
+      "verdict": "mismatch",
+      "reason": "The SUT accepted the call, but every compatible reference state refuses it.",
+      "step": 2,
+      "durationMs": 12,
+      "eventCount": 2,
+      "eventSha256": "ea4a62d36be52a76fa23bd3a2ff7d10ebe72ba7b3ae4e09538d476967d8ec9ab",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "reasonCode": "unexpected-acceptance",
+      "lastEvent": {
+        "step": 2,
+        "stimulation": {
+          "method": "correctTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011,
+            "kind": 0,
+            "minutes": 60,
+            "status": 1
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [
+              true
+            ],
+            "timeRecord": [],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "refused",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "scope": "One refusal per scoped target, not negative subuniformity classes. Completed no-refusal answers apply only within the declared finite domains. Compatible refusal traces do not prove universal black-box disabledness. UI is a fixed subset."
+}

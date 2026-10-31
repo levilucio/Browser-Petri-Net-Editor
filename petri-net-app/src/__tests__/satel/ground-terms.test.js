@@ -1,3 +1,4 @@
+import { elaborateTerm } from '../../satel/core/SymbolicTerms';
 /** @jest-environment node */
 import { parseSymbolicSource, parseTerms } from '../../satel/core/SymbolicSource';
 import { evaluateGroundTerm, foldGroundTerms } from '../../satel/core/GroundTerms';
@@ -27,4 +28,17 @@ test('undefined and ambiguous ground operations stay explicit; symbolic terms ar
   expect(() => evaluateGroundTerm(parseTerms('f(0)', overlapping)[0], overlapping)).toThrow('matched 2');
   const recursive = parseSymbolicSource('operation f(Int): Int\nrule again(x: Int): f(x) = f(x)');
   expect(() => evaluateGroundTerm(parseTerms('f(0)', recursive)[0], recursive, 20)).toThrow('budget');
+});
+
+test('known Pair fields reduce without instantiating symbolic neighboring fields or erasing undefined calls',()=>{
+ const typed=text=>elaborateTerm(parseTerms(text,algebra,{x:'Nat'})[0],{x:'Nat'},algebra,'Int');
+ const symbolic=typed('asInt(fst((7, x)))');
+ expect(foldGroundTerms(symbolic,algebra)).toBe(7);
+ const selected=typed('asInt(fst((x, 7)))');
+ expect(foldGroundTerms(selected,algebra)).toEqual({var:'x'});
+ const wrong=typed('asInt(fst((true, x)))');
+ expect(foldGroundTerms(wrong,algebra)).not.toBe(true);
+ const partial=typed('asInt(fst((7, head([]))))');
+ expect(foldGroundTerms(partial,algebra)).not.toBe(7);
+ expect(()=>evaluateGroundTerm(partial,algebra)).toThrow();
 });

@@ -1,3 +1,4 @@
+import { checkScalarConjunction } from './ScalarConjunction.js';
 import { createOwnedSolver, runOwnedQuery } from '../../utils/z3/owned-solver.js';
 import { createSymbolicPreamble } from './SymbolicPreamble.js';
 import { refutesNumericPreference } from './NumericPreference.js';
@@ -301,9 +302,26 @@ export async function createSymbolicSolver(algebra, options = {}) {
       } finally { trace?.finish(outcome); }
     }
   };
-  const backend = contextMode === 'query' ? query => runOwnedQuery(Z3, () => execute(query)) : execute;
+  const smtBackend = contextMode === 'query' ? query => runOwnedQuery(Z3, () => execute(query)) : execute;
+  // Reuse the preamble's whole-signature safety/inhabitance check. A scalar
+  // query must not hide malformed or ill-founded unrelated datatype declarations.
+  const scalarSignatureSafe = preambles.select([], false).text === '';
+  const scalarStats = { attempted: 0, sat: 0, unsat: 0, fallback: 0, ms: 0 };
+  const backend = query => {
+    checkCancelled(options.signal);
+    if (options.simpleScalarChecks === true && scalarSignatureSafe && query.witness === false) {
+      scalarStats.attempted++;
+      const start = options.profileUnfolding || options.profileSolver ? performance.now() : null;
+      const result = checkScalarConjunction(query);
+      if (start !== null) scalarStats.ms += performance.now() - start;
+      if (result) { scalarStats[result.status]++; return Promise.resolve(result); }
+      scalarStats.fallback++;
+    }
+    return smtBackend(query);
+  };
   const validateCached = profiler ? (query, bindings) => profiler.validateCached(validateWitness, query, bindings) : validateWitness;
   const solve = withSolverQueryCache(backend, validateCached, options);
+  Object.defineProperty(solve, 'scalarCheckStats', { get: () => ({ ...scalarStats }) });
   Object.defineProperty(solve, 'solverProfile', { get: () => profiler?.snapshot() });
   return solve;
 }

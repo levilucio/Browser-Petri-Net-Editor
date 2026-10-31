@@ -1,9 +1,11 @@
+import { createTokenIndex } from '../../domain/apn/TokenIndex.js';
+import { instantiateKnown, groundGuardIsFalse } from '../../domain/apn/BoundGuards.js';
 import { refusalConstraints } from './RefusalConstraints.js';
 import { foldGroundTerms } from './GroundTerms.js';
 import { compilePublicNet, isMethodRule } from '../../domain/apn/PublicMethods.js';
 import { validBuiltinValue, valueToSymbolic as valueTerm, integerBounds } from '../../utils/builtin-values.js';
 import { createConstraintSearch } from './GenericSubuniformity.js';
-import { substitute, variablesIn, evaluateGround, termSort, unify } from './SymbolicTerms.js';
+import { substitute, variablesIn, evaluateGround, termSort, unify, elaborateTerm } from './SymbolicTerms.js';
 import { checkCancelled, diagnostic, DomainError } from '../../domain/diagnostics.js';
 import { buildHmlConstraints } from './HmlConstraints.js';
 const eq = (left, right) => ({
@@ -12,6 +14,28 @@ const eq = (left, right) => ({
   right
 });
 const copy = x => JSON.parse(JSON.stringify(x));
+
+// Propagate only equalities already required by the algebraic class. This is
+// not a preference for its witness: every representative satisfies these facts.
+function bindClassLiterals(conditions, bindings, algebra) {
+  const terms = [];
+  const flatten = t => { if (t?.op === 'and') { flatten(t.left); flatten(t.right); } else terms.push(t); };
+  conditions.forEach(flatten);
+  for (let pass = 0; pass <= terms.length; pass++) {
+    let changed = false;
+    for (const t of terms) {
+      const eq = foldGroundTerms(substitute(t, bindings), algebra);
+      if (eq?.op !== '==') continue;
+      for (const [variable, value] of [[eq.left, eq.right], [eq.right, eq.left]]) {
+        if (variable?.var && ['number', 'boolean', 'string'].includes(typeof value)) {
+          bindings.set(variable.var, value); changed = true; break;
+        }
+      }
+    }
+    if (!changed) break;
+  }
+}
+
 const fail = message => {
   throw new Error(message);
 };
@@ -28,14 +52,18 @@ function range(term, sort) {
 }
 
 /** Continuous positive prefixes, optionally ending with a universally blocked call. */
-async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, initialConditions) {
-  if (!pairs.length || pairs.length > 32) fail('Executable sequences require 1–32 pairs');
+async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, initialConditions, options = {}) {
+  if (!pairs.length) fail('Executable sequences require at least one pair');
+  if (pairs.length > budget.maxPairs) throw new DomainError('sequence-length-limit', `Executable sequence has ${pairs.length} pairs; maxSequencePairs is ${budget.maxPairs}`);
   const {
     methods,
     plans
   } = compiled;
   const places = new Map(net.places.map(p => [p.id, p]));
-  const initial = Object.fromEntries(net.places.map(p => [p.id, p.valueTokens.map(valueTerm)]));
+  const profile = budget.profile;
+  const timed = (name, fn) => { if (!profile) return fn(); const start=performance.now(); try {return fn();} finally {profile[name]+=performance.now()-start;} };
+  const falseGuard = (plan,env) => {if(profile)profile.guardChecks++;return timed('guardMs',()=>groundGuardIsFalse(plan.guardChecks,env,algebra));};
+  const initial = budget.initial;
   const tick = () => {
     checkCancelled(budget.signal);
     if (++budget.visited > budget.max || Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
@@ -71,7 +99,10 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
     // Deterministic paths are checked once by the complete-path witness solver.
     if (conditions.length && branched && index < pairs.length) {
       budget.prefixChecks++;
-      if ((await search.prefix(conditions, sorts)).status === 'unsat') {
+      const prefixStart=profile?performance.now():0;
+      const prefixResult=await search.prefix(conditions, sorts);
+      if(profile)profile.prefixSolverMs+=performance.now()-prefixStart;
+      if (prefixResult.status === 'unsat') {
         budget.pruned++;
         return;
       }
@@ -100,19 +131,28 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
     }
     for (const id of Object.keys(pair.observation.outputs)) if (!io.outputs.includes(id)) fail(`Unknown public output in protocol: ${id}`);
     if (pair.assertion === 'blocked') {
-      const refusal = refusalConstraints(plans[name], marking, args, algebra, tick);
+      const refusal = refusalConstraints(plans[name], marking, args, algebra, tick, { ...options, tokenCandidates: budget.tokenCandidates });
       yield* walk(index + 1, marking, [...conditions, ...parameterConditions, ...refusal.conditions], [...trace, {
         assertion: 'blocked', picks: [], marking, refusal: refusal.evidence
       }]);
       return;
     }
-    for (const plan of plans[name]) {
+    const compatiblePlans = options.pruneGroundMethodGuards === false ? plans[name] : plans[name].filter(plan => {
+      const excluded = falseGuard(plan,args);
+      if (excluded) budget.pruned++;
+      return !excluded;
+    });
+    for (const plan of compatiblePlans) {
       async function* bind(i, env, picks, constraints) {
+        checkCancelled(budget.signal);
+        if (Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
+        if (options.pruneGroundMethodGuards !== false && falseGuard(plan,env)) { budget.pruned++; return; }
         tick();
         if (i < plan.ins.length) {
           const input = plan.ins[i];
           const equivalent = new Set();
-          for (const [tokenIndex, value] of marking[input.place].entries()) {
+          for (const [tokenIndex, value] of budget.tokenCandidates(marking[input.place], input.variable, plan.guardChecks, env, options.useTokenIndex !== false)) {
+            if(profile)profile.tokenScans++;
             if (picks.some(p => p.place === input.place && p.tokenIndex === tokenIndex)) continue;
             const key = JSON.stringify(value);
             if (equivalent.has(key)) continue;
@@ -135,13 +175,15 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
         // Method-local variable names may equal intention names. This is a
         // simultaneous substitution: inserted terms already belong to the
         // intention scope and must not be substituted again as method locals.
-        const instantiate = t => t?.var ? env[t.var] : Array.isArray(t) ? t.map(instantiate) : t && typeof t === 'object' ? Object.fromEntries(Object.entries(t).map(([k, v]) => [k, instantiate(v)])) : t;
+        const instantiate = t => instantiateKnown(t, env);
+        const stateStart=profile?performance.now():0;
         const next = Object.fromEntries(Object.entries(marking).map(([id, tokens]) => [id, tokens.filter((_, k) => !picks.some(p => p.place === id && p.tokenIndex === k))]));
+        if(profile)profile.stateBuildMs+=performance.now()-stateStart;
         const produced = Object.fromEntries(io.outputs.map(id => [id, []]));
         const cs = [];
         if (plan.guard !== null && plan.guard !== undefined) cs.push(instantiate(plan.guard));
         for (const out of plan.outs) {
-          const value = instantiate(out.ast);
+          const value = timed('projectionMs',()=>foldGroundTerms(elaborateTerm(instantiate(out.ast), sorts, algebra, places.get(out.place).sort), algebra));
           next[out.place].push(value);
           if (produced[out.place]) produced[out.place].push(value);
           cs.push(...range(value, places.get(out.place).sort));
@@ -150,7 +192,7 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
           produced[gate.gate].push(instantiate(gate.ast));
           gate.args.forEach((arg, i) => cs.push(...range(instantiate(arg), gate.declaration.parameters[i].sort)));
         }
-        const branched = plans[name].length > 1 || plan.ins.some(input => new Set(marking[input.place].map(t => JSON.stringify(t))).size > 1) ||
+        const branched = compatiblePlans.length > 1 || plan.ins.some(input => new Set(marking[input.place].map(t => JSON.stringify(t))).size > 1) ||
           Object.values(produced).some(tokens => new Set(tokens.map(t => JSON.stringify(t))).size > 1);
         async function* observe(i, conditions) {
           if (i === io.outputs.length) {
@@ -163,6 +205,10 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
             return;
           }
           const id = io.outputs[i];
+          // Two empty bags have exactly one match and introduce no constraint.
+          if (!produced[id].length && !(pair.observation.outputs[id] || []).length) {
+            yield* observe(i + 1, conditions); return;
+          }
           for await (const matched of matchBag(produced[id], pair.observation.outputs[id] || [], conditions)) yield* observe(i + 1, matched);
         }
         yield* observe(0, [...constraints, ...foldGroundTerms(cs, algebra)]);
@@ -176,6 +222,8 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
 /** Select one executable representative per completed algebraic class. No random
  * sampling, no marking reset between pairs, and no silent removal of classes. */
 export async function selectExecutableRepresentatives(goal, protocol, decomposition, net, io, options = {}) {
+  const maxPairs = options.maxSequencePairs ?? 32;
+  if (!Number.isInteger(maxPairs) || maxPairs < 1 || maxPairs > 256) throw new DomainError('invalid-options', 'maxSequencePairs must be an integer from 1 to 256');
   if (!['algebraic', 'algebraic-int'].includes(net.mode) || !net.transitions.length || net.transitions.some(t => !isMethodRule(t))) fail('Executable selection requires an algebraic net with public methods only');
   const ids = [...net.places, ...net.transitions, ...net.arcs].map(x => x.id);
   if (ids.some(id => typeof id !== 'string' || !id) || new Set(ids).size !== ids.length) fail('Net IDs must be nonempty and unique');
@@ -183,6 +231,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
   const compiled = compilePublicNet(net);
   const search = await createConstraintSearch(goal.algebra, options);
   const budget = {
+    maxPairs,
     signal: options.signal,
     pruned: 0,
     prefixChecks: 0,
@@ -190,6 +239,13 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
     max: options.maxSequenceBranches ?? 10000,
     deadline: Date.now() + (options.maxSequenceTimeMs ?? 20000)
   };
+  const profile = options.profileSelection ? {tokenScans:0,guardChecks:0,guardMs:0,projectionMs:0,stateBuildMs:0,prefixSolverMs:0,witnessSolverMs:0,indexBuildMs:0,indexBuilds:0,indexLookups:0,indexTokens:0,indexCandidates:0,indexExcluded:0,indexFallbacks:0,projectionCacheHits:0} : null;
+  budget.profile = profile;
+  budget.initial = Object.fromEntries(net.places.map(p => [p.id, p.valueTokens.map(valueTerm)]));
+  budget.tokenCandidates = createTokenIndex({ symbolic: true, algebra: goal.algebra, profile, check: () => {
+    checkCancelled(budget.signal);
+    if (Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
+  } });
   const selected = [],
     blocked = [],
     unresolved = [];
@@ -221,6 +277,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
           return unify(a, b, bindings);
         };
         if (!c.patterns.every((p, i) => match(p, domain.patterns[i], caseBindings, extra)) || !match(c.result, domain.resultPattern, caseBindings, extra)) continue;
+        bindClassLiterals([...domain.conditions, ...extra], caseBindings, goal.algebra);
         const projection = substitute({
           patterns: domain.patterns,
           result: domain.resultPattern,
@@ -230,7 +287,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
         const hml = options.branchingProperty ? await buildHmlConstraints(options.branchingProperty, net, io, projection.roots, sorts, goal.algebra, {
           ...options, deadline: budget.deadline, expectedTruth: options.branchingExpectedTruth ?? true
         }) : null;
-        for await (const path of paths(compiled, net, io, substitute(c.pairs, caseBindings), goal.algebra, sorts, budget, search, domainConditions)) {
+        for await (const path of paths(compiled, net, io, substitute(c.pairs, caseBindings), goal.algebra, sorts, budget, search, domainConditions, options)) {
           attempts++;
           const conditions = [...path.conditions, ...(hml?.conditions || [])];
           // Preserve the previous representative when it satisfies the COMPLETE
@@ -250,6 +307,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
             }]));
             const variables = Object.fromEntries(used.map(n => [names.get(n).var, sorts[n]]));
             if (Date.now() >= budget.deadline) throw new DomainError('resource-limit', 'Sequence search budget exhausted');
+            const witnessStart=profile?performance.now():0;
             const result = await search.witness({
               algebra: goal.algebra,
               variables,
@@ -258,6 +316,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
             }, {
               maxTimeMs: budget.deadline - Date.now()
             });
+            if(profile)profile.witnessSolverMs+=performance.now()-witnessStart;
             const witness = result.witness;
             if (!witness) {
               if (choiceIndex === choices.length - 1 && hml?.stats.residualCalls) unresolved.push({ id: domain.id, reason: 'HML equation unfolding left residual calls; absence of a witness is not infeasibility' });
@@ -319,6 +378,8 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
     }
   }
   return {
+    maxSequencePairs: maxPairs,
+    ...(profile ? {profile} : {}),
     selected,
     blocked,
     unresolved,

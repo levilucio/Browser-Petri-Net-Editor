@@ -1,3 +1,4 @@
+import { literalRegionFields, literalFieldsDisjoint } from './LiteralDisjointness.js';
 import { createBranchDisjointness } from './BranchDisjointness.js';
 import { projectFeasibilityQuery } from './FeasibilityQuery.js';
 import { constructorPatternsDisjoint } from './ConstructorDisjointness.js';
@@ -73,8 +74,8 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     maxDepth = 2
   } = goal;
   const maxBranches = options.maxBranches ?? 256;
-  if (!Number.isInteger(maxBranches) || maxBranches < 1 || maxBranches > 2048) throw new Error('Branch budget must be between 1 and 2048');
-  const solve = options.solve || (await createSymbolicSolver(algebra, options));
+  if (!Number.isInteger(maxBranches) || maxBranches < 1 || maxBranches > 65536) throw new Error('Branch budget must be between 1 and 65536');
+  const solve = options.solve || (await createSymbolicSolver(algebra, { ...options, simpleScalarChecks: options.simpleScalarChecks ?? true }));
   // Opt-in measurements only; no branch ordering, budgets or solver queries change.
   // Adapter time includes encoding/extraction/cache validation, not only SMT solving.
   const profile = options.profileUnfolding ? {
@@ -85,8 +86,10 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     feasibilityWitnessMs: 0, feasibilityCheckMs: 0,
     maxFeasibilityVariables: 0, feasibilityVariableEntries: 0,
     overlapPairs: 0, constructorDisjointPairs: 0, constructorCheckMs: 0,
+    literalDisjointPairs: 0, literalIndexMs: 0, literalCheckMs: 0, deadlineOverlapPairs: 0,
     maxOverlapVariables: 0, overlapVariableEntries: 0,
     branchProofQueries: 0, branchProofMs: 0, branchProofCacheHits: 0, branchDisjointPairs: 0, branchProofStatuses: {},
+    retainedDomainVariableEntries: 0, peakDomainVariables: 0,
     maxRulePath: 0, maxUnfoldingDepth: 0, infeasibleBranches: 0, operations: {}
   } : null;
   const searchStarted = profile ? performance.now() : 0;
@@ -252,17 +255,19 @@ async function narrow(goal, options = {}, witnessOnly = false) {
         });
         // Model extraction and arithmetic must preserve the declared result sort.
         if (termSort(witnessResult, {}, algebra, signature.result) !== signature.result) throw new Error('Ill-sorted witness result');
+        const goalBindings = Object.fromEntries(Object.keys(variables).map(n => [n, substitute({ var: n }, branch.bindings)]));
+        // Retain sorts needed by this region and its root substitutions, rather
+        // than every fresh variable ever allocated to an unrelated search branch.
+        const domainVariables = options.compactDomainVariables === false ? { ...sorts } :
+          Object.fromEntries([...variablesIn([patterns, body.conditions, body.result, goalBindings])].map(n => [n, sorts[n]]));
+        if (profile) { const size = Object.keys(domainVariables).length; profile.retainedDomainVariableEntries += size; profile.peakDomainVariables = Math.max(profile.peakDomainVariables, size); }
         domains.push({
           ...record,
           status: 'feasible',
           witnessArgs,
           witnessResult,
-          variables: {
-            ...sorts
-          },
-          goalBindings: Object.fromEntries(Object.keys(variables).map(n => [n, substitute({
-            var: n
-          }, branch.bindings)])),
+          variables: domainVariables,
+          goalBindings,
           witnessBindings: Object.fromEntries(Object.keys(variables).map(n => [n, evaluateGround(substitute(substitute({
             var: n
           }, branch.bindings), feasibility.bindings))]))
@@ -349,11 +354,35 @@ async function narrow(goal, options = {}, witnessOnly = false) {
   }
   const overlapStarted = profile ? performance.now() : 0;
   let overlapVariableCount = profile ? Object.keys(sorts).length : 0;
+  const literalFields = new WeakMap();
+  const fields = region => {
+    if (!literalFields.has(region)) {
+      const start = profile ? performance.now() : 0;
+      literalFields.set(region, literalRegionFields(region, algebra));
+      if (profile) profile.literalIndexMs += performance.now() - start;
+    }
+    return literalFields.get(region);
+  };
   // Domain intersections are checked independently of output values and of APN execution.
   for (let i = 0; !witnessOnly && i < domains.length; i++) for (let j = i + 1; j < domains.length; j++) {
     const a = domains[i],
       original = domains[j];
+    checkCancelled(options.signal);
     if (profile) profile.overlapPairs++;
+    // Retain every unfinished obligation, but do not build/rename its large
+    // solver query after the shared budget has already expired.
+    if (Date.now() >= deadline && options.deferExpiredOverlapQueries !== false) {
+      overlaps.push({ left: a.id, right: original.id, status: 'unknown', reason: 'Total derivation time budget exhausted' });
+      if (profile) profile.deadlineOverlapPairs++;
+      continue;
+    }
+    if (options.literalDisjointness !== false && Date.now() < deadline) {
+      const leftFields = fields(a), rightFields = fields(original);
+      const start = profile ? performance.now() : 0;
+      const disjoint = literalFieldsDisjoint(leftFields, rightFields);
+      if (profile) profile.literalCheckMs += performance.now() - start;
+      if (disjoint) { if (profile) profile.literalDisjointPairs++; continue; }
+    }
     if (options.constructorDisjointness !== false && Date.now() < deadline) {
       const started = profile ? performance.now() : 0;
       const disjoint = constructorPatternsDisjoint(a.patterns, original.patterns, algebra);
@@ -413,6 +442,7 @@ async function narrow(goal, options = {}, witnessOnly = false) {
     profile.searchMs = performance.now() - searchStarted;
     profile.nonSolverMs = Math.max(0, profile.searchMs - profile.feasibilityMs - profile.overlapSolverMs - profile.branchProofMs);
     profile.expandedBranches = expanded;
+    if (solve.scalarCheckStats) profile.scalarChecks = solve.scalarCheckStats;
   }
   domains.reverse(); // Preserve equation declaration order for review.
   return {

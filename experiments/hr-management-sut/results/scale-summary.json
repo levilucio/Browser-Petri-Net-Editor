@@ -1,0 +1,111 @@
+{
+  "fixedMarkingAcrossConfigurations": true,
+  "markingSha256": "4f88707846f933101152194912cab23d19c04394a8da6492f2173ea7e9262928",
+  "comparisons": [
+    {
+      "left": "scale-full-3",
+      "right": "scale-compact-3",
+      "logicalRegionsIdentical": true,
+      "witnessesIdentical": true
+    },
+    {
+      "left": "scale-compact-3",
+      "right": "scale-fast-3",
+      "logicalRegionsIdentical": true,
+      "witnessesIdentical": true
+    },
+    {
+      "left": "scale-control-4",
+      "right": "scale-fast-4",
+      "logicalRegionsIdentical": true,
+      "witnessesIdentical": true
+    }
+  ],
+  "allFinitePartitionAndWitnessChecksPass": true,
+  "unchangedFrozenTests": 64,
+  "execution": [
+    {
+      "label": "scale-fast-4",
+      "classes": 625,
+      "selected": 625,
+      "replayed": 625,
+      "admission": "admitted"
+    },
+    {
+      "label": "scale-fast-5",
+      "classes": 3125,
+      "selected": 3125,
+      "replayed": 3125,
+      "admission": "admitted"
+    }
+  ],
+  "finiteCoverage": [
+    {
+      "label": "scale-full-3",
+      "classes": 125,
+      "inputs": 13824,
+      "definedInputs": 1000,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "scale-compact-3",
+      "classes": 125,
+      "inputs": 13824,
+      "definedInputs": 1000,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "scale-fast-3",
+      "classes": 125,
+      "inputs": 13824,
+      "definedInputs": 1000,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "scale-control-4",
+      "classes": 625,
+      "inputs": 625,
+      "definedInputs": 625,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "scale-fast-4",
+      "classes": 625,
+      "inputs": 625,
+      "definedInputs": 625,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    },
+    {
+      "label": "scale-fast-5",
+      "classes": 3125,
+      "inputs": 3125,
+      "definedInputs": 3125,
+      "missingInputs": 0,
+      "multiplyCoveredInputs": 0,
+      "undefinedCoveredInputs": 0,
+      "witnessFailures": 0,
+      "finiteCoverageComplete": true
+    }
+  ],
+  "scope": "Finite enumerated inputs only; engine coverage remains not-proved. APN admission does not establish conformance of the external HR SUT for these new sequences."
+}

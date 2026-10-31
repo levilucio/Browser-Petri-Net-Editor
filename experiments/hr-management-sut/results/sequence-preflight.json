@@ -1,0 +1,303 @@
+{
+  "scope": "Exploratory runs before the isolated three-trial matrix. Environment setup and development checks could overlap; not used as final timing evidence.",
+  "runs": [
+    {
+      "config": {
+        "length": 25,
+        "trial": 0
+      },
+      "complete": true,
+      "phases": {
+        "initialization": 162.794293,
+        "compilation": 16.231898,
+        "derivation": 617.699312,
+        "selection": 12278.219644,
+        "admission": 2324.760905000001,
+        "finiteAudit": 13.198696999999811
+      },
+      "rss": {
+        "initialization": 137125888,
+        "compilation": 154660864,
+        "derivation": 242581504,
+        "selection": 358412288,
+        "admission": 399073280,
+        "finiteAudit": 399204352
+      },
+      "goalSha256": "c0ebb28d7bc4c06b4256a8ef4a8baead50a735ed97203b46615f01002b3334aa",
+      "markingSha256": "75c26090efddef71799e962e2f0e8bac7fb8bddbc2c8aee20c517db413a1b23e",
+      "model": {
+        "places": 4,
+        "transitions": 21,
+        "tokens": 87
+      },
+      "algebra": {
+        "regions": 25,
+        "unresolved": [],
+        "overlaps": [],
+        "signatureSha256": "fa8a49b22c60a8d71f03ecc840e8619cb179fd39ecfbb816c232912bb5aa24ed",
+        "profile": {
+          "visited": 116,
+          "peakPending": 9,
+          "equationAttempts": 186,
+          "equationMatches": 55,
+          "booleanBranches": 60,
+          "feasibilityQueries": 116,
+          "overlapQueries": 0,
+          "feasibilityMs": 596.7618059999998,
+          "overlapSolverMs": 0,
+          "equationExpansionMs": 5.750391000000036,
+          "feasibilityWitnessQueries": 25,
+          "feasibilityCheckQueries": 91,
+          "feasibilityWitnessMs": 593.0859039999997,
+          "feasibilityCheckMs": 3.6759020000000646,
+          "maxFeasibilityVariables": 4,
+          "feasibilityVariableEntries": 430,
+          "overlapPairs": 300,
+          "constructorDisjointPairs": 0,
+          "constructorCheckMs": 0,
+          "literalDisjointPairs": 300,
+          "literalIndexMs": 0.632038000000307,
+          "literalCheckMs": 0.31350999999961005,
+          "deadlineOverlapPairs": 0,
+          "maxOverlapVariables": 0,
+          "overlapVariableEntries": 0,
+          "branchProofQueries": 0,
+          "branchProofMs": 0,
+          "branchProofCacheHits": 0,
+          "branchDisjointPairs": 0,
+          "branchProofStatuses": {},
+          "retainedDomainVariableEntries": 100,
+          "peakDomainVariables": 4,
+          "maxRulePath": 3,
+          "maxUnfoldingDepth": 3,
+          "infeasibleBranches": 0,
+          "operations": {
+            "reviews": 31
+          },
+          "overlapPhaseMs": 1.3973579999999401,
+          "searchMs": 612.709512,
+          "nonSolverMs": 15.947706000000267,
+          "expandedBranches": 246,
+          "scalarChecks": {
+            "attempted": 91,
+            "sat": 91,
+            "unsat": 0,
+            "fallback": 0,
+            "ms": 0.9620130000001836
+          }
+        },
+        "coverage": "not-proved"
+      },
+      "selection": {
+        "selected": 25,
+        "unresolved": [],
+        "blocked": [],
+        "visited": 4535,
+        "profile": {
+          "tokenScans": 1690,
+          "guardChecks": 3365,
+          "guardMs": 1039.851435999988,
+          "projectionMs": 912.800805000012,
+          "stateBuildMs": 10.442090000015014,
+          "prefixSolverMs": 8835.615186999994,
+          "witnessSolverMs": 27.5857100000012,
+          "indexBuildMs": 124.2983439999706,
+          "indexBuilds": 1603,
+          "indexLookups": 1690,
+          "indexTokens": 33063,
+          "indexCandidates": 1690,
+          "indexExcluded": 33200,
+          "indexFallbacks": 0,
+          "projectionCacheHits": 31400
+        },
+        "maxSequencePairs": 128
+      },
+      "validation": {
+        "generated": 25,
+        "referencePassed": 25
+      },
+      "finiteAudit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "suiteSha256": "c59394f7b75b76bd6b434b0afc81611582250654543116ac3002a84a7c2f940a",
+      "peakRss": 402612224
+    },
+    {
+      "config": {
+        "length": 100,
+        "trial": 0
+      },
+      "complete": true,
+      "phases": {
+        "initialization": 169.450562,
+        "compilation": 41.35958000000005,
+        "derivation": 803.4961500000002,
+        "selection": 100745.58934199999,
+        "admission": 9153.617597999997,
+        "finiteAudit": 19.04347800000687
+      },
+      "rss": {
+        "initialization": 138395648,
+        "compilation": 159997952,
+        "derivation": 213381120,
+        "selection": 435122176,
+        "admission": 522014720,
+        "finiteAudit": 522145792
+      },
+      "goalSha256": "c0ebb28d7bc4c06b4256a8ef4a8baead50a735ed97203b46615f01002b3334aa",
+      "markingSha256": "75c26090efddef71799e962e2f0e8bac7fb8bddbc2c8aee20c517db413a1b23e",
+      "model": {
+        "places": 4,
+        "transitions": 21,
+        "tokens": 87
+      },
+      "algebra": {
+        "regions": 25,
+        "unresolved": [],
+        "overlaps": [],
+        "signatureSha256": "fa8a49b22c60a8d71f03ecc840e8619cb179fd39ecfbb816c232912bb5aa24ed",
+        "profile": {
+          "visited": 116,
+          "peakPending": 9,
+          "equationAttempts": 186,
+          "equationMatches": 55,
+          "booleanBranches": 60,
+          "feasibilityQueries": 116,
+          "overlapQueries": 0,
+          "feasibilityMs": 780.6100090000008,
+          "overlapSolverMs": 0,
+          "equationExpansionMs": 5.604419000000291,
+          "feasibilityWitnessQueries": 25,
+          "feasibilityCheckQueries": 91,
+          "feasibilityWitnessMs": 776.702989,
+          "feasibilityCheckMs": 3.9070200000007844,
+          "maxFeasibilityVariables": 4,
+          "feasibilityVariableEntries": 430,
+          "overlapPairs": 300,
+          "constructorDisjointPairs": 0,
+          "constructorCheckMs": 0,
+          "literalDisjointPairs": 300,
+          "literalIndexMs": 0.7431990000006863,
+          "literalCheckMs": 0.21568999999885818,
+          "deadlineOverlapPairs": 0,
+          "maxOverlapVariables": 0,
+          "overlapVariableEntries": 0,
+          "branchProofQueries": 0,
+          "branchProofMs": 0,
+          "branchProofCacheHits": 0,
+          "branchDisjointPairs": 0,
+          "branchProofStatuses": {},
+          "retainedDomainVariableEntries": 100,
+          "peakDomainVariables": 4,
+          "maxRulePath": 3,
+          "maxUnfoldingDepth": 3,
+          "infeasibleBranches": 0,
+          "operations": {
+            "reviews": 31
+          },
+          "overlapPhaseMs": 1.3886689999999362,
+          "searchMs": 798.090054,
+          "nonSolverMs": 17.480044999999222,
+          "expandedBranches": 246,
+          "scalarChecks": {
+            "attempted": 91,
+            "sat": 91,
+            "unsat": 0,
+            "fallback": 0,
+            "ms": 0.9626359999988949
+          }
+        },
+        "coverage": "not-proved"
+      },
+      "selection": {
+        "selected": 25,
+        "unresolved": [],
+        "blocked": [],
+        "visited": 17285,
+        "profile": {
+          "tokenScans": 6940,
+          "guardChecks": 13990,
+          "guardMs": 6964.180477999604,
+          "projectionMs": 7506.250400000125,
+          "stateBuildMs": 38.26919499988662,
+          "prefixSolverMs": 77292.28267400013,
+          "witnessSolverMs": 158.802490999994,
+          "indexBuildMs": 889.4541549992944,
+          "indexBuilds": 6478,
+          "indexLookups": 6940,
+          "indexTokens": 133188,
+          "indexCandidates": 6940,
+          "indexExcluded": 135950,
+          "indexFallbacks": 0,
+          "projectionCacheHits": 126650
+        },
+        "maxSequencePairs": 128
+      },
+      "validation": {
+        "generated": 25,
+        "referencePassed": 25
+      },
+      "finiteAudit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "suiteSha256": "e27b06d95e92de2fefb8dd0e9fbe35377ed8d3f79716d1aafc22b244b41d5430",
+      "peakRss": 524222464
+    }
+  ]
+}

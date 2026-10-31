@@ -1,0 +1,709 @@
+{
+  "schemaVersion": 1,
+  "manifestSha256": "696f9a2fc1b01ae06e78fdf66a3f343e99fa44b4f0d895d9949893405ac876ee",
+  "generation": [
+    {
+      "length": 25,
+      "trials": 3,
+      "regions": 25,
+      "model": {
+        "places": 4,
+        "transitions": 21,
+        "tokens": 87
+      },
+      "phasesMs": {
+        "initialization": {
+          "min": 166.38009399999999,
+          "median": 172.59114699999998,
+          "max": 197.743578
+        },
+        "compilation": {
+          "min": 15.181561999999985,
+          "median": 19.62882300000001,
+          "max": 27.391218999999978
+        },
+        "derivation": {
+          "min": 638.416948,
+          "median": 812.290456,
+          "max": 891.4087209999999
+        },
+        "selection": {
+          "min": 11036.420925,
+          "median": 13329.374233,
+          "max": 16776.332669000003
+        },
+        "encoding": {
+          "min": 9.51281100000051,
+          "median": 11.096074000000954,
+          "max": 11.853103000001283
+        },
+        "admission": {
+          "min": 2201.0427919999984,
+          "median": 2548.9792399999988,
+          "max": 2647.5881709999994
+        },
+        "finiteAudit": {
+          "min": 14.612607000000935,
+          "median": 15.40226199999961,
+          "max": 16.278895999999804
+        }
+      },
+      "peakRss": {
+        "min": 394530816,
+        "median": 417107968,
+        "max": 417955840
+      },
+      "searchVisits": [
+        4535,
+        4535,
+        4535
+      ],
+      "prefixSolverMs": {
+        "min": 7955.711088999976,
+        "median": 9578.109852999996,
+        "max": 12249.621791999994
+      },
+      "finiteAudit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "searchBudgetProbe": {
+        "selected": 0,
+        "blocked": 0,
+        "unresolved": 25,
+        "codes": [
+          "resource-limit"
+        ]
+      },
+      "explicitHmlValidation": {
+        "status": "accepted"
+      }
+    },
+    {
+      "length": 50,
+      "trials": 3,
+      "regions": 25,
+      "model": {
+        "places": 4,
+        "transitions": 21,
+        "tokens": 87
+      },
+      "phasesMs": {
+        "initialization": {
+          "min": 179.560492,
+          "median": 203.763053,
+          "max": 452.88858100000004
+        },
+        "compilation": {
+          "min": 26.478218000000027,
+          "median": 38.86839600000002,
+          "max": 45.42325100000005
+        },
+        "derivation": {
+          "min": 731.3862920000001,
+          "median": 754.2578860000001,
+          "max": 802.7889499999999
+        },
+        "selection": {
+          "min": 28214.411394,
+          "median": 32366.017001,
+          "max": 32481.549372999998
+        },
+        "encoding": {
+          "min": 12.113264999999956,
+          "median": 14.543219999999565,
+          "max": 25.334215000002587
+        },
+        "admission": {
+          "min": 4077.325528999998,
+          "median": 4883.612050999996,
+          "max": 5147.947243000002
+        },
+        "finiteAudit": {
+          "min": 13.303997999995772,
+          "median": 17.45594699999492,
+          "max": 18.612527999997837
+        }
+      },
+      "peakRss": {
+        "min": 461369344,
+        "median": 469553152,
+        "max": 485433344
+      },
+      "searchVisits": [
+        8810,
+        8810,
+        8810
+      ],
+      "prefixSolverMs": {
+        "min": 21017.508585999934,
+        "median": 23914.16844599995,
+        "max": 24142.945012000026
+      },
+      "finiteAudit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "defaultLengthProbe": {
+        "selected": 0,
+        "blocked": 0,
+        "unresolved": 25,
+        "codes": [
+          "sequence-length-limit"
+        ]
+      },
+      "searchBudgetProbe": {
+        "selected": 0,
+        "blocked": 0,
+        "unresolved": 25,
+        "codes": [
+          "resource-limit"
+        ]
+      },
+      "explicitHmlValidation": {
+        "status": "accepted"
+      }
+    },
+    {
+      "length": 100,
+      "trials": 3,
+      "regions": 25,
+      "model": {
+        "places": 4,
+        "transitions": 21,
+        "tokens": 87
+      },
+      "phasesMs": {
+        "initialization": {
+          "min": 208.47494400000002,
+          "median": 209.83152699999997,
+          "max": 277.33403
+        },
+        "compilation": {
+          "min": 56.20953499999996,
+          "median": 63.11469999999997,
+          "max": 115.40986599999997
+        },
+        "derivation": {
+          "min": 753.4428349999998,
+          "median": 1064.484926,
+          "max": 1217.80159
+        },
+        "selection": {
+          "min": 95935.80311499999,
+          "median": 100271.748835,
+          "max": 103095.06308
+        },
+        "encoding": {
+          "min": 22.3185780000058,
+          "median": 25.862919000006514,
+          "max": 26.789248999994015
+        },
+        "admission": {
+          "min": 7990.455258000002,
+          "median": 8419.976145000008,
+          "max": 8471.140543000001
+        },
+        "finiteAudit": {
+          "min": 14.793326999992132,
+          "median": 14.860149999993155,
+          "max": 20.34454399999231
+        }
+      },
+      "peakRss": {
+        "min": 510992384,
+        "median": 521453568,
+        "max": 524398592
+      },
+      "searchVisits": [
+        17285,
+        17285,
+        17285
+      ],
+      "prefixSolverMs": {
+        "min": 73558.32396500051,
+        "median": 77380.22271999999,
+        "max": 78060.71501599987
+      },
+      "finiteAudit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "defaultLengthProbe": {
+        "selected": 0,
+        "blocked": 0,
+        "unresolved": 25,
+        "codes": [
+          "sequence-length-limit"
+        ]
+      },
+      "searchBudgetProbe": {
+        "selected": 0,
+        "blocked": 0,
+        "unresolved": 25,
+        "codes": [
+          "resource-limit"
+        ]
+      },
+      "explicitHmlValidation": {
+        "status": "rejected",
+        "reason": "Property limit: 1,000 nodes and 64 nested levels"
+      }
+    }
+  ],
+  "variants": [
+    {
+      "mutant": "none",
+      "api": [
+        {
+          "length": 25,
+          "tests": 25,
+          "compatible": 25,
+          "mismatches": 0,
+          "executedPairs": 625,
+          "executionMs": 3538,
+          "mismatchSteps": []
+        },
+        {
+          "length": 50,
+          "tests": 25,
+          "compatible": 25,
+          "mismatches": 0,
+          "executedPairs": 1250,
+          "executionMs": 6584,
+          "mismatchSteps": []
+        },
+        {
+          "length": 100,
+          "tests": 25,
+          "compatible": 25,
+          "mismatches": 0,
+          "executedPairs": 2500,
+          "executionMs": 15192,
+          "mismatchSteps": []
+        }
+      ],
+      "ui": [
+        {
+          "length": 25,
+          "tests": 2,
+          "compatible": 2,
+          "mismatches": 0,
+          "executedPairs": 50,
+          "executionMs": 10688,
+          "mismatchSteps": []
+        },
+        {
+          "length": 50,
+          "tests": 2,
+          "compatible": 2,
+          "mismatches": 0,
+          "executedPairs": 100,
+          "executionMs": 18423,
+          "mismatchSteps": []
+        },
+        {
+          "length": 100,
+          "tests": 2,
+          "compatible": 2,
+          "mismatches": 0,
+          "executedPairs": 200,
+          "executionMs": 36326,
+          "mismatchSteps": []
+        }
+      ],
+      "apiMs": 25913.371857000002,
+      "uiMs": 65845.213427,
+      "apiRss": 267636736,
+      "uiRss": 184418304,
+      "runtime": {
+        "api": {
+          "node": "v24.22.1",
+          "platform": "linux",
+          "arch": "x64",
+          "backend": {
+            "python": "3.12.14",
+            "sqlite": "3.53.1"
+          }
+        },
+        "ui": {
+          "node": "v24.22.1",
+          "platform": "linux",
+          "arch": "x64",
+          "backend": {
+            "python": "3.12.14",
+            "sqlite": "3.53.1"
+          },
+          "browser": "153.0.8010.0"
+        }
+      },
+      "matchedTransportRuns": 6,
+      "identicalEventsAndVerdicts": true,
+      "propertyEvidence": {
+        "witnessed": 75
+      }
+    },
+    {
+      "mutant": "late-correction-drift",
+      "api": [
+        {
+          "length": 25,
+          "tests": 25,
+          "compatible": 25,
+          "mismatches": 0,
+          "executedPairs": 625,
+          "executionMs": 4430,
+          "mismatchSteps": []
+        },
+        {
+          "length": 50,
+          "tests": 25,
+          "compatible": 25,
+          "mismatches": 0,
+          "executedPairs": 1250,
+          "executionMs": 7041,
+          "mismatchSteps": []
+        },
+        {
+          "length": 100,
+          "tests": 25,
+          "compatible": 0,
+          "mismatches": 25,
+          "executedPairs": 1425,
+          "executionMs": 7428,
+          "mismatchSteps": [
+            53,
+            58
+          ]
+        }
+      ],
+      "ui": [
+        {
+          "length": 25,
+          "tests": 2,
+          "compatible": 2,
+          "mismatches": 0,
+          "executedPairs": 50,
+          "executionMs": 10562,
+          "mismatchSteps": []
+        },
+        {
+          "length": 50,
+          "tests": 2,
+          "compatible": 2,
+          "mismatches": 0,
+          "executedPairs": 100,
+          "executionMs": 23195,
+          "mismatchSteps": []
+        },
+        {
+          "length": 100,
+          "tests": 2,
+          "compatible": 0,
+          "mismatches": 2,
+          "executedPairs": 111,
+          "executionMs": 21163,
+          "mismatchSteps": [
+            53,
+            58
+          ]
+        }
+      ],
+      "apiMs": 19527.48814,
+      "uiMs": 55329.325183,
+      "apiRss": 270000128,
+      "uiRss": 177033216,
+      "runtime": {
+        "api": {
+          "node": "v24.22.1",
+          "platform": "linux",
+          "arch": "x64",
+          "backend": {
+            "python": "3.12.14",
+            "sqlite": "3.53.1"
+          }
+        },
+        "ui": {
+          "node": "v24.22.1",
+          "platform": "linux",
+          "arch": "x64",
+          "backend": {
+            "python": "3.12.14",
+            "sqlite": "3.53.1"
+          },
+          "browser": "153.0.8010.0"
+        }
+      },
+      "matchedTransportRuns": 6,
+      "identicalEventsAndVerdicts": true,
+      "propertyEvidence": {
+        "witnessed": 50,
+        "inconclusive": 25
+      }
+    }
+  ],
+  "counterexamples": [
+    {
+      "mutant": "late-correction-drift",
+      "counterexampleKind": "trace-conformance",
+      "length": 100,
+      "testId": "hr-sequence-100::reviews.standard/reviews.standard/reviews.end",
+      "region": "reviews.standard/reviews.standard/reviews.end",
+      "kinds": [
+        0,
+        0
+      ],
+      "minutes": [
+        15,
+        15
+      ],
+      "browser": true,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "reasonCode": "unexpected-output",
+      "step": 53,
+      "durationMs": 371,
+      "eventCount": 53,
+      "eventSha256": "f3fef2bafdbd929720da79ca11ef52a96a9ce66653f756151434fae14dfe3d98",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "lastEvent": {
+        "step": 53,
+        "stimulation": {
+          "method": "readTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [
+              {
+                "__pair__": true,
+                "fst": 2,
+                "snd": {
+                  "__pair__": true,
+                  "fst": 75,
+                  "snd": 3
+                }
+              }
+            ],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [
+                {
+                  "__pair__": true,
+                  "fst": 2,
+                  "snd": {
+                    "__pair__": true,
+                    "fst": 60,
+                    "snd": 3
+                  }
+                }
+              ],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "mutant": "late-correction-drift",
+      "counterexampleKind": "trace-conformance",
+      "length": 100,
+      "testId": "hr-sequence-100::reviews.trip/reviews.standard/reviews.end",
+      "region": "reviews.trip/reviews.standard/reviews.end",
+      "kinds": [
+        1,
+        0
+      ],
+      "minutes": [
+        15,
+        15
+      ],
+      "browser": false,
+      "verdict": "mismatch",
+      "reason": "The SUT output matches no outcome from any compatible reference state.",
+      "reasonCode": "unexpected-output",
+      "step": 58,
+      "durationMs": 274,
+      "eventCount": 58,
+      "eventSha256": "31b59c2e2e6b04b8bcc5ecfb6108a22205c19a4207ff9439da7b93620c2edeb8",
+      "propertyEvidence": {
+        "value": null,
+        "expectedTruth": true,
+        "verdict": "inconclusive",
+        "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+      },
+      "lastEvent": {
+        "step": 58,
+        "stimulation": {
+          "method": "readTime",
+          "arguments": {
+            "actor": 1001,
+            "employee": 1001,
+            "record": 9010011
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [],
+            "timeRecord": [
+              {
+                "__pair__": true,
+                "fst": 2,
+                "snd": {
+                  "__pair__": true,
+                  "fst": 135,
+                  "snd": 2
+                }
+              }
+            ],
+            "vacationRecord": [],
+            "remaining": [],
+            "approvedMinutes": [],
+            "changes": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 0,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [],
+              "timeRecord": [
+                {
+                  "__pair__": true,
+                  "fst": 2,
+                  "snd": {
+                    "__pair__": true,
+                    "fst": 120,
+                    "snd": 2
+                  }
+                }
+              ],
+              "vacationRecord": [],
+              "remaining": [],
+              "approvedMinutes": [],
+              "changes": []
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "invariants": {
+    "sameGoal": true,
+    "sameInitialMarking": true,
+    "sameRegions": true,
+    "sameWitnesses": true,
+    "identicalRepeatedSuites": true,
+    "nestedPrefixes": true
+  },
+  "scope": "Fixed two-entry ADT goal, 25 computed regions, fixed 87-token initial marking, nested 25/50/100-pair protocols; three serial generation trials. No arbitrary branching, concurrency, uniformity or thesis correspondence claim. Browser runs a predeclared two-region subset per length."
+}

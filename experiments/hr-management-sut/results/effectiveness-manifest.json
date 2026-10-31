@@ -1,0 +1,7424 @@
+{
+  "schemaVersion": 1,
+  "frozenAt": "2026-10-30T23:23:37.446Z",
+  "mutants": [
+    "overwrite-earlier",
+    "approval-double-count",
+    "correction-adds-old",
+    "cross-employee-correction",
+    "cap-long-duration",
+    "wrong-total"
+  ],
+  "browserPolicy": "Fixed kind vectors [1], [1,3], [1,3,0], selected and upper representatives, declared before any SUT results.",
+  "representativePolicy": "One engine-selected representative per region, plus all durations 60 and all durations 720 within that same region. Additional members pass independent membership checks and concrete APN replay.",
+  "fixtureSha256": "8d286b65ecb59b1fe34a6f617c696397cee1a4096161a94e48a2779ea3523d56",
+  "suites": [
+    {
+      "length": 1,
+      "regions": 5,
+      "tests": 15,
+      "browserTests": 2,
+      "selectedMs": 1738.317701,
+      "totalMs": 2365.356503,
+      "rss": 327872512,
+      "sha256": "9f3d6d5bc9896bd0bc05bdc902f5226e7cd57468411e9a6d3981aeacb5ab9b67",
+      "finiteAudit": {
+        "length": 1,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 24,
+        "definedInputs": 10,
+        "coveredInputs": 10,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 5,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "selectedMinutes": [
+        623
+      ],
+      "decomposition": {
+        "unresolved": 0,
+        "overlaps": 0
+      },
+      "execution": {
+        "selected": 5,
+        "unresolved": 0,
+        "blocked": 0
+      },
+      "validation": {
+        "generated": 5,
+        "referencePassed": 5
+      },
+      "witnesses": [
+        {
+          "id": "reviews.standard/reviews.end",
+          "region": "reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0
+          ],
+          "minutes": [
+            623
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.end",
+          "region": "reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1
+          ],
+          "minutes": [
+            623
+          ],
+          "browser": true
+        },
+        {
+          "id": "reviews.home/reviews.end",
+          "region": "reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2
+          ],
+          "minutes": [
+            623
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.end",
+          "region": "reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3
+          ],
+          "minutes": [
+            623
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.end",
+          "region": "reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4
+          ],
+          "minutes": [
+            623
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.end-interior",
+          "region": "reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0
+          ],
+          "minutes": [
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.end-interior",
+          "region": "reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1
+          ],
+          "minutes": [
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.end-interior",
+          "region": "reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2
+          ],
+          "minutes": [
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.end-interior",
+          "region": "reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3
+          ],
+          "minutes": [
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.end-interior",
+          "region": "reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4
+          ],
+          "minutes": [
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.end-upper",
+          "region": "reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0
+          ],
+          "minutes": [
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.end-upper",
+          "region": "reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1
+          ],
+          "minutes": [
+            720
+          ],
+          "browser": true
+        },
+        {
+          "id": "reviews.home/reviews.end-upper",
+          "region": "reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2
+          ],
+          "minutes": [
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.end-upper",
+          "region": "reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3
+          ],
+          "minutes": [
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.end-upper",
+          "region": "reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4
+          ],
+          "minutes": [
+            720
+          ],
+          "browser": false
+        }
+      ]
+    },
+    {
+      "length": 2,
+      "regions": 25,
+      "tests": 75,
+      "browserTests": 2,
+      "selectedMs": 7682.9595850000005,
+      "totalMs": 11262.830718000001,
+      "rss": 436199424,
+      "sha256": "64fa1847eb7d15dbe25eedf1909027ae603a23d0e6759a11f9ae0c9f0e791c75",
+      "finiteAudit": {
+        "length": 2,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 576,
+        "definedInputs": 100,
+        "coveredInputs": 100,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 25,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "selectedMinutes": [
+        15
+      ],
+      "decomposition": {
+        "unresolved": 0,
+        "overlaps": 0
+      },
+      "execution": {
+        "selected": 25,
+        "unresolved": 0,
+        "blocked": 0
+      },
+      "validation": {
+        "generated": 25,
+        "referencePassed": 25
+      },
+      "witnesses": [
+        {
+          "id": "reviews.standard/reviews.standard/reviews.end",
+          "region": "reviews.standard/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            0
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.end",
+          "region": "reviews.standard/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            1
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.end",
+          "region": "reviews.standard/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            2
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.end",
+          "region": "reviews.standard/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            3
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.end",
+          "region": "reviews.standard/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            4
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.end",
+          "region": "reviews.trip/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            0
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.end",
+          "region": "reviews.trip/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            1
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.end",
+          "region": "reviews.trip/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            2
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.end",
+          "region": "reviews.trip/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            3
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": true
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.end",
+          "region": "reviews.trip/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            4
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.end",
+          "region": "reviews.home/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            0
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.end",
+          "region": "reviews.home/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            1
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.end",
+          "region": "reviews.home/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            2
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.end",
+          "region": "reviews.home/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            3
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.end",
+          "region": "reviews.home/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            4
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.end",
+          "region": "reviews.training/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            0
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.end",
+          "region": "reviews.training/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            1
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.end",
+          "region": "reviews.training/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            2
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.end",
+          "region": "reviews.training/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            3
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.end",
+          "region": "reviews.training/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            4
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.end",
+          "region": "reviews.oncall/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            0
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.end",
+          "region": "reviews.oncall/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            1
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.end",
+          "region": "reviews.oncall/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            2
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.end",
+          "region": "reviews.oncall/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            3
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.end",
+          "region": "reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            4
+          ],
+          "minutes": [
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.end-interior",
+          "region": "reviews.standard/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            0
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.end-interior",
+          "region": "reviews.standard/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            1
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.end-interior",
+          "region": "reviews.standard/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            2
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.end-interior",
+          "region": "reviews.standard/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            3
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.end-interior",
+          "region": "reviews.standard/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            4
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.end-interior",
+          "region": "reviews.trip/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            0
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.end-interior",
+          "region": "reviews.trip/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            1
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.end-interior",
+          "region": "reviews.trip/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            2
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.end-interior",
+          "region": "reviews.trip/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            3
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.end-interior",
+          "region": "reviews.trip/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            4
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.end-interior",
+          "region": "reviews.home/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            0
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.end-interior",
+          "region": "reviews.home/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            1
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.end-interior",
+          "region": "reviews.home/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            2
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.end-interior",
+          "region": "reviews.home/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            3
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.end-interior",
+          "region": "reviews.home/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            4
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.end-interior",
+          "region": "reviews.training/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            0
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.end-interior",
+          "region": "reviews.training/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            1
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.end-interior",
+          "region": "reviews.training/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            2
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.end-interior",
+          "region": "reviews.training/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            3
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.end-interior",
+          "region": "reviews.training/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            4
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.end-interior",
+          "region": "reviews.oncall/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            0
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.end-interior",
+          "region": "reviews.oncall/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            1
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.end-interior",
+          "region": "reviews.oncall/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            2
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.end-interior",
+          "region": "reviews.oncall/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            3
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.end-interior",
+          "region": "reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            4
+          ],
+          "minutes": [
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.end-upper",
+          "region": "reviews.standard/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            0
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.end-upper",
+          "region": "reviews.standard/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            1
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.end-upper",
+          "region": "reviews.standard/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            2
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.end-upper",
+          "region": "reviews.standard/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            3
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.end-upper",
+          "region": "reviews.standard/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            4
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.end-upper",
+          "region": "reviews.trip/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            0
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.end-upper",
+          "region": "reviews.trip/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            1
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.end-upper",
+          "region": "reviews.trip/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            2
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.end-upper",
+          "region": "reviews.trip/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            3
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": true
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.end-upper",
+          "region": "reviews.trip/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            4
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.end-upper",
+          "region": "reviews.home/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            0
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.end-upper",
+          "region": "reviews.home/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            1
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.end-upper",
+          "region": "reviews.home/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            2
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.end-upper",
+          "region": "reviews.home/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            3
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.end-upper",
+          "region": "reviews.home/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            4
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.end-upper",
+          "region": "reviews.training/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            0
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.end-upper",
+          "region": "reviews.training/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            1
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.end-upper",
+          "region": "reviews.training/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            2
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.end-upper",
+          "region": "reviews.training/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            3
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.end-upper",
+          "region": "reviews.training/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            4
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.end-upper",
+          "region": "reviews.oncall/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            0
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.end-upper",
+          "region": "reviews.oncall/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            1
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.end-upper",
+          "region": "reviews.oncall/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            2
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.end-upper",
+          "region": "reviews.oncall/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            3
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.end-upper",
+          "region": "reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            4
+          ],
+          "minutes": [
+            720,
+            720
+          ],
+          "browser": false
+        }
+      ]
+    },
+    {
+      "length": 3,
+      "regions": 125,
+      "tests": 375,
+      "browserTests": 2,
+      "selectedMs": 45282.631895,
+      "totalMs": 65548.441572,
+      "rss": 821387264,
+      "sha256": "a833d6515a319316c043940002c02999f530c67ecb849bf9809114a7afaa5d98",
+      "finiteAudit": {
+        "length": 3,
+        "kinds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "minutes": [
+          14,
+          15,
+          720,
+          721
+        ],
+        "scope": "Exhaustive Cartesian product of the listed finite values at the fixed list length; no claim about all Nat values or arbitrary lengths.",
+        "inputs": 13824,
+        "definedInputs": 1000,
+        "coveredInputs": 1000,
+        "missingInputs": 0,
+        "multiplyCoveredInputs": 0,
+        "undefinedCoveredInputs": 0,
+        "wrongResults": 0,
+        "witnessesChecked": 125,
+        "witnessFailures": 0,
+        "unsupported": 0,
+        "examples": [],
+        "finiteCoverageComplete": true,
+        "partitionAndWitnessChecksPass": true
+      },
+      "selectedMinutes": [
+        15
+      ],
+      "decomposition": {
+        "unresolved": 0,
+        "overlaps": 0
+      },
+      "execution": {
+        "selected": 125,
+        "unresolved": 0,
+        "blocked": 0
+      },
+      "validation": {
+        "generated": 125,
+        "referencePassed": 125
+      },
+      "witnesses": [
+        {
+          "id": "reviews.standard/reviews.standard/reviews.standard/reviews.end",
+          "region": "reviews.standard/reviews.standard/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            0,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.trip/reviews.end",
+          "region": "reviews.standard/reviews.standard/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            0,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.home/reviews.end",
+          "region": "reviews.standard/reviews.standard/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            0,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.training/reviews.end",
+          "region": "reviews.standard/reviews.standard/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            0,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.oncall/reviews.end",
+          "region": "reviews.standard/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            0,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.standard/reviews.end",
+          "region": "reviews.standard/reviews.trip/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            1,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.trip/reviews.end",
+          "region": "reviews.standard/reviews.trip/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            1,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.home/reviews.end",
+          "region": "reviews.standard/reviews.trip/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            1,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.training/reviews.end",
+          "region": "reviews.standard/reviews.trip/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            1,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.oncall/reviews.end",
+          "region": "reviews.standard/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            1,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.standard/reviews.end",
+          "region": "reviews.standard/reviews.home/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            2,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.trip/reviews.end",
+          "region": "reviews.standard/reviews.home/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            2,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.home/reviews.end",
+          "region": "reviews.standard/reviews.home/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            2,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.training/reviews.end",
+          "region": "reviews.standard/reviews.home/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            2,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.oncall/reviews.end",
+          "region": "reviews.standard/reviews.home/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            2,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.standard/reviews.end",
+          "region": "reviews.standard/reviews.training/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            3,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.trip/reviews.end",
+          "region": "reviews.standard/reviews.training/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            3,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.home/reviews.end",
+          "region": "reviews.standard/reviews.training/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            3,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.training/reviews.end",
+          "region": "reviews.standard/reviews.training/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            3,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.oncall/reviews.end",
+          "region": "reviews.standard/reviews.training/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            3,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.standard/reviews.end",
+          "region": "reviews.standard/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            4,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.trip/reviews.end",
+          "region": "reviews.standard/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            4,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.home/reviews.end",
+          "region": "reviews.standard/reviews.oncall/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            4,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.training/reviews.end",
+          "region": "reviews.standard/reviews.oncall/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            4,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end",
+          "region": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            0,
+            4,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.standard/reviews.end",
+          "region": "reviews.trip/reviews.standard/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            0,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.trip/reviews.end",
+          "region": "reviews.trip/reviews.standard/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            0,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.home/reviews.end",
+          "region": "reviews.trip/reviews.standard/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            0,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.training/reviews.end",
+          "region": "reviews.trip/reviews.standard/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            0,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.oncall/reviews.end",
+          "region": "reviews.trip/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            0,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.standard/reviews.end",
+          "region": "reviews.trip/reviews.trip/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            1,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.trip/reviews.end",
+          "region": "reviews.trip/reviews.trip/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            1,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.home/reviews.end",
+          "region": "reviews.trip/reviews.trip/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            1,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.training/reviews.end",
+          "region": "reviews.trip/reviews.trip/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            1,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.oncall/reviews.end",
+          "region": "reviews.trip/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            1,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.standard/reviews.end",
+          "region": "reviews.trip/reviews.home/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            2,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.trip/reviews.end",
+          "region": "reviews.trip/reviews.home/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            2,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.home/reviews.end",
+          "region": "reviews.trip/reviews.home/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            2,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.training/reviews.end",
+          "region": "reviews.trip/reviews.home/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            2,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.oncall/reviews.end",
+          "region": "reviews.trip/reviews.home/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            2,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.standard/reviews.end",
+          "region": "reviews.trip/reviews.training/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            3,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": true
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.trip/reviews.end",
+          "region": "reviews.trip/reviews.training/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            3,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.home/reviews.end",
+          "region": "reviews.trip/reviews.training/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            3,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.training/reviews.end",
+          "region": "reviews.trip/reviews.training/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            3,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.oncall/reviews.end",
+          "region": "reviews.trip/reviews.training/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            3,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.standard/reviews.end",
+          "region": "reviews.trip/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            4,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.trip/reviews.end",
+          "region": "reviews.trip/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            4,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.home/reviews.end",
+          "region": "reviews.trip/reviews.oncall/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            4,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.training/reviews.end",
+          "region": "reviews.trip/reviews.oncall/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            4,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end",
+          "region": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            1,
+            4,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.standard/reviews.end",
+          "region": "reviews.home/reviews.standard/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            0,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.trip/reviews.end",
+          "region": "reviews.home/reviews.standard/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            0,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.home/reviews.end",
+          "region": "reviews.home/reviews.standard/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            0,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.training/reviews.end",
+          "region": "reviews.home/reviews.standard/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            0,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.oncall/reviews.end",
+          "region": "reviews.home/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            0,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.standard/reviews.end",
+          "region": "reviews.home/reviews.trip/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            1,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.trip/reviews.end",
+          "region": "reviews.home/reviews.trip/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            1,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.home/reviews.end",
+          "region": "reviews.home/reviews.trip/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            1,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.training/reviews.end",
+          "region": "reviews.home/reviews.trip/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            1,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.oncall/reviews.end",
+          "region": "reviews.home/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            1,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.standard/reviews.end",
+          "region": "reviews.home/reviews.home/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            2,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.trip/reviews.end",
+          "region": "reviews.home/reviews.home/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            2,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.home/reviews.end",
+          "region": "reviews.home/reviews.home/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            2,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.training/reviews.end",
+          "region": "reviews.home/reviews.home/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            2,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.oncall/reviews.end",
+          "region": "reviews.home/reviews.home/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            2,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.standard/reviews.end",
+          "region": "reviews.home/reviews.training/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            3,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.trip/reviews.end",
+          "region": "reviews.home/reviews.training/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            3,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.home/reviews.end",
+          "region": "reviews.home/reviews.training/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            3,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.training/reviews.end",
+          "region": "reviews.home/reviews.training/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            3,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.oncall/reviews.end",
+          "region": "reviews.home/reviews.training/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            3,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.standard/reviews.end",
+          "region": "reviews.home/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            4,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.trip/reviews.end",
+          "region": "reviews.home/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            4,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.home/reviews.end",
+          "region": "reviews.home/reviews.oncall/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            4,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.training/reviews.end",
+          "region": "reviews.home/reviews.oncall/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            4,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.oncall/reviews.end",
+          "region": "reviews.home/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            2,
+            4,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.standard/reviews.end",
+          "region": "reviews.training/reviews.standard/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            0,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.trip/reviews.end",
+          "region": "reviews.training/reviews.standard/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            0,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.home/reviews.end",
+          "region": "reviews.training/reviews.standard/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            0,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.training/reviews.end",
+          "region": "reviews.training/reviews.standard/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            0,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.oncall/reviews.end",
+          "region": "reviews.training/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            0,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.standard/reviews.end",
+          "region": "reviews.training/reviews.trip/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            1,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.trip/reviews.end",
+          "region": "reviews.training/reviews.trip/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            1,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.home/reviews.end",
+          "region": "reviews.training/reviews.trip/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            1,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.training/reviews.end",
+          "region": "reviews.training/reviews.trip/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            1,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.oncall/reviews.end",
+          "region": "reviews.training/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            1,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.standard/reviews.end",
+          "region": "reviews.training/reviews.home/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            2,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.trip/reviews.end",
+          "region": "reviews.training/reviews.home/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            2,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.home/reviews.end",
+          "region": "reviews.training/reviews.home/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            2,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.training/reviews.end",
+          "region": "reviews.training/reviews.home/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            2,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.oncall/reviews.end",
+          "region": "reviews.training/reviews.home/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            2,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.standard/reviews.end",
+          "region": "reviews.training/reviews.training/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            3,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.trip/reviews.end",
+          "region": "reviews.training/reviews.training/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            3,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.home/reviews.end",
+          "region": "reviews.training/reviews.training/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            3,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.training/reviews.end",
+          "region": "reviews.training/reviews.training/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            3,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.oncall/reviews.end",
+          "region": "reviews.training/reviews.training/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            3,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.standard/reviews.end",
+          "region": "reviews.training/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            4,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.trip/reviews.end",
+          "region": "reviews.training/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            4,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.home/reviews.end",
+          "region": "reviews.training/reviews.oncall/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            4,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.training/reviews.end",
+          "region": "reviews.training/reviews.oncall/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            4,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.oncall/reviews.end",
+          "region": "reviews.training/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            3,
+            4,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.standard/reviews.end",
+          "region": "reviews.oncall/reviews.standard/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            0,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.trip/reviews.end",
+          "region": "reviews.oncall/reviews.standard/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            0,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.home/reviews.end",
+          "region": "reviews.oncall/reviews.standard/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            0,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.training/reviews.end",
+          "region": "reviews.oncall/reviews.standard/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            0,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end",
+          "region": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            0,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.standard/reviews.end",
+          "region": "reviews.oncall/reviews.trip/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            1,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.trip/reviews.end",
+          "region": "reviews.oncall/reviews.trip/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            1,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.home/reviews.end",
+          "region": "reviews.oncall/reviews.trip/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            1,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.training/reviews.end",
+          "region": "reviews.oncall/reviews.trip/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            1,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end",
+          "region": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            1,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.standard/reviews.end",
+          "region": "reviews.oncall/reviews.home/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            2,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.trip/reviews.end",
+          "region": "reviews.oncall/reviews.home/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            2,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.home/reviews.end",
+          "region": "reviews.oncall/reviews.home/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            2,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.training/reviews.end",
+          "region": "reviews.oncall/reviews.home/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            2,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.oncall/reviews.end",
+          "region": "reviews.oncall/reviews.home/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            2,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.standard/reviews.end",
+          "region": "reviews.oncall/reviews.training/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            3,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.trip/reviews.end",
+          "region": "reviews.oncall/reviews.training/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            3,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.home/reviews.end",
+          "region": "reviews.oncall/reviews.training/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            3,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.training/reviews.end",
+          "region": "reviews.oncall/reviews.training/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            3,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.oncall/reviews.end",
+          "region": "reviews.oncall/reviews.training/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            3,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end",
+          "region": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            4,
+            0
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end",
+          "region": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            4,
+            1
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.home/reviews.end",
+          "region": "reviews.oncall/reviews.oncall/reviews.home/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            4,
+            2
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.training/reviews.end",
+          "region": "reviews.oncall/reviews.oncall/reviews.training/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            4,
+            3
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end",
+          "region": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "selected",
+          "kinds": [
+            4,
+            4,
+            4
+          ],
+          "minutes": [
+            15,
+            15,
+            15
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.standard/reviews.end-interior",
+          "region": "reviews.standard/reviews.standard/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            0,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.trip/reviews.end-interior",
+          "region": "reviews.standard/reviews.standard/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            0,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.home/reviews.end-interior",
+          "region": "reviews.standard/reviews.standard/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            0,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.training/reviews.end-interior",
+          "region": "reviews.standard/reviews.standard/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            0,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.oncall/reviews.end-interior",
+          "region": "reviews.standard/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            0,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.standard/reviews.end-interior",
+          "region": "reviews.standard/reviews.trip/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            1,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.trip/reviews.end-interior",
+          "region": "reviews.standard/reviews.trip/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            1,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.home/reviews.end-interior",
+          "region": "reviews.standard/reviews.trip/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            1,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.training/reviews.end-interior",
+          "region": "reviews.standard/reviews.trip/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            1,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.oncall/reviews.end-interior",
+          "region": "reviews.standard/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            1,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.standard/reviews.end-interior",
+          "region": "reviews.standard/reviews.home/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            2,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.trip/reviews.end-interior",
+          "region": "reviews.standard/reviews.home/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            2,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.home/reviews.end-interior",
+          "region": "reviews.standard/reviews.home/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            2,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.training/reviews.end-interior",
+          "region": "reviews.standard/reviews.home/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            2,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.oncall/reviews.end-interior",
+          "region": "reviews.standard/reviews.home/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            2,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.standard/reviews.end-interior",
+          "region": "reviews.standard/reviews.training/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            3,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.trip/reviews.end-interior",
+          "region": "reviews.standard/reviews.training/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            3,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.home/reviews.end-interior",
+          "region": "reviews.standard/reviews.training/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            3,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.training/reviews.end-interior",
+          "region": "reviews.standard/reviews.training/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            3,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.oncall/reviews.end-interior",
+          "region": "reviews.standard/reviews.training/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            3,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.standard/reviews.end-interior",
+          "region": "reviews.standard/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            4,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.trip/reviews.end-interior",
+          "region": "reviews.standard/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            4,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.home/reviews.end-interior",
+          "region": "reviews.standard/reviews.oncall/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            4,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.training/reviews.end-interior",
+          "region": "reviews.standard/reviews.oncall/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            4,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end-interior",
+          "region": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            0,
+            4,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.standard/reviews.end-interior",
+          "region": "reviews.trip/reviews.standard/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            0,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.trip/reviews.end-interior",
+          "region": "reviews.trip/reviews.standard/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            0,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.home/reviews.end-interior",
+          "region": "reviews.trip/reviews.standard/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            0,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.training/reviews.end-interior",
+          "region": "reviews.trip/reviews.standard/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            0,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.oncall/reviews.end-interior",
+          "region": "reviews.trip/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            0,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.standard/reviews.end-interior",
+          "region": "reviews.trip/reviews.trip/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            1,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.trip/reviews.end-interior",
+          "region": "reviews.trip/reviews.trip/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            1,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.home/reviews.end-interior",
+          "region": "reviews.trip/reviews.trip/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            1,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.training/reviews.end-interior",
+          "region": "reviews.trip/reviews.trip/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            1,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.oncall/reviews.end-interior",
+          "region": "reviews.trip/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            1,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.standard/reviews.end-interior",
+          "region": "reviews.trip/reviews.home/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            2,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.trip/reviews.end-interior",
+          "region": "reviews.trip/reviews.home/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            2,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.home/reviews.end-interior",
+          "region": "reviews.trip/reviews.home/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            2,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.training/reviews.end-interior",
+          "region": "reviews.trip/reviews.home/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            2,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.oncall/reviews.end-interior",
+          "region": "reviews.trip/reviews.home/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            2,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.standard/reviews.end-interior",
+          "region": "reviews.trip/reviews.training/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            3,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.trip/reviews.end-interior",
+          "region": "reviews.trip/reviews.training/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            3,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.home/reviews.end-interior",
+          "region": "reviews.trip/reviews.training/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            3,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.training/reviews.end-interior",
+          "region": "reviews.trip/reviews.training/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            3,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.oncall/reviews.end-interior",
+          "region": "reviews.trip/reviews.training/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            3,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.standard/reviews.end-interior",
+          "region": "reviews.trip/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            4,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.trip/reviews.end-interior",
+          "region": "reviews.trip/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            4,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.home/reviews.end-interior",
+          "region": "reviews.trip/reviews.oncall/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            4,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.training/reviews.end-interior",
+          "region": "reviews.trip/reviews.oncall/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            4,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end-interior",
+          "region": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            1,
+            4,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.standard/reviews.end-interior",
+          "region": "reviews.home/reviews.standard/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            0,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.trip/reviews.end-interior",
+          "region": "reviews.home/reviews.standard/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            0,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.home/reviews.end-interior",
+          "region": "reviews.home/reviews.standard/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            0,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.training/reviews.end-interior",
+          "region": "reviews.home/reviews.standard/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            0,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.oncall/reviews.end-interior",
+          "region": "reviews.home/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            0,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.standard/reviews.end-interior",
+          "region": "reviews.home/reviews.trip/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            1,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.trip/reviews.end-interior",
+          "region": "reviews.home/reviews.trip/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            1,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.home/reviews.end-interior",
+          "region": "reviews.home/reviews.trip/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            1,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.training/reviews.end-interior",
+          "region": "reviews.home/reviews.trip/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            1,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.oncall/reviews.end-interior",
+          "region": "reviews.home/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            1,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.standard/reviews.end-interior",
+          "region": "reviews.home/reviews.home/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            2,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.trip/reviews.end-interior",
+          "region": "reviews.home/reviews.home/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            2,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.home/reviews.end-interior",
+          "region": "reviews.home/reviews.home/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            2,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.training/reviews.end-interior",
+          "region": "reviews.home/reviews.home/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            2,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.oncall/reviews.end-interior",
+          "region": "reviews.home/reviews.home/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            2,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.standard/reviews.end-interior",
+          "region": "reviews.home/reviews.training/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            3,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.trip/reviews.end-interior",
+          "region": "reviews.home/reviews.training/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            3,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.home/reviews.end-interior",
+          "region": "reviews.home/reviews.training/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            3,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.training/reviews.end-interior",
+          "region": "reviews.home/reviews.training/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            3,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.oncall/reviews.end-interior",
+          "region": "reviews.home/reviews.training/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            3,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.standard/reviews.end-interior",
+          "region": "reviews.home/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            4,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.trip/reviews.end-interior",
+          "region": "reviews.home/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            4,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.home/reviews.end-interior",
+          "region": "reviews.home/reviews.oncall/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            4,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.training/reviews.end-interior",
+          "region": "reviews.home/reviews.oncall/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            4,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.oncall/reviews.end-interior",
+          "region": "reviews.home/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            2,
+            4,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.standard/reviews.end-interior",
+          "region": "reviews.training/reviews.standard/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            0,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.trip/reviews.end-interior",
+          "region": "reviews.training/reviews.standard/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            0,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.home/reviews.end-interior",
+          "region": "reviews.training/reviews.standard/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            0,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.training/reviews.end-interior",
+          "region": "reviews.training/reviews.standard/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            0,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.oncall/reviews.end-interior",
+          "region": "reviews.training/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            0,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.standard/reviews.end-interior",
+          "region": "reviews.training/reviews.trip/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            1,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.trip/reviews.end-interior",
+          "region": "reviews.training/reviews.trip/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            1,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.home/reviews.end-interior",
+          "region": "reviews.training/reviews.trip/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            1,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.training/reviews.end-interior",
+          "region": "reviews.training/reviews.trip/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            1,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.oncall/reviews.end-interior",
+          "region": "reviews.training/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            1,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.standard/reviews.end-interior",
+          "region": "reviews.training/reviews.home/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            2,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.trip/reviews.end-interior",
+          "region": "reviews.training/reviews.home/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            2,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.home/reviews.end-interior",
+          "region": "reviews.training/reviews.home/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            2,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.training/reviews.end-interior",
+          "region": "reviews.training/reviews.home/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            2,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.oncall/reviews.end-interior",
+          "region": "reviews.training/reviews.home/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            2,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.standard/reviews.end-interior",
+          "region": "reviews.training/reviews.training/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            3,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.trip/reviews.end-interior",
+          "region": "reviews.training/reviews.training/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            3,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.home/reviews.end-interior",
+          "region": "reviews.training/reviews.training/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            3,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.training/reviews.end-interior",
+          "region": "reviews.training/reviews.training/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            3,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.oncall/reviews.end-interior",
+          "region": "reviews.training/reviews.training/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            3,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.standard/reviews.end-interior",
+          "region": "reviews.training/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            4,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.trip/reviews.end-interior",
+          "region": "reviews.training/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            4,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.home/reviews.end-interior",
+          "region": "reviews.training/reviews.oncall/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            4,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.training/reviews.end-interior",
+          "region": "reviews.training/reviews.oncall/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            4,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.oncall/reviews.end-interior",
+          "region": "reviews.training/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            3,
+            4,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.standard/reviews.end-interior",
+          "region": "reviews.oncall/reviews.standard/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            0,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.trip/reviews.end-interior",
+          "region": "reviews.oncall/reviews.standard/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            0,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.home/reviews.end-interior",
+          "region": "reviews.oncall/reviews.standard/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            0,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.training/reviews.end-interior",
+          "region": "reviews.oncall/reviews.standard/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            0,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end-interior",
+          "region": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            0,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.standard/reviews.end-interior",
+          "region": "reviews.oncall/reviews.trip/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            1,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.trip/reviews.end-interior",
+          "region": "reviews.oncall/reviews.trip/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            1,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.home/reviews.end-interior",
+          "region": "reviews.oncall/reviews.trip/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            1,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.training/reviews.end-interior",
+          "region": "reviews.oncall/reviews.trip/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            1,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end-interior",
+          "region": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            1,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.standard/reviews.end-interior",
+          "region": "reviews.oncall/reviews.home/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            2,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.trip/reviews.end-interior",
+          "region": "reviews.oncall/reviews.home/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            2,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.home/reviews.end-interior",
+          "region": "reviews.oncall/reviews.home/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            2,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.training/reviews.end-interior",
+          "region": "reviews.oncall/reviews.home/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            2,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.oncall/reviews.end-interior",
+          "region": "reviews.oncall/reviews.home/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            2,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.standard/reviews.end-interior",
+          "region": "reviews.oncall/reviews.training/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            3,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.trip/reviews.end-interior",
+          "region": "reviews.oncall/reviews.training/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            3,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.home/reviews.end-interior",
+          "region": "reviews.oncall/reviews.training/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            3,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.training/reviews.end-interior",
+          "region": "reviews.oncall/reviews.training/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            3,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.oncall/reviews.end-interior",
+          "region": "reviews.oncall/reviews.training/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            3,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end-interior",
+          "region": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            4,
+            0
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end-interior",
+          "region": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            4,
+            1
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.home/reviews.end-interior",
+          "region": "reviews.oncall/reviews.oncall/reviews.home/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            4,
+            2
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.training/reviews.end-interior",
+          "region": "reviews.oncall/reviews.oncall/reviews.training/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            4,
+            3
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end-interior",
+          "region": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "interior",
+          "kinds": [
+            4,
+            4,
+            4
+          ],
+          "minutes": [
+            60,
+            60,
+            60
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.standard/reviews.end-upper",
+          "region": "reviews.standard/reviews.standard/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            0,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.trip/reviews.end-upper",
+          "region": "reviews.standard/reviews.standard/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            0,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.home/reviews.end-upper",
+          "region": "reviews.standard/reviews.standard/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            0,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.training/reviews.end-upper",
+          "region": "reviews.standard/reviews.standard/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            0,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.standard/reviews.oncall/reviews.end-upper",
+          "region": "reviews.standard/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            0,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.standard/reviews.end-upper",
+          "region": "reviews.standard/reviews.trip/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            1,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.trip/reviews.end-upper",
+          "region": "reviews.standard/reviews.trip/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            1,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.home/reviews.end-upper",
+          "region": "reviews.standard/reviews.trip/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            1,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.training/reviews.end-upper",
+          "region": "reviews.standard/reviews.trip/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            1,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.trip/reviews.oncall/reviews.end-upper",
+          "region": "reviews.standard/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            1,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.standard/reviews.end-upper",
+          "region": "reviews.standard/reviews.home/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            2,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.trip/reviews.end-upper",
+          "region": "reviews.standard/reviews.home/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            2,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.home/reviews.end-upper",
+          "region": "reviews.standard/reviews.home/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            2,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.training/reviews.end-upper",
+          "region": "reviews.standard/reviews.home/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            2,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.home/reviews.oncall/reviews.end-upper",
+          "region": "reviews.standard/reviews.home/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            2,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.standard/reviews.end-upper",
+          "region": "reviews.standard/reviews.training/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            3,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.trip/reviews.end-upper",
+          "region": "reviews.standard/reviews.training/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            3,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.home/reviews.end-upper",
+          "region": "reviews.standard/reviews.training/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            3,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.training/reviews.end-upper",
+          "region": "reviews.standard/reviews.training/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            3,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.training/reviews.oncall/reviews.end-upper",
+          "region": "reviews.standard/reviews.training/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            3,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.standard/reviews.end-upper",
+          "region": "reviews.standard/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            4,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.trip/reviews.end-upper",
+          "region": "reviews.standard/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            4,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.home/reviews.end-upper",
+          "region": "reviews.standard/reviews.oncall/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            4,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.training/reviews.end-upper",
+          "region": "reviews.standard/reviews.oncall/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            4,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end-upper",
+          "region": "reviews.standard/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            0,
+            4,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.standard/reviews.end-upper",
+          "region": "reviews.trip/reviews.standard/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            0,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.trip/reviews.end-upper",
+          "region": "reviews.trip/reviews.standard/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            0,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.home/reviews.end-upper",
+          "region": "reviews.trip/reviews.standard/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            0,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.training/reviews.end-upper",
+          "region": "reviews.trip/reviews.standard/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            0,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.standard/reviews.oncall/reviews.end-upper",
+          "region": "reviews.trip/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            0,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.standard/reviews.end-upper",
+          "region": "reviews.trip/reviews.trip/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            1,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.trip/reviews.end-upper",
+          "region": "reviews.trip/reviews.trip/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            1,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.home/reviews.end-upper",
+          "region": "reviews.trip/reviews.trip/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            1,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.training/reviews.end-upper",
+          "region": "reviews.trip/reviews.trip/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            1,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.trip/reviews.oncall/reviews.end-upper",
+          "region": "reviews.trip/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            1,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.standard/reviews.end-upper",
+          "region": "reviews.trip/reviews.home/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            2,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.trip/reviews.end-upper",
+          "region": "reviews.trip/reviews.home/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            2,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.home/reviews.end-upper",
+          "region": "reviews.trip/reviews.home/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            2,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.training/reviews.end-upper",
+          "region": "reviews.trip/reviews.home/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            2,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.home/reviews.oncall/reviews.end-upper",
+          "region": "reviews.trip/reviews.home/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            2,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.standard/reviews.end-upper",
+          "region": "reviews.trip/reviews.training/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            3,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": true
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.trip/reviews.end-upper",
+          "region": "reviews.trip/reviews.training/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            3,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.home/reviews.end-upper",
+          "region": "reviews.trip/reviews.training/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            3,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.training/reviews.end-upper",
+          "region": "reviews.trip/reviews.training/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            3,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.training/reviews.oncall/reviews.end-upper",
+          "region": "reviews.trip/reviews.training/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            3,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.standard/reviews.end-upper",
+          "region": "reviews.trip/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            4,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.trip/reviews.end-upper",
+          "region": "reviews.trip/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            4,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.home/reviews.end-upper",
+          "region": "reviews.trip/reviews.oncall/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            4,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.training/reviews.end-upper",
+          "region": "reviews.trip/reviews.oncall/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            4,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end-upper",
+          "region": "reviews.trip/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            1,
+            4,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.standard/reviews.end-upper",
+          "region": "reviews.home/reviews.standard/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            0,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.trip/reviews.end-upper",
+          "region": "reviews.home/reviews.standard/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            0,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.home/reviews.end-upper",
+          "region": "reviews.home/reviews.standard/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            0,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.training/reviews.end-upper",
+          "region": "reviews.home/reviews.standard/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            0,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.standard/reviews.oncall/reviews.end-upper",
+          "region": "reviews.home/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            0,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.standard/reviews.end-upper",
+          "region": "reviews.home/reviews.trip/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            1,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.trip/reviews.end-upper",
+          "region": "reviews.home/reviews.trip/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            1,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.home/reviews.end-upper",
+          "region": "reviews.home/reviews.trip/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            1,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.training/reviews.end-upper",
+          "region": "reviews.home/reviews.trip/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            1,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.trip/reviews.oncall/reviews.end-upper",
+          "region": "reviews.home/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            1,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.standard/reviews.end-upper",
+          "region": "reviews.home/reviews.home/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            2,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.trip/reviews.end-upper",
+          "region": "reviews.home/reviews.home/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            2,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.home/reviews.end-upper",
+          "region": "reviews.home/reviews.home/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            2,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.training/reviews.end-upper",
+          "region": "reviews.home/reviews.home/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            2,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.home/reviews.oncall/reviews.end-upper",
+          "region": "reviews.home/reviews.home/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            2,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.standard/reviews.end-upper",
+          "region": "reviews.home/reviews.training/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            3,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.trip/reviews.end-upper",
+          "region": "reviews.home/reviews.training/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            3,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.home/reviews.end-upper",
+          "region": "reviews.home/reviews.training/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            3,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.training/reviews.end-upper",
+          "region": "reviews.home/reviews.training/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            3,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.training/reviews.oncall/reviews.end-upper",
+          "region": "reviews.home/reviews.training/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            3,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.standard/reviews.end-upper",
+          "region": "reviews.home/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            4,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.trip/reviews.end-upper",
+          "region": "reviews.home/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            4,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.home/reviews.end-upper",
+          "region": "reviews.home/reviews.oncall/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            4,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.training/reviews.end-upper",
+          "region": "reviews.home/reviews.oncall/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            4,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.home/reviews.oncall/reviews.oncall/reviews.end-upper",
+          "region": "reviews.home/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            2,
+            4,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.standard/reviews.end-upper",
+          "region": "reviews.training/reviews.standard/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            0,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.trip/reviews.end-upper",
+          "region": "reviews.training/reviews.standard/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            0,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.home/reviews.end-upper",
+          "region": "reviews.training/reviews.standard/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            0,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.training/reviews.end-upper",
+          "region": "reviews.training/reviews.standard/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            0,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.standard/reviews.oncall/reviews.end-upper",
+          "region": "reviews.training/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            0,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.standard/reviews.end-upper",
+          "region": "reviews.training/reviews.trip/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            1,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.trip/reviews.end-upper",
+          "region": "reviews.training/reviews.trip/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            1,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.home/reviews.end-upper",
+          "region": "reviews.training/reviews.trip/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            1,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.training/reviews.end-upper",
+          "region": "reviews.training/reviews.trip/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            1,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.trip/reviews.oncall/reviews.end-upper",
+          "region": "reviews.training/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            1,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.standard/reviews.end-upper",
+          "region": "reviews.training/reviews.home/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            2,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.trip/reviews.end-upper",
+          "region": "reviews.training/reviews.home/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            2,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.home/reviews.end-upper",
+          "region": "reviews.training/reviews.home/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            2,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.training/reviews.end-upper",
+          "region": "reviews.training/reviews.home/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            2,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.home/reviews.oncall/reviews.end-upper",
+          "region": "reviews.training/reviews.home/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            2,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.standard/reviews.end-upper",
+          "region": "reviews.training/reviews.training/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            3,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.trip/reviews.end-upper",
+          "region": "reviews.training/reviews.training/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            3,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.home/reviews.end-upper",
+          "region": "reviews.training/reviews.training/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            3,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.training/reviews.end-upper",
+          "region": "reviews.training/reviews.training/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            3,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.training/reviews.oncall/reviews.end-upper",
+          "region": "reviews.training/reviews.training/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            3,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.standard/reviews.end-upper",
+          "region": "reviews.training/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            4,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.trip/reviews.end-upper",
+          "region": "reviews.training/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            4,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.home/reviews.end-upper",
+          "region": "reviews.training/reviews.oncall/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            4,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.training/reviews.end-upper",
+          "region": "reviews.training/reviews.oncall/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            4,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.training/reviews.oncall/reviews.oncall/reviews.end-upper",
+          "region": "reviews.training/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            3,
+            4,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.standard/reviews.end-upper",
+          "region": "reviews.oncall/reviews.standard/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            0,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.trip/reviews.end-upper",
+          "region": "reviews.oncall/reviews.standard/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            0,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.home/reviews.end-upper",
+          "region": "reviews.oncall/reviews.standard/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            0,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.training/reviews.end-upper",
+          "region": "reviews.oncall/reviews.standard/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            0,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end-upper",
+          "region": "reviews.oncall/reviews.standard/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            0,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.standard/reviews.end-upper",
+          "region": "reviews.oncall/reviews.trip/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            1,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.trip/reviews.end-upper",
+          "region": "reviews.oncall/reviews.trip/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            1,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.home/reviews.end-upper",
+          "region": "reviews.oncall/reviews.trip/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            1,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.training/reviews.end-upper",
+          "region": "reviews.oncall/reviews.trip/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            1,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end-upper",
+          "region": "reviews.oncall/reviews.trip/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            1,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.standard/reviews.end-upper",
+          "region": "reviews.oncall/reviews.home/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            2,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.trip/reviews.end-upper",
+          "region": "reviews.oncall/reviews.home/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            2,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.home/reviews.end-upper",
+          "region": "reviews.oncall/reviews.home/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            2,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.training/reviews.end-upper",
+          "region": "reviews.oncall/reviews.home/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            2,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.home/reviews.oncall/reviews.end-upper",
+          "region": "reviews.oncall/reviews.home/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            2,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.standard/reviews.end-upper",
+          "region": "reviews.oncall/reviews.training/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            3,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.trip/reviews.end-upper",
+          "region": "reviews.oncall/reviews.training/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            3,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.home/reviews.end-upper",
+          "region": "reviews.oncall/reviews.training/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            3,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.training/reviews.end-upper",
+          "region": "reviews.oncall/reviews.training/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            3,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.training/reviews.oncall/reviews.end-upper",
+          "region": "reviews.oncall/reviews.training/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            3,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end-upper",
+          "region": "reviews.oncall/reviews.oncall/reviews.standard/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            4,
+            0
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end-upper",
+          "region": "reviews.oncall/reviews.oncall/reviews.trip/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            4,
+            1
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.home/reviews.end-upper",
+          "region": "reviews.oncall/reviews.oncall/reviews.home/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            4,
+            2
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.training/reviews.end-upper",
+          "region": "reviews.oncall/reviews.oncall/reviews.training/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            4,
+            3
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        },
+        {
+          "id": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end-upper",
+          "region": "reviews.oncall/reviews.oncall/reviews.oncall/reviews.end",
+          "policy": "upper",
+          "kinds": [
+            4,
+            4,
+            4
+          ],
+          "minutes": [
+            720,
+            720,
+            720
+          ],
+          "browser": false
+        }
+      ]
+    }
+  ]
+}

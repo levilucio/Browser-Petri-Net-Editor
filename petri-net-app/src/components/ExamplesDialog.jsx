@@ -1,3 +1,4 @@
+import { hrExamples } from '../satel/examples/hr/editor.js';
 import { methodGateExamples } from '../satel/examples/methods-gates/editor.js';
 import { inventoryExamples } from '../satel/examples/inventory/editor.js';
 import { nondeterminismExamples } from '../satel/examples/nondeterminism/editor.js';
@@ -10,6 +11,7 @@ import { fulfilmentExamples } from '../satel/examples/fulfilment/editor.js';
 import { oracleAccountExamples } from '../satel/examples/oracle-account/editor.js';
 
 const EXAMPLES = [
+  ...hrExamples,
   ...oracleAccountExamples,
   ...inventoryExamples,
   ...refusalExamples,

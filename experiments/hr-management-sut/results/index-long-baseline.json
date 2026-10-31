@@ -1,0 +1,216 @@
+{
+  "recordedAt": "2026-10-30T21:27:33.679Z",
+  "node": "v24.22.1",
+  "cpu": "AMD EPYC 9V74 80-Core Processor",
+  "methodology": "Sequential isolated children; no competing experiment jobs. Z3 initialization excluded. Profiled executable selection, not admission or SUT runs. Hard process limit is sequence budget + 90 seconds. Frozen specification, intentions and SUT. Initial exploratory run: the eight-slot child overlapped a 4.2-second focused Jest check. Use index-comparison.json for the isolated speed comparison.",
+  "sourceSha256": {
+    "src/satel/examples/hr/editor.js": "6a1e1b978223e372acf5d0fb371e15a82412863f5a14e3b228a0865e5bd4e100",
+    "src/satel/examples/hr/intentions.js": "3a10ededd6c5fdefa627e790c94df9721da554c261b4019adf9d2405b17bf754",
+    "src/satel/core/ExecutableSequence.js": "e8893fd810df2c1ee0d102ca1658d35c9d627a2b710a8c9063fb977ba11ad00b",
+    "src/domain/apn/PublicMethods.js": "c0f224b19cb5a65a751c79aeb46c6473f60250f31bd1ef324d14909db53624ab"
+  },
+  "results": [
+    {
+      "config": {
+        "employees": 256,
+        "slots": 2,
+        "sequenceTimeMs": 300000,
+        "indexed": false
+      },
+      "initMs": 167.576052,
+      "elapsedMs": 68032.809585,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 256
+        },
+        {
+          "place": "principals",
+          "tokens": 256
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 512
+        },
+        {
+          "place": "vacations",
+          "tokens": 512
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selectionProfile": {
+        "tokenScans": 231208,
+        "guardChecks": 231988,
+        "guardMs": 59099.60662099851,
+        "projectionMs": 308.82316599995283,
+        "stateBuildMs": 30.054057999898305,
+        "prefixSolverMs": 3496.241749999969,
+        "witnessSolverMs": 27.297552999997606,
+        "indexBuildMs": 0,
+        "indexBuilds": 0,
+        "indexLookups": 0,
+        "indexTokens": 0,
+        "indexCandidates": 0,
+        "indexExcluded": 0,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 0
+      },
+      "algebraProfile": {
+        "visited": 116,
+        "peakPending": 9,
+        "equationAttempts": 186,
+        "equationMatches": 55,
+        "booleanBranches": 60,
+        "feasibilityQueries": 116,
+        "overlapQueries": 50,
+        "feasibilityMs": 1907.5522480000006,
+        "overlapSolverMs": 366.1425980000017,
+        "equationExpansionMs": 6.766603999999461,
+        "feasibilityWitnessQueries": 25,
+        "feasibilityCheckQueries": 91,
+        "feasibilityWitnessMs": 297.9613660000009,
+        "feasibilityCheckMs": 1609.5908819999997,
+        "maxFeasibilityVariables": 4,
+        "feasibilityVariableEntries": 430,
+        "overlapPairs": 300,
+        "constructorDisjointPairs": 0,
+        "constructorCheckMs": 1.9847100000001774,
+        "maxOverlapVariables": 8,
+        "overlapVariableEntries": 400,
+        "branchProofQueries": 10,
+        "branchProofMs": 66.93116199999986,
+        "branchProofCacheHits": 240,
+        "branchDisjointPairs": 250,
+        "branchProofStatuses": {
+          "unsat": 10
+        },
+        "maxRulePath": 3,
+        "maxUnfoldingDepth": 3,
+        "infeasibleBranches": 0,
+        "operations": {
+          "reviews": 31
+        },
+        "overlapPhaseMs": 446.1106500000001,
+        "searchMs": 2381.38995,
+        "nonSolverMs": 40.763941999997996,
+        "expandedBranches": 246
+      },
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2832,
+      "pruned": 230798,
+      "prefixChecks": 388,
+      "rss": 515325952,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "config": {
+        "employees": 256,
+        "slots": 8,
+        "sequenceTimeMs": 300000,
+        "indexed": false
+      },
+      "initMs": 125.89372900000001,
+      "elapsedMs": 203359.615814,
+      "places": 4,
+      "transitions": 21,
+      "arcs": 120,
+      "marking": [
+        {
+          "place": "employees",
+          "tokens": 256
+        },
+        {
+          "place": "principals",
+          "tokens": 256
+        },
+        {
+          "place": "timeEntries",
+          "tokens": 2048
+        },
+        {
+          "place": "vacations",
+          "tokens": 2048
+        }
+      ],
+      "classes": 25,
+      "algebraUnresolved": 0,
+      "overlaps": 0,
+      "selectionProfile": {
+        "tokenScans": 515368,
+        "guardChecks": 516148,
+        "guardMs": 192403.45098299772,
+        "projectionMs": 286.1705929997711,
+        "stateBuildMs": 80.18039099984526,
+        "prefixSolverMs": 3325.180793000095,
+        "witnessSolverMs": 24.646581999951195,
+        "indexBuildMs": 0,
+        "indexBuilds": 0,
+        "indexLookups": 0,
+        "indexTokens": 0,
+        "indexCandidates": 0,
+        "indexExcluded": 0,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 0
+      },
+      "algebraProfile": {
+        "visited": 116,
+        "peakPending": 9,
+        "equationAttempts": 186,
+        "equationMatches": 55,
+        "booleanBranches": 60,
+        "feasibilityQueries": 116,
+        "overlapQueries": 50,
+        "feasibilityMs": 1458.489826,
+        "overlapSolverMs": 342.0231670000003,
+        "equationExpansionMs": 6.3238410000001295,
+        "feasibilityWitnessQueries": 25,
+        "feasibilityCheckQueries": 91,
+        "feasibilityWitnessMs": 250.62014600000032,
+        "feasibilityCheckMs": 1207.8696799999998,
+        "maxFeasibilityVariables": 4,
+        "feasibilityVariableEntries": 430,
+        "overlapPairs": 300,
+        "constructorDisjointPairs": 0,
+        "constructorCheckMs": 1.5061569999991207,
+        "maxOverlapVariables": 8,
+        "overlapVariableEntries": 400,
+        "branchProofQueries": 10,
+        "branchProofMs": 65.38486599999987,
+        "branchProofCacheHits": 240,
+        "branchDisjointPairs": 250,
+        "branchProofStatuses": {
+          "unsat": 10
+        },
+        "maxRulePath": 3,
+        "maxUnfoldingDepth": 3,
+        "infeasibleBranches": 0,
+        "operations": {
+          "reviews": 31
+        },
+        "overlapPhaseMs": 417.52740500000004,
+        "searchMs": 1898.3294239999998,
+        "nonSolverMs": 32.43156499999964,
+        "expandedBranches": 246
+      },
+      "selected": 25,
+      "blocked": 0,
+      "unresolved": [],
+      "visited": 2832,
+      "pruned": 514958,
+      "prefixChecks": 388,
+      "rss": 612552704,
+      "sameFrozenPairs": true,
+      "exitCode": 0,
+      "signal": null
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import { root } from './runtime.mjs';
+import { freezeProbeSuite } from './post-refusal-fixture.mjs';
+const hash = x => createHash('sha256').update(x).digest('hex');
+const manifest = JSON.parse(readFileSync(resolve(root, 'results/post-refusal-manifest.json')));
+for (const [path, digest] of Object.entries(manifest.sourceHashes)) assert.equal(hash(readFileSync(resolve(root, path))), digest, path);
+const baseRaw = readFileSync(resolve(root, 'results/negative-suite.json')); assert.equal(hash(baseRaw), manifest.baseSuiteSha256);
+const raw = JSON.stringify(freezeProbeSuite(JSON.parse(baseRaw), manifest.plans)); assert.equal(hash(raw), manifest.suiteSha256);
+const path = resolve(root, 'results/post-refusal-suite.json');
+if (existsSync(path)) assert.equal(hash(readFileSync(path)), manifest.suiteSha256); else writeFileSync(path, raw);
+console.log('Verified/restored post-refusal trace experiments byte for byte.');

@@ -16,6 +16,7 @@ node_modules
 dist
 dist-ssr
 dist-satel-test
+dist-hr-generic-validation*
 build
 *.local
 .vite

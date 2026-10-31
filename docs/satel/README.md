@@ -1,5 +1,23 @@
 # SATEL for Algebraic Petri Nets
 
+See [interaction-history scaling](increment-51-sequence-length.md) for the controlled 25/50/100-pair experiment, explicit selection-length budgets and the paper's consolidated evidence matrix.
+
+See [observations after refusal](increment-50-post-refusal-probes.md) for APN-derived read-only probes and faults that persist data changes despite reporting refusal. These are trace experiments with unchanged terminal-refusal HML semantics.
+
+See [automatic scoped HR refusals](increment-49-hr-negative-tests.md) for bounded negative generation, concrete finite cross-checks and external permission/state-check campaigns.
+
+See [observable HR histories and representative sensitivity](increment-48-hr-effectiveness.md) for real REST/browser campaigns, seeded history faults and within-region comparisons.
+
+See [scalar feasibility and larger HR depth budgets](increment-47-hr-scalar-feasibility.md) for the follow-up on feasibility costs, retained region metadata and complete fixed-length selection experiments.
+
+See [recursive HR depth and finite coverage audit](increment-46-hr-depth.md) for stage profiling, conservative overlap certificates, and the remaining branch-budget limit.
+
+See [guard-derived token indexing](increment-45-token-index.md) for the follow-up on generic HR selection, profiling and exhaustive-scan comparisons.
+
+See [generic HR bindings](increment-44-generic-hr.md) for the current four-place, 21-transition HR reference, its retained expanded benchmark, and measurements with up to 256 employee tokens.
+
+See [HR management stress experiment](increment-43-hr-management-stress.md) for a 432-transition APN, independent REST/SQLite web SUT, generated API and Playwright campaigns, and measured recursive-ADT/subuniformity limits.
+
 See [quota web SUT testing](increment-42-quota-web-sut.md) to run generated methods/gates tests against an independent browser application and inspect detected implementation faults.
 
 See [thesis graphical notation](increment-41-graphical-methods-gates.md) for the APN boundary, method/gate ports, synchronization edges and a screenshot of the converted quota example.

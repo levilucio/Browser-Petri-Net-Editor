@@ -1,0 +1,967 @@
+Class HRManagementExpanded;
+
+Interface
+  Methods
+    logTime : Nat Nat Nat Nat Nat;
+    decideTime : Nat Nat Nat Bool;
+    correctTime : Nat Nat Nat Nat Nat Nat;
+    readTime : Nat Nat Nat;
+    requestVacation : Nat Nat Nat Nat;
+    decideVacation : Nat Nat Nat Bool;
+    takeVacation : Nat Nat Nat;
+    correctVacation : Nat Nat Nat Nat Nat;
+    readVacation : Nat Nat Nat;
+    balance : Nat Nat;
+    auditCount : Nat Nat;
+    totals : Nat Nat;
+  Gates
+    ack : Bool;
+    timeRecord : Pair;
+    vacationRecord : Pair;
+    remaining : Nat;
+    approvedMinutes : Nat;
+    changes : Nat;
+
+Body
+  Places
+    balance_1001 : Nat;
+    audit_1001 : Nat;
+    time_1001_0 : Pair;
+    vacation_1001_0 : Pair;
+    time_1001_1 : Pair;
+    vacation_1001_1 : Pair;
+    balance_1002 : Nat;
+    audit_1002 : Nat;
+    time_1002_0 : Pair;
+    vacation_1002_0 : Pair;
+    time_1002_1 : Pair;
+    vacation_1002_1 : Pair;
+    balance_1003 : Nat;
+    audit_1003 : Nat;
+    time_1003_0 : Pair;
+    vacation_1003_0 : Pair;
+    time_1003_1 : Pair;
+    vacation_1003_1 : Pair;
+    balance_1004 : Nat;
+    audit_1004 : Nat;
+    time_1004_0 : Pair;
+    vacation_1004_0 : Pair;
+    time_1004_1 : Pair;
+    vacation_1004_1 : Pair;
+    balance_1005 : Nat;
+    audit_1005 : Nat;
+    time_1005_0 : Pair;
+    vacation_1005_0 : Pair;
+    time_1005_1 : Pair;
+    vacation_1005_1 : Pair;
+    balance_1006 : Nat;
+    audit_1006 : Nat;
+    time_1006_0 : Pair;
+    vacation_1006_0 : Pair;
+    time_1006_1 : Pair;
+    vacation_1006_1 : Pair;
+    balance_1007 : Nat;
+    audit_1007 : Nat;
+    time_1007_0 : Pair;
+    vacation_1007_0 : Pair;
+    time_1007_1 : Pair;
+    vacation_1007_1 : Pair;
+    balance_1008 : Nat;
+    audit_1008 : Nat;
+    time_1008_0 : Pair;
+    vacation_1008_0 : Pair;
+    time_1008_1 : Pair;
+    vacation_1008_1 : Pair;
+    balance_1009 : Nat;
+    audit_1009 : Nat;
+    time_1009_0 : Pair;
+    vacation_1009_0 : Pair;
+    time_1009_1 : Pair;
+    vacation_1009_1 : Pair;
+    balance_1010 : Nat;
+    audit_1010 : Nat;
+    time_1010_0 : Pair;
+    vacation_1010_0 : Pair;
+    time_1010_1 : Pair;
+    vacation_1010_1 : Pair;
+    balance_101 : Nat;
+    audit_101 : Nat;
+    time_101_0 : Pair;
+    vacation_101_0 : Pair;
+    time_101_1 : Pair;
+    vacation_101_1 : Pair;
+    balance_2001 : Nat;
+    audit_2001 : Nat;
+    time_2001_0 : Pair;
+    vacation_2001_0 : Pair;
+    time_2001_1 : Pair;
+    vacation_2001_1 : Pair;
+  Initial
+    balance_1001 (30), audit_1001 (0), time_1001_0 ((0, (0, 0))), vacation_1001_0 ((0, 0)), time_1001_1 ((0, (0, 0))), vacation_1001_1 ((0, 0)), balance_1002 (30), audit_1002 (0), time_1002_0 ((0, (0, 0))), vacation_1002_0 ((0, 0)), time_1002_1 ((0, (0, 0))), vacation_1002_1 ((0, 0)), balance_1003 (30), audit_1003 (0), time_1003_0 ((0, (0, 0))), vacation_1003_0 ((0, 0)), time_1003_1 ((0, (0, 0))), vacation_1003_1 ((0, 0)), balance_1004 (30), audit_1004 (0), time_1004_0 ((0, (0, 0))), vacation_1004_0 ((0, 0)), time_1004_1 ((0, (0, 0))), vacation_1004_1 ((0, 0)), balance_1005 (30), audit_1005 (0), time_1005_0 ((0, (0, 0))), vacation_1005_0 ((0, 0)), time_1005_1 ((0, (0, 0))), vacation_1005_1 ((0, 0)), balance_1006 (30), audit_1006 (0), time_1006_0 ((0, (0, 0))), vacation_1006_0 ((0, 0)), time_1006_1 ((0, (0, 0))), vacation_1006_1 ((0, 0)), balance_1007 (30), audit_1007 (0), time_1007_0 ((0, (0, 0))), vacation_1007_0 ((0, 0)), time_1007_1 ((0, (0, 0))), vacation_1007_1 ((0, 0)), balance_1008 (30), audit_1008 (0), time_1008_0 ((0, (0, 0))), vacation_1008_0 ((0, 0)), time_1008_1 ((0, (0, 0))), vacation_1008_1 ((0, 0)), balance_1009 (30), audit_1009 (0), time_1009_0 ((0, (0, 0))), vacation_1009_0 ((0, 0)), time_1009_1 ((0, (0, 0))), vacation_1009_1 ((0, 0)), balance_1010 (30), audit_1010 (0), time_1010_0 ((0, (0, 0))), vacation_1010_0 ((0, 0)), time_1010_1 ((0, (0, 0))), vacation_1010_1 ((0, 0)), balance_101 (30), audit_101 (0), time_101_0 ((0, (0, 0))), vacation_101_0 ((0, 0)), time_101_1 ((0, (0, 0))), vacation_101_1 ((0, 0)), balance_2001 (30), audit_2001 (0), time_2001_0 ((0, (0, 0))), vacation_2001_0 ((0, 0)), time_2001_1 ((0, (0, 0))), vacation_2001_1 ((0, 0));
+  Axioms
+    time_1001_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1001 and record == 9010011 and actor == 1001 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1001_0 t, audit_1001 a -> time_1001_0 ((kind, (minutes, 2))), audit_1001 (a + 1);
+    time_1001_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1001 and record == 9010011 and actor == 1001 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1001_0 t, audit_1001 a -> time_1001_0 ((kind, (minutes, 1))), audit_1001 (a + 1);
+    time_1001_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1001 and record == 9010011 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1001_0 t, audit_1001 a -> time_1001_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1001 (a + 1);
+    time_1001_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1001 and record == 9010011 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1001_0 t, audit_1001 a -> time_1001_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1001 (a + 1);
+    time_1001_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1001 and record == 9010011 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1001_0 t, audit_1001 a -> time_1001_0 ((kind, (minutes, status))), audit_1001 (a + 1);
+    time_1001_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1001 and record == 9010011 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1001_0 t -> time_1001_0 (t);
+    vacation_1001_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1001 and record == 19010011 and actor == 1001 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1001_0 v, audit_1001 a -> vacation_1001_0 ((days, 1)), audit_1001 (a + 1);
+    vacation_1001_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1001 and record == 19010011 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1001_0 v, balance_1001 balance, audit_1001 a -> vacation_1001_0 ((asInt(fst(v)), 2)), balance_1001 (balance - asInt(fst(v))), audit_1001 (a + 1);
+    vacation_1001_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1001 and record == 19010011 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1001_0 v, balance_1001 balance, audit_1001 a -> vacation_1001_0 ((asInt(fst(v)), 3)), balance_1001 (balance), audit_1001 (a + 1);
+    vacation_1001_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1001 and record == 19010011 and actor == 1001 and asInt(snd(v)) == 2 => vacation_1001_0 v, audit_1001 a -> vacation_1001_0 ((asInt(fst(v)), 4)), audit_1001 (a + 1);
+    vacation_1001_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1001 and record == 19010011 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1001_0 v, balance_1001 balance, audit_1001 a -> vacation_1001_0 ((days, status)), balance_1001 (balance + asInt(fst(v)) - days), audit_1001 (a + 1);
+    vacation_1001_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1001 and record == 19010011 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1001_0 v, balance_1001 balance, audit_1001 a -> vacation_1001_0 ((days, status)), balance_1001 (balance + asInt(fst(v)) - 0), audit_1001 (a + 1);
+    vacation_1001_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1001 and record == 19010011 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1001_0 v, balance_1001 balance, audit_1001 a -> vacation_1001_0 ((days, status)), balance_1001 (balance + 0 - days), audit_1001 (a + 1);
+    vacation_1001_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1001 and record == 19010011 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1001_0 v, balance_1001 balance, audit_1001 a -> vacation_1001_0 ((days, status)), balance_1001 (balance + 0 - 0), audit_1001 (a + 1);
+    vacation_1001_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1001 and record == 19010011 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1001_0 v -> vacation_1001_0 (v);
+    time_1001_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1001 and record == 9010012 and actor == 1001 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1001_1 t, audit_1001 a -> time_1001_1 ((kind, (minutes, 2))), audit_1001 (a + 1);
+    time_1001_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1001 and record == 9010012 and actor == 1001 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1001_1 t, audit_1001 a -> time_1001_1 ((kind, (minutes, 1))), audit_1001 (a + 1);
+    time_1001_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1001 and record == 9010012 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1001_1 t, audit_1001 a -> time_1001_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1001 (a + 1);
+    time_1001_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1001 and record == 9010012 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1001_1 t, audit_1001 a -> time_1001_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1001 (a + 1);
+    time_1001_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1001 and record == 9010012 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1001_1 t, audit_1001 a -> time_1001_1 ((kind, (minutes, status))), audit_1001 (a + 1);
+    time_1001_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1001 and record == 9010012 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1001_1 t -> time_1001_1 (t);
+    vacation_1001_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1001 and record == 19010012 and actor == 1001 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1001_1 v, audit_1001 a -> vacation_1001_1 ((days, 1)), audit_1001 (a + 1);
+    vacation_1001_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1001 and record == 19010012 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1001_1 v, balance_1001 balance, audit_1001 a -> vacation_1001_1 ((asInt(fst(v)), 2)), balance_1001 (balance - asInt(fst(v))), audit_1001 (a + 1);
+    vacation_1001_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1001 and record == 19010012 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1001_1 v, balance_1001 balance, audit_1001 a -> vacation_1001_1 ((asInt(fst(v)), 3)), balance_1001 (balance), audit_1001 (a + 1);
+    vacation_1001_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1001 and record == 19010012 and actor == 1001 and asInt(snd(v)) == 2 => vacation_1001_1 v, audit_1001 a -> vacation_1001_1 ((asInt(fst(v)), 4)), audit_1001 (a + 1);
+    vacation_1001_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1001 and record == 19010012 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1001_1 v, balance_1001 balance, audit_1001 a -> vacation_1001_1 ((days, status)), balance_1001 (balance + asInt(fst(v)) - days), audit_1001 (a + 1);
+    vacation_1001_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1001 and record == 19010012 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1001_1 v, balance_1001 balance, audit_1001 a -> vacation_1001_1 ((days, status)), balance_1001 (balance + asInt(fst(v)) - 0), audit_1001 (a + 1);
+    vacation_1001_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1001 and record == 19010012 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1001_1 v, balance_1001 balance, audit_1001 a -> vacation_1001_1 ((days, status)), balance_1001 (balance + 0 - days), audit_1001 (a + 1);
+    vacation_1001_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1001 and record == 19010012 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1001_1 v, balance_1001 balance, audit_1001 a -> vacation_1001_1 ((days, status)), balance_1001 (balance + 0 - 0), audit_1001 (a + 1);
+    vacation_1001_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1001 and record == 19010012 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1001_1 v -> vacation_1001_1 (v);
+    read_balance_1001: balance actor employee With this.remaining (n) ::
+      employee == 1001 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) => balance_1001 n -> balance_1001 (n);
+    read_auditCount_1001: auditCount actor employee With this.changes (n) ::
+      employee == 1001 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) => audit_1001 n -> audit_1001 (n);
+    totals_1001_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1001 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1001_0 x, time_1001_1 y -> time_1001_0 (x), time_1001_1 (y);
+    totals_1001_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1001 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1001_0 x, time_1001_1 y -> time_1001_0 (x), time_1001_1 (y);
+    totals_1001_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1001 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1001_0 x, time_1001_1 y -> time_1001_0 (x), time_1001_1 (y);
+    totals_1001_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1001 and (actor == 1001 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1001_0 x, time_1001_1 y -> time_1001_0 (x), time_1001_1 (y);
+    time_1002_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1002 and record == 9010021 and actor == 1002 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1002_0 t, audit_1002 a -> time_1002_0 ((kind, (minutes, 2))), audit_1002 (a + 1);
+    time_1002_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1002 and record == 9010021 and actor == 1002 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1002_0 t, audit_1002 a -> time_1002_0 ((kind, (minutes, 1))), audit_1002 (a + 1);
+    time_1002_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1002 and record == 9010021 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1002_0 t, audit_1002 a -> time_1002_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1002 (a + 1);
+    time_1002_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1002 and record == 9010021 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1002_0 t, audit_1002 a -> time_1002_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1002 (a + 1);
+    time_1002_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1002 and record == 9010021 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1002_0 t, audit_1002 a -> time_1002_0 ((kind, (minutes, status))), audit_1002 (a + 1);
+    time_1002_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1002 and record == 9010021 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1002_0 t -> time_1002_0 (t);
+    vacation_1002_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1002 and record == 19010021 and actor == 1002 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1002_0 v, audit_1002 a -> vacation_1002_0 ((days, 1)), audit_1002 (a + 1);
+    vacation_1002_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1002 and record == 19010021 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1002_0 v, balance_1002 balance, audit_1002 a -> vacation_1002_0 ((asInt(fst(v)), 2)), balance_1002 (balance - asInt(fst(v))), audit_1002 (a + 1);
+    vacation_1002_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1002 and record == 19010021 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1002_0 v, balance_1002 balance, audit_1002 a -> vacation_1002_0 ((asInt(fst(v)), 3)), balance_1002 (balance), audit_1002 (a + 1);
+    vacation_1002_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1002 and record == 19010021 and actor == 1002 and asInt(snd(v)) == 2 => vacation_1002_0 v, audit_1002 a -> vacation_1002_0 ((asInt(fst(v)), 4)), audit_1002 (a + 1);
+    vacation_1002_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1002 and record == 19010021 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1002_0 v, balance_1002 balance, audit_1002 a -> vacation_1002_0 ((days, status)), balance_1002 (balance + asInt(fst(v)) - days), audit_1002 (a + 1);
+    vacation_1002_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1002 and record == 19010021 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1002_0 v, balance_1002 balance, audit_1002 a -> vacation_1002_0 ((days, status)), balance_1002 (balance + asInt(fst(v)) - 0), audit_1002 (a + 1);
+    vacation_1002_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1002 and record == 19010021 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1002_0 v, balance_1002 balance, audit_1002 a -> vacation_1002_0 ((days, status)), balance_1002 (balance + 0 - days), audit_1002 (a + 1);
+    vacation_1002_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1002 and record == 19010021 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1002_0 v, balance_1002 balance, audit_1002 a -> vacation_1002_0 ((days, status)), balance_1002 (balance + 0 - 0), audit_1002 (a + 1);
+    vacation_1002_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1002 and record == 19010021 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1002_0 v -> vacation_1002_0 (v);
+    time_1002_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1002 and record == 9010022 and actor == 1002 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1002_1 t, audit_1002 a -> time_1002_1 ((kind, (minutes, 2))), audit_1002 (a + 1);
+    time_1002_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1002 and record == 9010022 and actor == 1002 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1002_1 t, audit_1002 a -> time_1002_1 ((kind, (minutes, 1))), audit_1002 (a + 1);
+    time_1002_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1002 and record == 9010022 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1002_1 t, audit_1002 a -> time_1002_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1002 (a + 1);
+    time_1002_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1002 and record == 9010022 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1002_1 t, audit_1002 a -> time_1002_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1002 (a + 1);
+    time_1002_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1002 and record == 9010022 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1002_1 t, audit_1002 a -> time_1002_1 ((kind, (minutes, status))), audit_1002 (a + 1);
+    time_1002_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1002 and record == 9010022 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1002_1 t -> time_1002_1 (t);
+    vacation_1002_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1002 and record == 19010022 and actor == 1002 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1002_1 v, audit_1002 a -> vacation_1002_1 ((days, 1)), audit_1002 (a + 1);
+    vacation_1002_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1002 and record == 19010022 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1002_1 v, balance_1002 balance, audit_1002 a -> vacation_1002_1 ((asInt(fst(v)), 2)), balance_1002 (balance - asInt(fst(v))), audit_1002 (a + 1);
+    vacation_1002_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1002 and record == 19010022 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1002_1 v, balance_1002 balance, audit_1002 a -> vacation_1002_1 ((asInt(fst(v)), 3)), balance_1002 (balance), audit_1002 (a + 1);
+    vacation_1002_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1002 and record == 19010022 and actor == 1002 and asInt(snd(v)) == 2 => vacation_1002_1 v, audit_1002 a -> vacation_1002_1 ((asInt(fst(v)), 4)), audit_1002 (a + 1);
+    vacation_1002_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1002 and record == 19010022 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1002_1 v, balance_1002 balance, audit_1002 a -> vacation_1002_1 ((days, status)), balance_1002 (balance + asInt(fst(v)) - days), audit_1002 (a + 1);
+    vacation_1002_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1002 and record == 19010022 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1002_1 v, balance_1002 balance, audit_1002 a -> vacation_1002_1 ((days, status)), balance_1002 (balance + asInt(fst(v)) - 0), audit_1002 (a + 1);
+    vacation_1002_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1002 and record == 19010022 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1002_1 v, balance_1002 balance, audit_1002 a -> vacation_1002_1 ((days, status)), balance_1002 (balance + 0 - days), audit_1002 (a + 1);
+    vacation_1002_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1002 and record == 19010022 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1002_1 v, balance_1002 balance, audit_1002 a -> vacation_1002_1 ((days, status)), balance_1002 (balance + 0 - 0), audit_1002 (a + 1);
+    vacation_1002_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1002 and record == 19010022 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1002_1 v -> vacation_1002_1 (v);
+    read_balance_1002: balance actor employee With this.remaining (n) ::
+      employee == 1002 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) => balance_1002 n -> balance_1002 (n);
+    read_auditCount_1002: auditCount actor employee With this.changes (n) ::
+      employee == 1002 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) => audit_1002 n -> audit_1002 (n);
+    totals_1002_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1002 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1002_0 x, time_1002_1 y -> time_1002_0 (x), time_1002_1 (y);
+    totals_1002_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1002 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1002_0 x, time_1002_1 y -> time_1002_0 (x), time_1002_1 (y);
+    totals_1002_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1002 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1002_0 x, time_1002_1 y -> time_1002_0 (x), time_1002_1 (y);
+    totals_1002_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1002 and (actor == 1002 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1002_0 x, time_1002_1 y -> time_1002_0 (x), time_1002_1 (y);
+    time_1003_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1003 and record == 9010031 and actor == 1003 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1003_0 t, audit_1003 a -> time_1003_0 ((kind, (minutes, 2))), audit_1003 (a + 1);
+    time_1003_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1003 and record == 9010031 and actor == 1003 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1003_0 t, audit_1003 a -> time_1003_0 ((kind, (minutes, 1))), audit_1003 (a + 1);
+    time_1003_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1003 and record == 9010031 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1003_0 t, audit_1003 a -> time_1003_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1003 (a + 1);
+    time_1003_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1003 and record == 9010031 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1003_0 t, audit_1003 a -> time_1003_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1003 (a + 1);
+    time_1003_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1003 and record == 9010031 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1003_0 t, audit_1003 a -> time_1003_0 ((kind, (minutes, status))), audit_1003 (a + 1);
+    time_1003_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1003 and record == 9010031 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1003_0 t -> time_1003_0 (t);
+    vacation_1003_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1003 and record == 19010031 and actor == 1003 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1003_0 v, audit_1003 a -> vacation_1003_0 ((days, 1)), audit_1003 (a + 1);
+    vacation_1003_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1003 and record == 19010031 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1003_0 v, balance_1003 balance, audit_1003 a -> vacation_1003_0 ((asInt(fst(v)), 2)), balance_1003 (balance - asInt(fst(v))), audit_1003 (a + 1);
+    vacation_1003_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1003 and record == 19010031 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1003_0 v, balance_1003 balance, audit_1003 a -> vacation_1003_0 ((asInt(fst(v)), 3)), balance_1003 (balance), audit_1003 (a + 1);
+    vacation_1003_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1003 and record == 19010031 and actor == 1003 and asInt(snd(v)) == 2 => vacation_1003_0 v, audit_1003 a -> vacation_1003_0 ((asInt(fst(v)), 4)), audit_1003 (a + 1);
+    vacation_1003_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1003 and record == 19010031 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1003_0 v, balance_1003 balance, audit_1003 a -> vacation_1003_0 ((days, status)), balance_1003 (balance + asInt(fst(v)) - days), audit_1003 (a + 1);
+    vacation_1003_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1003 and record == 19010031 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1003_0 v, balance_1003 balance, audit_1003 a -> vacation_1003_0 ((days, status)), balance_1003 (balance + asInt(fst(v)) - 0), audit_1003 (a + 1);
+    vacation_1003_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1003 and record == 19010031 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1003_0 v, balance_1003 balance, audit_1003 a -> vacation_1003_0 ((days, status)), balance_1003 (balance + 0 - days), audit_1003 (a + 1);
+    vacation_1003_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1003 and record == 19010031 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1003_0 v, balance_1003 balance, audit_1003 a -> vacation_1003_0 ((days, status)), balance_1003 (balance + 0 - 0), audit_1003 (a + 1);
+    vacation_1003_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1003 and record == 19010031 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1003_0 v -> vacation_1003_0 (v);
+    time_1003_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1003 and record == 9010032 and actor == 1003 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1003_1 t, audit_1003 a -> time_1003_1 ((kind, (minutes, 2))), audit_1003 (a + 1);
+    time_1003_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1003 and record == 9010032 and actor == 1003 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1003_1 t, audit_1003 a -> time_1003_1 ((kind, (minutes, 1))), audit_1003 (a + 1);
+    time_1003_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1003 and record == 9010032 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1003_1 t, audit_1003 a -> time_1003_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1003 (a + 1);
+    time_1003_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1003 and record == 9010032 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1003_1 t, audit_1003 a -> time_1003_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1003 (a + 1);
+    time_1003_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1003 and record == 9010032 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1003_1 t, audit_1003 a -> time_1003_1 ((kind, (minutes, status))), audit_1003 (a + 1);
+    time_1003_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1003 and record == 9010032 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1003_1 t -> time_1003_1 (t);
+    vacation_1003_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1003 and record == 19010032 and actor == 1003 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1003_1 v, audit_1003 a -> vacation_1003_1 ((days, 1)), audit_1003 (a + 1);
+    vacation_1003_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1003 and record == 19010032 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1003_1 v, balance_1003 balance, audit_1003 a -> vacation_1003_1 ((asInt(fst(v)), 2)), balance_1003 (balance - asInt(fst(v))), audit_1003 (a + 1);
+    vacation_1003_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1003 and record == 19010032 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1003_1 v, balance_1003 balance, audit_1003 a -> vacation_1003_1 ((asInt(fst(v)), 3)), balance_1003 (balance), audit_1003 (a + 1);
+    vacation_1003_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1003 and record == 19010032 and actor == 1003 and asInt(snd(v)) == 2 => vacation_1003_1 v, audit_1003 a -> vacation_1003_1 ((asInt(fst(v)), 4)), audit_1003 (a + 1);
+    vacation_1003_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1003 and record == 19010032 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1003_1 v, balance_1003 balance, audit_1003 a -> vacation_1003_1 ((days, status)), balance_1003 (balance + asInt(fst(v)) - days), audit_1003 (a + 1);
+    vacation_1003_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1003 and record == 19010032 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1003_1 v, balance_1003 balance, audit_1003 a -> vacation_1003_1 ((days, status)), balance_1003 (balance + asInt(fst(v)) - 0), audit_1003 (a + 1);
+    vacation_1003_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1003 and record == 19010032 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1003_1 v, balance_1003 balance, audit_1003 a -> vacation_1003_1 ((days, status)), balance_1003 (balance + 0 - days), audit_1003 (a + 1);
+    vacation_1003_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1003 and record == 19010032 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1003_1 v, balance_1003 balance, audit_1003 a -> vacation_1003_1 ((days, status)), balance_1003 (balance + 0 - 0), audit_1003 (a + 1);
+    vacation_1003_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1003 and record == 19010032 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1003_1 v -> vacation_1003_1 (v);
+    read_balance_1003: balance actor employee With this.remaining (n) ::
+      employee == 1003 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) => balance_1003 n -> balance_1003 (n);
+    read_auditCount_1003: auditCount actor employee With this.changes (n) ::
+      employee == 1003 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) => audit_1003 n -> audit_1003 (n);
+    totals_1003_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1003 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1003_0 x, time_1003_1 y -> time_1003_0 (x), time_1003_1 (y);
+    totals_1003_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1003 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1003_0 x, time_1003_1 y -> time_1003_0 (x), time_1003_1 (y);
+    totals_1003_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1003 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1003_0 x, time_1003_1 y -> time_1003_0 (x), time_1003_1 (y);
+    totals_1003_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1003 and (actor == 1003 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1003_0 x, time_1003_1 y -> time_1003_0 (x), time_1003_1 (y);
+    time_1004_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1004 and record == 9010041 and actor == 1004 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1004_0 t, audit_1004 a -> time_1004_0 ((kind, (minutes, 2))), audit_1004 (a + 1);
+    time_1004_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1004 and record == 9010041 and actor == 1004 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1004_0 t, audit_1004 a -> time_1004_0 ((kind, (minutes, 1))), audit_1004 (a + 1);
+    time_1004_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1004 and record == 9010041 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1004_0 t, audit_1004 a -> time_1004_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1004 (a + 1);
+    time_1004_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1004 and record == 9010041 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1004_0 t, audit_1004 a -> time_1004_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1004 (a + 1);
+    time_1004_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1004 and record == 9010041 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1004_0 t, audit_1004 a -> time_1004_0 ((kind, (minutes, status))), audit_1004 (a + 1);
+    time_1004_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1004 and record == 9010041 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1004_0 t -> time_1004_0 (t);
+    vacation_1004_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1004 and record == 19010041 and actor == 1004 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1004_0 v, audit_1004 a -> vacation_1004_0 ((days, 1)), audit_1004 (a + 1);
+    vacation_1004_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1004 and record == 19010041 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1004_0 v, balance_1004 balance, audit_1004 a -> vacation_1004_0 ((asInt(fst(v)), 2)), balance_1004 (balance - asInt(fst(v))), audit_1004 (a + 1);
+    vacation_1004_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1004 and record == 19010041 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1004_0 v, balance_1004 balance, audit_1004 a -> vacation_1004_0 ((asInt(fst(v)), 3)), balance_1004 (balance), audit_1004 (a + 1);
+    vacation_1004_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1004 and record == 19010041 and actor == 1004 and asInt(snd(v)) == 2 => vacation_1004_0 v, audit_1004 a -> vacation_1004_0 ((asInt(fst(v)), 4)), audit_1004 (a + 1);
+    vacation_1004_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1004 and record == 19010041 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1004_0 v, balance_1004 balance, audit_1004 a -> vacation_1004_0 ((days, status)), balance_1004 (balance + asInt(fst(v)) - days), audit_1004 (a + 1);
+    vacation_1004_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1004 and record == 19010041 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1004_0 v, balance_1004 balance, audit_1004 a -> vacation_1004_0 ((days, status)), balance_1004 (balance + asInt(fst(v)) - 0), audit_1004 (a + 1);
+    vacation_1004_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1004 and record == 19010041 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1004_0 v, balance_1004 balance, audit_1004 a -> vacation_1004_0 ((days, status)), balance_1004 (balance + 0 - days), audit_1004 (a + 1);
+    vacation_1004_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1004 and record == 19010041 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1004_0 v, balance_1004 balance, audit_1004 a -> vacation_1004_0 ((days, status)), balance_1004 (balance + 0 - 0), audit_1004 (a + 1);
+    vacation_1004_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1004 and record == 19010041 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1004_0 v -> vacation_1004_0 (v);
+    time_1004_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1004 and record == 9010042 and actor == 1004 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1004_1 t, audit_1004 a -> time_1004_1 ((kind, (minutes, 2))), audit_1004 (a + 1);
+    time_1004_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1004 and record == 9010042 and actor == 1004 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1004_1 t, audit_1004 a -> time_1004_1 ((kind, (minutes, 1))), audit_1004 (a + 1);
+    time_1004_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1004 and record == 9010042 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1004_1 t, audit_1004 a -> time_1004_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1004 (a + 1);
+    time_1004_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1004 and record == 9010042 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1004_1 t, audit_1004 a -> time_1004_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1004 (a + 1);
+    time_1004_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1004 and record == 9010042 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1004_1 t, audit_1004 a -> time_1004_1 ((kind, (minutes, status))), audit_1004 (a + 1);
+    time_1004_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1004 and record == 9010042 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1004_1 t -> time_1004_1 (t);
+    vacation_1004_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1004 and record == 19010042 and actor == 1004 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1004_1 v, audit_1004 a -> vacation_1004_1 ((days, 1)), audit_1004 (a + 1);
+    vacation_1004_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1004 and record == 19010042 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1004_1 v, balance_1004 balance, audit_1004 a -> vacation_1004_1 ((asInt(fst(v)), 2)), balance_1004 (balance - asInt(fst(v))), audit_1004 (a + 1);
+    vacation_1004_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1004 and record == 19010042 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1004_1 v, balance_1004 balance, audit_1004 a -> vacation_1004_1 ((asInt(fst(v)), 3)), balance_1004 (balance), audit_1004 (a + 1);
+    vacation_1004_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1004 and record == 19010042 and actor == 1004 and asInt(snd(v)) == 2 => vacation_1004_1 v, audit_1004 a -> vacation_1004_1 ((asInt(fst(v)), 4)), audit_1004 (a + 1);
+    vacation_1004_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1004 and record == 19010042 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1004_1 v, balance_1004 balance, audit_1004 a -> vacation_1004_1 ((days, status)), balance_1004 (balance + asInt(fst(v)) - days), audit_1004 (a + 1);
+    vacation_1004_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1004 and record == 19010042 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1004_1 v, balance_1004 balance, audit_1004 a -> vacation_1004_1 ((days, status)), balance_1004 (balance + asInt(fst(v)) - 0), audit_1004 (a + 1);
+    vacation_1004_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1004 and record == 19010042 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1004_1 v, balance_1004 balance, audit_1004 a -> vacation_1004_1 ((days, status)), balance_1004 (balance + 0 - days), audit_1004 (a + 1);
+    vacation_1004_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1004 and record == 19010042 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1004_1 v, balance_1004 balance, audit_1004 a -> vacation_1004_1 ((days, status)), balance_1004 (balance + 0 - 0), audit_1004 (a + 1);
+    vacation_1004_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1004 and record == 19010042 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1004_1 v -> vacation_1004_1 (v);
+    read_balance_1004: balance actor employee With this.remaining (n) ::
+      employee == 1004 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) => balance_1004 n -> balance_1004 (n);
+    read_auditCount_1004: auditCount actor employee With this.changes (n) ::
+      employee == 1004 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) => audit_1004 n -> audit_1004 (n);
+    totals_1004_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1004 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1004_0 x, time_1004_1 y -> time_1004_0 (x), time_1004_1 (y);
+    totals_1004_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1004 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1004_0 x, time_1004_1 y -> time_1004_0 (x), time_1004_1 (y);
+    totals_1004_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1004 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1004_0 x, time_1004_1 y -> time_1004_0 (x), time_1004_1 (y);
+    totals_1004_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1004 and (actor == 1004 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1004_0 x, time_1004_1 y -> time_1004_0 (x), time_1004_1 (y);
+    time_1005_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1005 and record == 9010051 and actor == 1005 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1005_0 t, audit_1005 a -> time_1005_0 ((kind, (minutes, 2))), audit_1005 (a + 1);
+    time_1005_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1005 and record == 9010051 and actor == 1005 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1005_0 t, audit_1005 a -> time_1005_0 ((kind, (minutes, 1))), audit_1005 (a + 1);
+    time_1005_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1005 and record == 9010051 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1005_0 t, audit_1005 a -> time_1005_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1005 (a + 1);
+    time_1005_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1005 and record == 9010051 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1005_0 t, audit_1005 a -> time_1005_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1005 (a + 1);
+    time_1005_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1005 and record == 9010051 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1005_0 t, audit_1005 a -> time_1005_0 ((kind, (minutes, status))), audit_1005 (a + 1);
+    time_1005_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1005 and record == 9010051 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1005_0 t -> time_1005_0 (t);
+    vacation_1005_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1005 and record == 19010051 and actor == 1005 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1005_0 v, audit_1005 a -> vacation_1005_0 ((days, 1)), audit_1005 (a + 1);
+    vacation_1005_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1005 and record == 19010051 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1005_0 v, balance_1005 balance, audit_1005 a -> vacation_1005_0 ((asInt(fst(v)), 2)), balance_1005 (balance - asInt(fst(v))), audit_1005 (a + 1);
+    vacation_1005_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1005 and record == 19010051 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1005_0 v, balance_1005 balance, audit_1005 a -> vacation_1005_0 ((asInt(fst(v)), 3)), balance_1005 (balance), audit_1005 (a + 1);
+    vacation_1005_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1005 and record == 19010051 and actor == 1005 and asInt(snd(v)) == 2 => vacation_1005_0 v, audit_1005 a -> vacation_1005_0 ((asInt(fst(v)), 4)), audit_1005 (a + 1);
+    vacation_1005_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1005 and record == 19010051 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1005_0 v, balance_1005 balance, audit_1005 a -> vacation_1005_0 ((days, status)), balance_1005 (balance + asInt(fst(v)) - days), audit_1005 (a + 1);
+    vacation_1005_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1005 and record == 19010051 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1005_0 v, balance_1005 balance, audit_1005 a -> vacation_1005_0 ((days, status)), balance_1005 (balance + asInt(fst(v)) - 0), audit_1005 (a + 1);
+    vacation_1005_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1005 and record == 19010051 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1005_0 v, balance_1005 balance, audit_1005 a -> vacation_1005_0 ((days, status)), balance_1005 (balance + 0 - days), audit_1005 (a + 1);
+    vacation_1005_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1005 and record == 19010051 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1005_0 v, balance_1005 balance, audit_1005 a -> vacation_1005_0 ((days, status)), balance_1005 (balance + 0 - 0), audit_1005 (a + 1);
+    vacation_1005_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1005 and record == 19010051 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1005_0 v -> vacation_1005_0 (v);
+    time_1005_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1005 and record == 9010052 and actor == 1005 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1005_1 t, audit_1005 a -> time_1005_1 ((kind, (minutes, 2))), audit_1005 (a + 1);
+    time_1005_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1005 and record == 9010052 and actor == 1005 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1005_1 t, audit_1005 a -> time_1005_1 ((kind, (minutes, 1))), audit_1005 (a + 1);
+    time_1005_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1005 and record == 9010052 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1005_1 t, audit_1005 a -> time_1005_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1005 (a + 1);
+    time_1005_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1005 and record == 9010052 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1005_1 t, audit_1005 a -> time_1005_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1005 (a + 1);
+    time_1005_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1005 and record == 9010052 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1005_1 t, audit_1005 a -> time_1005_1 ((kind, (minutes, status))), audit_1005 (a + 1);
+    time_1005_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1005 and record == 9010052 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1005_1 t -> time_1005_1 (t);
+    vacation_1005_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1005 and record == 19010052 and actor == 1005 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1005_1 v, audit_1005 a -> vacation_1005_1 ((days, 1)), audit_1005 (a + 1);
+    vacation_1005_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1005 and record == 19010052 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1005_1 v, balance_1005 balance, audit_1005 a -> vacation_1005_1 ((asInt(fst(v)), 2)), balance_1005 (balance - asInt(fst(v))), audit_1005 (a + 1);
+    vacation_1005_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1005 and record == 19010052 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1005_1 v, balance_1005 balance, audit_1005 a -> vacation_1005_1 ((asInt(fst(v)), 3)), balance_1005 (balance), audit_1005 (a + 1);
+    vacation_1005_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1005 and record == 19010052 and actor == 1005 and asInt(snd(v)) == 2 => vacation_1005_1 v, audit_1005 a -> vacation_1005_1 ((asInt(fst(v)), 4)), audit_1005 (a + 1);
+    vacation_1005_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1005 and record == 19010052 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1005_1 v, balance_1005 balance, audit_1005 a -> vacation_1005_1 ((days, status)), balance_1005 (balance + asInt(fst(v)) - days), audit_1005 (a + 1);
+    vacation_1005_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1005 and record == 19010052 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1005_1 v, balance_1005 balance, audit_1005 a -> vacation_1005_1 ((days, status)), balance_1005 (balance + asInt(fst(v)) - 0), audit_1005 (a + 1);
+    vacation_1005_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1005 and record == 19010052 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1005_1 v, balance_1005 balance, audit_1005 a -> vacation_1005_1 ((days, status)), balance_1005 (balance + 0 - days), audit_1005 (a + 1);
+    vacation_1005_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1005 and record == 19010052 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1005_1 v, balance_1005 balance, audit_1005 a -> vacation_1005_1 ((days, status)), balance_1005 (balance + 0 - 0), audit_1005 (a + 1);
+    vacation_1005_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1005 and record == 19010052 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1005_1 v -> vacation_1005_1 (v);
+    read_balance_1005: balance actor employee With this.remaining (n) ::
+      employee == 1005 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) => balance_1005 n -> balance_1005 (n);
+    read_auditCount_1005: auditCount actor employee With this.changes (n) ::
+      employee == 1005 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) => audit_1005 n -> audit_1005 (n);
+    totals_1005_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1005 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1005_0 x, time_1005_1 y -> time_1005_0 (x), time_1005_1 (y);
+    totals_1005_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1005 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1005_0 x, time_1005_1 y -> time_1005_0 (x), time_1005_1 (y);
+    totals_1005_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1005 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1005_0 x, time_1005_1 y -> time_1005_0 (x), time_1005_1 (y);
+    totals_1005_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1005 and (actor == 1005 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1005_0 x, time_1005_1 y -> time_1005_0 (x), time_1005_1 (y);
+    time_1006_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1006 and record == 9010061 and actor == 1006 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1006_0 t, audit_1006 a -> time_1006_0 ((kind, (minutes, 2))), audit_1006 (a + 1);
+    time_1006_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1006 and record == 9010061 and actor == 1006 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1006_0 t, audit_1006 a -> time_1006_0 ((kind, (minutes, 1))), audit_1006 (a + 1);
+    time_1006_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1006 and record == 9010061 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1006_0 t, audit_1006 a -> time_1006_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1006 (a + 1);
+    time_1006_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1006 and record == 9010061 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1006_0 t, audit_1006 a -> time_1006_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1006 (a + 1);
+    time_1006_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1006 and record == 9010061 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1006_0 t, audit_1006 a -> time_1006_0 ((kind, (minutes, status))), audit_1006 (a + 1);
+    time_1006_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1006 and record == 9010061 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1006_0 t -> time_1006_0 (t);
+    vacation_1006_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1006 and record == 19010061 and actor == 1006 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1006_0 v, audit_1006 a -> vacation_1006_0 ((days, 1)), audit_1006 (a + 1);
+    vacation_1006_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1006 and record == 19010061 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1006_0 v, balance_1006 balance, audit_1006 a -> vacation_1006_0 ((asInt(fst(v)), 2)), balance_1006 (balance - asInt(fst(v))), audit_1006 (a + 1);
+    vacation_1006_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1006 and record == 19010061 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1006_0 v, balance_1006 balance, audit_1006 a -> vacation_1006_0 ((asInt(fst(v)), 3)), balance_1006 (balance), audit_1006 (a + 1);
+    vacation_1006_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1006 and record == 19010061 and actor == 1006 and asInt(snd(v)) == 2 => vacation_1006_0 v, audit_1006 a -> vacation_1006_0 ((asInt(fst(v)), 4)), audit_1006 (a + 1);
+    vacation_1006_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1006 and record == 19010061 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1006_0 v, balance_1006 balance, audit_1006 a -> vacation_1006_0 ((days, status)), balance_1006 (balance + asInt(fst(v)) - days), audit_1006 (a + 1);
+    vacation_1006_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1006 and record == 19010061 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1006_0 v, balance_1006 balance, audit_1006 a -> vacation_1006_0 ((days, status)), balance_1006 (balance + asInt(fst(v)) - 0), audit_1006 (a + 1);
+    vacation_1006_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1006 and record == 19010061 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1006_0 v, balance_1006 balance, audit_1006 a -> vacation_1006_0 ((days, status)), balance_1006 (balance + 0 - days), audit_1006 (a + 1);
+    vacation_1006_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1006 and record == 19010061 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1006_0 v, balance_1006 balance, audit_1006 a -> vacation_1006_0 ((days, status)), balance_1006 (balance + 0 - 0), audit_1006 (a + 1);
+    vacation_1006_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1006 and record == 19010061 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1006_0 v -> vacation_1006_0 (v);
+    time_1006_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1006 and record == 9010062 and actor == 1006 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1006_1 t, audit_1006 a -> time_1006_1 ((kind, (minutes, 2))), audit_1006 (a + 1);
+    time_1006_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1006 and record == 9010062 and actor == 1006 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1006_1 t, audit_1006 a -> time_1006_1 ((kind, (minutes, 1))), audit_1006 (a + 1);
+    time_1006_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1006 and record == 9010062 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1006_1 t, audit_1006 a -> time_1006_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1006 (a + 1);
+    time_1006_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1006 and record == 9010062 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1006_1 t, audit_1006 a -> time_1006_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1006 (a + 1);
+    time_1006_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1006 and record == 9010062 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1006_1 t, audit_1006 a -> time_1006_1 ((kind, (minutes, status))), audit_1006 (a + 1);
+    time_1006_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1006 and record == 9010062 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1006_1 t -> time_1006_1 (t);
+    vacation_1006_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1006 and record == 19010062 and actor == 1006 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1006_1 v, audit_1006 a -> vacation_1006_1 ((days, 1)), audit_1006 (a + 1);
+    vacation_1006_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1006 and record == 19010062 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1006_1 v, balance_1006 balance, audit_1006 a -> vacation_1006_1 ((asInt(fst(v)), 2)), balance_1006 (balance - asInt(fst(v))), audit_1006 (a + 1);
+    vacation_1006_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1006 and record == 19010062 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1006_1 v, balance_1006 balance, audit_1006 a -> vacation_1006_1 ((asInt(fst(v)), 3)), balance_1006 (balance), audit_1006 (a + 1);
+    vacation_1006_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1006 and record == 19010062 and actor == 1006 and asInt(snd(v)) == 2 => vacation_1006_1 v, audit_1006 a -> vacation_1006_1 ((asInt(fst(v)), 4)), audit_1006 (a + 1);
+    vacation_1006_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1006 and record == 19010062 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1006_1 v, balance_1006 balance, audit_1006 a -> vacation_1006_1 ((days, status)), balance_1006 (balance + asInt(fst(v)) - days), audit_1006 (a + 1);
+    vacation_1006_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1006 and record == 19010062 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1006_1 v, balance_1006 balance, audit_1006 a -> vacation_1006_1 ((days, status)), balance_1006 (balance + asInt(fst(v)) - 0), audit_1006 (a + 1);
+    vacation_1006_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1006 and record == 19010062 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1006_1 v, balance_1006 balance, audit_1006 a -> vacation_1006_1 ((days, status)), balance_1006 (balance + 0 - days), audit_1006 (a + 1);
+    vacation_1006_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1006 and record == 19010062 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1006_1 v, balance_1006 balance, audit_1006 a -> vacation_1006_1 ((days, status)), balance_1006 (balance + 0 - 0), audit_1006 (a + 1);
+    vacation_1006_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1006 and record == 19010062 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1006_1 v -> vacation_1006_1 (v);
+    read_balance_1006: balance actor employee With this.remaining (n) ::
+      employee == 1006 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) => balance_1006 n -> balance_1006 (n);
+    read_auditCount_1006: auditCount actor employee With this.changes (n) ::
+      employee == 1006 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) => audit_1006 n -> audit_1006 (n);
+    totals_1006_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1006 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1006_0 x, time_1006_1 y -> time_1006_0 (x), time_1006_1 (y);
+    totals_1006_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1006 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1006_0 x, time_1006_1 y -> time_1006_0 (x), time_1006_1 (y);
+    totals_1006_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1006 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1006_0 x, time_1006_1 y -> time_1006_0 (x), time_1006_1 (y);
+    totals_1006_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1006 and (actor == 1006 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1006_0 x, time_1006_1 y -> time_1006_0 (x), time_1006_1 (y);
+    time_1007_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1007 and record == 9010071 and actor == 1007 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1007_0 t, audit_1007 a -> time_1007_0 ((kind, (minutes, 2))), audit_1007 (a + 1);
+    time_1007_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1007 and record == 9010071 and actor == 1007 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1007_0 t, audit_1007 a -> time_1007_0 ((kind, (minutes, 1))), audit_1007 (a + 1);
+    time_1007_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1007 and record == 9010071 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1007_0 t, audit_1007 a -> time_1007_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1007 (a + 1);
+    time_1007_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1007 and record == 9010071 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1007_0 t, audit_1007 a -> time_1007_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1007 (a + 1);
+    time_1007_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1007 and record == 9010071 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1007_0 t, audit_1007 a -> time_1007_0 ((kind, (minutes, status))), audit_1007 (a + 1);
+    time_1007_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1007 and record == 9010071 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1007_0 t -> time_1007_0 (t);
+    vacation_1007_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1007 and record == 19010071 and actor == 1007 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1007_0 v, audit_1007 a -> vacation_1007_0 ((days, 1)), audit_1007 (a + 1);
+    vacation_1007_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1007 and record == 19010071 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1007_0 v, balance_1007 balance, audit_1007 a -> vacation_1007_0 ((asInt(fst(v)), 2)), balance_1007 (balance - asInt(fst(v))), audit_1007 (a + 1);
+    vacation_1007_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1007 and record == 19010071 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1007_0 v, balance_1007 balance, audit_1007 a -> vacation_1007_0 ((asInt(fst(v)), 3)), balance_1007 (balance), audit_1007 (a + 1);
+    vacation_1007_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1007 and record == 19010071 and actor == 1007 and asInt(snd(v)) == 2 => vacation_1007_0 v, audit_1007 a -> vacation_1007_0 ((asInt(fst(v)), 4)), audit_1007 (a + 1);
+    vacation_1007_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1007 and record == 19010071 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1007_0 v, balance_1007 balance, audit_1007 a -> vacation_1007_0 ((days, status)), balance_1007 (balance + asInt(fst(v)) - days), audit_1007 (a + 1);
+    vacation_1007_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1007 and record == 19010071 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1007_0 v, balance_1007 balance, audit_1007 a -> vacation_1007_0 ((days, status)), balance_1007 (balance + asInt(fst(v)) - 0), audit_1007 (a + 1);
+    vacation_1007_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1007 and record == 19010071 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1007_0 v, balance_1007 balance, audit_1007 a -> vacation_1007_0 ((days, status)), balance_1007 (balance + 0 - days), audit_1007 (a + 1);
+    vacation_1007_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1007 and record == 19010071 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1007_0 v, balance_1007 balance, audit_1007 a -> vacation_1007_0 ((days, status)), balance_1007 (balance + 0 - 0), audit_1007 (a + 1);
+    vacation_1007_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1007 and record == 19010071 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1007_0 v -> vacation_1007_0 (v);
+    time_1007_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1007 and record == 9010072 and actor == 1007 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1007_1 t, audit_1007 a -> time_1007_1 ((kind, (minutes, 2))), audit_1007 (a + 1);
+    time_1007_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1007 and record == 9010072 and actor == 1007 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1007_1 t, audit_1007 a -> time_1007_1 ((kind, (minutes, 1))), audit_1007 (a + 1);
+    time_1007_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1007 and record == 9010072 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1007_1 t, audit_1007 a -> time_1007_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1007 (a + 1);
+    time_1007_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1007 and record == 9010072 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1007_1 t, audit_1007 a -> time_1007_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1007 (a + 1);
+    time_1007_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1007 and record == 9010072 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1007_1 t, audit_1007 a -> time_1007_1 ((kind, (minutes, status))), audit_1007 (a + 1);
+    time_1007_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1007 and record == 9010072 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1007_1 t -> time_1007_1 (t);
+    vacation_1007_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1007 and record == 19010072 and actor == 1007 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1007_1 v, audit_1007 a -> vacation_1007_1 ((days, 1)), audit_1007 (a + 1);
+    vacation_1007_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1007 and record == 19010072 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1007_1 v, balance_1007 balance, audit_1007 a -> vacation_1007_1 ((asInt(fst(v)), 2)), balance_1007 (balance - asInt(fst(v))), audit_1007 (a + 1);
+    vacation_1007_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1007 and record == 19010072 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1007_1 v, balance_1007 balance, audit_1007 a -> vacation_1007_1 ((asInt(fst(v)), 3)), balance_1007 (balance), audit_1007 (a + 1);
+    vacation_1007_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1007 and record == 19010072 and actor == 1007 and asInt(snd(v)) == 2 => vacation_1007_1 v, audit_1007 a -> vacation_1007_1 ((asInt(fst(v)), 4)), audit_1007 (a + 1);
+    vacation_1007_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1007 and record == 19010072 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1007_1 v, balance_1007 balance, audit_1007 a -> vacation_1007_1 ((days, status)), balance_1007 (balance + asInt(fst(v)) - days), audit_1007 (a + 1);
+    vacation_1007_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1007 and record == 19010072 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1007_1 v, balance_1007 balance, audit_1007 a -> vacation_1007_1 ((days, status)), balance_1007 (balance + asInt(fst(v)) - 0), audit_1007 (a + 1);
+    vacation_1007_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1007 and record == 19010072 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1007_1 v, balance_1007 balance, audit_1007 a -> vacation_1007_1 ((days, status)), balance_1007 (balance + 0 - days), audit_1007 (a + 1);
+    vacation_1007_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1007 and record == 19010072 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1007_1 v, balance_1007 balance, audit_1007 a -> vacation_1007_1 ((days, status)), balance_1007 (balance + 0 - 0), audit_1007 (a + 1);
+    vacation_1007_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1007 and record == 19010072 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1007_1 v -> vacation_1007_1 (v);
+    read_balance_1007: balance actor employee With this.remaining (n) ::
+      employee == 1007 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) => balance_1007 n -> balance_1007 (n);
+    read_auditCount_1007: auditCount actor employee With this.changes (n) ::
+      employee == 1007 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) => audit_1007 n -> audit_1007 (n);
+    totals_1007_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1007 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1007_0 x, time_1007_1 y -> time_1007_0 (x), time_1007_1 (y);
+    totals_1007_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1007 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1007_0 x, time_1007_1 y -> time_1007_0 (x), time_1007_1 (y);
+    totals_1007_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1007 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1007_0 x, time_1007_1 y -> time_1007_0 (x), time_1007_1 (y);
+    totals_1007_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1007 and (actor == 1007 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1007_0 x, time_1007_1 y -> time_1007_0 (x), time_1007_1 (y);
+    time_1008_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1008 and record == 9010081 and actor == 1008 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1008_0 t, audit_1008 a -> time_1008_0 ((kind, (minutes, 2))), audit_1008 (a + 1);
+    time_1008_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1008 and record == 9010081 and actor == 1008 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1008_0 t, audit_1008 a -> time_1008_0 ((kind, (minutes, 1))), audit_1008 (a + 1);
+    time_1008_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1008 and record == 9010081 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1008_0 t, audit_1008 a -> time_1008_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1008 (a + 1);
+    time_1008_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1008 and record == 9010081 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1008_0 t, audit_1008 a -> time_1008_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1008 (a + 1);
+    time_1008_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1008 and record == 9010081 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1008_0 t, audit_1008 a -> time_1008_0 ((kind, (minutes, status))), audit_1008 (a + 1);
+    time_1008_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1008 and record == 9010081 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1008_0 t -> time_1008_0 (t);
+    vacation_1008_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1008 and record == 19010081 and actor == 1008 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1008_0 v, audit_1008 a -> vacation_1008_0 ((days, 1)), audit_1008 (a + 1);
+    vacation_1008_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1008 and record == 19010081 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1008_0 v, balance_1008 balance, audit_1008 a -> vacation_1008_0 ((asInt(fst(v)), 2)), balance_1008 (balance - asInt(fst(v))), audit_1008 (a + 1);
+    vacation_1008_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1008 and record == 19010081 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1008_0 v, balance_1008 balance, audit_1008 a -> vacation_1008_0 ((asInt(fst(v)), 3)), balance_1008 (balance), audit_1008 (a + 1);
+    vacation_1008_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1008 and record == 19010081 and actor == 1008 and asInt(snd(v)) == 2 => vacation_1008_0 v, audit_1008 a -> vacation_1008_0 ((asInt(fst(v)), 4)), audit_1008 (a + 1);
+    vacation_1008_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1008 and record == 19010081 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1008_0 v, balance_1008 balance, audit_1008 a -> vacation_1008_0 ((days, status)), balance_1008 (balance + asInt(fst(v)) - days), audit_1008 (a + 1);
+    vacation_1008_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1008 and record == 19010081 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1008_0 v, balance_1008 balance, audit_1008 a -> vacation_1008_0 ((days, status)), balance_1008 (balance + asInt(fst(v)) - 0), audit_1008 (a + 1);
+    vacation_1008_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1008 and record == 19010081 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1008_0 v, balance_1008 balance, audit_1008 a -> vacation_1008_0 ((days, status)), balance_1008 (balance + 0 - days), audit_1008 (a + 1);
+    vacation_1008_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1008 and record == 19010081 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1008_0 v, balance_1008 balance, audit_1008 a -> vacation_1008_0 ((days, status)), balance_1008 (balance + 0 - 0), audit_1008 (a + 1);
+    vacation_1008_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1008 and record == 19010081 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1008_0 v -> vacation_1008_0 (v);
+    time_1008_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1008 and record == 9010082 and actor == 1008 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1008_1 t, audit_1008 a -> time_1008_1 ((kind, (minutes, 2))), audit_1008 (a + 1);
+    time_1008_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1008 and record == 9010082 and actor == 1008 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1008_1 t, audit_1008 a -> time_1008_1 ((kind, (minutes, 1))), audit_1008 (a + 1);
+    time_1008_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1008 and record == 9010082 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1008_1 t, audit_1008 a -> time_1008_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1008 (a + 1);
+    time_1008_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1008 and record == 9010082 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1008_1 t, audit_1008 a -> time_1008_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1008 (a + 1);
+    time_1008_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1008 and record == 9010082 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1008_1 t, audit_1008 a -> time_1008_1 ((kind, (minutes, status))), audit_1008 (a + 1);
+    time_1008_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1008 and record == 9010082 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1008_1 t -> time_1008_1 (t);
+    vacation_1008_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1008 and record == 19010082 and actor == 1008 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1008_1 v, audit_1008 a -> vacation_1008_1 ((days, 1)), audit_1008 (a + 1);
+    vacation_1008_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1008 and record == 19010082 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1008_1 v, balance_1008 balance, audit_1008 a -> vacation_1008_1 ((asInt(fst(v)), 2)), balance_1008 (balance - asInt(fst(v))), audit_1008 (a + 1);
+    vacation_1008_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1008 and record == 19010082 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1008_1 v, balance_1008 balance, audit_1008 a -> vacation_1008_1 ((asInt(fst(v)), 3)), balance_1008 (balance), audit_1008 (a + 1);
+    vacation_1008_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1008 and record == 19010082 and actor == 1008 and asInt(snd(v)) == 2 => vacation_1008_1 v, audit_1008 a -> vacation_1008_1 ((asInt(fst(v)), 4)), audit_1008 (a + 1);
+    vacation_1008_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1008 and record == 19010082 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1008_1 v, balance_1008 balance, audit_1008 a -> vacation_1008_1 ((days, status)), balance_1008 (balance + asInt(fst(v)) - days), audit_1008 (a + 1);
+    vacation_1008_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1008 and record == 19010082 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1008_1 v, balance_1008 balance, audit_1008 a -> vacation_1008_1 ((days, status)), balance_1008 (balance + asInt(fst(v)) - 0), audit_1008 (a + 1);
+    vacation_1008_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1008 and record == 19010082 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1008_1 v, balance_1008 balance, audit_1008 a -> vacation_1008_1 ((days, status)), balance_1008 (balance + 0 - days), audit_1008 (a + 1);
+    vacation_1008_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1008 and record == 19010082 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1008_1 v, balance_1008 balance, audit_1008 a -> vacation_1008_1 ((days, status)), balance_1008 (balance + 0 - 0), audit_1008 (a + 1);
+    vacation_1008_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1008 and record == 19010082 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1008_1 v -> vacation_1008_1 (v);
+    read_balance_1008: balance actor employee With this.remaining (n) ::
+      employee == 1008 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) => balance_1008 n -> balance_1008 (n);
+    read_auditCount_1008: auditCount actor employee With this.changes (n) ::
+      employee == 1008 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) => audit_1008 n -> audit_1008 (n);
+    totals_1008_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1008 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1008_0 x, time_1008_1 y -> time_1008_0 (x), time_1008_1 (y);
+    totals_1008_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1008 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1008_0 x, time_1008_1 y -> time_1008_0 (x), time_1008_1 (y);
+    totals_1008_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1008 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1008_0 x, time_1008_1 y -> time_1008_0 (x), time_1008_1 (y);
+    totals_1008_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1008 and (actor == 1008 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1008_0 x, time_1008_1 y -> time_1008_0 (x), time_1008_1 (y);
+    time_1009_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1009 and record == 9010091 and actor == 1009 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1009_0 t, audit_1009 a -> time_1009_0 ((kind, (minutes, 2))), audit_1009 (a + 1);
+    time_1009_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1009 and record == 9010091 and actor == 1009 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1009_0 t, audit_1009 a -> time_1009_0 ((kind, (minutes, 1))), audit_1009 (a + 1);
+    time_1009_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1009 and record == 9010091 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1009_0 t, audit_1009 a -> time_1009_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1009 (a + 1);
+    time_1009_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1009 and record == 9010091 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1009_0 t, audit_1009 a -> time_1009_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1009 (a + 1);
+    time_1009_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1009 and record == 9010091 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1009_0 t, audit_1009 a -> time_1009_0 ((kind, (minutes, status))), audit_1009 (a + 1);
+    time_1009_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1009 and record == 9010091 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1009_0 t -> time_1009_0 (t);
+    vacation_1009_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1009 and record == 19010091 and actor == 1009 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1009_0 v, audit_1009 a -> vacation_1009_0 ((days, 1)), audit_1009 (a + 1);
+    vacation_1009_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1009 and record == 19010091 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1009_0 v, balance_1009 balance, audit_1009 a -> vacation_1009_0 ((asInt(fst(v)), 2)), balance_1009 (balance - asInt(fst(v))), audit_1009 (a + 1);
+    vacation_1009_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1009 and record == 19010091 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1009_0 v, balance_1009 balance, audit_1009 a -> vacation_1009_0 ((asInt(fst(v)), 3)), balance_1009 (balance), audit_1009 (a + 1);
+    vacation_1009_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1009 and record == 19010091 and actor == 1009 and asInt(snd(v)) == 2 => vacation_1009_0 v, audit_1009 a -> vacation_1009_0 ((asInt(fst(v)), 4)), audit_1009 (a + 1);
+    vacation_1009_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1009 and record == 19010091 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1009_0 v, balance_1009 balance, audit_1009 a -> vacation_1009_0 ((days, status)), balance_1009 (balance + asInt(fst(v)) - days), audit_1009 (a + 1);
+    vacation_1009_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1009 and record == 19010091 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1009_0 v, balance_1009 balance, audit_1009 a -> vacation_1009_0 ((days, status)), balance_1009 (balance + asInt(fst(v)) - 0), audit_1009 (a + 1);
+    vacation_1009_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1009 and record == 19010091 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1009_0 v, balance_1009 balance, audit_1009 a -> vacation_1009_0 ((days, status)), balance_1009 (balance + 0 - days), audit_1009 (a + 1);
+    vacation_1009_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1009 and record == 19010091 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1009_0 v, balance_1009 balance, audit_1009 a -> vacation_1009_0 ((days, status)), balance_1009 (balance + 0 - 0), audit_1009 (a + 1);
+    vacation_1009_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1009 and record == 19010091 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1009_0 v -> vacation_1009_0 (v);
+    time_1009_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1009 and record == 9010092 and actor == 1009 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1009_1 t, audit_1009 a -> time_1009_1 ((kind, (minutes, 2))), audit_1009 (a + 1);
+    time_1009_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1009 and record == 9010092 and actor == 1009 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1009_1 t, audit_1009 a -> time_1009_1 ((kind, (minutes, 1))), audit_1009 (a + 1);
+    time_1009_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1009 and record == 9010092 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1009_1 t, audit_1009 a -> time_1009_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1009 (a + 1);
+    time_1009_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1009 and record == 9010092 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1009_1 t, audit_1009 a -> time_1009_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1009 (a + 1);
+    time_1009_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1009 and record == 9010092 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1009_1 t, audit_1009 a -> time_1009_1 ((kind, (minutes, status))), audit_1009 (a + 1);
+    time_1009_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1009 and record == 9010092 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1009_1 t -> time_1009_1 (t);
+    vacation_1009_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1009 and record == 19010092 and actor == 1009 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1009_1 v, audit_1009 a -> vacation_1009_1 ((days, 1)), audit_1009 (a + 1);
+    vacation_1009_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1009 and record == 19010092 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1009_1 v, balance_1009 balance, audit_1009 a -> vacation_1009_1 ((asInt(fst(v)), 2)), balance_1009 (balance - asInt(fst(v))), audit_1009 (a + 1);
+    vacation_1009_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1009 and record == 19010092 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1009_1 v, balance_1009 balance, audit_1009 a -> vacation_1009_1 ((asInt(fst(v)), 3)), balance_1009 (balance), audit_1009 (a + 1);
+    vacation_1009_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1009 and record == 19010092 and actor == 1009 and asInt(snd(v)) == 2 => vacation_1009_1 v, audit_1009 a -> vacation_1009_1 ((asInt(fst(v)), 4)), audit_1009 (a + 1);
+    vacation_1009_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1009 and record == 19010092 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1009_1 v, balance_1009 balance, audit_1009 a -> vacation_1009_1 ((days, status)), balance_1009 (balance + asInt(fst(v)) - days), audit_1009 (a + 1);
+    vacation_1009_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1009 and record == 19010092 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1009_1 v, balance_1009 balance, audit_1009 a -> vacation_1009_1 ((days, status)), balance_1009 (balance + asInt(fst(v)) - 0), audit_1009 (a + 1);
+    vacation_1009_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1009 and record == 19010092 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1009_1 v, balance_1009 balance, audit_1009 a -> vacation_1009_1 ((days, status)), balance_1009 (balance + 0 - days), audit_1009 (a + 1);
+    vacation_1009_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1009 and record == 19010092 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1009_1 v, balance_1009 balance, audit_1009 a -> vacation_1009_1 ((days, status)), balance_1009 (balance + 0 - 0), audit_1009 (a + 1);
+    vacation_1009_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1009 and record == 19010092 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1009_1 v -> vacation_1009_1 (v);
+    read_balance_1009: balance actor employee With this.remaining (n) ::
+      employee == 1009 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) => balance_1009 n -> balance_1009 (n);
+    read_auditCount_1009: auditCount actor employee With this.changes (n) ::
+      employee == 1009 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) => audit_1009 n -> audit_1009 (n);
+    totals_1009_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1009 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1009_0 x, time_1009_1 y -> time_1009_0 (x), time_1009_1 (y);
+    totals_1009_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1009 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1009_0 x, time_1009_1 y -> time_1009_0 (x), time_1009_1 (y);
+    totals_1009_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1009 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1009_0 x, time_1009_1 y -> time_1009_0 (x), time_1009_1 (y);
+    totals_1009_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1009 and (actor == 1009 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1009_0 x, time_1009_1 y -> time_1009_0 (x), time_1009_1 (y);
+    time_1010_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1010 and record == 9010101 and actor == 1010 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1010_0 t, audit_1010 a -> time_1010_0 ((kind, (minutes, 2))), audit_1010 (a + 1);
+    time_1010_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1010 and record == 9010101 and actor == 1010 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1010_0 t, audit_1010 a -> time_1010_0 ((kind, (minutes, 1))), audit_1010 (a + 1);
+    time_1010_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1010 and record == 9010101 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1010_0 t, audit_1010 a -> time_1010_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1010 (a + 1);
+    time_1010_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1010 and record == 9010101 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1010_0 t, audit_1010 a -> time_1010_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1010 (a + 1);
+    time_1010_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1010 and record == 9010101 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1010_0 t, audit_1010 a -> time_1010_0 ((kind, (minutes, status))), audit_1010 (a + 1);
+    time_1010_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1010 and record == 9010101 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1010_0 t -> time_1010_0 (t);
+    vacation_1010_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1010 and record == 19010101 and actor == 1010 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1010_0 v, audit_1010 a -> vacation_1010_0 ((days, 1)), audit_1010 (a + 1);
+    vacation_1010_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1010 and record == 19010101 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1010_0 v, balance_1010 balance, audit_1010 a -> vacation_1010_0 ((asInt(fst(v)), 2)), balance_1010 (balance - asInt(fst(v))), audit_1010 (a + 1);
+    vacation_1010_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1010 and record == 19010101 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1010_0 v, balance_1010 balance, audit_1010 a -> vacation_1010_0 ((asInt(fst(v)), 3)), balance_1010 (balance), audit_1010 (a + 1);
+    vacation_1010_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1010 and record == 19010101 and actor == 1010 and asInt(snd(v)) == 2 => vacation_1010_0 v, audit_1010 a -> vacation_1010_0 ((asInt(fst(v)), 4)), audit_1010 (a + 1);
+    vacation_1010_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1010 and record == 19010101 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1010_0 v, balance_1010 balance, audit_1010 a -> vacation_1010_0 ((days, status)), balance_1010 (balance + asInt(fst(v)) - days), audit_1010 (a + 1);
+    vacation_1010_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1010 and record == 19010101 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1010_0 v, balance_1010 balance, audit_1010 a -> vacation_1010_0 ((days, status)), balance_1010 (balance + asInt(fst(v)) - 0), audit_1010 (a + 1);
+    vacation_1010_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1010 and record == 19010101 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1010_0 v, balance_1010 balance, audit_1010 a -> vacation_1010_0 ((days, status)), balance_1010 (balance + 0 - days), audit_1010 (a + 1);
+    vacation_1010_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1010 and record == 19010101 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1010_0 v, balance_1010 balance, audit_1010 a -> vacation_1010_0 ((days, status)), balance_1010 (balance + 0 - 0), audit_1010 (a + 1);
+    vacation_1010_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1010 and record == 19010101 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1010_0 v -> vacation_1010_0 (v);
+    time_1010_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1010 and record == 9010102 and actor == 1010 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_1010_1 t, audit_1010 a -> time_1010_1 ((kind, (minutes, 2))), audit_1010 (a + 1);
+    time_1010_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 1010 and record == 9010102 and actor == 1010 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_1010_1 t, audit_1010 a -> time_1010_1 ((kind, (minutes, 1))), audit_1010 (a + 1);
+    time_1010_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1010 and record == 9010102 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_1010_1 t, audit_1010 a -> time_1010_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_1010 (a + 1);
+    time_1010_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 1010 and record == 9010102 and actor == 101 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_1010_1 t, audit_1010 a -> time_1010_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_1010 (a + 1);
+    time_1010_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 1010 and record == 9010102 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_1010_1 t, audit_1010 a -> time_1010_1 ((kind, (minutes, status))), audit_1010 (a + 1);
+    time_1010_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 1010 and record == 9010102 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_1010_1 t -> time_1010_1 (t);
+    vacation_1010_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 1010 and record == 19010102 and actor == 1010 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_1010_1 v, audit_1010 a -> vacation_1010_1 ((days, 1)), audit_1010 (a + 1);
+    vacation_1010_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1010 and record == 19010102 and actor == 101 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_1010_1 v, balance_1010 balance, audit_1010 a -> vacation_1010_1 ((asInt(fst(v)), 2)), balance_1010 (balance - asInt(fst(v))), audit_1010 (a + 1);
+    vacation_1010_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 1010 and record == 19010102 and actor == 101 and asInt(snd(v)) == 1 and approve == false => vacation_1010_1 v, balance_1010 balance, audit_1010 a -> vacation_1010_1 ((asInt(fst(v)), 3)), balance_1010 (balance), audit_1010 (a + 1);
+    vacation_1010_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 1010 and record == 19010102 and actor == 1010 and asInt(snd(v)) == 2 => vacation_1010_1 v, audit_1010 a -> vacation_1010_1 ((asInt(fst(v)), 4)), audit_1010 (a + 1);
+    vacation_1010_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1010 and record == 19010102 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_1010_1 v, balance_1010 balance, audit_1010 a -> vacation_1010_1 ((days, status)), balance_1010 (balance + asInt(fst(v)) - days), audit_1010 (a + 1);
+    vacation_1010_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1010 and record == 19010102 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_1010_1 v, balance_1010 balance, audit_1010 a -> vacation_1010_1 ((days, status)), balance_1010 (balance + asInt(fst(v)) - 0), audit_1010 (a + 1);
+    vacation_1010_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1010 and record == 19010102 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_1010_1 v, balance_1010 balance, audit_1010 a -> vacation_1010_1 ((days, status)), balance_1010 (balance + 0 - days), audit_1010 (a + 1);
+    vacation_1010_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 1010 and record == 19010102 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_1010_1 v, balance_1010 balance, audit_1010 a -> vacation_1010_1 ((days, status)), balance_1010 (balance + 0 - 0), audit_1010 (a + 1);
+    vacation_1010_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 1010 and record == 19010102 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_1010_1 v -> vacation_1010_1 (v);
+    read_balance_1010: balance actor employee With this.remaining (n) ::
+      employee == 1010 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) => balance_1010 n -> balance_1010 (n);
+    read_auditCount_1010: auditCount actor employee With this.changes (n) ::
+      employee == 1010 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) => audit_1010 n -> audit_1010 (n);
+    totals_1010_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 1010 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1010_0 x, time_1010_1 y -> time_1010_0 (x), time_1010_1 (y);
+    totals_1010_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 1010 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1010_0 x, time_1010_1 y -> time_1010_0 (x), time_1010_1 (y);
+    totals_1010_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 1010 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_1010_0 x, time_1010_1 y -> time_1010_0 (x), time_1010_1 (y);
+    totals_1010_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 1010 and (actor == 1010 or actor == 101 or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_1010_0 x, time_1010_1 y -> time_1010_0 (x), time_1010_1 (y);
+    time_101_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 101 and record == 9001011 and actor == 101 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_101_0 t, audit_101 a -> time_101_0 ((kind, (minutes, 2))), audit_101 (a + 1);
+    time_101_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 101 and record == 9001011 and actor == 101 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_101_0 t, audit_101 a -> time_101_0 ((kind, (minutes, 1))), audit_101 (a + 1);
+    time_101_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 101 and record == 9001011 and false and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_101_0 t, audit_101 a -> time_101_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_101 (a + 1);
+    time_101_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 101 and record == 9001011 and false and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_101_0 t, audit_101 a -> time_101_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_101 (a + 1);
+    time_101_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 101 and record == 9001011 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_101_0 t, audit_101 a -> time_101_0 ((kind, (minutes, status))), audit_101 (a + 1);
+    time_101_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 101 and record == 9001011 and (actor == 101 or false or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_101_0 t -> time_101_0 (t);
+    vacation_101_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 101 and record == 19001011 and actor == 101 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_101_0 v, audit_101 a -> vacation_101_0 ((days, 1)), audit_101 (a + 1);
+    vacation_101_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 101 and record == 19001011 and false and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_101_0 v, balance_101 balance, audit_101 a -> vacation_101_0 ((asInt(fst(v)), 2)), balance_101 (balance - asInt(fst(v))), audit_101 (a + 1);
+    vacation_101_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 101 and record == 19001011 and false and asInt(snd(v)) == 1 and approve == false => vacation_101_0 v, balance_101 balance, audit_101 a -> vacation_101_0 ((asInt(fst(v)), 3)), balance_101 (balance), audit_101 (a + 1);
+    vacation_101_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 101 and record == 19001011 and actor == 101 and asInt(snd(v)) == 2 => vacation_101_0 v, audit_101 a -> vacation_101_0 ((asInt(fst(v)), 4)), audit_101 (a + 1);
+    vacation_101_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 101 and record == 19001011 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_101_0 v, balance_101 balance, audit_101 a -> vacation_101_0 ((days, status)), balance_101 (balance + asInt(fst(v)) - days), audit_101 (a + 1);
+    vacation_101_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 101 and record == 19001011 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_101_0 v, balance_101 balance, audit_101 a -> vacation_101_0 ((days, status)), balance_101 (balance + asInt(fst(v)) - 0), audit_101 (a + 1);
+    vacation_101_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 101 and record == 19001011 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_101_0 v, balance_101 balance, audit_101 a -> vacation_101_0 ((days, status)), balance_101 (balance + 0 - days), audit_101 (a + 1);
+    vacation_101_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 101 and record == 19001011 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_101_0 v, balance_101 balance, audit_101 a -> vacation_101_0 ((days, status)), balance_101 (balance + 0 - 0), audit_101 (a + 1);
+    vacation_101_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 101 and record == 19001011 and (actor == 101 or false or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_101_0 v -> vacation_101_0 (v);
+    time_101_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 101 and record == 9001012 and actor == 101 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_101_1 t, audit_101 a -> time_101_1 ((kind, (minutes, 2))), audit_101 (a + 1);
+    time_101_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 101 and record == 9001012 and actor == 101 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_101_1 t, audit_101 a -> time_101_1 ((kind, (minutes, 1))), audit_101 (a + 1);
+    time_101_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 101 and record == 9001012 and false and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_101_1 t, audit_101 a -> time_101_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_101 (a + 1);
+    time_101_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 101 and record == 9001012 and false and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_101_1 t, audit_101 a -> time_101_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_101 (a + 1);
+    time_101_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 101 and record == 9001012 and (actor == 11 or actor == 12) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_101_1 t, audit_101 a -> time_101_1 ((kind, (minutes, status))), audit_101 (a + 1);
+    time_101_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 101 and record == 9001012 and (actor == 101 or false or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(t)))) >= 1 => time_101_1 t -> time_101_1 (t);
+    vacation_101_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 101 and record == 19001012 and actor == 101 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_101_1 v, audit_101 a -> vacation_101_1 ((days, 1)), audit_101 (a + 1);
+    vacation_101_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 101 and record == 19001012 and false and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_101_1 v, balance_101 balance, audit_101 a -> vacation_101_1 ((asInt(fst(v)), 2)), balance_101 (balance - asInt(fst(v))), audit_101 (a + 1);
+    vacation_101_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 101 and record == 19001012 and false and asInt(snd(v)) == 1 and approve == false => vacation_101_1 v, balance_101 balance, audit_101 a -> vacation_101_1 ((asInt(fst(v)), 3)), balance_101 (balance), audit_101 (a + 1);
+    vacation_101_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 101 and record == 19001012 and actor == 101 and asInt(snd(v)) == 2 => vacation_101_1 v, audit_101 a -> vacation_101_1 ((asInt(fst(v)), 4)), audit_101 (a + 1);
+    vacation_101_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 101 and record == 19001012 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_101_1 v, balance_101 balance, audit_101 a -> vacation_101_1 ((days, status)), balance_101 (balance + asInt(fst(v)) - days), audit_101 (a + 1);
+    vacation_101_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 101 and record == 19001012 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_101_1 v, balance_101 balance, audit_101 a -> vacation_101_1 ((days, status)), balance_101 (balance + asInt(fst(v)) - 0), audit_101 (a + 1);
+    vacation_101_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 101 and record == 19001012 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_101_1 v, balance_101 balance, audit_101 a -> vacation_101_1 ((days, status)), balance_101 (balance + 0 - days), audit_101 (a + 1);
+    vacation_101_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 101 and record == 19001012 and (actor == 11 or actor == 12) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_101_1 v, balance_101 balance, audit_101 a -> vacation_101_1 ((days, status)), balance_101 (balance + 0 - 0), audit_101 (a + 1);
+    vacation_101_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 101 and record == 19001012 and (actor == 101 or false or (actor == 11 or actor == 12)) and asInt(snd(v)) >= 1 => vacation_101_1 v -> vacation_101_1 (v);
+    read_balance_101: balance actor employee With this.remaining (n) ::
+      employee == 101 and (actor == 101 or false or (actor == 11 or actor == 12)) => balance_101 n -> balance_101 (n);
+    read_auditCount_101: auditCount actor employee With this.changes (n) ::
+      employee == 101 and (actor == 101 or false or (actor == 11 or actor == 12)) => audit_101 n -> audit_101 (n);
+    totals_101_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 101 and (actor == 101 or false or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_101_0 x, time_101_1 y -> time_101_0 (x), time_101_1 (y);
+    totals_101_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 101 and (actor == 101 or false or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_101_0 x, time_101_1 y -> time_101_0 (x), time_101_1 (y);
+    totals_101_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 101 and (actor == 101 or false or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_101_0 x, time_101_1 y -> time_101_0 (x), time_101_1 (y);
+    totals_101_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 101 and (actor == 101 or false or (actor == 11 or actor == 12)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_101_0 x, time_101_1 y -> time_101_0 (x), time_101_1 (y);
+    time_2001_0_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 2001 and record == 9020011 and actor == 2001 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_2001_0 t, audit_2001 a -> time_2001_0 ((kind, (minutes, 2))), audit_2001 (a + 1);
+    time_2001_0_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 2001 and record == 9020011 and actor == 2001 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_2001_0 t, audit_2001 a -> time_2001_0 ((kind, (minutes, 1))), audit_2001 (a + 1);
+    time_2001_0_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 2001 and record == 9020011 and actor == 201 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_2001_0 t, audit_2001 a -> time_2001_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_2001 (a + 1);
+    time_2001_0_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 2001 and record == 9020011 and actor == 201 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_2001_0 t, audit_2001 a -> time_2001_0 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_2001 (a + 1);
+    time_2001_0_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 2001 and record == 9020011 and (actor == 21 or actor == 22) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_2001_0 t, audit_2001 a -> time_2001_0 ((kind, (minutes, status))), audit_2001 (a + 1);
+    time_2001_0_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 2001 and record == 9020011 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) and asInt(snd(asPair(snd(t)))) >= 1 => time_2001_0 t -> time_2001_0 (t);
+    vacation_2001_0_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 2001 and record == 19020011 and actor == 2001 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_2001_0 v, audit_2001 a -> vacation_2001_0 ((days, 1)), audit_2001 (a + 1);
+    vacation_2001_0_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 2001 and record == 19020011 and actor == 201 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_2001_0 v, balance_2001 balance, audit_2001 a -> vacation_2001_0 ((asInt(fst(v)), 2)), balance_2001 (balance - asInt(fst(v))), audit_2001 (a + 1);
+    vacation_2001_0_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 2001 and record == 19020011 and actor == 201 and asInt(snd(v)) == 1 and approve == false => vacation_2001_0 v, balance_2001 balance, audit_2001 a -> vacation_2001_0 ((asInt(fst(v)), 3)), balance_2001 (balance), audit_2001 (a + 1);
+    vacation_2001_0_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 2001 and record == 19020011 and actor == 2001 and asInt(snd(v)) == 2 => vacation_2001_0 v, audit_2001 a -> vacation_2001_0 ((asInt(fst(v)), 4)), audit_2001 (a + 1);
+    vacation_2001_0_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 2001 and record == 19020011 and (actor == 21 or actor == 22) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_2001_0 v, balance_2001 balance, audit_2001 a -> vacation_2001_0 ((days, status)), balance_2001 (balance + asInt(fst(v)) - days), audit_2001 (a + 1);
+    vacation_2001_0_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 2001 and record == 19020011 and (actor == 21 or actor == 22) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_2001_0 v, balance_2001 balance, audit_2001 a -> vacation_2001_0 ((days, status)), balance_2001 (balance + asInt(fst(v)) - 0), audit_2001 (a + 1);
+    vacation_2001_0_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 2001 and record == 19020011 and (actor == 21 or actor == 22) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_2001_0 v, balance_2001 balance, audit_2001 a -> vacation_2001_0 ((days, status)), balance_2001 (balance + 0 - days), audit_2001 (a + 1);
+    vacation_2001_0_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 2001 and record == 19020011 and (actor == 21 or actor == 22) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_2001_0 v, balance_2001 balance, audit_2001 a -> vacation_2001_0 ((days, status)), balance_2001 (balance + 0 - 0), audit_2001 (a + 1);
+    vacation_2001_0_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 2001 and record == 19020011 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) and asInt(snd(v)) >= 1 => vacation_2001_0 v -> vacation_2001_0 (v);
+    time_2001_1_log_standard: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 2001 and record == 9020012 and actor == 2001 and asInt(snd(asPair(snd(t)))) == 0 and kind == 0 and minutes >= 15 and minutes <= 720 => time_2001_1 t, audit_2001 a -> time_2001_1 ((kind, (minutes, 2))), audit_2001 (a + 1);
+    time_2001_1_log_special: logTime actor employee record kind minutes With this.ack (true) ::
+      employee == 2001 and record == 9020012 and actor == 2001 and asInt(snd(asPair(snd(t)))) == 0 and kind >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 => time_2001_1 t, audit_2001 a -> time_2001_1 ((kind, (minutes, 1))), audit_2001 (a + 1);
+    time_2001_1_decide_true: decideTime actor employee record approve With this.ack (true) ::
+      employee == 2001 and record == 9020012 and actor == 201 and asInt(snd(asPair(snd(t)))) == 1 and approve == true => time_2001_1 t, audit_2001 a -> time_2001_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 2))), audit_2001 (a + 1);
+    time_2001_1_decide_false: decideTime actor employee record approve With this.ack (true) ::
+      employee == 2001 and record == 9020012 and actor == 201 and asInt(snd(asPair(snd(t)))) == 1 and approve == false => time_2001_1 t, audit_2001 a -> time_2001_1 ((asInt(fst(t)), (asInt(fst(asPair(snd(t)))), 3))), audit_2001 (a + 1);
+    time_2001_1_correct: correctTime actor employee record kind minutes status With this.ack (true) ::
+      employee == 2001 and record == 9020012 and (actor == 21 or actor == 22) and asInt(snd(asPair(snd(t)))) >= 1 and kind <= 4 and minutes >= 15 and minutes <= 720 and status >= 1 and status <= 3 => time_2001_1 t, audit_2001 a -> time_2001_1 ((kind, (minutes, status))), audit_2001 (a + 1);
+    time_2001_1_read: readTime actor employee record With this.timeRecord (t) ::
+      employee == 2001 and record == 9020012 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) and asInt(snd(asPair(snd(t)))) >= 1 => time_2001_1 t -> time_2001_1 (t);
+    vacation_2001_1_request: requestVacation actor employee record days With this.ack (true) ::
+      employee == 2001 and record == 19020012 and actor == 2001 and asInt(snd(v)) == 0 and days >= 1 and days <= 30 => vacation_2001_1 v, audit_2001 a -> vacation_2001_1 ((days, 1)), audit_2001 (a + 1);
+    vacation_2001_1_decide_true: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 2001 and record == 19020012 and actor == 201 and asInt(snd(v)) == 1 and approve == true and balance >= asInt(fst(v)) => vacation_2001_1 v, balance_2001 balance, audit_2001 a -> vacation_2001_1 ((asInt(fst(v)), 2)), balance_2001 (balance - asInt(fst(v))), audit_2001 (a + 1);
+    vacation_2001_1_decide_false: decideVacation actor employee record approve With this.ack (true) ::
+      employee == 2001 and record == 19020012 and actor == 201 and asInt(snd(v)) == 1 and approve == false => vacation_2001_1 v, balance_2001 balance, audit_2001 a -> vacation_2001_1 ((asInt(fst(v)), 3)), balance_2001 (balance), audit_2001 (a + 1);
+    vacation_2001_1_take: takeVacation actor employee record With this.ack (true) ::
+      employee == 2001 and record == 19020012 and actor == 2001 and asInt(snd(v)) == 2 => vacation_2001_1 v, audit_2001 a -> vacation_2001_1 ((asInt(fst(v)), 4)), audit_2001 (a + 1);
+    vacation_2001_1_correct_true_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 2001 and record == 19020012 and (actor == 21 or actor == 22) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + asInt(fst(v)) >= days => vacation_2001_1 v, balance_2001 balance, audit_2001 a -> vacation_2001_1 ((days, status)), balance_2001 (balance + asInt(fst(v)) - days), audit_2001 (a + 1);
+    vacation_2001_1_correct_true_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 2001 and record == 19020012 and (actor == 21 or actor == 22) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + asInt(fst(v)) >= 0 => vacation_2001_1 v, balance_2001 balance, audit_2001 a -> vacation_2001_1 ((days, status)), balance_2001 (balance + asInt(fst(v)) - 0), audit_2001 (a + 1);
+    vacation_2001_1_correct_false_true: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 2001 and record == 19020012 and (actor == 21 or actor == 22) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and (status == 2 or status == 4) and balance + 0 >= days => vacation_2001_1 v, balance_2001 balance, audit_2001 a -> vacation_2001_1 ((days, status)), balance_2001 (balance + 0 - days), audit_2001 (a + 1);
+    vacation_2001_1_correct_false_false: correctVacation actor employee record days status With this.ack (true) ::
+      employee == 2001 and record == 19020012 and (actor == 21 or actor == 22) and asInt(snd(v)) >= 1 and days >= 1 and days <= 30 and status >= 1 and status <= 4 and not (asInt(snd(v)) == 2 or asInt(snd(v)) == 4) and not (status == 2 or status == 4) and balance + 0 >= 0 => vacation_2001_1 v, balance_2001 balance, audit_2001 a -> vacation_2001_1 ((days, status)), balance_2001 (balance + 0 - 0), audit_2001 (a + 1);
+    vacation_2001_1_read: readVacation actor employee record With this.vacationRecord (v) ::
+      employee == 2001 and record == 19020012 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) and asInt(snd(v)) >= 1 => vacation_2001_1 v -> vacation_2001_1 (v);
+    read_balance_2001: balance actor employee With this.remaining (n) ::
+      employee == 2001 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) => balance_2001 n -> balance_2001 (n);
+    read_auditCount_2001: auditCount actor employee With this.changes (n) ::
+      employee == 2001 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) => audit_2001 n -> audit_2001 (n);
+    totals_2001_true_true: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + asInt(fst(asPair(snd(y))))) ::
+      employee == 2001 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) == 2 => time_2001_0 x, time_2001_1 y -> time_2001_0 (x), time_2001_1 (y);
+    totals_2001_true_false: totals actor employee With this.approvedMinutes (asInt(fst(asPair(snd(x)))) + 0) ::
+      employee == 2001 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) and asInt(snd(asPair(snd(x)))) == 2 and asInt(snd(asPair(snd(y)))) != 2 => time_2001_0 x, time_2001_1 y -> time_2001_0 (x), time_2001_1 (y);
+    totals_2001_false_true: totals actor employee With this.approvedMinutes (0 + asInt(fst(asPair(snd(y))))) ::
+      employee == 2001 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) == 2 => time_2001_0 x, time_2001_1 y -> time_2001_0 (x), time_2001_1 (y);
+    totals_2001_false_false: totals actor employee With this.approvedMinutes (0 + 0) ::
+      employee == 2001 and (actor == 2001 or actor == 201 or (actor == 21 or actor == 22)) and asInt(snd(asPair(snd(x)))) != 2 and asInt(snd(asPair(snd(y)))) != 2 => time_2001_0 x, time_2001_1 y -> time_2001_0 (x), time_2001_1 (y);
+
+End HRManagementExpanded;

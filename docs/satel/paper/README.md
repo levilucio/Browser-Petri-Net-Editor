@@ -1,5 +1,7 @@
 # SATEL/APN paper working draft
 
+The [HR claim–evidence–assumption matrix](hr-claim-evidence-assumptions.md) consolidates the later methods/gates, scaling, representative-sensitivity and negative-test experiments. It supplements this draft without changing its frozen B0 baseline or treating open correspondence obligations as proved.
+
 Start with [main.tex](main.tex). The first substantive content is the proposed
 baseline/semantic contract, with a thesis correspondence checklist, proof
 obligations, existing evidence and a research roadmap. It is not a submission-ready
