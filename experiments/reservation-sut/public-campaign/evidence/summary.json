@@ -1,0 +1,418 @@
+[
+  {
+    "variant": "none",
+    "transport": "api",
+    "trials": 48,
+    "pairs": 140,
+    "traceMismatches": 0,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 12,
+      "2": 20
+    },
+    "finishAfterB": 20,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "aReallocationRefusals": 12,
+    "hml": {
+      "possible-a-1": {
+        "inconclusive": 20,
+        "witnessed": 12
+      },
+      "possible-b-1": {
+        "witnessed": 20,
+        "inconclusive": 12
+      },
+      "no-99-1": {
+        "inconclusive": 32
+      },
+      "b-receipt-1": {
+        "inconclusive": 32
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "247d73a4aed01981c01b1b668c3b16dcc368dffaff7ae1f55e43b42b661a8e97"
+  },
+  {
+    "variant": "none",
+    "transport": "ui",
+    "trials": 48,
+    "pairs": 146,
+    "traceMismatches": 0,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 18,
+      "2": 14
+    },
+    "finishAfterB": 14,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "aReallocationRefusals": 18,
+    "hml": {
+      "possible-a-1": {
+        "witnessed": 18,
+        "inconclusive": 14
+      },
+      "possible-b-1": {
+        "inconclusive": 18,
+        "witnessed": 14
+      },
+      "no-99-1": {
+        "inconclusive": 32
+      },
+      "b-receipt-1": {
+        "inconclusive": 32
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "ecc9243d797ffec86e2ac585eeec3dffb5da7ecb5804d0cdd2dd83a55e7640c0"
+  },
+  {
+    "variant": "illegal-output",
+    "transport": "api",
+    "trials": 48,
+    "pairs": 124,
+    "traceMismatches": 18,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 14,
+      "99": 18
+    },
+    "finishAfterB": 0,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "aReallocationRefusals": 14,
+    "hml": {
+      "possible-a-1": {
+        "witnessed": 14,
+        "inconclusive": 18
+      },
+      "possible-b-1": {
+        "inconclusive": 32
+      },
+      "no-99-1": {
+        "inconclusive": 14,
+        "counterexample": 18
+      },
+      "b-receipt-1": {
+        "inconclusive": 32
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "2ee44e21b70811b6509521a132472be247a9801f5c326d3d94fa0e7653c3651a"
+  },
+  {
+    "variant": "illegal-output",
+    "transport": "ui",
+    "trials": 48,
+    "pairs": 122,
+    "traceMismatches": 19,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 13,
+      "99": 19
+    },
+    "finishAfterB": 0,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "aReallocationRefusals": 13,
+    "hml": {
+      "possible-a-1": {
+        "witnessed": 13,
+        "inconclusive": 19
+      },
+      "possible-b-1": {
+        "inconclusive": 32
+      },
+      "no-99-1": {
+        "inconclusive": 13,
+        "counterexample": 19
+      },
+      "b-receipt-1": {
+        "inconclusive": 32
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "bac0adc9af6174e6fb73cf1bc128ab9c576c26cd735f396e2685e778c2964555"
+  },
+  {
+    "variant": "missing-b",
+    "transport": "api",
+    "trials": 48,
+    "pairs": 160,
+    "traceMismatches": 0,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 32
+    },
+    "finishAfterB": 0,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "aReallocationRefusals": 32,
+    "hml": {
+      "possible-a-1": {
+        "witnessed": 32
+      },
+      "possible-b-1": {
+        "inconclusive": 32
+      },
+      "no-99-1": {
+        "inconclusive": 32
+      },
+      "b-receipt-1": {
+        "inconclusive": 32
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "ad9fd4839ede44f8b191964e4669d1d2018c2510a850a1e5393f09bae22c8c27"
+  },
+  {
+    "variant": "missing-b",
+    "transport": "ui",
+    "trials": 48,
+    "pairs": 160,
+    "traceMismatches": 0,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 32
+    },
+    "finishAfterB": 0,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "aReallocationRefusals": 32,
+    "hml": {
+      "possible-a-1": {
+        "witnessed": 32
+      },
+      "possible-b-1": {
+        "inconclusive": 32
+      },
+      "no-99-1": {
+        "inconclusive": 32
+      },
+      "b-receipt-1": {
+        "inconclusive": 32
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "da13e3b79731cd065ede5788ee2f6b891befbabd166f1b6d3fded964e070152b"
+  },
+  {
+    "variant": "early-commitment",
+    "transport": "api",
+    "trials": 48,
+    "pairs": 145,
+    "traceMismatches": 7,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 17,
+      "2": 15
+    },
+    "finishAfterB": 15,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 4,
+      "manual-b": 5
+    },
+    "aReallocationRefusals": 17,
+    "hml": {
+      "possible-a-1": {
+        "witnessed": 17,
+        "inconclusive": 15
+      },
+      "possible-b-1": {
+        "inconclusive": 17,
+        "witnessed": 15
+      },
+      "no-99-1": {
+        "inconclusive": 32
+      },
+      "b-receipt-1": {
+        "inconclusive": 32
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "87bdae69635d3b024065c0be3ff022b8fdf02f037db4bbf5d870cd6e9e64b138"
+  },
+  {
+    "variant": "early-commitment",
+    "transport": "ui",
+    "trials": 48,
+    "pairs": 145,
+    "traceMismatches": 12,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 17,
+      "2": 15
+    },
+    "finishAfterB": 15,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-b": 2,
+      "manual-a": 2
+    },
+    "aReallocationRefusals": 17,
+    "hml": {
+      "possible-a-1": {
+        "witnessed": 17,
+        "inconclusive": 15
+      },
+      "possible-b-1": {
+        "inconclusive": 17,
+        "witnessed": 15
+      },
+      "no-99-1": {
+        "inconclusive": 32
+      },
+      "b-receipt-1": {
+        "inconclusive": 32
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "7c34c47a86264e50407ed70591bb7fb381a8eb35ad130a3aaee898209dd7c6b3"
+  },
+  {
+    "variant": "bad-b-receipt",
+    "transport": "api",
+    "trials": 48,
+    "pairs": 143,
+    "traceMismatches": 17,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 15,
+      "2": 17
+    },
+    "finishAfterB": 17,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "aReallocationRefusals": 15,
+    "hml": {
+      "possible-a-1": {
+        "inconclusive": 17,
+        "witnessed": 15
+      },
+      "possible-b-1": {
+        "witnessed": 17,
+        "inconclusive": 15
+      },
+      "no-99-1": {
+        "inconclusive": 32
+      },
+      "b-receipt-1": {
+        "counterexample": 17,
+        "inconclusive": 15
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "ea4a6e1334c96acb098986e22e7f63c748a4bb24744008a725a00dd9ed7bb38d"
+  },
+  {
+    "variant": "bad-b-receipt",
+    "transport": "ui",
+    "trials": 48,
+    "pairs": 147,
+    "traceMismatches": 13,
+    "automaticOpportunities": 32,
+    "outcomes": {
+      "1": 19,
+      "2": 13
+    },
+    "finishAfterB": 13,
+    "manualOpportunities": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "manualAccepted": {
+      "manual-a": 8,
+      "manual-b": 8
+    },
+    "aReallocationRefusals": 19,
+    "hml": {
+      "possible-a-1": {
+        "inconclusive": 13,
+        "witnessed": 19
+      },
+      "possible-b-1": {
+        "witnessed": 13,
+        "inconclusive": 19
+      },
+      "no-99-1": {
+        "inconclusive": 32
+      },
+      "b-receipt-1": {
+        "counterexample": 13,
+        "inconclusive": 19
+      },
+      "both-choices-1": {
+        "inconclusive": 16
+      }
+    },
+    "reportSha256": "ec1909dac6f396edd65d06d3b39334aa98d71bc799955ec207921fa81d88b96d"
+  }
+]

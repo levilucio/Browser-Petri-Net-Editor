@@ -1,5 +1,7 @@
 # SATEL/APN paper working draft
 
+[Increment 55](../increment-55-public-adaptive.md) records the public adaptive reservation campaign and the limits of its HML evidence.
+
 See [reservation HML results](../../../experiments/reservation-sut/RESULTS.md) for the controlled comparison of public trace evidence and branching-property decisions.
 
 

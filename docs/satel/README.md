@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+[Public adaptive web testing](increment-55-public-adaptive.md) measures HML evidence and observed opportunities using only the application interface.
+
 See [web HML experiment](increment-54-web-hml.md) for ordinary trace evidence versus controlled branching exploration in a REST/SQLite/browser reservation SUT.
 
 

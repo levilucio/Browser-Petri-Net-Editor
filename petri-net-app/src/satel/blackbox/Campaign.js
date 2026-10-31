@@ -44,7 +44,7 @@ async function adapterOperation(work, timeoutMs, signal) {
 /** One call/response history checked against ALL compatible reference markings.
  * All reference successor searches must complete before the next external call.
  * A reference limit stops the run, never rejects the SUT or drops possibilities. */
-export async function runBlackBoxExperiment({ referenceNet, io = publicInterface(referenceNet), calls, createSut, seed = 1 }, options = {}) {
+export async function runBlackBoxExperiment({ referenceNet, io = publicInterface(referenceNet), calls, createSut, seed = 1, continuation }, options = {}) {
   io = copy(io); calls = copy(calls);
   const events = [], started = Date.now();
   const maxStates = positive(options.maxStates ?? 512, 'maxStates');
@@ -66,10 +66,15 @@ export async function runBlackBoxExperiment({ referenceNet, io = publicInterface
     compilePublicNet(net);
     // Validate all call signatures before touching the SUT, including later calls.
     if (!Array.isArray(calls)) throw new DomainError('invalid-test', 'An experimental call list is required');
-    for (const call of calls) {
+    const validateCall = call => {
       const m = io.methods.find(m => m.name === call.method);
       if (!m || !call.arguments || JSON.stringify(Object.keys(call.arguments).sort()) !== JSON.stringify(m.parameters.map(p => p.name).sort())
         || m.parameters.some(p => !validBuiltinValue(call.arguments[p.name], p.sort))) throw new DomainError('invalid-test', 'Invalid experimental method call');
+    };
+    calls.forEach(validateCall);
+    const maxPairs = continuation ? positive(options.maxAdaptivePairs ?? 64, 'maxAdaptivePairs') : Infinity;
+    if (continuation && (typeof continuation !== 'function' || !calls.length || calls.length > maxPairs)) {
+      throw new DomainError('invalid-test', 'An adaptive policy needs an initial call list within its pair budget');
     }
     // No model, tests, or expected results are passed into this factory.
     const sut = createSut();
@@ -77,7 +82,7 @@ export async function runBlackBoxExperiment({ referenceNet, io = publicInterface
     checkInterface(net, sut.interface);
     if (JSON.stringify([...sut.interface.outputs].sort()) !== JSON.stringify([...io.outputs].sort())) throw new DomainError('interface-mismatch', 'SUT and saved reference must expose the same outputs');
     await adapterOperation(signal => sut.reset({ seed, signal }), callTimeoutMs, options.signal);
-    for (const [index, stimulation] of copy(calls).entries()) {
+    for (const [index, stimulation] of calls.entries()) {
       budget();
       const alternatives = [];
       for (const state of states) {
@@ -108,6 +113,17 @@ export async function runBlackBoxExperiment({ referenceNet, io = publicInterface
       }
       if (next.size > maxStates) return result('inconclusive', 'Compatible reference state budget reached; no states were discarded', { step: index + 1 });
       states = [...next.values()];
+      if (continuation && index === calls.length - 1) {
+        // A policy sees only observed public history. Every proposed call goes
+        // through the same signature, reference and transport checks.
+        const history = events.map(({ stimulation, response }) => copy({ stimulation, response }));
+        const proposed = continuation(history);
+        if (proposed !== null) {
+          validateCall(proposed);
+          if (calls.length >= maxPairs) return result('inconclusive', 'Adaptive pair budget reached', { step: index + 2 });
+          calls.push(copy(proposed));
+        }
+      }
     }
     return result('compatible', 'This observed execution is permitted by the reference. Unobserved alternatives remain unchecked.');
   } catch (error) {

@@ -142,3 +142,5 @@ Use a fresh staging directory for a new campaign. The corpus stays in
 `results/corpus.json`; the output override affects live reports/screenshots only.
 The final run used this arrangement after a workspace persistence problem; see the
 preserved report-finalization evidence. The last summary verifies the copied files.
+
+See [public adaptive trials](../../docs/satel/increment-55-public-adaptive.md) for the follow-up experiment using public requests and uncontrolled outcomes.
