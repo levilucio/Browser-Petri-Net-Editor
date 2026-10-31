@@ -1,0 +1,284 @@
+{
+  "frozenSuiteSha256": "b55805f738494d1d7d13de5fe7c4497298638ddaf77870ab02e1a83e97e77e21",
+  "results": [
+    {
+      "id": "exercise-hr-work-log",
+      "tests": 25,
+      "sameFrozenPairs": true,
+      "elapsedMs": 8222.079593,
+      "validation": {
+        "generated": 25,
+        "referencePassed": 25
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 855,
+        "guardChecks": 1635,
+        "guardMs": 575.1583980000182,
+        "projectionMs": 453.4401060000041,
+        "stateBuildMs": 5.272102000000359,
+        "prefixSolverMs": 3674.197903999996,
+        "witnessSolverMs": 28.266061000000036,
+        "indexBuildMs": 59.291038000003255,
+        "indexBuilds": 768,
+        "indexLookups": 855,
+        "indexTokens": 15903,
+        "indexCandidates": 855,
+        "indexExcluded": 16875,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 15075
+      }
+    },
+    {
+      "id": "exercise-hr-vacation-approved",
+      "tests": 3,
+      "sameFrozenPairs": true,
+      "elapsedMs": 804.7913010000011,
+      "validation": {
+        "generated": 3,
+        "referencePassed": 3
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 69,
+        "guardChecks": 135,
+        "guardMs": 37.12170800000786,
+        "projectionMs": 35.42397600000004,
+        "stateBuildMs": 0.5007730000033916,
+        "prefixSolverMs": 374.6300760000013,
+        "witnessSolverMs": 5.499914999998509,
+        "indexBuildMs": 7.534263999999894,
+        "indexBuilds": 63,
+        "indexLookups": 69,
+        "indexTokens": 1287,
+        "indexCandidates": 69,
+        "indexExcluded": 1344,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 1164
+      }
+    },
+    {
+      "id": "exercise-hr-vacation-declined",
+      "tests": 3,
+      "sameFrozenPairs": true,
+      "elapsedMs": 341.5895550000005,
+      "validation": {
+        "generated": 3,
+        "referencePassed": 3
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 33,
+        "guardChecks": 60,
+        "guardMs": 18.7935079999952,
+        "projectionMs": 21.36770799999431,
+        "stateBuildMs": 0.1106019999988348,
+        "prefixSolverMs": 79.01346000000194,
+        "witnessSolverMs": 8.143582999999126,
+        "indexBuildMs": 2.976513999999952,
+        "indexBuilds": 27,
+        "indexLookups": 33,
+        "indexTokens": 558,
+        "indexCandidates": 33,
+        "indexExcluded": 651,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 471
+      }
+    },
+    {
+      "id": "exercise-hr-vacation-take-pending",
+      "tests": 3,
+      "sameFrozenPairs": true,
+      "elapsedMs": 270.235012000001,
+      "validation": {
+        "generated": 3,
+        "referencePassed": 3
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 9,
+        "guardChecks": 15,
+        "guardMs": 3.666320000000269,
+        "projectionMs": 14.157851999998456,
+        "stateBuildMs": 0.03201399999852583,
+        "prefixSolverMs": 46.693521000001056,
+        "witnessSolverMs": 4.78302900000017,
+        "indexBuildMs": 2.2796589999961725,
+        "indexBuilds": 12,
+        "indexLookups": 18,
+        "indexTokens": 252,
+        "indexCandidates": 18,
+        "indexExcluded": 360,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 180
+      }
+    },
+    {
+      "id": "exercise-hr-vacation-balance-exhaustion",
+      "tests": 3,
+      "sameFrozenPairs": true,
+      "elapsedMs": 518.4647490000007,
+      "validation": {
+        "generated": 3,
+        "referencePassed": 3
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 33,
+        "guardChecks": 60,
+        "guardMs": 22.814632000005076,
+        "projectionMs": 26.857243999993443,
+        "stateBuildMs": 0.1546440000001894,
+        "prefixSolverMs": 213.24015199999667,
+        "witnessSolverMs": 4.598618000001807,
+        "indexBuildMs": 4.302941000003557,
+        "indexBuilds": 36,
+        "indexLookups": 42,
+        "indexTokens": 747,
+        "indexCandidates": 42,
+        "indexExcluded": 831,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 651
+      }
+    },
+    {
+      "id": "exercise-hr-role-correctTime",
+      "tests": 5,
+      "sameFrozenPairs": true,
+      "elapsedMs": 218.79903699999886,
+      "validation": {
+        "generated": 5,
+        "referencePassed": 5
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 21,
+        "guardChecks": 42,
+        "guardMs": 15.014305000004242,
+        "projectionMs": 33.47285499999816,
+        "stateBuildMs": 0.27514200000041455,
+        "prefixSolverMs": 0,
+        "witnessSolverMs": 17.636567999999897,
+        "indexBuildMs": 2.4972489999981917,
+        "indexBuilds": 14,
+        "indexLookups": 37,
+        "indexTokens": 282,
+        "indexCandidates": 37,
+        "indexExcluded": 716,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 208
+      }
+    },
+    {
+      "id": "exercise-hr-role-decideTime",
+      "tests": 5,
+      "sameFrozenPairs": true,
+      "elapsedMs": 186.67187700000068,
+      "validation": {
+        "generated": 5,
+        "referencePassed": 5
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 18,
+        "guardChecks": 36,
+        "guardMs": 10.632936999996673,
+        "projectionMs": 22.151628000001438,
+        "stateBuildMs": 0.054715000002033776,
+        "prefixSolverMs": 0,
+        "witnessSolverMs": 11.994582999997874,
+        "indexBuildMs": 2.2754449999993085,
+        "indexBuilds": 9,
+        "indexLookups": 21,
+        "indexTokens": 162,
+        "indexCandidates": 21,
+        "indexExcluded": 393,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 93
+      }
+    },
+    {
+      "id": "exercise-hr-role-decideVacation",
+      "tests": 5,
+      "sameFrozenPairs": true,
+      "elapsedMs": 191.16912799999955,
+      "validation": {
+        "generated": 5,
+        "referencePassed": 5
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 18,
+        "guardChecks": 31,
+        "guardMs": 8.18866700000217,
+        "projectionMs": 26.475885999998354,
+        "stateBuildMs": 0.055457999998907326,
+        "prefixSolverMs": 0,
+        "witnessSolverMs": 8.504805000000488,
+        "indexBuildMs": 2.252963999999338,
+        "indexBuilds": 9,
+        "indexLookups": 21,
+        "indexTokens": 162,
+        "indexCandidates": 21,
+        "indexExcluded": 393,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 93
+      }
+    },
+    {
+      "id": "exercise-hr-roster",
+      "tests": 12,
+      "sameFrozenPairs": true,
+      "elapsedMs": 818.8993989999999,
+      "validation": {
+        "generated": 12,
+        "referencePassed": 12
+      },
+      "algebraUnresolved": [],
+      "overlaps": [],
+      "executionUnresolved": [],
+      "blocked": [],
+      "profile": {
+        "tokenScans": 168,
+        "guardChecks": 324,
+        "guardMs": 123.9528900000023,
+        "projectionMs": 93.06422500000008,
+        "stateBuildMs": 0.4820660000023054,
+        "prefixSolverMs": 0,
+        "witnessSolverMs": 6.407808999998451,
+        "indexBuildMs": 7.153553999996802,
+        "indexBuilds": 99,
+        "indexLookups": 168,
+        "indexTokens": 2043,
+        "indexCandidates": 168,
+        "indexExcluded": 3324,
+        "indexFallbacks": 0,
+        "projectionCacheHits": 1884
+      }
+    }
+  ]
+}

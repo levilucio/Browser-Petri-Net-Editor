@@ -1,5 +1,7 @@
 # HR management SUT
 
+[Sequence-length results](SEQUENCE_RESULTS.md) isolate longer 25/50/100-pair histories from ADT depth and employee/slot growth. The CLI selection option `maxSequencePairs` defaults to 32 and permits explicit budgets up to 256; this experiment requests 128. GUI defaults and explicit HML formula limits remain unchanged.
+
 [Post-refusal probe results](POST_REFUSAL_RESULTS.md) extend the frozen negative tests with APN-derived record, aggregate and audit observations. These separate trace experiments check observable effects after refusal; they do not extend the editor's terminal-refusal intention syntax.
 
 [Automatic refusal results](NEGATIVE_RESULTS.md) document 160 scoped prefix/method targets, generated negative companions and real REST/browser checks. Run `node experiments/negative-export.mjs` to create an editor-importable APN of the frozen positive controls and negative tests.

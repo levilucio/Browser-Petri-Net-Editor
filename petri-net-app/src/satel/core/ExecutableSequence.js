@@ -53,7 +53,8 @@ function range(term, sort) {
 
 /** Continuous positive prefixes, optionally ending with a universally blocked call. */
 async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, initialConditions, options = {}) {
-  if (!pairs.length || pairs.length > 32) fail('Executable sequences require 1–32 pairs');
+  if (!pairs.length) fail('Executable sequences require at least one pair');
+  if (pairs.length > budget.maxPairs) throw new DomainError('sequence-length-limit', `Executable sequence has ${pairs.length} pairs; maxSequencePairs is ${budget.maxPairs}`);
   const {
     methods,
     plans
@@ -221,6 +222,8 @@ async function* paths(compiled, net, io, pairs, algebra, sorts, budget, search, 
 /** Select one executable representative per completed algebraic class. No random
  * sampling, no marking reset between pairs, and no silent removal of classes. */
 export async function selectExecutableRepresentatives(goal, protocol, decomposition, net, io, options = {}) {
+  const maxPairs = options.maxSequencePairs ?? 32;
+  if (!Number.isInteger(maxPairs) || maxPairs < 1 || maxPairs > 256) throw new DomainError('invalid-options', 'maxSequencePairs must be an integer from 1 to 256');
   if (!['algebraic', 'algebraic-int'].includes(net.mode) || !net.transitions.length || net.transitions.some(t => !isMethodRule(t))) fail('Executable selection requires an algebraic net with public methods only');
   const ids = [...net.places, ...net.transitions, ...net.arcs].map(x => x.id);
   if (ids.some(id => typeof id !== 'string' || !id) || new Set(ids).size !== ids.length) fail('Net IDs must be nonempty and unique');
@@ -228,6 +231,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
   const compiled = compilePublicNet(net);
   const search = await createConstraintSearch(goal.algebra, options);
   const budget = {
+    maxPairs,
     signal: options.signal,
     pruned: 0,
     prefixChecks: 0,
@@ -374,6 +378,7 @@ export async function selectExecutableRepresentatives(goal, protocol, decomposit
     }
   }
   return {
+    maxSequencePairs: maxPairs,
     ...(profile ? {profile} : {}),
     selected,
     blocked,

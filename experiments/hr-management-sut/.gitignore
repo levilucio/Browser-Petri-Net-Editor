@@ -53,3 +53,9 @@ specification/hr-negative.apn.json
 !results/post-refusal-manifest.json
 !results/post-refusal-summary.json
 !results/post-refusal-original-verification.json
+
+# Interaction-history scaling: compact frozen witnesses and checked evidence.
+!results/sequence-manifest.json
+!results/sequence-summary.json
+!results/sequence-original-verification.json
+!results/sequence-preflight.json

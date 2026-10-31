@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+See [interaction-history scaling](increment-51-sequence-length.md) for the controlled 25/50/100-pair experiment, explicit selection-length budgets and the paper's consolidated evidence matrix.
+
 See [observations after refusal](increment-50-post-refusal-probes.md) for APN-derived read-only probes and faults that persist data changes despite reporting refusal. These are trace experiments with unchanged terminal-refusal HML semantics.
 
 See [automatic scoped HR refusals](increment-49-hr-negative-tests.md) for bounded negative generation, concrete finite cross-checks and external permission/state-check campaigns.

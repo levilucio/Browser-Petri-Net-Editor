@@ -7,7 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 MUTANTS = ['none', 'auto-approve-special', 'manager-scope', 'take-pending', 'double-charge', 'correction-no-audit', 'cross-tenant-hr', 'wrong-total',
            'overwrite-earlier', 'approval-double-count', 'correction-adds-old',
            'cross-employee-correction', 'cap-long-duration', 'repeat-decision', 'employee-correction',
-           'refusal-time-write', 'refusal-vacation-write', 'refusal-balance-charge', 'refusal-audit-write']
+           'refusal-time-write', 'refusal-vacation-write', 'refusal-balance-charge', 'refusal-audit-write',
+           'late-correction-drift']
 KINDS = ['standard', 'business_trip', 'home_office', 'training', 'on_call']
 STATUSES = ['empty', 'pending', 'approved', 'declined', 'taken']
 PASSWORD = 'research-demo'
@@ -175,6 +176,9 @@ def perform_operation(c,actor,method,body):
             if not isinstance(body.get('reason'),str) or not body['reason'].strip(): raise Invalid('A correction reason is required')
             if method=='correctTime':
                 kind=integer(body.get('kind'),'kind',0,4); minutes=integer(body.get('minutes'),'minutes',15,720); status=integer(body.get('status'),'status',1,3)
+                if CONFIG.mutant=='late-correction-drift' and before['work_date'].startswith('2026-11'):
+                    corrections=c.execute("SELECT COUNT(*) FROM audit WHERE entity='time_entries' AND record_id=? AND employee_id=? AND action='correct'",(rid,eid)).fetchone()[0]
+                    if corrections>=9: minutes=minutes+15 if minutes<=705 else minutes-15
                 c.execute('UPDATE time_entries SET kind=?,minutes=?,status=?,version=version+1 WHERE id=?',(kind,minutes,status,rid))
                 if CONFIG.mutant=='cross-employee-correction':
                     c.execute('UPDATE time_entries SET minutes=? WHERE employee_id<>? AND work_date=?',(minutes,eid,before['work_date']))
