@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-10-31T11:08:58.913529+00:00",
+  "description": "Two unseeded baseline divergences: the SUT accepts creation using unused IDs already in the bounded APN marking, while the APN refuses creation by a different tenant/order than its preassigned slot labels. Cause under investigation; both source implementations preserved before correction.",
+  "reproduce": "node experiments/warehouse-sut/experiments/allocation-check.mjs",
+  "classification": "Specification defect: premature ownership of unused identifier slots; no SUT change required",
+  "parent_commit": "f822e874205b32d75601847cf75652ee352b4383",
+  "python": "3.12.14",
+  "sqlite": "3.53.1",
+  "seed": 1,
+  "files": {
+    "experiments/warehouse-sut/backend/app.py": "9526ae66c0a077f06158445eeeefe8343cffca43aaf7fcbd36422dcee605a173",
+    "experiments/warehouse-sut/frontend/index.html": "d44d9cf88227a68d90b4d17305ba995d8dc433018a71fa8ec87c4987dab76d65",
+    "experiments/warehouse-sut/frontend/app.js": "4ab9f4ca9171698afcc1135b352dbe25cc42c81cba8d9164f85cf73953ffbb58",
+    "experiments/warehouse-sut/frontend/style.css": "2dacbd8cc767ea397cbaf2ad2def5c83fd5c12a076f46b84461facae9ed916ec",
+    "experiments/warehouse-sut/experiments/preserve.py": "e1798d15ff31fe03c78b6f90362a0a78d27c9866bd338b9fa6d03c9b6898046f",
+    "experiments/warehouse-sut/experiments/runtime.mjs": "86ce899a4f57bdec558a23e13feca5d7a81a94f1a7b756538c0c19d788c733b3",
+    "experiments/warehouse-sut/experiments/audit.mjs": "b753ed33cb49a8f575dd1251b325d854df55a6ad14c3c507211a1a05a863f823",
+    "experiments/warehouse-sut/experiments/allocation-check.mjs": "94d6a7d324347cfbd45fc79240fdb112aed14db58b565d7e6eca2fe4862d484e",
+    "experiments/warehouse-sut/experiments/adapters.mjs": "8de16333be8a2f57113050f340275b05f7d5c03db3ca216bf52041381ccc0420",
+    "experiments/warehouse-sut/experiments/campaign.mjs": "66a04c72906dab971b65638037b194565b7c8305c16f4d4f302e85e3408726ad",
+    "experiments/warehouse-sut/experiments/coverage.mjs": "57f190182f2a4b570118842045df9470cf212ebca5c4386950ff5c900c17bd16",
+    "experiments/warehouse-sut/experiments/generate.mjs": "d1b13e17772d32c1d6314460d04f92e8a416e146e607c639e27f6b8643c18afb",
+    "experiments/warehouse-sut/specification/warehouse.copn": "7ee20d5116909f469da706c4e62c792f97b7334e5ddbc2277230a352e2e2b44b",
+    "experiments/warehouse-sut/specification/warehouse.apn.json": "08a00fe0746d8f50920b11e1d779dcfb945af55e3a36a4dd900437bba6ab484f",
+    "experiments/warehouse-sut/tests/backend_test.py": "bb4ab8ef64cffc3fc63e58aefe5f9c150db9383b33135e10b6b6e70c55a33396",
+    "petri-net-app/src/satel/examples/warehouse/editor.js": "ffa4231d9be97289d9ed668b4f0f0f575868745eca7ee92fabe17274587d065f",
+    "petri-net-app/src/satel/examples/warehouse/intentions.js": "0a4621230b6f137baed5594c8b1c656200bdae5fe443498a444d654b719b3375",
+    "experiments/warehouse-sut/CONTRACT.md": "d2cab81afc6f2aed15139efefd4eaa86b3d6d49183e58ee1cb90b9939292e6de",
+    "experiments/warehouse-sut/results/suites.json": "7e5063b886d6c467b7af1228602055edf73c9d74b5038c85c9d665f927a478c2",
+    "experiments/warehouse-sut/results/generation.json": "25959384eab35f3afae55ae8076f15a8295bc156aaebf7f7923990195205df5a"
+  },
+  "report_sha256": "b6cc56d5411e27dd69b6f700a89d4839750d4e3b83112ca3e4be37a6ced01d77"
+}

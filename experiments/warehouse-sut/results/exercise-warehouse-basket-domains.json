@@ -1,0 +1,4520 @@
+{
+  "operation": "fits",
+  "maxDepth": 4,
+  "unfoldingProfile": {
+    "visited": 80,
+    "peakPending": 8,
+    "equationAttempts": 60,
+    "equationMatches": 36,
+    "booleanBranches": 43,
+    "feasibilityQueries": 80,
+    "overlapQueries": 4,
+    "feasibilityMs": 1371.7597790000004,
+    "overlapSolverMs": 55.27267000000006,
+    "equationExpansionMs": 5.035422999999355,
+    "feasibilityWitnessQueries": 12,
+    "feasibilityCheckQueries": 68,
+    "feasibilityWitnessMs": 176.19576399999937,
+    "feasibilityCheckMs": 1195.564015000001,
+    "maxFeasibilityVariables": 4,
+    "feasibilityVariableEntries": 256,
+    "overlapPairs": 66,
+    "constructorDisjointPairs": 0,
+    "constructorCheckMs": 0.3644490000001497,
+    "literalDisjointPairs": 54,
+    "literalIndexMs": 0.5301739999997608,
+    "literalCheckMs": 0.15570499999944332,
+    "deadlineOverlapPairs": 0,
+    "maxOverlapVariables": 7,
+    "overlapVariableEntries": 28,
+    "branchProofQueries": 4,
+    "branchProofMs": 46.23762800000031,
+    "branchProofCacheHits": 4,
+    "branchDisjointPairs": 8,
+    "branchProofStatuses": {
+      "unsat": 4
+    },
+    "retainedDomainVariableEntries": 40,
+    "peakDomainVariables": 4,
+    "maxRulePath": 5,
+    "maxUnfoldingDepth": 3,
+    "infeasibleBranches": 16,
+    "operations": {
+      "fits": 12
+    },
+    "overlapPhaseMs": 104.59371600000009,
+    "searchMs": 1494.3792010000002,
+    "nonSolverMs": 21.109123999999383,
+    "expandedBranches": 103,
+    "scalarChecks": {
+      "attempted": 76,
+      "sat": 1,
+      "unsat": 0,
+      "fallback": 75,
+      "ms": 1.0989179999999124
+    }
+  },
+  "domains": [
+    {
+      "id": "guard.alternative1/guard.alternative1/first.ok/first.ok/empty",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative1",
+        "first.ok",
+        "first.ok",
+        "empty"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": {
+            "var": "@185.x"
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@185.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@199.x"
+          },
+          "right": {
+            "op": "-",
+            "left": {
+              "var": "@185.x"
+            },
+            "right": {
+              "var": "q1"
+            }
+          }
+        }
+      ],
+      "resultPattern": true,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            9,
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                1,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": true,
+      "variables": {
+        "q0": "Nat",
+        "q1": "Nat",
+        "@185.x": "Nat",
+        "@199.x": "Nat"
+      },
+      "goalBindings": {
+        "p0": 101,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": 101,
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 101,
+        "q0": 9,
+        "p1": 101,
+        "q1": 1
+      }
+    },
+    {
+      "id": "guard.alternative1/guard.alternative1/first.ok/first.no",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative1",
+        "first.ok",
+        "first.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 100
+        },
+        {
+          "op": ">",
+          "left": {
+            "var": "q1"
+          },
+          "right": {
+            "var": "@189.x"
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@189.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            10,
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                1,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": false,
+      "variables": {
+        "q0": "Nat",
+        "q1": "Nat",
+        "@189.x": "Nat"
+      },
+      "goalBindings": {
+        "p0": 101,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": 101,
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 101,
+        "q0": 10,
+        "p1": 101,
+        "q1": 1
+      }
+    },
+    {
+      "id": "guard.alternative1/guard.alternative1/first.no",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative1",
+        "first.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": ">",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        }
+      ],
+      "resultPattern": false,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            11,
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                1,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": false,
+      "variables": {
+        "q0": "Nat",
+        "p1": "Nat",
+        "q1": "Nat"
+      },
+      "goalBindings": {
+        "p0": 101,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": {
+          "var": "p1"
+        },
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 101,
+        "q0": 11,
+        "p1": 101,
+        "q1": 1
+      }
+    },
+    {
+      "id": "guard.alternative1/guard.alternative2/first.ok/second.ok/empty",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative2",
+        "first.ok",
+        "second.ok",
+        "empty"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 8
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@139.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@146.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q1"
+            }
+          }
+        }
+      ],
+      "resultPattern": true,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            10,
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                8,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": true,
+      "variables": {
+        "q0": "Nat",
+        "q1": "Nat",
+        "@139.x": "Nat",
+        "@146.y": "Nat"
+      },
+      "goalBindings": {
+        "p0": 101,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": 102,
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 101,
+        "q0": 10,
+        "p1": 102,
+        "q1": 8
+      }
+    },
+    {
+      "id": "guard.alternative1/guard.alternative2/first.ok/second.no",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative2",
+        "first.ok",
+        "second.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 100
+        },
+        {
+          "op": ">",
+          "left": {
+            "var": "q1"
+          },
+          "right": 8
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@143.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            10,
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                9,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": false,
+      "variables": {
+        "q0": "Nat",
+        "q1": "Nat",
+        "@143.x": "Nat"
+      },
+      "goalBindings": {
+        "p0": 101,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": 102,
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 101,
+        "q0": 10,
+        "p1": 102,
+        "q1": 9
+      }
+    },
+    {
+      "id": "guard.alternative1/guard.alternative2/first.no",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative2",
+        "first.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": {
+              "var": "p1"
+            },
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": ">",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        }
+      ],
+      "resultPattern": false,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            11,
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                1,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": false,
+      "variables": {
+        "q0": "Nat",
+        "p1": "Nat",
+        "q1": "Nat"
+      },
+      "goalBindings": {
+        "p0": 101,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": {
+          "var": "p1"
+        },
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 101,
+        "q0": 11,
+        "p1": 102,
+        "q1": 1
+      }
+    },
+    {
+      "id": "guard.alternative2/guard.alternative1/second.ok/first.ok/empty",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative1",
+        "second.ok",
+        "first.ok",
+        "empty"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 10
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@78.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@91.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q1"
+            }
+          }
+        }
+      ],
+      "resultPattern": true,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            8,
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                10,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": true,
+      "variables": {
+        "q0": "Nat",
+        "q1": "Nat",
+        "@78.y": "Nat",
+        "@91.x": "Nat"
+      },
+      "goalBindings": {
+        "p0": 102,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": 101,
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 102,
+        "q0": 8,
+        "p1": 101,
+        "q1": 10
+      }
+    },
+    {
+      "id": "guard.alternative2/guard.alternative1/second.ok/first.no",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative1",
+        "second.ok",
+        "first.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 100
+        },
+        {
+          "op": ">",
+          "left": {
+            "var": "q1"
+          },
+          "right": 10
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@82.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            8,
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                11,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": false,
+      "variables": {
+        "q0": "Nat",
+        "q1": "Nat",
+        "@82.y": "Nat"
+      },
+      "goalBindings": {
+        "p0": 102,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": 101,
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 102,
+        "q0": 8,
+        "p1": 101,
+        "q1": 11
+      }
+    },
+    {
+      "id": "guard.alternative2/guard.alternative1/second.no",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative1",
+        "second.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": ">",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        }
+      ],
+      "resultPattern": false,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            9,
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                1,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": false,
+      "variables": {
+        "q0": "Nat",
+        "p1": "Nat",
+        "q1": "Nat"
+      },
+      "goalBindings": {
+        "p0": 102,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": {
+          "var": "p1"
+        },
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 102,
+        "q0": 9,
+        "p1": 101,
+        "q1": 1
+      }
+    },
+    {
+      "id": "guard.alternative2/guard.alternative2/second.ok/second.ok/empty",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative2",
+        "second.ok",
+        "second.ok",
+        "empty"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": {
+            "var": "@32.y"
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@32.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@38.y"
+          },
+          "right": {
+            "op": "-",
+            "left": {
+              "var": "@32.y"
+            },
+            "right": {
+              "var": "q1"
+            }
+          }
+        }
+      ],
+      "resultPattern": true,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            7,
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                1,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": true,
+      "variables": {
+        "q0": "Nat",
+        "q1": "Nat",
+        "@32.y": "Nat",
+        "@38.y": "Nat"
+      },
+      "goalBindings": {
+        "p0": 102,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": 102,
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 102,
+        "q0": 7,
+        "p1": 102,
+        "q1": 1
+      }
+    },
+    {
+      "id": "guard.alternative2/guard.alternative2/second.ok/second.no",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative2",
+        "second.ok",
+        "second.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 100
+        },
+        {
+          "op": ">",
+          "left": {
+            "var": "q1"
+          },
+          "right": {
+            "var": "@36.y"
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@36.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            8,
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                1,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": false,
+      "variables": {
+        "q0": "Nat",
+        "q1": "Nat",
+        "@36.y": "Nat"
+      },
+      "goalBindings": {
+        "p0": 102,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": 102,
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 102,
+        "q0": 8,
+        "p1": 102,
+        "q1": 1
+      }
+    },
+    {
+      "id": "guard.alternative2/guard.alternative2/second.no",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative2",
+        "second.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": {
+              "var": "p1"
+            },
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": ">",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        }
+      ],
+      "resultPattern": false,
+      "status": "feasible",
+      "witnessArgs": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            9,
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                1,
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "witnessResult": false,
+      "variables": {
+        "q0": "Nat",
+        "p1": "Nat",
+        "q1": "Nat"
+      },
+      "goalBindings": {
+        "p0": 102,
+        "q0": {
+          "var": "q0"
+        },
+        "p1": {
+          "var": "p1"
+        },
+        "q1": {
+          "var": "q1"
+        }
+      },
+      "witnessBindings": {
+        "p0": 102,
+        "q0": 9,
+        "p1": 102,
+        "q1": 1
+      }
+    }
+  ],
+  "infeasible": [
+    {
+      "id": "guard.alternative2/guard.alternative2/second.ok/first.no",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative2",
+        "second.ok",
+        "first.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 101,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": {
+              "var": "q1"
+            },
+            "right": 10
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@28.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative2/guard.alternative2/second.ok/first.ok",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative2",
+        "second.ok",
+        "first.ok"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 101,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": "<=",
+            "left": {
+              "var": "q1"
+            },
+            "right": 10
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@24.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": {
+        "call": "fits",
+        "args": [
+          {
+            "ctor": "End",
+            "args": []
+          },
+          {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q1"
+            }
+          },
+          {
+            "var": "@24.y"
+          }
+        ]
+      },
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative2/guard.alternative2/first.no",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative2",
+        "first.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 101,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 102
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": {
+              "var": "p1"
+            },
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": {
+              "var": "q0"
+            },
+            "right": 10
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative2/guard.alternative2/first.ok",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative2",
+        "first.ok"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 101,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 102
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": {
+              "var": "p1"
+            },
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": "<=",
+            "left": {
+              "var": "q0"
+            },
+            "right": 10
+          }
+        }
+      ],
+      "resultPattern": {
+        "call": "fits",
+        "args": [
+          {
+            "ctor": "Item",
+            "args": [
+              {
+                "var": "p1"
+              },
+              {
+                "var": "q1"
+              },
+              {
+                "ctor": "End",
+                "args": []
+              }
+            ]
+          },
+          {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          },
+          8
+        ]
+      },
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative2/guard.alternative1/second.ok/second.no",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative1",
+        "second.ok",
+        "second.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": {
+              "var": "q1"
+            },
+            "right": {
+              "var": "@90.y"
+            }
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@90.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative2/guard.alternative1/second.ok/second.ok",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative1",
+        "second.ok",
+        "second.ok"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 102,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 102
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 8
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": "<=",
+            "left": {
+              "var": "q1"
+            },
+            "right": {
+              "var": "@86.y"
+            }
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@86.y"
+          },
+          "right": {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": {
+        "call": "fits",
+        "args": [
+          {
+            "ctor": "End",
+            "args": []
+          },
+          10,
+          {
+            "op": "-",
+            "left": {
+              "var": "@86.y"
+            },
+            "right": {
+              "var": "q1"
+            }
+          }
+        ]
+      },
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative2/guard.alternative1/first.no",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative1",
+        "first.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 101,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 102
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": {
+              "var": "q0"
+            },
+            "right": 10
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative2/guard.alternative1/first.ok",
+      "rules": [
+        "guard.alternative2",
+        "guard.alternative1",
+        "first.ok"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 101,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 102
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": "<=",
+            "left": {
+              "var": "q0"
+            },
+            "right": 10
+          }
+        }
+      ],
+      "resultPattern": {
+        "call": "fits",
+        "args": [
+          {
+            "ctor": "Item",
+            "args": [
+              {
+                "var": "p1"
+              },
+              {
+                "var": "q1"
+              },
+              {
+                "ctor": "End",
+                "args": []
+              }
+            ]
+          },
+          {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          },
+          8
+        ]
+      },
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative1/guard.alternative2/second.no",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative2",
+        "second.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 102,
+          "right": 101
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": {
+              "var": "p1"
+            },
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": {
+              "var": "q0"
+            },
+            "right": 8
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative1/guard.alternative2/second.ok",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative2",
+        "second.ok"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 102,
+          "right": 101
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": {
+              "var": "p1"
+            },
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": "<=",
+            "left": {
+              "var": "q0"
+            },
+            "right": 8
+          }
+        }
+      ],
+      "resultPattern": {
+        "call": "fits",
+        "args": [
+          {
+            "ctor": "Item",
+            "args": [
+              {
+                "var": "p1"
+              },
+              {
+                "var": "q1"
+              },
+              {
+                "ctor": "End",
+                "args": []
+              }
+            ]
+          },
+          10,
+          {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        ]
+      },
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative1/guard.alternative2/first.ok/first.no",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative2",
+        "first.ok",
+        "first.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 101,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": {
+              "var": "q1"
+            },
+            "right": {
+              "var": "@135.x"
+            }
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@135.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative1/guard.alternative2/first.ok/first.ok",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative2",
+        "first.ok",
+        "first.ok"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                101,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "not",
+          "left": {
+            "op": "==",
+            "left": 101,
+            "right": 101
+          }
+        },
+        {
+          "op": "==",
+          "left": 101,
+          "right": 102
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": "<=",
+            "left": {
+              "var": "q1"
+            },
+            "right": {
+              "var": "@131.x"
+            }
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@131.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": {
+        "call": "fits",
+        "args": [
+          {
+            "ctor": "End",
+            "args": []
+          },
+          {
+            "op": "-",
+            "left": {
+              "var": "@131.x"
+            },
+            "right": {
+              "var": "q1"
+            }
+          },
+          8
+        ]
+      },
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative1/guard.alternative1/second.no",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative1",
+        "second.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 102,
+          "right": 101
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": {
+              "var": "q0"
+            },
+            "right": 8
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative1/guard.alternative1/second.ok",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative1",
+        "second.ok"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            102,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                {
+                  "var": "p1"
+                },
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 102,
+          "right": 101
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "p1"
+          },
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q0"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": "<=",
+            "left": {
+              "var": "q0"
+            },
+            "right": 8
+          }
+        }
+      ],
+      "resultPattern": {
+        "call": "fits",
+        "args": [
+          {
+            "ctor": "Item",
+            "args": [
+              {
+                "var": "p1"
+              },
+              {
+                "var": "q1"
+              },
+              {
+                "ctor": "End",
+                "args": []
+              }
+            ]
+          },
+          10,
+          {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q0"
+            }
+          }
+        ]
+      },
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative1/guard.alternative1/first.ok/second.no",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative1",
+        "first.ok",
+        "second.no"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": ">",
+            "left": {
+              "var": "q1"
+            },
+            "right": 8
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@197.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": false,
+      "status": "infeasible"
+    },
+    {
+      "id": "guard.alternative1/guard.alternative1/first.ok/second.ok",
+      "rules": [
+        "guard.alternative1",
+        "guard.alternative1",
+        "first.ok",
+        "second.ok"
+      ],
+      "patterns": [
+        {
+          "ctor": "Item",
+          "args": [
+            101,
+            {
+              "var": "q0"
+            },
+            {
+              "ctor": "Item",
+              "args": [
+                102,
+                {
+                  "var": "q1"
+                },
+                {
+                  "ctor": "End",
+                  "args": []
+                }
+              ]
+            }
+          ]
+        },
+        10,
+        8
+      ],
+      "conditions": [
+        {
+          "op": "==",
+          "left": 101,
+          "right": 101
+        },
+        {
+          "op": "==",
+          "left": 102,
+          "right": 101
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q1"
+          },
+          "right": 12
+        },
+        {
+          "op": ">=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 1
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 100
+        },
+        {
+          "op": "<=",
+          "left": {
+            "var": "q0"
+          },
+          "right": 10
+        },
+        {
+          "op": "and",
+          "left": {
+            "op": "and",
+            "left": {
+              "op": ">=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 1
+            },
+            "right": {
+              "op": "<=",
+              "left": {
+                "var": "q1"
+              },
+              "right": 100
+            }
+          },
+          "right": {
+            "op": "<=",
+            "left": {
+              "var": "q1"
+            },
+            "right": 8
+          }
+        },
+        {
+          "op": "==",
+          "left": {
+            "var": "@193.x"
+          },
+          "right": {
+            "op": "-",
+            "left": 10,
+            "right": {
+              "var": "q0"
+            }
+          }
+        }
+      ],
+      "resultPattern": {
+        "call": "fits",
+        "args": [
+          {
+            "ctor": "End",
+            "args": []
+          },
+          {
+            "var": "@193.x"
+          },
+          {
+            "op": "-",
+            "left": 8,
+            "right": {
+              "var": "q1"
+            }
+          }
+        ]
+      },
+      "status": "infeasible"
+    }
+  ],
+  "unresolved": [],
+  "overlaps": [],
+  "coverage": "not-proved",
+  "disjoint": true,
+  "frontierResolved": true,
+  "representativePolicy": "Z3 model; prefer numeric 1 jointly when feasible; independently check constraints",
+  "constraintFragment": "free constructors; built-in Int/Bool/Pair/List/String; shared-variable compound guards; bounded equation unfolding with strict Z3 feasibility"
+}

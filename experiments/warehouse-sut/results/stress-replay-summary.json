@@ -1,0 +1,1259 @@
+{
+  "complete": true,
+  "sourceHashes": {
+    "backend/app.py": "9526ae66c0a077f06158445eeeefe8343cffca43aaf7fcbd36422dcee605a173",
+    "frontend/app.js": "4ab9f4ca9171698afcc1135b352dbe25cc42c81cba8d9164f85cf73953ffbb58",
+    "frontend/index.html": "d44d9cf88227a68d90b4d17305ba995d8dc433018a71fa8ec87c4987dab76d65",
+    "frontend/style.css": "2dacbd8cc767ea397cbaf2ad2def5c83fd5c12a076f46b84461facae9ed916ec",
+    "experiments/adapters.mjs": "8de16333be8a2f57113050f340275b05f7d5c03db3ca216bf52041381ccc0420",
+    "experiments/stress-replay.mjs": "f80a3cb6d37ad03faf29cb0061f3b764acca243224a329378fcd45a488edbf61",
+    "results/stress-manifest.json": "48528ce5b4a949bf7c28c4d870b73b099f41533a7d35f2c348e2977cc6124510"
+  },
+  "rawReportHash": "3ff56acb6a1d997aaf0f132ef81a1432a0a8f4db454e23d35999e0d9c81348a1",
+  "runs": 154,
+  "apiRuns": 148,
+  "uiRuns": 6,
+  "matchedTransports": 6,
+  "exactEvents": true,
+  "allCompatible": true,
+  "integrityChecks": 154,
+  "pairs": {
+    "api": 1472,
+    "ui": 69
+  },
+  "traces": [
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative1/guard.alternative1/first.ok/first.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "b8b9f8b50d8ff0859b981dddc72fa5b8bbb4797b42904d4e7cb5326652807652"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative1/guard.alternative1/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "d482a24c2f63f7f42b119899e39b54a82aff04025c5423c47c39443b27d097e4"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative1/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "cece1becfc73584c629f04ac45472d837cd8fb124db8f4b5c7c0c236c369a4e3"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative1/guard.alternative2/first.ok/second.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "2124de7122b77d7893086af0eb345c1ab909c67400bf3e826d922cf4bc85bd23"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative1/guard.alternative2/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "578c738298a6032e37da94b5fc3933d90cf8c4b2e8d6d581a2e9dfb77dfa992b"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative1/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "c8b951a21690e831368a1b91d90a553a367bff625227c896e7005ecaffb408ef"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative2/guard.alternative1/second.ok/first.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "83ee4d7ec575340afc62e1e7f7f69e36db32ca1c3557b8d474c772801bc2c766"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative2/guard.alternative1/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "87f02aa79baaf213d1b41faf8c3102a79efa09259bdf91fb29ff4212ec87dff3"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative2/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "80b9e3339d932a1639396de5d3d0d0cf41c20fd2d3e5984dd876d67206d94f30"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative2/guard.alternative2/second.ok/second.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "06312dd5fdd531b6dd64c8a1e6df04e9a43c3c7d25ac003262b4cf8eb0121825"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative2/guard.alternative2/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "b73749e8636384bd315a447aa19723f47725abc5f173c2265cf9b3940b11b546"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-2",
+      "testId": "guard.alternative2/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "40ae4a02bd40ec81abd07613d0079f48cdc435291761c25345fbfa7dc577c639"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "5bde5d3e47d657d1014d65a2807ecbb6e74bef0be2eb63eb02e905821489c371"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "65d5a9d469577fb146f60ea3d927b38cc6213a6b5d4bb9d410ac4fd12ceeeb44"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "697b01e945f208f5ad9c5e97e802dc9ac95cce1bc2edcd91e07ad0d6989162f2"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "20f7f2702d57762d0735ba176a128bf3cf815d8564037cc3cd07b8015b8018bb"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/first.ok/first.ok/second.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "aa6f4c179bec1a84e9f6dc559d1f813525c522d39615fbd19566ca40811ebecf"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/first.ok/first.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "f8116da46455aea7a3fff04c23981cb20e778f8830f5b9cf1888598230e29a4a"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "e0111a1e8b433d2c7a8e24f316dfb65f45be5dfe2097f0b66ed84061ecda144d"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "915013cd7ace39bec647a37a15769641a98beb048014459b3e7dfa558a658a4a"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/first.ok/second.ok/first.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "c99b1219744d8c86c043e3a89120793f77e34d20d399c0f48d9dd43b5b66086d"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/first.ok/second.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "226e63dfe1d8cfd2b8df673c02990f483b8ebfa7c8321aa2285e8e9ad0321314"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "832fa9afa9fe7c7b05443dea70e999ff8958eb869414aeb7b71df747655833b1"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "9e235fd30a7964e937b05abfbe0be1675e2a8ad8a61d2b04a4a76aa8d421faaf"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/first.ok/second.ok/second.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "46409853f5bb66b2c1c173500f141b4f4c4fcc1dc4bc51b96f3f6ad2342227f4"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/first.ok/second.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "4b71b5ff18158a1e9170f592a9bfaaee768584148f777662bcc031403b8dfaad"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "7822a4c4166447101049d2b59ad6d39ba4a17f5f650febb0352b5cd9cb17387b"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "6cea1c6b3be1cc421c47777762d3daf65a5a75b8be643a5dd7664e4ab361eaa0"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/second.ok/first.ok/first.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "4fc62db83f4ad300ae67e0449c6968ce3324eada9ff2fddcccabe6dafafb2d07"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/second.ok/first.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "02f5dcad20f84f11d5681a7a95c27cfa66180558d3362d76d730268233a7464b"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "98ecd209638c57e4263b6d2b4c963a14e0ff91160fe29b9e6403c2fa3fe4eafa"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "56c1ec7af9afb80cec0506bbd4fdddddebdbf3f077e050ba8978fe13918bc94d"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/second.ok/first.ok/second.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "f8a182c8735dc3c3dac077aa373dbe09a5cb28f381ee05ec22295a7e3ff12200"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/second.ok/first.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "6969e60631c6cb85288847dd841b59da4552db6a7a16b158a634237c83a27de3"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "3c451265a527c6af73be5857e2221000bcc31345eaf572f708f7964f77e70c45"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "1e5df986957f9e1c514854f6d3d995d7a843beed481572e742f9fb20cfa94a85"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/second.ok/second.ok/first.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "c86e56245fd4e9b12cff14e18c50aa92b0619f9f15541a0472e0cdb33d76a4c9"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/second.ok/second.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "52f4877731dd5277d62900df5b629b317831c30abc99a1dbf7bd1f2718550251"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "69f0f9108984500d648165eb11c3c9e7999e2ef88f8c50e4d3edab32455f005a"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "06a65e0e897f93e1465b5f384c53448b756715d8f60f69e2c578c4ee1c41dd34"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/second.ok/second.ok/second.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "ee17cf3a61a55533ce0a320f72717c408a999f53e726a28ff8e2bc1fe0c5574d"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/second.ok/second.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "cc6e2ad05d33d2bf214d0752be9c988306cedc1cc9e9693b55c14e7bccd33419"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "c451d42ce8ce7281f436f142db59166e79c0f03f8c65fcb407f94f9940242174"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-3",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "237e84aed65ff832b2ce1c8abccd55b4acc0cd8c12f1288d46b74b8bc3f1860a"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "dda62a9b8e3eb26a5db730f4ae4291a168e00f149db85ae69b5a1595f7ebe1c2"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "496be695f3804ee98c82205d21b7466cd11e4da25a16e8ff21313b4b7e324643"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "d6604c05e09f01a7a513230edef56163cf30f067b44bbb035632afca16c9b723"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "6fa632c3ef05c69a0262230a0e9d75e5500050072343572c142cb3b40b7944db"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "c0fd557302bd82425ba7c9214e02889f96ddcee79b4f3f71dcb730613b2f8809"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative2/first.ok/first.ok/first.ok/second.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "b4b44e9854adca8c0910f925a0679202430e31fa8e39a02a6f996da6afa8662c"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative2/first.ok/first.ok/first.ok/second.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "e09c204d77615357f46c35b6e3599e5d4dc91dde02a0a9552aeb75377060e3b6"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative2/first.ok/first.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "1171c27f50d09117d198eaf8cc604a8cec2e6e868920e4679b8cf1e501922dbe"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative2/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "642b485067219cc694d3343066803f4d84da45567780c0c003943cbf1850683c"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "faf29d682c38f0ea9122b9e6930867acc144bf61d0cc93c8e36975354815d747"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative1/first.ok/first.ok/second.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "47d0d78b53c26d891f56f8290946a81a3bba1ba6d024da0689112cff34f516b1"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative1/first.ok/first.ok/second.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "7ab9dbd5b0a1f3dc1c338f3dde4958d250489e8bb2e136bfd05adc6f356727bc"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative1/first.ok/first.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "4f0eccae36a4f7e4c7ce9ab24016a12c53c0013b9b2636ec53d0eb74410c615a"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative1/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "0e46e7a5d90c0811fd469ade141af82c0347f90c0105d8d18dc8b7ffb7d761a4"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "79b4ccb7a90daab230b67eabc19a25095da4c72559888b0e33e48194890c984e"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative2/first.ok/first.ok/second.ok/second.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "cf4074a944428f10c902428346698724446170faf7740f51606f4e2782b1634d"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative2/first.ok/first.ok/second.ok/second.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "c2c196fe23aeccea27fe4a9d601dec295c16003d8a923bbf5967d9ce07c6bcdd"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative2/first.ok/first.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "589395e02ad1b9549fe2e1d05dd362bd98083d430b5216aaddc680ec58f669f8"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative2/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "95aea282db8e4c0e3f4634cd9d3b048f6b5e72cc98eaa8e2191272074e72f399"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative2/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "920827878af25745eaea93e8a69c12c8dc9d31f3a4fcdc70d3ee4ea1665f7766"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative1/first.ok/second.ok/first.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "64d046f56d444e35622001baba7ce2977ced5b5239c5edab7b5ce65fbdd019b1"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative1/first.ok/second.ok/first.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "b8e3418eb77c7f9ad56ed8afbb74dfdbc3314740e92197ec4fb0ae0a4861d212"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative1/first.ok/second.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "ed5e78e7f31ab13fdd07a95d3e6d0e5455d8fea02af4847ac1748028254ab188"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative1/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "42bd9435ba825d163557ca33935575cb5d221d2f7bc78d8ac5c7a6b4933a35d7"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "40b74d77c8b6ec88e83449cecb751bd891099fda0e3e93927ce171828dc033e3"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative2/first.ok/second.ok/first.ok/second.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "b04ac063eddd713c795150196f4f647441b8ddb6f62d7254065b42f321f57a6a"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative2/first.ok/second.ok/first.ok/second.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "6e23ffe50f56d4ce12f567ba0389636a1cf9fa382419b4bfe30f720708b942af"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative2/first.ok/second.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "6f4eee802a689b96f41af62df28eadd47af89f50cc4c9d05db9f6abdff544c92"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative2/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "0bff3152cd72e93ab74892c28d2f4e24d6423516485778039b4edfb520525662"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative1/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "5ba315d69c72704176867c9a29770e816b7132e2d22a8e3968685e5fa0ba501f"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative1/first.ok/second.ok/second.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "af1f827e38c2f78a7ce20d8b121b3f4b45463919ac4a55e9ef21f6ea9c420ccd"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative1/first.ok/second.ok/second.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "a440a0af421ab6ef6f8be9bdb5da3b41b189ed914db4e65b4365592ebb828388"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative1/first.ok/second.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "e6a4a7fa8e842eb799551e9e566281478825a795bfaaab03c17ea1f801fecbfe"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative1/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "9f5f4fb0bb7601d38c1b7883701e8fcd2b75b2c3164552a5df9733fa04db63d3"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "ca6eae441cce067287246ac0898fe429be65bffc62ce8a1eaf9c379872071e08"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative2/first.ok/second.ok/second.ok/second.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "fdbf784bab00b99555823ea7e229dceaa108297c3e219499d993128cd3137270"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative2/first.ok/second.ok/second.ok/second.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "5685fe9c5a7ea1e40f9ee9657ca19a4ffa94331eeabadb1a3db4889309050ec6"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative2/first.ok/second.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "c04a21ce0df322f11ec20b7d23bdc1fade7b727207cb55cf9af51774d8e1ee88"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative2/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "d017e05d39f1872fa8ae9c3db91d0e2a94e00c6863c03c75862717e77f07d097"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative2/guard.alternative2/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "afbffd46e329bda30988d976f221cc3b03c2d5691b8e942ee2965ecd6cdbf500"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative1/second.ok/first.ok/first.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "57808f75caefd311de56d6ce885b0b885babad10c90925fb8b82d46e2292deb3"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative1/second.ok/first.ok/first.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "42ce186717764fb2b9ce3042b62d65f0c1b0e0b7adb00a160df29f270832ea87"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative1/second.ok/first.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "8d269bc59c73920c4d0efd2744661edadf56480927dfb0c4825922e3daa731c9"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative1/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "b2702011828ecc7d690fe1f94ae05d678ad9bfba3343f6aca2a78b482636b807"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "23129f476e963b80472cc14a2a26003597f710aa940270b00e85e3b4ef5b71e2"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative2/second.ok/first.ok/first.ok/second.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "9bb8286d7799c96dbd4b4d341c36513cf7506726518c9d36208a067aa8debbe9"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative2/second.ok/first.ok/first.ok/second.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "6577fd9dca56fc9ac7e2a419fd6346b3481de1697d0dbea7df46117b4710d426"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative2/second.ok/first.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "4d040bbdd31cb6424c339e164469a18a75a5fb00cf8846ec0c09614419f635f9"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative2/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "4b905be0597e6d45da4339cbdd3d0d25fe5daff1ce6c25f93f60a31527026f19"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative1/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "65840e8491f7eeabd13ec3d853981ff3eb0de1b24fd71a16416b9a148ad24c6d"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative1/second.ok/first.ok/second.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "a21026cc9bb660fa325e654dc7b59ca84c3fd067f09894725e5f441853422d9b"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative1/second.ok/first.ok/second.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "67d21ac87fe8fd9ea01fd0b3c9d7ed8e92bd2ecdeb8de284075898c41f13258f"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative1/second.ok/first.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "53efde10da31667ddf405f047548f83f489caa0365594ca89e9537761576a55a"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative1/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "98902ba895d31033a0fc1af74a53e11a6b43cb0b8120fe1f8c9831c6ddabd86e"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "6b9fc776fad66eeb9aab38814e911dbb8ee3f9fb02fc5eacd88bfee51b9ddaf3"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative2/second.ok/first.ok/second.ok/second.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "e64914e30e85b3cd8f64e320f82f9a913cfdcb8c5a3fe31d9c744fe0be906be6"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative2/second.ok/first.ok/second.ok/second.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "8dc50806cc6627a17b1d80935067bc63bb68237e479777aa1d0bc645e6602406"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative2/second.ok/first.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "78493e64775a8c2bcd89be0a3a4ea61443c64dc98b781a32db3310cb395f7241"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative2/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "fd006e36bc5931866d5074fc7f0ab8f6b8d97c7161af41b888720a5440833433"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative1/guard.alternative2/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "473452965b8b4c3992b3eb3430f05a8bfddb9cd8ffdee1e7b96b64e17b2f7c1b"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative1/second.ok/second.ok/first.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "659c040a9205004f6ebd62c2afa895e316db9b0fd5ed90e7bb51ec18dd44a5c8"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative1/second.ok/second.ok/first.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "f07764ac6ef082e65e922a35ff75a178f94631ba6e883266704c7eb08ce6dadb"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative1/second.ok/second.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "e294d57c60c00da7d691cebde6dbdcc59c839dc842d2d3285e5c08afca910108"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative1/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "39147119f08d79b58625c9bfb8d1f44d0836f1fb097e7289e0d4862cea06320c"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "02f630f608c2cb2987959ccb29bc55d0a263242d3ccf50f58adaf423ac6d5c24"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative2/second.ok/second.ok/first.ok/second.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "cf579cebcc7705af4b9e2e62d62a6a861f852c0cb3c297e335137b05cb1f018d"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative2/second.ok/second.ok/first.ok/second.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "c0d0af7a8962570552c22afee8c6938732a0d0e8ef5df709eabf447b31d2f54f"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative2/second.ok/second.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "1f208926cdd68418d9eae0dd7ea5956108dd84054aa6c792ba88aac767816328"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative2/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "506e8d0717548c9e416326f9b1fab56a76c8b3825df1ce400c8cfe04b2daba79"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative1/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "e15de58e2fdcc5d61bcc2f7fd7fa359e48bce4339582f5556ef3747535163288"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative1/second.ok/second.ok/second.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "8bfa5086179fb4cb91c18be50eb23a1504a911590664e1b0bc2f38fcd8778b1c"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative1/second.ok/second.ok/second.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "e91a6cc8830bc69e382b11ba0d7390bc13d8f17cb4c900091195de453118e449"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative1/second.ok/second.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "d1461dbd1b23c3e25f2905e0e8b84d22c334b93f2d6e16c1fd787f7c6b0f635c"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative1/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "4339ec3b79bcc1fbfcbdcebcb37726a37c4a050013ec0c39c3426f8d36a66023"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "9f49473f5c78a50a19d8a9bbb969134b018765cb708334ec7f9bd7af3d061ac6"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative2/second.ok/second.ok/second.ok/second.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "f6b43497879a78576bf2503f5c27eea3fdb508e61e17732257634a54165df087"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative2/second.ok/second.ok/second.ok/second.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "350341486d7758a43231208598743930ac87f99952767d63b4f73011c584d6d4"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative2/second.ok/second.ok/second.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 10,
+      "eventsHash": "24ab2adb843d11f11986d6ce3fb4a068ac8b8e26e6d6b159ea70aaec4d232e75"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative2/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "f7e693b12fb85ca1338c87519d557e2d183878968b1a870bcfc91232562d4bbc"
+    },
+    {
+      "transport": "api",
+      "configuration": "data-4",
+      "testId": "guard.alternative2/guard.alternative2/guard.alternative2/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 8,
+      "eventsHash": "1a5ec3467b5043fd50e8733132f470d94ba43f3d7ac4ef84cb026c2dd39333da"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative1/guard.alternative1/first.ok/first.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "b8b9f8b50d8ff0859b981dddc72fa5b8bbb4797b42904d4e7cb5326652807652"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative1/guard.alternative1/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "d482a24c2f63f7f42b119899e39b54a82aff04025c5423c47c39443b27d097e4"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative1/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "cece1becfc73584c629f04ac45472d837cd8fb124db8f4b5c7c0c236c369a4e3"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative1/guard.alternative2/first.ok/second.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "2124de7122b77d7893086af0eb345c1ab909c67400bf3e826d922cf4bc85bd23"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative1/guard.alternative2/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "578c738298a6032e37da94b5fc3933d90cf8c4b2e8d6d581a2e9dfb77dfa992b"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative1/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "c8b951a21690e831368a1b91d90a553a367bff625227c896e7005ecaffb408ef"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative2/guard.alternative1/second.ok/first.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "83ee4d7ec575340afc62e1e7f7f69e36db32ca1c3557b8d474c772801bc2c766"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative2/guard.alternative1/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "87f02aa79baaf213d1b41faf8c3102a79efa09259bdf91fb29ff4212ec87dff3"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative2/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "80b9e3339d932a1639396de5d3d0d0cf41c20fd2d3e5984dd876d67206d94f30"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative2/guard.alternative2/second.ok/second.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "06312dd5fdd531b6dd64c8a1e6df04e9a43c3c7d25ac003262b4cf8eb0121825"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative2/guard.alternative2/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "b73749e8636384bd315a447aa19723f47725abc5f173c2265cf9b3940b11b546"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-30",
+      "testId": "guard.alternative2/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "40ae4a02bd40ec81abd07613d0079f48cdc435291761c25345fbfa7dc577c639"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative1/guard.alternative1/first.ok/first.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "b8b9f8b50d8ff0859b981dddc72fa5b8bbb4797b42904d4e7cb5326652807652"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative1/guard.alternative1/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "d482a24c2f63f7f42b119899e39b54a82aff04025c5423c47c39443b27d097e4"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative1/guard.alternative1/first.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "cece1becfc73584c629f04ac45472d837cd8fb124db8f4b5c7c0c236c369a4e3"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative1/guard.alternative2/first.ok/second.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "2124de7122b77d7893086af0eb345c1ab909c67400bf3e826d922cf4bc85bd23"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative1/guard.alternative2/first.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "578c738298a6032e37da94b5fc3933d90cf8c4b2e8d6d581a2e9dfb77dfa992b"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative1/guard.alternative2/first.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "c8b951a21690e831368a1b91d90a553a367bff625227c896e7005ecaffb408ef"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative2/guard.alternative1/second.ok/first.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "83ee4d7ec575340afc62e1e7f7f69e36db32ca1c3557b8d474c772801bc2c766"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative2/guard.alternative1/second.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "87f02aa79baaf213d1b41faf8c3102a79efa09259bdf91fb29ff4212ec87dff3"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative2/guard.alternative1/second.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "80b9e3339d932a1639396de5d3d0d0cf41c20fd2d3e5984dd876d67206d94f30"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative2/guard.alternative2/second.ok/second.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "06312dd5fdd531b6dd64c8a1e6df04e9a43c3c7d25ac003262b4cf8eb0121825"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative2/guard.alternative2/second.ok/second.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "b73749e8636384bd315a447aa19723f47725abc5f173c2265cf9b3940b11b546"
+    },
+    {
+      "transport": "api",
+      "configuration": "population-120",
+      "testId": "guard.alternative2/guard.alternative2/second.no",
+      "verdict": "compatible",
+      "pairs": 6,
+      "eventsHash": "40ae4a02bd40ec81abd07613d0079f48cdc435291761c25345fbfa7dc577c639"
+    },
+    {
+      "transport": "ui",
+      "configuration": "data-2",
+      "testId": "guard.alternative1/guard.alternative1/first.ok/first.ok/empty/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "b8b9f8b50d8ff0859b981dddc72fa5b8bbb4797b42904d4e7cb5326652807652"
+    },
+    {
+      "transport": "ui",
+      "configuration": "data-2",
+      "testId": "guard.alternative1/guard.alternative1/first.ok/first.no/advance.positive",
+      "verdict": "compatible",
+      "pairs": 7,
+      "eventsHash": "d482a24c2f63f7f42b119899e39b54a82aff04025c5423c47c39443b27d097e4"
+    },
+    {
+      "transport": "ui",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.ok/empty/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 14,
+      "eventsHash": "5bde5d3e47d657d1014d65a2807ecbb6e74bef0be2eb63eb02e905821489c371"
+    },
+    {
+      "transport": "ui",
+      "configuration": "data-3",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.no/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 9,
+      "eventsHash": "65d5a9d469577fb146f60ea3d927b38cc6213a6b5d4bb9d410ac4fd12ceeeb44"
+    },
+    {
+      "transport": "ui",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.ok/first.ok/empty/advance.zero/advance.zero/advance.zero/advance.zero",
+      "verdict": "compatible",
+      "pairs": 17,
+      "eventsHash": "dda62a9b8e3eb26a5db730f4ae4291a168e00f149db85ae69b5a1595f7ebe1c2"
+    },
+    {
+      "transport": "ui",
+      "configuration": "data-4",
+      "testId": "guard.alternative1/guard.alternative1/guard.alternative1/guard.alternative1/first.ok/first.ok/first.ok/first.no/advance.positive/advance.positive/advance.positive",
+      "verdict": "compatible",
+      "pairs": 11,
+      "eventsHash": "496be695f3804ee98c82205d21b7466cd11e4da25a16e8ff21313b4b7e324643"
+    }
+  ],
+  "scope": "First-trial admitted data/population witnesses; all REST, predeclared first positive/negative per data length in browser. Trace-only baseline, not an HML satisfaction claim."
+}

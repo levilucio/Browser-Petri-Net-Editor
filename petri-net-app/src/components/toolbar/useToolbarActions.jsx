@@ -322,6 +322,14 @@ export default function useToolbarActions(params) {
         updateHistory?.(net); setSuccess?.(`Loaded ${net.satelExample.name}. Open SATEL → Generated tests.`);
         setIsMobileMenuOpen?.(false); return;
       }
+      if (filename === 'warehouse-reference') {
+        const { createWarehouseExample } = await import('../../satel/examples/warehouse/editor.js');
+        const net = createWarehouseExample();
+        forceSimulatorReset?.(); setElements(net);
+        setSimulationSettings(prev => ({ ...prev, netMode: 'algebraic' }));
+        updateHistory?.(net); setSuccess?.('Loaded warehouse orders. Open SATEL → Generated tests or APN source.');
+        setIsMobileMenuOpen?.(false); return;
+      }
       if (['hr-management-reference','hr-management-expanded-reference'].includes(filename)) {
         const { createHrExample, createExpandedHrExample } = await import('../../satel/examples/hr/editor.js');
         const net = filename === 'hr-management-expanded-reference' ? createExpandedHrExample() : createHrExample();

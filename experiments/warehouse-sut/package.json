@@ -1,0 +1,15 @@
+{
+  "name": "warehouse-sut",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python backend/app.py",
+    "generate": "node experiments/generate.mjs",
+    "test:baseline": "node experiments/campaign.mjs",
+    "test:backend": "python -m unittest discover -s tests -p '*_test.py'",
+    "stress": "node experiments/stress-benchmark.mjs && node experiments/stress-summary.mjs",
+    "restore:stress": "node experiments/stress-restore.mjs && node experiments/mutation-corpus.mjs",
+    "test:mutations": "node experiments/mutation-campaign.mjs --variants none,pair-max-demand,tenant-read-leak,cancel-reservation-leak,return-double-credit,transfer-loss,refusal-audit-write,late-release-audit"
+  }
+}

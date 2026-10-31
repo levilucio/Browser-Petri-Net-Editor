@@ -1,0 +1,913 @@
+{
+  "schemaVersion": 1,
+  "sourceManifestHash": "48528ce5b4a949bf7c28c4d870b73b099f41533a7d35f2c348e2977cc6124510",
+  "configurations": [
+    {
+      "id": "data-2",
+      "items": 2,
+      "population": 3,
+      "cycles": 0,
+      "trials": 3,
+      "statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "completeTrials": 3,
+      "regions": 12,
+      "selected": 12,
+      "model": {
+        "transitions": 42,
+        "tokens": 37
+      },
+      "phases": {
+        "derivation": {
+          "n": 3,
+          "min": 1710.3405129999999,
+          "median": 1780.7906879999998,
+          "max": 1841.5200599999998
+        },
+        "selection": {
+          "n": 3,
+          "min": 3915.536604,
+          "median": 4139.842804,
+          "max": 4481.276381
+        },
+        "admission": {
+          "n": 3,
+          "min": 933.1964399999997,
+          "median": 952.955895,
+          "max": 1046.120841
+        },
+        "finiteAudit": {
+          "n": 3,
+          "min": 5.419456000000537,
+          "median": 7.258560000000216,
+          "max": 7.531261000000086
+        }
+      },
+      "peakRss": {
+        "n": 3,
+        "min": 414117888,
+        "median": 439599104,
+        "max": 439812096
+      },
+      "finiteAudit": {
+        "products": [
+          101,
+          102
+        ],
+        "quantities": [
+          0,
+          1,
+          8,
+          10,
+          12,
+          13
+        ],
+        "items": 2,
+        "inputs": 144,
+        "defined": 64,
+        "missing": 0,
+        "overlap": 0,
+        "undefinedCovered": 0,
+        "wrong": 0,
+        "unsupported": 0,
+        "witnesses": 12,
+        "witnessFailures": 0,
+        "pass": true
+      },
+      "visited": [
+        1096,
+        1096,
+        1096
+      ],
+      "coverage": "not-proved"
+    },
+    {
+      "id": "data-3",
+      "items": 3,
+      "population": 3,
+      "cycles": 0,
+      "trials": 3,
+      "statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "completeTrials": 3,
+      "regions": 32,
+      "selected": 32,
+      "model": {
+        "transitions": 42,
+        "tokens": 37
+      },
+      "phases": {
+        "derivation": {
+          "n": 3,
+          "min": 4549.801343,
+          "median": 4953.771135999999,
+          "max": 5373.471882
+        },
+        "selection": {
+          "n": 3,
+          "min": 14347.108885999998,
+          "median": 14626.158710000002,
+          "max": 15590.741506999999
+        },
+        "admission": {
+          "n": 3,
+          "min": 2562.9462189999977,
+          "median": 2580.270907000002,
+          "max": 2736.7494039999983
+        },
+        "finiteAudit": {
+          "n": 3,
+          "min": 77.34486400000242,
+          "median": 80.39054000000033,
+          "max": 90.12818699999843
+        }
+      },
+      "peakRss": {
+        "n": 3,
+        "min": 448233472,
+        "median": 466042880,
+        "max": 466554880
+      },
+      "finiteAudit": {
+        "products": [
+          101,
+          102
+        ],
+        "quantities": [
+          0,
+          1,
+          8,
+          10,
+          12,
+          13
+        ],
+        "items": 3,
+        "inputs": 1728,
+        "defined": 512,
+        "missing": 0,
+        "overlap": 0,
+        "undefinedCovered": 0,
+        "wrong": 0,
+        "unsupported": 0,
+        "witnesses": 32,
+        "witnessFailures": 0,
+        "pass": true
+      },
+      "visited": [
+        3708,
+        3708,
+        3708
+      ],
+      "coverage": "not-proved"
+    },
+    {
+      "id": "data-4",
+      "items": 4,
+      "population": 3,
+      "cycles": 0,
+      "trials": 3,
+      "statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "completeTrials": 3,
+      "regions": 80,
+      "selected": 80,
+      "model": {
+        "transitions": 42,
+        "tokens": 37
+      },
+      "phases": {
+        "derivation": {
+          "n": 3,
+          "min": 11676.439297,
+          "median": 12222.542183000001,
+          "max": 14235.087152
+        },
+        "selection": {
+          "n": 3,
+          "min": 46995.266747999995,
+          "median": 48576.439669,
+          "max": 50759.798863
+        },
+        "admission": {
+          "n": 3,
+          "min": 7363.534086999993,
+          "median": 7457.664091999992,
+          "max": 9074.618913000006
+        },
+        "finiteAudit": {
+          "n": 3,
+          "min": 1927.6519439999975,
+          "median": 2147.822048999995,
+          "max": 2214.211368999997
+        }
+      },
+      "peakRss": {
+        "n": 3,
+        "min": 547545088,
+        "median": 568713216,
+        "max": 573771776
+      },
+      "finiteAudit": {
+        "products": [
+          101,
+          102
+        ],
+        "quantities": [
+          0,
+          1,
+          8,
+          10,
+          12,
+          13
+        ],
+        "items": 4,
+        "inputs": 20736,
+        "defined": 4096,
+        "missing": 0,
+        "overlap": 0,
+        "undefinedCovered": 0,
+        "wrong": 0,
+        "unsupported": 0,
+        "witnesses": 80,
+        "witnessFailures": 0,
+        "pass": true
+      },
+      "visited": [
+        11252,
+        11252,
+        11252
+      ],
+      "coverage": "not-proved"
+    },
+    {
+      "id": "population-30",
+      "items": 2,
+      "population": 30,
+      "cycles": 0,
+      "trials": 3,
+      "statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "completeTrials": 3,
+      "regions": 12,
+      "selected": 12,
+      "model": {
+        "transitions": 42,
+        "tokens": 172
+      },
+      "phases": {
+        "derivation": {
+          "n": 3,
+          "min": 1714.427067,
+          "median": 2626.7760019999996,
+          "max": 3355.098886
+        },
+        "selection": {
+          "n": 3,
+          "min": 4344.3263910000005,
+          "median": 4944.222390000001,
+          "max": 5012.026873
+        },
+        "admission": {
+          "n": 3,
+          "min": 1457.3367360000002,
+          "median": 1481.0210850000003,
+          "max": 1504.583700000001
+        },
+        "finiteAudit": {
+          "n": 3,
+          "min": 6.147081000000981,
+          "median": 6.858306000000084,
+          "max": 8.253673999999592
+        }
+      },
+      "peakRss": {
+        "n": 3,
+        "min": 413331456,
+        "median": 426082304,
+        "max": 435945472
+      },
+      "finiteAudit": {
+        "products": [
+          101,
+          102
+        ],
+        "quantities": [
+          0,
+          1,
+          8,
+          10,
+          12,
+          13
+        ],
+        "items": 2,
+        "inputs": 144,
+        "defined": 64,
+        "missing": 0,
+        "overlap": 0,
+        "undefinedCovered": 0,
+        "wrong": 0,
+        "unsupported": 0,
+        "witnesses": 12,
+        "witnessFailures": 0,
+        "pass": true
+      },
+      "visited": [
+        1096,
+        1096,
+        1096
+      ],
+      "coverage": "not-proved"
+    },
+    {
+      "id": "population-120",
+      "items": 2,
+      "population": 120,
+      "cycles": 0,
+      "trials": 3,
+      "statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "completeTrials": 3,
+      "regions": 12,
+      "selected": 12,
+      "model": {
+        "transitions": 42,
+        "tokens": 622
+      },
+      "phases": {
+        "derivation": {
+          "n": 3,
+          "min": 1751.8586320000002,
+          "median": 1968.620237,
+          "max": 2293.882576
+        },
+        "selection": {
+          "n": 3,
+          "min": 4544.2378850000005,
+          "median": 4705.777936,
+          "max": 4902.876618
+        },
+        "admission": {
+          "n": 3,
+          "min": 3199.0756029999993,
+          "median": 3247.7995930000006,
+          "max": 3559.252792
+        },
+        "finiteAudit": {
+          "n": 3,
+          "min": 5.9163100000005215,
+          "median": 10.26390100000026,
+          "max": 12.133035000000746
+        }
+      },
+      "peakRss": {
+        "n": 3,
+        "min": 439414784,
+        "median": 440504320,
+        "max": 451780608
+      },
+      "finiteAudit": {
+        "products": [
+          101,
+          102
+        ],
+        "quantities": [
+          0,
+          1,
+          8,
+          10,
+          12,
+          13
+        ],
+        "items": 2,
+        "inputs": 144,
+        "defined": 64,
+        "missing": 0,
+        "overlap": 0,
+        "undefinedCovered": 0,
+        "wrong": 0,
+        "unsupported": 0,
+        "witnesses": 12,
+        "witnessFailures": 0,
+        "pass": true
+      },
+      "visited": [
+        1096,
+        1096,
+        1096
+      ],
+      "coverage": "not-proved"
+    },
+    {
+      "id": "history-25",
+      "items": 2,
+      "population": 3,
+      "cycles": 3,
+      "trials": 3,
+      "statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "completeTrials": 3,
+      "regions": 4,
+      "selected": 4,
+      "model": {
+        "transitions": 42,
+        "tokens": 37
+      },
+      "phases": {
+        "derivation": {
+          "n": 3,
+          "min": 1351.891101,
+          "median": 1440.5890789999999,
+          "max": 1595.4963860000003
+        },
+        "selection": {
+          "n": 3,
+          "min": 5885.852,
+          "median": 5951.193303,
+          "max": 6799.789969
+        },
+        "admission": {
+          "n": 3,
+          "min": 758.7861020000009,
+          "median": 935.3317470000002,
+          "max": 1207.6195819999994
+        },
+        "finiteAudit": {
+          "n": 3,
+          "min": 3.3555509999987407,
+          "median": 4.052437999998801,
+          "max": 4.314846999999645
+        }
+      },
+      "peakRss": {
+        "n": 3,
+        "min": 411185152,
+        "median": 417636352,
+        "max": 425570304
+      },
+      "finiteAudit": {
+        "products": [
+          101,
+          102
+        ],
+        "quantities": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "items": 2,
+        "inputs": 64,
+        "defined": 16,
+        "missing": 0,
+        "overlap": 0,
+        "undefinedCovered": 0,
+        "wrong": 0,
+        "unsupported": 0,
+        "witnesses": 4,
+        "witnessFailures": 0,
+        "pass": true
+      },
+      "visited": [
+        1294,
+        1294,
+        1294
+      ],
+      "coverage": "not-proved"
+    },
+    {
+      "id": "history-50",
+      "items": 2,
+      "population": 3,
+      "cycles": 8,
+      "trials": 3,
+      "statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "completeTrials": 3,
+      "regions": 4,
+      "selected": 4,
+      "model": {
+        "transitions": 42,
+        "tokens": 37
+      },
+      "phases": {
+        "derivation": {
+          "n": 3,
+          "min": 1205.8046239999999,
+          "median": 1595.543876,
+          "max": 1663.4979790000002
+        },
+        "selection": {
+          "n": 3,
+          "min": 13706.730449,
+          "median": 18149.454401,
+          "max": 18177.543305
+        },
+        "admission": {
+          "n": 3,
+          "min": 1398.020101,
+          "median": 1816.5337749999999,
+          "max": 1863.4874049999999
+        },
+        "finiteAudit": {
+          "n": 3,
+          "min": 2.6280709999991814,
+          "median": 3.2825020000018412,
+          "max": 3.3082609999983106
+        }
+      },
+      "peakRss": {
+        "n": 3,
+        "min": 387923968,
+        "median": 408608768,
+        "max": 424861696
+      },
+      "finiteAudit": {
+        "products": [
+          101,
+          102
+        ],
+        "quantities": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "items": 2,
+        "inputs": 64,
+        "defined": 16,
+        "missing": 0,
+        "overlap": 0,
+        "undefinedCovered": 0,
+        "wrong": 0,
+        "unsupported": 0,
+        "witnesses": 4,
+        "witnessFailures": 0,
+        "pass": true
+      },
+      "visited": [
+        2814,
+        2814,
+        2814
+      ],
+      "coverage": "not-proved"
+    },
+    {
+      "id": "history-100",
+      "items": 2,
+      "population": 3,
+      "cycles": 18,
+      "trials": 3,
+      "statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ],
+      "completeTrials": 3,
+      "regions": 4,
+      "selected": 4,
+      "model": {
+        "transitions": 42,
+        "tokens": 37
+      },
+      "phases": {
+        "derivation": {
+          "n": 3,
+          "min": 1408.0909109999998,
+          "median": 1414.485271,
+          "max": 1601.2335360000002
+        },
+        "selection": {
+          "n": 3,
+          "min": 43009.434083,
+          "median": 44254.912277999996,
+          "max": 56661.278397999995
+        },
+        "admission": {
+          "n": 3,
+          "min": 2393.1987149999986,
+          "median": 2562.2194240000026,
+          "max": 3113.971190999997
+        },
+        "finiteAudit": {
+          "n": 3,
+          "min": 2.8914609999992535,
+          "median": 3.297497999999905,
+          "max": 3.5057119999983115
+        }
+      },
+      "peakRss": {
+        "n": 3,
+        "min": 428412928,
+        "median": 433934336,
+        "max": 434962432
+      },
+      "finiteAudit": {
+        "products": [
+          101,
+          102
+        ],
+        "quantities": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "items": 2,
+        "inputs": 64,
+        "defined": 16,
+        "missing": 0,
+        "overlap": 0,
+        "undefinedCovered": 0,
+        "wrong": 0,
+        "unsupported": 0,
+        "witnesses": 4,
+        "witnessFailures": 0,
+        "pass": true
+      },
+      "visited": [
+        5854,
+        5854,
+        5854
+      ],
+      "coverage": "not-proved"
+    }
+  ],
+  "checks": {
+    "repeatedSuites": [
+      {
+        "id": "data-2",
+        "completeTrials": 3,
+        "identical": true
+      },
+      {
+        "id": "data-3",
+        "completeTrials": 3,
+        "identical": true
+      },
+      {
+        "id": "data-4",
+        "completeTrials": 3,
+        "identical": true
+      },
+      {
+        "id": "population-30",
+        "completeTrials": 3,
+        "identical": true
+      },
+      {
+        "id": "population-120",
+        "completeTrials": 3,
+        "identical": true
+      },
+      {
+        "id": "history-25",
+        "completeTrials": 3,
+        "identical": true
+      },
+      {
+        "id": "history-50",
+        "completeTrials": 3,
+        "identical": true
+      },
+      {
+        "id": "history-100",
+        "completeTrials": 3,
+        "identical": true
+      }
+    ],
+    "populationControls": [
+      {
+        "id": "population-30",
+        "trial": 1,
+        "sameGoal": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      },
+      {
+        "id": "population-120",
+        "trial": 1,
+        "sameGoal": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      },
+      {
+        "id": "population-30",
+        "trial": 2,
+        "sameGoal": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      },
+      {
+        "id": "population-120",
+        "trial": 2,
+        "sameGoal": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      },
+      {
+        "id": "population-30",
+        "trial": 3,
+        "sameGoal": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      },
+      {
+        "id": "population-120",
+        "trial": 3,
+        "sameGoal": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      }
+    ],
+    "historyControls": [
+      {
+        "trial": 1,
+        "sameGoal": true,
+        "sameMarking": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      },
+      {
+        "trial": 2,
+        "sameGoal": true,
+        "sameMarking": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      },
+      {
+        "trial": 3,
+        "sameGoal": true,
+        "sameMarking": true,
+        "sameRegions": true,
+        "sameWitnesses": true
+      }
+    ],
+    "historyPrefixes": [
+      {
+        "from": "history-25",
+        "to": "history-50",
+        "entries": [
+          [
+            101,
+            2
+          ],
+          [
+            101,
+            1
+          ]
+        ],
+        "match": true
+      },
+      {
+        "from": "history-25",
+        "to": "history-50",
+        "entries": [
+          [
+            101,
+            2
+          ],
+          [
+            102,
+            2
+          ]
+        ],
+        "match": true
+      },
+      {
+        "from": "history-25",
+        "to": "history-50",
+        "entries": [
+          [
+            102,
+            2
+          ],
+          [
+            101,
+            2
+          ]
+        ],
+        "match": true
+      },
+      {
+        "from": "history-25",
+        "to": "history-50",
+        "entries": [
+          [
+            102,
+            2
+          ],
+          [
+            102,
+            1
+          ]
+        ],
+        "match": true
+      },
+      {
+        "from": "history-50",
+        "to": "history-100",
+        "entries": [
+          [
+            101,
+            2
+          ],
+          [
+            101,
+            1
+          ]
+        ],
+        "match": true
+      },
+      {
+        "from": "history-50",
+        "to": "history-100",
+        "entries": [
+          [
+            101,
+            2
+          ],
+          [
+            102,
+            2
+          ]
+        ],
+        "match": true
+      },
+      {
+        "from": "history-50",
+        "to": "history-100",
+        "entries": [
+          [
+            102,
+            2
+          ],
+          [
+            101,
+            2
+          ]
+        ],
+        "match": true
+      },
+      {
+        "from": "history-50",
+        "to": "history-100",
+        "entries": [
+          [
+            102,
+            2
+          ],
+          [
+            102,
+            1
+          ]
+        ],
+        "match": true
+      }
+    ]
+  },
+  "allComplete": true,
+  "budgetProbe": {
+    "selected": 0,
+    "blocked": 0,
+    "unresolved": 12,
+    "codes": [
+      "resource-limit"
+    ]
+  },
+  "limits": {
+    "derivation": {
+      "profileUnfolding": true,
+      "maxBranches": 4096,
+      "maxTimeMs": 60000
+    },
+    "selection": {
+      "profileSelection": true,
+      "maxSequenceTimeMs": 180000,
+      "maxSequenceBranches": 500000,
+      "maxSequencePairs": 128
+    },
+    "workerWallTimeMs": 360000
+  },
+  "interpretation": "Three serial fresh-process trials per configuration. Finite scoped coverage audits only. Data length, unused-ID population and interaction length are separate axes; no general complexity or unrestricted completeness claim."
+}
