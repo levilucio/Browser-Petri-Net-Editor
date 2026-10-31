@@ -179,3 +179,43 @@ test('per-trace definite evidence agrees with complete HML truth on the known re
     }
   }
 });
+
+test('adaptive continuation receives only a detached public history and retains compatible reference states', async () => {
+  const referenceNet = net('branch');
+  const continuation = history => {
+    expect(Object.keys(history[0]).sort()).toEqual(['response', 'stimulation']);
+    if (history.length === 2) return null;
+    history[0].response.outputs.reply[0] = 123;
+    return call('right');
+  };
+  const result = await runBlackBoxExperiment({
+    referenceNet, continuation, calls: [call('open')],
+    createSut: scripted(referenceNet, [accepted({reply:[0]}), accepted({reply:[2]})])
+  });
+  expect(result.verdict).toBe('compatible');
+  expect(result.events[0].response.outputs.reply).toEqual([0]);
+  expect(result.events.map(e => e.compatibleAfter)).toEqual([2,1]);
+});
+
+test.each([
+  ['budget cutoff', () => call('right'), 1, 'inconclusive'],
+  ['invalid adaptive signature', () => call('missing'), 3, 'error']
+])('%s stops before the next invocation', async (_, continuation, maxAdaptivePairs, verdict) => {
+  const referenceNet = net('branch');
+  const sut = scripted(referenceNet, [accepted({reply:[0]})])();
+  const result = await runBlackBoxExperiment({
+    referenceNet, continuation, calls: [call('open')], createSut: () => sut
+  }, {maxAdaptivePairs});
+  expect(result.verdict).toBe(verdict);
+  expect(sut.invoke).toHaveBeenCalledTimes(1);
+});
+
+test('a mismatching public observation stops the adaptive policy', async () => {
+  const referenceNet = net('branch'), continuation = jest.fn(() => call('left'));
+  const result = await runBlackBoxExperiment({
+    referenceNet, continuation, calls: [call('open')],
+    createSut: scripted(referenceNet, [accepted({reply:[99]})])
+  });
+  expect(result.verdict).toBe('mismatch');
+  expect(continuation).not.toHaveBeenCalled();
+});
