@@ -1,0 +1,191 @@
+[
+  {
+    "id": "new-order-tenant-assignment",
+    "calls": [
+      {
+        "method": "openOrder",
+        "arguments": {
+          "actor": 11,
+          "order": 1001
+        }
+      }
+    ],
+    "verdict": "compatible",
+    "reason": "This observed execution is permitted by the reference. Unobserved alternatives remain unchecked.",
+    "seed": 1,
+    "events": [
+      {
+        "step": 1,
+        "stimulation": {
+          "method": "openOrder",
+          "arguments": {
+            "actor": 11,
+            "order": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [
+              true
+            ],
+            "orderRecord": [],
+            "lineRecord": [],
+            "stockRecord": [],
+            "productState": [],
+            "warehouseState": [],
+            "changes": [],
+            "totals": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [
+                true
+              ],
+              "orderRecord": [],
+              "lineRecord": [],
+              "stockRecord": [],
+              "productState": [],
+              "warehouseState": [],
+              "changes": [],
+              "totals": []
+            }
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "bindingVisits": 3,
+      "durationMs": 185
+    }
+  },
+  {
+    "id": "new-line-order-assignment",
+    "calls": [
+      {
+        "method": "openOrder",
+        "arguments": {
+          "actor": 1,
+          "order": 1001
+        }
+      },
+      {
+        "method": "addLine",
+        "arguments": {
+          "actor": 1,
+          "order": 1001,
+          "line": 10021,
+          "product": 101,
+          "warehouse": 11,
+          "quantity": 2
+        }
+      }
+    ],
+    "verdict": "compatible",
+    "reason": "This observed execution is permitted by the reference. Unobserved alternatives remain unchecked.",
+    "seed": 1,
+    "events": [
+      {
+        "step": 1,
+        "stimulation": {
+          "method": "openOrder",
+          "arguments": {
+            "actor": 1,
+            "order": 1001
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [
+              true
+            ],
+            "orderRecord": [],
+            "lineRecord": [],
+            "stockRecord": [],
+            "productState": [],
+            "warehouseState": [],
+            "changes": [],
+            "totals": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [
+                true
+              ],
+              "orderRecord": [],
+              "lineRecord": [],
+              "stockRecord": [],
+              "productState": [],
+              "warehouseState": [],
+              "changes": [],
+              "totals": []
+            }
+          }
+        ]
+      },
+      {
+        "step": 2,
+        "stimulation": {
+          "method": "addLine",
+          "arguments": {
+            "actor": 1,
+            "order": 1001,
+            "line": 10021,
+            "product": 101,
+            "warehouse": 11,
+            "quantity": 2
+          }
+        },
+        "response": {
+          "status": "accepted",
+          "outputs": {
+            "ack": [
+              true
+            ],
+            "orderRecord": [],
+            "lineRecord": [],
+            "stockRecord": [],
+            "productState": [],
+            "warehouseState": [],
+            "changes": [],
+            "totals": []
+          }
+        },
+        "compatibleBefore": 1,
+        "compatibleAfter": 1,
+        "expected": [
+          {
+            "status": "accepted",
+            "outputs": {
+              "ack": [
+                true
+              ],
+              "orderRecord": [],
+              "lineRecord": [],
+              "stockRecord": [],
+              "productState": [],
+              "warehouseState": [],
+              "changes": [],
+              "totals": []
+            }
+          }
+        ]
+      }
+    ],
+    "stats": {
+      "bindingVisits": 9,
+      "durationMs": 97
+    }
+  }
+]

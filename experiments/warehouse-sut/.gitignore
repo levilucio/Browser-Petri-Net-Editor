@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+data/
+node_modules/
+results/*
+!results/.gitkeep
+!results/generation.json
+!results/baseline-summary.json
+!results/suites.json
+!results/environment.json
+!results/invariants.json
+!results/finite-audit.json
+!results/transition-coverage.json
+!results/exercise-warehouse-basket-domains.json
+!results/allocation-check.json

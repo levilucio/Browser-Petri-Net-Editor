@@ -1,5 +1,7 @@
 # SATEL for Algebraic Petri Nets
 
+See [warehouse/order baseline](increment-52-warehouse-baseline.md) for a second REST/SQLite/browser SUT, a 42-transition APN and a preserved unseeded ownership-abstraction defect.
+
 See [interaction-history scaling](increment-51-sequence-length.md) for the controlled 25/50/100-pair experiment, explicit selection-length budgets and the paper's consolidated evidence matrix.
 
 See [observations after refusal](increment-50-post-refusal-probes.md) for APN-derived read-only probes and faults that persist data changes despite reporting refusal. These are trace experiments with unchanged terminal-refusal HML semantics.

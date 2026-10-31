@@ -1,0 +1,15 @@
+{
+  "scope": "Products 100..103, quantities 0..13, exactly two entries, capacities 10 and 8; intention domain restricts products to 101/102 and quantities to 1..12.",
+  "inputs": 3136,
+  "defined": 576,
+  "accepted": 233,
+  "rejected": 343,
+  "missing": 0,
+  "overlap": 0,
+  "undefinedCovered": 0,
+  "wrongResults": 0,
+  "unsupported": 0,
+  "witnesses": 12,
+  "witnessFailures": 0,
+  "coverageStatus": "not-proved"
+}
