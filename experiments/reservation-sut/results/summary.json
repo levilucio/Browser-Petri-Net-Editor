@@ -1,0 +1,1898 @@
+{
+  "schemaVersion": 1,
+  "sourceHashes": {
+    "backend/app.py": "4a6aebf7999de4a1ce555f915f8bb9e4210eb6ae748064292fc92b0fafc1699e",
+    "frontend/app.js": "70e1583f7cdfd25b9f1d46e24cab2139e363b85608f829de498a800a3da6b2b5",
+    "frontend/index.html": "daeda1a2520c7429312ddcb46c70d7ed834e4eb803acc7a9ef386276220af5b3",
+    "frontend/style.css": "31cbd7f97cecae9698dc3b5aa8c9bb1eb86df816991ffcd3da5e6d022678b426",
+    "experiments/adapters.mjs": "5ff1bed5ff452d86009baedec75b2a679e083b5da4e9fde29dc2a06fc2947048",
+    "experiments/campaign.mjs": "d18c8aa7429bb9f009920e9b5bb59cfabef342723c00550be76961da906d3e9d",
+    "experiments/controlled.mjs": "bcdb28a6d93db1aa26e986d1b48f1aa1b1f275ae67c9dfad7077df2bf2591b53",
+    "experiments/generate.mjs": "a4423917de5cce40de74234ac8d4cd8c782e21bbca39cb384ad4ad384e46f0f6",
+    "experiments/model.mjs": "8834825a035f8e809699636e929bded794fdd2af88fd00e6fde3f6169203f571",
+    "experiments/runtime.mjs": "433f9a278fea61f38f351e399a202383dc0651fbba2bca400fff1287ec873e1f",
+    "experiments/summarize.mjs": "cc2ed1302c80cfe56931cfdf913a24f5c885c52865b287f4ae9d4154c149fc92",
+    "specification/reservation.apn.json": "e9ff75220da9349a0cf5bfb85628b1fa86c8cca7285c17ca1bdd3c1803ad0c81",
+    "specification/reservation.copn": "d5ca9708f3d826ffe9f72d2472bbc525e26d10b68ede252fdad24149c8874ec6",
+    "tests/backend_test.py": "27c882f9bc3e4d220fd82f8dca4f10b9aaf3baa26ef694abb05a9a7b07f118bf",
+    "tests/controlled.test.mjs": "b944fd1edf5bece6ec075db3920a8607de264dd7b3b70339379ea5268803e93d"
+  },
+  "corpusHash": "56e9ed04958e41a2a318646cb38b41c2ea2437135e69ab519333fe0de9b81ad5",
+  "results": [
+    {
+      "variant": "none",
+      "transport": "api",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 208,
+      "ordinaryTrace": {
+        "compatible": 96
+      },
+      "ordinaryHml": {
+        "witnessed": 16,
+        "inconclusive": 80
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 5
+      },
+      "controlledCalls": 38,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "witnessed": 8,
+            "inconclusive": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "witnessed": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 32
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        }
+      ],
+      "firstTraceMismatch": null,
+      "firstHmlCounterexample": null,
+      "reportHash": "f0b284d1baf54a24c3450082d0387cf44f1a52f0439e7f0eb621280ec1763162"
+    },
+    {
+      "variant": "none",
+      "transport": "ui",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 208,
+      "ordinaryTrace": {
+        "compatible": 96
+      },
+      "ordinaryHml": {
+        "witnessed": 16,
+        "inconclusive": 80
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 5
+      },
+      "controlledCalls": 38,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "witnessed": 8,
+            "inconclusive": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "witnessed": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 32
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        }
+      ],
+      "firstTraceMismatch": null,
+      "firstHmlCounterexample": null,
+      "reportHash": "5c79396853396cc58dda0c8e11fff0f33c7392ad64428307aadf0dac69c6539a"
+    },
+    {
+      "variant": "illegal-output",
+      "transport": "api",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 200,
+      "ordinaryTrace": {
+        "compatible": 64,
+        "mismatch": 32
+      },
+      "ordinaryHml": {
+        "witnessed": 8,
+        "inconclusive": 80,
+        "counterexample": 8
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 3,
+        "violated-under-controls": 2
+      },
+      "controlledCalls": 34,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "witnessed": 8,
+            "inconclusive": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": false,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "counterexample": 8
+          },
+          "controlledValue": false,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 32
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        }
+      ],
+      "firstTraceMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [
+                  99
+                ],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    2
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 6,
+          "durationMs": 11
+        },
+        "reasonCode": "unexpected-output",
+        "step": 2,
+        "testId": "possible-a-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "firstHmlCounterexample": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [
+                  99
+                ],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    2
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 6,
+          "durationMs": 10
+        },
+        "reasonCode": "unexpected-output",
+        "step": 2,
+        "testId": "no-99-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": false,
+          "expectedTruth": true,
+          "verdict": "counterexample",
+          "reason": "This execution supplies decisive evidence against the required property polarity."
+        }
+      },
+      "reportHash": "2a19ed888fdc95231ba9883f193f36cbeab451e5aa1c034872e3996a47086799"
+    },
+    {
+      "variant": "illegal-output",
+      "transport": "ui",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 200,
+      "ordinaryTrace": {
+        "compatible": 64,
+        "mismatch": 32
+      },
+      "ordinaryHml": {
+        "witnessed": 8,
+        "inconclusive": 80,
+        "counterexample": 8
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 3,
+        "violated-under-controls": 2
+      },
+      "controlledCalls": 34,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "witnessed": 8,
+            "inconclusive": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": false,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "counterexample": 8
+          },
+          "controlledValue": false,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 32
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        }
+      ],
+      "firstTraceMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [
+                  99
+                ],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    2
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 6,
+          "durationMs": 148
+        },
+        "reasonCode": "unexpected-output",
+        "step": 2,
+        "testId": "possible-a-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "firstHmlCounterexample": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [
+                  99
+                ],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    2
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 6,
+          "durationMs": 147
+        },
+        "reasonCode": "unexpected-output",
+        "step": 2,
+        "testId": "no-99-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": false,
+          "expectedTruth": true,
+          "verdict": "counterexample",
+          "reason": "This execution supplies decisive evidence against the required property polarity."
+        }
+      },
+      "reportHash": "205bd360029e288d6849f80fbe03604fb4585965834c499f071b61ea0ca54e6b"
+    },
+    {
+      "variant": "missing-b",
+      "transport": "api",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 208,
+      "ordinaryTrace": {
+        "compatible": 96
+      },
+      "ordinaryHml": {
+        "witnessed": 16,
+        "inconclusive": 80
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 4,
+        "violated-under-controls": 1
+      },
+      "controlledCalls": 34,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "witnessed": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": false,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 32
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        }
+      ],
+      "firstTraceMismatch": null,
+      "firstHmlCounterexample": null,
+      "reportHash": "a61cbc5338b70782863603e8d5109adb68b67d7dcb82d5c5f449b166cc1150c1"
+    },
+    {
+      "variant": "missing-b",
+      "transport": "ui",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 208,
+      "ordinaryTrace": {
+        "compatible": 96
+      },
+      "ordinaryHml": {
+        "witnessed": 16,
+        "inconclusive": 80
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 4,
+        "violated-under-controls": 1
+      },
+      "controlledCalls": 34,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "witnessed": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": false,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 32
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        }
+      ],
+      "firstTraceMismatch": null,
+      "firstHmlCounterexample": null,
+      "reportHash": "93827365957cd502de9a68fd0ea427c7e3873d439265a9ebbf940866d819aa5b"
+    },
+    {
+      "variant": "early-commitment",
+      "transport": "api",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 208,
+      "ordinaryTrace": {
+        "compatible": 80,
+        "mismatch": 16
+      },
+      "ordinaryHml": {
+        "witnessed": 16,
+        "inconclusive": 80
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 4,
+        "violated-under-controls": 1
+      },
+      "controlledCalls": 38,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "witnessed": 8,
+            "inconclusive": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "witnessed": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 16,
+            "mismatch": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": false,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        }
+      ],
+      "firstTraceMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT refused the call, but every compatible reference state accepts it.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "reserve",
+              "arguments": {
+                "warehouse": 1
+              }
+            },
+            "response": {
+              "status": "refused",
+              "outputs": {
+                "ready": [],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 5,
+          "durationMs": 8
+        },
+        "reasonCode": "unexpected-refusal",
+        "step": 2,
+        "testId": "both-choices-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "firstHmlCounterexample": null,
+      "reportHash": "b818c84f3ad838cee9f0be081c6789bed888fe82f278c147816a825a0b50a4af"
+    },
+    {
+      "variant": "early-commitment",
+      "transport": "ui",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 208,
+      "ordinaryTrace": {
+        "compatible": 80,
+        "mismatch": 16
+      },
+      "ordinaryHml": {
+        "witnessed": 16,
+        "inconclusive": 80
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 4,
+        "violated-under-controls": 1
+      },
+      "controlledCalls": 38,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "witnessed": 8,
+            "inconclusive": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "witnessed": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 16,
+            "mismatch": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": false,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        }
+      ],
+      "firstTraceMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT refused the call, but every compatible reference state accepts it.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "reserve",
+              "arguments": {
+                "warehouse": 1
+              }
+            },
+            "response": {
+              "status": "refused",
+              "outputs": {
+                "ready": [],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 5,
+          "durationMs": 149
+        },
+        "reasonCode": "unexpected-refusal",
+        "step": 2,
+        "testId": "both-choices-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": null,
+          "expectedTruth": true,
+          "verdict": "inconclusive",
+          "reason": "This execution cannot settle the property. Alternatives, refusals, or private markings may remain unobservable."
+        }
+      },
+      "firstHmlCounterexample": null,
+      "reportHash": "62575d257dd42c01ab6a3e8620b8498a2fb68585d22ade00c1ea3cafe2ec9d4b"
+    },
+    {
+      "variant": "bad-b-receipt",
+      "transport": "api",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 208,
+      "ordinaryTrace": {
+        "compatible": 88,
+        "mismatch": 8
+      },
+      "ordinaryHml": {
+        "witnessed": 16,
+        "inconclusive": 72,
+        "counterexample": 8
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 4,
+        "violated-under-controls": 1
+      },
+      "controlledCalls": 38,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "witnessed": 8,
+            "inconclusive": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "witnessed": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 32
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "counterexample": 8
+          },
+          "controlledValue": false,
+          "controlledCalls": 10
+        }
+      ],
+      "firstTraceMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [
+                  2
+                ],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    2
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 3,
+            "stimulation": {
+              "method": "finish",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [],
+                "receipt": [
+                  99
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [],
+                  "receipt": [
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 9,
+          "durationMs": 18
+        },
+        "reasonCode": "unexpected-output",
+        "step": 3,
+        "testId": "b-receipt-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": false,
+          "expectedTruth": true,
+          "verdict": "counterexample",
+          "reason": "This execution supplies decisive evidence against the required property polarity."
+        }
+      },
+      "firstHmlCounterexample": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [
+                  2
+                ],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    2
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 3,
+            "stimulation": {
+              "method": "finish",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [],
+                "receipt": [
+                  99
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [],
+                  "receipt": [
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 9,
+          "durationMs": 18
+        },
+        "reasonCode": "unexpected-output",
+        "step": 3,
+        "testId": "b-receipt-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": false,
+          "expectedTruth": true,
+          "verdict": "counterexample",
+          "reason": "This execution supplies decisive evidence against the required property polarity."
+        }
+      },
+      "reportHash": "ecf189fae48e1ab14afa80804063d6db5e12512303df950c75b85fe322f8f337"
+    },
+    {
+      "variant": "bad-b-receipt",
+      "transport": "ui",
+      "ordinaryExecutions": 96,
+      "ordinaryPairs": 208,
+      "ordinaryTrace": {
+        "compatible": 88,
+        "mismatch": 8
+      },
+      "ordinaryHml": {
+        "witnessed": 16,
+        "inconclusive": 72,
+        "counterexample": 8
+      },
+      "controlledProperties": {
+        "satisfied-under-controls": 4,
+        "violated-under-controls": 1
+      },
+      "controlledCalls": 38,
+      "properties": [
+        {
+          "id": "possible-a-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "witnessed": 8,
+            "inconclusive": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "possible-b-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "witnessed": 8
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "no-99-1",
+          "ordinaryTrace": {
+            "compatible": 16
+          },
+          "ordinaryHml": {
+            "inconclusive": 16
+          },
+          "controlledValue": true,
+          "controlledCalls": 6
+        },
+        {
+          "id": "both-choices-1",
+          "ordinaryTrace": {
+            "compatible": 32
+          },
+          "ordinaryHml": {
+            "inconclusive": 32
+          },
+          "controlledValue": true,
+          "controlledCalls": 10
+        },
+        {
+          "id": "b-receipt-1",
+          "ordinaryTrace": {
+            "compatible": 8,
+            "mismatch": 8
+          },
+          "ordinaryHml": {
+            "inconclusive": 8,
+            "counterexample": 8
+          },
+          "controlledValue": false,
+          "controlledCalls": 10
+        }
+      ],
+      "firstTraceMismatch": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [
+                  2
+                ],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    2
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 3,
+            "stimulation": {
+              "method": "finish",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [],
+                "receipt": [
+                  99
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [],
+                  "receipt": [
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 9,
+          "durationMs": 232
+        },
+        "reasonCode": "unexpected-output",
+        "step": 3,
+        "testId": "b-receipt-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": false,
+          "expectedTruth": true,
+          "verdict": "counterexample",
+          "reason": "This execution supplies decisive evidence against the required property polarity."
+        }
+      },
+      "firstHmlCounterexample": {
+        "verdict": "mismatch",
+        "reason": "The SUT output matches no outcome from any compatible reference state.",
+        "seed": 4,
+        "events": [
+          {
+            "step": 1,
+            "stimulation": {
+              "method": "open",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [
+                    true
+                  ],
+                  "allocated": [],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 2,
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [
+                  2
+                ],
+                "receipt": []
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 1,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    1
+                  ],
+                  "receipt": []
+                }
+              },
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [
+                    2
+                  ],
+                  "receipt": []
+                }
+              }
+            ]
+          },
+          {
+            "step": 3,
+            "stimulation": {
+              "method": "finish",
+              "arguments": {}
+            },
+            "response": {
+              "status": "accepted",
+              "outputs": {
+                "ready": [],
+                "allocated": [],
+                "receipt": [
+                  99
+                ]
+              }
+            },
+            "compatibleBefore": 1,
+            "compatibleAfter": 0,
+            "expected": [
+              {
+                "status": "accepted",
+                "outputs": {
+                  "ready": [],
+                  "allocated": [],
+                  "receipt": [
+                    2
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "stats": {
+          "bindingVisits": 9,
+          "durationMs": 232
+        },
+        "reasonCode": "unexpected-output",
+        "step": 3,
+        "testId": "b-receipt-1",
+        "pathIndex": 0,
+        "propertyEvidence": {
+          "value": false,
+          "expectedTruth": true,
+          "verdict": "counterexample",
+          "reason": "This execution supplies decisive evidence against the required property polarity."
+        }
+      },
+      "reportHash": "ed80af3c008b05369c80b9c52e4d6181e7dcdfd6d7561b40bbdbad740947d0a8"
+    }
+  ],
+  "comparisons": [
+    {
+      "variant": "none",
+      "matchedOrdinary": 96,
+      "matchedControlledProperties": 5,
+      "publicEventsAndControlledLogsEqual": true
+    },
+    {
+      "variant": "illegal-output",
+      "matchedOrdinary": 96,
+      "matchedControlledProperties": 5,
+      "publicEventsAndControlledLogsEqual": true
+    },
+    {
+      "variant": "missing-b",
+      "matchedOrdinary": 96,
+      "matchedControlledProperties": 5,
+      "publicEventsAndControlledLogsEqual": true
+    },
+    {
+      "variant": "early-commitment",
+      "matchedOrdinary": 96,
+      "matchedControlledProperties": 5,
+      "publicEventsAndControlledLogsEqual": true
+    },
+    {
+      "variant": "bad-b-receipt",
+      "matchedOrdinary": 96,
+      "matchedControlledProperties": 5,
+      "publicEventsAndControlledLogsEqual": true
+    }
+  ],
+  "interpretation": "Ordinary HML evidence is per execution, never pooled to invent a state. Controlled truth is conditional on faithful checkpointing and complete enumeration of the declared binary environmental choices. Seeded runs are not IID operational samples."
+}

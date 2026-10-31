@@ -1,0 +1,2101 @@
+{
+  "referenceNet": {
+    "mode": "algebraic",
+    "places": [
+      {
+        "id": "state",
+        "label": "state",
+        "sort": "Nat",
+        "io_type": "internal",
+        "valueTokens": [
+          0
+        ],
+        "tokens": 1,
+        "x": 400,
+        "y": 180
+      }
+    ],
+    "transitions": [
+      {
+        "id": "open_ready",
+        "label": "open_ready",
+        "x": 430,
+        "y": 130,
+        "guard": "s == 0",
+        "method": {
+          "name": "open",
+          "parameters": []
+        },
+        "gates": [
+          {
+            "gate": "ready",
+            "arguments": [
+              "true"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "auto_1",
+        "label": "auto_1",
+        "x": 690,
+        "y": 130,
+        "guard": "s == 1",
+        "method": {
+          "name": "allocate",
+          "parameters": []
+        },
+        "gates": [
+          {
+            "gate": "allocated",
+            "arguments": [
+              "1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "reserve_1",
+        "label": "reserve_1",
+        "x": 430,
+        "y": 330,
+        "guard": "s == 1 and warehouse == 1",
+        "method": {
+          "name": "reserve",
+          "parameters": [
+            {
+              "name": "warehouse",
+              "sort": "Nat"
+            }
+          ]
+        },
+        "gates": [
+          {
+            "gate": "allocated",
+            "arguments": [
+              "warehouse"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "finish_1",
+        "label": "finish_1",
+        "x": 690,
+        "y": 330,
+        "guard": "s == 2",
+        "method": {
+          "name": "finish",
+          "parameters": []
+        },
+        "gates": [
+          {
+            "gate": "receipt",
+            "arguments": [
+              "1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "auto_2",
+        "label": "auto_2",
+        "x": 430,
+        "y": 530,
+        "guard": "s == 1",
+        "method": {
+          "name": "allocate",
+          "parameters": []
+        },
+        "gates": [
+          {
+            "gate": "allocated",
+            "arguments": [
+              "2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "reserve_2",
+        "label": "reserve_2",
+        "x": 690,
+        "y": 530,
+        "guard": "s == 1 and warehouse == 2",
+        "method": {
+          "name": "reserve",
+          "parameters": [
+            {
+              "name": "warehouse",
+              "sort": "Nat"
+            }
+          ]
+        },
+        "gates": [
+          {
+            "gate": "allocated",
+            "arguments": [
+              "warehouse"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "finish_2",
+        "label": "finish_2",
+        "x": 430,
+        "y": 730,
+        "guard": "s == 3",
+        "method": {
+          "name": "finish",
+          "parameters": []
+        },
+        "gates": [
+          {
+            "gate": "receipt",
+            "arguments": [
+              "2"
+            ]
+          }
+        ]
+      }
+    ],
+    "arcs": [
+      {
+        "id": "open_ready-in-state-0",
+        "source": "state",
+        "target": "open_ready",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "s",
+        "weight": 1
+      },
+      {
+        "id": "open_ready-out-state-0",
+        "source": "open_ready",
+        "target": "state",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "1",
+        "weight": 1
+      },
+      {
+        "id": "auto_1-in-state-0",
+        "source": "state",
+        "target": "auto_1",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "s",
+        "weight": 1
+      },
+      {
+        "id": "auto_1-out-state-0",
+        "source": "auto_1",
+        "target": "state",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "2",
+        "weight": 1
+      },
+      {
+        "id": "reserve_1-in-state-0",
+        "source": "state",
+        "target": "reserve_1",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "s",
+        "weight": 1
+      },
+      {
+        "id": "reserve_1-out-state-0",
+        "source": "reserve_1",
+        "target": "state",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "2",
+        "weight": 1
+      },
+      {
+        "id": "finish_1-in-state-0",
+        "source": "state",
+        "target": "finish_1",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "s",
+        "weight": 1
+      },
+      {
+        "id": "finish_1-out-state-0",
+        "source": "finish_1",
+        "target": "state",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "4",
+        "weight": 1
+      },
+      {
+        "id": "auto_2-in-state-0",
+        "source": "state",
+        "target": "auto_2",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "s",
+        "weight": 1
+      },
+      {
+        "id": "auto_2-out-state-0",
+        "source": "auto_2",
+        "target": "state",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "3",
+        "weight": 1
+      },
+      {
+        "id": "reserve_2-in-state-0",
+        "source": "state",
+        "target": "reserve_2",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "s",
+        "weight": 1
+      },
+      {
+        "id": "reserve_2-out-state-0",
+        "source": "reserve_2",
+        "target": "state",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "3",
+        "weight": 1
+      },
+      {
+        "id": "finish_2-in-state-0",
+        "source": "state",
+        "target": "finish_2",
+        "sourceType": "place",
+        "targetType": "transition",
+        "type": "place-to-transition",
+        "binding": "s",
+        "weight": 1
+      },
+      {
+        "id": "finish_2-out-state-0",
+        "source": "finish_2",
+        "target": "state",
+        "sourceType": "transition",
+        "targetType": "place",
+        "type": "transition-to-place",
+        "binding": "4",
+        "weight": 1
+      }
+    ],
+    "testIntentions": [
+      {
+        "id": "possible-a",
+        "name": "Automatic allocation A is possible",
+        "formula": {
+          "op": "diamond",
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "ready": [
+                true
+              ]
+            }
+          },
+          "child": {
+            "op": "diamond",
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "observation": {
+              "outputs": {
+                "allocated": [
+                  1
+                ]
+              }
+            },
+            "child": {
+              "op": "true"
+            }
+          }
+        },
+        "expectedTruth": true,
+        "variables": [],
+        "pairs": [],
+        "testType": "positive"
+      },
+      {
+        "id": "possible-b",
+        "name": "Automatic allocation B is possible",
+        "formula": {
+          "op": "diamond",
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "ready": [
+                true
+              ]
+            }
+          },
+          "child": {
+            "op": "diamond",
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "observation": {
+              "outputs": {
+                "allocated": [
+                  2
+                ]
+              }
+            },
+            "child": {
+              "op": "true"
+            }
+          }
+        },
+        "expectedTruth": true,
+        "variables": [],
+        "pairs": [],
+        "testType": "positive"
+      },
+      {
+        "id": "no-99",
+        "name": "Automatic allocation never reports 99",
+        "formula": {
+          "op": "box",
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "ready": [
+                true
+              ]
+            }
+          },
+          "child": {
+            "op": "box",
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "observation": {
+              "outputs": {
+                "allocated": [
+                  99
+                ]
+              }
+            },
+            "child": {
+              "op": "false"
+            }
+          }
+        },
+        "expectedTruth": true,
+        "variables": [],
+        "pairs": [],
+        "testType": "positive"
+      },
+      {
+        "id": "both-choices",
+        "name": "Every ready state retains both explicit choices",
+        "formula": {
+          "op": "box",
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "ready": [
+                true
+              ]
+            }
+          },
+          "child": {
+            "op": "and",
+            "children": [
+              {
+                "op": "diamond",
+                "stimulation": {
+                  "method": "reserve",
+                  "arguments": {
+                    "warehouse": 1
+                  }
+                },
+                "observation": {
+                  "outputs": {
+                    "allocated": [
+                      1
+                    ]
+                  }
+                },
+                "child": {
+                  "op": "true"
+                }
+              },
+              {
+                "op": "diamond",
+                "stimulation": {
+                  "method": "reserve",
+                  "arguments": {
+                    "warehouse": 2
+                  }
+                },
+                "observation": {
+                  "outputs": {
+                    "allocated": [
+                      2
+                    ]
+                  }
+                },
+                "child": {
+                  "op": "true"
+                }
+              }
+            ]
+          }
+        },
+        "expectedTruth": true,
+        "variables": [],
+        "pairs": [],
+        "testType": "positive"
+      },
+      {
+        "id": "b-receipt",
+        "name": "Every automatic B allocation finishes with receipt B",
+        "formula": {
+          "op": "box",
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "ready": [
+                true
+              ]
+            }
+          },
+          "child": {
+            "op": "box",
+            "stimulation": {
+              "method": "allocate",
+              "arguments": {}
+            },
+            "observation": {
+              "outputs": {
+                "allocated": [
+                  2
+                ]
+              }
+            },
+            "child": {
+              "op": "box",
+              "stimulation": {
+                "method": "finish",
+                "arguments": {}
+              },
+              "observation": {
+                "outputs": {
+                  "receipt": [
+                    2
+                  ]
+                }
+              },
+              "child": {
+                "op": "false"
+              },
+              "excludeObservation": true
+            }
+          }
+        },
+        "expectedTruth": true,
+        "variables": [],
+        "pairs": [],
+        "testType": "positive"
+      }
+    ],
+    "gates": [
+      {
+        "name": "ready",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Bool"
+          }
+        ]
+      },
+      {
+        "name": "allocated",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Nat"
+          }
+        ]
+      },
+      {
+        "name": "receipt",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Nat"
+          }
+        ]
+      }
+    ],
+    "apnClass": "ReservationChoices",
+    "gateMigration": {
+      "retainedState": {}
+    },
+    "satelExample": {
+      "id": "reservation-choices",
+      "name": "Reservation choices — HML reference",
+      "role": "reference"
+    }
+  },
+  "interface": {
+    "methods": [
+      {
+        "name": "open",
+        "parameters": []
+      },
+      {
+        "name": "allocate",
+        "parameters": []
+      },
+      {
+        "name": "reserve",
+        "parameters": [
+          {
+            "name": "warehouse",
+            "sort": "Nat"
+          }
+        ]
+      },
+      {
+        "name": "finish",
+        "parameters": []
+      }
+    ],
+    "gates": [
+      {
+        "name": "ready",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Bool"
+          }
+        ]
+      },
+      {
+        "name": "allocated",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Nat"
+          }
+        ]
+      },
+      {
+        "name": "receipt",
+        "parameters": [
+          {
+            "name": "arg1",
+            "sort": "Nat"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      "ready",
+      "allocated",
+      "receipt"
+    ],
+    "outputSorts": {
+      "ready": "Bool",
+      "allocated": "Nat",
+      "receipt": "Nat"
+    }
+  },
+  "selectedTests": [
+    {
+      "id": "possible-a-1",
+      "intentionId": "possible-a",
+      "intentionName": "Automatic allocation A is possible",
+      "testType": "positive",
+      "instantiation": {},
+      "referenceInitialMarking": {
+        "state": [
+          0
+        ]
+      },
+      "interface": {
+        "methods": [
+          {
+            "name": "open",
+            "parameters": []
+          },
+          {
+            "name": "allocate",
+            "parameters": []
+          },
+          {
+            "name": "reserve",
+            "parameters": [
+              {
+                "name": "warehouse",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "finish",
+            "parameters": []
+          }
+        ],
+        "gates": [
+          {
+            "name": "ready",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "allocated",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "receipt",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          "ready",
+          "allocated",
+          "receipt"
+        ],
+        "outputSorts": {
+          "ready": "Bool",
+          "allocated": "Nat",
+          "receipt": "Nat"
+        }
+      },
+      "pairs": [],
+      "formula": {
+        "op": "diamond",
+        "stimulation": {
+          "method": "open",
+          "arguments": {}
+        },
+        "observation": {
+          "outputs": {
+            "ready": [
+              true
+            ]
+          }
+        },
+        "child": {
+          "op": "diamond",
+          "stimulation": {
+            "method": "allocate",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "allocated": [
+                1
+              ]
+            }
+          },
+          "child": {
+            "op": "true"
+          }
+        }
+      },
+      "expectedTruth": true,
+      "expectedTrace": [],
+      "oracle": {
+        "type": "v2",
+        "pairs": []
+      },
+      "schemaVersion": 8,
+      "referenceMarkings": [
+        {
+          "state": [
+            0
+          ]
+        }
+      ],
+      "referenceAnnotations": [],
+      "referencePropertyResult": {
+        "value": true,
+        "evidence": {
+          "op": "diamond",
+          "path": "1",
+          "value": true,
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "beforeMarking": {
+            "state": [
+              0
+            ]
+          },
+          "complete": true,
+          "successorCount": 1,
+          "branches": [
+            {
+              "outcome": 1,
+              "transitionId": "open_ready",
+              "binding": {
+                "s": 0
+              },
+              "marking": {
+                "state": [
+                  1
+                ]
+              },
+              "produced": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": [],
+                "state": [
+                  1
+                ]
+              },
+              "observationCheck": {
+                "success": true
+              },
+              "child": {
+                "op": "diamond",
+                "path": "1.1",
+                "value": true,
+                "stimulation": {
+                  "method": "allocate",
+                  "arguments": {}
+                },
+                "beforeMarking": {
+                  "state": [
+                    1
+                  ]
+                },
+                "complete": true,
+                "successorCount": 2,
+                "branches": [
+                  {
+                    "outcome": 1,
+                    "transitionId": "auto_1",
+                    "binding": {
+                      "s": 1
+                    },
+                    "marking": {
+                      "state": [
+                        2
+                      ]
+                    },
+                    "produced": {
+                      "ready": [],
+                      "allocated": [
+                        1
+                      ],
+                      "receipt": [],
+                      "state": [
+                        2
+                      ]
+                    },
+                    "observationCheck": {
+                      "success": true
+                    },
+                    "child": {
+                      "op": "true",
+                      "path": "1.1.1",
+                      "value": true
+                    }
+                  }
+                ],
+                "rejectedBranches": []
+              }
+            }
+          ],
+          "rejectedBranches": []
+        },
+        "initialMarking": {
+          "state": [
+            0
+          ]
+        },
+        "stats": {
+          "evaluatedNodes": 3,
+          "successorSearches": 2,
+          "bindingVisits": 6,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0,
+          "durationMs": 3
+        }
+      }
+    },
+    {
+      "id": "possible-b-1",
+      "intentionId": "possible-b",
+      "intentionName": "Automatic allocation B is possible",
+      "testType": "positive",
+      "instantiation": {},
+      "referenceInitialMarking": {
+        "state": [
+          0
+        ]
+      },
+      "interface": {
+        "methods": [
+          {
+            "name": "open",
+            "parameters": []
+          },
+          {
+            "name": "allocate",
+            "parameters": []
+          },
+          {
+            "name": "reserve",
+            "parameters": [
+              {
+                "name": "warehouse",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "finish",
+            "parameters": []
+          }
+        ],
+        "gates": [
+          {
+            "name": "ready",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "allocated",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "receipt",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          "ready",
+          "allocated",
+          "receipt"
+        ],
+        "outputSorts": {
+          "ready": "Bool",
+          "allocated": "Nat",
+          "receipt": "Nat"
+        }
+      },
+      "pairs": [],
+      "formula": {
+        "op": "diamond",
+        "stimulation": {
+          "method": "open",
+          "arguments": {}
+        },
+        "observation": {
+          "outputs": {
+            "ready": [
+              true
+            ]
+          }
+        },
+        "child": {
+          "op": "diamond",
+          "stimulation": {
+            "method": "allocate",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "allocated": [
+                2
+              ]
+            }
+          },
+          "child": {
+            "op": "true"
+          }
+        }
+      },
+      "expectedTruth": true,
+      "expectedTrace": [],
+      "oracle": {
+        "type": "v2",
+        "pairs": []
+      },
+      "schemaVersion": 8,
+      "referenceMarkings": [
+        {
+          "state": [
+            0
+          ]
+        }
+      ],
+      "referenceAnnotations": [],
+      "referencePropertyResult": {
+        "value": true,
+        "evidence": {
+          "op": "diamond",
+          "path": "1",
+          "value": true,
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "beforeMarking": {
+            "state": [
+              0
+            ]
+          },
+          "complete": true,
+          "successorCount": 1,
+          "branches": [
+            {
+              "outcome": 1,
+              "transitionId": "open_ready",
+              "binding": {
+                "s": 0
+              },
+              "marking": {
+                "state": [
+                  1
+                ]
+              },
+              "produced": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": [],
+                "state": [
+                  1
+                ]
+              },
+              "observationCheck": {
+                "success": true
+              },
+              "child": {
+                "op": "diamond",
+                "path": "1.1",
+                "value": true,
+                "stimulation": {
+                  "method": "allocate",
+                  "arguments": {}
+                },
+                "beforeMarking": {
+                  "state": [
+                    1
+                  ]
+                },
+                "complete": true,
+                "successorCount": 2,
+                "branches": [
+                  {
+                    "outcome": 2,
+                    "transitionId": "auto_2",
+                    "binding": {
+                      "s": 1
+                    },
+                    "marking": {
+                      "state": [
+                        3
+                      ]
+                    },
+                    "produced": {
+                      "ready": [],
+                      "allocated": [
+                        2
+                      ],
+                      "receipt": [],
+                      "state": [
+                        3
+                      ]
+                    },
+                    "observationCheck": {
+                      "success": true
+                    },
+                    "child": {
+                      "op": "true",
+                      "path": "1.1.1",
+                      "value": true
+                    }
+                  }
+                ],
+                "rejectedBranches": [
+                  {
+                    "outcome": 1,
+                    "transitionId": "auto_1",
+                    "binding": {
+                      "s": 1
+                    },
+                    "marking": {
+                      "state": [
+                        2
+                      ]
+                    },
+                    "produced": {
+                      "ready": [],
+                      "allocated": [
+                        1
+                      ],
+                      "receipt": [],
+                      "state": [
+                        2
+                      ]
+                    },
+                    "observationCheck": {
+                      "success": false,
+                      "reason": "output_mismatch",
+                      "place": "allocated",
+                      "expected": [
+                        2
+                      ],
+                      "actual": [
+                        1
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "rejectedBranches": []
+        },
+        "initialMarking": {
+          "state": [
+            0
+          ]
+        },
+        "stats": {
+          "evaluatedNodes": 3,
+          "successorSearches": 2,
+          "bindingVisits": 6,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0,
+          "durationMs": 1
+        }
+      }
+    },
+    {
+      "id": "no-99-1",
+      "intentionId": "no-99",
+      "intentionName": "Automatic allocation never reports 99",
+      "testType": "positive",
+      "instantiation": {},
+      "referenceInitialMarking": {
+        "state": [
+          0
+        ]
+      },
+      "interface": {
+        "methods": [
+          {
+            "name": "open",
+            "parameters": []
+          },
+          {
+            "name": "allocate",
+            "parameters": []
+          },
+          {
+            "name": "reserve",
+            "parameters": [
+              {
+                "name": "warehouse",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "finish",
+            "parameters": []
+          }
+        ],
+        "gates": [
+          {
+            "name": "ready",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "allocated",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "receipt",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          "ready",
+          "allocated",
+          "receipt"
+        ],
+        "outputSorts": {
+          "ready": "Bool",
+          "allocated": "Nat",
+          "receipt": "Nat"
+        }
+      },
+      "pairs": [],
+      "formula": {
+        "op": "box",
+        "stimulation": {
+          "method": "open",
+          "arguments": {}
+        },
+        "observation": {
+          "outputs": {
+            "ready": [
+              true
+            ]
+          }
+        },
+        "child": {
+          "op": "box",
+          "stimulation": {
+            "method": "allocate",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "allocated": [
+                99
+              ]
+            }
+          },
+          "child": {
+            "op": "false"
+          }
+        }
+      },
+      "expectedTruth": true,
+      "expectedTrace": [],
+      "oracle": {
+        "type": "v2",
+        "pairs": []
+      },
+      "schemaVersion": 8,
+      "referenceMarkings": [
+        {
+          "state": [
+            0
+          ]
+        }
+      ],
+      "referenceAnnotations": [],
+      "referencePropertyResult": {
+        "value": true,
+        "evidence": {
+          "op": "box",
+          "path": "1",
+          "value": true,
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "beforeMarking": {
+            "state": [
+              0
+            ]
+          },
+          "complete": true,
+          "successorCount": 1,
+          "branches": [
+            {
+              "outcome": 1,
+              "transitionId": "open_ready",
+              "binding": {
+                "s": 0
+              },
+              "marking": {
+                "state": [
+                  1
+                ]
+              },
+              "produced": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": [],
+                "state": [
+                  1
+                ]
+              },
+              "observationCheck": {
+                "success": true
+              },
+              "child": {
+                "op": "box",
+                "path": "1.1",
+                "value": true,
+                "stimulation": {
+                  "method": "allocate",
+                  "arguments": {}
+                },
+                "beforeMarking": {
+                  "state": [
+                    1
+                  ]
+                },
+                "complete": true,
+                "successorCount": 2,
+                "branches": [],
+                "rejectedBranches": [
+                  {
+                    "outcome": 1,
+                    "transitionId": "auto_1",
+                    "binding": {
+                      "s": 1
+                    },
+                    "marking": {
+                      "state": [
+                        2
+                      ]
+                    },
+                    "produced": {
+                      "ready": [],
+                      "allocated": [
+                        1
+                      ],
+                      "receipt": [],
+                      "state": [
+                        2
+                      ]
+                    },
+                    "observationCheck": {
+                      "success": false,
+                      "reason": "output_mismatch",
+                      "place": "allocated",
+                      "expected": [
+                        99
+                      ],
+                      "actual": [
+                        1
+                      ]
+                    }
+                  },
+                  {
+                    "outcome": 2,
+                    "transitionId": "auto_2",
+                    "binding": {
+                      "s": 1
+                    },
+                    "marking": {
+                      "state": [
+                        3
+                      ]
+                    },
+                    "produced": {
+                      "ready": [],
+                      "allocated": [
+                        2
+                      ],
+                      "receipt": [],
+                      "state": [
+                        3
+                      ]
+                    },
+                    "observationCheck": {
+                      "success": false,
+                      "reason": "output_mismatch",
+                      "place": "allocated",
+                      "expected": [
+                        99
+                      ],
+                      "actual": [
+                        2
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "rejectedBranches": []
+        },
+        "initialMarking": {
+          "state": [
+            0
+          ]
+        },
+        "stats": {
+          "evaluatedNodes": 2,
+          "successorSearches": 2,
+          "bindingVisits": 6,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0,
+          "durationMs": 0
+        }
+      }
+    },
+    {
+      "id": "both-choices-1",
+      "intentionId": "both-choices",
+      "intentionName": "Every ready state retains both explicit choices",
+      "testType": "positive",
+      "instantiation": {},
+      "referenceInitialMarking": {
+        "state": [
+          0
+        ]
+      },
+      "interface": {
+        "methods": [
+          {
+            "name": "open",
+            "parameters": []
+          },
+          {
+            "name": "allocate",
+            "parameters": []
+          },
+          {
+            "name": "reserve",
+            "parameters": [
+              {
+                "name": "warehouse",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "finish",
+            "parameters": []
+          }
+        ],
+        "gates": [
+          {
+            "name": "ready",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "allocated",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "receipt",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          "ready",
+          "allocated",
+          "receipt"
+        ],
+        "outputSorts": {
+          "ready": "Bool",
+          "allocated": "Nat",
+          "receipt": "Nat"
+        }
+      },
+      "pairs": [],
+      "formula": {
+        "op": "box",
+        "stimulation": {
+          "method": "open",
+          "arguments": {}
+        },
+        "observation": {
+          "outputs": {
+            "ready": [
+              true
+            ]
+          }
+        },
+        "child": {
+          "op": "and",
+          "children": [
+            {
+              "op": "diamond",
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "warehouse": 1
+                }
+              },
+              "observation": {
+                "outputs": {
+                  "allocated": [
+                    1
+                  ]
+                }
+              },
+              "child": {
+                "op": "true"
+              }
+            },
+            {
+              "op": "diamond",
+              "stimulation": {
+                "method": "reserve",
+                "arguments": {
+                  "warehouse": 2
+                }
+              },
+              "observation": {
+                "outputs": {
+                  "allocated": [
+                    2
+                  ]
+                }
+              },
+              "child": {
+                "op": "true"
+              }
+            }
+          ]
+        }
+      },
+      "expectedTruth": true,
+      "expectedTrace": [],
+      "oracle": {
+        "type": "v2",
+        "pairs": []
+      },
+      "schemaVersion": 8,
+      "referenceMarkings": [
+        {
+          "state": [
+            0
+          ]
+        }
+      ],
+      "referenceAnnotations": [],
+      "referencePropertyResult": {
+        "value": true,
+        "evidence": {
+          "op": "box",
+          "path": "1",
+          "value": true,
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "beforeMarking": {
+            "state": [
+              0
+            ]
+          },
+          "complete": true,
+          "successorCount": 1,
+          "branches": [
+            {
+              "outcome": 1,
+              "transitionId": "open_ready",
+              "binding": {
+                "s": 0
+              },
+              "marking": {
+                "state": [
+                  1
+                ]
+              },
+              "produced": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": [],
+                "state": [
+                  1
+                ]
+              },
+              "observationCheck": {
+                "success": true
+              },
+              "child": {
+                "op": "and",
+                "path": "1.1",
+                "value": true,
+                "children": [
+                  {
+                    "op": "diamond",
+                    "path": "1.1.1",
+                    "value": true,
+                    "stimulation": {
+                      "method": "reserve",
+                      "arguments": {
+                        "warehouse": 1
+                      }
+                    },
+                    "beforeMarking": {
+                      "state": [
+                        1
+                      ]
+                    },
+                    "complete": true,
+                    "successorCount": 1,
+                    "branches": [
+                      {
+                        "outcome": 1,
+                        "transitionId": "reserve_1",
+                        "binding": {
+                          "warehouse": 1,
+                          "s": 1
+                        },
+                        "marking": {
+                          "state": [
+                            2
+                          ]
+                        },
+                        "produced": {
+                          "ready": [],
+                          "allocated": [
+                            1
+                          ],
+                          "receipt": [],
+                          "state": [
+                            2
+                          ]
+                        },
+                        "observationCheck": {
+                          "success": true
+                        },
+                        "child": {
+                          "op": "true",
+                          "path": "1.1.1.1",
+                          "value": true
+                        }
+                      }
+                    ],
+                    "rejectedBranches": []
+                  },
+                  {
+                    "op": "diamond",
+                    "path": "1.1.2",
+                    "value": true,
+                    "stimulation": {
+                      "method": "reserve",
+                      "arguments": {
+                        "warehouse": 2
+                      }
+                    },
+                    "beforeMarking": {
+                      "state": [
+                        1
+                      ]
+                    },
+                    "complete": true,
+                    "successorCount": 1,
+                    "branches": [
+                      {
+                        "outcome": 1,
+                        "transitionId": "reserve_2",
+                        "binding": {
+                          "warehouse": 2,
+                          "s": 1
+                        },
+                        "marking": {
+                          "state": [
+                            3
+                          ]
+                        },
+                        "produced": {
+                          "ready": [],
+                          "allocated": [
+                            2
+                          ],
+                          "receipt": [],
+                          "state": [
+                            3
+                          ]
+                        },
+                        "observationCheck": {
+                          "success": true
+                        },
+                        "child": {
+                          "op": "true",
+                          "path": "1.1.2.1",
+                          "value": true
+                        }
+                      }
+                    ],
+                    "rejectedBranches": []
+                  }
+                ]
+              }
+            }
+          ],
+          "rejectedBranches": []
+        },
+        "initialMarking": {
+          "state": [
+            0
+          ]
+        },
+        "stats": {
+          "evaluatedNodes": 6,
+          "successorSearches": 3,
+          "bindingVisits": 8,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0,
+          "durationMs": 2
+        }
+      }
+    },
+    {
+      "id": "b-receipt-1",
+      "intentionId": "b-receipt",
+      "intentionName": "Every automatic B allocation finishes with receipt B",
+      "testType": "positive",
+      "instantiation": {},
+      "referenceInitialMarking": {
+        "state": [
+          0
+        ]
+      },
+      "interface": {
+        "methods": [
+          {
+            "name": "open",
+            "parameters": []
+          },
+          {
+            "name": "allocate",
+            "parameters": []
+          },
+          {
+            "name": "reserve",
+            "parameters": [
+              {
+                "name": "warehouse",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "finish",
+            "parameters": []
+          }
+        ],
+        "gates": [
+          {
+            "name": "ready",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Bool"
+              }
+            ]
+          },
+          {
+            "name": "allocated",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          },
+          {
+            "name": "receipt",
+            "parameters": [
+              {
+                "name": "arg1",
+                "sort": "Nat"
+              }
+            ]
+          }
+        ],
+        "outputs": [
+          "ready",
+          "allocated",
+          "receipt"
+        ],
+        "outputSorts": {
+          "ready": "Bool",
+          "allocated": "Nat",
+          "receipt": "Nat"
+        }
+      },
+      "pairs": [],
+      "formula": {
+        "op": "box",
+        "stimulation": {
+          "method": "open",
+          "arguments": {}
+        },
+        "observation": {
+          "outputs": {
+            "ready": [
+              true
+            ]
+          }
+        },
+        "child": {
+          "op": "box",
+          "stimulation": {
+            "method": "allocate",
+            "arguments": {}
+          },
+          "observation": {
+            "outputs": {
+              "allocated": [
+                2
+              ]
+            }
+          },
+          "child": {
+            "op": "box",
+            "stimulation": {
+              "method": "finish",
+              "arguments": {}
+            },
+            "observation": {
+              "outputs": {
+                "receipt": [
+                  2
+                ]
+              }
+            },
+            "child": {
+              "op": "false"
+            },
+            "excludeObservation": true
+          }
+        }
+      },
+      "expectedTruth": true,
+      "expectedTrace": [],
+      "oracle": {
+        "type": "v2",
+        "pairs": []
+      },
+      "schemaVersion": 8,
+      "referenceMarkings": [
+        {
+          "state": [
+            0
+          ]
+        }
+      ],
+      "referenceAnnotations": [],
+      "referencePropertyResult": {
+        "value": true,
+        "evidence": {
+          "op": "box",
+          "path": "1",
+          "value": true,
+          "stimulation": {
+            "method": "open",
+            "arguments": {}
+          },
+          "beforeMarking": {
+            "state": [
+              0
+            ]
+          },
+          "complete": true,
+          "successorCount": 1,
+          "branches": [
+            {
+              "outcome": 1,
+              "transitionId": "open_ready",
+              "binding": {
+                "s": 0
+              },
+              "marking": {
+                "state": [
+                  1
+                ]
+              },
+              "produced": {
+                "ready": [
+                  true
+                ],
+                "allocated": [],
+                "receipt": [],
+                "state": [
+                  1
+                ]
+              },
+              "observationCheck": {
+                "success": true
+              },
+              "child": {
+                "op": "box",
+                "path": "1.1",
+                "value": true,
+                "stimulation": {
+                  "method": "allocate",
+                  "arguments": {}
+                },
+                "beforeMarking": {
+                  "state": [
+                    1
+                  ]
+                },
+                "complete": true,
+                "successorCount": 2,
+                "branches": [
+                  {
+                    "outcome": 2,
+                    "transitionId": "auto_2",
+                    "binding": {
+                      "s": 1
+                    },
+                    "marking": {
+                      "state": [
+                        3
+                      ]
+                    },
+                    "produced": {
+                      "ready": [],
+                      "allocated": [
+                        2
+                      ],
+                      "receipt": [],
+                      "state": [
+                        3
+                      ]
+                    },
+                    "observationCheck": {
+                      "success": true
+                    },
+                    "child": {
+                      "op": "box",
+                      "path": "1.1.1",
+                      "value": true,
+                      "stimulation": {
+                        "method": "finish",
+                        "arguments": {}
+                      },
+                      "beforeMarking": {
+                        "state": [
+                          3
+                        ]
+                      },
+                      "complete": true,
+                      "successorCount": 1,
+                      "branches": [],
+                      "rejectedBranches": [
+                        {
+                          "outcome": 1,
+                          "transitionId": "finish_2",
+                          "binding": {
+                            "s": 3
+                          },
+                          "marking": {
+                            "state": [
+                              4
+                            ]
+                          },
+                          "produced": {
+                            "ready": [],
+                            "allocated": [],
+                            "receipt": [
+                              2
+                            ],
+                            "state": [
+                              4
+                            ]
+                          },
+                          "observationCheck": {
+                            "success": true
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "rejectedBranches": [
+                  {
+                    "outcome": 1,
+                    "transitionId": "auto_1",
+                    "binding": {
+                      "s": 1
+                    },
+                    "marking": {
+                      "state": [
+                        2
+                      ]
+                    },
+                    "produced": {
+                      "ready": [],
+                      "allocated": [
+                        1
+                      ],
+                      "receipt": [],
+                      "state": [
+                        2
+                      ]
+                    },
+                    "observationCheck": {
+                      "success": false,
+                      "reason": "output_mismatch",
+                      "place": "allocated",
+                      "expected": [
+                        2
+                      ],
+                      "actual": [
+                        1
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "rejectedBranches": []
+        },
+        "initialMarking": {
+          "state": [
+            0
+          ]
+        },
+        "stats": {
+          "evaluatedNodes": 3,
+          "successorSearches": 3,
+          "bindingVisits": 9,
+          "cacheHits": 0,
+          "formulaCacheHits": 0,
+          "incompleteSearches": 0,
+          "durationMs": 1
+        }
+      }
+    }
+  ],
+  "admission": [
+    {
+      "id": "possible-a",
+      "tests": 1,
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      }
+    },
+    {
+      "id": "possible-b",
+      "tests": 1,
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      }
+    },
+    {
+      "id": "no-99",
+      "tests": 1,
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      }
+    },
+    {
+      "id": "both-choices",
+      "tests": 1,
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      }
+    },
+    {
+      "id": "b-receipt",
+      "tests": 1,
+      "validation": {
+        "generated": 1,
+        "referencePassed": 1
+      }
+    }
+  ]
+}

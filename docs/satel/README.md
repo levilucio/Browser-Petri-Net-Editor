@@ -1,5 +1,8 @@
 # SATEL for Algebraic Petri Nets
 
+See [web HML experiment](increment-54-web-hml.md) for ordinary trace evidence versus controlled branching exploration in a REST/SQLite/browser reservation SUT.
+
+
 See [warehouse scaling and mutation experiments](increment-53-warehouse-scaling-mutations.md) for controlled data/population/history trials and explicit backend faults observed through REST and browser.
 
 See [warehouse/order baseline](increment-52-warehouse-baseline.md) for a second REST/SQLite/browser SUT, a 42-transition APN and a preserved unseeded ownership-abstraction defect.
